@@ -79,3 +79,48 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 ## Open Questions
 - Transfers (e.g. Line H → Line V): v2.
 - Is the full-season PDF a better single source than the per-line JPGs? It has fonts, so it may have extractable text. Check this during the first transcription.
+
+## v1.1 — Season-agnostic schedules and "expected" times (approved scope 2026-10-30)
+**Problem:** the data is in `2025-26/`, and today (2026-10-30) every query says `no_service`. The UI also mentions seasons and years the user doesn't care about.
+
+**Projection rule (pure function `effective_timetables(day, timetables)`):**
+1. If some reviewed timetable has `validFrom ≤ day ≤ validTo` → use those timetables, with `basis = "published"`.
+2. Otherwise take the **latest transcribed season** S and shift each of its periods by whole years k, choosing k so the shifted season covers `day`. Use k = 0 if no shift covers it (Feb 29 → Feb 28). If the shifted period covers `day` → use it, with `basis = "expected"`.
+3. If neither applies (e.g. July) → `no_service`. `nextServiceDate` is the next published date, or else the next projected one.
+- `BusResult` gains:
+  - `basis: "published" | "expected"`
+  - `basedOnSeason: string` (e.g. `"2025-26"`; for the source link and tooltip only, never in headline text)
+  - `newerSourcePending: boolean`: true when `sources.json` names a newer season than the latest transcribed one. In that case the operator has published a timetable we haven't transcribed yet.
+- Times stay as plain clock times. A projected `departsAt`/`arrivesAt` is built on the requested date, just like a published one.
+
+**UI copy (no years anywhere in the panel):**
+- `published`: "Scheduled times · timetable may change without notice; buses can be full".
+- `expected`: a badge saying **"Expected"**, plus "Based on last season's timetable. The operator hasn't published this season's yet, so check before you go."
+- `newerSourcePending`: "A new timetable is out and will be added soon. Times below may be outdated." The source link points to the operator page.
+- Service period: "Runs Dec 19 – Mar 29", with no year.
+
+**Regular refresh of the operator page:**
+- `timetable-watch.yml` cron:
+  - **daily** 09:00 JST from October to January (`0 0 * 10-12,1 *`), when the new season is published and revised;
+  - **weekly** on Mondays the rest of the year (`0 0 * 2-9 1`).
+- `check_sources` already detects new/changed/removed timetable images and the 13 stop-map KMLs. It now also prints `NEW SEASON <S>` when the page's season PDF is newer than the transcribed season, and the issue title then becomes "New shuttle season <S> published".
+- The issue body is a checklist for a Claude Code session (no API budget): the changed files with links, `transcribe → validate → review → check_sources --accept → import_mymaps → locate_stops`.
+- `data.validate` checks that the manifest season is ≥ the latest transcribed season.
+- This needs the repo pushed to GitHub. Until then the same check runs locally with `uv run … check_sources`.
+
+**Acceptance:**
+- [ ] Projection unit tests: 2026-03-20 → published (2025-26). 2027-01-15 → expected, built from the 2025-26 periods shifted +1 year. 2026-07-01 → `no_service` with `nextServiceDate` 2026-12-19 (projected). Feb 29 handling.
+- [ ] A query on 2027-01-15 08:00 at the Happo Bus Terminal returns the same trip times as 2026-01-15, with `basis = "expected"`.
+- [ ] `check_sources` against a page fixture naming `2026-2027-Shuttle-Bus-Timetable.pdf` prints `NEW SEASON 2026-27` and exits with code 1.
+- [ ] The workflow YAML has both crons, and `actionlint` (if available) is clean.
+- [ ] No 4-digit year is rendered in the bus panel (component test greps the rendered text).
+
+## v1.1 — Bus journey on the map
+- `BusOption` gains `rideStops: [{stopId, name, coord|null, time|null}]`: board stop → … → alight stop, in trip order.
+- The UI draws a Google-transit-style journey:
+  - a dotted walk to the board stop;
+  - a ride leg in the line colour (`POST /api/route/path`, drive costing through the located ride stops);
+  - small stop dots;
+  - the resort marker.
+- The panel timeline: `🚶 4 min → 🚏 Happo Bus Terminal 08:11 → 🚌 Line V · 5 stops · 28 min → ⛷ Hakuba47 08:39`.
+- The ride-leg geometry is approximate: buses take the roads Valhalla picks between the stops, so the map label says "approximate bus path".

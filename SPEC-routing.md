@@ -35,3 +35,22 @@ Give driving and walking routes and ETAs, plus a one-to-many time matrix, using 
 
 ## Notes
 - ETAs come from typical road speeds, with no live traffic. Winter road conditions are not modeled, so the UI shows "ETA ~". **Decision (2026-10-28): show the raw Valhalla ETA with no winter multiplier.**
+
+## v1.1 — Google-Maps-style routes (approved scope 2026-10-30)
+Goal: the route experience reads like Google Maps directions. This section is the backend half; the UI is in [SPEC-web-app.md](SPEC-web-app.md#v11).
+
+**Interface changes (additive, backwards compatible):**
+- New `GET /api/routes?mode&from&to&alternates=0..2` → `RouteSet { primary: Route, alternates: Route[] }`. The existing `/api/route` stays as it is.
+  Valhalla `alternates: n` (checked locally: JR Hakuba→Iwatake gives a primary of 17.5 min/7.6 km and an alternate of 18.8 min/9.6 km). Alternates that are more than 1.5× the primary's duration are dropped (Google doesn't offer absurd detours either).
+- `Step` gains:
+  - `maneuver`: a stable enum mapped from the Valhalla maneuver `type`: `depart, arrive, straight, slight-left, left, sharp-left, slight-right, right, sharp-right, uturn, roundabout, merge, ramp-left, ramp-right, keep-left, keep-right, ferry`.
+  - `streetNames: string[]` (from Valhalla `street_names`, possibly empty).
+  - `shapeRange: [begin, end]` (indices into `geometry.coordinates`, so the UI can highlight one step on the map).
+- `POST /api/route/path {mode, points: [{lat,lng}, …]}` → `Route` along ordered via-points (Valhalla `through` locations for the middle points). It is used by the bus ride leg. There are at most 25 points.
+- `Route.summary: string`: the 1–2 longest named roads, e.g. "via Route 31 and Hakuba Sanroku Rd". This is the "via …" line Google shows under each option.
+
+**Acceptance:**
+- [ ] Alternates: the recorded fixture with 1 alternate → `RouteSet.alternates` has length 1. An alternate > 1.5× the primary is dropped.
+- [ ] Maneuver mapping: a unit table covers every Valhalla type 0–39, and unknown types fall back to `straight`.
+- [ ] `shapeRange` of consecutive steps tiles the geometry (end of step i == begin of step i+1).
+- [ ] `/api/route/path` with 4 points returns one Route whose geometry passes within 50 m of every point.

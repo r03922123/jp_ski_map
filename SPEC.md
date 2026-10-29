@@ -28,6 +28,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `crowd-level` | Crowd estimate per resort per date (heuristic v1, pluggable source) | `resort-catalog`, `snow-conditions` |
 | `bus-schedules` | Timetable ingestion (detect → transcribe → validate → git) + "next bus to resorts" query | `resort-catalog`, `routing` |
 | `resort-ranking` | Single-criterion ranking of resorts from an origin | `resort-catalog`, `routing`, `snow-conditions`, `crowd-level` |
+| `poi-destinations` | Restaurant & convenience-store destinations (OSM snapshot) + nearby-by-ETA query *(added v1.1, 2026-10-30)* | `routing` |
 | `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels | all of the above (via HTTP API only) |
 
 **Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
@@ -195,7 +196,9 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
 1. Searching "Hakuba" hotels returns real nearby lodgings, and selecting one sets the origin pin.
 2. 🚗 Drive lists all 10 resorts with drive ETA and can be re-sorted by every criterion. Selecting a resort draws its route.
 3. 🚶 Walk draws a walking route and ETA to any resort or stop.
-4. 🚌 Bus shows the walk to the nearest stop plus the next 3 departures and arrival time at each reachable resort, for the current timetable period. Outside the season it says clearly that no service runs.
+4. 🚌 Bus shows the walk to the nearest stop plus the next 3 departures and arrival time at each reachable resort. When this season's timetable isn't published yet, times are projected from the last one and labeled **Expected**. Outside the season it says clearly that no service runs. No years are shown in the UI.
+6. *(v1.1)* Routes look and behave like Google Maps directions: fitted map, ETA pills, alternates, turn-by-turn with icons, and a bus journey drawn walk → ride → resort.
+7. *(v1.1)* Restaurants and convenience stores can be chosen as destinations in 🚗/🚶.
 5. All quality gates pass. The Playwright E2E test covers all three modes.
 
 ## Open Questions
