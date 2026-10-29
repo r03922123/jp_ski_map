@@ -6,6 +6,7 @@ from hakuba_api.catalog.router import router as catalog_router
 from hakuba_api.common.upstream import UpstreamError
 from hakuba_api.crowd.router import router as crowd_router
 from hakuba_api.places.router import router as places_router
+from hakuba_api.pois.router import router as pois_router
 from hakuba_api.ranking.router import router as ranking_router
 from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
 from hakuba_api.routing.router import router as routing_router
@@ -15,6 +16,7 @@ app = FastAPI(title="Hakuba Ski Map API")
 app.include_router(catalog_router)
 app.include_router(routing_router)
 app.include_router(places_router)
+app.include_router(pois_router)
 app.include_router(snow_router)
 app.include_router(crowd_router)
 app.include_router(ranking_router)

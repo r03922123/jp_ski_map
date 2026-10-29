@@ -7,6 +7,8 @@ from pydantic import ValidationError
 from hakuba_api.bus.validate import validate_repository as validate_bus_data
 from hakuba_api.catalog.store import load_resorts
 from hakuba_api.catalog.validate import validate_resorts
+from hakuba_api.pois.store import load_pois
+from hakuba_api.pois.validate import validate_pois
 
 
 def collect_errors() -> list[str]:
@@ -18,7 +20,11 @@ def collect_errors() -> list[str]:
         bus_errors = validate_bus_data()
     except ValidationError as e:
         bus_errors = [f"bus data: {e}"]
-    return validate_resorts(resorts) + bus_errors
+    try:
+        poi_errors = validate_pois(load_pois())
+    except (ValidationError, FileNotFoundError) as e:
+        poi_errors = [f"poi_osm.json: {e}"]
+    return validate_resorts(resorts) + bus_errors + poi_errors
 
 
 def main() -> int:

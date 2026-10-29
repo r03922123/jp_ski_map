@@ -1,0 +1,1133 @@
+[
+ {
+  "id": "osm:node/11250236824",
+  "category": "food",
+  "name": "みずばしょう",
+  "nameJa": "みずばしょう",
+  "coord": {
+   "lat": 36.7738135,
+   "lng": 137.8186329
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/11250282256",
+  "category": "food",
+  "name": "大黒食堂",
+  "nameJa": "大黒食堂",
+  "coord": {
+   "lat": 36.6585385,
+   "lng": 137.8483489
+  },
+  "brand": null,
+  "cuisine": "japanese",
+  "openingHours": "11:30-15:00,17:30-20:00"
+ },
+ {
+  "id": "osm:node/11662344088",
+  "category": "food",
+  "name": "Aduka",
+  "nameJa": "Aduka",
+  "coord": {
+   "lat": 36.7013805,
+   "lng": 137.8431383
+  },
+  "brand": null,
+  "cuisine": "japanese",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/11681331251",
+  "category": "food",
+  "name": "らぅめん助屋 白馬店",
+  "nameJa": "らぅめん助屋 白馬店",
+  "coord": {
+   "lat": 36.6954621,
+   "lng": 137.8632689
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "Mo-Su 11:00-21:00"
+ },
+ {
+  "id": "osm:node/11681338108",
+  "category": "food",
+  "name": "Holiday",
+  "nameJa": "ホリデイ",
+  "coord": {
+   "lat": 36.7163979,
+   "lng": 137.8591562
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "Mo-Th, Sa, Su 11:00-14:00"
+ },
+ {
+  "id": "osm:node/11703397802",
+  "category": "food",
+  "name": "Restaurant SNOW DROP",
+  "nameJa": "レストランSNOW DROP",
+  "coord": {
+   "lat": 36.7653833,
+   "lng": 137.8762759
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/12037059690",
+  "category": "food",
+  "name": "Roots Cafe Hakuba",
+  "nameJa": "ルーツカフェ",
+  "coord": {
+   "lat": 36.7057647,
+   "lng": 137.8333461
+  },
+  "brand": null,
+  "cuisine": "mexican;asian;pasta",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/12229023276",
+  "category": "food",
+  "name": "虹屋 丼丸",
+  "nameJa": "虹屋 丼丸",
+  "coord": {
+   "lat": 36.6675947,
+   "lng": 137.8492103
+  },
+  "brand": null,
+  "cuisine": "japanese",
+  "openingHours": "\"11:00~20:00\n不定休\""
+ },
+ {
+  "id": "osm:node/12308984002",
+  "category": "food",
+  "name": "Pilar",
+  "nameJa": "Pilar",
+  "coord": {
+   "lat": 36.6983959,
+   "lng": 137.8062743
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "We-Mo 09:00-15:40"
+ },
+ {
+  "id": "osm:node/12311205501",
+  "category": "food",
+  "name": "Uncle Steven's",
+  "nameJa": "Uncle Steven's",
+  "coord": {
+   "lat": 36.7008566,
+   "lng": 137.8395273
+  },
+  "brand": null,
+  "cuisine": "mexican",
+  "openingHours": "Mo-Su 11:00-21:30"
+ },
+ {
+  "id": "osm:node/12578318401",
+  "category": "food",
+  "name": "Usagidaira kitchen",
+  "nameJa": "Usagidaira kitchen",
+  "coord": {
+   "lat": 36.6974342,
+   "lng": 137.8156267
+  },
+  "brand": null,
+  "cuisine": "pizza",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/12686008001",
+  "category": "food",
+  "name": "Tsuga Base",
+  "nameJa": "ツガベース",
+  "coord": {
+   "lat": 36.7491708,
+   "lng": 137.8715273
+  },
+  "brand": null,
+  "cuisine": "burger;coffee_shop;ice_cream",
+  "openingHours": "Sa-Tu 07:30-17:00; We-Fr 11:00-17:00"
+ },
+ {
+  "id": "osm:node/13362720591",
+  "category": "food",
+  "name": "Locary",
+  "nameJa": "Locary",
+  "coord": {
+   "lat": 36.7138129,
+   "lng": 137.8686818
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/13615928601",
+  "category": "food",
+  "name": "Takahashi-ke",
+  "nameJa": "髙橋家",
+  "coord": {
+   "lat": 36.6560023,
+   "lng": 137.84794
+  },
+  "brand": null,
+  "cuisine": "ramen",
+  "openingHours": "Sa-Su 11:30-15:00, 17:00-20:00; Mo-We 14:00-20:00"
+ },
+ {
+  "id": "osm:node/1928692691",
+  "category": "convenience",
+  "name": "Yショップ",
+  "nameJa": "Yショップ",
+  "coord": {
+   "lat": 36.5631586,
+   "lng": 137.8441454
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/2166497222",
+  "category": "food",
+  "name": "栂池パーク",
+  "nameJa": "栂池パーク",
+  "coord": {
+   "lat": 36.7467976,
+   "lng": 137.8698253
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/2191925662",
+  "category": "food",
+  "name": "うさきち",
+  "nameJa": "うさきち",
+  "coord": {
+   "lat": 36.697218,
+   "lng": 137.838775
+  },
+  "brand": null,
+  "cuisine": "curry",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/2192073817",
+  "category": "food",
+  "name": "Indy Momo",
+  "nameJa": "インディモモ",
+  "coord": {
+   "lat": 36.6947003,
+   "lng": 137.8469554
+  },
+  "brand": null,
+  "cuisine": "indian",
+  "openingHours": "Mo-Su 11:30-14:30, 17:30-21:30"
+ },
+ {
+  "id": "osm:node/2193589442",
+  "category": "convenience",
+  "name": "7-Eleven",
+  "nameJa": "セブン-イレブン",
+  "coord": {
+   "lat": 36.650358,
+   "lng": 137.845495
+  },
+  "brand": "7-Eleven",
+  "cuisine": null,
+  "openingHours": "24/7"
+ },
+ {
+  "id": "osm:node/2448011499",
+  "category": "convenience",
+  "name": "7-Eleven",
+  "nameJa": "セブン-イレブン",
+  "coord": {
+   "lat": 36.7136399,
+   "lng": 137.8737776
+  },
+  "brand": "7-Eleven",
+  "cuisine": null,
+  "openingHours": "24/7"
+ },
+ {
+  "id": "osm:node/2448011505",
+  "category": "convenience",
+  "name": "Lawson",
+  "nameJa": "ローソン",
+  "coord": {
+   "lat": 36.6755987,
+   "lng": 137.8519609
+  },
+  "brand": "LAWSON",
+  "cuisine": null,
+  "openingHours": "24/7"
+ },
+ {
+  "id": "osm:node/2518221449",
+  "category": "convenience",
+  "name": "7-Eleven",
+  "nameJa": "セブン-イレブン",
+  "coord": {
+   "lat": 36.6832686,
+   "lng": 137.8519741
+  },
+  "brand": "7-Eleven",
+  "cuisine": null,
+  "openingHours": "24/7"
+ },
+ {
+  "id": "osm:node/2726575246",
+  "category": "food",
+  "name": "The Samurai",
+  "nameJa": "The Samurai",
+  "coord": {
+   "lat": 36.684222,
+   "lng": 137.847098
+  },
+  "brand": null,
+  "cuisine": "steak_house",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/3521040892",
+  "category": "convenience",
+  "name": "Lawson",
+  "nameJa": "ローソン",
+  "coord": {
+   "lat": 36.792726,
+   "lng": 137.9129076
+  },
+  "brand": "LAWSON",
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/4424583993",
+  "category": "food",
+  "name": "Burger King",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.7547251,
+   "lng": 137.8612292
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/4424587693",
+  "category": "food",
+  "name": "キッチン栂の森",
+  "nameJa": "キッチン栂の森",
+  "coord": {
+   "lat": 36.7647228,
+   "lng": 137.8319462
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5789519735",
+  "category": "food",
+  "name": "Luckey Pete's Cafe and Bar",
+  "nameJa": "Luckey Pete's Cafe and Bar",
+  "coord": {
+   "lat": 36.6961804,
+   "lng": 137.8632264
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5789519736",
+  "category": "food",
+  "name": "藤屋",
+  "nameJa": "藤屋",
+  "coord": {
+   "lat": 36.696143,
+   "lng": 137.8634353
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5789519744",
+  "category": "food",
+  "name": "居酒屋くう",
+  "nameJa": "居酒屋くう",
+  "coord": {
+   "lat": 36.6962855,
+   "lng": 137.8632195
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5789519745",
+  "category": "food",
+  "name": "魚処 竜",
+  "nameJa": "魚処 竜",
+  "coord": {
+   "lat": 36.6962624,
+   "lng": 137.8632061
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5789519748",
+  "category": "food",
+  "name": "中村屋",
+  "nameJa": "中村屋",
+  "coord": {
+   "lat": 36.6967313,
+   "lng": 137.8634797
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5789519751",
+  "category": "food",
+  "name": "蕎麦 双葉",
+  "nameJa": "蕎麦 双葉",
+  "coord": {
+   "lat": 36.6971316,
+   "lng": 137.8636768
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5811894853",
+  "category": "food",
+  "name": "炭屋 純",
+  "nameJa": "炭屋 純",
+  "coord": {
+   "lat": 36.6954219,
+   "lng": 137.8633598
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5811894857",
+  "category": "food",
+  "name": "割烹さわど",
+  "nameJa": "割烹さわど",
+  "coord": {
+   "lat": 36.695143,
+   "lng": 137.862755
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5811894858",
+  "category": "food",
+  "name": "ごはん屋ふきのとう",
+  "nameJa": "ごはん屋ふきのとう",
+  "coord": {
+   "lat": 36.6955942,
+   "lng": 137.8628625
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5811894861",
+  "category": "food",
+  "name": "BC Coffeehouse",
+  "nameJa": "BC Coffeehouse",
+  "coord": {
+   "lat": 36.6955634,
+   "lng": 137.8630313
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5811894865",
+  "category": "food",
+  "name": "花舎",
+  "nameJa": "花舎",
+  "coord": {
+   "lat": 36.6956415,
+   "lng": 137.8625903
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5811894867",
+  "category": "food",
+  "name": "絵夢",
+  "nameJa": "絵夢",
+  "coord": {
+   "lat": 36.6954374,
+   "lng": 137.8624526
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/5832052568",
+  "category": "convenience",
+  "name": "Taro Club",
+  "nameJa": "Taro Club",
+  "coord": {
+   "lat": 36.6910032,
+   "lng": 137.8430989
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "Mo-Su 07:30-22:00"
+ },
+ {
+  "id": "osm:node/6204777685",
+  "category": "food",
+  "name": "The Rabbit Hole",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.7118667,
+   "lng": 137.8312098
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6217933285",
+  "category": "food",
+  "name": "Satoru Coffee",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.6913613,
+   "lng": 137.8375015
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6239075587",
+  "category": "food",
+  "name": "Unjaune",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.7021596,
+   "lng": 137.8374298
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6239077185",
+  "category": "food",
+  "name": "Duke's Bacon",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.7070084,
+   "lng": 137.837376
+  },
+  "brand": null,
+  "cuisine": "breakfast",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6297005185",
+  "category": "food",
+  "name": "Cherry pub",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.6894948,
+   "lng": 137.8456077
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6297006585",
+  "category": "food",
+  "name": "Nonjae",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.6930847,
+   "lng": 137.8486795
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6297006685",
+  "category": "food",
+  "name": "Zen",
+  "nameJa": "手打ち蕎麦 膳",
+  "coord": {
+   "lat": 36.6948997,
+   "lng": 137.8481254
+  },
+  "brand": null,
+  "cuisine": "noodle",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312781642",
+  "category": "food",
+  "name": "Singapore",
+  "nameJa": "Singapore",
+  "coord": {
+   "lat": 36.6919894,
+   "lng": 137.8494246
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312836085",
+  "category": "food",
+  "name": "Molica",
+  "nameJa": "Molica",
+  "coord": {
+   "lat": 36.6907355,
+   "lng": 137.8404016
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312876242",
+  "category": "food",
+  "name": "TakoTaco",
+  "nameJa": "TakoTaco",
+  "coord": {
+   "lat": 36.6914723,
+   "lng": 137.8441019
+  },
+  "brand": null,
+  "cuisine": "mexican",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312876243",
+  "category": "food",
+  "name": "Hige",
+  "nameJa": "Hige",
+  "coord": {
+   "lat": 36.6915141,
+   "lng": 137.8442372
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312876244",
+  "category": "food",
+  "name": "SARUGAKU",
+  "nameJa": "SARUGAKU",
+  "coord": {
+   "lat": 36.6914453,
+   "lng": 137.8439636
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312880454",
+  "category": "food",
+  "name": "Tomatito",
+  "nameJa": "Tomatito",
+  "coord": {
+   "lat": 36.691271,
+   "lng": 137.8441836
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312910281",
+  "category": "food",
+  "name": "SNOW'D INN",
+  "nameJa": "SNOW'D INN",
+  "coord": {
+   "lat": 36.6907485,
+   "lng": 137.8414195
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312928585",
+  "category": "food",
+  "name": "The Alpine Grill",
+  "nameJa": "The Alpine Grill",
+  "coord": {
+   "lat": 36.6909354,
+   "lng": 137.842624
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6312936185",
+  "category": "food",
+  "name": "Penguin Cafe",
+  "nameJa": "Penguin Cafe",
+  "coord": {
+   "lat": 36.6910916,
+   "lng": 137.8433992
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6482099974",
+  "category": "food",
+  "name": "そばうどん",
+  "nameJa": "そばうどん",
+  "coord": {
+   "lat": 36.8454837,
+   "lng": 137.900294
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6501327205",
+  "category": "food",
+  "name": "山品",
+  "nameJa": "山品",
+  "coord": {
+   "lat": 36.5695442,
+   "lng": 137.8734508
+  },
+  "brand": null,
+  "cuisine": "noodle",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6715610785",
+  "category": "food",
+  "name": "Pizzakaya Izakaya",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.6560967,
+   "lng": 137.8460173
+  },
+  "brand": null,
+  "cuisine": "japanese;korean;italian_pizza;pasta;italian",
+  "openingHours": "Mo-Su 09:00-23:00"
+ },
+ {
+  "id": "osm:node/6718442687",
+  "category": "food",
+  "name": "3301 Hakuba Galette Cafe",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.7122346,
+   "lng": 137.8311089
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6722950186",
+  "category": "food",
+  "name": "Hakuba Iwatake City Bakery",
+  "nameJa": "city bakery",
+  "coord": {
+   "lat": 36.7296228,
+   "lng": 137.8383143
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "Mo-Su 09:00-15:30"
+ },
+ {
+  "id": "osm:node/6728997687",
+  "category": "food",
+  "name": "Hakuba Iwatake  Mountain Resort",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.7290053,
+   "lng": 137.8399824
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/6728997688",
+  "category": "food",
+  "name": "Bear’s Café",
+  "nameJa": "Bear’s Café",
+  "coord": {
+   "lat": 36.6911117,
+   "lng": 137.8417633
+  },
+  "brand": null,
+  "cuisine": "coffee_shop",
+  "openingHours": "Mo-Su 08:00-17:30"
+ },
+ {
+  "id": "osm:node/6762282580",
+  "category": "food",
+  "name": "Endless Bar & Restaurant",
+  "nameJa": "Endless Bar & Restaurant",
+  "coord": {
+   "lat": 36.767435,
+   "lng": 137.8835427
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/7006958862",
+  "category": "food",
+  "name": "Fireside Lounge",
+  "nameJa": "Fireside Lounge",
+  "coord": {
+   "lat": 36.7069294,
+   "lng": 137.8365153
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/7178906885",
+  "category": "food",
+  "name": "Hakuba Brew Pub",
+  "nameJa": null,
+  "coord": {
+   "lat": 36.7151086,
+   "lng": 137.8572237
+  },
+  "brand": null,
+  "cuisine": "burger;international",
+  "openingHours": "Mo-Su 16:00-10:30"
+ },
+ {
+  "id": "osm:node/7657624506",
+  "category": "food",
+  "name": "おおしも",
+  "nameJa": "おおしも",
+  "coord": {
+   "lat": 36.6967079,
+   "lng": 137.8598442
+  },
+  "brand": null,
+  "cuisine": "noodle;japanese;curry",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/7806843186",
+  "category": "food",
+  "name": "Gusto",
+  "nameJa": "ガスト",
+  "coord": {
+   "lat": 36.6862978,
+   "lng": 137.8582519
+  },
+  "brand": "Gusto",
+  "cuisine": "western;japanese",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/7824650766",
+  "category": "food",
+  "name": "蕎麦処りき",
+  "nameJa": "蕎麦処りき",
+  "coord": {
+   "lat": 36.6945176,
+   "lng": 137.8482887
+  },
+  "brand": null,
+  "cuisine": "noodle",
+  "openingHours": null
+ },
+ {
+  "id": "osm:node/8742324557",
+  "category": "food",
+  "name": "Cafe47",
+  "nameJa": "Cafe47",
+  "coord": {
+   "lat": 36.6763415,
+   "lng": 137.8166215
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/1202307753",
+  "category": "food",
+  "name": "おたり名産館",
+  "nameJa": "おたり名産館",
+  "coord": {
+   "lat": 36.7784731,
+   "lng": 137.9091949
+  },
+  "brand": null,
+  "cuisine": "regional;soba",
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/1208245393",
+  "category": "food",
+  "name": "CHAVATY",
+  "nameJa": "CHAVATY",
+  "coord": {
+   "lat": 36.7214338,
+   "lng": 137.8378733
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/1359435205",
+  "category": "food",
+  "name": "HEYZA food&guesthouse",
+  "nameJa": "HEYZA food&guesthouse",
+  "coord": {
+   "lat": 36.6831681,
+   "lng": 137.8516241
+  },
+  "brand": null,
+  "cuisine": "thai;japanese",
+  "openingHours": "Mo-Su 17:00-22:00"
+ },
+ {
+  "id": "osm:way/1359435207",
+  "category": "food",
+  "name": "Coccola J",
+  "nameJa": "Coccola J",
+  "coord": {
+   "lat": 36.6834134,
+   "lng": 137.8507162
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "Fr-Tu 11:30-17:00"
+ },
+ {
+  "id": "osm:way/1359435222",
+  "category": "food",
+  "name": "ガーリック",
+  "nameJa": "ガーリック",
+  "coord": {
+   "lat": 36.6835278,
+   "lng": 137.8490061
+  },
+  "brand": null,
+  "cuisine": "italian",
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/312064749",
+  "category": "convenience",
+  "name": "Lawson",
+  "nameJa": "ローソン",
+  "coord": {
+   "lat": 36.700886,
+   "lng": 137.8468474
+  },
+  "brand": "LAWSON",
+  "cuisine": null,
+  "openingHours": "24/7"
+ },
+ {
+  "id": "osm:way/330360163",
+  "category": "convenience",
+  "name": "Yamazaki Shop",
+  "nameJa": "ヤマザキショップ",
+  "coord": {
+   "lat": 36.7503569,
+   "lng": 137.8719314
+  },
+  "brand": "ヤマザキショップ",
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/330482793",
+  "category": "food",
+  "name": "あみん",
+  "nameJa": "あみん",
+  "coord": {
+   "lat": 36.7343095,
+   "lng": 137.8652221
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/383935559",
+  "category": "food",
+  "name": "Restaurant Alice",
+  "nameJa": "Restaurant Alice",
+  "coord": {
+   "lat": 36.6845863,
+   "lng": 137.8291641
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "24/7"
+ },
+ {
+  "id": "osm:way/383935564",
+  "category": "food",
+  "name": "スクールセンター",
+  "nameJa": "スクールセンター",
+  "coord": {
+   "lat": 36.6850185,
+   "lng": 137.8284479
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/383939126",
+  "category": "food",
+  "name": "Alps 360",
+  "nameJa": "レストラン アルプス 360",
+  "coord": {
+   "lat": 36.6638058,
+   "lng": 137.8144804
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "Mo-Su 09:00-16:00"
+ },
+ {
+  "id": "osm:way/487401367",
+  "category": "convenience",
+  "name": "Yショップ",
+  "nameJa": "Yショップ",
+  "coord": {
+   "lat": 36.5631339,
+   "lng": 137.8441498
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/690994039",
+  "category": "food",
+  "name": "Hakuba Hanten",
+  "nameJa": "白馬飯店",
+  "coord": {
+   "lat": 36.6992304,
+   "lng": 137.8544559
+  },
+  "brand": null,
+  "cuisine": "chinese",
+  "openingHours": "Mo-Su 11:30-14:00,17:30-21:00"
+ },
+ {
+  "id": "osm:way/771633598",
+  "category": "food",
+  "name": "Maeda",
+  "nameJa": "まえだ",
+  "coord": {
+   "lat": 36.7011032,
+   "lng": 137.8417648
+  },
+  "brand": null,
+  "cuisine": "japanese",
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/771633760",
+  "category": "food",
+  "name": "Sounds Like Cafe",
+  "nameJa": "Sounds Like Cafe",
+  "coord": {
+   "lat": 36.6907456,
+   "lng": 137.8415588
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": "Mo-Su 08:00-17:30"
+ },
+ {
+  "id": "osm:way/840726720",
+  "category": "food",
+  "name": "かっぱ亭",
+  "nameJa": "かっぱ亭",
+  "coord": {
+   "lat": 36.6977076,
+   "lng": 137.8731371
+  },
+  "brand": null,
+  "cuisine": null,
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/843563406",
+  "category": "food",
+  "name": "YAMAYA",
+  "nameJa": "山や",
+  "coord": {
+   "lat": 36.6987315,
+   "lng": 137.8552679
+  },
+  "brand": null,
+  "cuisine": "japanese",
+  "openingHours": null
+ },
+ {
+  "id": "osm:way/977466271",
+  "category": "food",
+  "name": "Miasa Coffee Roasted",
+  "nameJa": "美麻珈琲",
+  "coord": {
+   "lat": 36.5619957,
+   "lng": 137.8695024
+  },
+  "brand": null,
+  "cuisine": "coffee_shop",
+  "openingHours": "10:00-19:00"
+ }
+]
