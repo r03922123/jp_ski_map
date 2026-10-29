@@ -150,10 +150,10 @@ Gate shorthand:
 **Files:** `src/hakuba_api/snow/{openmeteo,models,router}.py`, `tests/snow/test_snow.py`, `tests/fixtures/openmeteo/*.json`
 **Scope:** S
 
-## Task 12: Spike — hakubavalley.com Weather & Snow page (≤ 1 h)
+## Task 12: Spike — hakubavalley.com Weather & Snow page (≤ 1 h) ✅
 **Description:** Find out whether the per-resort reported snow depth and lifts-open can be parsed reliably. **No production code.** Record the findings and a recommendation in the Open Questions of `SPEC-snow-conditions.md`.
 **Acceptance criteria:**
-- [ ] The spec is updated with a go/no-go and an example of the page structure
+- [x] The spec is updated with a go/no-go and an example of the page structure
 **Verification:** Human reads the spec update
 **Dependencies:** None
 **Files:** `SPEC-snow-conditions.md`
