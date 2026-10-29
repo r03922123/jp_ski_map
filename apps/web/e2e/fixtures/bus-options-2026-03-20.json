@@ -1,9 +1,6 @@
 {
   "status": "ok",
   "nextServiceDate": null,
-  "basis": "published",
-  "basedOnSeason": "2025-26",
-  "newerSourcePending": false,
   "resorts": [
     {
       "resortId": "cortina",
@@ -28,7 +25,81 @@
           "waitS": 600,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:10"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": null
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "08:18"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "08:27"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "08:33"
+            },
+            {
+              "stopId": "stop-norikura",
+              "name": "Hakuba Norikura Onsen Snow Resort",
+              "coord": {
+                "lat": 36.76568,
+                "lng": 137.87698
+              },
+              "time": "08:40"
+            },
+            {
+              "stopId": "stop-satomi",
+              "name": "Satomi",
+              "coord": {
+                "lat": 36.7672385,
+                "lng": 137.8834337
+              },
+              "time": "08:43"
+            },
+            {
+              "stopId": "stop-cortina",
+              "name": "Hakuba Cortina Snow Resort",
+              "coord": {
+                "lat": 36.77721,
+                "lng": 137.88832
+              },
+              "time": "08:51"
+            }
+          ]
         },
         {
           "resortId": "cortina",
@@ -50,7 +121,81 @@
           "waitS": 4800,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "09:20"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": null
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "09:28"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "09:37"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "09:43"
+            },
+            {
+              "stopId": "stop-norikura",
+              "name": "Hakuba Norikura Onsen Snow Resort",
+              "coord": {
+                "lat": 36.76568,
+                "lng": 137.87698
+              },
+              "time": "09:50"
+            },
+            {
+              "stopId": "stop-satomi",
+              "name": "Satomi",
+              "coord": {
+                "lat": 36.7672385,
+                "lng": 137.8834337
+              },
+              "time": "09:53"
+            },
+            {
+              "stopId": "stop-cortina",
+              "name": "Hakuba Cortina Snow Resort",
+              "coord": {
+                "lat": 36.77721,
+                "lng": 137.88832
+              },
+              "time": "10:01"
+            }
+          ]
         },
         {
           "resortId": "cortina",
@@ -72,7 +217,81 @@
           "waitS": 9600,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "10:40"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": "10:46"
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "10:55"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "11:04"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "11:10"
+            },
+            {
+              "stopId": "stop-norikura",
+              "name": "Hakuba Norikura Onsen Snow Resort",
+              "coord": {
+                "lat": 36.76568,
+                "lng": 137.87698
+              },
+              "time": "11:17"
+            },
+            {
+              "stopId": "stop-satomi",
+              "name": "Satomi",
+              "coord": {
+                "lat": 36.7672385,
+                "lng": 137.8834337
+              },
+              "time": "11:20"
+            },
+            {
+              "stopId": "stop-cortina",
+              "name": "Hakuba Cortina Snow Resort",
+              "coord": {
+                "lat": 36.77721,
+                "lng": 137.88832
+              },
+              "time": "11:28"
+            }
+          ]
         }
       ]
     },
@@ -99,7 +318,54 @@
           "waitS": 660,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:11"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "08:16"
+            },
+            {
+              "stopId": "stop-echoland-spicy",
+              "name": "Echoland (Spicy)",
+              "coord": {
+                "lat": 36.6920952,
+                "lng": 137.8449603
+              },
+              "time": "08:24"
+            },
+            {
+              "stopId": "stop-hakuba47",
+              "name": "Hakuba 47 Winter Sports Park",
+              "coord": {
+                "lat": 36.68456,
+                "lng": 137.82773
+              },
+              "time": "08:39"
+            },
+            {
+              "stopId": "stop-goryu-escal-plaza",
+              "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+              "coord": {
+                "lat": 36.66293,
+                "lng": 137.83667
+              },
+              "time": "08:46"
+            }
+          ]
         },
         {
           "resortId": "goryu",
@@ -121,7 +387,54 @@
           "waitS": 6480,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "09:48"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "09:53"
+            },
+            {
+              "stopId": "stop-echoland-spicy",
+              "name": "Echoland (Spicy)",
+              "coord": {
+                "lat": 36.6920952,
+                "lng": 137.8449603
+              },
+              "time": "10:01"
+            },
+            {
+              "stopId": "stop-hakuba47",
+              "name": "Hakuba 47 Winter Sports Park",
+              "coord": {
+                "lat": 36.68456,
+                "lng": 137.82773
+              },
+              "time": "10:16"
+            },
+            {
+              "stopId": "stop-goryu-escal-plaza",
+              "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+              "coord": {
+                "lat": 36.66293,
+                "lng": 137.83667
+              },
+              "time": "10:23"
+            }
+          ]
         },
         {
           "resortId": "goryu",
@@ -143,7 +456,54 @@
           "waitS": 10080,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "10:48"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "10:53"
+            },
+            {
+              "stopId": "stop-echoland-spicy",
+              "name": "Echoland (Spicy)",
+              "coord": {
+                "lat": 36.6920952,
+                "lng": 137.8449603
+              },
+              "time": "11:01"
+            },
+            {
+              "stopId": "stop-hakuba47",
+              "name": "Hakuba 47 Winter Sports Park",
+              "coord": {
+                "lat": 36.68456,
+                "lng": 137.82773
+              },
+              "time": "11:16"
+            },
+            {
+              "stopId": "stop-goryu-escal-plaza",
+              "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+              "coord": {
+                "lat": 36.66293,
+                "lng": 137.83667
+              },
+              "time": "11:23"
+            }
+          ]
         }
       ]
     },
@@ -170,7 +530,45 @@
           "waitS": 660,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:11"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "08:16"
+            },
+            {
+              "stopId": "stop-echoland-spicy",
+              "name": "Echoland (Spicy)",
+              "coord": {
+                "lat": 36.6920952,
+                "lng": 137.8449603
+              },
+              "time": "08:24"
+            },
+            {
+              "stopId": "stop-hakuba47",
+              "name": "Hakuba 47 Winter Sports Park",
+              "coord": {
+                "lat": 36.68456,
+                "lng": 137.82773
+              },
+              "time": "08:39"
+            }
+          ]
         },
         {
           "resortId": "hakuba47",
@@ -192,7 +590,45 @@
           "waitS": 6480,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "09:48"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "09:53"
+            },
+            {
+              "stopId": "stop-echoland-spicy",
+              "name": "Echoland (Spicy)",
+              "coord": {
+                "lat": 36.6920952,
+                "lng": 137.8449603
+              },
+              "time": "10:01"
+            },
+            {
+              "stopId": "stop-hakuba47",
+              "name": "Hakuba 47 Winter Sports Park",
+              "coord": {
+                "lat": 36.68456,
+                "lng": 137.82773
+              },
+              "time": "10:16"
+            }
+          ]
         },
         {
           "resortId": "hakuba47",
@@ -214,7 +650,45 @@
           "waitS": 10080,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "10:48"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "10:53"
+            },
+            {
+              "stopId": "stop-echoland-spicy",
+              "name": "Echoland (Spicy)",
+              "coord": {
+                "lat": 36.6920952,
+                "lng": 137.8449603
+              },
+              "time": "11:01"
+            },
+            {
+              "stopId": "stop-hakuba47",
+              "name": "Hakuba 47 Winter Sports Park",
+              "coord": {
+                "lat": 36.68456,
+                "lng": 137.82773
+              },
+              "time": "11:16"
+            }
+          ]
         }
       ]
     },
@@ -241,7 +715,45 @@
           "waitS": 0,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "H.jpg"
+          "sourceFile": "H.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:00"
+            },
+            {
+              "stopId": "stop-mount",
+              "name": "Mount",
+              "coord": {
+                "lat": 36.7016428,
+                "lng": 137.8436327
+              },
+              "time": "08:01"
+            },
+            {
+              "stopId": "stop-3-parking",
+              "name": "#3 Parking",
+              "coord": {
+                "lat": 36.69998,
+                "lng": 137.8431327
+              },
+              "time": "08:03"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "08:06"
+            }
+          ]
         },
         {
           "resortId": "happo-one",
@@ -263,7 +775,36 @@
           "waitS": 0,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "H.jpg"
+          "sourceFile": "H.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:00"
+            },
+            {
+              "stopId": "stop-mount",
+              "name": "Mount",
+              "coord": {
+                "lat": 36.7016428,
+                "lng": 137.8436327
+              },
+              "time": "08:01"
+            },
+            {
+              "stopId": "stop-happo-sakka",
+              "name": "Happo Sakka Slope",
+              "coord": {
+                "lat": 36.71091,
+                "lng": 137.83063
+              },
+              "time": "08:06"
+            }
+          ]
         },
         {
           "resortId": "happo-one",
@@ -285,7 +826,27 @@
           "waitS": 660,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:11"
+            },
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "08:16"
+            }
+          ]
         }
       ]
     },
@@ -312,7 +873,78 @@
           "waitS": 600,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:10"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": null
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "08:18"
+            }
+          ]
+        },
+        {
+          "resortId": "iwatake",
+          "lineId": "line-e",
+          "routeId": "e4",
+          "routeName": "From Iwatake·Happo Area via Wadano (loop)",
+          "trip": 1,
+          "boardStopId": "stop-hakuba-tokyu-hotel",
+          "boardStopName": "Hakuba Tokyu Hotel",
+          "boardStopCoord": {
+            "lat": 36.7060573,
+            "lng": 137.8392606
+          },
+          "alightStopId": "stop-iwatake",
+          "walkS": 615,
+          "departsAt": "2026-03-20T08:18:00+09:00",
+          "arrivesAt": "2026-03-20T08:25:00+09:00",
+          "rideS": 420,
+          "waitS": 465,
+          "timed": true,
+          "firstStopName": "Hakuba Tokyu Hotel",
+          "sourceFile": "E.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-hakuba-tokyu-hotel",
+              "name": "Hakuba Tokyu Hotel",
+              "coord": {
+                "lat": 36.7060573,
+                "lng": 137.8392606
+              },
+              "time": "08:18"
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "08:25"
+            }
+          ]
         },
         {
           "resortId": "iwatake",
@@ -320,49 +952,98 @@
           "routeId": "e2",
           "routeName": "From Misorano via Happo-guchi",
           "trip": 1,
-          "boardStopId": "stop-hotel-hakuba",
-          "boardStopName": "Hotel Hakuba",
+          "boardStopId": "stop-happo-nakiyama",
+          "boardStopName": "Happo Nakiyama Slope",
           "boardStopCoord": {
-            "lat": 36.697108,
-            "lng": 137.8539256
+            "lat": 36.69824,
+            "lng": 137.83881
           },
           "alightStopId": "stop-iwatake",
-          "walkS": 720,
-          "departsAt": "2026-03-20T08:14:00+09:00",
+          "walkS": 593,
+          "departsAt": "2026-03-20T08:19:00+09:00",
           "arrivesAt": "2026-03-20T08:32:00+09:00",
-          "rideS": 1080,
-          "waitS": 120,
+          "rideS": 780,
+          "waitS": 547,
           "timed": true,
-          "firstStopName": "Hotel Hakuba",
-          "sourceFile": "E.jpg"
-        },
-        {
-          "resortId": "iwatake",
-          "lineId": "line-e",
-          "routeId": "e3",
-          "routeName": "From Warabidaira via JR Hakuba Sta.·Happo-guchi",
-          "trip": 1,
-          "boardStopId": "stop-hotel-hakuba",
-          "boardStopName": "Hotel Hakuba",
-          "boardStopCoord": {
-            "lat": 36.697108,
-            "lng": 137.8539256
-          },
-          "alightStopId": "stop-iwatake",
-          "walkS": 720,
-          "departsAt": "2026-03-20T08:18:00+09:00",
-          "arrivesAt": "2026-03-20T08:36:00+09:00",
-          "rideS": 1080,
-          "waitS": 360,
-          "timed": true,
-          "firstStopName": "Hotel Hakuba",
-          "sourceFile": "E.jpg"
+          "firstStopName": "Happo Nakiyama Slope",
+          "sourceFile": "E.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-nakiyama",
+              "name": "Happo Nakiyama Slope",
+              "coord": {
+                "lat": 36.69824,
+                "lng": 137.83881
+              },
+              "time": "08:19"
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "08:32"
+            }
+          ]
         }
       ]
     },
     {
       "resortId": "kashimayari",
       "options": [
+        {
+          "resortId": "kashimayari",
+          "lineId": "line-r",
+          "routeId": "r1",
+          "routeName": "From Misorano via Echoland·Mizuho",
+          "trip": 2,
+          "boardStopId": "stop-snowlines-lodge",
+          "boardStopName": "Snowlines Lodge",
+          "boardStopCoord": {
+            "lat": 36.6947129,
+            "lng": 137.8458624
+          },
+          "alightStopId": "stop-kashimayari-nakatsuna",
+          "walkS": 687,
+          "departsAt": "2026-03-20T09:51:00+09:00",
+          "arrivesAt": "2026-03-20T10:30:00+09:00",
+          "rideS": 2340,
+          "waitS": 5973,
+          "timed": true,
+          "firstStopName": "Snowlines Lodge",
+          "sourceFile": "R.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-snowlines-lodge",
+              "name": "Snowlines Lodge",
+              "coord": {
+                "lat": 36.6947129,
+                "lng": 137.8458624
+              },
+              "time": "09:51"
+            },
+            {
+              "stopId": "stop-sanosaka",
+              "name": "White Resort HAKUBA SANOSAKA",
+              "coord": {
+                "lat": 36.6282,
+                "lng": 137.84181
+              },
+              "time": "10:15"
+            },
+            {
+              "stopId": "stop-kashimayari-nakatsuna",
+              "name": "Kashimayari (Nakatsuna Slope)",
+              "coord": {
+                "lat": 36.59453,
+                "lng": 137.83826
+              },
+              "time": "10:30"
+            }
+          ]
+        },
         {
           "resortId": "kashimayari",
           "lineId": "line-r",
@@ -376,14 +1057,70 @@
             "lng": 137.8539256
           },
           "alightStopId": "stop-kashimayari-nakatsuna",
-          "walkS": 720,
+          "walkS": 715,
           "departsAt": "2026-03-20T09:40:00+09:00",
           "arrivesAt": "2026-03-20T10:45:00+09:00",
           "rideS": 3900,
-          "waitS": 5280,
+          "waitS": 5285,
           "timed": true,
           "firstStopName": "Hotel Hakuba",
-          "sourceFile": "R.jpg"
+          "sourceFile": "R.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-hotel-hakuba",
+              "name": "Hotel Hakuba",
+              "coord": {
+                "lat": 36.697108,
+                "lng": 137.8539256
+              },
+              "time": "09:40"
+            },
+            {
+              "stopId": "stop-hakuba-highland-hotel",
+              "name": "Hakuba Highland Hotel",
+              "coord": {
+                "lat": 36.690561,
+                "lng": 137.8665591
+              },
+              "time": "09:50"
+            },
+            {
+              "stopId": "stop-cook",
+              "name": "Pension Cook",
+              "coord": {
+                "lat": 36.6617148,
+                "lng": 137.840432
+              },
+              "time": "10:05"
+            },
+            {
+              "stopId": "stop-mont-blanc",
+              "name": "Hotel Mont Blanc Hakuba",
+              "coord": {
+                "lat": 36.6587113,
+                "lng": 137.8406298
+              },
+              "time": "10:08"
+            },
+            {
+              "stopId": "stop-sanosaka",
+              "name": "White Resort HAKUBA SANOSAKA",
+              "coord": {
+                "lat": 36.6282,
+                "lng": 137.84181
+              },
+              "time": "10:30"
+            },
+            {
+              "stopId": "stop-kashimayari-nakatsuna",
+              "name": "Kashimayari (Nakatsuna Slope)",
+              "coord": {
+                "lat": 36.59453,
+                "lng": 137.83826
+              },
+              "time": "10:45"
+            }
+          ]
         }
       ]
     },
@@ -410,7 +1147,63 @@
           "waitS": 600,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:10"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": null
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "08:18"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "08:27"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "08:33"
+            },
+            {
+              "stopId": "stop-norikura",
+              "name": "Hakuba Norikura Onsen Snow Resort",
+              "coord": {
+                "lat": 36.76568,
+                "lng": 137.87698
+              },
+              "time": "08:40"
+            }
+          ]
         },
         {
           "resortId": "norikura",
@@ -432,7 +1225,63 @@
           "waitS": 4800,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "09:20"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": null
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "09:28"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "09:37"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "09:43"
+            },
+            {
+              "stopId": "stop-norikura",
+              "name": "Hakuba Norikura Onsen Snow Resort",
+              "coord": {
+                "lat": 36.76568,
+                "lng": 137.87698
+              },
+              "time": "09:50"
+            }
+          ]
         },
         {
           "resortId": "norikura",
@@ -454,13 +1303,111 @@
           "waitS": 9600,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "10:40"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": "10:46"
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "10:55"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "11:04"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "11:10"
+            },
+            {
+              "stopId": "stop-norikura",
+              "name": "Hakuba Norikura Onsen Snow Resort",
+              "coord": {
+                "lat": 36.76568,
+                "lng": 137.87698
+              },
+              "time": "11:17"
+            }
+          ]
         }
       ]
     },
     {
       "resortId": "sanosaka",
       "options": [
+        {
+          "resortId": "sanosaka",
+          "lineId": "line-r",
+          "routeId": "r1",
+          "routeName": "From Misorano via Echoland·Mizuho",
+          "trip": 2,
+          "boardStopId": "stop-snowlines-lodge",
+          "boardStopName": "Snowlines Lodge",
+          "boardStopCoord": {
+            "lat": 36.6947129,
+            "lng": 137.8458624
+          },
+          "alightStopId": "stop-sanosaka",
+          "walkS": 687,
+          "departsAt": "2026-03-20T09:51:00+09:00",
+          "arrivesAt": "2026-03-20T10:15:00+09:00",
+          "rideS": 1440,
+          "waitS": 5973,
+          "timed": true,
+          "firstStopName": "Snowlines Lodge",
+          "sourceFile": "R.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-snowlines-lodge",
+              "name": "Snowlines Lodge",
+              "coord": {
+                "lat": 36.6947129,
+                "lng": 137.8458624
+              },
+              "time": "09:51"
+            },
+            {
+              "stopId": "stop-sanosaka",
+              "name": "White Resort HAKUBA SANOSAKA",
+              "coord": {
+                "lat": 36.6282,
+                "lng": 137.84181
+              },
+              "time": "10:15"
+            }
+          ]
+        },
         {
           "resortId": "sanosaka",
           "lineId": "line-r",
@@ -474,14 +1421,61 @@
             "lng": 137.8539256
           },
           "alightStopId": "stop-sanosaka",
-          "walkS": 720,
+          "walkS": 715,
           "departsAt": "2026-03-20T09:40:00+09:00",
           "arrivesAt": "2026-03-20T10:30:00+09:00",
           "rideS": 3000,
-          "waitS": 5280,
+          "waitS": 5285,
           "timed": true,
           "firstStopName": "Hotel Hakuba",
-          "sourceFile": "R.jpg"
+          "sourceFile": "R.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-hotel-hakuba",
+              "name": "Hotel Hakuba",
+              "coord": {
+                "lat": 36.697108,
+                "lng": 137.8539256
+              },
+              "time": "09:40"
+            },
+            {
+              "stopId": "stop-hakuba-highland-hotel",
+              "name": "Hakuba Highland Hotel",
+              "coord": {
+                "lat": 36.690561,
+                "lng": 137.8665591
+              },
+              "time": "09:50"
+            },
+            {
+              "stopId": "stop-cook",
+              "name": "Pension Cook",
+              "coord": {
+                "lat": 36.6617148,
+                "lng": 137.840432
+              },
+              "time": "10:05"
+            },
+            {
+              "stopId": "stop-mont-blanc",
+              "name": "Hotel Mont Blanc Hakuba",
+              "coord": {
+                "lat": 36.6587113,
+                "lng": 137.8406298
+              },
+              "time": "10:08"
+            },
+            {
+              "stopId": "stop-sanosaka",
+              "name": "White Resort HAKUBA SANOSAKA",
+              "coord": {
+                "lat": 36.6282,
+                "lng": 137.84181
+              },
+              "time": "10:30"
+            }
+          ]
         }
       ]
     },
@@ -508,7 +1502,96 @@
           "waitS": 600,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "08:10"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": null
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "08:18"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "08:27"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "08:33"
+            }
+          ]
+        },
+        {
+          "resortId": "tsugaike",
+          "lineId": "line-t",
+          "routeId": "t2",
+          "routeName": "From Sanroku via Wadano",
+          "trip": 1,
+          "boardStopId": "stop-hakuba-tokyu-hotel",
+          "boardStopName": "Hakuba Tokyu Hotel",
+          "boardStopCoord": {
+            "lat": 36.7060573,
+            "lng": 137.8392606
+          },
+          "alightStopId": "stop-tsugaike-gondola",
+          "walkS": 615,
+          "departsAt": "2026-03-20T09:05:00+09:00",
+          "arrivesAt": "2026-03-20T09:27:00+09:00",
+          "rideS": 1320,
+          "waitS": 3285,
+          "timed": true,
+          "firstStopName": "Hakuba Tokyu Hotel",
+          "sourceFile": "T.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-hakuba-tokyu-hotel",
+              "name": "Hakuba Tokyu Hotel",
+              "coord": {
+                "lat": 36.7060573,
+                "lng": 137.8392606
+              },
+              "time": "09:05"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "09:27"
+            }
+          ]
         },
         {
           "resortId": "tsugaike",
@@ -530,31 +1613,59 @@
           "waitS": 4800,
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
-        },
-        {
-          "resortId": "tsugaike",
-          "lineId": "line-v",
-          "routeId": "v2",
-          "routeName": "Cortina ↔ Hakuba GORYU",
-          "trip": 4,
-          "boardStopId": "stop-happo-bus-terminal",
-          "boardStopName": "Hakuba Happo Bus Terminal",
-          "boardStopCoord": {
-            "lat": 36.7015349,
-            "lng": 137.8456096
-          },
-          "alightStopId": "stop-tsugaike-gondola",
-          "walkS": 0,
-          "departsAt": "2026-03-20T10:40:00+09:00",
-          "arrivesAt": "2026-03-20T11:10:00+09:00",
-          "rideS": 1800,
-          "waitS": 9600,
-          "timed": true,
-          "firstStopName": "Hakuba Happo Bus Terminal",
-          "sourceFile": "TimetableV2.jpg"
+          "sourceFile": "TimetableV2.jpg",
+          "rideStops": [
+            {
+              "stopId": "stop-happo-bus-terminal",
+              "name": "Hakuba Happo Bus Terminal",
+              "coord": {
+                "lat": 36.7015349,
+                "lng": 137.8456096
+              },
+              "time": "09:20"
+            },
+            {
+              "stopId": "stop-jr-hakuba",
+              "name": "JR Hakuba Station",
+              "coord": {
+                "lat": 36.6956821,
+                "lng": 137.8632682
+              },
+              "time": null
+            },
+            {
+              "stopId": "stop-iwatake",
+              "name": "Hakuba Iwatake Snow Field",
+              "coord": {
+                "lat": 36.71705,
+                "lng": 137.85862
+              },
+              "time": "09:28"
+            },
+            {
+              "stopId": "stop-ochikura-jizo-mae",
+              "name": "Ochikura Jizo-mae",
+              "coord": {
+                "lat": 36.7348812,
+                "lng": 137.8659249
+              },
+              "time": "09:37"
+            },
+            {
+              "stopId": "stop-tsugaike-gondola",
+              "name": "Tsugaike Mountain Resort (Gondola)",
+              "coord": {
+                "lat": 36.74962,
+                "lng": 137.87084
+              },
+              "time": "09:43"
+            }
+          ]
         }
       ]
     }
-  ]
+  ],
+  "basis": "published",
+  "basedOnSeason": "2025-26",
+  "newerSourcePending": false
 }

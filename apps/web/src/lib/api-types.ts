@@ -288,6 +288,11 @@ export interface components {
             firstStopName: string;
             /** Sourcefile */
             sourceFile: string;
+            /**
+             * Ridestops
+             * @default []
+             */
+            rideStops: components["schemas"]["RideStop"][];
         };
         /** BusResult */
         BusResult: {
@@ -567,6 +572,16 @@ export interface components {
             nightSkiing: boolean | null;
             /** Dayticketjpy */
             dayTicketJpy: number | null;
+        };
+        /** RideStop */
+        RideStop: {
+            /** Stopid */
+            stopId: string;
+            /** Name */
+            name: string;
+            coord: components["schemas"]["Coord"] | null;
+            /** Time */
+            time: string | null;
         };
         /** Route */
         Route: {

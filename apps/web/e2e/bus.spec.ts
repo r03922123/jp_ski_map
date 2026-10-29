@@ -36,6 +36,16 @@ test("bus tab lists next shuttles and draws the walk to the stop", async ({
       timeout: 10_000,
     },
   );
+  // walk leg + bus ride drawn, with the ride's own time label
+  await expect(page.locator("main")).toHaveAttribute(
+    "data-route-layers",
+    "walk,ride",
+    { timeout: 10_000 },
+  );
+  await expect(page.locator("[data-route-label='ride']")).toHaveText(/28 min/);
+  const journey = page.getByRole("list", { name: "Journey" });
+  await expect(journey).toContainText("Board 08:11");
+  await expect(journey).toContainText("Arrive 08:39");
   await expect(page.getByText(/may change without notice/i)).toBeVisible();
   await expect(page.locator(".maplibregl-ctrl-attrib")).toContainText(
     "Hakuba Valley",

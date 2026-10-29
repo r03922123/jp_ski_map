@@ -42,6 +42,8 @@ export type MapViewProps = {
   lodging: Place[];
   /** Boarding stop of the chosen bus option. */
   busStop: Coord | null;
+  /** The bus ride of the chosen option: its road path, its stops, and the ride time. */
+  ride: { route: Route; stops: Coord[]; label: string | null } | null;
   /** When this changes, the map flies to it (e.g. a search result). */
   flyTo: Coord | null;
   onLoad?: () => void;
@@ -56,6 +58,8 @@ const ALT_HIT_LAYER = "route-alts-hit";
 const ROUTE_COLOR = "#2563eb";
 const ROUTE_CASING = "#1e3a8a";
 const ALT_COLOR = "#a3b1c6";
+const RIDE_COLOR = "#0f766e"; // the line badge colour in the bus panel
+const RIDE_CASING = "#134e4a";
 const ALT_CASING = "#6b7a90";
 
 const prefersReducedMotion = () =>
@@ -73,6 +77,7 @@ export default function MapView({
   highlight = null,
   lodging,
   busStop,
+  ride = null,
   flyTo,
   onLoad,
   onViewChange,
@@ -93,7 +98,9 @@ export default function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!mapReady || !map || routes.length === 0) return;
-    const all = routes.flatMap((r) => r.geometry.coordinates as LngLat[]);
+    const all = [...routes, ...(ride ? [ride.route] : [])].flatMap(
+      (r) => r.geometry.coordinates as LngLat[],
+    );
     if (all.length < 2) return;
     const canvas = map.getCanvas();
     map.fitBounds(routeBounds(all), {
@@ -104,7 +111,7 @@ export default function MapView({
       maxZoom: 16,
       duration: prefersReducedMotion() ? 0 : 700,
     });
-  }, [routes, mapReady]);
+  }, [routes, ride, mapReady]);
 
   const active = routes[activeRoute] ?? null;
   const activeCoords = (active?.geometry.coordinates ?? []) as LngLat[];
@@ -144,6 +151,21 @@ export default function MapView({
       }),
     [routes, activeRoute],
   );
+  const rideStopsGeoJson = useMemo(
+    () => ({
+      type: "FeatureCollection" as const,
+      features: (ride?.stops ?? []).map((c) => ({
+        type: "Feature" as const,
+        properties: {},
+        geometry: { type: "Point" as const, coordinates: [c.lng, c.lat] },
+      })),
+    }),
+    [ride],
+  );
+  const rideLabelAt =
+    ride && ride.route.geometry.coordinates.length > 1
+      ? labelAnchor(ride.route.geometry.coordinates as LngLat[], [])
+      : null;
   const highlightCoords =
     highlight && activeCoords.length ? segment(activeCoords, highlight) : [];
   const isWalk = active?.mode === "walk";
@@ -290,6 +312,35 @@ export default function MapView({
         </Source>
       )}
 
+      {ride && (
+        <Source id="ride" type="geojson" data={ride.route.geometry}>
+          <Layer
+            id="ride-casing"
+            type="line"
+            layout={{ "line-cap": "round", "line-join": "round" }}
+            paint={{ "line-color": RIDE_CASING, "line-width": 9 }}
+          />
+          <Layer
+            id="ride-line"
+            type="line"
+            layout={{ "line-cap": "round", "line-join": "round" }}
+            paint={{ "line-color": RIDE_COLOR, "line-width": 6 }}
+          />
+        </Source>
+      )}
+      <Source id="ride-stops" type="geojson" data={rideStopsGeoJson}>
+        <Layer
+          id="ride-stop-dots"
+          type="circle"
+          paint={{
+            "circle-radius": 4,
+            "circle-color": "#ffffff",
+            "circle-stroke-color": RIDE_CASING,
+            "circle-stroke-width": 2,
+          }}
+        />
+      </Source>
+
       <Source
         id="route-highlight"
         type="geojson"
@@ -383,6 +434,22 @@ export default function MapView({
               </button>
             </Marker>
           ),
+      )}
+
+      {ride && rideLabelAt && (
+        <Marker
+          longitude={rideLabelAt[0]}
+          latitude={rideLabelAt[1]}
+          anchor="bottom"
+          style={{ zIndex: 3 }}
+        >
+          <span
+            data-route-label="ride"
+            className="mb-1 whitespace-nowrap rounded-lg bg-teal-700 px-2 py-1 text-xs font-semibold text-white shadow-md ring-1 ring-teal-900"
+          >
+            🚌 {ride.label ?? "bus"}
+          </span>
+        </Marker>
       )}
 
       {destination && (

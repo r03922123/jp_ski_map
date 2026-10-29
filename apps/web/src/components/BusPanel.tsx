@@ -42,6 +42,40 @@ const monthDay = (ymd: string) =>
   }).format(new Date(`${ymd}T00:00:00+09:00`));
 const walk = (s: number) => (s < 60 ? "<1 min" : formatDuration(s));
 
+/** Google-transit-style timeline for the chosen option: walk → board → ride → arrive. */
+function Journey({ option }: { option: BusOption }) {
+  const line = option.lineId.replace("line-", "").toUpperCase();
+  const stops = Math.max(option.rideStops.length - 1, 0);
+  const ride = option.timed
+    ? `${stops} ${stops === 1 ? "stop" : "stops"} · ${
+        option.rideS != null
+          ? formatDuration(option.rideS)
+          : "time not published"
+      }`
+    : `${stops} ${stops === 1 ? "stop" : "stops"} · times not published`;
+  return (
+    <ol
+      aria-label="Journey"
+      className="ml-1 flex flex-col gap-0.5 border-l-2 border-teal-700 pl-3 text-xs"
+    >
+      <li>
+        🚶 Walk {walk(option.walkS)} to {option.boardStopName}
+      </li>
+      <li>
+        🚏 Board {hhmm(option.departsAt)}
+        {!option.timed && ` (departs ${option.firstStopName})`}
+      </li>
+      <li>
+        🚌 Line {line} · {ride}
+      </li>
+      <li>⛷ Arrive{option.arrivesAt ? ` ${hhmm(option.arrivesAt)}` : ""}</li>
+      <li className="text-muted-foreground">
+        Bus path on the map is approximate.
+      </li>
+    </ol>
+  );
+}
+
 function OptionButton({
   option,
   selected,
@@ -160,18 +194,22 @@ function Results({
             className="flex flex-col gap-1"
           >
             <h3 className="text-sm font-semibold">{name}</h3>
-            {r.options.map((o) => (
-              <OptionButton
-                key={`${o.routeId}-${o.trip}-${o.boardStopId}`}
-                option={o}
-                selected={
-                  selected?.routeId === o.routeId &&
-                  selected.trip === o.trip &&
-                  selected.resortId === o.resortId
-                }
-                onSelect={onSelect}
-              />
-            ))}
+            {r.options.map((o) => {
+              const isSelected =
+                selected?.routeId === o.routeId &&
+                selected.trip === o.trip &&
+                selected.resortId === o.resortId;
+              return (
+                <div key={`${o.routeId}-${o.trip}-${o.boardStopId}`}>
+                  <OptionButton
+                    option={o}
+                    selected={isSelected}
+                    onSelect={onSelect}
+                  />
+                  {isSelected && <Journey option={o} />}
+                </div>
+              );
+            })}
           </section>
         );
       })}

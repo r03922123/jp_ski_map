@@ -11,6 +11,13 @@ from hakuba_api.common.models import ApiModel
 MAX_OPTIONS_PER_RESORT = 3
 
 
+class RideStop(ApiModel):
+    stop_id: str
+    name: str
+    coord: Coord | None
+    time: str | None  # "HH:MM" as printed, None when the timetable doesn't publish it
+
+
 class BusOption(ApiModel):
     resort_id: str
     line_id: str
@@ -29,6 +36,7 @@ class BusOption(ApiModel):
     timed: bool  # False: only the route's first departure is published
     first_stop_name: str
     source_file: str
+    ride_stops: list[RideStop] = []  # board → … → alight, in trip order
 
 
 class ResortBusOptions(ApiModel):
@@ -146,6 +154,15 @@ def bus_options(
                             timed=timed,
                             first_stop_name=d.stops[ref],
                             source_file=t.source.file,
+                            ride_stops=[
+                                RideStop(
+                                    stop_id=ids[k],
+                                    name=stops[ids[k]].name.en,
+                                    coord=stops[ids[k]].coord,
+                                    time=trip.times[k],
+                                )
+                                for k in range(i, j + 1)
+                            ],
                         )
                         key = (t.route_id, d.id, trip.n, resort)
                         current = best.get(key)

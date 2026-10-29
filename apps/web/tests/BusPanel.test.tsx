@@ -69,6 +69,19 @@ describe("BusPanel", () => {
     );
   });
 
+  it("shows the journey timeline under the selected option", () => {
+    const option = (fixture as BusResult).resorts.find(
+      (r) => r.resortId === "hakuba47",
+    )?.options[0];
+    if (!option) throw new Error("fixture has no Hakuba47 option");
+    renderPanel({ selected: option });
+
+    const journey = screen.getByRole("list", { name: "Journey" });
+    expect(journey).toHaveTextContent(/Board 08:11/);
+    expect(journey).toHaveTextContent(/Line V · 3 stops · 28 min/);
+    expect(journey).toHaveTextContent(/Arrive 08:39/);
+  });
+
   it("always shows the source and the may-change notice", () => {
     renderPanel();
 

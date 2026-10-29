@@ -20,11 +20,13 @@ import {
   fetchBusOptions,
   fetchLodging,
   fetchNightBus,
+  fetchPath,
   fetchRank,
   fetchResorts,
   fetchRoutes,
   type Route,
 } from "@/lib/api";
+import { formatDuration } from "@/lib/format";
 import {
   DEFAULT_RANK,
   parseViewState,
@@ -143,6 +145,34 @@ export function MapShell() {
   const busStop =
     mode === "bus" && !showNight ? (busChoice?.boardStopCoord ?? null) : null;
 
+  // The bus ride, drawn along the roads between its located stops (approximate).
+  const rideStops = useMemo(
+    () => busChoice?.rideStops.flatMap((s) => (s.coord ? [s.coord] : [])) ?? [],
+    [busChoice],
+  );
+  const ride = useQuery({
+    queryKey: [
+      "ride",
+      busChoice?.routeId,
+      busChoice?.trip,
+      busChoice?.boardStopId,
+      busChoice?.alightStopId,
+    ],
+    queryFn: () => fetchPath("drive", rideStops),
+    enabled: busStop !== null && rideStops.length >= 2,
+    retry: false,
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+  const rideLeg =
+    busStop !== null && busChoice && ride.data
+      ? {
+          route: ride.data,
+          stops: rideStops,
+          label:
+            busChoice.rideS != null ? formatDuration(busChoice.rideS) : null,
+        }
+      : null;
+
   // Drive to the access point the ranking found nearest; otherwise the first one.
   const resort = resorts.data?.find((r) => r.id === selectedResortId);
   const nearestId = ranking.data?.find(
@@ -188,9 +218,12 @@ export function MapShell() {
         : { status: "success", data: routes[activeRoute] ?? routes[0] };
 
   const routeData = routeState.status === "success" ? routeState.data : null;
-  const routeLayers = routes
-    .map((_, i) => (i === activeRoute ? "primary" : "alternate"))
-    .join(",");
+  const routeLayers = [
+    ...routes.map((_, i) =>
+      mode === "bus" ? "walk" : i === activeRoute ? "primary" : "alternate",
+    ),
+    ...(rideLeg ? ["ride"] : []),
+  ].join(",");
 
   return (
     <main
@@ -209,6 +242,7 @@ export function MapShell() {
         activeRoute={activeRoute}
         onSelectRoute={setActiveRoute}
         highlight={highlight}
+        ride={rideLeg}
         lodging={lodgingPins}
         busStop={busStop}
         flyTo={flyTo}

@@ -51,6 +51,27 @@ def test_spec_example_happo_bus_terminal_to_hakuba47_on_v2() -> None:
     assert first.board_stop_coord == STOPS["stop-happo-bus-terminal"].coord
 
 
+def test_option_lists_the_stops_of_the_ride_in_order() -> None:
+    result = options({"stop-happo-bus-terminal": 0}, [table("line-v-v2")])
+
+    first = next(r for r in result.resorts if r.resort_id == "hakuba47").options[0]
+    ride = first.ride_stops
+    assert ride[0].stop_id == first.board_stop_id
+    assert ride[-1].stop_id == first.alight_stop_id
+    assert [r.time for r in ride] == ["08:11", "08:16", "08:24", "08:39"]
+    assert [r.name for r in ride][1] == STOPS[ride[1].stop_id].name.en
+    assert all(r.coord is not None for r in ride)
+
+
+def test_untimed_ride_stops_have_no_times() -> None:
+    result = options({ALIAS["Hotel Hakuba"]: 60}, [table("line-g-g1")])
+
+    option = next(o for r in result.resorts for o in r.options if not o.timed)
+    assert option.ride_stops[0].stop_id == option.board_stop_id
+    assert option.ride_stops[0].time is None
+    assert len(option.ride_stops) >= 2
+
+
 def test_walk_time_rules_out_buses_you_cannot_reach() -> None:
     result = options({"stop-happo-bus-terminal": 15 * 60}, [table("line-v-v2")])
 
