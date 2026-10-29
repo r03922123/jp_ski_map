@@ -144,7 +144,8 @@
   },
   "servesResortId": "cortina",
   "aliases": [
-   "Hakuba Cortina Snow Resort"
+   "Hakuba Cortina Snow Resort",
+   "Hakuba CortinaSnow Resort"
   ],
   "coordSource": "access-point:cortina-base"
  },
@@ -258,7 +259,8 @@
   },
   "servesResortId": "goryu",
   "aliases": [
-   "ABLE Hakuba GORYU ESCAL PLAZA"
+   "ABLE Hakuba GORYU ESCAL PLAZA",
+   "Able Hakuba Goryu Escal Plaza"
   ],
   "coordSource": "access-point:goryu-escal-plaza"
  },
@@ -500,7 +502,8 @@
   "servesResortId": "happo-one",
   "aliases": [
    "Hakuba Happo-one Snow Resort (Nakiyama Slope)",
-   "Happo Nakiyama Slope"
+   "Happo Nakiyama Slope",
+   "Happo-One (Nakiyama Slope)"
   ],
   "coordSource": "access-point:happo-one-nakiyama"
  },
@@ -665,6 +668,19 @@
    "JR Kamishiro Station"
   ],
   "coordSource": "operator My Maps pin (JR Kamishiro Sta. / JR神城駅) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+ },
+ {
+  "id": "stop-jr-minami-otari",
+  "name": {
+   "en": "JR Minami-Otari Station",
+   "ja": "南小谷駅"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "JR Minami-Otari Station"
+  ],
+  "coordSource": "not located yet — stop printed only in the season PDF (Konayuki night bus), added 2026-10-30"
  },
  {
   "id": "stop-jr-shinano-omachi-station",
@@ -1100,7 +1116,8 @@
   },
   "servesResortId": "norikura",
   "aliases": [
-   "Hakuba Norikura Onsen Snow Resort"
+   "Hakuba Norikura Onsen Snow Resort",
+   "Hakuba Norikura Onsen Snow Resort(Alps Hotel)"
   ],
   "coordSource": "access-point:norikura-base"
  },
@@ -1455,7 +1472,8 @@
   "servesResortId": null,
   "aliases": [
    "Omachionsenkyo (Tateyama Prince Hotel)",
-   "Tateyama Prince Hotel"
+   "Tateyama Prince Hotel",
+   "Omachi Onsenkyo (Tateyama Prince Hotel Intersection)"
   ],
   "coordSource": "operator My Maps pin (Omachi Onsenkyo (Tateyama Prince Hotel) / 大町温泉郷 (立山プリンスホテル）) — https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
  },
@@ -1506,6 +1524,19 @@
    "Traumerai"
   ],
   "coordSource": "operator My Maps pin (Traumerei /トロイメライ) — https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+ },
+ {
+  "id": "stop-tsugaike-ent-uchikawa",
+  "name": {
+   "en": "Tsugaike Ent. (Uchikawa Sports)",
+   "ja": "栂池入口（内川スポーツ前）"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Tsugaike Ent. (Uchikawa Sports)"
+  ],
+  "coordSource": "not located yet — stop printed only in the season PDF (Konayuki night bus), added 2026-10-30"
  },
  {
   "id": "stop-tsugaike-gondola",

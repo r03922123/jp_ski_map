@@ -1,0 +1,77 @@
+{
+ "lineId": "line-gurutto",
+ "routeId": "gurutto",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "Omachi ↔ Hakuba Gurutto Bus",
+  "ja": "冬期宿泊シャトルバス「ぐるっとBus」"
+ },
+ "validFrom": "2025-12-27",
+ "validTo": "2026-02-23",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 0,
+  "childJpy": 0,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "2025-2026-Shuttle-Bus-Timetable.pdf"
+ },
+ "reviewed": true,
+ "notes": "Transcribed 2026-10-30 from the season PDF (not shown as an image on the page). Listed under the free resort shuttles; no fare printed, recorded as free. ● = boarding stops, ▲ = alighting stops on the poster.",
+ "directions": [
+  {
+   "id": "to-hakuba",
+   "stops": [
+    "ANA Holiday Inn Resort Shinano-Omachi Kuroyon",
+    "Omachi Onsenkyo (Tateyama Prince Hotel Intersection)",
+    "Omachi Onsenkyo Ent.",
+    "White Resort Hakuba Sanosaka",
+    "Able Hakuba Goryu Escal Plaza",
+    "Happo-One (Nakiyama Slope)",
+    "Hakuba Iwatake Snow Field"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:45",
+      "08:55",
+      "09:00",
+      "09:30",
+      "09:45",
+      "10:05",
+      "10:20"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "to-omachi",
+   "stops": [
+    "Hakuba Iwatake Snow Field",
+    "Happo-One (Nakiyama Slope)",
+    "Able Hakuba Goryu Escal Plaza",
+    "White Resort Hakuba Sanosaka",
+    "Omachi Onsenkyo Ent.",
+    "Omachi Onsenkyo (Tateyama Prince Hotel Intersection)",
+    "ANA Holiday Inn Resort Shinano-Omachi Kuroyon"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "16:30",
+      "16:45",
+      "17:05",
+      "17:20",
+      "17:50",
+      "17:55",
+      "18:05"
+     ]
+    }
+   ]
+  }
+ ]
+}
