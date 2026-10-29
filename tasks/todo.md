@@ -207,11 +207,11 @@ Gate shorthand:
 **Files:** `src/hakuba_api/bus/check_sources.py`, `data/bus/sources.json`, `tests/bus/test_check_sources.py`, `tests/fixtures/hv/shuttle.html`
 **Scope:** S
 
-## Task 17: Bus stops + timetable schema + validator
+## Task 17: Bus stops + timetable schema + validator ✅
 **Description:** `data/bus_stops.json` covering every stop on the shuttle lines (coordinates from OSM `highway=bus_stop` or set by hand, with `coordSource`), plus `servesResortId`. A Pydantic `Timetable` model (incl. `kind: day|night`, `reviewed`). Validator rules: known stop aliases, strictly increasing times per trip, consistent stop order, no overlapping periods per line, hash present in sources.json.
 **Acceptance criteria:**
-- [ ] One failing unit test per validator rule, with a clear message
-- [ ] All stops in the V2 image resolve
+- [x] One failing unit test per validator rule, with a clear message
+- [x] All stops in the V2 image resolve
 **Verification:** API gates; `data.validate` exits 0
 **Dependencies:** T4, T16
 **Files:** `src/hakuba_api/bus/{models,validate}.py`, `src/hakuba_api/data/validate.py`, `data/bus_stops.json`, `tests/bus/test_validate.py`

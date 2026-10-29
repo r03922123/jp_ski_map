@@ -1,0 +1,1392 @@
+[
+ {
+  "id": "stop-3-parking",
+  "name": {
+   "en": "#3 Parking",
+   "ja": "八方第3駐車場"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "#3 Parking"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-airmail",
+  "name": {
+   "en": "Airmail",
+   "ja": "エアメイル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Airmail"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-alpine-chalets",
+  "name": {
+   "en": "Alpine Chalets Hakuba",
+   "ja": "アルパインシャレー白馬"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "ALPINE CHALETS HAKUBA",
+   "Alpine Chalet Hakuba",
+   "Alpine Chalets",
+   "Alpine Chalets Hakuba"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-alpine-route-hotel-kanouya",
+  "name": {
+   "en": "Alpine Route Hotel / Kanouya",
+   "ja": "アルペンルートホテル／叶家"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Alpine Route Hotel / Kanouya"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-ana-kuroyon",
+  "name": {
+   "en": "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
+   "ja": "ANAホリデイ・インリゾート信濃大町くろよん"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
+   "ANA Holiday Inn Resort Shinano-Omachi Kuroyon"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-bosco",
+  "name": {
+   "en": "Bosco",
+   "ja": "ボスコ"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Bosco"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-central-snowsports-happo",
+  "name": {
+   "en": "Central Snowsports Happo",
+   "ja": null
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Central Snowsports Happo"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-cook",
+  "name": {
+   "en": "Pension Cook",
+   "ja": "ペンションクック"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Cook",
+   "Pension Cook"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-cortina",
+  "name": {
+   "en": "Hakuba Cortina Snow Resort",
+   "ja": "白馬コルチナスキー場"
+  },
+  "coord": {
+   "lat": 36.77721,
+   "lng": 137.88832
+  },
+  "servesResortId": "cortina",
+  "aliases": [
+   "Hakuba Cortina Snow Resort"
+  ],
+  "coordSource": "access-point:cortina-base"
+ },
+ {
+  "id": "stop-courtyard-by-marriott-hakuba",
+  "name": {
+   "en": "Courtyard By Marriott Hakuba",
+   "ja": "コートヤード・バイ・マリオット白馬"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Courtyard By Marriott Hakuba"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-cultured",
+  "name": {
+   "en": "Cultured",
+   "ja": "カルチャード"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Cultured"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-double-black-hotel",
+  "name": {
+   "en": "Double Black Hotel",
+   "ja": null
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Double Black Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-echoland-main-st",
+  "name": {
+   "en": "Echoland Main Str.",
+   "ja": "エコーランドメイン通り"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Echoland Main St.",
+   "Echoland Main Str."
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-echoland-spicy",
+  "name": {
+   "en": "Echoland (Spicy)",
+   "ja": "エコーランド（スパイシー）"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Echoland (Spicy)",
+   "Echoland(Spicy)"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-gakuto-villas",
+  "name": {
+   "en": "Gakuto Villas",
+   "ja": "ガクトヴィラ"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Gakuto Villas"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-goryu-escal-plaza",
+  "name": {
+   "en": "ABLE Hakuba GORYU ESCAL PLAZA",
+   "ja": "エイブル白馬五竜エスカルプラザ"
+  },
+  "coord": {
+   "lat": 36.66293,
+   "lng": 137.83667
+  },
+  "servesResortId": "goryu",
+  "aliases": [
+   "ABLE Hakuba GORYU ESCAL PLAZA"
+  ],
+  "coordSource": "access-point:goryu-escal-plaza"
+ },
+ {
+  "id": "stop-goryu-hon-dorinishi",
+  "name": {
+   "en": "Goryu Hon-dorinishi",
+   "ja": "五竜本通り西"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Goryu Hon-dorinishi"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-goryu-iimori",
+  "name": {
+   "en": "ABLE Hakuba GORYU IIMORI",
+   "ja": "エイブル白馬五竜いいもり"
+  },
+  "coord": {
+   "lat": 36.66858,
+   "lng": 137.83895
+  },
+  "servesResortId": "goryu",
+  "aliases": [
+   "ABLE Hakuba GORYU IIMORI"
+  ],
+  "coordSource": "access-point:goryu-iimori"
+ },
+ {
+  "id": "stop-goryu-no-7-parking",
+  "name": {
+   "en": "Goryu No.7 Parking",
+   "ja": "五竜第7駐車場"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Goryu No.7 Parking"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hakuba-47-ent",
+  "name": {
+   "en": "Hakuba 47 Ent.",
+   "ja": "Hakuba47入口"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba 47 Ent."
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hakuba-forest-ent",
+  "name": {
+   "en": "Hakuba Forest Ent.",
+   "ja": "白馬の森入口"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Forest Ent.",
+   "Hakuba Forest Entrance"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hakuba-goryu-bus-stop",
+  "name": {
+   "en": "Hakuba Goryu Bus Stop",
+   "ja": "白馬五竜バス停"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Goryu Bus Stop"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hakuba-highland-hotel",
+  "name": {
+   "en": "Hakuba Highland Hotel",
+   "ja": "白馬ハイランドホテル"
+  },
+  "coord": {
+   "lat": 36.690561,
+   "lng": 137.8665591
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Highland Hotel"
+  ],
+  "coordSource": "photon:W463433046 (白馬ハイランドホテル)"
+ },
+ {
+  "id": "stop-hakuba-inn-bloom-parking",
+  "name": {
+   "en": "Hakuba Inn Bloom Parking",
+   "ja": "Hakuba Inn Bloom駐車場"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Inn Bloom Parking"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hakuba-sunvalley-hotel",
+  "name": {
+   "en": "Hakuba Sunvalley Hotel",
+   "ja": "白馬サンバレーホテル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Sunvalley Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hakuba-tokyu-hotel",
+  "name": {
+   "en": "Hakuba Tokyu Hotel",
+   "ja": "白馬東急ホテル"
+  },
+  "coord": {
+   "lat": 36.7060573,
+   "lng": 137.8392606
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Tokyu Hotel"
+  ],
+  "coordSource": "photon:W312064760 (白馬東急ホテル)"
+ },
+ {
+  "id": "stop-hakuba47",
+  "name": {
+   "en": "Hakuba 47 Winter Sports Park",
+   "ja": "Hakuba 47 ウインタースポーツパーク"
+  },
+  "coord": {
+   "lat": 36.68456,
+   "lng": 137.82773
+  },
+  "servesResortId": "hakuba47",
+  "aliases": [
+   "Hakuba 47 Winter Sports Park"
+  ],
+  "coordSource": "access-point:hakuba47-base"
+ },
+ {
+  "id": "stop-happo-bus-terminal",
+  "name": {
+   "en": "Hakuba Happo Bus Terminal",
+   "ja": "白馬八方バスターミナル"
+  },
+  "coord": {
+   "lat": 36.7015349,
+   "lng": 137.8456096
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Happo Bus Terminal"
+  ],
+  "coordSource": "osm:node/1986447276"
+ },
+ {
+  "id": "stop-happo-gondola",
+  "name": {
+   "en": "Happo Gondola Lift",
+   "ja": "八方ゴンドラリフト"
+  },
+  "coord": {
+   "lat": 36.70179,
+   "lng": 137.83683
+  },
+  "servesResortId": "happo-one",
+  "aliases": [
+   "Happo Gondola Lift"
+  ],
+  "coordSource": "access-point:happo-one-adam-gondola"
+ },
+ {
+  "id": "stop-happo-kokusai",
+  "name": {
+   "en": "Happo Kokusai Slope Evergreen",
+   "ja": "八方国際ゲレンデ・エバーグリーン"
+  },
+  "coord": null,
+  "servesResortId": "happo-one",
+  "aliases": [
+   "Happo Kokusai Slope Evergreen"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-happo-nakiyama",
+  "name": {
+   "en": "Happo Nakiyama Slope",
+   "ja": "八方名木山ゲレンデ"
+  },
+  "coord": {
+   "lat": 36.69824,
+   "lng": 137.83881
+  },
+  "servesResortId": "happo-one",
+  "aliases": [
+   "Hakuba Happo-one Snow Resort (Nakiyama Slope)",
+   "Happo Nakiyama Slope"
+  ],
+  "coordSource": "access-point:happo-one-nakiyama"
+ },
+ {
+  "id": "stop-happo-no-3-parking-b",
+  "name": {
+   "en": "Happo No.3 Parking B",
+   "ja": "八方第3駐車場B"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Happo No.3 Parking B"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-happo-sakka",
+  "name": {
+   "en": "Happo Sakka Slope",
+   "ja": "八方咲花ゲレンデ"
+  },
+  "coord": null,
+  "servesResortId": "happo-one",
+  "aliases": [
+   "Happo Sakka Slope"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hotel-hakuba",
+  "name": {
+   "en": "Hotel Hakuba",
+   "ja": "ホテル白馬"
+  },
+  "coord": {
+   "lat": 36.697108,
+   "lng": 137.8539256
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Hotel Hakuba"
+  ],
+  "coordSource": "lodging-snapshot:osm:node/6312753047"
+ },
+ {
+  "id": "stop-hotel-oak-forest",
+  "name": {
+   "en": "Hotel Oak Forest",
+   "ja": "ホテル オークフォレスト"
+  },
+  "coord": {
+   "lat": 36.6911774,
+   "lng": 137.8336599
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Hotel Oak Forest"
+  ],
+  "coordSource": "lodging-snapshot:osm:node/6763838348"
+ },
+ {
+  "id": "stop-hotel-ogiya",
+  "name": {
+   "en": "Hotel Ogiya",
+   "ja": "ホテル扇屋"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hotel Ogiya"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-hotel-st-malte",
+  "name": {
+   "en": "Hotel St. Malte",
+   "ja": "サンマルテ"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hotel St. Malte"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-iwatake",
+  "name": {
+   "en": "Hakuba Iwatake Snow Field",
+   "ja": "白馬岩岳スノーフィールド"
+  },
+  "coord": {
+   "lat": 36.71705,
+   "lng": 137.85862
+  },
+  "servesResortId": "iwatake",
+  "aliases": [
+   "Hakuba Iwatake Snow Field",
+   "Hakuba Iwatake Snow Resort"
+  ],
+  "coordSource": "access-point:iwatake-gondola"
+ },
+ {
+  "id": "stop-jigatake",
+  "name": {
+   "en": "Jigatake Snow Resort",
+   "ja": "爺ガ岳スキー場"
+  },
+  "coord": {
+   "lat": 36.55807,
+   "lng": 137.80286
+  },
+  "servesResortId": "jigatake",
+  "aliases": [
+   "Jigatake Snow Resort"
+  ],
+  "coordSource": "access-point:jigatake-base"
+ },
+ {
+  "id": "stop-jr-hakuba",
+  "name": {
+   "en": "JR Hakuba Station",
+   "ja": "JR白馬駅"
+  },
+  "coord": {
+   "lat": 36.6956821,
+   "lng": 137.8632682
+  },
+  "servesResortId": null,
+  "aliases": [
+   "JR Hakuba Station",
+   "JRHakuba Station"
+  ],
+  "coordSource": "osm:node/2524974929"
+ },
+ {
+  "id": "stop-jr-kamishiro-station",
+  "name": {
+   "en": "JR Kamishiro Station",
+   "ja": "JR神城駅"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "JR Kamishiro Station"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-jr-shinano-omachi-station",
+  "name": {
+   "en": "JR Shinano-Omachi Station",
+   "ja": "JR信濃大町駅"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "JR Shinano-Omachi Station"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-juro-onsen",
+  "name": {
+   "en": "Juro Onsen",
+   "ja": "十郎の湯"
+  },
+  "coord": {
+   "lat": 36.6696697,
+   "lng": 137.8460319
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Juro Onsen"
+  ],
+  "coordSource": "photon:N6438494212 (白馬かたくり温泉;十郎の湯)"
+ },
+ {
+  "id": "stop-kai-alps-hotel",
+  "name": {
+   "en": "Kai Alps Hotel",
+   "ja": "界アルプスホテル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Kai Alps Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kamishiro-hakubanomori-ent",
+  "name": {
+   "en": "Kamishiro Hakubanomori Ent.",
+   "ja": "神城 白馬の森入口"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Kamishiro Hakubanomori Ent."
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kanemaru",
+  "name": {
+   "en": "Kanemaru",
+   "ja": "かねまる"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Kanemaru"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kashimayari-central",
+  "name": {
+   "en": "Kashimayari (Central Slope)",
+   "ja": "鹿島槍スキー場ファミリーパーク（中央ゲレンデ）"
+  },
+  "coord": null,
+  "servesResortId": "kashimayari",
+  "aliases": [
+   "Kashimayari Ski Resort Family Park(Central Slope)"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kashimayari-nakatsuna",
+  "name": {
+   "en": "Kashimayari (Nakatsuna Slope)",
+   "ja": "鹿島槍スキー場ファミリーパーク（中綱ゲレンデ）"
+  },
+  "coord": {
+   "lat": 36.59453,
+   "lng": 137.83826
+  },
+  "servesResortId": "kashimayari",
+  "aliases": [
+   "Kashimayari Ski Resort Family Park (Nakatsuna Slope)",
+   "Kashimayari Ski Resort Family Park(Nakastuna Slope)"
+  ],
+  "coordSource": "access-point:kashimayari-base"
+ },
+ {
+  "id": "stop-keyakino-ki",
+  "name": {
+   "en": "Keyakino-ki",
+   "ja": "けやきの樹"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Hotel Keyakino-ki",
+   "Keyakino-ki"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kirikubo-ent",
+  "name": {
+   "en": "Kirikubo Ent.",
+   "ja": "切久保入口"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Kirikubo Ent."
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kitaharakan",
+  "name": {
+   "en": "Kitaharakan",
+   "ja": "北原館"
+  },
+  "coord": {
+   "lat": 36.6608894,
+   "lng": 137.8487564
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Kitaharakan"
+  ],
+  "coordSource": "lodging-snapshot:osm:node/13615928501"
+ },
+ {
+  "id": "stop-koharu-resort-hotel-suites",
+  "name": {
+   "en": "Koharu Resort Hotel & Suites",
+   "ja": "コハルリゾート＆スイート"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Koharu Resort Hotel & Suites"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kurobe-kanko-hotel",
+  "name": {
+   "en": "Kurobe Kanko Hotel",
+   "ja": "黒部観光ホテル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Kurobe Kanko Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-kurobe-view-hotel",
+  "name": {
+   "en": "Kurobe View Hotel",
+   "ja": "黒部ビューホテル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Kurobe View Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-la-naige",
+  "name": {
+   "en": "La Naige",
+   "ja": "ラ・ネージュ"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "La Naige"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-la-vigne-hakuba-north-parking",
+  "name": {
+   "en": "La Vigne Hakuba North Parking",
+   "ja": "ラ ヴィーニュ白馬 北駐車場"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "La Vigne Hakuba North Parking"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-lion-cafe",
+  "name": {
+   "en": "Lion Café",
+   "ja": "ライオンカフェ"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Lion Café"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-meteor",
+  "name": {
+   "en": "Meteor",
+   "ja": "ミーティア"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Meteor"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-minamiya",
+  "name": {
+   "en": "Minamiya",
+   "ja": "みなみ家前"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Minamiya"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-misorano-rotary",
+  "name": {
+   "en": "Misorano Rotary",
+   "ja": "みそら野ロータリー"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Misorano Rotary"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-misorano-ryusei-kaen",
+  "name": {
+   "en": "Misorano Ent. (Ryusei Kaen)",
+   "ja": "みそらの入口（流星花園）"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Misorano Ent. (Ryusei Kaen)",
+   "Ryusei Kaen"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-misorano-seven-eleven",
+  "name": {
+   "en": "Misorano Ent. (Seven Eleven)",
+   "ja": "みそら野入口（セブンイレブン）"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Misorano Ent.(Seven Eleven)",
+   "Seven Eleven"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-mominoki",
+  "name": {
+   "en": "Hakuba Mominoki Hotel",
+   "ja": "白馬樅の木ホテル"
+  },
+  "coord": {
+   "lat": 36.7070112,
+   "lng": 137.8366547
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Hakuba Mominoki Hotel",
+   "Wadano(Mominoki Hotel)"
+  ],
+  "coordSource": "lodging-snapshot:osm:node/7006958860"
+ },
+ {
+  "id": "stop-mont-blanc",
+  "name": {
+   "en": "Hotel Mont Blanc Hakuba",
+   "ja": "ホテルモンブラン白馬"
+  },
+  "coord": {
+   "lat": 36.6587113,
+   "lng": 137.8406298
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Hotel Mont Blanc Hakuba",
+   "Mont Blanc Hakuba"
+  ],
+  "coordSource": "lodging-snapshot:osm:way/1065062205"
+ },
+ {
+  "id": "stop-mount",
+  "name": {
+   "en": "Mount",
+   "ja": "マウント"
+  },
+  "coord": {
+   "lat": 36.7016428,
+   "lng": 137.8436327
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Mount"
+  ],
+  "coordSource": "photon:W771658636 (マウント)"
+ },
+ {
+  "id": "stop-nakiyama-snowland",
+  "name": {
+   "en": "Nakiyama Snowland",
+   "ja": "なきやまスノーランド"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Nakiyama Snowland"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-nonnel",
+  "name": {
+   "en": "Nonnel",
+   "ja": "ノンネル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Nonnel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-norikura",
+  "name": {
+   "en": "Hakuba Norikura Onsen Snow Resort",
+   "ja": "白馬乗鞍温泉スキー場"
+  },
+  "coord": {
+   "lat": 36.76568,
+   "lng": 137.87698
+  },
+  "servesResortId": "norikura",
+  "aliases": [
+   "Hakuba Norikura Onsen Snow Resort"
+  ],
+  "coordSource": "access-point:norikura-base"
+ },
+ {
+  "id": "stop-ochikura-jizo-mae",
+  "name": {
+   "en": "Ochikura Jizo-mae",
+   "ja": "落倉 地蔵前"
+  },
+  "coord": {
+   "lat": 36.7348812,
+   "lng": 137.8659249
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Ochikura Jizo-mae"
+  ],
+  "coordSource": "osm:node/7503197378"
+ },
+ {
+  "id": "stop-omachi-onsen-yakushinoyu",
+  "name": {
+   "en": "Omachi Onsen Yakushinoyu",
+   "ja": "大町温泉郷（くろべ路、薬師の湯）"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Omachi Onsen Yakushinoyu"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-omachi-onsenkyo",
+  "name": {
+   "en": "Omachi Onsenkyo",
+   "ja": "大町温泉郷"
+  },
+  "coord": {
+   "lat": 36.527489,
+   "lng": 137.811605
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Omachi Onsenkyo"
+  ],
+  "coordSource": "photon:N2427505752 (大町温泉郷)"
+ },
+ {
+  "id": "stop-omachi-onsenkyo-ent",
+  "name": {
+   "en": "Omachi Onsenkyo Ent.",
+   "ja": "大町温泉郷入口"
+  },
+  "coord": {
+   "lat": 36.527489,
+   "lng": 137.811605
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Omachi Onsenkyo Ent.",
+   "Omachionsenkyo Ent."
+  ],
+  "coordSource": "photon:N2427505752 (大町温泉郷) — approximate: matched the 大町温泉郷 area node, not the entrance itself"
+ },
+ {
+  "id": "stop-pals-inn-raicho",
+  "name": {
+   "en": "Pals Inn Raicho",
+   "ja": "パルズイン雷鳥"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Pals Inn Raicho"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-panorama-hotel",
+  "name": {
+   "en": "Panorama Hotel",
+   "ja": "パノラマホテル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Panorama Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-pension-minamijujisei",
+  "name": {
+   "en": "Pension Minamijujisei",
+   "ja": "ペンション南十字星"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Pension Minamijujisei"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-rantanrirun",
+  "name": {
+   "en": "Rantanrirun",
+   "ja": "ランタンリルン"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Rantanrirun"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-rosenheim-hakuba",
+  "name": {
+   "en": "Rosenheim Hakuba",
+   "ja": "ローゼンハイム白馬"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Rosenheim Hakuba"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-ryokusuitei-keisui",
+  "name": {
+   "en": "Ryokusuitei Keisui",
+   "ja": "緑翠亭・景水"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Ryokusuitei Keisui"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-sanosaka",
+  "name": {
+   "en": "White Resort HAKUBA SANOSAKA",
+   "ja": "White Resort 白馬さのさか"
+  },
+  "coord": {
+   "lat": 36.6282,
+   "lng": 137.84181
+  },
+  "servesResortId": "sanosaka",
+  "aliases": [
+   "White Resort HAKUBA SANOSAKA",
+   "White Resort Hakuba Sanosaka"
+  ],
+  "coordSource": "access-point:sanosaka-base"
+ },
+ {
+  "id": "stop-satomi",
+  "name": {
+   "en": "Satomi",
+   "ja": "里見"
+  },
+  "coord": {
+   "lat": 36.7672385,
+   "lng": 137.8834337
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Satomi"
+  ],
+  "coordSource": "osm:node/7503210352"
+ },
+ {
+  "id": "stop-shinden-kouminkan",
+  "name": {
+   "en": "Shinden Kouminkan",
+   "ja": "新田公民館"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Shinden Kouminkan"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-shirouma-pal-house",
+  "name": {
+   "en": "Shirouma Pal House",
+   "ja": "しろうまパルハウス"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Shirouma Pal House"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-shoya-maruhachi",
+  "name": {
+   "en": "Shoya Maruhachi",
+   "ja": "庄屋丸八"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Shoya Maruhachi"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-sierra-resort-hotel-hakuba",
+  "name": {
+   "en": "Sierra Resort Hotel Hakuba",
+   "ja": "ホテルシェラリゾート白馬"
+  },
+  "coord": {
+   "lat": 36.7345432,
+   "lng": 137.8621407
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Sierra Resort Hotel Hakuba"
+  ],
+  "coordSource": "lodging-snapshot:osm:node/12434991155"
+ },
+ {
+  "id": "stop-skala-inn",
+  "name": {
+   "en": "Skala Inn",
+   "ja": "スカラ イン"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Skala Inn"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-snow-peak-land-station-hakuba",
+  "name": {
+   "en": "Snow Peak Land Station Hakuba",
+   "ja": "スノーピークランドステーション白馬"
+  },
+  "coord": {
+   "lat": 36.6980931,
+   "lng": 137.8571995
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Snow Peak Land Station Hakuba"
+  ],
+  "coordSource": "osm:node/7502423990"
+ },
+ {
+  "id": "stop-snowlines-lodge",
+  "name": {
+   "en": "Snowlines Lodge",
+   "ja": "スノーラインズロッジ"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Snowlines Lodge"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-spicy-rental-wadano",
+  "name": {
+   "en": "Spicy Rental Wadano",
+   "ja": "スパイシーレンタル（和田野店）"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Spicy Rental Wadano"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-suisha-goya",
+  "name": {
+   "en": "Suisha Goya",
+   "ja": "水車小屋"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Suisha Goya"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-tateyama-prince",
+  "name": {
+   "en": "Tateyama Prince Hotel",
+   "ja": "立山プリンスホテル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Omachionsenkyo (Tateyama Prince Hotel)",
+   "Tateyama Prince Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-the-gakusui",
+  "name": {
+   "en": "The Gakusui",
+   "ja": null
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "The Gakusui"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-the-happo",
+  "name": {
+   "en": "The Happo",
+   "ja": null
+  },
+  "coord": {
+   "lat": 36.7011056,
+   "lng": 137.8430846
+  },
+  "servesResortId": null,
+  "aliases": [
+   "The Happo"
+  ],
+  "coordSource": "lodging-snapshot:osm:way/1091390698"
+ },
+ {
+  "id": "stop-traumerai",
+  "name": {
+   "en": "Traumerai",
+   "ja": "トロイメライ"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Traumerai"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-tsugaike-gondola",
+  "name": {
+   "en": "Tsugaike Mountain Resort (Gondola)",
+   "ja": "つがいけマウンテンリゾート（ゴンドラ山麓駅）"
+  },
+  "coord": {
+   "lat": 36.74962,
+   "lng": 137.87084
+  },
+  "servesResortId": "tsugaike",
+  "aliases": [
+   "Tsugaike Mountain Resort (Gondola)"
+  ],
+  "coordSource": "access-point:tsugaike-gondola"
+ },
+ {
+  "id": "stop-tsugaike-kanenonaruoka",
+  "name": {
+   "en": "Tsugaike Mountain Resort (Kanenonaruoka)",
+   "ja": "つがいけマウンテンリゾート（鐘の鳴る丘）"
+  },
+  "coord": null,
+  "servesResortId": "tsugaike",
+  "aliases": [
+   "Tsugaike Mountain Resort (Kanenonaruoka)"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-wadano-gateway",
+  "name": {
+   "en": "Wadano Gateway",
+   "ja": null
+  },
+  "coord": {
+   "lat": 36.7042565,
+   "lng": 137.8442182
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Wadano Gateway"
+  ],
+  "coordSource": "lodging-snapshot:osm:node/6138603322"
+ },
+ {
+  "id": "stop-yamano-hotel",
+  "name": {
+   "en": "Yamano Hotel",
+   "ja": "山のホテル"
+  },
+  "coord": null,
+  "servesResortId": null,
+  "aliases": [
+   "Yamano Hotel"
+  ],
+  "coordSource": "unresolved"
+ },
+ {
+  "id": "stop-yupuru-kizakiko",
+  "name": {
+   "en": "Yupuru Kizakiko",
+   "ja": "ゆーぷる木崎湖"
+  },
+  "coord": {
+   "lat": 36.5424915,
+   "lng": 137.8415967
+  },
+  "servesResortId": null,
+  "aliases": [
+   "Yupuru Kizakiko"
+  ],
+  "coordSource": "photon:N13734686516 (ゆーぷる木崎湖)"
+ }
+]

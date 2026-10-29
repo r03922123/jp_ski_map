@@ -4,6 +4,7 @@ import sys
 
 from pydantic import ValidationError
 
+from hakuba_api.bus.validate import validate_repository as validate_bus_data
 from hakuba_api.catalog.store import load_resorts
 from hakuba_api.catalog.validate import validate_resorts
 
@@ -13,7 +14,11 @@ def collect_errors() -> list[str]:
         resorts = load_resorts()
     except ValidationError as e:
         return [f"resorts.json: {e}"]
-    return validate_resorts(resorts)
+    try:
+        bus_errors = validate_bus_data()
+    except ValidationError as e:
+        bus_errors = [f"bus data: {e}"]
+    return validate_resorts(resorts) + bus_errors
 
 
 def main() -> int:

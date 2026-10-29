@@ -60,7 +60,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 
 ### Phase 5: Slice 4 — Bus
 - [x] T16 Bus source change detector (`check_sources`)
-- [ ] T17 Bus stops + timetable schema + validator
+- [x] T17 Bus stops + timetable schema + validator
 - [ ] T18 Transcribe Line V (V1, V2, …) + Line VN — review
 - [ ] T19 Transcribe remaining lines (E, F, G1-6, G7-10, H, I, L, N, O, R, T) — review
 - [ ] T20 Bus query + `/api/bus/options` + `/api/bus/night`

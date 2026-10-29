@@ -16,19 +16,24 @@ Answer the question "From my hotel, which shuttle bus do I take, when does it le
 2. **Transcribe** (manual step, in a Claude Code session, no API calls from code): for each new or changed image, write `data/bus/timetables/<season>/<line>-<period>.json` following the schema below. Use the stop names exactly as printed (EN).
 3. **Validate** (`python -m hakuba_api.data.validate`):
    - every stop name resolves via `catalog.stop_by_alias`
-   - within each trip, times strictly increase down the stop order
+   - within each trip, times never decrease down the stop order (equal minutes are allowed: E2 prints 8:00 at two consecutive stops)
    - trip columns in a direction block keep the same stop order
    - `validFrom ≤ validTo`; periods of the same line don't overlap
    - each `sourceSha256` matches an entry in `sources.json`
 4. **Review**: a human compares the image with `git diff` and commits. Unvalidated or unreviewed files are never served (`reviewed: true` is required).
 
+## Transcription findings (2026-10-29)
+- Lines F and G publish **only the first stop's departure** ("wait at each bus stop based on the scheduled departure time"; "the order of stops may vary"). Their other stops are `null`.
+- Sub-routes (E1–E4, G1–G10, …) are separate `routeId`s under one `lineId`; the overlap check is per `routeId`.
+- 118 printed stop names map to 98 physical stops (`data/bus_stops.json`). 32 have checked coordinates (resort access points, OSM bus stops, the lodging snapshot, or Photon matched by Japanese name); 66 are `coord: null` / `coordSource: "unresolved"` rather than guessed.
+
 ## Timetable schema
 ```jsonc
-{ "lineId": "line-v", "period": "v2", "season": "2025-26",
+{ "lineId": "line-v", "routeId": "v2", "season": "2025-26", "kind": "day",
   "name": { "en": "Cortina ↔ Hakuba GORYU", "ja": "コルチナ ↔ 白馬五竜" },
   "validFrom": "2026-03-16", "validTo": "2026-03-29", "serviceDays": "daily",
   "fare": { "adultJpy": 800, "childJpy": 400, "hvPassFree": true },
-  "source": { "url": "https://…/TimetableV2.jpg", "sourceSha256": "…" },
+  "source": { "file": "TimetableV2.jpg" },   // must be an asset in sources.json
   "reviewed": true,
   "directions": [
     { "id": "south", "stops": ["Hakuba Cortina Snow Resort", "Satomi", "…"],
