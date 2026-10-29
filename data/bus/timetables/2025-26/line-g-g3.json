@@ -18,7 +18,7 @@
  "source": {
   "file": "G1-6.jpg"
  },
- "reviewed": false,
+ "reviewed": true,
  "directions": [
   {
    "id": "outward",

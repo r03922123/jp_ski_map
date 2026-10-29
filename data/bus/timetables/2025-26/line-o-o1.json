@@ -18,7 +18,7 @@
  "source": {
   "file": "O.jpg"
  },
- "reviewed": false,
+ "reviewed": true,
  "directions": [
   {
    "id": "to-resorts",

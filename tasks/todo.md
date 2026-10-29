@@ -221,7 +221,7 @@ Gate shorthand:
 **Description:** In a Claude Code session, transcribe the V1/V2/other V period images and VN into `data/bus/timetables/2025-26/`. Run the validator, then the human compares each image with the git diff and sets `reviewed: true`.
 **Acceptance criteria:**
 - [x] Validator passes; V2 contains Cortina 09:00 → Goryu Escal Plaza 10:23 (southbound trip 2)
-- [ ] The human has reviewed every file
+- [x] The human has reviewed every file (independent re-transcription, docs/review/timetables-2025-26.md; signed off 2026-10-29)
 **Verification:** `data.validate`; human review
 **Dependencies:** T17
 **Files:** `data/bus/timetables/2025-26/line-v-*.json`, `line-vn.json`
@@ -230,7 +230,7 @@ Gate shorthand:
 ## Task 19: Transcribe remaining lines
 **Description:** Same process for E, F, G1-6, G7-10, H, I, L, N, O, R, T. Also check whether the season PDF has extractable text (record it in the Open Questions of `SPEC-bus-schedules.md`).
 **Acceptance criteria:**
-- [x] All lines transcribed and validated (review pending) and reviewed; every resort in the page's line↔resort mapping can be reached by at least one line
+- [x] All lines transcribed, validated and reviewed (docs/review/timetables-2025-26.md) and reviewed; every resort in the page's line↔resort mapping can be reached by at least one line
 **Verification:** `data.validate`; human review
 **Dependencies:** T17
 **Files:** `data/bus/timetables/2025-26/*.json`, `SPEC-bus-schedules.md`

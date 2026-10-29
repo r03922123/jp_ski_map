@@ -18,7 +18,7 @@
  "source": {
   "file": "T.jpg"
  },
- "reviewed": false,
+ "reviewed": true,
  "directions": [
   {
    "id": "outward",

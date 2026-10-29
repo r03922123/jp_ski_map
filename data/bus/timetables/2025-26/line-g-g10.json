@@ -18,7 +18,7 @@
  "source": {
   "file": "G7-10.jpg"
  },
- "reviewed": false,
+ "reviewed": true,
  "directions": [
   {
    "id": "outward",
