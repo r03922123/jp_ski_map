@@ -101,7 +101,13 @@ describe("BusPanel", () => {
     renderPanel({
       result: {
         status: "success",
-        data: { status: "no_service", nextServiceDate: null, resorts: [] },
+        data: {
+          status: "no_service",
+          nextServiceDate: null,
+          basis: "expected",
+          newerSourcePending: false,
+          resorts: [],
+        },
       },
     });
 
@@ -114,7 +120,13 @@ describe("BusPanel", () => {
     renderPanel({
       result: {
         status: "success",
-        data: { status: "awaiting_review", nextServiceDate: null, resorts: [] },
+        data: {
+          status: "awaiting_review",
+          nextServiceDate: null,
+          basis: "published",
+          newerSourcePending: false,
+          resorts: [],
+        },
       },
     });
 
@@ -127,5 +139,132 @@ describe("BusPanel", () => {
     fireEvent.click(screen.getByLabelText(/night bus/i));
 
     expect(props.onShowNightChange).toHaveBeenCalledWith(true);
+  });
+});
+
+describe("BusPanel season copy", () => {
+  const base: BusResult = {
+    status: "ok",
+    nextServiceDate: null,
+    basis: "published",
+    basedOnSeason: "2025-26",
+    newerSourcePending: false,
+    resorts: (fixture as BusResult).resorts,
+  };
+
+  it("says published times are scheduled, without an Expected badge", () => {
+    renderPanel({ result: { status: "success", data: base } });
+
+    expect(screen.getByText(/scheduled times/i)).toBeInTheDocument();
+    expect(screen.queryByText("Expected")).not.toBeInTheDocument();
+  });
+
+  it("labels projected times as Expected and explains why", () => {
+    renderPanel({
+      result: { status: "success", data: { ...base, basis: "expected" } },
+    });
+
+    expect(screen.getByText("Expected")).toBeInTheDocument();
+    expect(
+      screen.getByText(/based on last season's timetable/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/check before you go/i)).toBeInTheDocument();
+  });
+
+  it("folds a newer published timetable into the Expected notice", () => {
+    renderPanel({
+      result: {
+        status: "success",
+        data: { ...base, basis: "expected", newerSourcePending: true },
+      },
+    });
+
+    expect(screen.getByText("Expected")).toBeInTheDocument();
+    expect(screen.getByText(/newer timetable is out/i)).toBeInTheDocument();
+    expect(screen.queryByText(/hasn't published/i)).not.toBeInTheDocument();
+  });
+
+  it("says when no departures are left today, not that there is no service", () => {
+    renderPanel({
+      result: {
+        status: "success",
+        data: { ...base, basis: "expected", resorts: [] },
+      },
+    });
+
+    expect(
+      screen.getByText(/no more departures after this time/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/no shuttle service/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Expected")).toBeInTheDocument();
+  });
+
+  it("labels projected night departures too", () => {
+    renderPanel({
+      showNight: true,
+      night: {
+        status: "success",
+        data: {
+          basis: "expected",
+          basedOnSeason: "2025-26",
+          newerSourcePending: false,
+          departures: [
+            {
+              routeId: "vn",
+              boardStopId: "stop-happo-bus-terminal",
+              boardStopName: "Hakuba Happo Bus Terminal",
+              walkS: 120,
+              departsAt: "2027-01-20T17:08:00+09:00",
+              towards: "JR Hakuba Station",
+            },
+          ],
+        },
+      },
+    });
+
+    expect(screen.getByText("17:08")).toBeInTheDocument();
+    expect(screen.getByText("Expected")).toBeInTheDocument();
+  });
+
+  it("names the next service day without a year", () => {
+    renderPanel({
+      result: {
+        status: "success",
+        data: {
+          ...base,
+          status: "no_service",
+          nextServiceDate: "2026-12-13",
+          resorts: [],
+        },
+      },
+    });
+
+    expect(screen.getByText(/next from Dec 13/)).toBeInTheDocument();
+  });
+
+  it.each([
+    ["ok", base],
+    ["expected", { ...base, basis: "expected" as const }],
+    [
+      "pending",
+      { ...base, basis: "expected" as const, newerSourcePending: true },
+    ],
+    [
+      "no_service",
+      {
+        ...base,
+        status: "no_service" as const,
+        nextServiceDate: "2026-12-13",
+        resorts: [],
+      },
+    ],
+    [
+      "awaiting_review",
+      { ...base, status: "awaiting_review" as const, resorts: [] },
+    ],
+  ])("never shows a four-digit year (%s)", (_name, data) => {
+    renderPanel({ result: { status: "success", data } });
+
+    expect(document.body.textContent).not.toMatch(/\b20\d\d\b/);
   });
 });

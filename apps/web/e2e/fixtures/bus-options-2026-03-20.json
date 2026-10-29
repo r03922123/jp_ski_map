@@ -1,6 +1,9 @@
 {
   "status": "ok",
   "nextServiceDate": null,
+  "basis": "published",
+  "basedOnSeason": "2025-26",
+  "newerSourcePending": false,
   "resorts": [
     {
       "resortId": "cortina",

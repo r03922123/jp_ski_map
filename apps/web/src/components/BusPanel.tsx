@@ -1,6 +1,6 @@
 "use client";
 
-import type { BusOption, BusResult, NightDeparture, Resort } from "@/lib/api";
+import type { BusOption, BusResult, NightResult, Resort } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ type Loadable<T> =
 export type BusPanelProps = {
   resorts: Resort[];
   result: Loadable<BusResult>;
-  night: Loadable<NightDeparture[]>;
+  night: Loadable<NightResult>;
   showNight: boolean;
   onShowNightChange: (show: boolean) => void;
   /** local Hakuba time, "YYYY-MM-DDTHH:mm" */
@@ -33,6 +33,13 @@ const clock = new Intl.DateTimeFormat("en-GB", {
   hour12: false,
 });
 const hhmm = (iso: string) => clock.format(new Date(iso));
+// "Dec 13": no year, timetables repeat each season
+const monthDay = (ymd: string) =>
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tokyo",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(`${ymd}T00:00:00+09:00`));
 const walk = (s: number) => (s < 60 ? "<1 min" : formatDuration(s));
 
 function OptionButton({
@@ -110,23 +117,40 @@ function Results({
   if (data.status === "awaiting_review") {
     return (
       <p className="text-sm text-muted-foreground">
-        This season's shuttle timetables are transcribed but still awaiting
-        review, so they aren't shown yet.
+        The latest shuttle timetables are transcribed but still awaiting review,
+        so they aren't shown yet.
       </p>
     );
   }
-  if (data.status === "no_service" || data.resorts.length === 0) {
+  if (data.status === "no_service") {
     return (
       <p className="text-sm text-muted-foreground">
         No shuttle service on this date
-        {data.nextServiceDate ? ` — next from ${data.nextServiceDate}` : ""}.
-        Shuttle timetables are published per season.
+        {data.nextServiceDate
+          ? ` — next from ${monthDay(data.nextServiceDate)}`
+          : ""}
+        .
+        {data.basis === "expected" &&
+          " That date is expected from last season's timetable."}
+        {data.newerSourcePending &&
+          " A new timetable is out and will be added soon."}
       </p>
+    );
+  }
+  if (data.resorts.length === 0) {
+    return (
+      <div className="flex flex-col gap-2">
+        <SeasonNotice data={data} />
+        <p className="text-sm text-muted-foreground">
+          No more departures after this time today.
+        </p>
+      </div>
     );
   }
   const names = new Map(resorts.map((r) => [r.id, r.name.en]));
   return (
     <div className="flex flex-col gap-3">
+      <SeasonNotice data={data} />
       {data.resorts.map((r) => {
         const name = names.get(r.resortId) ?? r.resortId;
         return (
@@ -152,6 +176,28 @@ function Results({
         );
       })}
     </div>
+  );
+}
+
+/** Whether the times are the published timetable or a projection of last season's. */
+function SeasonNotice({
+  data,
+}: {
+  data: Pick<BusResult, "basis" | "newerSourcePending">;
+}) {
+  if (data.basis !== "expected") {
+    return <p className="text-xs text-muted-foreground">Scheduled times.</p>;
+  }
+  return (
+    <p className="text-xs text-muted-foreground">
+      <span className="mr-1.5 rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-900">
+        Expected
+      </span>
+      Based on last season's timetable.{" "}
+      {data.newerSourcePending
+        ? "A newer timetable is out and will be added soon, so check before you go."
+        : "The operator hasn't published this season's yet, so check before you go."}
+    </p>
   );
 }
 
@@ -184,21 +230,24 @@ export function BusPanel(props: BusPanelProps) {
       </div>
 
       {showNight ? (
-        night.status === "success" && night.data.length > 0 ? (
-          <ol className="flex flex-col gap-1 text-sm">
-            {night.data.map((d) => (
-              <li key={`${d.routeId}-${d.departsAt}-${d.boardStopId}`}>
-                <span className="font-semibold tabular-nums">
-                  {hhmm(d.departsAt)}
-                </span>{" "}
-                from {d.boardStopName} towards {d.towards}
-                <span className="text-xs text-muted-foreground">
-                  {" "}
-                  · walk {walk(d.walkS)}
-                </span>
-              </li>
-            ))}
-          </ol>
+        night.status === "success" && night.data.departures.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            <SeasonNotice data={night.data} />
+            <ol className="flex flex-col gap-1 text-sm">
+              {night.data.departures.map((d) => (
+                <li key={`${d.routeId}-${d.departsAt}-${d.boardStopId}`}>
+                  <span className="font-semibold tabular-nums">
+                    {hhmm(d.departsAt)}
+                  </span>{" "}
+                  from {d.boardStopName} towards {d.towards}
+                  <span className="text-xs text-muted-foreground">
+                    {" "}
+                    · walk {walk(d.walkS)}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">
             {night.status === "loading"

@@ -11,6 +11,7 @@ export type RankedResort = components["schemas"]["RankedResort"];
 export type BusResult = components["schemas"]["BusResult"];
 export type BusOption = components["schemas"]["BusOption"];
 export type NightDeparture = components["schemas"]["NightDeparture"];
+export type NightResult = components["schemas"]["NightResult"];
 export type SortKey = NonNullable<
   NonNullable<
     operations["get_rank_api_rank_get"]["parameters"]["query"]
@@ -115,6 +116,6 @@ export function fetchBusOptions(
 }
 
 export const fetchNightBus = (from: Coord, departAt: string) =>
-  getJson<NightDeparture[]>(
+  getJson<NightResult>(
     `/api/bus/night?from=${latLng(from)}&at=${jst(departAt)}`,
   );

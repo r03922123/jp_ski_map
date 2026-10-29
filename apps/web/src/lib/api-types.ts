@@ -300,6 +300,19 @@ export interface components {
             nextServiceDate: string | null;
             /** Resorts */
             resorts: components["schemas"]["ResortBusOptions"][];
+            /**
+             * Basis
+             * @default published
+             * @enum {string}
+             */
+            basis: "published" | "expected";
+            /** Basedonseason */
+            basedOnSeason?: string | null;
+            /**
+             * Newersourcepending
+             * @default false
+             */
+            newerSourcePending: boolean;
         };
         /** Coord */
         Coord: {
@@ -437,6 +450,20 @@ export interface components {
             departsAt: string;
             /** Towards */
             towards: string;
+        };
+        /** NightResult */
+        NightResult: {
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "published" | "expected";
+            /** Basedonseason */
+            basedOnSeason: string | null;
+            /** Newersourcepending */
+            newerSourcePending: boolean;
+            /** Departures */
+            departures: components["schemas"]["NightDeparture"][];
         };
         /** PathRequest */
         PathRequest: {
@@ -1018,7 +1045,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["NightDeparture"][];
+                    "application/json": components["schemas"]["NightResult"];
                 };
             };
             /** @description Validation Error */
