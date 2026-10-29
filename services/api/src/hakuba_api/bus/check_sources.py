@@ -24,7 +24,8 @@ PAGE_URL = "https://www.hakubavalley.com/en/access_en/shuttlebus_en/"
 _UPLOAD_LINK = re.compile(
     r'href="(https://www\.hakubavalley\.com/cms/wp-content/uploads/[^"]+\.(?:jpe?g|png|pdf))"'
 )
-_SEASON = re.compile(r"/(\d{4})-(\d{4})-[^/]+\.pdf$")
+# the season's main PDFs only: "Low-season"/"Shoulder-season" PDFs are posted months earlier
+_SEASON = re.compile(r"/(\d{4})-(\d{4})-Shuttle-Bus-(?:Timetable|Map)[^/]*\.pdf$")
 _LINE_ANCHOR = re.compile(r'href="#line-([a-z0-9-]+)"')
 # Each timetable image is followed by the operator's My Maps layer of that line's stops
 # (embedded lazily, so the URL is in data-src rather than src).
@@ -100,7 +101,7 @@ def parse_page(page: str) -> ShuttlePage:
     if not seasons:
         raise UpstreamError("hakubavalley", "no season PDF found on the shuttle page")
     return ShuttlePage(
-        season=seasons[0],
+        season=max(seasons),  # the map and timetable PDFs may be updated on different days
         asset_urls=urls,
         line_resorts=_line_resorts(page),
         my_maps=_my_maps(page),
@@ -168,6 +169,9 @@ def run(accept: bool) -> int:
     )
     previous = tracked(old.assets, old.my_maps) if old else []
     changes = diff_assets(previous, tracked(current, maps))
+    new_season = old is not None and page.season > old.season
+    if new_season:
+        print(f"NEW SEASON {page.season} (transcribed: {old.season})")  # pyright: ignore[reportOptionalMemberAccess]
     for kind, files in changes.items():
         for file in files:
             print(f"{kind.upper():8} {file}")
@@ -185,7 +189,9 @@ def run(accept: bool) -> int:
         return 0
 
     changed_files = [f for files in changes.values() for f in files]
-    if not changed_files:
+    if new_season:
+        print("new season published — transcribe every timetable, then check_sources --accept")
+    elif not changed_files:
         print("no timetable or stop-map changes")
     else:
         maps_only = all(f.startswith("mymaps/") for f in changed_files)
@@ -194,8 +200,7 @@ def run(accept: bool) -> int:
             if maps_only
             else "timetables changed — transcribe them"
         )
-    changed = bool(changed_files)
-    return 1 if changed else 0
+    return 1 if changed_files or new_season else 0
 
 
 if __name__ == "__main__":

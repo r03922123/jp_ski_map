@@ -140,3 +140,17 @@ def test_repository_bus_data_is_valid() -> None:
     assert validate_repository() == []
     assert len(load_stops()) >= 90
     assert isinstance(load_timetables(), list)
+
+
+# --- season consistency ----------------------------------------------------------
+
+
+def test_manifest_season_must_not_lag_the_transcribed_one() -> None:
+    from hakuba_api.bus.validate import validate_seasons
+
+    assert validate_seasons("2025-26", ["2025-26"]) == []
+    assert validate_seasons("2026-27", ["2025-26"]) == []  # newer page, not transcribed yet: fine
+    assert validate_seasons("2025-26", ["2025-26", "2026-27"]) == [
+        "bus/sources.json season 2025-26 is older than transcribed season 2026-27; "
+        "run check_sources --accept"
+    ]

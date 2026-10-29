@@ -144,3 +144,50 @@ def test_manifest_is_stable_json(data: Path, site: respx.MockRouter) -> None:
 
     assert (data / "bus" / "sources.json").read_text() == first
     assert json.loads(first)["lineResorts"]["Tsugaike Mountain Resort"] == ["v", "t"]
+
+
+# --- a new season on the operator page ------------------------------------------
+
+
+def test_new_season_is_announced_and_exits_one(
+    data: Path, site: respx.MockRouter, capsys: pytest.CaptureFixture[str]
+) -> None:
+    run(accept=True)
+    capsys.readouterr()
+    next_season = PAGE_HTML.replace(
+        "2025-2026-Shuttle-Bus-Timetable.pdf", "2026-2027-Shuttle-Bus-Timetable.pdf"
+    )
+    site.get(PAGE_URL).respond(text=next_season)
+    for url in parse_page(next_season).asset_urls:
+        site.get(url).respond(content=url.encode())
+
+    assert run(accept=False) == 1
+    out = capsys.readouterr().out
+    assert "NEW SEASON 2026-27" in out
+    assert "transcribe" in out
+
+
+def test_same_season_is_not_announced(
+    data: Path, site: respx.MockRouter, capsys: pytest.CaptureFixture[str]
+) -> None:
+    run(accept=True)
+    capsys.readouterr()
+
+    run(accept=False)
+
+    assert "NEW SEASON" not in capsys.readouterr().out
+
+
+def test_a_new_low_season_pdf_alone_is_not_a_new_season(
+    data: Path, site: respx.MockRouter, capsys: pytest.CaptureFixture[str]
+) -> None:
+    run(accept=True)
+    capsys.readouterr()
+    page = PAGE_HTML.replace("2025-2026-Low-season.pdf", "2026-2027-Low-season.pdf")
+    site.get(PAGE_URL).respond(text=page)
+    for url in parse_page(page).asset_urls:
+        site.get(url).respond(content=url.encode())
+
+    run(accept=False)
+
+    assert "NEW SEASON" not in capsys.readouterr().out

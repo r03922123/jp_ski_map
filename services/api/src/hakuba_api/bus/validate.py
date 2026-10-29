@@ -90,15 +90,27 @@ def validate_bus(
     return errors + _validate_periods(timetables)
 
 
+def validate_seasons(manifest_season: str, transcribed: list[str]) -> list[str]:
+    """The sources manifest must name the latest transcribed season (or a newer one)."""
+    latest = max(transcribed, default=None)
+    if latest is not None and manifest_season < latest:
+        return [
+            f"bus/sources.json season {manifest_season} is older than transcribed season "
+            f"{latest}; run check_sources --accept"
+        ]
+    return []
+
+
 def validate_repository() -> list[str]:
     from hakuba_api.bus.store import load_stops, load_timetables
     from hakuba_api.catalog.store import load_resorts
 
     manifest_path = data_dir() / "bus" / "sources.json"
     manifest = SourcesManifest.model_validate_json(manifest_path.read_text())
+    timetables = load_timetables()
     return validate_bus(
         load_stops(),
-        load_timetables(),
+        timetables,
         {a.file for a in manifest.assets},
         {r.id for r in load_resorts()},
-    )
+    ) + validate_seasons(manifest.season, [t.season for t in timetables])

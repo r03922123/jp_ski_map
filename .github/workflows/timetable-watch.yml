@@ -1,10 +1,12 @@
 name: Shuttle timetable watch
 
-# Hakuba Valley republishes shuttle timetables (as images) a few times per season.
-# When any tracked asset is new, changed or removed, open an issue to (re)transcribe.
+# Hakuba Valley publishes the new season's shuttle timetables in autumn and revises
+# them (as images) a few times per season. Compare the page with data/bus/sources.json
+# and open an issue when a timetable, a stop map, or the season itself changed.
 on:
   schedule:
-    - cron: "0 0 * * 1" # Mondays 09:00 JST
+    - cron: "0 0 * 10-12,1 *" # daily 09:00 JST, Oct–Jan: the new season appears and settles
+    - cron: "0 0 * 2-9 1" # Mondays 09:00 JST the rest of the year
   workflow_dispatch:
 
 permissions:
@@ -18,29 +20,41 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv sync --locked --project services/api
-      - name: Compare published timetables with data/bus/sources.json
+      - name: Compare the shuttle page with data/bus/sources.json
         id: check
         run: |
           set +e
           uv run --project services/api python -m hakuba_api.bus.check_sources | tee report.txt
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-      - name: Open an issue when timetables changed
+          if grep -q '^NEW SEASON' report.txt; then
+            echo "title=New shuttle season $(grep -o '^NEW SEASON [0-9-]*' report.txt | cut -d' ' -f3) published" >> "$GITHUB_OUTPUT"
+          else
+            echo "title=Shuttle timetables changed" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Open an issue when something changed
         if: steps.check.outputs.status == '1'
         env:
           GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ steps.check.outputs.title }}
         run: |
           if gh issue list --label timetable-change --state open --json number --jq 'length' | grep -qv '^0$'; then
             echo "An open timetable-change issue already exists"; exit 0
           fi
           gh label create timetable-change --color D93F0B --force
           {
-            echo "check_sources found changed shuttle timetables:"
+            echo "\`check_sources\` found changes on https://www.hakubavalley.com/en/access_en/shuttlebus_en/ :"
             echo '```'; cat report.txt; echo '```'
-            echo "Transcribe the new/changed images into data/bus/timetables/ (reviewed=false),"
-            echo "run \`python -m hakuba_api.data.validate\`, review, then"
-            echo "\`python -m hakuba_api.bus.check_sources --accept\`. See SPEC-bus-schedules.md."
+            echo
+            echo "Checklist for a Claude Code session (no API budget — transcription is done in-session):"
+            echo "- [ ] \`uv run --project services/api python -m hakuba_api.bus.check_sources\` and open the changed files under \`data/bus/raw/<season>/\`"
+            echo "- [ ] Transcribe each new/changed image into \`data/bus/timetables/<season>/\` with \`reviewed: false\`"
+            echo "- [ ] \`uv run --project services/api python -m hakuba_api.data.validate\`"
+            echo "- [ ] Review against the images (see SPEC-bus-schedules.md), then set \`reviewed: true\`"
+            echo "- [ ] \`uv run --project services/api python -m hakuba_api.bus.check_sources --accept\`"
+            echo "- [ ] If stop maps changed: \`python -m hakuba_api.bus.import_mymaps --write\` then \`python -m hakuba_api.bus.locate_stops\`"
+            echo "- [ ] Until the new season is transcribed, the app serves last season's times labelled **Expected**."
           } > body.md
-          gh issue create --title "Shuttle timetables changed" --label timetable-change --body-file body.md
+          gh issue create --title "$TITLE" --label timetable-change --body-file body.md
       - name: Fail if the source page could not be read
         if: steps.check.outputs.status != '0' && steps.check.outputs.status != '1'
         run: exit 1
