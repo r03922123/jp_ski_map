@@ -106,7 +106,7 @@ Gate shorthand:
 **Acceptance criteria:**
 - [x] Unit tests for the 3 URL coordinate formats and the name extraction; a non-Google URL → treated as text
 - [x] Contract tests (Photon fixtures): an English query (Hotel Hakuba) and a Japanese one (白馬東急ホテル) hit the top 3; empty q → 422; upstream down → 502
-- [ ] Live: a pasted short link for Courtyard Hakuba resolves to within 50 m — **needs a real short link from the user** (redirect logic is unit-tested with mocks; host allow-list prevents SSRF)
+- [x] Live: a pasted short link for Courtyard Hakuba resolves to within 50 m (real link created via Google Maps Share in an isolated headless browser, 2026-10-29)
 **Verification:** API gates; `pytest -m live -k places`
 **Dependencies:** T1
 **Files:** `src/hakuba_api/places/{photon,gmaps_link,router,models}.py`, `tests/places/test_search.py`, `tests/fixtures/photon/*.json`

@@ -81,3 +81,19 @@ def test_short_link_network_error_returns_none() -> None:
 def test_only_google_short_link_hosts_are_ever_requested(url: str) -> None:
     with respx.mock(assert_all_mocked=True):  # any real request would raise
         assert resolve_short_link(url) is None
+
+
+@pytest.mark.live
+def test_live_courtyard_short_link_resolves_within_50_m() -> None:
+    # Created 2026-10-29 via Google Maps "Share" for Courtyard by Marriott Hakuba
+    # (place pin 36.6913712, 137.8382935) in an isolated headless browser.
+    from hakuba_api.bus.locate_stops import _km  # pyright: ignore[reportPrivateUsage]
+    from hakuba_api.common.geo import Coord
+
+    url = resolve_short_link("https://maps.app.goo.gl/g9ibqrPsDRuvxWMo8")
+    assert url is not None
+    place = parse_google_maps_url(url)
+
+    assert place is not None
+    assert "Courtyard" in place.name
+    assert _km(place.coord, Coord(lat=36.6913712, lng=137.8382935)) * 1000 < 50
