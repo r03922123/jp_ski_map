@@ -48,6 +48,7 @@ def test_spec_example_happo_bus_terminal_to_hakuba47_on_v2() -> None:
     )
     assert first.ride_s == 28 * 60
     assert first.timed is True
+    assert first.board_stop_coord == STOPS["stop-happo-bus-terminal"].coord
 
 
 def test_walk_time_rules_out_buses_you_cannot_reach() -> None:

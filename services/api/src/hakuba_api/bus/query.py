@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 from typing import Literal
 
 from hakuba_api.bus.models import BusStop, Timetable
+from hakuba_api.common.geo import Coord
 from hakuba_api.common.models import ApiModel
 
 MAX_OPTIONS_PER_RESORT = 3
@@ -17,6 +18,7 @@ class BusOption(ApiModel):
     trip: int
     board_stop_id: str
     board_stop_name: str
+    board_stop_coord: Coord | None  # walkable stops are always located; None never served
     alight_stop_id: str
     walk_s: int
     departs_at: datetime  # at the boarding stop, or at first_stop_name when untimed
@@ -108,6 +110,7 @@ def bus_options(
                             trip=trip.n,
                             board_stop_id=board,
                             board_stop_name=stops[board].name.en,
+                            board_stop_coord=stops[board].coord,
                             alight_stop_id=ids[j],
                             walk_s=walks[board],
                             departs_at=departs,
