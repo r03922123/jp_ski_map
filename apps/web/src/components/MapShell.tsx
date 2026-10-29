@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
+import { DrivePanel, type RankingState } from "@/components/DrivePanel";
 import {
   ModePanel,
   type PanelMode,
@@ -15,10 +16,16 @@ import {
   type Bbox,
   type Coord,
   fetchLodging,
+  fetchRank,
   fetchResorts,
   fetchRoute,
 } from "@/lib/api";
-import { parseViewState, serializeViewState } from "@/lib/url-state";
+import {
+  DEFAULT_RANK,
+  parseViewState,
+  type RankOptions,
+  serializeViewState,
+} from "@/lib/url-state";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
 const MapView = dynamic(() => import("./MapView"), { ssr: false });
@@ -32,6 +39,7 @@ export function MapShell() {
   const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
+  const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
 
   // Restore the shared view once, then mirror every change back into the URL.
   // `ready` is state (not a ref) so the first URL write happens on a render that
@@ -43,6 +51,7 @@ export function MapShell() {
     setMode(view.mode);
     setOrigin(view.origin);
     setSelectedResortId(view.resortId);
+    setRankOptions(view.rank);
     setReady(true);
   }, []);
   useEffect(() => {
@@ -51,9 +60,10 @@ export function MapShell() {
       origin,
       mode,
       resortId: selectedResortId,
+      rank: rankOptions,
     });
     window.history.replaceState(null, "", search);
-  }, [ready, origin, mode, selectedResortId]);
+  }, [ready, origin, mode, selectedResortId, rankOptions]);
 
   const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
 
@@ -66,8 +76,29 @@ export function MapShell() {
     staleTime: Number.POSITIVE_INFINITY, // snapshot data
   });
   const lodgingPins = showLodging ? (lodging.data ?? []) : [];
+
+  const ranking = useQuery({
+    queryKey: ["rank", origin, rankOptions],
+    queryFn: () => fetchRank(origin!, rankOptions),
+    enabled: mode === "drive" && origin !== null,
+    retry: false,
+    placeholderData: (previous) => previous, // keep the list while re-sorting
+  });
+  const rankingState: RankingState = ranking.isPending
+    ? { status: "loading" }
+    : ranking.isError
+      ? { status: "error" }
+      : { status: "success", data: ranking.data };
+
+  // Drive to the access point the ranking found nearest; otherwise the first one.
   const resort = resorts.data?.find((r) => r.id === selectedResortId);
-  const destination = resort?.accessPoints[0]?.coord;
+  const nearestId = ranking.data?.find(
+    (r) => r.resortId === selectedResortId,
+  )?.accessPointId;
+  const destination = (
+    resort?.accessPoints.find((a) => a.id === nearestId) ??
+    resort?.accessPoints[0]
+  )?.coord;
 
   const routeMode = mode === "bus" ? null : mode;
   const route = useQuery({
@@ -127,6 +158,15 @@ export function MapShell() {
           onSelectResort={setSelectedResortId}
           hasOrigin={origin !== null}
           route={routeState}
+          drivePanel={
+            <DrivePanel
+              options={rankOptions}
+              onOptionsChange={setRankOptions}
+              ranking={rankingState}
+              selectedResortId={selectedResortId}
+              onSelectResort={setSelectedResortId}
+            />
+          }
         />
       </BottomSheet>
     </main>

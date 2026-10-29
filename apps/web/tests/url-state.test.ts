@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parseViewState, serializeViewState } from "@/lib/url-state";
+import {
+  DEFAULT_RANK,
+  parseViewState,
+  serializeViewState,
+} from "@/lib/url-state";
 
 describe("parseViewState", () => {
   it("reads origin, mode and resort", () => {
@@ -9,6 +13,7 @@ describe("parseViewState", () => {
       origin: { lat: 36.69, lng: 137.87 },
       mode: "walk",
       resortId: "happo-one",
+      rank: DEFAULT_RANK,
     });
   });
 
@@ -17,6 +22,7 @@ describe("parseViewState", () => {
       origin: null,
       mode: "drive",
       resortId: null,
+      rank: DEFAULT_RANK,
     });
   });
 
@@ -32,6 +38,7 @@ describe("serializeViewState", () => {
         origin: { lat: 36.6912345678, lng: 137.8712345678 },
         mode: "drive",
         resortId: null,
+        rank: DEFAULT_RANK,
       }),
     ).toBe("?from=36.69123%2C137.87123&mode=drive");
   });
@@ -41,8 +48,38 @@ describe("serializeViewState", () => {
       origin: { lat: 36.69, lng: 137.87 },
       mode: "walk" as const,
       resortId: "cortina",
+      rank: DEFAULT_RANK,
     };
 
     expect(parseViewState(serializeViewState(state))).toEqual(state);
+  });
+});
+
+describe("rank options in the URL", () => {
+  it("round-trips sort, date and filters", () => {
+    const state = {
+      origin: { lat: 36.69, lng: 137.87 },
+      mode: "drive" as const,
+      resortId: null,
+      rank: {
+        sort: "fresh_snow" as const,
+        date: "2026-02-21",
+        maxDriveMin: 20,
+        nightSkiing: true,
+        hvPass: false,
+      },
+    };
+
+    expect(parseViewState(serializeViewState(state))).toEqual(state);
+  });
+
+  it("defaults to drive time, today and no filters", () => {
+    expect(parseViewState("?sort=best&maxDrive=-3").rank).toEqual({
+      sort: "drive_time",
+      date: null,
+      maxDriveMin: null,
+      nightSkiing: false,
+      hvPass: false,
+    });
   });
 });

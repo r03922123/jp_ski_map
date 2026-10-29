@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/matrix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Matrix */
+        post: operations["post_matrix_api_matrix_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/places/search": {
         parameters: {
             query?: never;
@@ -67,6 +84,57 @@ export interface paths {
          * @description Lodging pins for the current map view, from the OSM snapshot (`south,west,north,east`).
          */
         get: operations["lodging_api_places_lodging_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/snow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Snow */
+        get: operations["get_snow_api_snow_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/crowd": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Crowd */
+        get: operations["get_crowd_api_crowd_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rank": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Rank */
+        get: operations["get_rank_api_rank_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -115,6 +183,52 @@ export interface components {
             /** Lng */
             lng: number;
         };
+        /** CrowdEstimate */
+        CrowdEstimate: {
+            /** Resortid */
+            resortId: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Level
+             * @enum {string}
+             */
+            level: "low" | "medium" | "high" | "very_high";
+            /** Score */
+            score: number;
+            /** Source */
+            source: string;
+            /**
+             * Isestimate
+             * @default true
+             */
+            isEstimate: boolean;
+            /** Reasons */
+            reasons: string[];
+        };
+        /**
+         * Factors
+         * @description Raw values, in their natural units; None = unknown.
+         */
+        Factors: {
+            /** Drivetime */
+            driveTime: number | null;
+            /** Freshsnow */
+            freshSnow: number | null;
+            /** Snowdepth */
+            snowDepth: number | null;
+            /** Crowd */
+            crowd: number | null;
+            /** Terrainsize */
+            terrainSize: number | null;
+            /** Vertical */
+            vertical: number | null;
+            /** Price */
+            price: number | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -138,6 +252,49 @@ export interface components {
             /** Ja */
             ja: string;
         };
+        /** MatrixCell */
+        MatrixCell: {
+            /** Id */
+            id: string;
+            /** Durations */
+            durationS: number | null;
+            /** Distancem */
+            distanceM: number | null;
+        };
+        /** MatrixRequest */
+        MatrixRequest: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "drive" | "walk";
+            origin: components["schemas"]["Coord"];
+            /** Targets */
+            targets: components["schemas"]["MatrixTarget"][];
+        };
+        /** MatrixTarget */
+        MatrixTarget: {
+            /** Id */
+            id: string;
+            /** Lat */
+            lat: number;
+            /** Lng */
+            lng: number;
+        };
+        /**
+         * NewSnow
+         * @description Centimetres; None when any hour in the window is missing (never 0).
+         */
+        NewSnow: {
+            /** Past24H */
+            past24h: number | null;
+            /** Past72H */
+            past72h: number | null;
+            /** Next24H */
+            next24h: number | null;
+            /** Next72H */
+            next72h: number | null;
+        };
         /** Place */
         Place: {
             /** Id */
@@ -157,6 +314,26 @@ export interface components {
              * @enum {string}
              */
             source: "photon" | "osm-snapshot" | "gmaps-link";
+        };
+        /** RankedResort */
+        RankedResort: {
+            /** Resortid */
+            resortId: string;
+            /** Name */
+            name: string;
+            /** Rank */
+            rank: number;
+            /** Sortvalue */
+            sortValue: number | null;
+            /** Drives */
+            driveS: number | null;
+            /** Drivedistancem */
+            driveDistanceM: number | null;
+            /** Accesspointid */
+            accessPointId: string;
+            factors: components["schemas"]["Factors"];
+            snow: components["schemas"]["SnowReport"] | null;
+            crowd: components["schemas"]["CrowdEstimate"] | null;
         };
         /** Resort */
         Resort: {
@@ -224,6 +401,31 @@ export interface components {
              */
             isEstimate: boolean;
         };
+        /** SnowDepth */
+        SnowDepth: {
+            /** Base */
+            base: number | null;
+            /** Summit */
+            summit: number | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "model" | "reported";
+        };
+        /** SnowReport */
+        SnowReport: {
+            /** Resortid */
+            resortId: string;
+            /**
+             * Asof
+             * Format: date-time
+             */
+            asOf: string;
+            depthCm: components["schemas"]["SnowDepth"];
+            newSnowCm: components["schemas"]["NewSnow"];
+            tempC: components["schemas"]["SummitTemps"];
+        };
         /** Step */
         Step: {
             /** Instruction */
@@ -232,6 +434,13 @@ export interface components {
             distanceM: number;
             /** Durations */
             durationS: number;
+        };
+        /** SummitTemps */
+        SummitTemps: {
+            /** Summitmin */
+            summitMin: number | null;
+            /** Summitmax */
+            summitMax: number | null;
         };
         /** TerrainPct */
         TerrainPct: {
@@ -317,6 +526,39 @@ export interface operations {
             };
         };
     };
+    post_matrix_api_matrix_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatrixRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatrixCell"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     search_api_places_search_get: {
         parameters: {
             query: {
@@ -367,6 +609,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Place"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_snow_api_snow_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SnowReport"][];
+                };
+            };
+        };
+    };
+    get_crowd_api_crowd_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrowdEstimate"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_rank_api_rank_get: {
+        parameters: {
+            query: {
+                from: string;
+                sort?: "drive_time" | "fresh_snow" | "snow_depth" | "crowd" | "terrain_size" | "vertical" | "price";
+                date?: string | null;
+                nightSkiing?: boolean | null;
+                hakubaValleyPass?: boolean | null;
+                maxDriveMin?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RankedResort"][];
                 };
             };
             /** @description Validation Error */

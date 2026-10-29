@@ -90,6 +90,10 @@ export default function MapView({
       initialViewState={HAKUBA_VIEW}
       mapStyle={MAP_STYLE_URL}
       style={{ position: "absolute", inset: 0 }}
+      attributionControl={{
+        customAttribution:
+          'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>',
+      }}
       interactiveLayerIds={[LODGING_LAYER]}
       onLoad={(e) => {
         reportView(e.target);

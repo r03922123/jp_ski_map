@@ -179,11 +179,11 @@ Gate shorthand:
 **Files:** `src/hakuba_api/routing/matrix.py`, `src/hakuba_api/ranking/{rank,router,models}.py`, `tests/ranking/test_rank.py`
 **Scope:** M
 
-## Task 15: Web — 🚗 ranked list
+## Task 15: Web — 🚗 ranked list ✅
 **Description:** The Drive tab: sort dropdown (7 keys), filters, date picker; a list with ETA, snow, an "estimated" crowd badge, and all factor values on expand (null shown as "—"); snow `asOf` shown. Selecting a resort draws its route (reusing T6). Sort/date/filters are kept in the URL. Open-Meteo is credited in the attribution.
 **Acceptance criteria:**
-- [ ] Changing the sort reorders the list with no route flicker; the selected resort draws its drive route
-- [ ] Every estimate is labeled
+- [x] Changing the sort reorders the list with no route flicker; the selected resort draws its drive route
+- [x] Every estimate is labeled
 **Verification:** Web gates; Playwright `e2e/drive.spec.ts`
 **Dependencies:** T7, T14
 **Files:** `src/components/{DrivePanel,ResortList,SortControls}.tsx`, `tests/ResortList.test.tsx`, `e2e/drive.spec.ts`

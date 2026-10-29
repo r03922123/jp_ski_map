@@ -1,9 +1,15 @@
-import type { components } from "@/lib/api-types";
+import type { components, operations } from "@/lib/api-types";
 
 export type Resort = components["schemas"]["Resort"];
 export type Route = components["schemas"]["Route"];
 export type Coord = components["schemas"]["Coord"];
 export type Place = components["schemas"]["Place"];
+export type RankedResort = components["schemas"]["RankedResort"];
+export type SortKey = NonNullable<
+  NonNullable<
+    operations["get_rank_api_rank_get"]["parameters"]["query"]
+  >["sort"]
+>;
 export type Mode = Route["mode"];
 
 /** Error code from the API body (`{"error": "no_route"}`), or the HTTP status. */
@@ -46,3 +52,20 @@ export const fetchLodging = ({ south, west, north, east }: Bbox) =>
   getJson<Place[]>(
     `/api/places/lodging?bbox=${south},${west},${north},${east}`,
   );
+
+export type RankQuery = {
+  sort: SortKey;
+  date: string | null;
+  maxDriveMin: number | null;
+  nightSkiing: boolean;
+  hvPass: boolean;
+};
+
+export function fetchRank(from: Coord, q: RankQuery) {
+  const params = new URLSearchParams({ from: latLng(from), sort: q.sort });
+  if (q.date) params.set("date", q.date);
+  if (q.maxDriveMin) params.set("maxDriveMin", String(q.maxDriveMin));
+  if (q.nightSkiing) params.set("nightSkiing", "true");
+  if (q.hvPass) params.set("hakubaValleyPass", "true");
+  return getJson<RankedResort[]>(`/api/rank?${params}`);
+}

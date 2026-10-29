@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Mode, Resort, Route } from "@/lib/api";
 import { formatDistance, formatDuration } from "@/lib/format";
@@ -20,6 +21,8 @@ export type ModePanelProps = {
   onSelectResort: (id: string) => void;
   hasOrigin: boolean;
   route: RouteState;
+  /** Drive mode: ranked resort list replacing the plain picker. */
+  drivePanel?: ReactNode;
 };
 
 const LONG_WALK_S = 45 * 60;
@@ -39,6 +42,7 @@ export function ModePanel({
   onSelectResort,
   hasOrigin,
   route,
+  drivePanel,
 }: ModePanelProps) {
   return (
     <div className="flex flex-col gap-3">
@@ -59,6 +63,11 @@ export function ModePanel({
         <p className="text-sm text-muted-foreground">
           Tap the map to set your starting point.
         </p>
+      ) : mode === "drive" && drivePanel ? (
+        <>
+          <RouteSummary mode={mode} route={route} />
+          {drivePanel}
+        </>
       ) : (
         <>
           <div className="flex flex-col gap-1 text-sm font-medium">

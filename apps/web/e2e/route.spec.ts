@@ -18,7 +18,11 @@ test("click map → choose resort → drive then walk route with ETA", async ({
   );
   await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible();
 
-  await page.getByLabel("Resort", { exact: true }).selectOption("happo-one");
+  // Drive mode lists ranked resorts (map markers share the name, so scope to the list)
+  await page
+    .getByRole("list")
+    .getByRole("button", { name: /Happo-One/ })
+    .click({ timeout: 15_000 });
   await expect(page.getByText(/^ETA ~ \d+ min/)).toBeVisible({
     timeout: 10_000,
   });
