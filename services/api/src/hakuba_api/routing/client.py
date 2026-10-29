@@ -3,6 +3,7 @@ from typing import Any
 import httpx
 
 from hakuba_api.common.geo import Coord
+from hakuba_api.routing.maneuvers import maneuver_for, route_summary
 from hakuba_api.routing.models import LineString, MatrixCell, Mode, Route, Step
 from hakuba_api.routing.polyline import decode_polyline
 
@@ -19,6 +20,43 @@ class RoutingUnavailableError(Exception):
 
 def _location(coord: Coord) -> dict[str, float]:
     return {"lat": coord.lat, "lon": coord.lng}
+
+
+def _to_route(mode: Mode, trip: dict[str, Any]) -> Route:
+    """One Valhalla trip (all legs joined) → Route."""
+    coordinates: list[list[float]] = []
+    steps: list[Step] = []
+    roads: list[tuple[list[str], float]] = []  # (street names, km) per maneuver
+    for leg in trip["legs"]:
+        offset = max(len(coordinates) - 1, 0)  # legs share their joining point
+        shape = [[lng, lat] for lng, lat in decode_polyline(leg["shape"])]
+        coordinates += shape[1:] if coordinates else shape
+        for m in leg["maneuvers"]:
+            street_names: list[str] = m.get("street_names") or []
+            roads.append((street_names, m["length"]))
+            if steps and m["type"] in (4, 5, 6) and leg is not trip["legs"][-1]:
+                continue  # intermediate "arrive" of a via-point
+            steps.append(
+                Step(
+                    instruction=m["instruction"],
+                    distance_m=round(m["length"] * 1000),
+                    duration_s=round(m["time"]),
+                    maneuver=maneuver_for(m["type"]),
+                    street_names=street_names,
+                    shape_range=(
+                        m["begin_shape_index"] + offset,
+                        m["end_shape_index"] + offset,
+                    ),
+                )
+            )
+    return Route(
+        mode=mode,
+        duration_s=round(trip["summary"]["time"]),
+        distance_m=round(trip["summary"]["length"] * 1000),
+        geometry=LineString(coordinates=coordinates),
+        steps=steps,
+        summary=route_summary(roads),
+    )
 
 
 class ValhallaClient:
@@ -46,24 +84,7 @@ class ValhallaClient:
                 "units": "kilometers",
             },
         )
-        trip = data["trip"]
-        leg = trip["legs"][0]
-        return Route(
-            mode=mode,
-            duration_s=round(trip["summary"]["time"]),
-            distance_m=round(trip["summary"]["length"] * 1000),
-            geometry=LineString(
-                coordinates=[[lng, lat] for lng, lat in decode_polyline(leg["shape"])]
-            ),
-            steps=[
-                Step(
-                    instruction=m["instruction"],
-                    distance_m=round(m["length"] * 1000),
-                    duration_s=round(m["time"]),
-                )
-                for m in leg["maneuvers"]
-            ],
-        )
+        return _to_route(mode, data["trip"])
 
     def matrix(
         self, mode: Mode, origin: Coord, targets: list[tuple[str, Coord]]
