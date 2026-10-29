@@ -3,7 +3,7 @@ from typing import Any
 import httpx
 
 from hakuba_api.common.geo import Coord
-from hakuba_api.routing.models import LineString, Mode, Route, Step
+from hakuba_api.routing.models import LineString, MatrixCell, Mode, Route, Step
 from hakuba_api.routing.polyline import decode_polyline
 
 COSTING: dict[Mode, str] = {"drive": "auto", "walk": "pedestrian"}
@@ -64,3 +64,26 @@ class ValhallaClient:
                 for m in leg["maneuvers"]
             ],
         )
+
+    def matrix(
+        self, mode: Mode, origin: Coord, targets: list[tuple[str, Coord]]
+    ) -> list[MatrixCell]:
+        """One-to-many durations, in target order (Valhalla `sources_to_targets`)."""
+        data = self._post(
+            "/sources_to_targets",
+            {
+                "sources": [_location(origin)],
+                "targets": [_location(c) for _, c in targets],
+                "costing": COSTING[mode],
+                "units": "kilometers",
+            },
+        )
+        cells = sorted(data["sources_to_targets"][0], key=lambda c: c["to_index"])
+        return [
+            MatrixCell(
+                id=target_id,
+                duration_s=None if cell["time"] is None else round(cell["time"]),
+                distance_m=None if cell["distance"] is None else round(cell["distance"] * 1000),
+            )
+            for (target_id, _), cell in zip(targets, cells, strict=True)
+        ]

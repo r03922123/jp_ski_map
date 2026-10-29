@@ -3,9 +3,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from hakuba_api.common.geo import Coord
+from hakuba_api.common.models import ApiModel
 from hakuba_api.common.params import parse_lat_lng
 from hakuba_api.routing.client import ValhallaClient
-from hakuba_api.routing.models import Mode, Route
+from hakuba_api.routing.models import MatrixCell, Mode, Route
 
 router = APIRouter(prefix="/api")
 
@@ -22,3 +24,23 @@ def get_route(
     valhalla: Annotated[ValhallaClient, Depends(get_valhalla)],
 ) -> Route:
     return valhalla.route(mode, parse_lat_lng(origin, "from"), parse_lat_lng(destination, "to"))
+
+
+class MatrixTarget(ApiModel):
+    id: str
+    lat: float
+    lng: float
+
+
+class MatrixRequest(ApiModel):
+    mode: Mode
+    origin: Coord
+    targets: list[MatrixTarget]
+
+
+@router.post("/matrix", response_model=list[MatrixCell], response_model_by_alias=True)
+def post_matrix(
+    body: MatrixRequest, valhalla: Annotated[ValhallaClient, Depends(get_valhalla)]
+) -> list[MatrixCell]:
+    targets = [(t.id, Coord(lat=t.lat, lng=t.lng)) for t in body.targets]
+    return valhalla.matrix(body.mode, body.origin, targets)

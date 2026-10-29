@@ -52,7 +52,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [x] T11 Snow conditions (Open-Meteo) + `/api/snow`
 - [x] T12 Spike: hakubavalley.com Weather & Snow page (time-boxed 1 h, findings only)
 - [x] T13 Crowd heuristic + `/api/crowd`
-- [ ] T14 Matrix + ranking pure function + `/api/rank`
+- [x] T14 Matrix + ranking pure function + `/api/rank`
 - [ ] T15 Web: 🚗 ranked list (sort, filters, date, factors)
 
 ### Checkpoint D: Drive mode complete

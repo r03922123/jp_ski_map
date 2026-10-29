@@ -23,3 +23,9 @@ class Route(ApiModel):
     geometry: LineString
     steps: list[Step]
     is_estimate: bool = True  # typical speeds, no live traffic or winter road conditions
+
+
+class MatrixCell(ApiModel):
+    id: str
+    duration_s: int | None  # None when Valhalla can't reach the target
+    distance_m: int | None

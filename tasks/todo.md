@@ -169,11 +169,11 @@ Gate shorthand:
 **Files:** `src/hakuba_api/crowd/{heuristic,models,router}.py`, `data/crowd_periods.json`, `tests/crowd/test_heuristic.py`
 **Scope:** M — `holidays` is a new dependency; it's listed in this plan and approved along with it
 
-## Task 14: Matrix + ranking + /api/rank
+## Task 14: Matrix + ranking + /api/rank ✅
 **Description:** `routing.matrix` (Valhalla `sources_to_targets`) and `POST /api/matrix`. A pure `rank()` with 7 sort keys, null-last ordering, the tiebreak rule, and the 3 filters. `GET /api/rank` puts catalog + matrix + snow + crowd together.
 **Acceptance criteria:**
-- [ ] Each sort key orders correctly on a fixture; null price comes last; filters work; unknown sort → 422
-- [ ] Live: `/api/rank` returns all 10 in < 1 s
+- [x] Each sort key orders correctly on a fixture; null price comes last; filters work; unknown sort → 422
+- [x] Live: `/api/rank` returns all 10 in < 1 s
 **Verification:** API gates (≥ 90% coverage on `ranking/`); `pytest -m live -k rank`
 **Dependencies:** T5, T11, T13
 **Files:** `src/hakuba_api/routing/matrix.py`, `src/hakuba_api/ranking/{rank,router,models}.py`, `tests/ranking/test_rank.py`

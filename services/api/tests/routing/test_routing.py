@@ -179,3 +179,33 @@ def test_live_walk_happo_bus_terminal_to_nakiyama_under_20_min() -> None:
     route = live.route("walk", HAPPO_BUS_TERMINAL, NAKIYAMA)
 
     assert route.duration_s < 20 * 60
+
+
+# --- matrix -------------------------------------------------------------------
+
+
+def test_matrix_maps_cells_back_to_target_ids(
+    valhalla: respx.MockRouter, client: ValhallaClient
+) -> None:
+    call = valhalla.post("/sources_to_targets").respond(json=fixture("matrix_jr_hakuba.json"))
+    targets = [(f"t{i}", Coord(lat=36.7, lng=137.8)) for i in range(12)]
+
+    cells = client.matrix("drive", Coord(lat=36.6987, lng=137.8617), targets)
+
+    assert json.loads(call.calls.last.request.content)["costing"] == "auto"
+    assert [c.id for c in cells] == [f"t{i}" for i in range(12)]
+    assert cells[0].duration_s == 1843
+    assert cells[0].distance_m == 27408
+
+
+def test_matrix_unreachable_target_has_null_duration(
+    valhalla: respx.MockRouter, client: ValhallaClient
+) -> None:
+    data = fixture("matrix_jr_hakuba.json")
+    data["sources_to_targets"][0][1].update({"time": None, "distance": None})
+    valhalla.post("/sources_to_targets").respond(json=data)
+    targets = [(f"t{i}", Coord(lat=36.7, lng=137.8)) for i in range(12)]
+
+    cells = client.matrix("drive", Coord(lat=36.6987, lng=137.8617), targets)
+
+    assert (cells[1].duration_s, cells[1].distance_m) == (None, None)

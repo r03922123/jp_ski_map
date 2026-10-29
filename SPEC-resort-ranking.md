@@ -44,6 +44,10 @@ Filters: `nightSkiing`, `hakubaValleyPass`, `maxDriveMin`.
 - [ ] Unknown `sort` → 422.
 - [ ] The response contains all resorts that pass the filters, in < 1 s locally.
 
+## Performance (measured 2026-10-29, local)
+- Valhalla matrix (1 origin → 12 access points): ~0.11 s. A warm `/api/rank`: ~0.05 s.
+- A cold `/api/rank` takes ~1.3 s, because the hourly snow cache misses and Open-Meteo takes ~1.2 s. If that becomes noticeable, warm the snow cache on startup or in the background (not done in v1).
+
 ## Boundaries
 - Ask first: adding any combined score (weighted, ML or personalized) before the research item below is done.
 
