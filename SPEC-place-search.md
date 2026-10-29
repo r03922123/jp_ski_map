@@ -49,3 +49,22 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 
 ## Open Questions
 - Contribute the missing hotels and `name:en` tags back to OpenStreetMap? This is optional and benefits everyone, but it's a manual job for the author.
+
+## v1.2 — Google-style suggestions (approved 2026-10-30)
+**Problem:** Photon alone misses hotels, knows no Japanese for most, returns far-away places, and is slow (~300 ms per keystroke). Google feels good because suggestions are instant, local, forgiving and ranked.
+
+**Design: a local index first, Photon as fallback.**
+- `places/index.py` builds, at startup, one in-memory index from data we already hold: bus stops (EN/JA + aliases), resorts and their base areas (EN/JA), the lodging snapshot (EN + JA, the refresh now keeps `name:ja`), and the POI snapshot (EN/JA, brand). ~350 entries; no network.
+- Matching (pure, unit-tested): query and names are NFKC-normalised and case-folded; katakana is folded to hiragana so 「ホテル」 and 「ほてる」 match. Score: exact 100 › name-prefix 90 › token-prefix 80 › substring 70 › fuzzy (≤ 2 edits on a token, query ≥ 4 chars) 40–60. Tie-break by straight-line distance to `near` (the map centre), then kind (resort, stop, lodging, food, convenience).
+- `GET /api/places/suggest?q=…&near=lat,lng&limit=8` → `Suggestion[]`: `Place` fields plus `nameJa`, `kind` extended with `resort | stop | food | convenience`, `detail` (e.g. "Bus stop · Line V", "Hotel", "Konbini · 7-Eleven"), `match: [start, end]` on `name` for highlighting, `source: "index" | "photon" | "gmaps-link"`.
+- A Google Maps URL is still handled first (unchanged). Otherwise: local hits; if fewer than 3 and the query has ≥ 3 characters, Photon results (Hakuba-biased, outside-Hakuba dropped) are appended, de-duplicated against local hits by proximity (< 50 m). A Photon failure never fails the request.
+- Web `SearchBox`: suggestions update per keystroke (150 ms debounce — local is cheap); each row shows an icon by kind (🏨 🚏 ⛷ 🍜 🏪 📍), the name with the matched part bold, and `detail`; Enter picks the top row; arrow keys move; an empty focused box shows up to 5 recent picks (`localStorage`, per-viewer convenience). The map centre is sent as `near`.
+
+**Acceptance:**
+- [ ] Index unit tests: "tokyu" → Hakuba Tokyu Hotel (stop + lodging) first; 「白馬東急」 → the same; "happo bus" → Happo Bus Terminal; "7-eleven" → konbini; "hakuba" ranks the nearest entries first for a given `near`; "hotl hakuba" (typo) still finds Hotel Hakuba.
+- [ ] `/suggest` returns within 20 ms for local hits (no Photon call when ≥ 3 local hits — asserted with respx).
+- [ ] Photon down → local results still returned, 200.
+- [ ] Web: typing "tok" shows a bolded "Tok" in "Hakuba Tokyu Hotel"; Enter selects it; recents appear on focus; E2E: search "Tokyu" → origin set at the hotel, lodging pins visible (existing spec adapted).
+- [ ] Mobile: dropdown fits 390 px with no horizontal scroll.
+
+**Not doing:** Google Places (needs billing, Google basemap, caching limits); server-side query logging.
