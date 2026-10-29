@@ -41,12 +41,12 @@ Gate shorthand:
 **Files:** `infra/docker-compose.yml`, `infra/valhalla/.gitkeep`, `services/api/tests/live/test_valhalla_smoke.py`, `services/api/pyproject.toml` (marker)
 **Scope:** S — **high risk, do it early** (Apple Silicon image/tile build)
 
-## Task 4: Resort catalog — models, validator, resorts.json
+## Task 4: Resort catalog — models, validator, resorts.json ✅
 **Description:** Pydantic models for Resort/AccessPoint/Stats. Fill `data/resorts.json` with all 10 resorts (real access point coordinates from OSM or the resort sites, stats with `statsSource`, `null` when unknown). Add the `data.validate` entrypoint (duplicate ids, EN/JA names, bbox, terrain sums to 100) and `GET /api/resorts`. Bus stops come in T17.
 **Acceptance criteria:**
-- [ ] 10 resorts; Goryu has Escal Plaza + Iimori access points; no invented values
-- [ ] The validator rejects each bad-data case (one unit test per rule)
-- [ ] `/api/resorts` returns all 10 in camelCase
+- [x] 10 resorts; Goryu has Escal Plaza + Iimori access points; no invented values
+- [x] The validator rejects each bad-data case (one unit test per rule)
+- [x] `/api/resorts` returns all 10 in camelCase
 **Verification:** API gates; `python -m hakuba_api.data.validate` exits 0
 **Dependencies:** T1
 **Files:** `src/hakuba_api/catalog/{models,store,router}.py`, `src/hakuba_api/data/validate.py`, `data/resorts.json`, `tests/catalog/test_catalog.py`

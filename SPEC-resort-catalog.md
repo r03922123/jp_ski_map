@@ -7,26 +7,26 @@ The static reference data that every other module joins on: the resorts, the acc
 
 ## Data (in `data/`)
 
-`resorts.json`: list of
+`resorts.json`: list of (stats parsed from https://www.hakubavalley.com/en/ski_resort_info_en/; access points = lower lift terminals from OSM)
 ```jsonc
 {
   "id": "happo-one",
   "name": { "en": "Hakuba Happo-One Snow Resort", "ja": "白馬八方尾根スキー場" },
   "region": "hakuba-valley",
-  "website": "https://www.happo-one.jp/",
-  "summit": { "lat": 36.70, "lng": 137.80, "elevationM": 1831 },   // values illustrative
+  "website": "https://www.happo-one.jp/en/",
   "accessPoints": [                // where you park / start skiing; routing target
-    { "id": "happo-one-nakiyama", "name": { "en": "Nakiyama Slope", "ja": "名木山ゲレンデ" },
-      "coord": { "lat": 0, "lng": 0 }, "parking": true }
+    { "id": "happo-one-adam-gondola", "name": { "en": "Adam Gondola", "ja": "八方ゴンドラ「アダム」" },
+      "coord": { "lat": 36.70179, "lng": 137.83683 }, "coordSource": "osm:way/31895856 (lower lift terminal)" }
   ],
   "stats": { "baseElevationM": 760, "topElevationM": 1831, "verticalM": 1071,
-             "lifts": 22, "runs": 16, "longestRunM": 8000,
-             "terrainPct": { "beginner": 30, "intermediate": 40, "advanced": 30 },
-             "nightSkiing": true, "dayTicketJpy": 8000 },
+             "gondolas": 1, "chairLifts": 22, "runs": 16, "longestRunM": 8000, "totalRunsM": 23300, "areaHa": 220,
+             "terrainPct": { "beginner": 30, "intermediate": 50, "advanced": 20 },
+             "nightSkiing": null, "dayTicketJpy": null },
   "hakubaValleyPass": true,
   "statsSource": "https://… (URL + date checked)"
 }
 ```
+No summit coordinate: snow-conditions queries Open-Meteo at the primary access point with `elevation` = base / top elevation (decided 2026-10-29).
 
 `bus_stops.json`: list of
 ```jsonc

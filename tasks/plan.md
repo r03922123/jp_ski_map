@@ -27,7 +27,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [x] T1 Scaffold API service
 - [x] T2 Scaffold web app with a base map
 - [x] T3 Valhalla in Docker + live smoke test
-- [ ] T4 Resort catalog: models, validator, resorts.json
+- [x] T4 Resort catalog: models, validator, resorts.json
 
 ### Checkpoint A: Foundation
 - [ ] All gates green; `/api/resorts` returns 10 resorts; the map shows resort markers; Valhalla answers a route

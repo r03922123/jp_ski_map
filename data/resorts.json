@@ -1,0 +1,456 @@
+[
+  {
+    "id": "jigatake",
+    "name": {
+      "en": "Jigatake Snow Resort",
+      "ja": "爺ガ岳スキー場"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.jiigatake.com/",
+    "accessPoints": [
+      {
+        "id": "jigatake-base",
+        "name": {
+          "en": "Base",
+          "ja": "ベース"
+        },
+        "coord": {
+          "lat": 36.55807,
+          "lng": 137.80286
+        },
+        "coordSource": "osm:way/324162819 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 940,
+      "topElevationM": 1200,
+      "verticalM": 260,
+      "gondolas": 0,
+      "chairLifts": 4,
+      "runs": 7,
+      "longestRunM": 1500,
+      "totalRunsM": 4800,
+      "areaHa": 30,
+      "terrainPct": {
+        "beginner": 70,
+        "intermediate": 30,
+        "advanced": 0
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "kashimayari",
+    "name": {
+      "en": "Kashimayari Ski Resort Family Park",
+      "ja": "鹿島槍スキー場ファミリーパーク"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.kashimayari.net/snow/",
+    "accessPoints": [
+      {
+        "id": "kashimayari-base",
+        "name": {
+          "en": "Base",
+          "ja": "ベース"
+        },
+        "coord": {
+          "lat": 36.59453,
+          "lng": 137.83826
+        },
+        "coordSource": "osm:way/454518771 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 830,
+      "topElevationM": 1320,
+      "verticalM": 490,
+      "gondolas": 0,
+      "chairLifts": 5,
+      "runs": 12,
+      "longestRunM": 4100,
+      "totalRunsM": 11100,
+      "areaHa": 68,
+      "terrainPct": {
+        "beginner": 33,
+        "intermediate": 50,
+        "advanced": 17
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "sanosaka",
+    "name": {
+      "en": "White Resort HAKUBA SANOSAKA",
+      "ja": "ホワイトリゾート白馬さのさか"
+    },
+    "region": "hakuba-valley",
+    "website": "https://sanosaka.jp/",
+    "accessPoints": [
+      {
+        "id": "sanosaka-base",
+        "name": {
+          "en": "Base",
+          "ja": "ベース"
+        },
+        "coord": {
+          "lat": 36.6282,
+          "lng": 137.84181
+        },
+        "coordSource": "osm:way/454565261 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 740,
+      "topElevationM": 1200,
+      "verticalM": 460,
+      "gondolas": 0,
+      "chairLifts": 4,
+      "runs": 10,
+      "longestRunM": 2600,
+      "totalRunsM": 6100,
+      "areaHa": 40,
+      "terrainPct": {
+        "beginner": 40,
+        "intermediate": 40,
+        "advanced": 20
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "goryu",
+    "name": {
+      "en": "ABLE Hakuba GORYU",
+      "ja": "エイブル白馬五竜"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.hakubaescal.com/winter-en/",
+    "accessPoints": [
+      {
+        "id": "goryu-escal-plaza",
+        "name": {
+          "en": "Escal Plaza",
+          "ja": "エスカルプラザ"
+        },
+        "coord": {
+          "lat": 36.66293,
+          "lng": 137.83667
+        },
+        "coordSource": "osm:way/235293791 (Escal Plaza building)"
+      },
+      {
+        "id": "goryu-iimori",
+        "name": {
+          "en": "Iimori",
+          "ja": "いいもり"
+        },
+        "coord": {
+          "lat": 36.66858,
+          "lng": 137.83895
+        },
+        "coordSource": "osm:way/309911078 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 750,
+      "topElevationM": 1676,
+      "verticalM": 926,
+      "gondolas": 1,
+      "chairLifts": 11,
+      "runs": 15,
+      "longestRunM": 5000,
+      "totalRunsM": 12620,
+      "areaHa": 120,
+      "terrainPct": {
+        "beginner": 35,
+        "intermediate": 40,
+        "advanced": 25
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "hakuba47",
+    "name": {
+      "en": "Hakuba47 Mountain Resort",
+      "ja": "Hakuba47マウンテンリゾート"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.hakuba47.co.jp/winter/en/",
+    "accessPoints": [
+      {
+        "id": "hakuba47-base",
+        "name": {
+          "en": "Base (Line 8 gondola)",
+          "ja": "ベース（ゴンドラLine8）"
+        },
+        "coord": {
+          "lat": 36.68456,
+          "lng": 137.82773
+        },
+        "coordSource": "osm:way/309911066 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 820,
+      "topElevationM": 1614,
+      "verticalM": 794,
+      "gondolas": 1,
+      "chairLifts": 6,
+      "runs": 8,
+      "longestRunM": 6400,
+      "totalRunsM": 13570,
+      "areaHa": 32,
+      "terrainPct": {
+        "beginner": 30,
+        "intermediate": 40,
+        "advanced": 30
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "happo-one",
+    "name": {
+      "en": "Hakuba Happo-One Snow Resort",
+      "ja": "白馬八方尾根スキー場"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.happo-one.jp/en/",
+    "accessPoints": [
+      {
+        "id": "happo-one-adam-gondola",
+        "name": {
+          "en": "Adam Gondola",
+          "ja": "八方ゴンドラ「アダム」"
+        },
+        "coord": {
+          "lat": 36.70179,
+          "lng": 137.83683
+        },
+        "coordSource": "osm:way/31895856 (lower lift terminal)"
+      },
+      {
+        "id": "happo-one-nakiyama",
+        "name": {
+          "en": "Nakiyama Slope",
+          "ja": "名木山ゲレンデ"
+        },
+        "coord": {
+          "lat": 36.69824,
+          "lng": 137.83881
+        },
+        "coordSource": "osm:way/31895855 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 760,
+      "topElevationM": 1831,
+      "verticalM": 1071,
+      "gondolas": 1,
+      "chairLifts": 22,
+      "runs": 16,
+      "longestRunM": 8000,
+      "totalRunsM": 23300,
+      "areaHa": 220,
+      "terrainPct": {
+        "beginner": 30,
+        "intermediate": 50,
+        "advanced": 20
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "iwatake",
+    "name": {
+      "en": "Hakuba Iwatake Snow Field",
+      "ja": "白馬岩岳スノーフィールド"
+    },
+    "region": "hakuba-valley",
+    "website": "https://iwatake-mountain-resort.com/",
+    "accessPoints": [
+      {
+        "id": "iwatake-gondola",
+        "name": {
+          "en": "Noah Gondola",
+          "ja": "ゴンドラ「ノア」"
+        },
+        "coord": {
+          "lat": 36.71705,
+          "lng": 137.85862
+        },
+        "coordSource": "osm:way/309728747 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 750,
+      "topElevationM": 1289,
+      "verticalM": 539,
+      "gondolas": 1,
+      "chairLifts": 8,
+      "runs": 13,
+      "longestRunM": 3300,
+      "totalRunsM": 18220,
+      "areaHa": 125,
+      "terrainPct": {
+        "beginner": 30,
+        "intermediate": 50,
+        "advanced": 20
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "tsugaike",
+    "name": {
+      "en": "Tsugaike Mountain Resort",
+      "ja": "つがいけマウンテンリゾート"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.tsugaike.gr.jp/",
+    "accessPoints": [
+      {
+        "id": "tsugaike-gondola",
+        "name": {
+          "en": "Eve Gondola",
+          "ja": "ゴンドラ「イヴ」"
+        },
+        "coord": {
+          "lat": 36.74962,
+          "lng": 137.87084
+        },
+        "coordSource": "osm:way/309732711 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 800,
+      "topElevationM": 1704,
+      "verticalM": 904,
+      "gondolas": 1,
+      "chairLifts": 13,
+      "runs": 11,
+      "longestRunM": 5000,
+      "totalRunsM": 20450,
+      "areaHa": 196,
+      "terrainPct": {
+        "beginner": 50,
+        "intermediate": 30,
+        "advanced": 20
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "norikura",
+    "name": {
+      "en": "Hakuba Norikura Onsen Snow Resort",
+      "ja": "白馬乗鞍温泉スキー場"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.hakunori.com/en/",
+    "accessPoints": [
+      {
+        "id": "norikura-base",
+        "name": {
+          "en": "Base (Alps Hotel)",
+          "ja": "ベース（アルプスホテル）"
+        },
+        "coord": {
+          "lat": 36.76568,
+          "lng": 137.87698
+        },
+        "coordSource": "osm:way/454962207 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 800,
+      "topElevationM": 1598,
+      "verticalM": 798,
+      "gondolas": 0,
+      "chairLifts": 9,
+      "runs": 14,
+      "longestRunM": 2500,
+      "totalRunsM": 8919,
+      "areaHa": 50,
+      "terrainPct": {
+        "beginner": 30,
+        "intermediate": 40,
+        "advanced": 30
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  },
+  {
+    "id": "cortina",
+    "name": {
+      "en": "Hakuba Cortina Snow Resort",
+      "ja": "白馬コルチナスキー場"
+    },
+    "region": "hakuba-valley",
+    "website": "https://www.hgp.co.jp/cortina/ski/",
+    "accessPoints": [
+      {
+        "id": "cortina-base",
+        "name": {
+          "en": "Base",
+          "ja": "ベース"
+        },
+        "coord": {
+          "lat": 36.77721,
+          "lng": 137.88832
+        },
+        "coordSource": "osm:way/454962229 (lower lift terminal)"
+      }
+    ],
+    "stats": {
+      "baseElevationM": 872,
+      "topElevationM": 1402,
+      "verticalM": 530,
+      "gondolas": 0,
+      "chairLifts": 6,
+      "runs": 16,
+      "longestRunM": 3500,
+      "totalRunsM": 13335,
+      "areaHa": 50,
+      "terrainPct": {
+        "beginner": 40,
+        "intermediate": 30,
+        "advanced": 30
+      },
+      "nightSkiing": null,
+      "dayTicketJpy": null
+    },
+    "hakubaValleyPass": true,
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+  }
+]
