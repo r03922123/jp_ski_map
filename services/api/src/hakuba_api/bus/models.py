@@ -1,5 +1,7 @@
 from datetime import date
-from typing import Literal
+from typing import Annotated, Literal
+
+from pydantic import Field, field_validator
 
 from hakuba_api.common.geo import Coord
 from hakuba_api.common.models import ApiModel
@@ -48,7 +50,7 @@ class LocalizedText(ApiModel):
 class Timetable(ApiModel):
     line_id: str  # e.g. line-v (badge colour / group)
     route_id: str  # e.g. v1; periods of one route must not overlap
-    season: str
+    season: Annotated[str, Field(pattern=r"^\d{4}-\d{2}$")]  # "2025-26"; sorts chronologically
     kind: Literal["day", "night"]
     name: LocalizedText
     valid_from: date
@@ -59,3 +61,10 @@ class Timetable(ApiModel):
     reviewed: bool  # never served unless a human checked it against the image
     directions: list[Direction]
     notes: str | None = None
+
+    @field_validator("season")
+    @classmethod
+    def _consecutive_years(cls, season: str) -> str:
+        if int(season[5:]) != (int(season[:4]) + 1) % 100:
+            raise ValueError(f"season {season!r} must span consecutive years, e.g. 2025-26")
+        return season

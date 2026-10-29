@@ -83,21 +83,25 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 ## v1.1 — Season-agnostic schedules and "expected" times (approved scope 2026-10-30)
 **Problem:** the data is in `2025-26/`, and today (2026-10-30) every query says `no_service`. The UI also mentions seasons and years the user doesn't care about.
 
-**Projection rule (pure function `effective_timetables(day, timetables)`):**
-1. If some reviewed timetable has `validFrom ≤ day ≤ validTo` → use those timetables, with `basis = "published"`.
-2. Otherwise take the **latest transcribed season** S and shift each of its periods by whole years k, choosing k so the shifted season covers `day`. Use k = 0 if no shift covers it (Feb 29 → Feb 28). If the shifted period covers `day` → use it, with `basis = "expected"`.
-3. If neither applies (e.g. July) → `no_service`. `nextServiceDate` is the next published date, or else the next projected one.
-- `BusResult` gains:
+**Projection rule (pure function `effective_timetables(day, timetables)`), decided per route after the 2026-10-30 adversarial review:**
+1. For each route, if a reviewed timetable has `validFrom ≤ day ≤ validTo` → use it (published).
+2. Otherwise take that route's latest transcribed season and shift its periods forward by whole years (never backwards; Feb 29 → Feb 28) until one covers `day` → use it (projected). A route whose latest season is more than one season behind the newest reviewed season is treated as dropped and is not projected.
+3. `basis` is `"published"` only when nothing was projected; `"expected"` as soon as any line is a projection (while the new season is being transcribed line by line, the rest keeps coming from last season).
+4. Nothing usable → `no_service`. `nextServiceDate` is the next published start, else the next projected one, and `basis` says which. Projection wins over `awaiting_review`: an unreviewed file never blocks serving last season's times.
+- `BusResult` and `NightResult` (the night endpoint now returns `{basis, basedOnSeason, newerSourcePending, departures}`) carry:
   - `basis: "published" | "expected"`
-  - `basedOnSeason: string` (e.g. `"2025-26"`; for the source link and tooltip only, never in headline text)
-  - `newerSourcePending: boolean`: true when `sources.json` names a newer season than the latest transcribed one. In that case the operator has published a timetable we haven't transcribed yet.
-- Times stay as plain clock times. A projected `departsAt`/`arrivesAt` is built on the requested date, just like a published one.
+  - `basedOnSeason: string | null` (e.g. `"2025-26"`; for the source link and tooltip only, never in headline text)
+  - `newerSourcePending: boolean`: the operator's page names a season newer than the latest **reviewed** one, and we are projecting. It is false whenever the requested day is fully published.
+- `Timetable.season` is validated as `YYYY-YY` with consecutive years, so seasons sort chronologically as strings.
+- Times stay plain clock times. A projected `departsAt`/`arrivesAt` is built on the requested date, just like a published one.
+- Known trade-offs: a projection carries last season's mid-season revisions (e.g. the V1→V2 split in March) as if they repeat; projected start dates ignore weekday drift (Sat Dec 13 → Sun Dec 13), which the "Expected" caveat covers.
 
 **UI copy (no years anywhere in the panel):**
-- `published`: "Scheduled times · timetable may change without notice; buses can be full".
-- `expected`: a badge saying **"Expected"**, plus "Based on last season's timetable. The operator hasn't published this season's yet, so check before you go."
-- `newerSourcePending`: "A new timetable is out and will be added soon. Times below may be outdated." The source link points to the operator page.
-- Service period: "Runs Dec 19 – Mar 29", with no year.
+- `published`: "Scheduled times" plus the standing "may change without notice; buses can be full".
+- `expected` without a newer source: an **"Expected"** badge plus "Based on last season's timetable. The operator hasn't published this season's yet, so check before you go."
+- `expected` with `newerSourcePending`: the badge plus "Based on last season's timetable. A newer timetable is out and will be added soon, so check before you go." (one notice, never two contradicting ones).
+- `no_service`: "No shuttle service on this date — next from Dec 13." (no year) plus, when that date is projected, "That date is expected from last season's timetable."
+- `ok` with no departures left: "No more departures after this time today."
 
 **Regular refresh of the operator page:**
 - `timetable-watch.yml` cron:
@@ -109,8 +113,10 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 - This needs the repo pushed to GitHub. Until then the same check runs locally with `uv run … check_sources`.
 
 **Acceptance:**
-- [ ] Projection unit tests: 2026-03-20 → published (2025-26). 2027-01-15 → expected, built from the 2025-26 periods shifted +1 year. 2026-07-01 → `no_service` with `nextServiceDate` 2026-12-19 (projected). Feb 29 handling.
+- [ ] Projection unit tests: 2026-03-20 → published (2025-26). 2027-01-15 → expected, built from the 2025-26 periods shifted +1 year. 2026-07-01 → `no_service` with `nextServiceDate` 2026-12-13 (the earliest line, projected). Feb 29 handling.
 - [ ] A query on 2027-01-15 08:00 at the Happo Bus Terminal returns the same trip times as 2026-01-15, with `basis = "expected"`.
+- [ ] With one 2026-27 line reviewed, 2027-01-15 still serves every other line from 2025-26 (`expected`); a line absent for two seasons is not projected.
+- [ ] Unreviewed 2026-27 files: still projected from 2025-26 and `newerSourcePending` is true. Night bus carries the same fields.
 - [ ] `check_sources` against a page fixture naming `2026-2027-Shuttle-Bus-Timetable.pdf` prints `NEW SEASON 2026-27` and exits with code 1.
 - [ ] The workflow YAML has both crons, and `actionlint` (if available) is clean.
 - [ ] No 4-digit year is rendered in the bus panel (component test greps the rendered text).

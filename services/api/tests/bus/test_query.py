@@ -130,7 +130,7 @@ def test_night_departures_from_nearest_stops() -> None:
         [table("line-vn")],
         STOPS,
         ALIAS,
-    )
+    ).departures
 
     assert [d.departs_at.strftime("%H:%M") for d in departures][:2] == ["17:08", "17:50"]
     assert departures[0].towards == "JR Hakuba Station"

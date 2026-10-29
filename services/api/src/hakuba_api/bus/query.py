@@ -1,9 +1,10 @@
 """Pure bus queries: no I/O. See SPEC-bus-schedules.md (Query, Untimed routes)."""
 
 from datetime import date, datetime, timedelta
-from typing import Literal
+from typing import Any, Literal
 
 from hakuba_api.bus.models import BusStop, Timetable
+from hakuba_api.bus.season import Basis, effective_timetables, next_service_date
 from hakuba_api.common.geo import Coord
 from hakuba_api.common.models import ApiModel
 
@@ -39,6 +40,9 @@ class BusResult(ApiModel):
     status: Literal["ok", "no_service", "awaiting_review"]
     next_service_date: date | None
     resorts: list[ResortBusOptions]
+    basis: Basis = "published"  # "expected": projected from last season's timetable
+    based_on_season: str | None = None  # for the source link / tooltip only, never headline text
+    newer_source_pending: bool = False  # the operator published a timetable not transcribed yet
 
 
 class NightDeparture(ApiModel):
@@ -48,6 +52,13 @@ class NightDeparture(ApiModel):
     walk_s: int
     departs_at: datetime
     towards: str
+
+
+class NightResult(ApiModel):
+    basis: Basis
+    based_on_season: str | None
+    newer_source_pending: bool
+    departures: list[NightDeparture]
 
 
 def _at(day: date, hhmm: str, like: datetime) -> datetime:
@@ -65,18 +76,33 @@ def bus_options(
     timetables: list[Timetable],
     stops: dict[str, BusStop],
     alias: dict[str, str],
+    newer_source_pending: bool = False,
 ) -> BusResult:
     day = at.date()
     day_tables = [t for t in timetables if t.kind == "day"]
-    reviewed = [t for t in day_tables if t.reviewed]
-    active = [t for t in reviewed if _active(t, day, "day")]
+    active, basis, season = effective_timetables(day, day_tables)
     if not active:
-        if any(_active(t, day, "day") for t in day_tables):
-            return BusResult(status="awaiting_review", next_service_date=None, resorts=[])
-        upcoming = sorted(t.valid_from for t in reviewed if t.valid_from > day)
+        upcoming = next_service_date(day, day_tables)
+        basis = upcoming[1] if upcoming else "expected"
+        meta: dict[str, Any] = {
+            "basis": basis,
+            "based_on_season": season,
+            # a newer timetable only matters while we are projecting from an old one
+            "newer_source_pending": newer_source_pending and basis == "expected",
+        }
+        if any(_active(t, day, "day") and not t.reviewed for t in day_tables):
+            return BusResult(status="awaiting_review", next_service_date=None, resorts=[], **meta)
         return BusResult(
-            status="no_service", next_service_date=upcoming[0] if upcoming else None, resorts=[]
+            status="no_service",
+            next_service_date=upcoming[0] if upcoming else None,
+            resorts=[],
+            **meta,
         )
+    meta = {
+        "basis": basis,
+        "based_on_season": season,
+        "newer_source_pending": newer_source_pending and basis == "expected",
+    }
 
     best: dict[tuple[str, str, int, str], BusOption] = {}  # one entry per trip and resort
     for t in active:
@@ -133,7 +159,7 @@ def bus_options(
         ResortBusOptions(resort_id=resort, options=sorted(opts, key=_rank)[:MAX_OPTIONS_PER_RESORT])
         for resort, opts in sorted(by_resort.items())
     ]
-    return BusResult(status="ok", next_service_date=None, resorts=resorts)
+    return BusResult(status="ok", next_service_date=None, resorts=resorts, **meta)
 
 
 def _rank(o: BusOption) -> tuple[bool, datetime, int]:
@@ -148,12 +174,13 @@ def night_departures(
     stops: dict[str, BusStop],
     alias: dict[str, str],
     limit: int = 6,
-) -> list[NightDeparture]:
+    newer_source_pending: bool = False,
+) -> NightResult:
     day = at.date()
     found: list[NightDeparture] = []
-    for t in timetables:
-        if not (t.reviewed and _active(t, day, "night")):
-            continue
+    night_tables = [t for t in timetables if t.kind == "night"]
+    tables, basis, season = effective_timetables(day, night_tables)
+    for t in tables:
         for d in t.directions:
             ids = [alias[s] for s in d.stops]
             for trip in d.trips:
@@ -173,4 +200,9 @@ def night_departures(
                                 towards=stops[ids[-1]].name.en,
                             )
                         )
-    return sorted(found, key=lambda n: n.departs_at)[:limit]
+    return NightResult(
+        basis=basis,
+        based_on_season=season,
+        newer_source_pending=newer_source_pending and basis == "expected",
+        departures=sorted(found, key=lambda n: n.departs_at)[:limit],
+    )
