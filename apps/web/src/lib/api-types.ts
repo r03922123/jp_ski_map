@@ -132,6 +132,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pois/nearby": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Nearby
+         * @description Restaurants or convenience stores near `from`, sorted by travel time.
+         */
+        get: operations["get_nearby_api_pois_nearby_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/snow": {
         parameters: {
             query?: never;
@@ -423,6 +443,31 @@ export interface components {
             lat: number;
             /** Lng */
             lng: number;
+        };
+        /** NearbyPoi */
+        NearbyPoi: {
+            /** Id */
+            id: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "food" | "convenience";
+            /** Name */
+            name: string;
+            /** Nameja */
+            nameJa: string | null;
+            coord: components["schemas"]["Coord"];
+            /** Brand */
+            brand: string | null;
+            /** Cuisine */
+            cuisine: string | null;
+            /** Openinghours */
+            openingHours: string | null;
+            /** Durations */
+            durationS: number;
+            /** Distancem */
+            distanceM: number;
         };
         /**
          * NewSnow
@@ -908,6 +953,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Place"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_nearby_api_pois_nearby_get: {
+        parameters: {
+            query: {
+                from: string;
+                category: "food" | "convenience";
+                mode: "drive" | "walk";
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NearbyPoi"][];
                 };
             };
             /** @description Validation Error */

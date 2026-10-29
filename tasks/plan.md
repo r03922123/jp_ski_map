@@ -111,22 +111,22 @@ T30 poi data ── T31 nearby API ── T32 destination picker (needs T24/T25)
 
 ## Task list (details in todo.md)
 ### Phase 6: Google-style routes
-- T22 Routing: step maneuver / street names / shapeRange, route summary
-- T23 Routing: `/api/routes` alternates + `POST /api/route/path`
-- T24 Web: map — fit bounds, A/B pins, primary + alternates, ETA pills, tap to switch
-- T25 Web: directions panel — option cards, arrive time, estimate note, step list with icons
-### Checkpoint F: drive/walk look like Google directions (browser-verified)
+- T22 Routing: step maneuver / street names / shapeRange, route summary ✅
+- T23 Routing: `/api/routes` alternates + `POST /api/route/path` ✅
+- T24 Web: map — fit bounds, A/B pins, primary + alternates, ETA pills, tap to switch ✅
+- T25 Web: directions panel — option cards, arrive time, estimate note, step list with icons ✅
+### Checkpoint F: drive/walk look like Google directions (browser-verified) ✅
 ### Phase 7: Season-agnostic bus
-- T26 Bus: `effective_timetables` projection + `basis` / `basedOnSeason` / `newerSourcePending`
-- T27 Bus: `NEW SEASON` detection, workflow crons, issue checklist, validate rule
-- T28 Web: bus copy — no years, Expected badge, newer-timetable notice
-- T29 Bus + web: `rideStops`, ride-leg drawing, transit timeline
-### Checkpoint G: bus works today (Oct 2026) as "Expected"; journey drawn
+- T26 Bus: `effective_timetables` projection + `basis` / `basedOnSeason` / `newerSourcePending` ✅
+- T27 Bus: `NEW SEASON` detection, workflow crons, issue checklist, validate rule ✅
+- T28 Web: bus copy — no years, Expected badge, newer-timetable notice ✅
+- T29 Bus + web: `rideStops`, ride-leg drawing, transit timeline ✅
+### Checkpoint G: bus works today (Oct 2026) as "Expected"; journey drawn ✅
 ### Phase 8: Food & konbini destinations
-- T30 POI: model, refresh script, snapshot, validator
-- T31 POI: `GET /api/pois/nearby`
-- T32 Web: destination picker (Resorts | Food | Konbini), list, URL state
-### Checkpoint H: complete — E2E for all flows, mobile 390 px, clean console, human review
+- T30 POI: model, refresh script, snapshot, validator ✅
+- T31 POI: `GET /api/pois/nearby` ✅
+- T32 Web: destination picker (Resorts | Food | Konbini), list, URL state ✅
+### Checkpoint H: complete — E2E for all flows, mobile 390 px, clean console ✅ (human review pending)
 
 ## Risks
 | Risk | Impact | Mitigation |

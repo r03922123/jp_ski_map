@@ -1,5 +1,5 @@
 import type { PanelMode } from "@/components/ModePanel";
-import type { Coord, SortKey } from "@/lib/api";
+import type { Coord, PoiCategory, SortKey } from "@/lib/api";
 
 export type RankOptions = {
   sort: SortKey;
@@ -10,11 +10,20 @@ export type RankOptions = {
   hvPass: boolean;
 };
 
-/** The shareable part of the view: `?from=lat,lng&mode=drive&resort=happo-one&sort=…`. */
+/** What the destination list shows: ski resorts, or a kind of nearby place. */
+export type DestinationCategory = "resorts" | PoiCategory;
+
+/**
+ * The shareable part of the view:
+ * `?from=lat,lng&mode=drive&resort=happo-one&sort=…`, or for a place
+ * `?from=…&mode=walk&cat=convenience&dest=poi:osm:node/123`.
+ */
 export type ViewState = {
   origin: Coord | null;
   mode: PanelMode;
   resortId: string | null;
+  poiId: string | null;
+  category: DestinationCategory;
   rank: RankOptions;
 };
 
@@ -37,6 +46,11 @@ export const DEFAULT_RANK: RankOptions = {
 };
 
 const MODES: readonly PanelMode[] = ["bus", "drive", "walk"];
+const CATEGORIES: readonly DestinationCategory[] = [
+  "resorts",
+  "food",
+  "convenience",
+];
 
 function parseCoord(value: string | null): Coord | null {
   const parts = value?.split(",").map(Number);
@@ -62,10 +76,19 @@ function parseRank(params: URLSearchParams): RankOptions {
 export function parseViewState(search: string): ViewState {
   const params = new URLSearchParams(search);
   const mode = params.get("mode") as PanelMode | null;
+  const cat = params.get("cat") as DestinationCategory | null;
+  // `dest=poi:<id>` / `dest=resort:<id>`; the older `resort=<id>` is still read
+  const dest = params.get("dest");
+  const [kind, ...rest] = dest ? dest.split(":") : [];
+  const destId = rest.join(":");
   return {
     origin: parseCoord(params.get("from")),
     mode: mode && MODES.includes(mode) ? mode : "drive",
-    resortId: params.get("resort") || null,
+    resortId:
+      (kind === "resort" && destId ? destId : null) ??
+      (params.get("resort") || null),
+    poiId: kind === "poi" && destId ? destId : null,
+    category: cat && CATEGORIES.includes(cat) ? cat : "resorts",
     rank: parseRank(params),
   };
 }
@@ -74,6 +97,8 @@ export function serializeViewState({
   origin,
   mode,
   resortId,
+  poiId,
+  category,
   rank,
 }: ViewState): string {
   const params = new URLSearchParams();
@@ -82,6 +107,8 @@ export function serializeViewState({
   }
   params.set("mode", mode);
   if (resortId) params.set("resort", resortId);
+  if (category !== "resorts") params.set("cat", category);
+  if (poiId) params.set("dest", `poi:${poiId}`);
   // only non-default rank options, so ordinary links stay short
   if (rank.sort !== DEFAULT_RANK.sort) params.set("sort", rank.sort);
   if (rank.date) params.set("date", rank.date);

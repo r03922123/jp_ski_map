@@ -5,12 +5,14 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
+import { DestinationPicker } from "@/components/DestinationPicker";
 import { DrivePanel, type RankingState } from "@/components/DrivePanel";
 import {
   ModePanel,
   type PanelMode,
   type RouteState,
 } from "@/components/ModePanel";
+import { PoiList, type PoiListState } from "@/components/PoiList";
 import { SearchBox } from "@/components/SearchBox";
 import {
   ApiError,
@@ -19,6 +21,7 @@ import {
   type Coord,
   fetchBusOptions,
   fetchLodging,
+  fetchNearbyPois,
   fetchNightBus,
   fetchPath,
   fetchRank,
@@ -29,6 +32,7 @@ import {
 import { formatDuration } from "@/lib/format";
 import {
   DEFAULT_RANK,
+  type DestinationCategory,
   parseViewState,
   type RankOptions,
   serializeViewState,
@@ -72,6 +76,8 @@ export function MapShell() {
   // name of the searched place, if the origin came from search (not a dropped pin)
   const [originName, setOriginName] = useState<string | null>(null);
   const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
+  const [category, setCategory] = useState<DestinationCategory>("resorts");
+  const [poiId, setPoiId] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
@@ -90,6 +96,8 @@ export function MapShell() {
     setMode(view.mode);
     setOrigin(view.origin);
     setSelectedResortId(view.resortId);
+    setCategory(view.category);
+    setPoiId(view.poiId);
     setRankOptions(view.rank);
     setReady(true);
   }, []);
@@ -99,10 +107,12 @@ export function MapShell() {
       origin,
       mode,
       resortId: selectedResortId,
+      poiId,
+      category,
       rank: rankOptions,
     });
     window.history.replaceState(null, "", search);
-  }, [ready, origin, mode, selectedResortId, rankOptions]);
+  }, [ready, origin, mode, selectedResortId, poiId, category, rankOptions]);
 
   const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
 
@@ -185,7 +195,26 @@ export function MapShell() {
 
   // In bus mode the route shown is the walk to the chosen boarding stop.
   const routeMode = mode === "bus" ? "walk" : mode;
-  const target = mode === "bus" ? busStop : destination;
+
+  // Food / konbini destinations (drive and walk only; shuttles serve resorts).
+  const poiCategory = category === "resorts" ? null : category;
+  const pois = useQuery({
+    queryKey: ["pois", origin, poiCategory, routeMode],
+    queryFn: () => fetchNearbyPois(origin!, poiCategory!, routeMode),
+    enabled: mode !== "bus" && origin !== null && poiCategory !== null,
+    retry: false,
+    placeholderData: (previous) => previous,
+  });
+  const poiState: PoiListState = pois.isPending
+    ? { status: "loading" }
+    : pois.isError
+      ? { status: "error" }
+      : { status: "success", data: pois.data };
+  const selectedPoi = pois.data?.find((p) => p.id === poiId) ?? null;
+  const poiTarget = poiCategory ? (selectedPoi?.coord ?? null) : null;
+
+  const target =
+    mode === "bus" ? busStop : poiCategory ? poiTarget : destination;
   const routeQuery = useQuery({
     queryKey: ["routes", routeMode, origin, target],
     queryFn: () => fetchRoutes(routeMode, origin!, target!),
@@ -237,7 +266,7 @@ export function MapShell() {
         resorts={resorts.data ?? []}
         selectedResortId={selectedResortId}
         origin={origin}
-        destination={mode === "bus" ? null : (destination ?? null)}
+        destination={mode === "bus" ? null : (target ?? null)}
         routes={routes}
         activeRoute={activeRoute}
         onSelectRoute={setActiveRoute}
@@ -289,6 +318,18 @@ export function MapShell() {
               selected={busChoice}
               onSelect={setBusChoice}
             />
+          }
+          destinationPicker={
+            <DestinationPicker value={category} onChange={setCategory} />
+          }
+          poiPanel={
+            poiCategory ? (
+              <PoiList
+                state={poiState}
+                selectedId={poiId}
+                onSelect={(p) => setPoiId(p.id)}
+              />
+            ) : undefined
           }
           drivePanel={
             <DrivePanel

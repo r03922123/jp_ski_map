@@ -12,6 +12,8 @@ export type BusResult = components["schemas"]["BusResult"];
 export type BusOption = components["schemas"]["BusOption"];
 export type NightDeparture = components["schemas"]["NightDeparture"];
 export type NightResult = components["schemas"]["NightResult"];
+export type NearbyPoi = components["schemas"]["NearbyPoi"];
+export type PoiCategory = NearbyPoi["category"];
 export type SortKey = NonNullable<
   NonNullable<
     operations["get_rank_api_rank_get"]["parameters"]["query"]
@@ -114,6 +116,17 @@ export function fetchBusOptions(
     `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}${name}`,
   );
 }
+
+/** Restaurants or konbini near `from`, sorted by travel time for `mode`. */
+export const fetchNearbyPois = (
+  from: Coord,
+  category: PoiCategory,
+  mode: Mode,
+  limit = 10,
+) =>
+  getJson<NearbyPoi[]>(
+    `/api/pois/nearby?from=${latLng(from)}&category=${category}&mode=${mode}&limit=${limit}`,
+  );
 
 export const fetchNightBus = (from: Coord, departAt: string) =>
   getJson<NightResult>(

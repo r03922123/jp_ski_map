@@ -269,127 +269,128 @@ Gate shorthand:
 
 ## Phase 6: Google-style routes
 
-## Task 22: Routing — richer steps and route summary
+## Task 22: Routing — richer steps and route summary ✅
 **Description:** Map the Valhalla maneuver `type` to a stable `maneuver` enum. Add `streetNames` and `shapeRange` to `Step`, and `summary` ("via X and Y", the longest named roads) to `Route`.
 **Acceptance criteria:**
-- [ ] A table test covers Valhalla types 0–39, and unknown types → `straight`
-- [ ] `shapeRange` of consecutive steps tiles the geometry; the summary names the 1–2 longest roads
+- [x] A table test covers Valhalla types 0–39, and unknown types → `straight`
+- [x] `shapeRange` of consecutive steps tiles the geometry; the summary names the 1–2 longest roads
 **Verification:** API gates; `curl /api/route` shows the new fields
 **Dependencies:** None
 **Files:** `routing/{models,client,maneuvers}.py`, `tests/routing/test_client.py`, a fixture
 **Scope:** S
 
-## Task 23: Routing — alternates and via-point paths
+## Task 23: Routing — alternates and via-point paths ✅
 **Description:** Add `GET /api/routes?…&alternates=0..2` → `RouteSet` (drop alternates > 1.5× the primary) and `POST /api/route/path {mode, points}` with Valhalla `through` locations (≤ 25 points).
 **Acceptance criteria:**
-- [ ] A fixture with 1 alternate → length 1; a slow alternate is dropped
-- [ ] A path through 4 points passes within 50 m of each (live test, marked)
-- [ ] 404 / 503 error shapes match `/api/route`
+- [x] A fixture with 1 alternate → length 1; a slow alternate is dropped
+- [x] A path through 4 points passes within 50 m of each (live test, marked)
+- [x] 404 / 503 error shapes match `/api/route`
 **Verification:** API gates; `pnpm gen:api`
 **Dependencies:** T22
 **Files:** `routing/{router,client,models}.py`, `tests/routing/*`, `apps/web/src/lib/{api-types,api}.ts`
 **Scope:** S
 
-## Task 24: Web — Google-style route on the map
+## Task 24: Web — Google-style route on the map ✅
 **Description:** Fetch a `RouteSet`. Draw alternates (grey, below) and the primary (casing + line, dotted for walk); add ETA pills at the line centre, a blue-dot origin and a red-pin destination; fit the bounds with panel padding; tapping an alternate makes it the primary.
 **Acceptance criteria:**
-- [ ] E2E: selecting Iwatake in Drive → the map bounds contain the route, a pill is visible, and clicking the alternate swaps the primary
-- [ ] `data-route-layers` lists the drawn layers
+- [x] E2E: selecting Iwatake in Drive → the map bounds contain the route, a pill is visible, and clicking the alternate swaps the primary
+- [x] `data-route-layers` lists the drawn layers
 **Verification:** Web gates; Playwright `e2e/route.spec.ts`; a screenshot checked in the browser
 **Dependencies:** T23
 **Files:** `MapView.tsx`, `MapShell.tsx`, `lib/route-geo.ts` (pill points, bounds), `tests/route-geo.test.ts`, `e2e/route.spec.ts`
 **Scope:** M
 
-## Task 25: Web — directions panel
+## Task 25: Web — directions panel ✅
 **Description:** `DirectionsPanel`: one option card per route (time, distance, "via …", selected state), "Arrive ~HH:MM", the estimate note, and a step list with lucide maneuver icons, street names and "300 m / 1.2 km" distances. It collapses after 5 steps, and hovering or focusing a step highlights its segment on the map.
 **Acceptance criteria:**
-- [ ] Component tests: an icon per step, the distance format, the arrive time, and that selecting a card calls back
-- [ ] It replaces `RouteSummary` in Drive/Walk; bus mode is unchanged until T29
+- [x] Component tests: an icon per step, the distance format, the arrive time, and that selecting a card calls back
+- [x] It replaces `RouteSummary` in Drive/Walk; bus mode is unchanged until T29
 **Verification:** Web gates
 **Dependencies:** T24
 **Files:** `components/{DirectionsPanel,ManeuverIcon}.tsx`, `ModePanel.tsx`, `lib/format.ts`, `tests/DirectionsPanel.test.tsx`
 **Scope:** M
 
 ## Checkpoint F
-- [ ] All gates; drive and walk checked in a real browser at desktop and 390 px; the console is clean
+- [x] All gates; drive and walk checked in a real browser at desktop and 390 px; the console is clean
 
 ## Phase 7: Season-agnostic bus
 
-## Task 26: Bus — projection to the requested date
+## Task 26: Bus — projection to the requested date ✅
 **Description:** The pure `effective_timetables(day, tables) -> (tables, basis)` per the SPEC v1.1 rule; `BusResult` gains `basis`, `basedOnSeason` and `newerSourcePending`; the night bus uses the same rule.
 **Acceptance criteria:**
-- [ ] 2026-03-20 → published; 2027-01-15 → expected (same trips as 2026-01-15); 2026-07-01 → no_service, next 2026-12-19; Feb 29
-- [ ] `newerSourcePending` is true when sources.json's season > the latest transcribed season
-- [ ] Doubt-driven review of the rule and the copy
+- [x] 2026-03-20 → published; 2027-01-15 → expected (same trips as 2026-01-15); 2026-07-01 → no_service, next 2026-12-19; Feb 29
+- [x] `newerSourcePending` is true when sources.json's season > the latest transcribed season
+- [x] Doubt-driven review of the rule and the copy
 **Verification:** API gates; `curl /api/bus/options?at=2026-10-30T08:00…` → no_service with nextServiceDate; `at=2027-01-15T08:00` → expected
 **Dependencies:** None
 **Files:** `bus/{season,query,router}.py`, `tests/bus/test_season.py`
 **Scope:** M
 
-## Task 27: Bus — regular refresh
+## Task 27: Bus — regular refresh ✅
 **Description:** `check_sources` prints `NEW SEASON <S>`. The workflow gets the daily Oct–Jan and weekly Feb–Sep crons, a season-aware issue title, and a checklist body. `data.validate` checks manifest season ≥ transcribed season.
 **Acceptance criteria:**
-- [ ] A page fixture naming the 2026-2027 PDF → `NEW SEASON 2026-27`, exit 1
-- [ ] Both crons are present; YAML parses (actionlint if available)
+- [x] A page fixture naming the 2026-2027 PDF → `NEW SEASON 2026-27`, exit 1
+- [x] Both crons are present; YAML parses (actionlint if available)
 **Verification:** API gates
 **Dependencies:** T26
 **Files:** `bus/check_sources.py`, `tests/bus/test_check_sources.py`, `.github/workflows/timetable-watch.yml`, `data/validate.py`
 **Scope:** S
 
-## Task 28: Web — bus copy without years
+## Task 28: Web — bus copy without years ✅
 **Description:** Show the "Expected" badge and note, the newer-timetable notice, "Runs Dec 19 – Mar 29" for no-service, and remove "This season's".
 **Acceptance criteria:**
-- [ ] A component test: no `/\b20\d\d\b/` in the rendered panel for every status
-- [ ] The Expected badge is shown only when `basis === "expected"`
+- [x] A component test: no `/\b20\d\d\b/` in the rendered panel for every status
+- [x] The Expected badge is shown only when `basis === "expected"`
 **Verification:** Web gates
 **Dependencies:** T26
 **Files:** `BusPanel.tsx`, `tests/BusPanel.test.tsx`, `e2e/fixtures/*`
 **Scope:** S
 
-## Task 29: Bus journey on the map
+## Task 29: Bus journey on the map ✅
 **Description:** `BusOption.rideStops`. The web fetches `POST /api/route/path` (drive) through the located ride stops and draws walk (dotted) + ride (line colour) + stop dots, with the "approximate bus path" label. A timeline in the selected option.
 **Acceptance criteria:**
-- [ ] A query unit test: rideStops goes from board to alight in order, with times
-- [ ] E2E: a bus option → `data-route-layers` contains walk and ride; the timeline shows board and arrival times
+- [x] A query unit test: rideStops goes from board to alight in order, with times
+- [x] E2E: a bus option → `data-route-layers` contains walk and ride; the timeline shows board and arrival times
 **Verification:** API + web gates; Playwright `e2e/bus.spec.ts`; browser screenshot
 **Dependencies:** T23, T24, T28
 **Files:** `bus/query.py`, `tests/bus/test_query.py`, `BusPanel.tsx`, `MapView.tsx`, `MapShell.tsx`, `e2e/bus.spec.ts`
 **Scope:** M
 
 ## Checkpoint G
-- [ ] Today's date returns a clear answer; an in-season future date shows Expected times; the journey is drawn; all gates
+- [x] Today's date returns a clear answer; an in-season future date shows Expected times; the journey is drawn; all gates
 
 ## Phase 8: Food & konbini destinations
 
-## Task 30: POI snapshot
+## Task 30: POI snapshot ✅
 **Description:** The `pois` package: a `Poi` model, `refresh_pois` (Overpass, the lodging bbox, the category mapping), `data/poi_osm.json`, and validator rules.
 **Acceptance criteria:**
-- [ ] A fixture → both categories, unnamed dropped, way centres used
-- [ ] The live snapshot has ≥ 10 konbini and ≥ 50 food places; `data.validate` OK
+- [x] A fixture → both categories, unnamed dropped, way centres used
+- [x] The live snapshot has ≥ 10 konbini and ≥ 50 food places; `data.validate` OK
 **Verification:** API gates; `python -m hakuba_api.data.validate`
 **Dependencies:** None
 **Files:** `pois/{models,refresh_pois}.py`, `data/poi_osm.json`, `data/validate.py`, `tests/pois/test_refresh.py`
 **Scope:** M
 
-## Task 31: POI nearby API
+## Task 31: POI nearby API ✅
 **Description:** `GET /api/pois/nearby?from&category&mode&limit`: the 25 nearest by straight line → matrix → sort by ETA, with a 10-minute cache.
 **Acceptance criteria:**
-- [ ] Sorted by duration and limited; unknown category → 422; Valhalla down → 503
+- [x] Sorted by duration and limited; unknown category → 422; Valhalla down → 503
 **Verification:** API gates; `pnpm gen:api`
 **Dependencies:** T30
 **Files:** `pois/{router,query}.py`, `main.py`, `tests/pois/test_nearby.py`, `apps/web/src/lib/{api-types,api}.ts`
 **Scope:** S
 
-## Task 32: Web — destination picker
+## Task 32: Web — destination picker ✅
 **Description:** A `Resorts | Food | Konbini` segmented control in Drive/Walk; a POI list (name, brand/cuisine, ETA, distance, hours); selecting one routes to it with T24/T25; URL `dest=` / `cat=` (the old `resort=` is still read).
 **Acceptance criteria:**
-- [ ] E2E: Konbini in Walk → sorted list → select → dotted route + pill
-- [ ] URL round-trip test for `dest=poi:…`
+- [x] E2E: Konbini in Walk → sorted list → select → dotted route + pill
+- [x] URL round-trip test for `dest=poi:…`
 **Verification:** Web gates; Playwright
 **Dependencies:** T25, T31
 **Files:** `components/{DestinationPicker,PoiList}.tsx`, `MapShell.tsx`, `lib/url-state.ts`, `tests/*`, `e2e/poi.spec.ts`
 **Scope:** M
 
-## Checkpoint H: v1.1 complete
-- [ ] All gates + full E2E; browser check of all flows at desktop and 390 px; the console is clean
-- [ ] SPEC success criteria 4, 6 and 7 met; review with human
+## Checkpoint H: v1.1 complete ✅
+- [x] All gates + full E2E; browser check of all flows at desktop and 390 px; the console is clean
+- [x] SPEC success criteria 4, 6 and 7 met
+- [ ] Review with human
