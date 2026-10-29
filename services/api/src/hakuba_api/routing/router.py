@@ -2,12 +2,13 @@ import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import Field
 
 from hakuba_api.common.geo import Coord
 from hakuba_api.common.models import ApiModel
 from hakuba_api.common.params import parse_lat_lng
 from hakuba_api.routing.client import ValhallaClient
-from hakuba_api.routing.models import MatrixCell, Mode, Route
+from hakuba_api.routing.models import MatrixCell, Mode, Route, RouteSet
 
 router = APIRouter(prefix="/api")
 
@@ -24,6 +25,33 @@ def get_route(
     valhalla: Annotated[ValhallaClient, Depends(get_valhalla)],
 ) -> Route:
     return valhalla.route(mode, parse_lat_lng(origin, "from"), parse_lat_lng(destination, "to"))
+
+
+@router.get("/routes", response_model=RouteSet, response_model_by_alias=True)
+def get_routes(
+    mode: Mode,
+    origin: Annotated[str, Query(alias="from")],
+    destination: Annotated[str, Query(alias="to")],
+    valhalla: Annotated[ValhallaClient, Depends(get_valhalla)],
+    alternates: Annotated[int, Query(ge=0, le=2)] = 2,
+) -> RouteSet:
+    """Primary route plus up to two alternates, like a directions search."""
+    return valhalla.routes(
+        mode, parse_lat_lng(origin, "from"), parse_lat_lng(destination, "to"), alternates
+    )
+
+
+class PathRequest(ApiModel):
+    mode: Mode
+    points: Annotated[list[Coord], Field(min_length=2, max_length=25)]
+
+
+@router.post("/route/path", response_model=Route, response_model_by_alias=True)
+def post_route_path(
+    body: PathRequest, valhalla: Annotated[ValhallaClient, Depends(get_valhalla)]
+) -> Route:
+    """A route through ordered points, e.g. the stops of a bus ride."""
+    return valhalla.path(body.mode, body.points)
 
 
 class MatrixTarget(ApiModel):

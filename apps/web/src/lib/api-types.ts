@@ -38,6 +38,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/routes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Routes
+         * @description Primary route plus up to two alternates, like a directions search.
+         */
+        get: operations["get_routes_api_routes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/route/path": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Route Path
+         * @description A route through ordered points, e.g. the stops of a bus ride.
+         */
+        post: operations["post_route_path_api_route_path_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/matrix": {
         parameters: {
             query?: never;
@@ -398,6 +438,16 @@ export interface components {
             /** Towards */
             towards: string;
         };
+        /** PathRequest */
+        PathRequest: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "drive" | "walk";
+            /** Points */
+            points: components["schemas"]["Coord"][];
+        };
         /** Place */
         Place: {
             /** Id */
@@ -505,11 +555,19 @@ export interface components {
             geometry: components["schemas"]["LineString"];
             /** Steps */
             steps: components["schemas"]["Step"][];
+            /** Summary */
+            summary?: string | null;
             /**
              * Isestimate
              * @default true
              */
             isEstimate: boolean;
+        };
+        /** RouteSet */
+        RouteSet: {
+            primary: components["schemas"]["Route"];
+            /** Alternates */
+            alternates: components["schemas"]["Route"][];
         };
         /** SnowDepth */
         SnowDepth: {
@@ -544,6 +602,28 @@ export interface components {
             distanceM: number;
             /** Durations */
             durationS: number;
+            /**
+             * Maneuver
+             * @default straight
+             * @enum {string}
+             */
+            maneuver: "depart" | "arrive" | "straight" | "slight-left" | "left" | "sharp-left" | "slight-right" | "right" | "sharp-right" | "uturn" | "roundabout" | "merge" | "ramp-left" | "ramp-right" | "keep-left" | "keep-right" | "ferry";
+            /**
+             * Streetnames
+             * @default []
+             */
+            streetNames: string[];
+            /**
+             * Shaperange
+             * @default [
+             *       0,
+             *       0
+             *     ]
+             */
+            shapeRange: [
+                number,
+                number
+            ];
         };
         /** SummitTemps */
         SummitTemps: {
@@ -615,6 +695,73 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Route"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_routes_api_routes_get: {
+        parameters: {
+            query: {
+                mode: "drive" | "walk";
+                from: string;
+                to: string;
+                alternates?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteSet"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_route_path_api_route_path_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PathRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -824,6 +971,7 @@ export interface operations {
             query: {
                 at?: string | null;
                 from: string;
+                name?: string | null;
             };
             header?: never;
             path?: never;
@@ -856,6 +1004,7 @@ export interface operations {
             query: {
                 at?: string | null;
                 from: string;
+                name?: string | null;
             };
             header?: never;
             path?: never;

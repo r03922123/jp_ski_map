@@ -40,7 +40,16 @@ function route(overrides: Partial<Route> = {}): Route {
     durationS: 172,
     distanceM: 837,
     geometry: { type: "LineString", coordinates: [] },
-    steps: [{ instruction: "Drive south.", distanceM: 20, durationS: 9 }],
+    steps: [
+      {
+        instruction: "Drive south.",
+        distanceM: 20,
+        durationS: 9,
+        maneuver: "depart",
+        streetNames: [],
+        shapeRange: [0, 0],
+      },
+    ],
     isEstimate: true,
     ...overrides,
   };

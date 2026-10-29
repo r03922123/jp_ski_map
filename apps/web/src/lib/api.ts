@@ -2,6 +2,9 @@ import type { components, operations } from "@/lib/api-types";
 
 export type Resort = components["schemas"]["Resort"];
 export type Route = components["schemas"]["Route"];
+export type RouteSet = components["schemas"]["RouteSet"];
+export type Step = components["schemas"]["Step"];
+export type Maneuver = Step["maneuver"];
 export type Coord = components["schemas"]["Coord"];
 export type Place = components["schemas"]["Place"];
 export type RankedResort = components["schemas"]["RankedResort"];
@@ -45,6 +48,29 @@ export const fetchRoute = (mode: Mode, from: Coord, to: Coord) =>
   getJson<Route>(
     `/api/route?mode=${mode}&from=${latLng(from)}&to=${latLng(to)}`,
   );
+
+/** Primary route plus up to two alternates. */
+export const fetchRoutes = (mode: Mode, from: Coord, to: Coord) =>
+  getJson<RouteSet>(
+    `/api/routes?mode=${mode}&from=${latLng(from)}&to=${latLng(to)}`,
+  );
+
+/** One route through ordered points (e.g. a bus ride's stops). */
+export async function fetchPath(mode: Mode, points: Coord[]): Promise<Route> {
+  const response = await fetch("/api/route/path", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode, points }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new ApiError(
+      body.error ?? `http_${response.status}`,
+      response.status,
+    );
+  }
+  return response.json() as Promise<Route>;
+}
 
 export const fetchPlaces = (q: string) =>
   getJson<Place[]>(`/api/places/search?q=${encodeURIComponent(q)}`);

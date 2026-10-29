@@ -4,10 +4,11 @@ import httpx
 
 from hakuba_api.common.geo import Coord
 from hakuba_api.routing.maneuvers import maneuver_for, route_summary
-from hakuba_api.routing.models import LineString, MatrixCell, Mode, Route, Step
+from hakuba_api.routing.models import LineString, MatrixCell, Mode, Route, RouteSet, Step
 from hakuba_api.routing.polyline import decode_polyline
 
 COSTING: dict[Mode, str] = {"drive": "auto", "walk": "pedestrian"}
+MAX_ALTERNATE_RATIO = 1.5  # slower alternates are detours nobody would pick
 
 
 class NoRouteError(Exception):
@@ -18,7 +19,7 @@ class RoutingUnavailableError(Exception):
     """Valhalla is down or failed unexpectedly."""
 
 
-def _location(coord: Coord) -> dict[str, float]:
+def _location(coord: Coord) -> dict[str, Any]:
     return {"lat": coord.lat, "lon": coord.lng}
 
 
@@ -76,13 +77,33 @@ class ValhallaClient:
         return response.json()
 
     def route(self, mode: Mode, origin: Coord, destination: Coord) -> Route:
+        return self.routes(mode, origin, destination, alternates=0).primary
+
+    def routes(self, mode: Mode, origin: Coord, destination: Coord, alternates: int) -> RouteSet:
+        body: dict[str, Any] = {
+            "locations": [_location(origin), _location(destination)],
+            "costing": COSTING[mode],
+            "units": "kilometers",
+        }
+        if alternates:
+            body["alternates"] = alternates
+        data = self._post("/route", body)
+        primary = _to_route(mode, data["trip"])
+        others = [_to_route(mode, a["trip"]) for a in data.get("alternates", [])]
+        return RouteSet(
+            primary=primary,
+            alternates=[
+                r for r in others if r.duration_s <= primary.duration_s * MAX_ALTERNATE_RATIO
+            ][:alternates],
+        )
+
+    def path(self, mode: Mode, points: list[Coord]) -> Route:
+        """One route through ordered points; middle points are pass-through (no stop)."""
+        locations = [_location(p) for p in points]
+        for loc in locations[1:-1]:
+            loc["type"] = "through"
         data = self._post(
-            "/route",
-            {
-                "locations": [_location(origin), _location(destination)],
-                "costing": COSTING[mode],
-                "units": "kilometers",
-            },
+            "/route", {"locations": locations, "costing": COSTING[mode], "units": "kilometers"}
         )
         return _to_route(mode, data["trip"])
 

@@ -30,6 +30,11 @@ class Route(ApiModel):
     is_estimate: bool = True  # typical speeds, no live traffic or winter road conditions
 
 
+class RouteSet(ApiModel):
+    primary: Route
+    alternates: list[Route]  # at most 2, each no slower than MAX_ALTERNATE_RATIO x primary
+
+
 class MatrixCell(ApiModel):
     id: str
     duration_s: int | None  # None when Valhalla can't reach the target
