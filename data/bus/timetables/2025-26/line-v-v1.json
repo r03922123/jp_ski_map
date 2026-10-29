@@ -1,0 +1,152 @@
+{
+ "lineId": "line-v",
+ "routeId": "v1",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "Happo ↔ Jigatake",
+  "ja": "八方 ↔ 爺ガ岳"
+ },
+ "validFrom": "2025-12-27",
+ "validTo": "2026-03-15",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "V1.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "south",
+   "stops": [
+    "Hakuba Happo Bus Terminal",
+    "Echoland (Spicy)",
+    "Misorano Ent. (Ryusei Kaen)",
+    "ABLE Hakuba GORYU ESCAL PLAZA",
+    "White Resort HAKUBA SANOSAKA",
+    "Kashimayari Ski Resort Family Park (Nakatsuna Slope)",
+    "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
+    "Omachionsenkyo Ent.",
+    "Omachionsenkyo (Tateyama Prince Hotel)",
+    "Jigatake Snow Resort"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "07:25",
+      "07:30",
+      "07:35",
+      null,
+      "07:53",
+      "08:08",
+      null,
+      null,
+      null,
+      "08:33"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "10:50",
+      "10:55",
+      "11:00",
+      "11:10",
+      "11:18",
+      "11:33",
+      null,
+      null,
+      null,
+      "11:58"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "17:30",
+      null,
+      null,
+      "17:40",
+      "17:48",
+      "18:03",
+      "18:28",
+      "18:33",
+      "18:35",
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "north",
+   "stops": [
+    "Jigatake Snow Resort",
+    "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
+    "Omachionsenkyo Ent.",
+    "Omachionsenkyo (Tateyama Prince Hotel)",
+    "Kashimayari Ski Resort Family Park (Nakatsuna Slope)",
+    "White Resort HAKUBA SANOSAKA",
+    "ABLE Hakuba GORYU ESCAL PLAZA",
+    "Echoland (Spicy)",
+    "Misorano Ent. (Ryusei Kaen)",
+    "Hakuba Happo-one Snow Resort (Nakiyama Slope)",
+    "Hakuba Happo Bus Terminal"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      null,
+      "09:17",
+      "09:22",
+      "09:24",
+      "09:49",
+      "10:04",
+      "10:12",
+      null,
+      null,
+      "10:32",
+      "10:38"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "12:30",
+      "12:47",
+      "12:52",
+      "12:54",
+      "13:19",
+      "13:34",
+      "13:42",
+      null,
+      null,
+      "14:02",
+      "14:08"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "15:45",
+      "16:02",
+      null,
+      null,
+      "16:27",
+      "16:42",
+      "16:50",
+      "17:05",
+      "17:10",
+      null,
+      "17:16"
+     ]
+    }
+   ]
+  }
+ ]
+}

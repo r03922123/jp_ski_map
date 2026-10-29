@@ -1,0 +1,158 @@
+{
+ "lineId": "line-vn",
+ "routeId": "vn",
+ "season": "2025-26",
+ "kind": "night",
+ "name": {
+  "en": "Hakuba Night Bus (around Hakuba Village)",
+  "ja": "白馬ナイトバス（白馬村内）"
+ },
+ "validFrom": "2025-12-26",
+ "validTo": "2026-02-22",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "VN-1.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "to-jr-hakuba",
+   "stops": [
+    "Kamishiro Hakubanomori Ent.",
+    "Misorano Ent.(Seven Eleven)",
+    "Misorano Rotary",
+    "Echoland(Spicy)",
+    "Hakuba Happo Bus Terminal",
+    "Wadano(Mominoki Hotel)",
+    "Snow Peak Land Station Hakuba",
+    "JR Hakuba Station"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "16:36",
+      "16:44",
+      "16:50",
+      "16:53",
+      "17:08",
+      "17:13",
+      "17:19",
+      "17:24"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      null,
+      "18:09",
+      "18:15",
+      "18:18",
+      "18:33",
+      "18:38",
+      "18:44",
+      "18:49"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "20:17",
+      "20:25",
+      "20:31",
+      "20:34",
+      "20:49",
+      "20:54",
+      "21:00",
+      "21:05"
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      null,
+      "21:50",
+      "21:56",
+      "21:59",
+      "22:09",
+      "22:14",
+      "22:20",
+      "22:25"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "from-jr-hakuba",
+   "stops": [
+    "JR Hakuba Station",
+    "Snow Peak Land Station Hakuba",
+    "Wadano(Mominoki Hotel)",
+    "Hakuba Happo Bus Terminal",
+    "Echoland(Spicy)",
+    "Misorano Rotary",
+    "Misorano Ent.(Seven Eleven)",
+    "Kamishiro Hakubanomori Ent."
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "17:24",
+      "17:29",
+      "17:35",
+      "17:50",
+      "17:55",
+      "17:58",
+      "18:04",
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "18:49",
+      "18:54",
+      "19:00",
+      "19:15",
+      "19:20",
+      "19:23",
+      "19:29",
+      "19:37"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "21:05",
+      "21:10",
+      "21:16",
+      "21:31",
+      "21:36",
+      "21:39",
+      "21:45",
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "22:25",
+      "22:30",
+      "22:36",
+      "22:46",
+      "22:51",
+      "22:54",
+      "23:00",
+      "23:08"
+     ]
+    }
+   ]
+  }
+ ]
+}
