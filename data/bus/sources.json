@@ -143,5 +143,85 @@
       "file": "TimetableV2.jpg",
       "sha256": "91023ef04ba157c7a00c19474078fc79383fe9a44f2eb57e740c49c5ceacde12"
     }
+  ],
+  "myMaps": [
+    {
+      "mid": "1yduAPDNxPBZHo-7A2APVQi_2xC_1GYY",
+      "timetableFile": "V1.jpg",
+      "file": "mymaps/1yduAPDNxPBZHo-7A2APVQi_2xC_1GYY.kml",
+      "sha256": "371787e4205591f85b736cb3cd43ed0fa20f5e4940b571e17d8d8739d836ee94"
+    },
+    {
+      "mid": "1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ",
+      "timetableFile": "VN-1.jpg",
+      "file": "mymaps/1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ.kml",
+      "sha256": "61a2faadf3a69caf5d7320d33eb58493e829d4c9e619eea774cc103ba45f0dc5"
+    },
+    {
+      "mid": "144X0iy2GSeAtFg9rREDXomNDGtz_zTk",
+      "timetableFile": "N.jpg",
+      "file": "mymaps/144X0iy2GSeAtFg9rREDXomNDGtz_zTk.kml",
+      "sha256": "0ce1e7566ecbabb24edb58238250399a0201e05362183ad62112941141f97fdd"
+    },
+    {
+      "mid": "1ukUFrg55fWfTmp3f9jivhpNpzp7I_9Y",
+      "timetableFile": "T.jpg",
+      "file": "mymaps/1ukUFrg55fWfTmp3f9jivhpNpzp7I_9Y.kml",
+      "sha256": "45586b2e9efe52dc8dd7b64d0d0e78cba169870afac719e18ed7e810d6db19d1"
+    },
+    {
+      "mid": "1azoPm13yPOO8rDWiTCvGPMacLBp4tMc",
+      "timetableFile": "I.jpg",
+      "file": "mymaps/1azoPm13yPOO8rDWiTCvGPMacLBp4tMc.kml",
+      "sha256": "5ee91814b5bd06d7297fd6f0cde51f6bae7226fd4348b3f9d636b1246dcfb2e3"
+    },
+    {
+      "mid": "19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc",
+      "timetableFile": "E.jpg",
+      "file": "mymaps/19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc.kml",
+      "sha256": "bd453412bcf22fda50ee458319b3ed7153fb2d49fa79bcd614dfc6329195d48e"
+    },
+    {
+      "mid": "1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc",
+      "timetableFile": "H.jpg",
+      "file": "mymaps/1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc.kml",
+      "sha256": "91b9e8519a4067c286ef22890b982ef77d9e616e46b7a27199e436ba440a32d9"
+    },
+    {
+      "mid": "1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg",
+      "timetableFile": "F.jpg",
+      "file": "mymaps/1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg.kml",
+      "sha256": "f8383bb349f16d790032444f0cedd8c23c06f0533bc12ec3d5060ffaaa2c7f77"
+    },
+    {
+      "mid": "1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84",
+      "timetableFile": "G1-6.jpg",
+      "file": "mymaps/1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84.kml",
+      "sha256": "b7857c66c9007f66a6c4db48052e8bcc24f29e5685b30ec0d817a3755b00221e"
+    },
+    {
+      "mid": "1Os0l98DaldhLrlz2doPvccGukN6qgaU",
+      "timetableFile": "G7-10.jpg",
+      "file": "mymaps/1Os0l98DaldhLrlz2doPvccGukN6qgaU.kml",
+      "sha256": "91805bd885cd66481d814ce6d891416beb429ec5dc6f6eb317b2d85b2b418253"
+    },
+    {
+      "mid": "1tpTjEGykN_dPnJ9wt72pKbaIofEe15U",
+      "timetableFile": "L.jpg",
+      "file": "mymaps/1tpTjEGykN_dPnJ9wt72pKbaIofEe15U.kml",
+      "sha256": "7d4c2ff49b6070bba7c9cc72cb55feb3dd82344950885aa4e625e00590b8fc6c"
+    },
+    {
+      "mid": "1_EOV2ZXFvBmxKWgsMi03d4ydOCtopps",
+      "timetableFile": "R.jpg",
+      "file": "mymaps/1_EOV2ZXFvBmxKWgsMi03d4ydOCtopps.kml",
+      "sha256": "818002da34dffe81aef239826b0bffaf357aade5883d74156cb6b59f0ead2984"
+    },
+    {
+      "mid": "1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA",
+      "timetableFile": "O.jpg",
+      "file": "mymaps/1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA.kml",
+      "sha256": "98b267e9c8fcecea1666e2f5f3fdd69cd3a947acc84a8ea5103a270b7e96a100"
+    }
   ]
 }

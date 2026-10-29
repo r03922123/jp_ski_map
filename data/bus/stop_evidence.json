@@ -62,8 +62,12 @@
    "source": "https://jcation.com/hotel/detail-7583/"
   },
   "stop-double-black-hotel": {
-   "address": "長野県北安曇郡白馬村北城4977-1",
-   "source": "https://hakuba.com/accommodation/hotels/double-black-hotel/"
+   "osm": {
+    "lat": 36.7052467,
+    "lng": 137.8419023,
+    "ref": "operator My Maps pin (Double Black Hotel/ダブルブラックホテル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
   },
   "stop-echoland-spicy": {
    "osm": {
@@ -98,8 +102,12 @@
    "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-hakuba-sunvalley-hotel": {
-   "address": "長野県北安曇郡白馬村神城26030",
-   "source": "https://yado.knt.co.jp/st/S200451/"
+   "osm": {
+    "lat": 36.6691103,
+    "lng": 137.8400214,
+    "ref": "operator My Maps pin (Hakuba Sunvalley Hotel / 白馬サンバレーホテル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
   },
   "stop-happo-sakka": {
    "osm": {
@@ -110,8 +118,12 @@
    "source": "OpenStreetMap"
   },
   "stop-hotel-ogiya": {
-   "address": "長野県北安曇郡白馬村北城6680",
-   "source": "https://yado.knt.co.jp/st/S200408/"
+   "osm": {
+    "lat": 36.7034589,
+    "lng": 137.8447178,
+    "ref": "operator My Maps pin (Hotel Ogiya / ホテル扇屋)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
   },
   "stop-hotel-st-malte": {
    "osm": {
@@ -187,9 +199,12 @@
    "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-la-vigne-hakuba-north-parking": {
-   "address": "長野県北安曇郡白馬村北城3020-1116",
-   "source": "https://4travel.jp/dm_hotel-11994520",
-   "note": "hotel address; the north parking lot is on the same plot"
+   "osm": {
+    "lat": 36.6930345,
+    "lng": 137.8447202,
+    "ref": "operator My Maps pin (La Vignu/ラヴィーニュ白馬)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
   },
   "stop-lion-cafe": {
    "osm": {
@@ -287,8 +302,12 @@
    "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-rosenheim-hakuba": {
-   "address": "長野県北安曇郡白馬村北城3750",
-   "source": "https://www.jalan.net/yad326241/"
+   "osm": {
+    "lat": 36.6983831,
+    "lng": 137.8421216,
+    "ref": "operator My Maps pin (Rosenheim Hakuba / ローゼンハイム白馬)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
   },
   "stop-ryokusuitei-keisui": {
    "osm": {
@@ -349,8 +368,12 @@
    "approx": true
   },
   "stop-yamano-hotel": {
-   "address": "長野県北安曇郡白馬村北城3477",
-   "source": "https://www.jalan.net/yad334254/"
+   "osm": {
+    "lat": 36.6942387,
+    "lng": 137.8378973,
+    "ref": "operator My Maps pin (Yamano Hotel / 山のホテル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
   },
   "stop-3-parking": {
    "osm": {
@@ -487,6 +510,22 @@
     "ref": "operator My Maps pin (Gakusui / 岳水)"
    },
    "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  },
+  "stop-hakuba-47-ent": {
+   "osm": {
+    "lat": 36.6808689,
+    "lng": 137.837364,
+    "ref": "operator My Maps pin (Hakuba 47 Ent./Hakuba47入口)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+  },
+  "stop-kamishiro-hakubanomori-ent": {
+   "osm": {
+    "lat": 36.6576642,
+    "lng": 137.840411,
+    "ref": "operator My Maps pin (Goryu Hakubanomori/五竜 白馬の森入口)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ"
   }
  }
 }

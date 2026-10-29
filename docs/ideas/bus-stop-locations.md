@@ -5,9 +5,9 @@ How might we give every Hakuba Valley shuttle pickup stop a location people can 
 walking directions, without guessing and without depending on Google's own map data?
 
 ## Recommended Direction (chosen 2026-10-29)
-**A — the operator's own My Maps.** The official 2025-26 Shuttle Bus Map PDF prints, per line,
-a QR code "Please check the location of each bus stop"; each resolves to a Google My Maps
-layer (`/maps/d/viewer?mid=…`) authored by Hakuba Valley. We use its official KML export
+**A — the operator's own My Maps.** The shuttle page embeds, next to every timetable, a Google
+My Maps layer (`/maps/d/embed?mid=…`) of that line's stops, authored by Hakuba Valley (13 layers;
+the PDF's QR codes only cover 10 of them — the page is the complete source). We use its official KML export
 once per season (like the timetable images), match placemarks to our stop aliases, and run
 the existing verification (timed-leg drive times, untimed neighbour distance) before
 accepting a point. These are the operator's published pins, not Google basemap/place data.
@@ -30,5 +30,6 @@ matching in the bus query. Out: UI changes beyond what the bus tab already shows
 - Area-centroid guesses from the schematic map — it isn't to scale; a wrong pin is worse than none.
 - Editing OpenStreetMap — worthwhile follow-up, but slow and not needed for the app.
 
-## Open Questions
-- Do the My Maps layers change mid-season? (Track their KML hash alongside sources.json.)
+## Outcome (2026-10-30)
+98/98 stops located; median 2 m from independently verified stops. Layer KML hashes are tracked
+in sources.json, so mid-season changes to a stop map are detected by the weekly watch.

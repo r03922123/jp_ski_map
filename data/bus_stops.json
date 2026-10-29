@@ -186,12 +186,15 @@
    "en": "Double Black Hotel",
    "ja": null
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.7052467,
+   "lng": 137.8419023
+  },
   "servesResortId": null,
   "aliases": [
    "Double Black Hotel"
   ],
-  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城4977-1"
+  "coordSource": "operator My Maps pin (Double Black Hotel/ダブルブラックホテル) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
  },
  {
   "id": "stop-echoland-main-st",
@@ -313,12 +316,15 @@
    "en": "Hakuba 47 Ent.",
    "ja": "Hakuba47入口"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.6808689,
+   "lng": 137.837364
+  },
   "servesResortId": null,
   "aliases": [
    "Hakuba 47 Ent."
   ],
-  "coordSource": "unresolved"
+  "coordSource": "operator My Maps pin (Hakuba 47 Ent./Hakuba47入口) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
  },
  {
   "id": "stop-hakuba-forest-ent",
@@ -391,12 +397,15 @@
    "en": "Hakuba Sunvalley Hotel",
    "ja": "白馬サンバレーホテル"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.6691103,
+   "lng": 137.8400214
+  },
   "servesResortId": null,
   "aliases": [
    "Hakuba Sunvalley Hotel"
   ],
-  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村神城26030"
+  "coordSource": "operator My Maps pin (Hakuba Sunvalley Hotel / 白馬サンバレーホテル) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
  },
  {
   "id": "stop-hakuba-tokyu-hotel",
@@ -565,12 +574,15 @@
    "en": "Hotel Ogiya",
    "ja": "ホテル扇屋"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.7034589,
+   "lng": 137.8447178
+  },
   "servesResortId": null,
   "aliases": [
    "Hotel Ogiya"
   ],
-  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城6680"
+  "coordSource": "operator My Maps pin (Hotel Ogiya / ホテル扇屋) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
  },
  {
   "id": "stop-hotel-st-malte",
@@ -708,12 +720,15 @@
    "en": "Kamishiro Hakubanomori Ent.",
    "ja": "神城 白馬の森入口"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.6576642,
+   "lng": 137.840411
+  },
   "servesResortId": null,
   "aliases": [
    "Kamishiro Hakubanomori Ent."
   ],
-  "coordSource": "unresolved"
+  "coordSource": "operator My Maps pin (Goryu Hakubanomori/五竜 白馬の森入口) — https://www.google.com/maps/d/viewer?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ"
  },
  {
   "id": "stop-kanemaru",
@@ -883,12 +898,15 @@
    "en": "La Vigne Hakuba North Parking",
    "ja": "ラ ヴィーニュ白馬 北駐車場"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.6930345,
+   "lng": 137.8447202
+  },
   "servesResortId": null,
   "aliases": [
    "La Vigne Hakuba North Parking"
   ],
-  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
+  "coordSource": "operator My Maps pin (La Vignu/ラヴィーニュ白馬) — https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
  },
  {
   "id": "stop-lion-cafe",
@@ -1221,12 +1239,15 @@
    "en": "Rosenheim Hakuba",
    "ja": "ローゼンハイム白馬"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.6983831,
+   "lng": 137.8421216
+  },
   "servesResortId": null,
   "aliases": [
    "Rosenheim Hakuba"
   ],
-  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城3750"
+  "coordSource": "operator My Maps pin (Rosenheim Hakuba / ローゼンハイム白馬) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
  },
  {
   "id": "stop-ryokusuitei-keisui",
@@ -1540,12 +1561,15 @@
    "en": "Yamano Hotel",
    "ja": "山のホテル"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.6942387,
+   "lng": 137.8378973
+  },
   "servesResortId": null,
   "aliases": [
    "Yamano Hotel"
   ],
-  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
+  "coordSource": "operator My Maps pin (Yamano Hotel / 山のホテル) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
  },
  {
   "id": "stop-yupuru-kizakiko",

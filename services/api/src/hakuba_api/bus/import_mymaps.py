@@ -2,9 +2,9 @@
 
 Usage: `python -m hakuba_api.bus.import_mymaps [--write]`
 
-The official Shuttle Bus Map PDF prints a QR code per line ("check the location of each
-bus stop"), each pointing at a My Maps layer authored by the operator. Their KML exports
-(saved under data/bus/raw/<season>/mymaps/, listed in data/bus/mymaps_sources.json) are
+The shuttle page shows, next to every timetable, the operator's own Google My Maps layer of
+that line's stops. `check_sources` discovers them, saves their official KML exports under
+data/bus/raw/<season>/mymaps/ and tracks them in data/bus/sources.json; here they are
 matched to our stops by English and Japanese name. The import refuses to run if the
 layers disagree with the stops we already verified, and only fills stops that are still
 unresolved; `locate_stops` then runs the usual route checks on them.
@@ -18,18 +18,27 @@ import sys
 import unicodedata
 from dataclasses import dataclass
 
+from hakuba_api.bus.check_sources import SourcesManifest
 from hakuba_api.bus.locate_stops import _km  # pyright: ignore[reportPrivateUsage]
 from hakuba_api.bus.models import BusStop
 from hakuba_api.common.geo import Coord
 
 MAX_MEDIAN_DISAGREEMENT_M = 100  # layers must match already-verified stops this well
 MAX_SPREAD_M = 300  # pins of one stop across layers (e.g. both sides of a road)
+AGREE_M = 100  # a pin this close to the median "agrees" with it
 
 
 # Hand-checked spellings the name matcher can't connect (prefix of the placemark name).
 MANUAL_MATCHES = {
     "Courtyard by Mariott Hakuba": "stop-courtyard-by-marriott-hakuba",
     "Gakusui / 岳水": "stop-the-gakusui",
+    "Goryu Hakubanomori/五竜 白馬の森入口": "stop-kamishiro-hakubanomori-ent",  # VN layer
+    "La Vignu/ラヴィーニュ白馬": "stop-la-vigne-hakuba-north-parking",
+    "La Vigne Hakuba / ラヴィーニュ白馬": "stop-la-vigne-hakuba-north-parking",
+    "Kashimayari Snow Resort (Nakatsuna": "stop-kashimayari-nakatsuna",
+    "Kashimayari Snow Resort(Nakatsuna": "stop-kashimayari-nakatsuna",
+    "Seventh Eleven / セブンイレブン": "stop-misorano-seven-eleven",
+    "Sierra Resort Hakuba / シェラリゾート白馬": "stop-sierra-resort-hotel-hakuba",
     "Happo-One (Kokusai Slope": "stop-happo-kokusai",
     "Happo-One(Kokusai Slope": "stop-happo-kokusai",
     "Happo-One( Sakka Slope": "stop-happo-sakka",
@@ -97,11 +106,28 @@ def match_stop(mark: Placemark, stops: list[BusStop]) -> str | None:
 
 
 def merge_points(points: list[Coord]) -> tuple[Coord, float]:
-    """Median pin and the largest distance from it, in metres."""
+    """Median pin and the spread: the largest distance between any two pins, in metres.
+    (Distance from the median would halve it and let two disagreeing pins average out.)"""
     merged = Coord(
         lat=statistics.median(p.lat for p in points), lng=statistics.median(p.lng for p in points)
     )
-    return merged, max(_km(merged, p) for p in points) * 1000
+    spread = max((_km(a, b) for a in points for b in points), default=0.0)
+    return merged, spread * 1000
+
+
+def robust_merge(points: list[Coord]) -> tuple[Coord, list[Coord]] | None:
+    """Median pin, out-voting a minority of misplaced pins (e.g. an operator layer that
+    reused another stop's pin). None when no two-thirds majority agrees."""
+    merged, spread = merge_points(points)
+    if spread <= MAX_SPREAD_M:
+        return merged, []
+    inliers = [p for p in points if _km(merged, p) * 1000 <= AGREE_M]
+    if len(inliers) < 2 or len(inliers) * 3 < len(points) * 2:
+        return None
+    merged, spread = merge_points(inliers)
+    if spread > MAX_SPREAD_M:
+        return None
+    return merged, [p for p in points if p not in inliers]
 
 
 def agreement_m(imported: dict[str, Coord], verified: dict[str, Coord]) -> dict[str, float]:
@@ -112,13 +138,15 @@ def main(write: bool) -> int:
     from hakuba_api.bus.store import load_stops
     from hakuba_api.data.paths import data_dir
 
-    sources = json.loads((data_dir() / "bus" / "mymaps_sources.json").read_text())
-    folder = data_dir() / "bus" / "raw" / sources["season"] / "mymaps"
+    manifest = SourcesManifest.model_validate_json(
+        (data_dir() / "bus" / "sources.json").read_text()
+    )
+    folder = data_dir() / "bus" / "raw" / manifest.season
     stops = load_stops()
 
     marks: list[Placemark] = []
-    for layer in sources["layers"]:
-        marks += parse_kml((folder / f"{layer['mid']}.kml").read_text(), layer["mid"])
+    for layer in manifest.my_maps:
+        marks += parse_kml((folder / layer.file).read_text(), layer.mid)
 
     by_stop: dict[str, list[Placemark]] = {}
     unmatched: list[str] = []
@@ -129,11 +157,19 @@ def main(write: bool) -> int:
         else:
             unmatched.append(m.name)
 
-    merged: dict[str, tuple[Coord, float]] = {
-        k: merge_points([m.coord for m in v]) for k, v in by_stop.items()
-    }
+    merged: dict[str, Coord] = {}
+    for stop_id, pins in sorted(by_stop.items()):
+        result = robust_merge([m.coord for m in pins])
+        if result is None:
+            print(f"SKIP    {stop_id:38} no two-thirds majority among {len(pins)} pins")
+            continue
+        merged[stop_id], outliers = result
+        for o in outliers:
+            bad = next(m for m in pins if m.coord == o)
+            where = f"({o.lat:.5f},{o.lng:.5f})"
+            print(f"OUTLIER {stop_id:38} ignored pin in layer {bad.layer[:10]}… {where}")
     verified = {s.id: s.coord for s in stops if s.coord}
-    agree = agreement_m({k: v[0] for k, v in merged.items()}, verified)
+    agree = agreement_m(merged, verified)
     median_m = statistics.median(agree.values()) if agree else float("inf")
     print(f"{len(marks)} placemarks, {len(by_stop)} stops matched, {len(unmatched)} unmatched")
     print(f"agreement with {len(agree)} verified stops: median {median_m:.0f} m")
@@ -145,13 +181,10 @@ def main(write: bool) -> int:
 
     evidence_path = data_dir() / "bus" / "stop_evidence.json"
     evidence = json.loads(evidence_path.read_text())
-    viewer = {layer["mid"]: layer["url"] for layer in sources["layers"]}
+    viewer = {m.mid: f"https://www.google.com/maps/d/viewer?mid={m.mid}" for m in manifest.my_maps}
     added = 0
-    for stop_id, (coord, spread) in sorted(merged.items()):
+    for stop_id, coord in sorted(merged.items()):
         if stop_id in verified:
-            continue
-        if spread > MAX_SPREAD_M:
-            print(f"SKIP    {stop_id:38} pins spread {spread:.0f} m across layers")
             continue
         layers = sorted({m.layer for m in by_stop[stop_id]})
         print(

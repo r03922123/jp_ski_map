@@ -192,10 +192,15 @@ def test_lookalike_hotels_do_not_claim_someone_elses_stop(lookalike: str) -> Non
     assert stops_named(lookalike, list(STOPS.values())) == set()
 
 
-def test_matching_hotel_stop_is_walk_zero_even_without_coordinates() -> None:
-    from hakuba_api.bus.router import get_walks
+def test_matching_hotel_stop_is_walk_zero_even_without_coordinates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from hakuba_api.bus import router as bus_router
     from hakuba_api.common.geo import Coord
     from hakuba_api.routing.models import MatrixCell, Mode
+
+    unlocated = STOPS["stop-double-black-hotel"].model_copy(update={"coord": None})
+    monkeypatch.setattr(bus_router, "load_stops", lambda: [unlocated])
 
     class FarValhalla:
         def matrix(
@@ -203,7 +208,6 @@ def test_matching_hotel_stop_is_walk_zero_even_without_coordinates() -> None:
         ) -> list[MatrixCell]:
             return [MatrixCell(id=t, duration_s=3600, distance_m=5000) for t, _ in targets]
 
-    walks = get_walks("36.7,137.84", FarValhalla(), name="Double Black Hotel")  # type: ignore[arg-type]
+    walks = bus_router.get_walks("36.7,137.84", FarValhalla(), name="Double Black Hotel")  # type: ignore[arg-type]
 
-    assert STOPS["stop-double-black-hotel"].coord is None
-    assert walks["stop-double-black-hotel"] == 0
+    assert walks == {"stop-double-black-hotel": 0}

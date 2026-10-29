@@ -87,7 +87,7 @@ def test_merge_takes_the_median_and_reports_spread() -> None:
     merged, spread_m = merge_points(points)
 
     assert merged == Coord(lat=36.7002, lng=137.8400)
-    assert 1000 < spread_m < 1200
+    assert 1000 < spread_m < 1200  # the far pin is ~1.1 km from both others
 
 
 def test_agreement_with_verified_stops() -> None:
@@ -107,3 +107,25 @@ def test_manual_table_connects_known_misspellings() -> None:
     mark = Placemark("Gakusui / 岳水", Coord(lat=0, lng=0), "x")
 
     assert match_stop(mark, STOPS) == "stop-the-gakusui"
+
+
+def test_a_single_misplaced_pin_is_outvoted_by_the_majority() -> None:
+    from hakuba_api.bus.import_mymaps import robust_merge
+
+    agreeing = [Coord(lat=36.6930, lng=137.8447) for _ in range(4)]
+    copied_wrong_pin = Coord(lat=36.69163, lng=137.84960)  # ~470 m away
+
+    result = robust_merge([*agreeing, copied_wrong_pin])
+
+    assert result is not None
+    merged, outliers = result
+    assert merged == Coord(lat=36.6930, lng=137.8447)
+    assert outliers == [copied_wrong_pin]
+
+
+def test_no_clear_majority_means_no_location() -> None:
+    from hakuba_api.bus.import_mymaps import robust_merge
+
+    split = [Coord(lat=36.6930, lng=137.8447), Coord(lat=36.6880, lng=137.8447)]
+
+    assert robust_merge(split) is None
