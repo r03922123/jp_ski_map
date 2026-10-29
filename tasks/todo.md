@@ -122,11 +122,11 @@ Gate shorthand:
 **Files:** `src/hakuba_api/places/{overpass,refresh_lodging,router}.py`, `data/lodging_osm.json`, `tests/places/test_lodging.py`
 **Scope:** S
 
-## Task 10: Web — search box + lodging pins
+## Task 10: Web — search box + lodging pins ✅
 **Description:** A search box with 300 ms debounce and keyboard navigation of the results. Selecting a result sets the origin. With no results it hints "Paste a Google Maps link or tap the map". Lodging pins show at zoom ≥ 14, and clicking a pin sets the origin.
 **Acceptance criteria:**
-- [ ] Typing "Hotel Hakuba" → select → the origin moves there; pasting a Google Maps URL also works
-- [ ] At most 1 request per 300 ms while typing (component test with fake timers)
+- [x] Typing "Hotel Hakuba" → select → the origin moves there; pasting a Google Maps URL also works
+- [x] At most 1 request per 300 ms while typing (component test with fake timers)
 **Verification:** Web gates; Playwright `e2e/search.spec.ts`
 **Dependencies:** T6, T8, T9
 **Files:** `src/components/{SearchBox,LodgingLayer}.tsx`, `tests/SearchBox.test.tsx`, `e2e/search.spec.ts`

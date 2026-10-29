@@ -38,6 +38,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/places/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search */
+        get: operations["search_api_places_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/places/lodging": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lodging
+         * @description Lodging pins for the current map view, from the OSM snapshot (`south,west,north,east`).
+         */
+        get: operations["lodging_api_places_lodging_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -100,6 +137,26 @@ export interface components {
             en: string;
             /** Ja */
             ja: string;
+        };
+        /** Place */
+        Place: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "hotel" | "guest_house" | "hostel" | "apartment" | "chalet" | "other";
+            coord: components["schemas"]["Coord"];
+            /** Address */
+            address: string | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "photon" | "osm-snapshot" | "gmaps-link";
         };
         /** Resort */
         Resort: {
@@ -247,6 +304,69 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Route"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_api_places_search_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lodging_api_places_lodging_get: {
+        parameters: {
+            query: {
+                bbox: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"][];
                 };
             };
             /** @description Validation Error */

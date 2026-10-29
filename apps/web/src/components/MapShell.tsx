@@ -9,17 +9,29 @@ import {
   type PanelMode,
   type RouteState,
 } from "@/components/ModePanel";
-import { ApiError, type Coord, fetchResorts, fetchRoute } from "@/lib/api";
+import { SearchBox } from "@/components/SearchBox";
+import {
+  ApiError,
+  type Bbox,
+  type Coord,
+  fetchLodging,
+  fetchResorts,
+  fetchRoute,
+} from "@/lib/api";
 import { parseViewState, serializeViewState } from "@/lib/url-state";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
 const MapView = dynamic(() => import("./MapView"), { ssr: false });
+
+const LODGING_MIN_ZOOM = 14;
 
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const [mode, setMode] = useState<PanelMode>("drive");
   const [origin, setOrigin] = useState<Coord | null>(null);
   const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
+  const [flyTo, setFlyTo] = useState<Coord | null>(null);
+  const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
 
   // Restore the shared view once, then mirror every change back into the URL.
   // `ready` is state (not a ref) so the first URL write happens on a render that
@@ -44,6 +56,16 @@ export function MapShell() {
   }, [ready, origin, mode, selectedResortId]);
 
   const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+
+  const showLodging = view !== null && view.zoom >= LODGING_MIN_ZOOM;
+  const lodging = useQuery({
+    queryKey: ["lodging", view?.bbox],
+    queryFn: () => fetchLodging(view!.bbox),
+    enabled: showLodging,
+    retry: false,
+    staleTime: Number.POSITIVE_INFINITY, // snapshot data
+  });
+  const lodgingPins = showLodging ? (lodging.data ?? []) : [];
   const resort = resorts.data?.find((r) => r.id === selectedResortId);
   const destination = resort?.accessPoints[0]?.coord;
 
@@ -74,17 +96,29 @@ export function MapShell() {
       className="fixed inset-0"
       data-map-loaded={loaded}
       data-route-points={routeData?.geometry.coordinates.length ?? 0}
+      data-lodging-pins={lodgingPins.length}
     >
       <MapView
         resorts={resorts.data ?? []}
         selectedResortId={selectedResortId}
         origin={origin}
         route={routeData}
+        lodging={lodgingPins}
+        flyTo={flyTo}
         onLoad={() => setLoaded(true)}
+        onViewChange={setView}
         onPickOrigin={setOrigin}
         onSelectResort={setSelectedResortId}
       />
       <BottomSheet label="Directions">
+        <div className="mb-3">
+          <SearchBox
+            onSelect={(place) => {
+              setOrigin(place.coord);
+              setFlyTo(place.coord);
+            }}
+          />
+        </div>
         <ModePanel
           mode={mode}
           onModeChange={setMode}
