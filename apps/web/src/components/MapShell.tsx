@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
 import { DrivePanel, type RankingState } from "@/components/DrivePanel";
@@ -22,7 +22,8 @@ import {
   fetchNightBus,
   fetchRank,
   fetchResorts,
-  fetchRoute,
+  fetchRoutes,
+  type Route,
 } from "@/lib/api";
 import {
   DEFAULT_RANK,
@@ -155,39 +156,57 @@ export function MapShell() {
   // In bus mode the route shown is the walk to the chosen boarding stop.
   const routeMode = mode === "bus" ? "walk" : mode;
   const target = mode === "bus" ? busStop : destination;
-  const route = useQuery({
-    queryKey: ["route", routeMode, origin, target],
-    queryFn: () => fetchRoute(routeMode, origin!, target!),
+  const routeQuery = useQuery({
+    queryKey: ["routes", routeMode, origin, target],
+    queryFn: () => fetchRoutes(routeMode, origin!, target!),
     enabled: Boolean(origin && target),
     retry: false,
   });
+  // Primary first, then alternates; the bus tab shows only the walk to the stop.
+  const routes = useMemo<Route[]>(() => {
+    const set = routeQuery.data;
+    if (!set) return [];
+    return mode === "bus" ? [set.primary] : [set.primary, ...set.alternates];
+  }, [routeQuery.data, mode]);
+  const [activeRoute, setActiveRoute] = useState(0);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on every new route set
+  useEffect(() => setActiveRoute(0), [routes]);
 
-  const routeState: RouteState = !route.isEnabled
+  const routeState: RouteState = !routeQuery.isEnabled
     ? { status: "idle" }
-    : route.isPending
+    : routeQuery.isPending
       ? { status: "loading" }
-      : route.isError
+      : routeQuery.isError
         ? {
             status: "error",
             error:
-              route.error instanceof ApiError ? route.error.code : "unknown",
+              routeQuery.error instanceof ApiError
+                ? routeQuery.error.code
+                : "unknown",
           }
-        : { status: "success", data: route.data };
+        : { status: "success", data: routes[activeRoute] ?? routes[0] };
 
   const routeData = routeState.status === "success" ? routeState.data : null;
+  const routeLayers = routes
+    .map((_, i) => (i === activeRoute ? "primary" : "alternate"))
+    .join(",");
 
   return (
     <main
       className="fixed inset-0"
       data-map-loaded={loaded}
       data-route-points={routeData?.geometry.coordinates.length ?? 0}
+      data-route-layers={routeLayers}
       data-lodging-pins={lodgingPins.length}
     >
       <MapView
         resorts={resorts.data ?? []}
         selectedResortId={selectedResortId}
         origin={origin}
-        route={routeData}
+        destination={mode === "bus" ? null : (destination ?? null)}
+        routes={routes}
+        activeRoute={activeRoute}
+        onSelectRoute={setActiveRoute}
         lodging={lodgingPins}
         busStop={busStop}
         flyTo={flyTo}

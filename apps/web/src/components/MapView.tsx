@@ -2,7 +2,7 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import MapGL, {
   Layer,
   type MapRef,
@@ -12,11 +12,19 @@ import MapGL, {
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
+import { formatDuration } from "@/lib/format";
 import {
   HAKUBA_VIEW,
   MAP_STYLE_URL,
   MAPLIBRE_WORKER_URL,
 } from "@/lib/map-config";
+import {
+  type LngLat,
+  labelAnchor,
+  mapPadding,
+  routeBounds,
+  segment,
+} from "@/lib/route-geo";
 
 setWorkerUrl(MAPLIBRE_WORKER_URL);
 
@@ -24,7 +32,13 @@ export type MapViewProps = {
   resorts: Resort[];
   selectedResortId: string | null;
   origin: Coord | null;
-  route: Route | null;
+  destination: Coord | null;
+  /** Primary first, then alternates. A new array (new search) refits the map. */
+  routes: Route[];
+  activeRoute: number;
+  onSelectRoute?: (index: number) => void;
+  /** Shape range of the step to highlight on the active route. */
+  highlight?: [number, number] | null;
   lodging: Place[];
   /** Boarding stop of the chosen bus option. */
   busStop: Coord | null;
@@ -37,12 +51,26 @@ export type MapViewProps = {
 };
 
 const LODGING_LAYER = "lodging-pins";
+const ALT_HIT_LAYER = "route-alts-hit";
+
+const ROUTE_COLOR = "#2563eb";
+const ROUTE_CASING = "#1e3a8a";
+const ALT_COLOR = "#a3b1c6";
+const ALT_CASING = "#6b7a90";
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export default function MapView({
   resorts,
   selectedResortId,
   origin,
-  route,
+  destination,
+  routes,
+  activeRoute,
+  onSelectRoute,
+  highlight = null,
   lodging,
   busStop,
   flyTo,
@@ -52,12 +80,73 @@ export default function MapView({
   onSelectResort,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
+  // routes can arrive before the map instance exists (shared URL); fit once it has
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     if (flyTo) {
       mapRef.current?.flyTo({ center: [flyTo.lng, flyTo.lat], zoom: 14 });
     }
   }, [flyTo]);
+
+  // Fit the whole route set once per new search, clear of the directions panel.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map || routes.length === 0) return;
+    const all = routes.flatMap((r) => r.geometry.coordinates as LngLat[]);
+    if (all.length < 2) return;
+    const canvas = map.getCanvas();
+    map.fitBounds(routeBounds(all), {
+      padding: mapPadding({
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
+      }),
+      maxZoom: 16,
+      duration: prefersReducedMotion() ? 0 : 700,
+    });
+  }, [routes, mapReady]);
+
+  const active = routes[activeRoute] ?? null;
+  const activeCoords = (active?.geometry.coordinates ?? []) as LngLat[];
+  const alternates = useMemo(
+    () =>
+      routes
+        .map((route, index) => ({ route, index }))
+        .filter(({ index }) => index !== activeRoute),
+    [routes, activeRoute],
+  );
+  const altGeoJson = useMemo(
+    () => ({
+      type: "FeatureCollection" as const,
+      features: alternates.map(({ route, index }) => ({
+        type: "Feature" as const,
+        properties: { index },
+        geometry: route.geometry,
+      })),
+    }),
+    [alternates],
+  );
+  const labels = useMemo(
+    () =>
+      routes.map((route, index) => {
+        const coords = route.geometry.coordinates as LngLat[];
+        const others =
+          index === activeRoute
+            ? [] // the active route's label sits halfway along it
+            : routes
+                .filter((_, j) => j !== index)
+                .map((r) => r.geometry.coordinates as LngLat[]);
+        return {
+          index,
+          at: coords.length ? labelAnchor(coords, others) : null,
+          text: formatDuration(route.durationS),
+        };
+      }),
+    [routes, activeRoute],
+  );
+  const highlightCoords =
+    highlight && activeCoords.length ? segment(activeCoords, highlight) : [];
+  const isWalk = active?.mode === "walk";
 
   const lodgingGeoJson = useMemo(
     () => ({
@@ -97,15 +186,21 @@ export default function MapView({
         customAttribution:
           'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> | Shuttle: <a href="https://www.hakubavalley.com/en/access_en/shuttlebus_en/" target="_blank" rel="noopener">Hakuba Valley</a>',
       }}
-      interactiveLayerIds={[LODGING_LAYER]}
+      interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER]}
       onLoad={(e) => {
         reportView(e.target);
+        setMapReady(true);
         onLoad?.();
       }}
       onMoveEnd={(e: ViewStateChangeEvent) => reportView(e.target)}
       onClick={(e) => {
+        const feature = e.features?.[0];
+        if (feature?.layer.id === ALT_HIT_LAYER) {
+          onSelectRoute?.(Number(feature.properties?.index));
+          return;
+        }
         // a lodging pin snaps the origin onto the hotel itself
-        const pin = e.features?.[0]?.geometry;
+        const pin = feature?.geometry;
         if (pin?.type === "Point") {
           const [lng, lat] = pin.coordinates;
           onPickOrigin({ lat, lng });
@@ -145,26 +240,72 @@ export default function MapView({
         />
       </Source>
 
-      {route && (
-        <Source id="route" type="geojson" data={route.geometry}>
+      <Source id="route-alts" type="geojson" data={altGeoJson}>
+        <Layer
+          id="route-alts-casing"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{ "line-color": ALT_CASING, "line-width": 8 }}
+        />
+        <Layer
+          id="route-alts-line"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{ "line-color": ALT_COLOR, "line-width": 5 }}
+        />
+        {/* invisible, finger-sized tap target */}
+        <Layer
+          id={ALT_HIT_LAYER}
+          type="line"
+          paint={{
+            "line-color": "#000000",
+            "line-opacity": 0,
+            "line-width": 22,
+          }}
+        />
+      </Source>
+
+      {active && (
+        <Source id="route-active" type="geojson" data={active.geometry}>
           <Layer
-            id="route-casing"
-            type="line"
-            layout={{ "line-cap": "round", "line-join": "round" }}
-            paint={{ "line-color": "#ffffff", "line-width": 9 }}
-          />
-          <Layer
-            id="route-line"
+            id="route-active-casing"
             type="line"
             layout={{ "line-cap": "round", "line-join": "round" }}
             paint={{
-              "line-color": route.mode === "walk" ? "#0f766e" : "#2563eb",
-              "line-width": 5,
-              "line-dasharray": route.mode === "walk" ? [1, 1.5] : [1, 0],
+              "line-color": isWalk ? "#ffffff" : ROUTE_CASING,
+              "line-width": isWalk ? 0 : 9,
+            }}
+          />
+          <Layer
+            id="route-active-line"
+            type="line"
+            layout={{ "line-cap": "round", "line-join": "round" }}
+            paint={{
+              "line-color": ROUTE_COLOR,
+              "line-width": isWalk ? 7 : 6,
+              // zero-length dashes with round caps draw as dots
+              "line-dasharray": isWalk ? [0, 1.6] : [1, 0],
             }}
           />
         </Source>
       )}
+
+      <Source
+        id="route-highlight"
+        type="geojson"
+        data={{
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: highlightCoords },
+        }}
+      >
+        <Layer
+          id="route-highlight-line"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{ "line-color": "#f59e0b", "line-width": 8 }}
+        />
+      </Source>
 
       {resorts.map((r) => {
         const point = r.accessPoints[0];
@@ -210,15 +351,71 @@ export default function MapView({
         </Marker>
       )}
 
+      {labels.map(
+        ({ index, at, text }) =>
+          at && (
+            <Marker
+              key={`label-${index}`}
+              longitude={at[0]}
+              latitude={at[1]}
+              anchor="bottom"
+              style={{ zIndex: index === activeRoute ? 3 : 2 }}
+            >
+              <button
+                type="button"
+                data-route-label={
+                  index === activeRoute ? "active" : "alternate"
+                }
+                aria-label={`${index === activeRoute ? "Selected route" : "Alternate route"}, ${text}`}
+                aria-pressed={index === activeRoute}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectRoute?.(index);
+                }}
+                className={`mb-1 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-semibold shadow-md ring-1 ${
+                  index === activeRoute
+                    ? "bg-blue-600 text-white ring-blue-700"
+                    : "bg-white text-slate-700 ring-slate-300"
+                }`}
+              >
+                {active?.mode === "walk" ? "🚶 " : "🚗 "}
+                {text}
+              </button>
+            </Marker>
+          ),
+      )}
+
+      {destination && (
+        <Marker
+          latitude={destination.lat}
+          longitude={destination.lng}
+          anchor="bottom"
+        >
+          <svg
+            role="img"
+            aria-label="Destination"
+            width="28"
+            height="38"
+            viewBox="0 0 28 38"
+            className="drop-shadow"
+          >
+            <path
+              d="M14 0C6.3 0 0 6.2 0 13.9 0 24.3 14 38 14 38s14-13.7 14-24.1C28 6.2 21.7 0 14 0z"
+              fill="#dc2626"
+              stroke="#991b1b"
+            />
+            <circle cx="14" cy="14" r="5" fill="#7f1d1d" />
+          </svg>
+        </Marker>
+      )}
+
       {origin && (
-        <Marker latitude={origin.lat} longitude={origin.lng} anchor="bottom">
+        <Marker latitude={origin.lat} longitude={origin.lng} anchor="center">
           <span
             role="img"
             aria-label="Starting point"
-            className="text-3xl drop-shadow"
-          >
-            📍
-          </span>
+            className="block size-[18px] rounded-full border-[3px] border-white bg-blue-600 shadow-[0_0_0_6px_rgb(37_99_235/0.2),0_1px_4px_rgb(0_0_0/0.4)]"
+          />
         </Marker>
       )}
     </MapGL>
