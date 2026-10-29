@@ -63,7 +63,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [x] T17 Bus stops + timetable schema + validator
 - [ ] T18 Transcribe Line V (V1, V2, …) + Line VN — review
 - [ ] T19 Transcribe remaining lines (E, F, G1-6, G7-10, H, I, L, N, O, R, T) — review
-- [ ] T20 Bus query + `/api/bus/options` + `/api/bus/night`
+- [x] T20 Bus query + `/api/bus/options` + `/api/bus/night`
 - [ ] T21 Web: 🚌 bus tab + night bus toggle
 
 ### Checkpoint E: Complete

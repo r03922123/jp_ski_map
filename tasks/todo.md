@@ -236,12 +236,12 @@ Gate shorthand:
 **Files:** `data/bus/timetables/2025-26/*.json`, `SPEC-bus-schedules.md`
 **Scope:** M (data only; can be split by line if a session runs long)
 
-## Task 20: Bus query + /api/bus/options + /api/bus/night
+## Task 20: Bus query + /api/bus/options + /api/bus/night ✅
 **Description:** A pure `bus_options(origin_walks, at, timetables)`: candidate stops via the walk matrix (≤ 20 min, else the 3 nearest), active periods, direct trips only, the 3 earliest arrivals per resort. Out of season → `no_service` + `nextServiceDate`. The night endpoint uses only `kind: night` timetables. Only `reviewed: true` data is served.
 **Acceptance criteria:**
-- [ ] Fixture V2, 2026-03-20 08:00, origin at the Happo Bus Terminal: first option to Hakuba47 = 08:11 → 08:39, the next = 09:48 → 10:16
-- [ ] Out-of-season date → `no_service`; unreviewed files are ignored
-- [ ] ≥ 90% coverage on `bus/query.py`
+- [x] Fixture V2, 2026-03-20 08:00, origin at the Happo Bus Terminal: first option to Hakuba47 = 08:11 → 08:39, the next = 09:48 → 10:16
+- [x] Out-of-season date → `no_service`; unreviewed files are ignored
+- [x] ≥ 90% coverage on `bus/query.py`
 **Verification:** API gates
 **Dependencies:** T14 (matrix), T17, T18
 **Files:** `src/hakuba_api/bus/{query,router}.py`, `tests/bus/test_query.py`

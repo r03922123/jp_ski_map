@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from hakuba_api.bus.router import router as bus_router
 from hakuba_api.catalog.router import router as catalog_router
 from hakuba_api.common.upstream import UpstreamError
 from hakuba_api.crowd.router import router as crowd_router
@@ -17,6 +18,7 @@ app.include_router(places_router)
 app.include_router(snow_router)
 app.include_router(crowd_router)
 app.include_router(ranking_router)
+app.include_router(bus_router)
 
 
 @app.exception_handler(NoRouteError)
