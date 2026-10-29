@@ -33,7 +33,11 @@ Answer the question "From my hotel, which shuttle bus do I take, when does it le
 2. rejects GSI points returned for several different lots (GSI uses one representative point for many rural lots);
 3. requires each GSI point to be within 1 km of a trusted stop (resort access point, OSM bus stop, lodging snapshot) on one of its routes;
 4. checks every timed leg: Valhalla's drive time must be ≤ scheduled gap × 1.5 + 3 min. Untimed pickup neighbours must be ≤ 8 km apart, except on the final leg to the resort.
-Stops that fail stay `coord: null` with the reason in `coordSource`. Result 2026-10-29: 42/98 stops located.
+Stops that fail stay `coord: null` with the reason in `coordSource`.
+
+**Operator My Maps (decided 2026-10-29, see docs/ideas/bus-stop-locations.md).** The official Shuttle Bus Map PDF links, per line, a Google My Maps layer authored by Hakuba Valley (`data/bus/mymaps_sources.json`). `python -m hakuba_api.bus.import_mymaps [--write]` matches their KML placemarks to stops (EN/JA names plus a hand-checked table), refuses to import if they disagree with already-verified stops (median 48 m), skips stops whose pins spread > 300 m across layers, and adds the rest to the evidence file, after which `locate_stops` runs the usual checks. These are the operator's own pins, not Google basemap or place data. Result: 90/98 stops located. Lines F, R and T have no layer.
+
+**Your hotel is the stop.** `/api/bus/options?name=<searched place>`: a stop whose English or Japanese name is the same property (generic place words ignored; type words like Hotel/Lodge may be dropped only when one side's are a subset of the other's) counts as walk 0, even without coordinates. 10 of the 146 snapshot hotels match, with no lookalikes.
 
 ## Untimed routes (decided 2026-10-29)
 Lines F/G (and N's return) publish only first-stop departures. The bus query lists them as **"Departs <first stop> HH:MM → <resort> (stop times not published)"** when the user's walkable stop is on the route, ranked after fully timed options.

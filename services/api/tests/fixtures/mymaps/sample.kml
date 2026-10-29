@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>LINE X For Somewhere / X線</name>
+<Placemark><name>Hakuba Happo Bus Terminal / 白馬八方バスターミナル</name><Point><coordinates>137.8457531,36.7014088,0</coordinates></Point></Placemark>
+<Placemark><name>Satomi / 里見 - Heading South/南方面行き</name><Point><coordinates>137.8834795,36.7672138,0</coordinates></Point></Placemark>
+<Placemark><name><![CDATA[Happo-One(Happo Gondola Lift "Adam") / 八方尾根(八方ゴンドラリフト”アダム”)]]></name><Point><coordinates>137.8369323,36.7027097,0</coordinates></Point></Placemark>
+<Placemark><name>Kanemaru / かねまる</name><Point><coordinates>137.8487243,36.6635343,0</coordinates></Point></Placemark>
+<Placemark><name>Route line</name><LineString><coordinates>137.8,36.7,0 137.81,36.71,0</coordinates></LineString></Placemark>
+</Document></kml>

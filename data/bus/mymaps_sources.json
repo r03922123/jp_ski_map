@@ -1,0 +1,57 @@
+{
+ "_doc": "Operator-authored Google My Maps layers, one per shuttle line, linked by QR codes on the official 2025-2026 Shuttle Bus Map PDF. KML exports are saved to data/bus/raw/<season>/mymaps/<mid>.kml via https://www.google.com/maps/d/kml?mid=<mid>&forcekml=1 and read by `python -m hakuba_api.bus.import_mymaps`.",
+ "season": "2025-26",
+ "sourcePdf": "2025-2026-Shuttle-Bus-Map.pdf",
+ "layers": [
+  {
+   "mid": "144X0iy2GSeAtFg9rREDXomNDGtz_zTk",
+   "name": "LINE N For Hakuba Norikura Onsen Ski Resort / N線 白馬乗鞍温泉スキー場行",
+   "url": "https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
+  },
+  {
+   "mid": "19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc",
+   "name": "<![CDATA[LINE  E For Hakuba Happo-One Snow Resort & Hakuba Iwatake Snow Field / E線 白馬八方尾根スキー場 & 白馬岩岳スノーフィールド行]]>",
+   "url": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  },
+  {
+   "mid": "1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ",
+   "name": "Line VN Hakuba Night Shuttle Bus / VN線 白馬ナイトシャトルバス",
+   "url": "https://www.google.com/maps/d/viewer?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ"
+  },
+  {
+   "mid": "1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc",
+   "name": "LINE H For Hakuba Happo One Snow Resort / H線 白馬八方尾根スキー場行",
+   "url": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+  },
+  {
+   "mid": "1Os0l98DaldhLrlz2doPvccGukN6qgaU",
+   "name": "LINE G7-10 For Able Hakuba Goryu IIMORI / G7-10線 エイブル白馬五竜いいもり行",
+   "url": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+  },
+  {
+   "mid": "1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA",
+   "name": "LINE O For Kashimayari Snow Resort Family Park ＆ Jigatake Snow Resort / O線　鹿島槍スキー場 ファミリーパーク ＆ 爺ガ岳スキー場 行",
+   "url": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  },
+  {
+   "mid": "1azoPm13yPOO8rDWiTCvGPMacLBp4tMc",
+   "name": "LINE  I For Hakuba Iwatake Snow Field / I線 白馬岩岳スノーフィールド行",
+   "url": "https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
+  },
+  {
+   "mid": "1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84",
+   "name": "LINE G1-6 For Able Hakuba Goryu Escal Plaza / G1-6線 エイブル白馬五竜エスカルプラザ行",
+   "url": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  },
+  {
+   "mid": "1tpTjEGykN_dPnJ9wt72pKbaIofEe15U",
+   "name": "<![CDATA[LINE L For Hakuba47 Winter Sports Park, Able Hakuba Goryu Escal Plaza & IIMORI / L線 Hakuba47 ウインタースポーツパーク、エイブル白馬五竜エスカルプラザ＆IIMORI行　]]>",
+   "url": "https://www.google.com/maps/d/viewer?mid=1tpTjEGykN_dPnJ9wt72pKbaIofEe15U"
+  },
+  {
+   "mid": "1yduAPDNxPBZHo-7A2APVQi_2xC_1GYY",
+   "name": "Line V HV Shuttle Bus for all ski resorts / V線 HVシャトルバス 全スキー場行",
+   "url": "https://www.google.com/maps/d/viewer?mid=1yduAPDNxPBZHo-7A2APVQi_2xC_1GYY"
+  }
+ ]
+}

@@ -2,34 +2,60 @@
  "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has an address (geocoded via GSI, lot number required) or an OSM point, plus the source it came from.",
  "stops": {
   "stop-airmail": {
-   "address": "長野県北安曇郡白馬村北城828-356",
-   "source": "https://4travel.jp/dm_hotel-10045989"
+   "osm": {
+    "lat": 36.684454,
+    "lng": 137.8473137,
+    "ref": "operator My Maps pin (Airmail / エアメイル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-alpine-chalets": {
-   "address": "長野県北安曇郡白馬村北城2458-34",
-   "source": "https://travel.rakuten.co.jp/HOTEL/128464/gallery.html"
+   "osm": {
+    "lat": 36.6916477,
+    "lng": 137.8495495,
+    "ref": "operator My Maps pin (Alpine Chalet Hakuba / アルパイン シャレー 白馬)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-alpine-route-hotel-kanouya": {
-   "address": "長野県大町市平2861-4",
-   "source": "https://www.jalan.net/yad381568",
-   "note": "Alpine Route Hotel; Kanouya is a separate inn"
+   "osm": {
+    "lat": 36.5291748,
+    "lng": 137.8069605,
+    "ref": "operator My Maps pin (Alpine Route Hotel-Kanouya / アルペンルートホテル-叶屋)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-ana-kuroyon": {
-   "address": "長野県大町市平2020",
-   "source": "https://www.knt.co.jp/highclass/yado/planlist/S200234/"
+   "osm": {
+    "lat": 36.5296726,
+    "lng": 137.7955189,
+    "ref": "operator My Maps pin (ANA Holiday Inn Resort Shinano Omachi Kuroyon / ANAホリデイ・インリゾート信濃大町くろよん)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
   },
   "stop-central-snowsports-happo": {
-   "address": "長野県北安曇郡白馬村北城4256",
-   "source": "https://www.powderhounds.com/japan/honshu/hakuba/facilities-services.aspx",
-   "note": "shop sits at the base of Hakuba Happo Apartments (that building's address)"
+   "osm": {
+    "lat": 36.7012524,
+    "lng": 137.8383036,
+    "ref": "operator My Maps pin (Central SnowSports Happo / セントラルスノースポーツ八方前)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-cook": {
-   "address": "長野県北安曇郡白馬村神城22203-178",
-   "source": "https://www.pref.nagano.lg.jp/kankoshin/documents/33hakubamura3.pdf"
+   "osm": {
+    "lat": 36.6617148,
+    "lng": 137.840432,
+    "ref": "operator My Maps pin (Cook / クック)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-courtyard-by-marriott-hakuba": {
-   "address": "長野県北安曇郡白馬村北城2937",
-   "source": "https://www.jalan.net/yad334970/"
+   "osm": {
+    "lat": 36.6914884,
+    "lng": 137.8379646,
+    "ref": "operator My Maps pin (Courtyard by Mariott Hakuba)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-cultured": {
    "address": "長野県北安曇郡白馬村北城828-11",
@@ -40,13 +66,20 @@
    "source": "https://hakuba.com/accommodation/hotels/double-black-hotel/"
   },
   "stop-echoland-spicy": {
-   "address": "長野県北安曇郡白馬村北城3020-118",
-   "source": "https://itp.ne.jp/zenkoku/nagano/hakubamura/oazahokujiyo/204336828000000899",
-   "note": "Spicy rental shop listing; press release places the Echoland shop at the Echoland entrance"
+   "osm": {
+    "lat": 36.6920952,
+    "lng": 137.8449603,
+    "ref": "operator My Maps pin (Echoland (In front of Spicy) / エコーランド (Spicy前))"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ"
   },
   "stop-gakuto-villas": {
-   "address": "長野県北安曇郡白馬村北城4720-1",
-   "source": "https://japanskiexperience.com/stay/hakuba-accommodation/gakuto-villas"
+   "osm": {
+    "lat": 36.7084625,
+    "lng": 137.8375768,
+    "ref": "operator My Maps pin (Gakuto Villas / ガクトヴィラ)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
   },
   "stop-hakuba-goryu-bus-stop": {
    "osm": {
@@ -57,8 +90,12 @@
    "source": "OpenStreetMap"
   },
   "stop-hakuba-inn-bloom-parking": {
-   "address": "長野県北安曇郡白馬村北城2557-1",
-   "source": "https://hakuba.com/accommodation/hotels/hakuba-inn-bloom/"
+   "osm": {
+    "lat": 36.6905029,
+    "lng": 137.8478853,
+    "ref": "operator My Maps pin (Hakuba Inn Bloom Parking)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-hakuba-sunvalley-hotel": {
    "address": "長野県北安曇郡白馬村神城26030",
@@ -77,8 +114,12 @@
    "source": "https://yado.knt.co.jp/st/S200408/"
   },
   "stop-hotel-st-malte": {
-   "address": "長野県北安曇郡白馬村神城22201-33",
-   "source": "https://jcation.com/hotel/detail-2699/"
+   "osm": {
+    "lat": 36.6595484,
+    "lng": 137.840644,
+    "ref": "operator My Maps pin (Hotel St.Malte / ホテルサンマルテ)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-jr-shinano-omachi-station": {
    "osm": {
@@ -89,13 +130,20 @@
    "source": "OpenStreetMap"
   },
   "stop-kai-alps-hotel": {
-   "address": "長野県大町市平2884-26",
-   "source": "https://www.rurubu.travel/hotel/japan/omachi/hoshino-resorts-kai-alps"
+   "osm": {
+    "lat": 36.531404,
+    "lng": 137.8075675,
+    "ref": "operator My Maps pin (Kai Alps Hotel/界アルプスホテル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
   },
   "stop-keyakino-ki": {
-   "address": "長野県北安曇郡白馬村北城4721",
-   "source": "https://skyticket.jp/hotel/detail/property_16996/",
-   "note": "4travel lists 9341-8 instead"
+   "osm": {
+    "lat": 36.7092927,
+    "lng": 137.839413,
+    "ref": "operator My Maps pin (Keyaki-no-ki / けやきの樹)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
   },
   "stop-kirikubo-ent": {
    "osm": {
@@ -107,21 +155,36 @@
    "approx": true
   },
   "stop-koharu-resort-hotel-suites": {
-   "address": "長野県北安曇郡白馬村北城4769",
-   "source": "https://japanskiexperience.com/stay/hakuba-accommodation/koharu-resort-hotel-suites"
+   "osm": {
+    "lat": 36.7121628,
+    "lng": 137.8311758,
+    "ref": "operator My Maps pin (Koharu Resort Hotel & Suites / コハルリゾート＆スイート)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-kurobe-kanko-hotel": {
-   "address": "長野県大町市平2822",
-   "source": "https://www.jalan.net/yad364860"
+   "osm": {
+    "lat": 36.5282657,
+    "lng": 137.8115409,
+    "ref": "operator My Maps pin (Kurobe Kanko Hotel / 黒部観光ホテル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-kurobe-view-hotel": {
-   "address": "長野県大町市平2891-2",
-   "source": "https://yado.knt.co.jp/st/S200229/"
+   "osm": {
+    "lat": 36.5305004,
+    "lng": 137.8058879,
+    "ref": "operator My Maps pin (Omachi Onsenkyo (Kurobe View Hotel) / 大町温泉郷(黒部ビューホテル))"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
   },
   "stop-la-naige": {
-   "address": "長野県北安曇郡白馬村北城4774",
-   "source": "https://icotto.jp/hotels/8021",
-   "note": "Relux lists 4744"
+   "osm": {
+    "lat": 36.7101345,
+    "lng": 137.8347985,
+    "ref": "operator My Maps pin (La Naige / ラ・ネージュ)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-la-vigne-hakuba-north-parking": {
    "address": "長野県北安曇郡白馬村北城3020-1116",
@@ -129,21 +192,36 @@
    "note": "hotel address; the north parking lot is on the same plot"
   },
   "stop-lion-cafe": {
-   "address": "長野県北安曇郡白馬村北城5746-3",
-   "source": "https://hamoni.jp/en/area/nagano/kitaazumi/hakuba/shops/cafe",
-   "note": "single source; guides say opposite Happo Bus Terminal"
+   "osm": {
+    "lat": 36.7014006,
+    "lng": 137.8466542,
+    "ref": "operator My Maps pin (Lion Cafe/ライオンカフェ)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-meteor": {
-   "address": "長野県北安曇郡白馬村北城2937-730",
-   "source": "https://travelist.jp/hotel/detail/6562551"
+   "osm": {
+    "lat": 36.6893481,
+    "lng": 137.8441196,
+    "ref": "operator My Maps pin (Meteor / ミーティア)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-minamiya": {
-   "address": "長野県北安曇郡白馬村北城3020-26",
-   "source": "https://www.jalan.net/yad331463/"
+   "osm": {
+    "lat": 36.6947951,
+    "lng": 137.8461742,
+    "ref": "operator My Maps pin (Minamiya / みなみ家前)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
   },
   "stop-misorano-ryusei-kaen": {
-   "address": "長野県北安曇郡白馬村北城828-334",
-   "source": "https://www.jalan.net/yad305392/"
+   "osm": {
+    "lat": 36.683037,
+    "lng": 137.851429,
+    "ref": "operator My Maps pin (Ryusei Kaen / 流星花園)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-misorano-seven-eleven": {
    "osm": {
@@ -164,16 +242,28 @@
    "approx": true
   },
   "stop-nonnel": {
-   "address": "長野県北安曇郡白馬村神城22201-27",
-   "source": "https://4travel.jp/dm_hotel-10045702"
+   "osm": {
+    "lat": 36.6597231,
+    "lng": 137.8390798,
+    "ref": "operator My Maps pin (Nonnel /ノンネル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-omachi-onsen-yakushinoyu": {
-   "address": "長野県大町市平2811-41",
-   "source": "https://sp.jorudan.co.jp/onsen/details/956/"
+   "osm": {
+    "lat": 36.526847,
+    "lng": 137.8100166,
+    "ref": "operator My Maps pin (Omachi Onsenkyo (Kurobeji, Yakushi-no-yu) / 大町温泉郷(くろべ路、薬師の湯))"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
   },
   "stop-pals-inn-raicho": {
-   "address": "長野県北安曇郡白馬村神城22342-24",
-   "source": "https://4travel.jp/dm_hotel-10036521"
+   "osm": {
+    "lat": 36.6611531,
+    "lng": 137.8443183,
+    "ref": "operator My Maps pin (Pals Inn Raicho / パルズイン雷鳥)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-panorama-hotel": {
    "address": "長野県北安曇郡白馬村北城3322-1",
@@ -181,20 +271,32 @@
    "note": "single source"
   },
   "stop-pension-minamijujisei": {
-   "address": "長野県北安曇郡白馬村北城827-28",
-   "source": "https://4travel.jp/dm_hotel-10046019"
+   "osm": {
+    "lat": 36.6857055,
+    "lng": 137.842165,
+    "ref": "operator My Maps pin (Pension Minamijujisei / ペンション南十字星)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-rantanrirun": {
-   "address": "長野県北安曇郡白馬村神城22345-1",
-   "source": "https://skyticket.jp/hotel/detail/property_12061/"
+   "osm": {
+    "lat": 36.661369,
+    "lng": 137.8424865,
+    "ref": "operator My Maps pin (Rantanrirun / ランタンリルン)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-rosenheim-hakuba": {
    "address": "長野県北安曇郡白馬村北城3750",
    "source": "https://www.jalan.net/yad326241/"
   },
   "stop-ryokusuitei-keisui": {
-   "address": "長野県大町市平2884-13",
-   "source": "https://yado.knt.co.jp/st/S200228/"
+   "osm": {
+    "lat": 36.5314192,
+    "lng": 137.8089933,
+    "ref": "operator My Maps pin (Ryokusuitei Keisui-Kurobe Sunvalley Hotel / 緑翠亭 景水-黒部サンバレーホテル)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-shinden-kouminkan": {
    "osm": {
@@ -206,21 +308,36 @@
    "approx": true
   },
   "stop-shoya-maruhachi": {
-   "address": "長野県北安曇郡白馬村北城10816",
-   "source": "https://jcation.com/hotel/detail-11426/",
-   "note": "dining listing gives 11032"
+   "osm": {
+    "lat": 36.7141591,
+    "lng": 137.8702292,
+    "ref": "operator My Maps pin (Shoya-Maruhachi / 庄屋丸八)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
   },
   "stop-snowlines-lodge": {
-   "address": "長野県北安曇郡白馬村北城3020-1064",
-   "source": "https://4travel.jp/dm_hotel-11288230"
+   "osm": {
+    "lat": 36.6947129,
+    "lng": 137.8458624,
+    "ref": "operator My Maps pin (Snowlines Lodge / スノーラインズ ロッジ)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-tateyama-prince": {
-   "address": "長野県大町市平2884-10",
-   "source": "https://yado.knt.co.jp/st/S200227/"
+   "osm": {
+    "lat": 36.5297927,
+    "lng": 137.8089768,
+    "ref": "operator My Maps pin (Omachi Onsenkyo (Tateyama Prince Hotel) / 大町温泉郷 (立山プリンスホテル）)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
   },
   "stop-traumerai": {
-   "address": "長野県北安曇郡白馬村北城860-13",
-   "source": "https://www.jalan.net/yad309991/"
+   "osm": {
+    "lat": 36.6870988,
+    "lng": 137.8463633,
+    "ref": "operator My Maps pin (Traumerei /トロイメライ)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-tsugaike-kanenonaruoka": {
    "osm": {
@@ -234,6 +351,142 @@
   "stop-yamano-hotel": {
    "address": "長野県北安曇郡白馬村北城3477",
    "source": "https://www.jalan.net/yad334254/"
+  },
+  "stop-3-parking": {
+   "osm": {
+    "lat": 36.69998,
+    "lng": 137.8431327,
+    "ref": "operator My Maps pin (Happo Parking No. 3 / 八方第3駐車場)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+  },
+  "stop-bosco": {
+   "osm": {
+    "lat": 36.663456,
+    "lng": 137.842465,
+    "ref": "operator My Maps pin (BOSCO / ボスコ)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  },
+  "stop-echoland-main-st": {
+   "osm": {
+    "lat": 36.6913717,
+    "lng": 137.8437949,
+    "ref": "operator My Maps pin (Echoland Main Str. / エコーランドメイン通り)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  },
+  "stop-goryu-hon-dorinishi": {
+   "osm": {
+    "lat": 36.688934,
+    "lng": 137.8343364,
+    "ref": "operator My Maps pin (Goryu Hondori West / 五竜本通り西)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  },
+  "stop-goryu-no-7-parking": {
+   "osm": {
+    "lat": 36.6568192,
+    "lng": 137.8437457,
+    "ref": "operator My Maps pin (Goryu Parking No7 / 五竜第7駐車場)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  },
+  "stop-hakuba-forest-ent": {
+   "osm": {
+    "lat": 36.6575498,
+    "lng": 137.8403901,
+    "ref": "operator My Maps pin (Goryu Hakubanomori/五竜 白馬の森入口)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ"
+  },
+  "stop-happo-kokusai": {
+   "osm": {
+    "lat": 36.7066349,
+    "lng": 137.8346576,
+    "ref": "operator My Maps pin (Happo-One(Kokusai Slope) / 八方尾根(国際ゲレンデ))"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+  },
+  "stop-happo-no-3-parking-b": {
+   "osm": {
+    "lat": 36.6994423,
+    "lng": 137.8432371,
+    "ref": "operator My Maps pin (Happo No3 Parking B/八方第3駐車場B)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+  },
+  "stop-jr-kamishiro-station": {
+   "osm": {
+    "lat": 36.6578805,
+    "lng": 137.8467729,
+    "ref": "operator My Maps pin (JR Kamishiro Sta. / JR神城駅)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  },
+  "stop-kanemaru": {
+   "osm": {
+    "lat": 36.6635343,
+    "lng": 137.8487243,
+    "ref": "operator My Maps pin (Kanemaru / かねまる)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  },
+  "stop-kashimayari-central": {
+   "osm": {
+    "lat": 36.5969431,
+    "lng": 137.8254561,
+    "ref": "operator My Maps pin (Kashimayari Snow Resort Family Park (Central Slope) / 鹿島槍スキー場 ファミリーパーク (中央ゲレンデ）)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  },
+  "stop-misorano-rotary": {
+   "osm": {
+    "lat": 36.6905445,
+    "lng": 137.8391264,
+    "ref": "operator My Maps pin (Misorano Rotary / みそら野ロータリー)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
+  },
+  "stop-shirouma-pal-house": {
+   "osm": {
+    "lat": 36.6953619,
+    "lng": 137.8506287,
+    "ref": "operator My Maps pin (Shirouma Pal House / しろうま Pal House)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  },
+  "stop-skala-inn": {
+   "osm": {
+    "lat": 36.6907611,
+    "lng": 137.8358084,
+    "ref": "operator My Maps pin (Skala Inn/スカラ イン)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+  },
+  "stop-spicy-rental-wadano": {
+   "osm": {
+    "lat": 36.7094385,
+    "lng": 137.8362778,
+    "ref": "operator My Maps pin (Spicy Rental Wadano / スパイシーレンタル（和田野点）)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+  },
+  "stop-suisha-goya": {
+   "osm": {
+    "lat": 36.7137403,
+    "lng": 137.8673677,
+    "ref": "operator My Maps pin (Suisha-Goya / 水車小屋)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
+  },
+  "stop-the-gakusui": {
+   "osm": {
+    "lat": 36.7131412,
+    "lng": 137.8671616,
+    "ref": "operator My Maps pin (Gakusui / 岳水)"
+   },
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   }
  }
 }
