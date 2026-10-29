@@ -33,7 +33,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [ ] All gates green; `/api/resorts` returns 10 resorts; the map shows resort markers; Valhalla answers a route
 
 ### Phase 2: Slice 1 — Walk & Drive routes
-- [ ] T5 Routing adapter + `/api/route`
+- [x] T5 Routing adapter + `/api/route`
 - [ ] T6 Web: map-click origin + 🚶/🚗 route to a selected resort
 - [ ] T7 Web: URL state + responsive panel/bottom sheet
 

@@ -61,12 +61,12 @@ Gate shorthand:
 
 ## Phase 2: Slice 1 — Walk & Drive routes
 
-## Task 5: Routing adapter + /api/route
+## Task 5: Routing adapter + /api/route ✅
 **Description:** A `routing` package with `route(mode, a, b)` that calls Valhalla `/route` (auto | pedestrian), decodes the precision-6 polyline to GeoJSON, and maps the maneuvers to steps. Errors: no route → 404 `no_route`, Valhalla down → 503. Add `GET /api/route`.
 **Acceptance criteria:**
-- [ ] Coordinate conversion and polyline decoding have unit tests
-- [ ] Contract tests use a recorded Valhalla fixture (drive + walk) and the error cases
-- [ ] Live: Happo Bus Terminal → Nakiyama walk < 20 min
+- [x] Coordinate conversion and polyline decoding have unit tests
+- [x] Contract tests use a recorded Valhalla fixture (drive + walk) and the error cases
+- [x] Live: Happo Bus Terminal → Nakiyama walk < 20 min
 **Verification:** API gates; `pytest -m live -k route`
 **Dependencies:** T3, T4 (access point coords for the live test)
 **Files:** `src/hakuba_api/routing/{client,models,polyline,router}.py`, `tests/routing/test_routing.py`, `tests/fixtures/valhalla/*.json`
