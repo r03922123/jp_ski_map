@@ -1,0 +1,1608 @@
+[
+ {
+  "id": "osm:node/10248275709",
+  "name": "Apricot pension",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6907385,
+   "lng": 137.8350996
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/11235595970",
+  "name": "Petit Hotel P-Bow",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6950445,
+   "lng": 137.8490096
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/11235823686",
+  "name": "Hotel Mont Blanc Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6587059,
+   "lng": 137.8406305
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/11328082657",
+  "name": "Moment Chalet Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6918043,
+   "lng": 137.8400291
+  },
+  "address": "hakuba",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/11334762208",
+  "name": "Snowood Chalet Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6902435,
+   "lng": 137.8411524
+  },
+  "address": "hakuba",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/11334833352",
+  "name": "Japandi Chalet Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6817625,
+   "lng": 137.8408905
+  },
+  "address": "Hakuba",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/11491090969",
+  "name": "Hakuba Downtown Apartments",
+  "kind": "apartment",
+  "coord": {
+   "lat": 36.6951407,
+   "lng": 137.8612963
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/12303897501",
+  "name": "Penke Panke Lodge And Apartments",
+  "kind": "apartment",
+  "coord": {
+   "lat": 36.7120199,
+   "lng": 137.8314742
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/12306895401",
+  "name": "Land Haus Dancru Netz",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6903001,
+   "lng": 137.8416546
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/12434991155",
+  "name": "Sierra Resort Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7345432,
+   "lng": 137.8621407
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/12578437996",
+  "name": "the shack",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6872179,
+   "lng": 137.8282689
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/13615928501",
+  "name": "Kitaharakan",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6608894,
+   "lng": 137.8487564
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14152815757",
+  "name": "Hotel Taigagukan",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7007321,
+   "lng": 137.8428398
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14285398055",
+  "name": "KuDo's Lodge",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.7377053,
+   "lng": 137.8737062
+  },
+  "address": "北安曇郡",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14285417267",
+  "name": "SOMA RESIDENCE HAKUBA",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7037696,
+   "lng": 137.8440785
+  },
+  "address": "北安曇郡",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14285417269",
+  "name": "OAK VILLAGE",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6910008,
+   "lng": 137.833026
+  },
+  "address": "北安曇郡",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14286786734",
+  "name": "コテージ＆コンドミニアム白馬ブラウニー",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6875196,
+   "lng": 137.8444522
+  },
+  "address": "北安曇郡",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14286786737",
+  "name": "鬼無里の湯コテージ",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6843454,
+   "lng": 137.9392583
+  },
+  "address": "長野市",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14286796337",
+  "name": "パウダーロッジコルチナキャンプ場",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7737879,
+   "lng": 137.8871593
+  },
+  "address": "北安曇郡",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14286796363",
+  "name": "温宿 田舎家",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7078316,
+   "lng": 137.8564731
+  },
+  "address": "北安曇郡",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/14286796365",
+  "name": "ロッジはくばファミリーキャンプ場",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7016985,
+   "lng": 137.8407943
+  },
+  "address": "北安曇郡",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/2191861996",
+  "name": "マウントサイド ヨーデル",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6953317,
+   "lng": 137.847966
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/2192075165",
+  "name": "Snow line lodge",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.694886,
+   "lng": 137.845775
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/2433752034",
+  "name": "あるむ",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6621928,
+   "lng": 137.8378573
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/2701936141",
+  "name": "Hotel Cultured",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6841332,
+   "lng": 137.8474041
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/3147396597",
+  "name": "大下旅館",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7004179,
+   "lng": 137.8453687
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/3521080820",
+  "name": "ゲストハウス もりおの家 白馬店",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.76603,
+   "lng": 137.8856971
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/357218472",
+  "name": "B&B Santana Hakuba",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6608479,
+   "lng": 137.8405321
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4424692394",
+  "name": "Hakuba Valley Pension Meteor Garden",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6831915,
+   "lng": 137.8512125
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4447893889",
+  "name": "Tabi-Tabi lodge",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6601345,
+   "lng": 137.8416702
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4594155190",
+  "name": "Hakuba Alpine Condos",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7120101,
+   "lng": 137.8303713
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4605652274",
+  "name": "Lodge Brocken Hutte",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7018433,
+   "lng": 137.8399048
+  },
+  "address": "399-9301 Nagano-ken, Kitaazumi-gun, Hakuba-mura , 白馬村北城 4638",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4797577367",
+  "name": "Rosort Inn Marion Shinano",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7502237,
+   "lng": 137.8716025
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4814669721",
+  "name": "Camp Site",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.7675598,
+   "lng": 137.8836229
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4938582419",
+  "name": "K's House Hakuba Alps",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6589388,
+   "lng": 137.841086
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4938669189",
+  "name": "Hakuba Alps Backpackers",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6563223,
+   "lng": 137.8454177
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4938731318",
+  "name": "Mt Hakuba Backpackers",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6914753,
+   "lng": 137.8428795
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/4938778427",
+  "name": "Hakuba Today Guesthouse",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6830416,
+   "lng": 137.8565051
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5050932833",
+  "name": "The Phat House",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7155614,
+   "lng": 137.866416
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5062658199",
+  "name": "Snowbeds B&B",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6903508,
+   "lng": 137.8385065
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5811894856",
+  "name": "立山山荘",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6953414,
+   "lng": 137.8627527
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5811894870",
+  "name": "昇盛館",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6959842,
+   "lng": 137.862003
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5811894872",
+  "name": "白馬赤たすき",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6964673,
+   "lng": 137.861536
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5825474997",
+  "name": "Hakuba Powder Lodge",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6922299,
+   "lng": 137.8508241
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5825523667",
+  "name": "Share and Guest House Hakuba Share",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.7329422,
+   "lng": 137.864839
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5825599907",
+  "name": "The Bohemians' Shelter",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.7136781,
+   "lng": 137.8455689
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5825603730",
+  "name": "Hakuba Cortina Backpackers",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.7679453,
+   "lng": 137.8828383
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5925676685",
+  "name": "Marukin Hotel",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7017788,
+   "lng": 137.8414361
+  },
+  "address": "大字北城",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/5999812364",
+  "name": "Pension&Cottage Knulp",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7167969,
+   "lng": 137.8317345
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6045635937",
+  "name": "鬼無里の湯",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6841359,
+   "lng": 137.9390589
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6134563114",
+  "name": "Wadano",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.696321,
+   "lng": 137.8453943
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6138603322",
+  "name": "wadano gateway",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.7042565,
+   "lng": 137.8442182
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6141025785",
+  "name": "White Hill Lodge",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6895795,
+   "lng": 137.8406739
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6312748724",
+  "name": "Hotel oNE",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7015264,
+   "lng": 137.8444157
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6312753047",
+  "name": "Hotel Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.697108,
+   "lng": 137.8539256
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6312797205",
+  "name": "Shakespeare",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6909282,
+   "lng": 137.843984
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6312802600",
+  "name": "Hakuba Echo Hotel",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6906689,
+   "lng": 137.8412647
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6312819128",
+  "name": "Kee Lodge",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6893009,
+   "lng": 137.8413377
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6312846500",
+  "name": "Hakuba Snowdrift Lodge",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6910636,
+   "lng": 137.8384289
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6332386326",
+  "name": "Tsugaike Kanko",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7474592,
+   "lng": 137.8696795
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6482099943",
+  "name": "高山館",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7181347,
+   "lng": 137.8621583
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6713377885",
+  "name": "Yamaya",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6563177,
+   "lng": 137.8458919
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6720132988",
+  "name": "Hakuba Braze Club Country Inn",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7123745,
+   "lng": 137.8307982
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6762335036",
+  "name": "Hakuba Cortina Lodge",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7673856,
+   "lng": 137.8834274
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6762555200",
+  "name": "Petit Hotel Schanze",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7453503,
+   "lng": 137.874568
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763838348",
+  "name": "Oak Forest",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6911774,
+   "lng": 137.8336599
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763857972",
+  "name": "AGS Chalet",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6868608,
+   "lng": 137.8256938
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763917635",
+  "name": "Chalet Strickland",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6897495,
+   "lng": 137.8362846
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763931364",
+  "name": "megève",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6877899,
+   "lng": 137.8430558
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763932912",
+  "name": "Silkwood",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6876267,
+   "lng": 137.8339135
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763949166",
+  "name": "Powder Peak Hakuba",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6843528,
+   "lng": 137.8457273
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763960416",
+  "name": "Powder Temple",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6844281,
+   "lng": 137.8475727
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763966726",
+  "name": "Villa Evian",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6907838,
+   "lng": 137.8316965
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763972917",
+  "name": "ペンション白馬通信",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6893581,
+   "lng": 137.8407667
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6763991388",
+  "name": "Herb no Yado, A(Kunugi)",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6891149,
+   "lng": 137.8390453
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6764025236",
+  "name": "Chalet Hinata",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6909152,
+   "lng": 137.8471998
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6764029457",
+  "name": "Monkey Rider",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.6898056,
+   "lng": 137.8448733
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6764035464",
+  "name": "ホテルそよ風",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6906057,
+   "lng": 137.8427891
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6764050363",
+  "name": "Petit Hotel Enchante",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6912466,
+   "lng": 137.8480999
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/6764076253",
+  "name": "Four season",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6906422,
+   "lng": 137.8466434
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/7006958859",
+  "name": "Kokoro Hotel Hakuba ココロホテル白馬",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.700504,
+   "lng": 137.8446799
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/7006958860",
+  "name": "Hakuba Mominoki Hotel",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7070112,
+   "lng": 137.8366547
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/7953926627",
+  "name": "Lindenbaum",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7146851,
+   "lng": 137.858917
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/8308634426",
+  "name": "白馬の森 ペンション＆コテージ アッサム",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6604733,
+   "lng": 137.8443383
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/8308634428",
+  "name": "ペンション 悠々舎",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6603463,
+   "lng": 137.8439897
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/8308634430",
+  "name": "貸別荘 白馬ロイヤルコテージ",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6599369,
+   "lng": 137.8423604
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/8308634433",
+  "name": "ＳＵＮＮＹ ＳＩＤＥ ＨＵＴ",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6607263,
+   "lng": 137.8430228
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:node/8542882480",
+  "name": "ホテル丸大",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6704807,
+   "lng": 137.8461473
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1065062205",
+  "name": "Hotel Mont Blanc Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6587113,
+   "lng": 137.8406298
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1091390698",
+  "name": "The Happo",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7011056,
+   "lng": 137.8430846
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1203979898",
+  "name": "白馬アルプスホテル",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7649977,
+   "lng": 137.8771354
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1203979940",
+  "name": "乗鞍荘",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7648766,
+   "lng": 137.8814834
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1203979948",
+  "name": "GS Lodge",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7652716,
+   "lng": 137.879576
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1258950283",
+  "name": "Hotel Green Plaza Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7754714,
+   "lng": 137.8875359
+  },
+  "address": "小谷村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1358989914",
+  "name": "The Shack",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6872263,
+   "lng": 137.8282685
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359015837",
+  "name": "AGS Chalet",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6868373,
+   "lng": 137.8256658
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359019189",
+  "name": "Woodpecker Chalet",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6870114,
+   "lng": 137.8251723
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359022412",
+  "name": "サンダーバード コテージ",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6877262,
+   "lng": 137.8277987
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359036293",
+  "name": "Torinosu Chalet",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.687725,
+   "lng": 137.8356268
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359272765",
+  "name": "Rose of Sharon",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6805014,
+   "lng": 137.844637
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359435208",
+  "name": "Seventh Heaven Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6835349,
+   "lng": 137.8501409
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359435215",
+  "name": "Time Harbor Hakuba",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.683295,
+   "lng": 137.8498699
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359435217",
+  "name": "Ratatouille",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6842877,
+   "lng": 137.8483437
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359435220",
+  "name": "ペンション野風増",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6840178,
+   "lng": 137.850503
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359440016",
+  "name": "Petit Pension Minty",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6843358,
+   "lng": 137.8467199
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1359440025",
+  "name": "ハーモニー",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6872882,
+   "lng": 137.8360955
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/1381932109",
+  "name": "Moon Bear House Hakuba",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6591322,
+   "lng": 137.8402664
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/229615958",
+  "name": "ブルーマウント",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6911043,
+   "lng": 137.8502883
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/329614785",
+  "name": "Hotel Weisser Hof Happei",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7013159,
+   "lng": 137.8439351
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/329615315",
+  "name": "White Horse Hakuba",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6900499,
+   "lng": 137.8426945
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316913",
+  "name": "みやま荘",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7468685,
+   "lng": 137.8704737
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316914",
+  "name": "Sunplaza Tsugaike",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7499757,
+   "lng": 137.8720351
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316915",
+  "name": "Bellheart",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7468815,
+   "lng": 137.8701929
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316916",
+  "name": "ホテル・ラ・ブランシュ",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7510823,
+   "lng": 137.8745324
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316917",
+  "name": "ラ・シュミエール",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7466733,
+   "lng": 137.8704321
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316919",
+  "name": "ロッジ高原荘",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7472672,
+   "lng": 137.8706176
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316927",
+  "name": "Auberuge La Chaumiere",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7464538,
+   "lng": 137.8702215
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316941",
+  "name": "ひよどり山荘",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7472948,
+   "lng": 137.8710015
+  },
+  "address": "小谷村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330316944",
+  "name": "栂池グランドロッジ",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7472795,
+   "lng": 137.8701871
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330360147",
+  "name": "Front Stage",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7495512,
+   "lng": 137.8720306
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330360148",
+  "name": "Hai Lodge",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.7504193,
+   "lng": 137.8729392
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/330482794",
+  "name": "プチホテル・コットンスノー",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7345035,
+   "lng": 137.8649613
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/331661907",
+  "name": "Hotel Hakuba Berg-land",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7015001,
+   "lng": 137.8460476
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/375409889",
+  "name": "Tsugaike Sanso",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.7738339,
+   "lng": 137.8187031
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/463433046",
+  "name": "白馬ハイランドホテル",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.690556,
+   "lng": 137.8664386
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/575114639",
+  "name": "Belle Cour inomata",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7465695,
+   "lng": 137.8720499
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/575114656",
+  "name": "Hill Top Terrace Miyagawa",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7505713,
+   "lng": 137.8712026
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/575114659",
+  "name": "Espoir Misawa",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7512408,
+   "lng": 137.8702153
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/575114664",
+  "name": "Tsugaike Kogen Hotel Hakuba Berghaus",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.752131,
+   "lng": 137.8693539
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/575114667",
+  "name": "Highland Lodge",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7522221,
+   "lng": 137.8689385
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/575114677",
+  "name": "Conntry Joe",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7516204,
+   "lng": 137.8699249
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/575114714",
+  "name": "ホテルメリベル栂池",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7458752,
+   "lng": 137.8728144
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/673847158",
+  "name": "Hakuba Alps Hotel",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7643583,
+   "lng": 137.8767671
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/690859434",
+  "name": "岩岳ロッジやまじう館",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7181512,
+   "lng": 137.8618328
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771600671",
+  "name": "Sakura 88 Chalet",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6871112,
+   "lng": 137.8325831
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771617336",
+  "name": "フルハウス",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.6877504,
+   "lng": 137.8350157
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771617345",
+  "name": "Konayuki Cabin Hakuba",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6875309,
+   "lng": 137.8350442
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771633744",
+  "name": "belnina",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6912076,
+   "lng": 137.8405498
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771633890",
+  "name": "B&B えん",
+  "kind": "guest_house",
+  "coord": {
+   "lat": 36.685433,
+   "lng": 137.8423958
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771633893",
+  "name": "Ricky House Hakuba",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6853117,
+   "lng": 137.8428698
+  },
+  "address": "白馬村",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771633952",
+  "name": "Inaka Hakuba",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6809018,
+   "lng": 137.8403733
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771658761",
+  "name": "The Lab",
+  "kind": "hostel",
+  "coord": {
+   "lat": 36.696091,
+   "lng": 137.8431629
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/771659047",
+  "name": "NABARAKU",
+  "kind": "chalet",
+  "coord": {
+   "lat": 36.6847868,
+   "lng": 137.8442374
+  },
+  "address": "Hakuba-mura",
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/838394997",
+  "name": "Petit Hotel P-Bow",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6950311,
+   "lng": 137.8490302
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/843563403",
+  "name": "山田屋旅館",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.6990939,
+   "lng": 137.8530408
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ },
+ {
+  "id": "osm:way/843974306",
+  "name": "旅館丸屋",
+  "kind": "hotel",
+  "coord": {
+   "lat": 36.7012707,
+   "lng": 137.8484312
+  },
+  "address": null,
+  "source": "osm-snapshot"
+ }
+]

@@ -42,7 +42,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 
 ### Phase 3: Slice 2 — Search
 - [x] T8 Photon search + Google Maps link parsing (`/api/places/search`)
-- [ ] T9 Lodging snapshot script + `/api/places/lodging`
+- [x] T9 Lodging snapshot script + `/api/places/lodging`
 - [ ] T10 Web: search box + lodging pins
 
 ### Checkpoint C: Search

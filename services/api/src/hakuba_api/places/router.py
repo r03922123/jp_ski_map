@@ -8,6 +8,7 @@ from hakuba_api.places.gmaps_link import (
     parse_google_maps_url,
     resolve_short_link,
 )
+from hakuba_api.places.lodging import MAX_BBOX_DEG, lodging_in_bbox
 from hakuba_api.places.models import Place
 from hakuba_api.places.photon import search_photon
 
@@ -23,3 +24,17 @@ def search(q: str, limit: Annotated[int, Query(ge=1, le=20)] = 10) -> list[Place
         place = parse_google_maps_url(url) if url else None
         return [place] if place else []
     return search_photon(q, limit)
+
+
+@router.get("/lodging", response_model=list[Place], response_model_by_alias=True)
+def lodging(bbox: str) -> list[Place]:
+    """Lodging pins for the current map view, from the OSM snapshot (`south,west,north,east`)."""
+    try:
+        south, west, north, east = (float(x) for x in bbox.split(","))
+    except ValueError:
+        raise HTTPException(422, "bbox must be 'south,west,north,east'") from None
+    if not (south < north and west < east):
+        raise HTTPException(422, "bbox corners are inverted")
+    if north - south > MAX_BBOX_DEG or east - west > MAX_BBOX_DEG:
+        raise HTTPException(422, f"bbox larger than {MAX_BBOX_DEG} degrees; zoom in")
+    return lodging_in_bbox(south, west, north, east)

@@ -112,11 +112,11 @@ Gate shorthand:
 **Files:** `src/hakuba_api/places/{photon,gmaps_link,router,models}.py`, `tests/places/test_search.py`, `tests/fixtures/photon/*.json`
 **Scope:** M
 
-## Task 9: Lodging snapshot + /api/places/lodging
+## Task 9: Lodging snapshot + /api/places/lodging ✅
 **Description:** The `places.refresh_lodging` script queries Overpass (with retry/backoff over 2 mirrors) for the Hakuba bbox and writes `data/lodging_osm.json`. `GET /api/places/lodging?bbox=` serves from that snapshot; a bbox larger than 0.25° → 422.
 **Acceptance criteria:**
-- [ ] The snapshot has ≥ 20 POIs in the Happo/Echoland bbox
-- [ ] Retry logic has a unit test (fake 502 → 502 → 200)
+- [x] The snapshot has ≥ 20 POIs in the Happo/Echoland bbox
+- [x] Retry logic has a unit test (fake 502 → 502 → 200)
 **Verification:** API gates; run the script once and check the count
 **Dependencies:** T1
 **Files:** `src/hakuba_api/places/{overpass,refresh_lodging,router}.py`, `data/lodging_osm.json`, `tests/places/test_lodging.py`
