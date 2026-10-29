@@ -1,0 +1,17 @@
+services:
+  valhalla:
+    image: ghcr.io/valhalla/valhalla-scripted:latest
+    ports:
+      - "8002:8002"
+    volumes:
+      # tiles + downloaded pbf live here (gitignored); first start builds them (~10-30 min)
+      - ./valhalla/custom_files:/custom_files
+    environment:
+      tile_urls: https://download.geofabrik.de/asia/japan/chubu-latest.osm.pbf
+      serve_tiles: "True"
+      build_elevation: "False"
+      build_admins: "True"
+      build_time_zones: "True"
+      force_rebuild: "False"
+      server_threads: "2"
+    restart: unless-stopped

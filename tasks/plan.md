@@ -26,7 +26,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 ### Phase 1: Foundation
 - [x] T1 Scaffold API service
 - [x] T2 Scaffold web app with a base map
-- [ ] T3 Valhalla in Docker + live smoke test
+- [x] T3 Valhalla in Docker + live smoke test
 - [ ] T4 Resort catalog: models, validator, resorts.json
 
 ### Checkpoint A: Foundation

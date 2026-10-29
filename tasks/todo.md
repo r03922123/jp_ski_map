@@ -31,11 +31,11 @@ Gate shorthand:
 **Scope:** M
 **Notes:** shadcn/ui init deferred to T6 (first real UI component). MapLibre 6 worker is served from `public/maplibre/` via `scripts/copy-maplibre-worker.mjs` because bundling breaks its default worker URL.
 
-## Task 3: Valhalla in Docker + live smoke test
+## Task 3: Valhalla in Docker + live smoke test ✅
 **Description:** Write `infra/docker-compose.yml` with a valhalla service (Chubu extract, port 8002, tiles volume gitignored). Add a `@pytest.mark.live` smoke test that routes JR Hakuba Station → the Happo area.
 **Acceptance criteria:**
-- [ ] `docker compose up -d valhalla` builds tiles and `/status` responds
-- [ ] The live test returns a route with an `auto` duration between 2 and 15 min
+- [x] `docker compose up -d valhalla` builds tiles and `/status` responds
+- [x] The live test returns a route with an `auto` duration between 2 and 15 min
 **Verification:** `uv run --project services/api pytest -m live -k valhalla`
 **Dependencies:** T1
 **Files:** `infra/docker-compose.yml`, `infra/valhalla/.gitkeep`, `services/api/tests/live/test_valhalla_smoke.py`, `services/api/pyproject.toml` (marker)
