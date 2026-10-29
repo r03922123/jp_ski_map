@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { DirectionsPanel } from "@/components/DirectionsPanel";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Mode, Resort, Route } from "@/lib/api";
 import { formatDistance, formatDuration } from "@/lib/format";
@@ -21,6 +22,13 @@ export type ModePanelProps = {
   onSelectResort: (id: string) => void;
   hasOrigin: boolean;
   route: RouteState;
+  /** All routes of the current search (primary first); defaults to the active one. */
+  routes?: Route[];
+  activeRoute?: number;
+  onSelectRoute?: (index: number) => void;
+  onHighlightStep?: (range: [number, number] | null) => void;
+  /** Departure used for "Arrive ~"; defaults to now. */
+  departAt?: Date;
   /** Drive mode: ranked resort list replacing the plain picker. */
   drivePanel?: ReactNode;
   /** Bus mode: shuttle options; the route shown is the walk to the chosen stop. */
@@ -44,9 +52,26 @@ export function ModePanel({
   onSelectResort,
   hasOrigin,
   route,
+  routes,
+  activeRoute = 0,
+  onSelectRoute = () => {},
+  onHighlightStep = () => {},
+  departAt,
   drivePanel,
   busPanel,
 }: ModePanelProps) {
+  const directions =
+    route.status === "success" ? (
+      <DirectionsPanel
+        routes={routes ?? [route.data]}
+        activeRoute={activeRoute}
+        onSelectRoute={onSelectRoute}
+        onHighlightStep={onHighlightStep}
+        departAt={departAt ?? new Date()}
+      />
+    ) : (
+      <RouteSummary mode={mode} route={route} />
+    );
   return (
     <div className="flex flex-col gap-3">
       <Tabs
@@ -73,7 +98,7 @@ export function ModePanel({
         </>
       ) : mode === "drive" && drivePanel ? (
         <>
-          <RouteSummary mode={mode} route={route} />
+          {directions}
           {drivePanel}
         </>
       ) : (
@@ -96,7 +121,7 @@ export function ModePanel({
               ))}
             </select>
           </div>
-          <RouteSummary mode={mode} route={route} />
+          {directions}
         </>
       )}
     </div>

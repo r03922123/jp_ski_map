@@ -169,6 +169,7 @@ export function MapShell() {
     return mode === "bus" ? [set.primary] : [set.primary, ...set.alternates];
   }, [routeQuery.data, mode]);
   const [activeRoute, setActiveRoute] = useState(0);
+  const [highlight, setHighlight] = useState<[number, number] | null>(null);
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset on every new route set
   useEffect(() => setActiveRoute(0), [routes]);
 
@@ -207,6 +208,7 @@ export function MapShell() {
         routes={routes}
         activeRoute={activeRoute}
         onSelectRoute={setActiveRoute}
+        highlight={highlight}
         lodging={lodgingPins}
         busStop={busStop}
         flyTo={flyTo}
@@ -236,6 +238,11 @@ export function MapShell() {
           onSelectResort={setSelectedResortId}
           hasOrigin={origin !== null}
           route={routeState}
+          routes={routes}
+          activeRoute={activeRoute}
+          onSelectRoute={setActiveRoute}
+          onHighlightStep={setHighlight}
+          departAt={departAt ? new Date(`${departAt}:00+09:00`) : undefined}
           busPanel={
             <BusPanel
               resorts={resorts.data ?? []}
