@@ -1,0 +1,133 @@
+{
+ "lineId": "line-e",
+ "routeId": "e4",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Iwatake·Happo Area via Wadano (loop)",
+  "ja": "岩岳/八方エリア発 和田野経由"
+ },
+ "validFrom": "2025-12-19",
+ "validTo": "2026-03-29",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "E.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Hakuba Iwatake Snow Field",
+    "Kirikubo Ent.",
+    "Shinden Kouminkan",
+    "The Gakusui",
+    "Happo Gondola Lift",
+    "Hakuba Mominoki Hotel",
+    "Hakuba Tokyu Hotel",
+    "Hakuba Iwatake Snow Field"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:00",
+      "08:01",
+      "08:04",
+      "08:05",
+      "08:15",
+      "08:17",
+      "08:18",
+      "08:25"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:10",
+      "09:11",
+      "09:14",
+      "09:15",
+      "09:25",
+      "09:27",
+      "09:28",
+      "09:35"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:00",
+      "10:01",
+      "10:04",
+      "10:05",
+      "10:15",
+      "10:17",
+      "10:18",
+      "10:25"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Hakuba Iwatake Snow Field",
+    "Hakuba Tokyu Hotel",
+    "Hakuba Mominoki Hotel",
+    "Happo Gondola Lift",
+    "The Gakusui",
+    "Shinden Kouminkan",
+    "Kirikubo Ent.",
+    "Hakuba Iwatake Snow Field"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "14:00",
+      "14:07",
+      "14:08",
+      "14:15",
+      "14:23",
+      "14:24",
+      "14:27",
+      "14:28"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      null,
+      null,
+      null,
+      "15:20",
+      "15:28",
+      "15:29",
+      "15:32",
+      "15:33"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "16:00",
+      "16:07",
+      "16:08",
+      "16:15",
+      "16:23",
+      "16:24",
+      "16:27",
+      "16:28"
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Return trips arrive at Happo Gondola Lift at 14:10 / 16:10 and depart 14:15 / 15:20 / 16:15; the departure time is stored."
+}

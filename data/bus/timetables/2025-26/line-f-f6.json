@@ -1,0 +1,92 @@
+{
+ "lineId": "line-f",
+ "routeId": "f6",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Warabidaira via JR Hakuba Sta.·Wadano",
+  "ja": "蕨平発・JR白馬駅・和田野経由"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-31",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "F.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Hakuba Highland Hotel",
+    "JRHakuba Station",
+    "Hotel Keyakino-ki",
+    "Hakuba 47 Winter Sports Park"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:15",
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:15",
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      null,
+      "12:00",
+      null,
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Hakuba 47 Winter Sports Park",
+    "Hotel Keyakino-ki",
+    "JRHakuba Station",
+    "Hakuba Highland Hotel"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "15:00",
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "16:00",
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Only the first stop's departure is published; wait at each stop based on it. The order of stops may vary."
+}

@@ -1,0 +1,55 @@
+{
+ "lineId": "line-i",
+ "routeId": "i2",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Happo",
+  "ja": "八方発"
+ },
+ "validFrom": "2025-12-19",
+ "validTo": "2026-03-29",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "I.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Hakuba Happo Bus Terminal",
+    "Hakuba Iwatake Snow Field"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:30",
+      "08:45"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:30",
+      "09:45"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:30",
+      "10:45"
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Return trips run with I3."
+}

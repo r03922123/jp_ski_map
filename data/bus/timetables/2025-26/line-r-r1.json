@@ -1,0 +1,107 @@
+{
+ "lineId": "line-r",
+ "routeId": "r1",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Misorano via Echoland·Mizuho",
+  "ja": "みそら野発、エコーランド・瑞穂経由"
+ },
+ "validFrom": "2025-12-20",
+ "validTo": "2026-03-22",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "R.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Pension Minamijujisei",
+    "Hotel Oak Forest",
+    "Courtyard By Marriott Hakuba",
+    "Misorano Rotary",
+    "Echoland Main St.",
+    "Snowlines Lodge",
+    "White Resort Hakuba Sanosaka",
+    "Kashimayari Ski Resort Family Park(Nakastuna Slope)"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "07:55",
+      "08:00",
+      "08:03",
+      "08:05",
+      "08:08",
+      "08:11",
+      "08:35",
+      "08:50"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:35",
+      "09:40",
+      "09:43",
+      "09:45",
+      "09:48",
+      "09:51",
+      "10:15",
+      "10:30"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Kashimayari Ski Resort Family Park(Nakastuna Slope)",
+    "White Resort Hakuba Sanosaka",
+    "Snowlines Lodge",
+    "Echoland Main St.",
+    "Misorano Rotary",
+    "Courtyard By Marriott Hakuba",
+    "Hotel Oak Forest",
+    "Pension Minamijujisei"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "14:30",
+      "14:45",
+      "15:10",
+      "15:15",
+      "15:20",
+      "15:25",
+      "15:30",
+      "15:35"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "16:10",
+      "16:25",
+      "16:50",
+      "16:55",
+      "17:00",
+      "17:05",
+      "17:10",
+      "17:15"
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Trip 2 at Snowlines Lodge is printed '9;51' (read as 09:51)."
+}

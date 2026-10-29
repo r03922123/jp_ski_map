@@ -1,0 +1,64 @@
+{
+ "lineId": "line-t",
+ "routeId": "t2",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Sanroku via Wadano",
+  "ja": "山麓発 和田野経由"
+ },
+ "validFrom": "2025-12-19",
+ "validTo": "2026-03-29",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "T.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Happo Gondola Lift",
+    "Hakuba Mominoki Hotel",
+    "Hakuba Tokyu Hotel",
+    "Tsugaike Mountain Resort (Gondola)"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "09:00",
+      "09:03",
+      "09:05",
+      "09:27"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Tsugaike Mountain Resort (Gondola)",
+    "Hakuba Tokyu Hotel",
+    "Hakuba Mominoki Hotel",
+    "Happo Gondola Lift"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "15:00",
+      "15:22",
+      "15:24",
+      "15:27"
+     ]
+    }
+   ]
+  }
+ ]
+}

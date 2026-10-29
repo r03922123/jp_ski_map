@@ -1,0 +1,146 @@
+{
+ "lineId": "line-g",
+ "routeId": "g3",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Misorano via Echoland",
+  "ja": "みそら野発 エコーランド経由"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-31",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "G1-6.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Pension Minamijujisei",
+    "Goryu Hon-dorinishi",
+    "Hotel Oak Forest",
+    "Skala Inn",
+    "Courtyard By Marriott Hakuba",
+    "Misorano Rotary",
+    "Echoland Main Str.",
+    "ABLE Hakuba GORYU ESCAL PLAZA"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "ABLE Hakuba GORYU ESCAL PLAZA",
+    "Echoland Main Str.",
+    "Misorano Rotary",
+    "Courtyard By Marriott Hakuba",
+    "Skala Inn",
+    "Hotel Oak Forest",
+    "Goryu Hon-dorinishi",
+    "Pension Minamijujisei"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "13:45",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "15:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "16:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "17:10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Only the first stop's departure is published; wait at each stop based on it."
+}

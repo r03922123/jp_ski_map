@@ -1,0 +1,94 @@
+{
+ "lineId": "line-r",
+ "routeId": "r2",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Happo-guchi·Warabidaira via Goryu",
+  "ja": "八方口発 蕨平、五竜経由"
+ },
+ "validFrom": "2025-12-20",
+ "validTo": "2026-03-22",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "R.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Hotel Hakuba",
+    "Hakuba Highland Hotel",
+    "Pension Cook",
+    "Hotel Mont Blanc Hakuba",
+    "White Resort Hakuba Sanosaka",
+    "Kashimayari Ski Resort Family Park(Nakastuna Slope)"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:00",
+      "08:15",
+      "08:25",
+      "08:28",
+      "08:50",
+      "09:05"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:40",
+      "09:50",
+      "10:05",
+      "10:08",
+      "10:30",
+      "10:45"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Kashimayari Ski Resort Family Park(Nakastuna Slope)",
+    "White Resort Hakuba Sanosaka",
+    "Hotel Mont Blanc Hakuba",
+    "Pension Cook",
+    "Hotel Hakuba",
+    "Hakuba Highland Hotel"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "14:30",
+      "14:45",
+      "14:55",
+      "15:00",
+      "15:20",
+      "15:35"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "16:10",
+      "16:25",
+      "16:35",
+      "16:40",
+      "17:00",
+      "17:15"
+     ]
+    }
+   ]
+  }
+ ]
+}

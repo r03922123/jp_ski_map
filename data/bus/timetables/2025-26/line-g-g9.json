@@ -1,0 +1,149 @@
+{
+ "lineId": "line-g",
+ "routeId": "g9",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Happo via Sanroku·Wadano·Iimori",
+  "ja": "八方発・山麓・和田野・飯森経由"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-31",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "G7-10.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Happo No.3 Parking B",
+    "Panorama Hotel",
+    "The Happo",
+    "Central Snowsports Happo",
+    "Hakuba Mominoki Hotel",
+    "Juro Onsen",
+    "ABLE Hakuba GORYU IIMORI"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:30",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:30",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:30",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "12:30",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "ABLE Hakuba GORYU IIMORI",
+    "Juro Onsen",
+    "Hakuba Mominoki Hotel",
+    "Central Snowsports Happo",
+    "The Happo",
+    "Panorama Hotel",
+    "Happo No.3 Parking B"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "12:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "15:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "16:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "17:10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Only the first stop's departure is published; wait at each stop based on it. The order of stops may vary."
+}

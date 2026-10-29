@@ -1,0 +1,237 @@
+{
+ "lineId": "line-l",
+ "routeId": "l1",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "Hakuba47·Hakuba GORYU (IIMORI & ESCAL PLAZA)",
+  "ja": "Hakuba47・白馬五竜（いいもり＆エスカルプラザ）"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-31",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "L.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "north",
+   "stops": [
+    "ABLE Hakuba GORYU ESCAL PLAZA",
+    "ABLE Hakuba GORYU IIMORI",
+    "Hakuba 47 Winter Sports Park"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:40",
+      "08:45",
+      "08:50"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:15",
+      "09:20",
+      "09:25"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:00",
+      "10:05",
+      "10:10"
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "11:00",
+      "11:05",
+      null
+     ]
+    },
+    {
+     "n": 5,
+     "times": [
+      "11:30",
+      "11:35",
+      null
+     ]
+    },
+    {
+     "n": 6,
+     "times": [
+      "12:10",
+      "12:15",
+      "12:20"
+     ]
+    },
+    {
+     "n": 7,
+     "times": [
+      "13:30",
+      "13:35",
+      null
+     ]
+    },
+    {
+     "n": 8,
+     "times": [
+      "14:00",
+      "14:05",
+      null
+     ]
+    },
+    {
+     "n": 9,
+     "times": [
+      "14:40",
+      "14:45",
+      "14:50"
+     ]
+    },
+    {
+     "n": 10,
+     "times": [
+      "15:40",
+      "15:45",
+      "15:50"
+     ]
+    },
+    {
+     "n": 11,
+     "times": [
+      "16:00",
+      "16:05",
+      "16:10"
+     ]
+    },
+    {
+     "n": 12,
+     "times": [
+      "17:15",
+      "17:20",
+      "17:25"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "south",
+   "stops": [
+    "Hakuba 47 Winter Sports Park",
+    "ABLE Hakuba GORYU IIMORI",
+    "ABLE Hakuba GORYU ESCAL PLAZA"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:30",
+      "08:35",
+      "08:40"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:25",
+      "09:30",
+      "09:35"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:10",
+      "10:15",
+      "10:20"
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      null,
+      "11:05",
+      "11:10"
+     ]
+    },
+    {
+     "n": 5,
+     "times": [
+      null,
+      "11:35",
+      "11:40"
+     ]
+    },
+    {
+     "n": 6,
+     "times": [
+      "12:00",
+      "12:05",
+      "12:10"
+     ]
+    },
+    {
+     "n": 7,
+     "times": [
+      null,
+      "13:35",
+      "13:40"
+     ]
+    },
+    {
+     "n": 8,
+     "times": [
+      null,
+      "14:05",
+      "14:10"
+     ]
+    },
+    {
+     "n": 9,
+     "times": [
+      "14:30",
+      "14:35",
+      "14:40"
+     ]
+    },
+    {
+     "n": 10,
+     "times": [
+      "15:30",
+      "15:35",
+      "15:40"
+     ]
+    },
+    {
+     "n": 11,
+     "times": [
+      "16:10",
+      "16:15",
+      "16:20"
+     ]
+    },
+    {
+     "n": 12,
+     "times": [
+      "17:05",
+      "17:10",
+      "17:15"
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "The last southbound column is headed '20' on the image; it is trip 12."
+}

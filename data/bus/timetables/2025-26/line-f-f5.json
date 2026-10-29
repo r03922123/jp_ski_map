@@ -1,0 +1,159 @@
+{
+ "lineId": "line-f",
+ "routeId": "f5",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Wadano via Happo",
+  "ja": "和田野発 八方経由"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-31",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "F.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Koharu Resort Hotel & Suites",
+    "La Naige",
+    "Gakuto Villas",
+    "Lion Café",
+    "The Happo",
+    "Happo No.3 Parking B",
+    "Panorama Hotel",
+    "Hakuba 47 Winter Sports Park"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:45",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "13:30",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Hakuba 47 Winter Sports Park",
+    "Panorama Hotel",
+    "Happo No.3 Parking B",
+    "The Happo",
+    "Lion Café",
+    "Gakuto Villas",
+    "La Naige",
+    "Koharu Resort Hotel & Suites"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "13:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "15:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "16:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "17:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Only the first stop's departure is published; wait at each stop based on it. The order of stops may vary."
+}

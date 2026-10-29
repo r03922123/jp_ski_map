@@ -1,0 +1,137 @@
+{
+ "lineId": "line-g",
+ "routeId": "g5",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Wadano via Happo·Misorano",
+  "ja": "和田野発 八方・みそら野経由"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-31",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "G1-6.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Keyakino-ki",
+    "Wadano Gateway",
+    "Lion Café",
+    "Happo No.3 Parking B",
+    "Panorama Hotel",
+    "Seven Eleven",
+    "ABLE Hakuba GORYU ESCAL PLAZA"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "ABLE Hakuba GORYU ESCAL PLAZA",
+    "Seven Eleven",
+    "Panorama Hotel",
+    "Happo No.3 Parking B",
+    "Lion Café",
+    "Wadano Gateway",
+    "Keyakino-ki"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "13:45",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "15:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "16:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "17:10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Only the first stop's departure is published; wait at each stop based on it."
+}

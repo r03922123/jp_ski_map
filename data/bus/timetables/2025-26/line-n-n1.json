@@ -1,0 +1,74 @@
+{
+ "lineId": "line-n",
+ "routeId": "n1",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Echoland via Happo",
+  "ja": "エコーランド発 八方経由"
+ },
+ "validFrom": "2025-12-27",
+ "validTo": "2026-02-28",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "N.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "La Vigne Hakuba North Parking",
+    "Misorano Rotary",
+    "Hakuba Happo Bus Terminal",
+    "Hakuba Norikura Onsen Snow Resort"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:15",
+      "08:20",
+      "08:25",
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:15",
+      "09:20",
+      "09:25",
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Hakuba Norikura Onsen Snow Resort",
+    "Hakuba Happo Bus Terminal",
+    "La Vigne Hakuba North Parking",
+    "Misorano Rotary"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "15:30",
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Arrival at Norikura and the return stop times are not published."
+}

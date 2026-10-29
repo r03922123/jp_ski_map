@@ -1,0 +1,149 @@
+{
+ "lineId": "line-f",
+ "routeId": "f2",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Misorano via Echoland·Mizuho",
+  "ja": "みそら野発 エコーランド・瑞穂経由"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-31",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "F.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Pension Minamijujisei",
+    "Goryu Hon-dorinishi",
+    "Misorano Rotary",
+    "Echoland Main Str.",
+    "La Vigne Hakuba North Parking",
+    "Minamiya",
+    "Hakuba 47 Winter Sports Park"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:30",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "13:30",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Hakuba 47 Winter Sports Park",
+    "Minamiya",
+    "La Vigne Hakuba North Parking",
+    "Echoland Main Str.",
+    "Misorano Rotary",
+    "Goryu Hon-dorinishi",
+    "Pension Minamijujisei"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "13:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "15:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "16:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "17:00",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Only the first stop's departure is published; wait at each stop based on it. The order of stops may vary."
+}

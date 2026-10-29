@@ -1,0 +1,175 @@
+{
+ "lineId": "line-i",
+ "routeId": "i3",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Wadano via Iwatake Area",
+  "ja": "和田野発 岩岳エリア経由"
+ },
+ "validFrom": "2025-12-19",
+ "validTo": "2026-03-29",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "I.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Keyakino-ki",
+    "The Gakusui",
+    "Suisha Goya",
+    "Shinden Kouminkan",
+    "Shoya Maruhachi",
+    "Kirikubo Ent.",
+    "Hakuba Iwatake Snow Field"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      null,
+      "08:10",
+      "08:11",
+      "08:12",
+      "08:13",
+      "08:15",
+      "08:16"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:00",
+      "09:07",
+      "09:08",
+      "09:09",
+      "09:10",
+      "09:12",
+      "09:13"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "10:00",
+      "10:07",
+      "10:08",
+      "10:09",
+      "10:10",
+      "10:12",
+      "10:13"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Hakuba Iwatake Snow Field",
+    "Kirikubo Ent.",
+    "Shoya Maruhachi",
+    "Shinden Kouminkan",
+    "Suisha Goya",
+    "The Gakusui",
+    "Keyakino-ki",
+    "Hakuba Iwatake Snow Field",
+    "Hakuba Happo Bus Terminal"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "13:00",
+      "13:01",
+      "13:03",
+      "13:04",
+      "13:05",
+      "13:06",
+      "13:13",
+      "13:20",
+      null
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "14:00",
+      "14:01",
+      "14:03",
+      "14:04",
+      "14:05",
+      "14:06",
+      "14:13",
+      "14:20",
+      null
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "14:30",
+      "14:31",
+      "14:33",
+      "14:34",
+      "14:35",
+      "14:36",
+      "14:43",
+      null,
+      "14:45"
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "15:05",
+      "15:06",
+      "15:08",
+      "15:09",
+      "15:10",
+      "15:11",
+      "15:18",
+      null,
+      "15:20"
+     ]
+    },
+    {
+     "n": 5,
+     "times": [
+      "15:40",
+      "15:41",
+      "15:43",
+      "15:44",
+      "15:45",
+      "15:46",
+      "15:53",
+      null,
+      "15:55"
+     ]
+    },
+    {
+     "n": 6,
+     "times": [
+      "16:15",
+      "16:16",
+      "16:18",
+      "16:19",
+      "16:20",
+      "16:21",
+      "16:28",
+      null,
+      "16:30"
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "Return trips 1-2 end back at Hakuba Iwatake Snow Field; trips 3-6 continue to Hakuba Happo Bus Terminal."
+}

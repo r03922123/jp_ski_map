@@ -1,0 +1,224 @@
+{
+ "lineId": "line-o",
+ "routeId": "o1",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From JR Shinano Omachi Sta. via Omachi Onsenkyo",
+  "ja": "JR信濃大町駅発 大町温泉郷経由"
+ },
+ "validFrom": "2025-12-13",
+ "validTo": "2026-03-22",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "O.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "to-resorts",
+   "stops": [
+    "JR Shinano-Omachi Station",
+    "Yupuru Kizakiko",
+    "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
+    "Omachi Onsen Yakushinoyu",
+    "Omachi Onsenkyo",
+    "Kai Alps Hotel",
+    "Jigatake Snow Resort",
+    "Kashimayari Ski Resort Family Park(Central Slope)"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "07:15",
+      "07:25",
+      null,
+      "07:33",
+      "07:35",
+      null,
+      "07:45",
+      "08:00"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "08:30",
+      null,
+      "08:50",
+      "08:55",
+      "08:57",
+      null,
+      "09:00",
+      "09:15"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "09:30",
+      null,
+      "09:50",
+      "09:55",
+      "09:57",
+      "09:57",
+      "10:05",
+      "10:20"
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      null,
+      null,
+      null,
+      "10:48",
+      "10:50",
+      null,
+      "11:00",
+      "11:15"
+     ]
+    },
+    {
+     "n": 5,
+     "times": [
+      "11:30",
+      null,
+      null,
+      "11:48",
+      "11:50",
+      null,
+      "12:00",
+      "12:15"
+     ]
+    },
+    {
+     "n": 6,
+     "times": [
+      null,
+      null,
+      null,
+      "12:48",
+      "12:50",
+      null,
+      "13:00",
+      "13:15"
+     ]
+    },
+    {
+     "n": 7,
+     "times": [
+      "15:30",
+      null,
+      null,
+      "15:48",
+      "15:50",
+      null,
+      "16:00",
+      "16:15"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "to-omachi",
+   "stops": [
+    "Kashimayari Ski Resort Family Park(Central Slope)",
+    "Jigatake Snow Resort",
+    "Kai Alps Hotel",
+    "Omachi Onsenkyo",
+    "Omachi Onsen Yakushinoyu",
+    "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
+    "Yupuru Kizakiko",
+    "JR Shinano-Omachi Station"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:30",
+      null,
+      null,
+      "08:55",
+      "08:57",
+      null,
+      null,
+      "09:10"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "10:20",
+      "10:35",
+      null,
+      "10:45",
+      "10:47",
+      null,
+      null,
+      "11:00"
+     ]
+    },
+    {
+     "n": 3,
+     "times": [
+      "13:00",
+      "13:15",
+      null,
+      "13:25",
+      "13:27",
+      "13:35",
+      null,
+      "13:55"
+     ]
+    },
+    {
+     "n": 4,
+     "times": [
+      "14:40",
+      "14:55",
+      "15:05",
+      "15:10",
+      "15:12",
+      null,
+      null,
+      "15:30"
+     ]
+    },
+    {
+     "n": 5,
+     "times": [
+      "15:45",
+      "16:00",
+      null,
+      "16:10",
+      "16:12",
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "n": 6,
+     "times": [
+      "16:45",
+      "17:00",
+      null,
+      "17:10",
+      "17:12",
+      "17:20",
+      "17:30",
+      "17:40"
+     ]
+    }
+   ]
+  }
+ ],
+ "notes": "On the image the towards-resort table is labelled 'Return Trip' and the towards-Omachi table 'Outward Trip'."
+}

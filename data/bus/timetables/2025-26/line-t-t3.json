@@ -1,0 +1,106 @@
+{
+ "lineId": "line-t",
+ "routeId": "t3",
+ "season": "2025-26",
+ "kind": "day",
+ "name": {
+  "en": "From Wadano via Happo·Ochikura",
+  "ja": "和田野発 八方・落倉経由"
+ },
+ "validFrom": "2025-12-20",
+ "validTo": "2026-03-08",
+ "serviceDays": "daily",
+ "fare": {
+  "adultJpy": 800,
+  "childJpy": 400,
+  "hvPassFree": true
+ },
+ "source": {
+  "file": "T.jpg"
+ },
+ "reviewed": false,
+ "directions": [
+  {
+   "id": "outward",
+   "stops": [
+    "Happo Sakka Slope",
+    "La Naige",
+    "Hakuba Mominoki Hotel",
+    "Hakuba Tokyu Hotel",
+    "Hakuba Happo Bus Terminal",
+    "Sierra Resort Hotel Hakuba",
+    "Tsugaike Mountain Resort (Gondola)",
+    "Tsugaike Mountain Resort (Kanenonaruoka)"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "08:00",
+      "08:05",
+      "08:10",
+      "08:15",
+      "08:25",
+      "08:40",
+      "08:45",
+      "08:47"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "09:30",
+      "09:35",
+      "09:40",
+      "09:45",
+      "10:00",
+      "10:15",
+      "10:20",
+      "10:22"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "stops": [
+    "Tsugaike Mountain Resort (Kanenonaruoka)",
+    "Tsugaike Mountain Resort (Gondola)",
+    "Sierra Resort Hotel Hakuba",
+    "Hakuba Happo Bus Terminal",
+    "Hakuba Tokyu Hotel",
+    "Hakuba Mominoki Hotel",
+    "La Naige",
+    "Happo Sakka Slope"
+   ],
+   "trips": [
+    {
+     "n": 1,
+     "times": [
+      "14:45",
+      "14:50",
+      "15:05",
+      "15:20",
+      "15:30",
+      "15:35",
+      "15:40",
+      "15:45"
+     ]
+    },
+    {
+     "n": 2,
+     "times": [
+      "16:15",
+      "16:20",
+      "16:25",
+      "16:40",
+      "16:50",
+      "16:55",
+      "17:00",
+      "17:05"
+     ]
+    }
+   ]
+  }
+ ]
+}
