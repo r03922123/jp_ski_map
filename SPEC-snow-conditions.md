@@ -27,5 +27,10 @@ Give each resort a snow picture that can be compared across resorts: current dep
 ## Boundaries
 - Never: scrape sources whose terms forbid it (e.g. snow-forecast.com, unless allowed). Ask first before adding any new source.
 
+## Findings (2026-10-29, January 2026 historical-forecast fixture)
+- New snow and temperature respond to the requested `elevation` (summits colder and snowier: Happo summit +72 cm / 72 h vs Jigatake +15 cm).
+- `snow_depth` comes from the ~9–11 km model grid and barely uses elevation: neighbouring resorts share identical base depths (e.g. 41 cm for Goryu…Norikura), and Cortina reads 189/189. Depth is therefore labelled `source: "model"`, and resort-reported depth (spike below) is the real fix.
+- Pydantic `to_camel` turns `past24h` into `past24H`; `NewSnow` disables the alias generator so the wire names stay `past24h` etc.
+
 ## Open Questions
 - **Spike:** can hakubavalley.com Weather & Snow / Lift Status be parsed into per-resort depth and lifts-open? This is time-boxed to 1 h, and the result is recorded here.

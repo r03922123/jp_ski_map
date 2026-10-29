@@ -6,11 +6,13 @@ from hakuba_api.common.upstream import UpstreamError
 from hakuba_api.places.router import router as places_router
 from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
 from hakuba_api.routing.router import router as routing_router
+from hakuba_api.snow.router import router as snow_router
 
 app = FastAPI(title="Hakuba Ski Map API")
 app.include_router(catalog_router)
 app.include_router(routing_router)
 app.include_router(places_router)
+app.include_router(snow_router)
 
 
 @app.exception_handler(NoRouteError)

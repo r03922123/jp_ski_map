@@ -140,11 +140,11 @@ Gate shorthand:
 
 ## Phase 4: Slice 3 — Conditions & Ranking
 
-## Task 11: Snow conditions + /api/snow
+## Task 11: Snow conditions + /api/snow ✅
 **Description:** An Open-Meteo adapter per resort (summit + base, explicit elevation, past_days=3, forecast_days=3, Asia/Tokyo). Compute depth and new snow for past24/72 and next24/72. Cache for 1 h. Missing values stay null.
 **Acceptance criteria:**
-- [ ] The sums are correct against a recorded winter fixture (unit test)
-- [ ] An upstream null stays null (never 0)
+- [x] The sums are correct against a recorded winter fixture (unit test)
+- [x] An upstream null stays null (never 0)
 **Verification:** API gates; `pytest -m live -k snow` returns 10 reports
 **Dependencies:** T4
 **Files:** `src/hakuba_api/snow/{openmeteo,models,router}.py`, `tests/snow/test_snow.py`, `tests/fixtures/openmeteo/*.json`

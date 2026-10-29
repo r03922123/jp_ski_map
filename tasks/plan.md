@@ -49,7 +49,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [ ] Spot-check hotels findable (OSM ones by name, missing ones by link paste)
 
 ### Phase 4: Slice 3 — Conditions & Ranking
-- [ ] T11 Snow conditions (Open-Meteo) + `/api/snow`
+- [x] T11 Snow conditions (Open-Meteo) + `/api/snow`
 - [ ] T12 Spike: hakubavalley.com Weather & Snow page (time-boxed 1 h, findings only)
 - [ ] T13 Crowd heuristic + `/api/crowd`
 - [ ] T14 Matrix + ranking pure function + `/api/rank`
