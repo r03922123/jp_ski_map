@@ -1,0 +1,46 @@
+name: Shuttle timetable watch
+
+# Hakuba Valley republishes shuttle timetables (as images) a few times per season.
+# When any tracked asset is new, changed or removed, open an issue to (re)transcribe.
+on:
+  schedule:
+    - cron: "0 0 * * 1" # Mondays 09:00 JST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked --project services/api
+      - name: Compare published timetables with data/bus/sources.json
+        id: check
+        run: |
+          set +e
+          uv run --project services/api python -m hakuba_api.bus.check_sources | tee report.txt
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Open an issue when timetables changed
+        if: steps.check.outputs.status == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh issue list --label timetable-change --state open --json number --jq 'length' | grep -qv '^0$'; then
+            echo "An open timetable-change issue already exists"; exit 0
+          fi
+          gh label create timetable-change --color D93F0B --force
+          {
+            echo "check_sources found changed shuttle timetables:"
+            echo '```'; cat report.txt; echo '```'
+            echo "Transcribe the new/changed images into data/bus/timetables/ (reviewed=false),"
+            echo "run \`python -m hakuba_api.data.validate\`, review, then"
+            echo "\`python -m hakuba_api.bus.check_sources --accept\`. See SPEC-bus-schedules.md."
+          } > body.md
+          gh issue create --title "Shuttle timetables changed" --label timetable-change --body-file body.md
+      - name: Fail if the source page could not be read
+        if: steps.check.outputs.status != '0' && steps.check.outputs.status != '1'
+        run: exit 1

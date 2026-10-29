@@ -13,7 +13,9 @@
       "!.next",
       "!dist",
       "!build",
-      "!src/lib/api-types.ts"
+      "!src/lib/api-types.ts",
+      "!test-results",
+      "!playwright-report"
     ]
   },
   "formatter": {
