@@ -41,10 +41,7 @@ export function ModePanel({
   route,
 }: ModePanelProps) {
   return (
-    <section
-      aria-label="Directions"
-      className="flex flex-col gap-3 rounded-xl bg-background p-4 shadow-lg"
-    >
+    <div className="flex flex-col gap-3">
       <Tabs
         value={mode}
         onValueChange={(value) => onModeChange(value as PanelMode)}
@@ -85,7 +82,7 @@ export function ModePanel({
           <RouteSummary mode={mode} route={route} />
         </>
       )}
-    </section>
+    </div>
   );
 }
 

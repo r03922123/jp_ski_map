@@ -83,11 +83,11 @@ Gate shorthand:
 **Files:** `src/components/{OriginPin,ModePanel,RouteLayer,ResortPicker}.tsx`, `src/lib/{api,format}.ts`, `tests/ModePanel.test.tsx`
 **Scope:** M
 
-## Task 7: Web — URL state + responsive bottom sheet
+## Task 7: Web — URL state + responsive bottom sheet ✅
 **Description:** Sync `from`, `mode` and `resort` to the URL (reload restores the view). At < 768 px the panel becomes a draggable bottom sheet. Visible focus and keyboard-navigable tabs.
 **Acceptance criteria:**
-- [ ] Reloading `?from=…&mode=walk&resort=happo-one` redraws the same route
-- [ ] At 390 px there's no horizontal scroll, and the sheet drags between collapsed and expanded
+- [x] Reloading `?from=…&mode=walk&resort=happo-one` redraws the same route
+- [x] At 390 px there's no horizontal scroll, and the sheet drags between collapsed and expanded
 **Verification:** Web gates; Playwright test `e2e/url-state.spec.ts` at a mobile viewport
 **Dependencies:** T6
 **Files:** `src/lib/url-state.ts`, `src/components/{ModePanel,BottomSheet}.tsx`, `e2e/url-state.spec.ts`
