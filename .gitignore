@@ -1,0 +1,25 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# node
+node_modules/
+.next/
+apps/web/test-results/
+apps/web/playwright-report/
+
+# routing tiles (rebuilt by docker compose)
+infra/valhalla/custom_files/
+
+# raw timetable downloads (re-fetchable via check_sources)
+data/bus/raw/
+
+# env / secrets
+.env
+.env.*
+
+.DS_Store

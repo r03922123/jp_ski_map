@@ -1,0 +1,37 @@
+# Spec: crowd-level
+
+> Module of [SPEC.md](SPEC.md). Depends on: resort-catalog, snow-conditions. Consumed by: resort-ranking, web-app.
+
+## Objective
+Estimate how crowded each resort will be on a given date. v1 is an **explainable heuristic**. The source is pluggable, so historical or real-time data can replace or calibrate it later without changing the API.
+
+## Interface
+- `GET /api/crowd?date=YYYY-MM-DD` → `CrowdEstimate[]`
+```jsonc
+{ "resortId": "happo-one", "date": "2026-02-14", "level": "low|medium|high|very_high",
+  "score": 0.78, "source": "heuristic", "isEstimate": true,
+  "reasons": ["Weekend", "Lunar New Year period", "Powder day (25 cm new)", "Large resort"] }
+```
+- Python protocol: `class CrowdSource(Protocol): def estimate(self, resort, date, snow) -> CrowdEstimate`. v1 implements `HeuristicCrowdSource`.
+
+## Heuristic v1 (pure function, every weight in one config dict)
+score = clamp(0..1) of the weighted sum of:
+- **Day type:** Japanese public holiday or holiday-bridge day (`holidays` package, JP) > Saturday > Sunday > weekday.
+- **Peak periods** (a configurable date-range table in `data/crowd_periods.json`): New Year (Dec 28–Jan 4), Australian summer school holidays (≈ mid-Dec → late Jan), Lunar New Year week, Feb 3-day weekends.
+- **Powder effect:** new snow in the past 24 h ≥ 20 cm raises the score (from snow-conditions).
+- **Resort draw:** a size/popularity prior (lifts, Happo/Tsugaike/47 high, Jigatake/Sanosaka low), plus proximity to Echoland/Happo lodging.
+- **Season edges:** early December and late March lower the score.
+
+Levels: < 0.3 low, < 0.55 medium, < 0.8 high, otherwise very_high.
+
+## Acceptance Criteria
+- [ ] Deterministic: the same inputs always give the same score. Every contributing factor appears in `reasons`.
+- [ ] Unit tests: a weekday in mid-Jan with no new snow at Jigatake → low; Saturday during Lunar New Year with a 30 cm powder day at Happo-One → very_high.
+- [ ] The UI always shows "estimated" and the reasons.
+
+## Boundaries
+- Never: scrape Google Popular Times or any source whose terms forbid it.
+- Ask first: adding any real-time or historical data source (each one becomes a new `CrowdSource`).
+
+## Open Questions (research backlog)
+- Real or open data candidates: lift-status pages (lifts open ≠ crowding), parking lot status pages, the Hakuba Valley shuttle "full capacity" notices, Nagano prefecture tourism visitor statistics (monthly visitors per resort, for calibrating the resort prior), and a JR/Alpico bus ridership feed if one exists.
