@@ -59,7 +59,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [ ] All 7 sort keys work end-to-end. Human review.
 
 ### Phase 5: Slice 4 — Bus
-- [ ] T16 Bus source change detector (`check_sources`)
+- [x] T16 Bus source change detector (`check_sources`)
 - [ ] T17 Bus stops + timetable schema + validator
 - [ ] T18 Transcribe Line V (V1, V2, …) + Line VN — review
 - [ ] T19 Transcribe remaining lines (E, F, G1-6, G7-10, H, I, L, N, O, R, T) — review

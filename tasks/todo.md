@@ -197,11 +197,11 @@ Gate shorthand:
 
 ## Phase 5: Slice 4 — Bus
 
-## Task 16: Bus source change detector
+## Task 16: Bus source change detector ✅
 **Description:** `bus.check_sources` fetches the shuttle page, collects the timetable JPG/PDF URLs and the line↔resort mapping, downloads to `data/bus/raw/<season>/` (gitignored), compares sha256 against `data/bus/sources.json`, and prints NEW/CHANGED/REMOVED; exit code 1 if anything changed. `--accept` writes the new manifest.
 **Acceptance criteria:**
-- [ ] Fixture HTML with one changed hash → exit 1 listing it; an unchanged run → exit 0
-- [ ] The real page run produces a manifest with all current assets (E, F, G1-6, G7-10, H, I, L, N, O, R, T, V1, V2, VN + PDFs)
+- [x] Fixture HTML with one changed hash → exit 1 listing it; an unchanged run → exit 0
+- [x] The real page run produces a manifest with all current assets (E, F, G1-6, G7-10, H, I, L, N, O, R, T, V1, V2, VN + PDFs)
 **Verification:** API gates; run against the live page
 **Dependencies:** T1
 **Files:** `src/hakuba_api/bus/check_sources.py`, `data/bus/sources.json`, `tests/bus/test_check_sources.py`, `tests/fixtures/hv/shuttle.html`

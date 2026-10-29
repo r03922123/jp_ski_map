@@ -1,0 +1,147 @@
+{
+  "season": "2025-26",
+  "pageUrl": "https://www.hakubavalley.com/en/access_en/shuttlebus_en/",
+  "lineResorts": {
+    "Hakuba Cortina Snow Resort": [
+      "v"
+    ],
+    "Hakuba Norikura Onsen Snow Resort": [
+      "v",
+      "n"
+    ],
+    "Tsugaike Mountain Resort": [
+      "v",
+      "t"
+    ],
+    "Hakuba Iwatake Snow Field": [
+      "v",
+      "i",
+      "e"
+    ],
+    "Hakuba Happo-One Snow Resort": [
+      "v",
+      "h",
+      "e"
+    ],
+    "Hakuba 47 Winter Sports Park": [
+      "v",
+      "f",
+      "l"
+    ],
+    "ABLE Hakuba GORYU ESCAL PLAZA": [
+      "v",
+      "g1-6",
+      "l"
+    ],
+    "ABLE Hakuba GORYU IIMORI": [
+      "v",
+      "g7-10",
+      "l"
+    ],
+    "White Resort HAKUBA SANOSAKA": [
+      "v",
+      "r"
+    ],
+    "Kashimayari Ski Resort Family Park": [
+      "v",
+      "o",
+      "r"
+    ],
+    "Jigatake Snow Resort": [
+      "v",
+      "o"
+    ]
+  },
+  "assets": [
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2025/11/2025-2026-Low-season.pdf",
+      "file": "2025-2026-Low-season.pdf",
+      "sha256": "908454d0a16e8525596cc6f7307aac9c9ecc81507881f7973b17920fb865a5d9"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2025/11/2025-2026-Shoulder-season.pdf",
+      "file": "2025-2026-Shoulder-season.pdf",
+      "sha256": "5301936b55c26256ffc7c93cc57421437b24a06facdb96b72da330b97fc721a2"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2025/12/2025-2026-Shuttle-Bus-Map.pdf",
+      "file": "2025-2026-Shuttle-Bus-Map.pdf",
+      "sha256": "af7970ca2d53c3c350a57e6cdef045cac05ecafea1430d7f02364689f49a4274"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2025/12/2025-2026-Shuttle-Bus-Timetable.pdf",
+      "file": "2025-2026-Shuttle-Bus-Timetable.pdf",
+      "sha256": "944b9c0a542251e27c3ca24815a48efad1b7a99b35fe5dd99b96d58712ca2cb2"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/E.jpg",
+      "file": "E.jpg",
+      "sha256": "eb4f30c2910956ce44aec281718ff9e0903a8ce7ec3c7ec14d249acf5eb9550a"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/F.jpg",
+      "file": "F.jpg",
+      "sha256": "306f817af2a1e7e1d4b277fa4e0423c039ca98d55f9a501a58148b30124ce6c8"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/G1-6.jpg",
+      "file": "G1-6.jpg",
+      "sha256": "7dd20811dbc7d8948da8a1aa5a6ca410ba14ed1c5fc017887a73b8031dfabdb7"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/G7-10.jpg",
+      "file": "G7-10.jpg",
+      "sha256": "573584878e5a11181a73e21ec4f257d5663f70e5622432dd15df2941e43003b2"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/H.jpg",
+      "file": "H.jpg",
+      "sha256": "8e6d393adb9400122d4e019f52b34bad9b226b259eaf518359ab6cef773e90e7"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/I.jpg",
+      "file": "I.jpg",
+      "sha256": "95bd6f6e740d3b41c874dce5d2b1d97efb42dc556b46751e5e2c354bc608c609"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/L.jpg",
+      "file": "L.jpg",
+      "sha256": "e9f23cd47bface68fc8b87ba615f470c9e2f4c10ee9ef08c7cb8d8dfa486839e"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/N.jpg",
+      "file": "N.jpg",
+      "sha256": "18e2e0c97d0563dad3d44bb32b01db498d2e8523d3e2f5064db987b6beb02bb2"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/O.jpg",
+      "file": "O.jpg",
+      "sha256": "a74110c6886ad9987bb7588961983c983ae10036de707daef2ceeda10f684cc3"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/R.jpg",
+      "file": "R.jpg",
+      "sha256": "460d912e9852d39b05bf4d81f6dd7eee6c84efe95a68301cb58b9d20290d06e6"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/T.jpg",
+      "file": "T.jpg",
+      "sha256": "ee258726d4dc65c1008a07ce175368ad67bbb1a079472c4f084861bb79114cd4"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/V1.jpg",
+      "file": "V1.jpg",
+      "sha256": "894ff62cec08c6be15817efc190aa433a90541899c6c9ec0d5dfa4e6972e17d4"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/VN-1.jpg",
+      "file": "VN-1.jpg",
+      "sha256": "aa78a23fbaaec737be9fc99aa309005d85680893d13e00b7f642e55c656f0078"
+    },
+    {
+      "url": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
+      "file": "TimetableV2.jpg",
+      "sha256": "91023ef04ba157c7a00c19474078fc79383fe9a44f2eb57e740c49c5ceacde12"
+    }
+  ]
+}
