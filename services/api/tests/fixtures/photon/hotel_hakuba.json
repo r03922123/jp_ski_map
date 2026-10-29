@@ -1,0 +1,286 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "N",
+                "osm_id": 6312753047,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "Hotel Hakuba",
+                "street": "\u767d\u99ac\u5cb3\u7dda",
+                "locality": "\u5317\u57ce",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9301",
+                "countrycode": "JP"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8539256,
+                    36.697108
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "N",
+                "osm_id": 7006958860,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "housenumber": "2",
+                "name": "Hakuba Mominoki Hotel",
+                "street": "\u5317\u57ce4683",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9422",
+                "countrycode": "JP"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8366547,
+                    36.7070112
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "N",
+                "osm_id": 7006958859,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "Kokoro Hotel Hakuba \u30b3\u30b3\u30ed\u30db\u30c6\u30eb\u767d\u99ac",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9301",
+                "countrycode": "JP"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8446799,
+                    36.700504
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "N",
+                "osm_id": 6312802600,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "Hakuba Echo Hotel",
+                "street": "\u7d30\u91ce\u7bc0",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9301",
+                "countrycode": "JP"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8412647,
+                    36.6906689
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "W",
+                "osm_id": 575114664,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "Tsugaike Kogen Hotel Hakuba Berghaus",
+                "street": "\u5343\u56fd\u5317\u57ce\u7dda",
+                "locality": "\u6802\u6c60",
+                "city": "\u5c0f\u8c37\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9422",
+                "countrycode": "JP",
+                "extent": [
+                    137.8691667,
+                    36.752282,
+                    137.8695411,
+                    36.7519801
+                ]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8693539,
+                    36.7521311
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "N",
+                "osm_id": 11235823686,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "Hotel Mont Blanc Hakuba",
+                "street": "\u56fd\u9053148\u53f7",
+                "locality": "\u795e\u57ce",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9211",
+                "countrycode": "JP"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8406305,
+                    36.6587059
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "W",
+                "osm_id": 331661907,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "\u30db\u30c6\u30eb\u767d\u99ac\u30d9\u30eb\u30b0\u30e9\u30f3\u30c9",
+                "street": "\u767d\u99ac\u5cb3\u7dda",
+                "district": "\u3069\u3093\u3050\u308a",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9422",
+                "countrycode": "JP",
+                "extent": [
+                    137.8459552,
+                    36.7015867,
+                    137.84614,
+                    36.7014135
+                ]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8460322,
+                    36.7015348
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "N",
+                "osm_id": 6312748724,
+                "osm_key": "tourism",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "Hotel oNE",
+                "street": "\u767d\u99ac\u5cb3\u7dda",
+                "district": "\u3069\u3093\u3050\u308a",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9422",
+                "countrycode": "JP"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8444157,
+                    36.7015264
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "W",
+                "osm_id": 329615124,
+                "osm_key": "building",
+                "osm_value": "apartments",
+                "type": "house",
+                "name": "Pheonix Hotel",
+                "street": "\u767d\u99ac\u5cb3\u7dda",
+                "district": "\u3069\u3093\u3050\u308a",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9422",
+                "countrycode": "JP",
+                "extent": [
+                    137.8403683,
+                    36.7058085,
+                    137.8407363,
+                    36.7054168
+                ]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8406419,
+                    36.7056348
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "W",
+                "osm_id": 329615218,
+                "osm_key": "building",
+                "osm_value": "apartments",
+                "type": "house",
+                "name": "Le Petit Hotel Hamac",
+                "street": "\u767d\u99ac\u5cb3\u7dda",
+                "district": "\u3069\u3093\u3050\u308a",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9422",
+                "countrycode": "JP",
+                "extent": [
+                    137.8409675,
+                    36.7063803,
+                    137.8412965,
+                    36.7061375
+                ]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8411315,
+                    36.7062589
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "W",
+                "osm_id": 312064760,
+                "osm_key": "building",
+                "osm_value": "hotel",
+                "type": "house",
+                "name": "\u767d\u99ac\u6771\u6025\u30db\u30c6\u30eb",
+                "street": "\u767d\u99ac\u5cb3\u7dda",
+                "district": "\u3069\u3093\u3050\u308a",
+                "city": "\u767d\u99ac\u6751",
+                "county": "\u5317\u5b89\u66c7\u90e1",
+                "state": "\u9577\u91ce\u770c",
+                "country": "\u65e5\u672c",
+                "postcode": "399-9422",
+                "countrycode": "JP",
+                "extent": [
+                    137.8387394,
+                    36.7066744,
+                    137.8396594,
+                    36.7054047
+                ]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    137.8392606,
+                    36.7060573
+                ]
+            }
+        }
+    ]
+}

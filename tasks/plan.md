@@ -41,7 +41,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [ ] Click map → pick resort → walk and drive routes with ETA drawn. Human review.
 
 ### Phase 3: Slice 2 — Search
-- [ ] T8 Photon search + Google Maps link parsing (`/api/places/search`)
+- [x] T8 Photon search + Google Maps link parsing (`/api/places/search`)
 - [ ] T9 Lodging snapshot script + `/api/places/lodging`
 - [ ] T10 Web: search box + lodging pins
 

@@ -101,12 +101,12 @@ Gate shorthand:
 
 ## Phase 3: Slice 2 — Search
 
-## Task 8: Photon search + Google Maps link parsing
+## Task 8: Photon search + Google Maps link parsing ✅
 **Description:** `GET /api/places/search`. If the query is a Google Maps URL, parse `@lat,lng`, `!3d!4d` or `?q=lat,lng` plus the `/place/<name>/` segment; for `maps.app.goo.gl` links, follow one redirect hop. Otherwise call Photon with the Hakuba bias, put out-of-bbox results last, and cache for 24 h.
 **Acceptance criteria:**
-- [ ] Unit tests for the 3 URL coordinate formats and the name extraction; a non-Google URL → treated as text
-- [ ] Contract tests (Photon fixtures): an English query (Hotel Hakuba) and a Japanese one (白馬東急ホテル) hit the top 3; empty q → 422; upstream down → 502
-- [ ] Live: a pasted short link for Courtyard Hakuba resolves to within 50 m
+- [x] Unit tests for the 3 URL coordinate formats and the name extraction; a non-Google URL → treated as text
+- [x] Contract tests (Photon fixtures): an English query (Hotel Hakuba) and a Japanese one (白馬東急ホテル) hit the top 3; empty q → 422; upstream down → 502
+- [ ] Live: a pasted short link for Courtyard Hakuba resolves to within 50 m — **needs a real short link from the user** (redirect logic is unit-tested with mocks; host allow-list prevents SSRF)
 **Verification:** API gates; `pytest -m live -k places`
 **Dependencies:** T1
 **Files:** `src/hakuba_api/places/{photon,gmaps_link,router,models}.py`, `tests/places/test_search.py`, `tests/fixtures/photon/*.json`
