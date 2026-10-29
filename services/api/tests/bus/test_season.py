@@ -49,13 +49,13 @@ def test_summer_has_no_service_and_names_the_projected_start() -> None:
 
 
 def test_published_next_date_wins_over_a_projected_one() -> None:
-    v2 = next(t for t in DAY if t.route_id == "v2")  # 2026-03-16 → 03-29 only
+    v2 = next(t for t in DAY if t.route_id == "v2" and t.valid_from == date(2026, 3, 16))
 
     assert next_service_date(date(2026, 1, 10), [v2]) == (date(2026, 3, 16), "published")
 
 
 def test_shifting_a_leap_day_lands_on_feb_28() -> None:
-    v2 = next(t for t in DAY if t.route_id == "v2")
+    v2 = next(t for t in DAY if t.route_id == "v2" and t.valid_from == date(2026, 3, 16))
     leap = v2.model_copy(update={"valid_from": date(2028, 2, 29), "valid_to": date(2028, 3, 31)})
 
     shifted = shift_years(leap, 1)

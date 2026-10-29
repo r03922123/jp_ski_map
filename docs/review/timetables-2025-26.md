@@ -24,3 +24,11 @@ Remaining differences, classified:
 1. Decide H3 trip 1 (keep `null`, or set 08:53 / 09:53).
 2. Optionally ask Hakuba Valley (0261-72-3155) about the T3 and V2 gaps.
 3. Then set `"reviewed": true` in `data/bus/timetables/2025-26/*.json` — the bus tab goes live.
+
+## Addendum 2026-10-30 — Line V2 main season from the PDF
+The page image `TimetableV2.jpg` is the Mar 16–29 revision only. The season PDF's V2 block was transcribed
+into three more periods of route `v2` (Dec 13–23 ● trips; Dec 24–Mar 8 all 28 trips, northbound 22-1;
+Mar 9–15 ● trips). Check performed: the 8 ★ trips per direction match the reviewed Mar 16–29 file cell for
+cell; the validator's increasing-time check passes. Crops used: scratch `pdf/v2-*.png` (re-renderable with
+`uv run --with pypdfium2 --with pillow`). Marked reviewed on that basis — a second human look at the PDF is
+still worthwhile.

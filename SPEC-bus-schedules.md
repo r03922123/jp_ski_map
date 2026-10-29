@@ -11,6 +11,8 @@ Answer the question "From my hotel, which shuttle bus do I take, when does it le
 - Timetables are **JPG images per line** (`E, F, G1-6, G7-10, H, I, L, N, O, R, T, V1, V2, VN`) plus a full-season PDF (Illustrator). Each image is a two-language grid: stops are rows, trips are columns, `—` means the trip doesn't stop there, and there are separate "heading south / north" blocks.
 - One line has **several periods per season** (e.g. V1 = 13–23 Dec, V2 = 16–29 Mar).
 
+**Finding (2026-10-30):** the page shows only the *latest* image per line. For Line V2 (Cortina ↔ Goryu) that is the Mar 16–29 revision; the main-season V2 timetable (Dec 13–Mar 15, 28 trips a day, four operating periods marked ●/★ and a 22-1/22-2 variant) exists only in the season poster PDF `2025-2026-Shuttle-Bus-Timetable.pdf`. It was transcribed from the PDF into `line-v-v2-p{1,2,3}.json` (the ★ columns were cross-checked against the reviewed Mar 16–29 file). **Rule:** when a line's image carries a period that doesn't start at the season start, check the PDF for the earlier periods.
+
 ## Ingestion pipeline
 1. **Detect** (`python -m hakuba_api.bus.check_sources`): fetch the page, collect the timetable/PDF asset URLs, download them to `data/bus/raw/<season>/`, and compute sha256. Compare with `data/bus/sources.json`. Print the NEW / CHANGED / REMOVED assets and exit with code 1 if anything changed. Also refresh the line↔resort mapping from the HTML.
 2. **Transcribe** (manual step, in a Claude Code session, no API calls from code): for each new or changed image, write `data/bus/timetables/<season>/<line>-<period>.json` following the schema below. Use the stop names exactly as printed (EN).
