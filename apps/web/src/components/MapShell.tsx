@@ -296,6 +296,11 @@ export function MapShell() {
               setOriginName(place.name);
               setFlyTo(place.coord);
             }}
+            onClear={() => {
+              setOrigin(null);
+              setOriginName(null);
+              setBusChoice(null);
+            }}
           />
         </div>
         <ModePanel

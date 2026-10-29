@@ -51,16 +51,35 @@ describe("useDebouncedValue", () => {
 describe("SearchBox", () => {
   function renderBox() {
     const onSelect = vi.fn();
+    const onClear = vi.fn();
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <SearchBox onSelect={onSelect} />
+        <SearchBox onSelect={onSelect} onClear={onClear} />
       </QueryClientProvider>,
     );
     return {
       onSelect,
+      onClear,
       input: screen.getByRole("combobox", { name: /search/i }),
     };
   }
+
+  it("clears the text and the starting point with the ✕ button", async () => {
+    vi.spyOn(api, "fetchPlaces").mockResolvedValue([hotelHakuba]);
+    const { input, onClear } = renderBox();
+    expect(
+      screen.queryByRole("button", { name: /clear starting point/i }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: "Hotel Hakuba" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: /clear starting point/i }),
+    );
+
+    expect(input).toHaveValue("");
+    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
 
   afterEach(() => vi.restoreAllMocks());
 

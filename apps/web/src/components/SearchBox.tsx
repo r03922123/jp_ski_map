@@ -8,7 +8,14 @@ import { useDebouncedValue } from "@/lib/use-debounced-value";
 const DEBOUNCE_MS = 300;
 
 /** Hotel / place search (Photon) that also accepts a pasted Google Maps link. */
-export function SearchBox({ onSelect }: { onSelect: (place: Place) => void }) {
+export function SearchBox({
+  onSelect,
+  onClear,
+}: {
+  onSelect: (place: Place) => void;
+  /** The ✕ button: the text is cleared and the starting point should be dropped. */
+  onClear?: () => void;
+}) {
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -59,7 +66,7 @@ export function SearchBox({ onSelect }: { onSelect: (place: Place) => void }) {
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
         placeholder="Search hotel, or paste a Google Maps link"
-        className="w-full rounded-full border bg-background px-4 py-2 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="w-full rounded-full border bg-background py-2 pr-10 pl-4 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden"
         value={text}
         onChange={(e) => {
           setText(e.target.value);
@@ -69,6 +76,21 @@ export function SearchBox({ onSelect }: { onSelect: (place: Place) => void }) {
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
       />
+      {text && (
+        <button
+          type="button"
+          aria-label="Clear starting point"
+          className="absolute inset-y-0 right-2 my-auto flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+          onClick={() => {
+            setText("");
+            setOpen(false);
+            setActive(-1);
+            onClear?.();
+          }}
+        >
+          ✕
+        </button>
+      )}
       {results.isError && (
         <p role="alert" className="mt-1 px-2 text-xs text-destructive">
           Search is unavailable right now — paste a Google Maps link or tap the
