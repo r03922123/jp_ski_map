@@ -1,0 +1,557 @@
+{
+  "status": "ok",
+  "nextServiceDate": null,
+  "resorts": [
+    {
+      "resortId": "cortina",
+      "options": [
+        {
+          "resortId": "cortina",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 2,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-cortina",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:10:00+09:00",
+          "arrivesAt": "2026-03-20T08:51:00+09:00",
+          "rideS": 2460,
+          "waitS": 600,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "cortina",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 3,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-cortina",
+          "walkS": 0,
+          "departsAt": "2026-03-20T09:20:00+09:00",
+          "arrivesAt": "2026-03-20T10:01:00+09:00",
+          "rideS": 2460,
+          "waitS": 4800,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "cortina",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 4,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-cortina",
+          "walkS": 0,
+          "departsAt": "2026-03-20T10:40:00+09:00",
+          "arrivesAt": "2026-03-20T11:28:00+09:00",
+          "rideS": 2880,
+          "waitS": 9600,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "goryu",
+      "options": [
+        {
+          "resortId": "goryu",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 1,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-goryu-escal-plaza",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:11:00+09:00",
+          "arrivesAt": "2026-03-20T08:46:00+09:00",
+          "rideS": 2100,
+          "waitS": 660,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "goryu",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 2,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-goryu-escal-plaza",
+          "walkS": 0,
+          "departsAt": "2026-03-20T09:48:00+09:00",
+          "arrivesAt": "2026-03-20T10:23:00+09:00",
+          "rideS": 2100,
+          "waitS": 6480,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "goryu",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 3,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-goryu-escal-plaza",
+          "walkS": 0,
+          "departsAt": "2026-03-20T10:48:00+09:00",
+          "arrivesAt": "2026-03-20T11:23:00+09:00",
+          "rideS": 2100,
+          "waitS": 10080,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "hakuba47",
+      "options": [
+        {
+          "resortId": "hakuba47",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 1,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-hakuba47",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:11:00+09:00",
+          "arrivesAt": "2026-03-20T08:39:00+09:00",
+          "rideS": 1680,
+          "waitS": 660,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "hakuba47",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 2,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-hakuba47",
+          "walkS": 0,
+          "departsAt": "2026-03-20T09:48:00+09:00",
+          "arrivesAt": "2026-03-20T10:16:00+09:00",
+          "rideS": 1680,
+          "waitS": 6480,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "hakuba47",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 3,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-hakuba47",
+          "walkS": 0,
+          "departsAt": "2026-03-20T10:48:00+09:00",
+          "arrivesAt": "2026-03-20T11:16:00+09:00",
+          "rideS": 1680,
+          "waitS": 10080,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "happo-one",
+      "options": [
+        {
+          "resortId": "happo-one",
+          "lineId": "line-h",
+          "routeId": "h1",
+          "routeName": "From Happo via Sanroku·Wadano (loop)",
+          "trip": 1,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-happo-nakiyama",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:00:00+09:00",
+          "arrivesAt": "2026-03-20T08:06:00+09:00",
+          "rideS": 360,
+          "waitS": 0,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "H.jpg"
+        },
+        {
+          "resortId": "happo-one",
+          "lineId": "line-h",
+          "routeId": "h2",
+          "routeName": "From Happo via Wadano·Sanroku (loop)",
+          "trip": 1,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-happo-sakka",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:00:00+09:00",
+          "arrivesAt": "2026-03-20T08:06:00+09:00",
+          "rideS": 360,
+          "waitS": 0,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "H.jpg"
+        },
+        {
+          "resortId": "happo-one",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 1,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-happo-nakiyama",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:11:00+09:00",
+          "arrivesAt": "2026-03-20T08:16:00+09:00",
+          "rideS": 300,
+          "waitS": 660,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "iwatake",
+      "options": [
+        {
+          "resortId": "iwatake",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 2,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-iwatake",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:10:00+09:00",
+          "arrivesAt": "2026-03-20T08:18:00+09:00",
+          "rideS": 480,
+          "waitS": 600,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "iwatake",
+          "lineId": "line-e",
+          "routeId": "e2",
+          "routeName": "From Misorano via Happo-guchi",
+          "trip": 1,
+          "boardStopId": "stop-hotel-hakuba",
+          "boardStopName": "Hotel Hakuba",
+          "boardStopCoord": {
+            "lat": 36.697108,
+            "lng": 137.8539256
+          },
+          "alightStopId": "stop-iwatake",
+          "walkS": 720,
+          "departsAt": "2026-03-20T08:14:00+09:00",
+          "arrivesAt": "2026-03-20T08:32:00+09:00",
+          "rideS": 1080,
+          "waitS": 120,
+          "timed": true,
+          "firstStopName": "Hotel Hakuba",
+          "sourceFile": "E.jpg"
+        },
+        {
+          "resortId": "iwatake",
+          "lineId": "line-e",
+          "routeId": "e3",
+          "routeName": "From Warabidaira via JR Hakuba Sta.·Happo-guchi",
+          "trip": 1,
+          "boardStopId": "stop-hotel-hakuba",
+          "boardStopName": "Hotel Hakuba",
+          "boardStopCoord": {
+            "lat": 36.697108,
+            "lng": 137.8539256
+          },
+          "alightStopId": "stop-iwatake",
+          "walkS": 720,
+          "departsAt": "2026-03-20T08:18:00+09:00",
+          "arrivesAt": "2026-03-20T08:36:00+09:00",
+          "rideS": 1080,
+          "waitS": 360,
+          "timed": true,
+          "firstStopName": "Hotel Hakuba",
+          "sourceFile": "E.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "kashimayari",
+      "options": [
+        {
+          "resortId": "kashimayari",
+          "lineId": "line-r",
+          "routeId": "r2",
+          "routeName": "From Happo-guchi·Warabidaira via Goryu",
+          "trip": 2,
+          "boardStopId": "stop-hotel-hakuba",
+          "boardStopName": "Hotel Hakuba",
+          "boardStopCoord": {
+            "lat": 36.697108,
+            "lng": 137.8539256
+          },
+          "alightStopId": "stop-kashimayari-nakatsuna",
+          "walkS": 720,
+          "departsAt": "2026-03-20T09:40:00+09:00",
+          "arrivesAt": "2026-03-20T10:45:00+09:00",
+          "rideS": 3900,
+          "waitS": 5280,
+          "timed": true,
+          "firstStopName": "Hotel Hakuba",
+          "sourceFile": "R.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "norikura",
+      "options": [
+        {
+          "resortId": "norikura",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 2,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-norikura",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:10:00+09:00",
+          "arrivesAt": "2026-03-20T08:40:00+09:00",
+          "rideS": 1800,
+          "waitS": 600,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "norikura",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 3,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-norikura",
+          "walkS": 0,
+          "departsAt": "2026-03-20T09:20:00+09:00",
+          "arrivesAt": "2026-03-20T09:50:00+09:00",
+          "rideS": 1800,
+          "waitS": 4800,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "norikura",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 4,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-norikura",
+          "walkS": 0,
+          "departsAt": "2026-03-20T10:40:00+09:00",
+          "arrivesAt": "2026-03-20T11:17:00+09:00",
+          "rideS": 2220,
+          "waitS": 9600,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "sanosaka",
+      "options": [
+        {
+          "resortId": "sanosaka",
+          "lineId": "line-r",
+          "routeId": "r2",
+          "routeName": "From Happo-guchi·Warabidaira via Goryu",
+          "trip": 2,
+          "boardStopId": "stop-hotel-hakuba",
+          "boardStopName": "Hotel Hakuba",
+          "boardStopCoord": {
+            "lat": 36.697108,
+            "lng": 137.8539256
+          },
+          "alightStopId": "stop-sanosaka",
+          "walkS": 720,
+          "departsAt": "2026-03-20T09:40:00+09:00",
+          "arrivesAt": "2026-03-20T10:30:00+09:00",
+          "rideS": 3000,
+          "waitS": 5280,
+          "timed": true,
+          "firstStopName": "Hotel Hakuba",
+          "sourceFile": "R.jpg"
+        }
+      ]
+    },
+    {
+      "resortId": "tsugaike",
+      "options": [
+        {
+          "resortId": "tsugaike",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 2,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-tsugaike-gondola",
+          "walkS": 0,
+          "departsAt": "2026-03-20T08:10:00+09:00",
+          "arrivesAt": "2026-03-20T08:33:00+09:00",
+          "rideS": 1380,
+          "waitS": 600,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "tsugaike",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 3,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-tsugaike-gondola",
+          "walkS": 0,
+          "departsAt": "2026-03-20T09:20:00+09:00",
+          "arrivesAt": "2026-03-20T09:43:00+09:00",
+          "rideS": 1380,
+          "waitS": 4800,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        },
+        {
+          "resortId": "tsugaike",
+          "lineId": "line-v",
+          "routeId": "v2",
+          "routeName": "Cortina ↔ Hakuba GORYU",
+          "trip": 4,
+          "boardStopId": "stop-happo-bus-terminal",
+          "boardStopName": "Hakuba Happo Bus Terminal",
+          "boardStopCoord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "alightStopId": "stop-tsugaike-gondola",
+          "walkS": 0,
+          "departsAt": "2026-03-20T10:40:00+09:00",
+          "arrivesAt": "2026-03-20T11:10:00+09:00",
+          "rideS": 1800,
+          "waitS": 9600,
+          "timed": true,
+          "firstStopName": "Hakuba Happo Bus Terminal",
+          "sourceFile": "TimetableV2.jpg"
+        }
+      ]
+    }
+  ]
+}

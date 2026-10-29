@@ -143,6 +143,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/bus/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Bus Options */
+        get: operations["get_bus_options_api_bus_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bus/night": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Night Bus */
+        get: operations["get_night_bus_api_bus_night_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -175,6 +209,57 @@ export interface components {
             coord: components["schemas"]["Coord"];
             /** Coordsource */
             coordSource: string;
+        };
+        /** BusOption */
+        BusOption: {
+            /** Resortid */
+            resortId: string;
+            /** Lineid */
+            lineId: string;
+            /** Routeid */
+            routeId: string;
+            /** Routename */
+            routeName: string;
+            /** Trip */
+            trip: number;
+            /** Boardstopid */
+            boardStopId: string;
+            /** Boardstopname */
+            boardStopName: string;
+            boardStopCoord: components["schemas"]["Coord"] | null;
+            /** Alightstopid */
+            alightStopId: string;
+            /** Walks */
+            walkS: number;
+            /**
+             * Departsat
+             * Format: date-time
+             */
+            departsAt: string;
+            /** Arrivesat */
+            arrivesAt: string | null;
+            /** Rides */
+            rideS: number | null;
+            /** Waits */
+            waitS: number;
+            /** Timed */
+            timed: boolean;
+            /** Firststopname */
+            firstStopName: string;
+            /** Sourcefile */
+            sourceFile: string;
+        };
+        /** BusResult */
+        BusResult: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "no_service" | "awaiting_review";
+            /** Nextservicedate */
+            nextServiceDate: string | null;
+            /** Resorts */
+            resorts: components["schemas"]["ResortBusOptions"][];
         };
         /** Coord */
         Coord: {
@@ -295,6 +380,24 @@ export interface components {
             /** Next72H */
             next72h: number | null;
         };
+        /** NightDeparture */
+        NightDeparture: {
+            /** Routeid */
+            routeId: string;
+            /** Boardstopid */
+            boardStopId: string;
+            /** Boardstopname */
+            boardStopName: string;
+            /** Walks */
+            walkS: number;
+            /**
+             * Departsat
+             * Format: date-time
+             */
+            departsAt: string;
+            /** Towards */
+            towards: string;
+        };
         /** Place */
         Place: {
             /** Id */
@@ -351,6 +454,13 @@ export interface components {
             hakubaValleyPass: boolean;
             /** Statssource */
             statsSource: string;
+        };
+        /** ResortBusOptions */
+        ResortBusOptions: {
+            /** Resortid */
+            resortId: string;
+            /** Options */
+            options: components["schemas"]["BusOption"][];
         };
         /**
          * ResortStats
@@ -696,6 +806,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RankedResort"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bus_options_api_bus_options_get: {
+        parameters: {
+            query: {
+                at?: string | null;
+                from: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BusResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_night_bus_api_bus_night_get: {
+        parameters: {
+            query: {
+                at?: string | null;
+                from: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NightDeparture"][];
                 };
             };
             /** @description Validation Error */

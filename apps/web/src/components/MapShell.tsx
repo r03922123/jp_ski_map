@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
+import { BusPanel } from "@/components/BusPanel";
 import { DrivePanel, type RankingState } from "@/components/DrivePanel";
 import {
   ModePanel,
@@ -14,8 +15,11 @@ import { SearchBox } from "@/components/SearchBox";
 import {
   ApiError,
   type Bbox,
+  type BusOption,
   type Coord,
+  fetchBusOptions,
   fetchLodging,
+  fetchNightBus,
   fetchRank,
   fetchResorts,
   fetchRoute,
@@ -32,6 +36,32 @@ const MapView = dynamic(() => import("./MapView"), { ssr: false });
 
 const LODGING_MIN_ZOOM = 14;
 
+/** Current Hakuba time as "YYYY-MM-DDTHH:mm" for the datetime-local input. */
+function nowInHakuba(): string {
+  return new Date()
+    .toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
+    .slice(0, 16)
+    .replace(" ", "T");
+}
+
+type Loadable<T> =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "error" }
+  | { status: "success"; data: T };
+
+function loadable<T>(q: {
+  isEnabled: boolean;
+  isPending: boolean;
+  isError: boolean;
+  data: T | undefined;
+}): Loadable<T> {
+  if (!q.isEnabled) return { status: "idle" };
+  if (q.isPending) return { status: "loading" };
+  if (q.isError || q.data === undefined) return { status: "error" };
+  return { status: "success", data: q.data };
+}
+
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const [mode, setMode] = useState<PanelMode>("drive");
@@ -40,6 +70,10 @@ export function MapShell() {
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
+  const [departAt, setDepartAt] = useState("");
+  const [showNight, setShowNight] = useState(false);
+  const [busChoice, setBusChoice] = useState<BusOption | null>(null);
+  useEffect(() => setDepartAt(nowInHakuba()), []); // client clock only, avoids SSR mismatch
 
   // Restore the shared view once, then mirror every change back into the URL.
   // `ready` is state (not a ref) so the first URL write happens on a render that
@@ -90,6 +124,22 @@ export function MapShell() {
       ? { status: "error" }
       : { status: "success", data: ranking.data };
 
+  const busEnabled = mode === "bus" && origin !== null && departAt !== "";
+  const bus = useQuery({
+    queryKey: ["bus", origin, departAt],
+    queryFn: () => fetchBusOptions(origin!, departAt),
+    enabled: busEnabled && !showNight,
+    retry: false,
+  });
+  const night = useQuery({
+    queryKey: ["night-bus", origin, departAt],
+    queryFn: () => fetchNightBus(origin!, departAt),
+    enabled: busEnabled && showNight,
+    retry: false,
+  });
+  const busStop =
+    mode === "bus" && !showNight ? (busChoice?.boardStopCoord ?? null) : null;
+
   // Drive to the access point the ranking found nearest; otherwise the first one.
   const resort = resorts.data?.find((r) => r.id === selectedResortId);
   const nearestId = ranking.data?.find(
@@ -100,11 +150,13 @@ export function MapShell() {
     resort?.accessPoints[0]
   )?.coord;
 
-  const routeMode = mode === "bus" ? null : mode;
+  // In bus mode the route shown is the walk to the chosen boarding stop.
+  const routeMode = mode === "bus" ? "walk" : mode;
+  const target = mode === "bus" ? busStop : destination;
   const route = useQuery({
-    queryKey: ["route", routeMode, origin, destination],
-    queryFn: () => fetchRoute(routeMode!, origin!, destination!),
-    enabled: Boolean(routeMode && origin && destination),
+    queryKey: ["route", routeMode, origin, target],
+    queryFn: () => fetchRoute(routeMode, origin!, target!),
+    enabled: Boolean(origin && target),
     retry: false,
   });
 
@@ -135,6 +187,7 @@ export function MapShell() {
         origin={origin}
         route={routeData}
         lodging={lodgingPins}
+        busStop={busStop}
         flyTo={flyTo}
         onLoad={() => setLoaded(true)}
         onViewChange={setView}
@@ -158,6 +211,19 @@ export function MapShell() {
           onSelectResort={setSelectedResortId}
           hasOrigin={origin !== null}
           route={routeState}
+          busPanel={
+            <BusPanel
+              resorts={resorts.data ?? []}
+              result={loadable(bus)}
+              night={loadable(night)}
+              showNight={showNight}
+              onShowNightChange={setShowNight}
+              departAt={departAt}
+              onDepartAtChange={setDepartAt}
+              selected={busChoice}
+              onSelect={setBusChoice}
+            />
+          }
           drivePanel={
             <DrivePanel
               options={rankOptions}

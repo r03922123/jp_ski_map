@@ -247,11 +247,11 @@ Gate shorthand:
 **Files:** `src/hakuba_api/bus/{query,router}.py`, `tests/bus/test_query.py`
 **Scope:** M
 
-## Task 21: Web — 🚌 bus tab + night toggle
+## Task 21: Web — 🚌 bus tab + night toggle ✅
 **Description:** Enable the Bus tab: a card per resort (walk to the stop, the next 3 departures with line badge, depart → arrive, wait), a departure time picker, a link to the source image, and the notices "may change without notice / buses can be full". Selecting an option draws the walk leg and highlights the stop. A night bus toggle. The `no_service` state. Hakuba Valley is credited in the attribution.
 **Acceptance criteria:**
-- [ ] With the time set to 2026-03-20 08:00 at the Happo Bus Terminal, Hakuba47 shows 08:11 → 08:39
-- [ ] A current (off-season) date shows a clear no-service message
+- [x] With the time set to 2026-03-20 08:00 at the Happo Bus Terminal, Hakuba47 shows 08:11 → 08:39
+- [x] A current (off-season) date shows a clear no-service message
 **Verification:** Web gates; Playwright `e2e/bus.spec.ts`
 **Dependencies:** T7, T20
 **Files:** `src/components/{BusPanel,BusOptionCard,NightBusToggle}.tsx`, `tests/BusPanel.test.tsx`, `e2e/bus.spec.ts`

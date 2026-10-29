@@ -26,6 +26,8 @@ export type MapViewProps = {
   origin: Coord | null;
   route: Route | null;
   lodging: Place[];
+  /** Boarding stop of the chosen bus option. */
+  busStop: Coord | null;
   /** When this changes, the map flies to it (e.g. a search result). */
   flyTo: Coord | null;
   onLoad?: () => void;
@@ -42,6 +44,7 @@ export default function MapView({
   origin,
   route,
   lodging,
+  busStop,
   flyTo,
   onLoad,
   onViewChange,
@@ -92,7 +95,7 @@ export default function MapView({
       style={{ position: "absolute", inset: 0 }}
       attributionControl={{
         customAttribution:
-          'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>',
+          'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> | Shuttle: <a href="https://www.hakubavalley.com/en/access_en/shuttlebus_en/" target="_blank" rel="noopener">Hakuba Valley</a>',
       }}
       interactiveLayerIds={[LODGING_LAYER]}
       onLoad={(e) => {
@@ -194,6 +197,18 @@ export default function MapView({
           </Marker>
         );
       })}
+
+      {busStop && (
+        <Marker latitude={busStop.lat} longitude={busStop.lng} anchor="bottom">
+          <span
+            role="img"
+            aria-label="Bus stop"
+            className="text-2xl drop-shadow"
+          >
+            🚏
+          </span>
+        </Marker>
+      )}
 
       {origin && (
         <Marker latitude={origin.lat} longitude={origin.lng} anchor="bottom">

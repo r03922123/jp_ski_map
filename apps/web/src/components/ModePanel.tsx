@@ -23,6 +23,8 @@ export type ModePanelProps = {
   route: RouteState;
   /** Drive mode: ranked resort list replacing the plain picker. */
   drivePanel?: ReactNode;
+  /** Bus mode: shuttle options; the route shown is the walk to the chosen stop. */
+  busPanel?: ReactNode;
 };
 
 const LONG_WALK_S = 45 * 60;
@@ -43,6 +45,7 @@ export function ModePanel({
   hasOrigin,
   route,
   drivePanel,
+  busPanel,
 }: ModePanelProps) {
   return (
     <div className="flex flex-col gap-3">
@@ -51,7 +54,7 @@ export function ModePanel({
         onValueChange={(value) => onModeChange(value as PanelMode)}
       >
         <TabsList className="w-full">
-          <TabsTrigger value="bus" disabled title="Coming soon">
+          <TabsTrigger value="bus" disabled={!busPanel}>
             🚌 Bus
           </TabsTrigger>
           <TabsTrigger value="drive">🚗 Drive</TabsTrigger>
@@ -63,6 +66,11 @@ export function ModePanel({
         <p className="text-sm text-muted-foreground">
           Tap the map to set your starting point.
         </p>
+      ) : mode === "bus" && busPanel ? (
+        <>
+          {busPanel}
+          <RouteSummary mode="walk" route={route} />
+        </>
       ) : mode === "drive" && drivePanel ? (
         <>
           <RouteSummary mode={mode} route={route} />

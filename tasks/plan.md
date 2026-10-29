@@ -64,7 +64,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 - [ ] T18 Transcribe Line V (V1, V2, …) + Line VN — review
 - [ ] T19 Transcribe remaining lines (E, F, G1-6, G7-10, H, I, L, N, O, R, T) — review
 - [x] T20 Bus query + `/api/bus/options` + `/api/bus/night`
-- [ ] T21 Web: 🚌 bus tab + night bus toggle
+- [x] T21 Web: 🚌 bus tab + night bus toggle
 
 ### Checkpoint E: Complete
 - [ ] Playwright E2E covers all 3 modes; attribution, a11y and mobile checks pass; every SPEC success criterion is met. Human review.

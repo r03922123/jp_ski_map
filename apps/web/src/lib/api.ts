@@ -5,6 +5,9 @@ export type Route = components["schemas"]["Route"];
 export type Coord = components["schemas"]["Coord"];
 export type Place = components["schemas"]["Place"];
 export type RankedResort = components["schemas"]["RankedResort"];
+export type BusResult = components["schemas"]["BusResult"];
+export type BusOption = components["schemas"]["BusOption"];
+export type NightDeparture = components["schemas"]["NightDeparture"];
 export type SortKey = NonNullable<
   NonNullable<
     operations["get_rank_api_rank_get"]["parameters"]["query"]
@@ -69,3 +72,16 @@ export function fetchRank(from: Coord, q: RankQuery) {
   if (q.hvPass) params.set("hakubaValleyPass", "true");
   return getJson<RankedResort[]>(`/api/rank?${params}`);
 }
+
+/** `departAt` is local Hakuba time, "YYYY-MM-DDTHH:mm". */
+const jst = (departAt: string) => encodeURIComponent(`${departAt}:00+09:00`);
+
+export const fetchBusOptions = (from: Coord, departAt: string) =>
+  getJson<BusResult>(
+    `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}`,
+  );
+
+export const fetchNightBus = (from: Coord, departAt: string) =>
+  getJson<NightDeparture[]>(
+    `/api/bus/night?from=${latLng(from)}&at=${jst(departAt)}`,
+  );
