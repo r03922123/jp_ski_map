@@ -1,0 +1,8 @@
+[
+  { "id": "new-year-2025-26", "name": "New Year holidays", "start": "2025-12-28", "end": "2026-01-04", "weight": 0.35, "source": "Japanese year-end/new-year break" },
+  { "id": "au-summer-2025-26", "name": "Australian summer school holidays", "start": "2025-12-19", "end": "2026-01-27", "weight": 0.15, "source": "approx. NSW/VIC term dates" },
+  { "id": "lunar-new-year-2026", "name": "Lunar New Year week", "start": "2026-02-14", "end": "2026-02-22", "weight": 0.25, "source": "Lunar New Year 2026-02-17" },
+  { "id": "new-year-2026-27", "name": "New Year holidays", "start": "2026-12-28", "end": "2027-01-04", "weight": 0.35, "source": "Japanese year-end/new-year break" },
+  { "id": "au-summer-2026-27", "name": "Australian summer school holidays", "start": "2026-12-18", "end": "2027-01-26", "weight": 0.15, "source": "approx. NSW/VIC term dates" },
+  { "id": "lunar-new-year-2027", "name": "Lunar New Year week", "start": "2027-02-03", "end": "2027-02-11", "weight": 0.25, "source": "Lunar New Year 2027-02-06" }
+]

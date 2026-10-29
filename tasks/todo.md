@@ -159,11 +159,11 @@ Gate shorthand:
 **Files:** `SPEC-snow-conditions.md`
 **Scope:** XS
 
-## Task 13: Crowd heuristic + /api/crowd
+## Task 13: Crowd heuristic + /api/crowd ✅
 **Description:** `CrowdSource` protocol + `HeuristicCrowdSource` (JP holidays via the `holidays` package, `data/crowd_periods.json`, powder effect from snow, resort prior), all weights in one config. Every factor adds a `reasons` entry.
 **Acceptance criteria:**
-- [ ] Mid-Jan weekday at Jigatake, no new snow → low; Lunar New Year Saturday at Happo-One with a 30 cm powder day → very_high
-- [ ] Deterministic; ≥ 90% line coverage on `crowd/heuristic.py`
+- [x] Mid-Jan weekday at Jigatake, no new snow → low; Lunar New Year Saturday at Happo-One with a 30 cm powder day → very_high
+- [x] Deterministic; ≥ 90% line coverage on `crowd/heuristic.py`
 **Verification:** API gates with `--cov=hakuba_api.crowd`
 **Dependencies:** T4, T11
 **Files:** `src/hakuba_api/crowd/{heuristic,models,router}.py`, `data/crowd_periods.json`, `tests/crowd/test_heuristic.py`
