@@ -66,6 +66,8 @@ export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const [mode, setMode] = useState<PanelMode>("drive");
   const [origin, setOrigin] = useState<Coord | null>(null);
+  // name of the searched place, if the origin came from search (not a dropped pin)
+  const [originName, setOriginName] = useState<string | null>(null);
   const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
@@ -126,8 +128,8 @@ export function MapShell() {
 
   const busEnabled = mode === "bus" && origin !== null && departAt !== "";
   const bus = useQuery({
-    queryKey: ["bus", origin, departAt],
-    queryFn: () => fetchBusOptions(origin!, departAt),
+    queryKey: ["bus", origin, departAt, originName],
+    queryFn: () => fetchBusOptions(origin!, departAt, originName),
     enabled: busEnabled && !showNight,
     retry: false,
   });
@@ -191,7 +193,10 @@ export function MapShell() {
         flyTo={flyTo}
         onLoad={() => setLoaded(true)}
         onViewChange={setView}
-        onPickOrigin={setOrigin}
+        onPickOrigin={(coord) => {
+          setOrigin(coord);
+          setOriginName(null);
+        }}
         onSelectResort={setSelectedResortId}
       />
       <BottomSheet label="Directions">
@@ -199,6 +204,7 @@ export function MapShell() {
           <SearchBox
             onSelect={(place) => {
               setOrigin(place.coord);
+              setOriginName(place.name);
               setFlyTo(place.coord);
             }}
           />

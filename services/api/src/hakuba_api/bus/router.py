@@ -1,9 +1,11 @@
+import re
+import unicodedata
 from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
-from hakuba_api.bus.models import Timetable
+from hakuba_api.bus.models import BusStop, Timetable
 from hakuba_api.bus.query import BusResult, NightDeparture, bus_options, night_departures
 from hakuba_api.bus.store import load_stops, load_timetables
 from hakuba_api.common.params import parse_lat_lng
@@ -17,18 +19,76 @@ MAX_WALK_S = 20 * 60
 FALLBACK_STOPS = 3
 
 
+PLACE_WORDS = {"hakuba", "the", "白馬"}  # say nothing about which property it is
+TYPE_WORDS = {
+    "hotel",
+    "pension",
+    "lodge",
+    "inn",
+    "resort",
+    "suites",
+    "ホテル",
+    "ペンション",
+    "ロッジ",
+}
+
+
+def _tokens(text: str, keep_place: bool = False) -> tuple[str, ...]:
+    text = unicodedata.normalize("NFKC", text).lower()
+    parts = re.findall(r"[a-z0-9]+|[^\x00-\x7f\s・/()（）]+", text)
+    out: list[str] = []
+    for part in parts:
+        for word in (*PLACE_WORDS, *TYPE_WORDS):  # split glued Japanese like 白馬東急ホテル
+            if not word.isascii():
+                part = part.replace(word, f" {word} ")
+        out += part.split()
+    return tuple(t for t in out if keep_place or t not in PLACE_WORDS)
+
+
+def _same_property(a_name: str, b_name: str) -> bool:
+    """Same distinctive words, and type words of one side within the other's
+    ('Hotel Cultured' ~ 'Cultured', 'Sierra Resort' ~ 'Sierra Resort Hotel', but
+    'Highland Lodge' !~ 'Highland Hotel'). Names with no distinctive word at all
+    ('Hotel Hakuba') must match exactly, so 'Kokoro Hotel Hakuba' doesn't."""
+    a, b = _tokens(a_name), _tokens(b_name)
+    a_core = tuple(t for t in a if t not in TYPE_WORDS)
+    b_core = tuple(t for t in b if t not in TYPE_WORDS)
+    if not a_core or not b_core:
+        return _tokens(a_name, keep_place=True) == _tokens(b_name, keep_place=True)
+    a_types, b_types = set(a) & TYPE_WORDS, set(b) & TYPE_WORDS
+    return a_core == b_core and (a_types <= b_types or b_types <= a_types)
+
+
+def stops_named(name: str, stops: list[BusStop]) -> set[str]:
+    """The pickup stop that *is* this place (e.g. the hotel the user searched for)."""
+    return {
+        s.id
+        for s in stops
+        if any(_same_property(c, name) for c in [*s.aliases, s.name.en, s.name.ja or ""] if c)
+    }
+
+
 def get_walks(
     origin: Annotated[str, Query(alias="from")],
     valhalla: Annotated[ValhallaClient, Depends(get_valhalla)],
+    name: str | None = None,
 ) -> dict[str, int]:
-    """Walking seconds to stops within 20 min, else to the 3 nearest (located stops only)."""
+    """Walking seconds to stops within 20 min, else to the 3 nearest (located stops only).
+
+    When the origin is a place whose name matches a pickup stop (the user's hotel), that
+    stop is walk 0 — exact even if the stop itself has no coordinates yet.
+    """
     located = [(s.id, s.coord) for s in load_stops() if s.coord]
     cells = valhalla.matrix("walk", parse_lat_lng(origin, "from"), located)
     reachable = sorted(
         (c for c in cells if c.duration_s is not None), key=lambda c: c.duration_s or 0
     )
     near = [c for c in reachable if (c.duration_s or 0) <= MAX_WALK_S]
-    return {c.id: c.duration_s or 0 for c in (near or reachable[:FALLBACK_STOPS])}
+    walks = {c.id: c.duration_s or 0 for c in (near or reachable[:FALLBACK_STOPS])}
+    if name:
+        for stop_id in stops_named(name, load_stops()):
+            walks[stop_id] = 0
+    return walks
 
 
 def get_bus_data() -> list[Timetable]:

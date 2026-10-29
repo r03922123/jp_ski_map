@@ -164,3 +164,46 @@ def test_bus_options_endpoint(api: TestClient) -> None:
     hakuba47 = next(r for r in body["resorts"] if r["resortId"] == "hakuba47")
     assert hakuba47["options"][0]["departsAt"] == "2026-03-20T08:11:00+09:00"
     assert hakuba47["options"][0]["boardStopName"] == "Hakuba Happo Bus Terminal"
+
+
+# --- "your hotel is the stop" ---------------------------------------------------
+
+
+def test_hotel_name_matches_its_pickup_stop_in_english_or_japanese() -> None:
+    from hakuba_api.bus.router import stops_named
+
+    stops = list(STOPS.values())
+
+    assert stops_named("Hakuba Tokyu Hotel", stops) == {"stop-hakuba-tokyu-hotel"}
+    assert stops_named("白馬東急ホテル", stops) == {"stop-hakuba-tokyu-hotel"}
+    assert stops_named("Double Black Hotel Hakuba", stops) == {"stop-double-black-hotel"}
+    assert stops_named("Some Other Pension", stops) == set()
+    assert stops_named("Hotel Cultured", stops) == {"stop-cultured"}
+    assert stops_named("Sierra Resort Hakuba", stops) == {"stop-sierra-resort-hotel-hakuba"}
+
+
+@pytest.mark.parametrize(
+    "lookalike",
+    ["Kokoro Hotel Hakuba", "Hotel Hakuba Berg-land", "マウントサイド ヨーデル", "ブルーマウント"],
+)
+def test_lookalike_hotels_do_not_claim_someone_elses_stop(lookalike: str) -> None:
+    from hakuba_api.bus.router import stops_named
+
+    assert stops_named(lookalike, list(STOPS.values())) == set()
+
+
+def test_matching_hotel_stop_is_walk_zero_even_without_coordinates() -> None:
+    from hakuba_api.bus.router import get_walks
+    from hakuba_api.common.geo import Coord
+    from hakuba_api.routing.models import MatrixCell, Mode
+
+    class FarValhalla:
+        def matrix(
+            self, mode: Mode, origin: Coord, targets: list[tuple[str, Coord]]
+        ) -> list[MatrixCell]:
+            return [MatrixCell(id=t, duration_s=3600, distance_m=5000) for t, _ in targets]
+
+    walks = get_walks("36.7,137.84", FarValhalla(), name="Double Black Hotel")  # type: ignore[arg-type]
+
+    assert STOPS["stop-double-black-hotel"].coord is None
+    assert walks["stop-double-black-hotel"] == 0

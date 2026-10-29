@@ -76,10 +76,17 @@ export function fetchRank(from: Coord, q: RankQuery) {
 /** `departAt` is local Hakuba time, "YYYY-MM-DDTHH:mm". */
 const jst = (departAt: string) => encodeURIComponent(`${departAt}:00+09:00`);
 
-export const fetchBusOptions = (from: Coord, departAt: string) =>
-  getJson<BusResult>(
-    `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}`,
+/** `placeName`: the searched hotel/place, so its own pickup stop counts as walk 0. */
+export function fetchBusOptions(
+  from: Coord,
+  departAt: string,
+  placeName: string | null = null,
+) {
+  const name = placeName ? `&name=${encodeURIComponent(placeName)}` : "";
+  return getJson<BusResult>(
+    `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}${name}`,
   );
+}
 
 export const fetchNightBus = (from: Coord, departAt: string) =>
   getJson<NightDeparture[]>(
