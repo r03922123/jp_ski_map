@@ -173,15 +173,20 @@ export function MapShell() {
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
   });
-  const rideLeg =
-    busStop !== null && busChoice && ride.data
-      ? {
-          route: ride.data,
-          stops: rideStops,
-          label:
-            busChoice.rideS != null ? formatDuration(busChoice.rideS) : null,
-        }
-      : null;
+  // Memoised: MapView re-fits the map when this changes, so it must not be a new
+  // object on every render (that re-fit after each pan looped under reduced motion).
+  const rideLeg = useMemo(
+    () =>
+      busStop !== null && busChoice && ride.data
+        ? {
+            route: ride.data,
+            stops: rideStops,
+            label:
+              busChoice.rideS != null ? formatDuration(busChoice.rideS) : null,
+          }
+        : null,
+    [busStop, busChoice, ride.data, rideStops],
+  );
 
   // Drive to the access point the ranking found nearest; otherwise the first one.
   const resort = resorts.data?.find((r) => r.id === selectedResortId);

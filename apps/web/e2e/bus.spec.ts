@@ -13,6 +13,13 @@ const HOTEL_HAKUBA = "/?from=36.69711,137.85393&mode=bus";
 test("bus tab lists next shuttles and draws the walk to the stop", async ({
   page,
 }) => {
+  // reduced motion makes fitBounds fire moveend synchronously, which exposed a re-fit loop
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const reactErrors: string[] = [];
+  page.on("console", (m) => {
+    if (m.type() === "error" && /Maximum update depth|Warning:/.test(m.text()))
+      reactErrors.push(m.text().slice(0, 120));
+  });
   await page.route("**/api/bus/options**", (route) =>
     route.fulfill({ contentType: "application/json", body: MARCH_20 }),
   );
@@ -46,6 +53,26 @@ test("bus tab lists next shuttles and draws the walk to the stop", async ({
   const journey = page.getByRole("list", { name: "Journey" });
   await expect(journey).toContainText("Board 08:11");
   await expect(journey).toContainText("Arrive 08:39");
+  // The route is fitted once. Later renders (e.g. the view-change after a pan) must not
+  // re-fit it: that snapped the map back, and with reduced motion it looped until React
+  // reported "Maximum update depth exceeded".
+  await page.waitForTimeout(1500);
+  const stop = page.getByRole("img", { name: "Bus stop" });
+  const before = await stop.boundingBox();
+  const canvas = page.locator("canvas.maplibregl-canvas");
+  const box = await canvas.boundingBox();
+  if (!before || !box) throw new Error("map not laid out");
+  const [x, y] = [box.x + box.width * 0.7, box.y + box.height * 0.5];
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 60, y - 40, { steps: 5 });
+  await page.mouse.move(x - 120, y - 80, { steps: 5 });
+  await page.mouse.up();
+  await page.waitForTimeout(1500);
+  const after = await stop.boundingBox();
+  if (!after) throw new Error("stop marker vanished");
+  expect(Math.abs(after.x - before.x)).toBeGreaterThan(80); // stayed where it was dragged
+  expect(reactErrors).toEqual([]);
   await expect(page.getByText(/may change without notice/i)).toBeVisible();
   await expect(page.locator(".maplibregl-ctrl-attrib")).toContainText(
     "Hakuba Valley",

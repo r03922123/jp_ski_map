@@ -95,12 +95,20 @@ export default function MapView({
   }, [flyTo]);
 
   // Fit the whole route set once per new search, clear of the directions panel.
+  // Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after this
+  // map reports a pan) must never re-fit, or the user can't pan at all.
+  const drawn = [...routes, ...(ride ? [ride.route] : [])];
+  const fitKey = drawn
+    .map(
+      (r) =>
+        `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,
+    )
+    .join("|");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
   useEffect(() => {
     const map = mapRef.current;
-    if (!mapReady || !map || routes.length === 0) return;
-    const all = [...routes, ...(ride ? [ride.route] : [])].flatMap(
-      (r) => r.geometry.coordinates as LngLat[],
-    );
+    if (!mapReady || !map || drawn.length === 0) return;
+    const all = drawn.flatMap((r) => r.geometry.coordinates as LngLat[]);
     if (all.length < 2) return;
     const canvas = map.getCanvas();
     map.fitBounds(routeBounds(all), {
@@ -111,7 +119,7 @@ export default function MapView({
       maxZoom: 16,
       duration: prefersReducedMotion() ? 0 : 700,
     });
-  }, [routes, ride, mapReady]);
+  }, [fitKey, mapReady]);
 
   const active = routes[activeRoute] ?? null;
   const activeCoords = (active?.geometry.coordinates ?? []) as LngLat[];
