@@ -34,7 +34,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 
 ### Phase 2: Slice 1 — Walk & Drive routes
 - [x] T5 Routing adapter + `/api/route`
-- [ ] T6 Web: map-click origin + 🚶/🚗 route to a selected resort
+- [x] T6 Web: map-click origin + 🚶/🚗 route to a selected resort
 - [ ] T7 Web: URL state + responsive panel/bottom sheet
 
 ### Checkpoint B: First usable flow

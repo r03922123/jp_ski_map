@@ -72,12 +72,12 @@ Gate shorthand:
 **Files:** `src/hakuba_api/routing/{client,models,polyline,router}.py`, `tests/routing/test_routing.py`, `tests/fixtures/valhalla/*.json`
 **Scope:** M
 
-## Task 6: Web — origin pin + 🚶/🚗 route to a resort
+## Task 6: Web — origin pin + 🚶/🚗 route to a resort ✅
 **Description:** Show resort markers from `/api/resorts`. Map click (long-press on touch) sets the origin pin. A side panel with Drive/Walk tabs (Bus tab disabled, "coming soon") and a resort picker. Selecting a resort fetches `/api/route`, draws the line, and shows "ETA ~ X min · Y km" plus the steps. Errors are shown inside the panel.
 **Acceptance criteria:**
-- [ ] Click map → choose Happo-One → the drive line and ETA render; switching to Walk redraws
-- [ ] A 404 `no_route` shows an inline message, and the map stays usable
-- [ ] Component tests cover the ETA formatting and the tab switching
+- [x] Click map → choose Happo-One → the drive line and ETA render; switching to Walk redraws
+- [x] A 404 `no_route` shows an inline message, and the map stays usable
+- [x] Component tests cover the ETA formatting and the tab switching
 **Verification:** Web gates; manual check against the running API + Valhalla
 **Dependencies:** T2, T5
 **Files:** `src/components/{OriginPin,ModePanel,RouteLayer,ResortPicker}.tsx`, `src/lib/{api,format}.ts`, `tests/ModePanel.test.tsx`

@@ -4,55 +4,282 @@
  */
 
 export interface paths {
-  "/api/health": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/resorts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Resorts */
+        get: operations["list_resorts_api_resorts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Health */
-    get: operations["health_api_health_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/api/route": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Route */
+        get: operations["get_route_api_route_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health */
+        get: operations["health_api_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: never;
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    schemas: {
+        /**
+         * AccessPoint
+         * @description Where you park / start skiing; the routing target for a resort.
+         */
+        AccessPoint: {
+            /** Id */
+            id: string;
+            name: components["schemas"]["LocalizedName"];
+            coord: components["schemas"]["Coord"];
+            /** Coordsource */
+            coordSource: string;
+        };
+        /** Coord */
+        Coord: {
+            /** Lat */
+            lat: number;
+            /** Lng */
+            lng: number;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /** LineString */
+        LineString: {
+            /**
+             * Type
+             * @default LineString
+             * @constant
+             */
+            type: "LineString";
+            /** Coordinates */
+            coordinates: number[][];
+        };
+        /** LocalizedName */
+        LocalizedName: {
+            /** En */
+            en: string;
+            /** Ja */
+            ja: string;
+        };
+        /** Resort */
+        Resort: {
+            /** Id */
+            id: string;
+            name: components["schemas"]["LocalizedName"];
+            /** Region */
+            region: string;
+            /** Website */
+            website: string;
+            /** Accesspoints */
+            accessPoints: components["schemas"]["AccessPoint"][];
+            stats: components["schemas"]["ResortStats"];
+            /** Hakubavalleypass */
+            hakubaValleyPass: boolean;
+            /** Statssource */
+            statsSource: string;
+        };
+        /**
+         * ResortStats
+         * @description Unknown values are None, never guessed.
+         */
+        ResortStats: {
+            /** Baseelevationm */
+            baseElevationM: number | null;
+            /** Topelevationm */
+            topElevationM: number | null;
+            /** Verticalm */
+            verticalM: number | null;
+            /** Gondolas */
+            gondolas: number | null;
+            /** Chairlifts */
+            chairLifts: number | null;
+            /** Runs */
+            runs: number | null;
+            /** Longestrunm */
+            longestRunM: number | null;
+            /** Totalrunsm */
+            totalRunsM: number | null;
+            /** Areaha */
+            areaHa: number | null;
+            terrainPct: components["schemas"]["TerrainPct"] | null;
+            /** Nightskiing */
+            nightSkiing: boolean | null;
+            /** Dayticketjpy */
+            dayTicketJpy: number | null;
+        };
+        /** Route */
+        Route: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "drive" | "walk";
+            /** Durations */
+            durationS: number;
+            /** Distancem */
+            distanceM: number;
+            geometry: components["schemas"]["LineString"];
+            /** Steps */
+            steps: components["schemas"]["Step"][];
+            /**
+             * Isestimate
+             * @default true
+             */
+            isEstimate: boolean;
+        };
+        /** Step */
+        Step: {
+            /** Instruction */
+            instruction: string;
+            /** Distancem */
+            distanceM: number;
+            /** Durations */
+            durationS: number;
+        };
+        /** TerrainPct */
+        TerrainPct: {
+            /** Beginner */
+            beginner: number;
+            /** Intermediate */
+            intermediate: number;
+            /** Advanced */
+            advanced: number;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
+    };
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  health_api_health_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
+    list_resorts_api_resorts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            [key: string]: string;
-          };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resort"][];
+                };
+            };
         };
-      };
     };
-  };
+    get_route_api_route_get: {
+        parameters: {
+            query: {
+                mode: "drive" | "walk";
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Route"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    health_api_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
 }
