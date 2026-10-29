@@ -20,15 +20,16 @@ Gate shorthand:
 **Files:** `services/api/pyproject.toml`, `src/hakuba_api/main.py`, `src/hakuba_api/common/models.py`, `tests/test_health.py`, `.gitignore`
 **Scope:** S
 
-## Task 2: Scaffold web app with base map
+## Task 2: Scaffold web app with base map ✅
 **Description:** Create `apps/web`: Next.js (App Router, TS strict), Tailwind, shadcn/ui init, Biome, Vitest and Playwright, TanStack Query provider. Add a full-screen MapLibre map (OpenFreeMap liberty style) centered on Hakuba (36.70, 137.86, z11) with attribution. Add the `gen:api` script (openapi-typescript) and a `/api` rewrite to `http://127.0.0.1:8010` (env `API_URL`).
 **Acceptance criteria:**
-- [ ] `pnpm dev` shows a full-screen map of Hakuba with OSM/OpenFreeMap attribution
-- [ ] `pnpm gen:api` produces `src/lib/api-types.ts` from the running API
+- [x] `pnpm dev` shows a full-screen map of Hakuba with OSM/OpenFreeMap attribution
+- [x] `pnpm gen:api` produces `src/lib/api-types.ts` from the running API
 **Verification:** Web gates pass; open http://localhost:3000 manually
 **Dependencies:** T1 (for gen:api)
 **Files:** `apps/web/package.json`, `next.config.ts`, `src/app/page.tsx`, `src/components/MapView.tsx`, `biome.json`
 **Scope:** M
+**Notes:** shadcn/ui init deferred to T6 (first real UI component). MapLibre 6 worker is served from `public/maplibre/` via `scripts/copy-maplibre-worker.mjs` because bundling breaks its default worker URL.
 
 ## Task 3: Valhalla in Docker + live smoke test
 **Description:** Write `infra/docker-compose.yml` with a valhalla service (Chubu extract, port 8002, tiles volume gitignored). Add a `@pytest.mark.live` smoke test that routes JR Hakuba Station → the Happo area.
