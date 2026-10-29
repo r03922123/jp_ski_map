@@ -1,0 +1,239 @@
+{
+ "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has an address (geocoded via GSI, lot number required) or an OSM point, plus the source it came from.",
+ "stops": {
+  "stop-airmail": {
+   "address": "長野県北安曇郡白馬村北城828-356",
+   "source": "https://4travel.jp/dm_hotel-10045989"
+  },
+  "stop-alpine-chalets": {
+   "address": "長野県北安曇郡白馬村北城2458-34",
+   "source": "https://travel.rakuten.co.jp/HOTEL/128464/gallery.html"
+  },
+  "stop-alpine-route-hotel-kanouya": {
+   "address": "長野県大町市平2861-4",
+   "source": "https://www.jalan.net/yad381568",
+   "note": "Alpine Route Hotel; Kanouya is a separate inn"
+  },
+  "stop-ana-kuroyon": {
+   "address": "長野県大町市平2020",
+   "source": "https://www.knt.co.jp/highclass/yado/planlist/S200234/"
+  },
+  "stop-central-snowsports-happo": {
+   "address": "長野県北安曇郡白馬村北城4256",
+   "source": "https://www.powderhounds.com/japan/honshu/hakuba/facilities-services.aspx",
+   "note": "shop sits at the base of Hakuba Happo Apartments (that building's address)"
+  },
+  "stop-cook": {
+   "address": "長野県北安曇郡白馬村神城22203-178",
+   "source": "https://www.pref.nagano.lg.jp/kankoshin/documents/33hakubamura3.pdf"
+  },
+  "stop-courtyard-by-marriott-hakuba": {
+   "address": "長野県北安曇郡白馬村北城2937",
+   "source": "https://www.jalan.net/yad334970/"
+  },
+  "stop-cultured": {
+   "address": "長野県北安曇郡白馬村北城828-11",
+   "source": "https://jcation.com/hotel/detail-7583/"
+  },
+  "stop-double-black-hotel": {
+   "address": "長野県北安曇郡白馬村北城4977-1",
+   "source": "https://hakuba.com/accommodation/hotels/double-black-hotel/"
+  },
+  "stop-echoland-spicy": {
+   "address": "長野県北安曇郡白馬村北城3020-118",
+   "source": "https://itp.ne.jp/zenkoku/nagano/hakubamura/oazahokujiyo/204336828000000899",
+   "note": "Spicy rental shop listing; press release places the Echoland shop at the Echoland entrance"
+  },
+  "stop-gakuto-villas": {
+   "address": "長野県北安曇郡白馬村北城4720-1",
+   "source": "https://japanskiexperience.com/stay/hakuba-accommodation/gakuto-villas"
+  },
+  "stop-hakuba-goryu-bus-stop": {
+   "osm": {
+    "lat": 36.65675,
+    "lng": 137.84817,
+    "ref": "osm:node/2518207022 (白馬五竜 bus stop)"
+   },
+   "source": "OpenStreetMap"
+  },
+  "stop-hakuba-inn-bloom-parking": {
+   "address": "長野県北安曇郡白馬村北城2557-1",
+   "source": "https://hakuba.com/accommodation/hotels/hakuba-inn-bloom/"
+  },
+  "stop-hakuba-sunvalley-hotel": {
+   "address": "長野県北安曇郡白馬村神城26030",
+   "source": "https://yado.knt.co.jp/st/S200451/"
+  },
+  "stop-happo-sakka": {
+   "osm": {
+    "lat": 36.71091,
+    "lng": 137.83063,
+    "ref": "osm:way/312064757 (スノープラザ咲花)"
+   },
+   "source": "OpenStreetMap"
+  },
+  "stop-hotel-ogiya": {
+   "address": "長野県北安曇郡白馬村北城6680",
+   "source": "https://yado.knt.co.jp/st/S200408/"
+  },
+  "stop-hotel-st-malte": {
+   "address": "長野県北安曇郡白馬村神城22201-33",
+   "source": "https://jcation.com/hotel/detail-2699/"
+  },
+  "stop-jr-shinano-omachi-station": {
+   "osm": {
+    "lat": 36.49984,
+    "lng": 137.86116,
+    "ref": "osm:node/10142977437 (信濃大町駅 bus stop)"
+   },
+   "source": "OpenStreetMap"
+  },
+  "stop-kai-alps-hotel": {
+   "address": "長野県大町市平2884-26",
+   "source": "https://www.rurubu.travel/hotel/japan/omachi/hoshino-resorts-kai-alps"
+  },
+  "stop-keyakino-ki": {
+   "address": "長野県北安曇郡白馬村北城4721",
+   "source": "https://skyticket.jp/hotel/detail/property_16996/",
+   "note": "4travel lists 9341-8 instead"
+  },
+  "stop-kirikubo-ent": {
+   "osm": {
+    "lat": 36.71953,
+    "lng": 137.8618,
+    "ref": "osm:node/7503197369 (切久保 bus stop)"
+   },
+   "source": "OpenStreetMap",
+   "approx": true
+  },
+  "stop-koharu-resort-hotel-suites": {
+   "address": "長野県北安曇郡白馬村北城4769",
+   "source": "https://japanskiexperience.com/stay/hakuba-accommodation/koharu-resort-hotel-suites"
+  },
+  "stop-kurobe-kanko-hotel": {
+   "address": "長野県大町市平2822",
+   "source": "https://www.jalan.net/yad364860"
+  },
+  "stop-kurobe-view-hotel": {
+   "address": "長野県大町市平2891-2",
+   "source": "https://yado.knt.co.jp/st/S200229/"
+  },
+  "stop-la-naige": {
+   "address": "長野県北安曇郡白馬村北城4774",
+   "source": "https://icotto.jp/hotels/8021",
+   "note": "Relux lists 4744"
+  },
+  "stop-la-vigne-hakuba-north-parking": {
+   "address": "長野県北安曇郡白馬村北城3020-1116",
+   "source": "https://4travel.jp/dm_hotel-11994520",
+   "note": "hotel address; the north parking lot is on the same plot"
+  },
+  "stop-lion-cafe": {
+   "address": "長野県北安曇郡白馬村北城5746-3",
+   "source": "https://hamoni.jp/en/area/nagano/kitaazumi/hakuba/shops/cafe",
+   "note": "single source; guides say opposite Happo Bus Terminal"
+  },
+  "stop-meteor": {
+   "address": "長野県北安曇郡白馬村北城2937-730",
+   "source": "https://travelist.jp/hotel/detail/6562551"
+  },
+  "stop-minamiya": {
+   "address": "長野県北安曇郡白馬村北城3020-26",
+   "source": "https://www.jalan.net/yad331463/"
+  },
+  "stop-misorano-ryusei-kaen": {
+   "address": "長野県北安曇郡白馬村北城828-334",
+   "source": "https://www.jalan.net/yad305392/"
+  },
+  "stop-misorano-seven-eleven": {
+   "osm": {
+    "lat": 36.68327,
+    "lng": 137.85197,
+    "ref": "osm:node/2518221449 (セブン-イレブン)"
+   },
+   "source": "OpenStreetMap"
+  },
+  "stop-nakiyama-snowland": {
+   "osm": {
+    "lat": 36.69824,
+    "lng": 137.83881,
+    "ref": "resort access point happo-one-nakiyama"
+   },
+   "source": "https://sp.jorudan.co.jp/ski/news/jrd_201215_2/",
+   "note": "Snowland is at the foot of the Nakiyama area",
+   "approx": true
+  },
+  "stop-nonnel": {
+   "address": "長野県北安曇郡白馬村神城22201-27",
+   "source": "https://4travel.jp/dm_hotel-10045702"
+  },
+  "stop-omachi-onsen-yakushinoyu": {
+   "address": "長野県大町市平2811-41",
+   "source": "https://sp.jorudan.co.jp/onsen/details/956/"
+  },
+  "stop-pals-inn-raicho": {
+   "address": "長野県北安曇郡白馬村神城22342-24",
+   "source": "https://4travel.jp/dm_hotel-10036521"
+  },
+  "stop-panorama-hotel": {
+   "address": "長野県北安曇郡白馬村北城3322-1",
+   "source": "https://tour.l-tike.com/hotels/domestic/hotel/245746/",
+   "note": "single source"
+  },
+  "stop-pension-minamijujisei": {
+   "address": "長野県北安曇郡白馬村北城827-28",
+   "source": "https://4travel.jp/dm_hotel-10046019"
+  },
+  "stop-rantanrirun": {
+   "address": "長野県北安曇郡白馬村神城22345-1",
+   "source": "https://skyticket.jp/hotel/detail/property_12061/"
+  },
+  "stop-rosenheim-hakuba": {
+   "address": "長野県北安曇郡白馬村北城3750",
+   "source": "https://www.jalan.net/yad326241/"
+  },
+  "stop-ryokusuitei-keisui": {
+   "address": "長野県大町市平2884-13",
+   "source": "https://yado.knt.co.jp/st/S200228/"
+  },
+  "stop-shinden-kouminkan": {
+   "osm": {
+    "lat": 36.71384,
+    "lng": 137.86742,
+    "ref": "osm:node/7503042771 (新田 bus stop)"
+   },
+   "source": "OpenStreetMap",
+   "approx": true
+  },
+  "stop-shoya-maruhachi": {
+   "address": "長野県北安曇郡白馬村北城10816",
+   "source": "https://jcation.com/hotel/detail-11426/",
+   "note": "dining listing gives 11032"
+  },
+  "stop-snowlines-lodge": {
+   "address": "長野県北安曇郡白馬村北城3020-1064",
+   "source": "https://4travel.jp/dm_hotel-11288230"
+  },
+  "stop-tateyama-prince": {
+   "address": "長野県大町市平2884-10",
+   "source": "https://yado.knt.co.jp/st/S200227/"
+  },
+  "stop-traumerai": {
+   "address": "長野県北安曇郡白馬村北城860-13",
+   "source": "https://www.jalan.net/yad309991/"
+  },
+  "stop-tsugaike-kanenonaruoka": {
+   "osm": {
+    "lat": 36.74495,
+    "lng": 137.87182,
+    "ref": "osm:node/2168156496 (鐘の丘第一駐車場)"
+   },
+   "source": "OpenStreetMap",
+   "approx": true
+  },
+  "stop-yamano-hotel": {
+   "address": "長野県北安曇郡白馬村北城3477",
+   "source": "https://www.jalan.net/yad334254/"
+  }
+ }
+}

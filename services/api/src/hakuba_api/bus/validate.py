@@ -8,7 +8,7 @@ from hakuba_api.common.geo import Coord
 from hakuba_api.data.paths import data_dir
 
 # Hakuba Valley plus the Omachi end of lines O and G6
-BUS_BBOX = {"south": 36.45, "west": 137.75, "north": 36.90, "east": 137.95}
+BUS_BBOX = {"south": 36.45, "west": 137.70, "north": 36.90, "east": 137.95}
 
 
 def _in_bus_area(c: Coord) -> bool:

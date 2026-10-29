@@ -23,7 +23,7 @@
   "aliases": [
    "Airmail"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI point has no trusted stop within 1.0 km on its routes"
  },
  {
   "id": "stop-alpine-chalets",
@@ -39,7 +39,7 @@
    "Alpine Chalets",
    "Alpine Chalets Hakuba"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城2458-34"
  },
  {
   "id": "stop-alpine-route-hotel-kanouya",
@@ -52,7 +52,7 @@
   "aliases": [
    "Alpine Route Hotel / Kanouya"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県大町市平2861-4"
  },
  {
   "id": "stop-ana-kuroyon",
@@ -66,7 +66,7 @@
    "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
    "ANA Holiday Inn Resort Shinano-Omachi Kuroyon"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県大町市平2020"
  },
  {
   "id": "stop-bosco",
@@ -92,7 +92,7 @@
   "aliases": [
    "Central Snowsports Happo"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城4256"
  },
  {
   "id": "stop-cook",
@@ -106,7 +106,7 @@
    "Cook",
    "Pension Cook"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-cortina",
@@ -135,7 +135,7 @@
   "aliases": [
    "Courtyard By Marriott Hakuba"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-cultured",
@@ -143,12 +143,15 @@
    "en": "Cultured",
    "ja": "カルチャード"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.684853,
+   "lng": 137.849426
+  },
   "servesResortId": null,
   "aliases": [
    "Cultured"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "gsi:長野県北安曇郡白馬村北城828-11 (lot-level, approximate) — https://jcation.com/hotel/detail-7583/"
  },
  {
   "id": "stop-double-black-hotel",
@@ -161,7 +164,7 @@
   "aliases": [
    "Double Black Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城4977-1"
  },
  {
   "id": "stop-echoland-main-st",
@@ -189,7 +192,7 @@
    "Echoland (Spicy)",
    "Echoland(Spicy)"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-gakuto-villas",
@@ -202,7 +205,7 @@
   "aliases": [
    "Gakuto Villas"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城4720-1"
  },
  {
   "id": "stop-goryu-escal-plaza",
@@ -295,12 +298,15 @@
    "en": "Hakuba Goryu Bus Stop",
    "ja": "白馬五竜バス停"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.65675,
+   "lng": 137.84817
+  },
   "servesResortId": null,
   "aliases": [
    "Hakuba Goryu Bus Stop"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "osm:node/2518207022 (白馬五竜 bus stop) — OpenStreetMap"
  },
  {
   "id": "stop-hakuba-highland-hotel",
@@ -329,7 +335,7 @@
   "aliases": [
    "Hakuba Inn Bloom Parking"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城2557-1"
  },
  {
   "id": "stop-hakuba-sunvalley-hotel",
@@ -342,7 +348,7 @@
   "aliases": [
    "Hakuba Sunvalley Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村神城26030"
  },
  {
   "id": "stop-hakuba-tokyu-hotel",
@@ -457,12 +463,15 @@
    "en": "Happo Sakka Slope",
    "ja": "八方咲花ゲレンデ"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.71091,
+   "lng": 137.83063
+  },
   "servesResortId": "happo-one",
   "aliases": [
    "Happo Sakka Slope"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "osm:way/312064757 (スノープラザ咲花) — OpenStreetMap"
  },
  {
   "id": "stop-hotel-hakuba",
@@ -507,7 +516,7 @@
   "aliases": [
    "Hotel Ogiya"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城6680"
  },
  {
   "id": "stop-hotel-st-malte",
@@ -520,7 +529,7 @@
   "aliases": [
    "Hotel St. Malte"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-iwatake",
@@ -591,12 +600,15 @@
    "en": "JR Shinano-Omachi Station",
    "ja": "JR信濃大町駅"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.49984,
+   "lng": 137.86116
+  },
   "servesResortId": null,
   "aliases": [
    "JR Shinano-Omachi Station"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "osm:node/10142977437 (信濃大町駅 bus stop) — OpenStreetMap"
  },
  {
   "id": "stop-juro-onsen",
@@ -625,7 +637,7 @@
   "aliases": [
    "Kai Alps Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県大町市平2884-26"
  },
  {
   "id": "stop-kamishiro-hakubanomori-ent",
@@ -695,7 +707,7 @@
    "Hotel Keyakino-ki",
    "Keyakino-ki"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI point has no trusted stop within 1.0 km on its routes"
  },
  {
   "id": "stop-kirikubo-ent",
@@ -703,12 +715,15 @@
    "en": "Kirikubo Ent.",
    "ja": "切久保入口"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.71953,
+   "lng": 137.8618
+  },
   "servesResortId": null,
   "aliases": [
    "Kirikubo Ent."
   ],
-  "coordSource": "unresolved"
+  "coordSource": "osm:node/7503197369 (切久保 bus stop) (approximate) — OpenStreetMap"
  },
  {
   "id": "stop-kitaharakan",
@@ -737,7 +752,7 @@
   "aliases": [
    "Koharu Resort Hotel & Suites"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城4769"
  },
  {
   "id": "stop-kurobe-kanko-hotel",
@@ -750,7 +765,7 @@
   "aliases": [
    "Kurobe Kanko Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-kurobe-view-hotel",
@@ -763,7 +778,7 @@
   "aliases": [
    "Kurobe View Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県大町市平2891-2"
  },
  {
   "id": "stop-la-naige",
@@ -776,7 +791,7 @@
   "aliases": [
    "La Naige"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城4774"
  },
  {
   "id": "stop-la-vigne-hakuba-north-parking",
@@ -789,7 +804,7 @@
   "aliases": [
    "La Vigne Hakuba North Parking"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-lion-cafe",
@@ -802,7 +817,7 @@
   "aliases": [
    "Lion Café"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城5746-3"
  },
  {
   "id": "stop-meteor",
@@ -815,7 +830,7 @@
   "aliases": [
    "Meteor"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-minamiya",
@@ -828,7 +843,7 @@
   "aliases": [
    "Minamiya"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-misorano-rotary",
@@ -855,7 +870,7 @@
    "Misorano Ent. (Ryusei Kaen)",
    "Ryusei Kaen"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI point has no trusted stop within 1.0 km on its routes"
  },
  {
   "id": "stop-misorano-seven-eleven",
@@ -863,13 +878,16 @@
    "en": "Misorano Ent. (Seven Eleven)",
    "ja": "みそら野入口（セブンイレブン）"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.68327,
+   "lng": 137.85197
+  },
   "servesResortId": null,
   "aliases": [
    "Misorano Ent.(Seven Eleven)",
    "Seven Eleven"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "osm:node/2518221449 (セブン-イレブン) — OpenStreetMap"
  },
  {
   "id": "stop-mominoki",
@@ -927,12 +945,15 @@
    "en": "Nakiyama Snowland",
    "ja": "なきやまスノーランド"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.69824,
+   "lng": 137.83881
+  },
   "servesResortId": null,
   "aliases": [
    "Nakiyama Snowland"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "resort access point happo-one-nakiyama (approximate) — https://sp.jorudan.co.jp/ski/news/jrd_201215_2/"
  },
  {
   "id": "stop-nonnel",
@@ -945,7 +966,7 @@
   "aliases": [
    "Nonnel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-norikura",
@@ -990,7 +1011,7 @@
   "aliases": [
    "Omachi Onsen Yakushinoyu"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-omachi-onsenkyo",
@@ -1036,7 +1057,7 @@
   "aliases": [
    "Pals Inn Raicho"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村神城22342-24"
  },
  {
   "id": "stop-panorama-hotel",
@@ -1044,12 +1065,15 @@
    "en": "Panorama Hotel",
    "ja": "パノラマホテル"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.699223,
+   "lng": 137.845001
+  },
   "servesResortId": null,
   "aliases": [
    "Panorama Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "gsi:長野県北安曇郡白馬村北城3322-1 (lot-level, approximate) — https://tour.l-tike.com/hotels/domestic/hotel/245746/"
  },
  {
   "id": "stop-pension-minamijujisei",
@@ -1062,7 +1086,7 @@
   "aliases": [
    "Pension Minamijujisei"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI point has no trusted stop within 1.0 km on its routes"
  },
  {
   "id": "stop-rantanrirun",
@@ -1075,7 +1099,7 @@
   "aliases": [
    "Rantanrirun"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村神城22345-1"
  },
  {
   "id": "stop-rosenheim-hakuba",
@@ -1088,7 +1112,7 @@
   "aliases": [
    "Rosenheim Hakuba"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城3750"
  },
  {
   "id": "stop-ryokusuitei-keisui",
@@ -1101,7 +1125,7 @@
   "aliases": [
    "Ryokusuitei Keisui"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県大町市平2884-13"
  },
  {
   "id": "stop-sanosaka",
@@ -1142,12 +1166,15 @@
    "en": "Shinden Kouminkan",
    "ja": "新田公民館"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.71384,
+   "lng": 137.86742
+  },
   "servesResortId": null,
   "aliases": [
    "Shinden Kouminkan"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "osm:node/7503042771 (新田 bus stop) (approximate) — OpenStreetMap"
  },
  {
   "id": "stop-shirouma-pal-house",
@@ -1173,7 +1200,7 @@
   "aliases": [
    "Shoya Maruhachi"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城10816"
  },
  {
   "id": "stop-sierra-resort-hotel-hakuba",
@@ -1231,7 +1258,7 @@
   "aliases": [
    "Snowlines Lodge"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-spicy-rental-wadano",
@@ -1271,7 +1298,7 @@
    "Omachionsenkyo (Tateyama Prince Hotel)",
    "Tateyama Prince Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県大町市平2884-10"
  },
  {
   "id": "stop-the-gakusui",
@@ -1313,7 +1340,7 @@
   "aliases": [
    "Traumerai"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI has no lot-level match for 長野県北安曇郡白馬村北城860-13"
  },
  {
   "id": "stop-tsugaike-gondola",
@@ -1337,12 +1364,15 @@
    "en": "Tsugaike Mountain Resort (Kanenonaruoka)",
    "ja": "つがいけマウンテンリゾート（鐘の鳴る丘）"
   },
-  "coord": null,
+  "coord": {
+   "lat": 36.74495,
+   "lng": 137.87182
+  },
   "servesResortId": "tsugaike",
   "aliases": [
    "Tsugaike Mountain Resort (Kanenonaruoka)"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "osm:node/2168156496 (鐘の丘第一駐車場) (approximate) — OpenStreetMap"
  },
  {
   "id": "stop-wadano-gateway",
@@ -1371,7 +1401,7 @@
   "aliases": [
    "Yamano Hotel"
   ],
-  "coordSource": "unresolved"
+  "coordSource": "unresolved: GSI returned the same point for different lots (ambiguous)"
  },
  {
   "id": "stop-yupuru-kizakiko",

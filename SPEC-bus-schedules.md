@@ -27,6 +27,17 @@ Answer the question "From my hotel, which shuttle bus do I take, when does it le
 - Sub-routes (E1–E4, G1–G10, …) are separate `routeId`s under one `lineId`; the overlap check is per `routeId`.
 - 118 printed stop names map to 98 physical stops (`data/bus_stops.json`). 32 have checked coordinates (resort access points, OSM bus stops, the lodging snapshot, or Photon matched by Japanese name); 66 are `coord: null` / `coordSource: "unresolved"` rather than guessed.
 
+## Stop location preprocessing (decided 2026-10-29)
+`python -m hakuba_api.bus.locate_stops [--write]`. Evidence is researched by hand (web search by Japanese stop name) and committed in `data/bus/stop_evidence.json`: a street address plus source URL, or an OSM point. The script:
+1. geocodes addresses with GSI (国土地理院) and accepts only lot-number (番地) matches;
+2. rejects GSI points returned for several different lots (GSI uses one representative point for many rural lots);
+3. requires each GSI point to be within 1 km of a trusted stop (resort access point, OSM bus stop, lodging snapshot) on one of its routes;
+4. checks every timed leg: Valhalla's drive time must be ≤ scheduled gap × 1.5 + 3 min. Untimed pickup neighbours must be ≤ 8 km apart, except on the final leg to the resort.
+Stops that fail stay `coord: null` with the reason in `coordSource`. Result 2026-10-29: 42/98 stops located.
+
+## Untimed routes (decided 2026-10-29)
+Lines F/G (and N's return) publish only first-stop departures. The bus query lists them as **"Departs <first stop> HH:MM → <resort> (stop times not published)"** when the user's walkable stop is on the route, ranked after fully timed options.
+
 ## Timetable schema
 ```jsonc
 { "lineId": "line-v", "routeId": "v2", "season": "2025-26", "kind": "day",
