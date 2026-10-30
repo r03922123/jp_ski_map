@@ -44,6 +44,7 @@ export function StopList({
             key={`${s.stopId}-${i}`}
             ref={state === "next" ? nextRef : undefined}
             data-state={state}
+            data-role={i === 0 ? "board" : i === last ? "alight" : undefined}
             aria-current={state === "next" ? "step" : undefined}
             className={cn(
               "flex items-baseline justify-between gap-2 rounded px-1 py-0.5",

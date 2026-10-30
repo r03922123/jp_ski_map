@@ -3,6 +3,7 @@
 import { StopList } from "@/components/StopList";
 import type { BusOption, BusResult, NightResult, Resort } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
+import { alightIndexOf } from "@/lib/nav/bus-journey";
 import { cn } from "@/lib/utils";
 
 export const SHUTTLE_PAGE =
@@ -46,13 +47,12 @@ const monthDay = (ymd: string) =>
 const walk = (s: number) => (s < 60 ? "<1 min" : formatDuration(s));
 
 /** The stops this option rides through, boarding to getting off. */
-export function rideStopRows(option: BusOption) {
-  const alight = option.rideStops.findIndex(
-    (s) => s.stopId === option.alightStopId,
-  );
-  const stops =
-    alight >= 0 ? option.rideStops.slice(0, alight + 1) : option.rideStops;
-  return stops.map(({ stopId, name, time }) => ({ stopId, name, time }));
+export function rideStopRows(
+  option: Pick<BusOption, "rideStops" | "alightStopId">,
+) {
+  return option.rideStops
+    .slice(0, alightIndexOf(option) + 1)
+    .map(({ stopId, name, time }) => ({ stopId, name, time }));
 }
 
 /** Google-transit-style timeline for the chosen option: walk → board → ride → arrive. */

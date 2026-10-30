@@ -38,8 +38,11 @@ test("zoomed in, hotel labels load their font: no 404s, clean console", async ({
   page.on("console", (msg) => {
     if (msg.type() === "error") errors.push(msg.text());
   });
+  const fontsLoaded: string[] = [];
   page.on("response", (res) => {
-    if (res.url().includes("/fonts/") && res.status() >= 400)
+    if (!res.url().includes("/fonts/")) return;
+    fontsLoaded.push(decodeURIComponent(res.url()));
+    if (res.status() >= 400)
       badFonts.push(`${res.status()} ${decodeURIComponent(res.url())}`);
   });
 
@@ -60,6 +63,12 @@ test("zoomed in, hotel labels load their font: no 404s, clean console", async ({
   }
   await page.waitForTimeout(2500);
 
+  // the labels really drew: lodging pins are on screen and Noto Sans was fetched
+  await expect(page.locator("main")).not.toHaveAttribute(
+    "data-lodging-pins",
+    "0",
+  );
+  expect(fontsLoaded.some((u) => u.includes("Noto Sans Regular"))).toBe(true);
   expect(badFonts).toEqual([]);
   expect(errors).toEqual([]);
 });

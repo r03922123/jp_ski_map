@@ -1,6 +1,10 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { BusPanel, type BusPanelProps } from "@/components/BusPanel";
+import {
+  BusPanel,
+  type BusPanelProps,
+  rideStopRows,
+} from "@/components/BusPanel";
 import type { BusResult, Resort } from "@/lib/api";
 import fixture from "../e2e/fixtures/bus-options-2026-03-20.json";
 
@@ -298,5 +302,85 @@ describe("BusPanel season copy", () => {
     renderPanel({ result: { status: "success", data } });
 
     expect(document.body.textContent).not.toMatch(/\b20\d\d\b/);
+  });
+});
+
+describe("Journey stop list (long rides, loops)", () => {
+  function renderOption(resortId: string) {
+    const option = (fixture as BusResult).resorts.find(
+      (r) => r.resortId === resortId,
+    )?.options[0];
+    if (!option) throw new Error(`fixture has no ${resortId} option`);
+    render(
+      <BusPanel
+        resorts={[]}
+        result={{ status: "success", data: fixture as BusResult }}
+        night={{ status: "idle" }}
+        showNight={false}
+        onShowNightChange={vi.fn()}
+        departAt="2026-03-20T08:00"
+        onDepartAtChange={vi.fn()}
+        selected={option}
+        onSelect={vi.fn()}
+      />,
+    );
+    return within(screen.getByRole("list", { name: "Journey" })).getByRole(
+      "list",
+      { name: "Bus stops" },
+    );
+  }
+
+  it("lists all 8 stops of a long ride, in order, none marked passed", () => {
+    const rows = within(renderOption("cortina")).getAllByRole("listitem");
+    expect(rows).toHaveLength(8);
+    expect(
+      rows.map((r) => r.querySelector("[data-stop-name]")?.textContent),
+    ).toEqual([
+      "Hakuba Happo Bus Terminal",
+      "JR Hakuba Station",
+      "Hakuba Iwatake Snow Field",
+      "Ochikura Jizo-mae",
+      "Tsugaike Mountain Resort (Gondola)",
+      "Hakuba Norikura Onsen Snow Resort",
+      "Satomi",
+      "Hakuba Cortina Snow Resort",
+    ]);
+    expect(rows[1]).toHaveTextContent("time not published");
+    expect(rows.map((r) => r.dataset.state)).toEqual(Array(8).fill("upcoming"));
+    expect(rows.some((r) => r.hasAttribute("aria-current"))).toBe(false);
+    expect(rows.map((r) => r.dataset.role ?? "")).toEqual([
+      "board",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "alight",
+    ]);
+  });
+
+  it("keeps every stop of a loop line that ends where it started", () => {
+    const iwatake = {
+      stopId: "stop-iwatake",
+      name: "Iwatake",
+      coord: null,
+      time: "08:00",
+    };
+    const option = {
+      alightStopId: "stop-iwatake",
+      rideStops: [
+        iwatake,
+        { stopId: "a", name: "A", coord: null, time: "08:05" },
+        { stopId: "b", name: "B", coord: null, time: "08:15" },
+        { ...iwatake, time: "08:25" },
+      ],
+    } as unknown as Parameters<typeof rideStopRows>[0];
+    expect(rideStopRows(option).map((r) => `${r.name} ${r.time}`)).toEqual([
+      "Iwatake 08:00",
+      "A 08:05",
+      "B 08:15",
+      "Iwatake 08:25",
+    ]);
   });
 });

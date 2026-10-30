@@ -489,6 +489,8 @@ export function MapShell() {
         : null,
     [busPlan],
   );
+  // the one bus line the map draws (the journey's, or the chosen option's preview)
+  const mapRide = busRide ?? (pilotRoute ? null : rideLeg);
   const projection = pilot.nav.projection;
   const onRoute = pilot.phase === "following" || pilot.phase === "arrived";
   const rideFix = busPhase === "ride" ? pilot.fix : null;
@@ -510,12 +512,13 @@ export function MapShell() {
           following,
           onUserMove: () => setFollowing(false),
         }
-      : pastWalk
+      : pastWalk && busPlan
         ? {
-            camera: null, // waiting at the stop: the view is the user's
+            camera: null, // waiting at the stop, or arrived: the view is the user's
             puck: pilot.fix ? ([pilot.fix.lng, pilot.fix.lat] as LngLat) : null,
             heading: null,
-            covered: [],
+            // arrived: the whole ride reads as done
+            covered: busPhase === "arrived" ? busPlan.line.coords : [],
             following,
             onUserMove: () => setFollowing(false),
           }
@@ -601,9 +604,7 @@ export function MapShell() {
       data-route-layers={routeLayers}
       data-lodging-pins={lodgingPins.length}
       data-piloting={piloting}
-      data-map-ride-stops={
-        (busRide ?? (pilotRoute ? null : rideLeg))?.stops.length ?? 0
-      }
+      data-map-ride-stops={mapRide?.stops.length ?? 0}
     >
       <MapView
         resorts={resorts.data ?? []}
@@ -611,8 +612,8 @@ export function MapShell() {
         origin={origin}
         destination={mode === "bus" ? null : (target ?? null)}
         routes={
-          busPlan && busPhase === "ride"
-            ? [] // riding: the bus line below is the route
+          pastWalk
+            ? [] // at the stop or on the bus: the bus line is the route now
             : pilotRoute
               ? [pilotRoute]
               : routes
@@ -620,7 +621,7 @@ export function MapShell() {
         activeRoute={pilotRoute ? 0 : activeRoute}
         onSelectRoute={setActiveRoute}
         highlight={pilotRoute ? null : highlight}
-        ride={busRide ?? (pilotRoute ? null : rideLeg)}
+        ride={mapRide}
         pilot={mapPilot}
         lodging={lodgingPins}
         busStop={busStop}

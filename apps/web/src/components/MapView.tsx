@@ -85,6 +85,35 @@ const RIDE_COLOR = "#0f766e"; // the line badge colour in the bus panel
 const RIDE_CASING = "#134e4a";
 const ALT_CASING = "#6b7a90";
 
+const EMPTY = { type: "FeatureCollection" as const, features: [] };
+
+/**
+ * Bottom-to-top order of our route layers. react-map-gl adds layers asynchronously (when
+ * their source is ready), so the order they land in can differ from the JSX order; this
+ * is re-applied on every style change, moving layers only when one is out of place.
+ */
+export const ROUTE_LAYER_ORDER = [
+  "route-alts-casing",
+  "route-alts-line",
+  "route-alts-hit",
+  "ride-casing",
+  "ride-line",
+  "route-active-casing",
+  "route-active-line",
+  "route-covered-line",
+  "route-highlight-line",
+  "ride-stop-dots",
+];
+
+export function keepRouteLayerOrder(map: MapLibreMap): void {
+  const present = ROUTE_LAYER_ORDER.filter((id) => map.getLayer(id));
+  const drawn = (map.getStyle()?.layers ?? [])
+    .map((l) => l.id)
+    .filter((id) => present.includes(id));
+  if (drawn.join() === present.join()) return;
+  for (const id of present) map.moveLayer(id); // each to the top, bottom one first
+}
+
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -274,11 +303,16 @@ export default function MapView({
       }}
       interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER]}
       onLoad={(e) => {
+        // e2e checks what is actually drawn (layer order, rendered stop dots)
+        if (process.env.NODE_ENV !== "production") {
+          Object.assign(window, { __hakubaMap: e.target });
+        }
         reportView(e.target);
         setMapReady(true);
         onLoad?.();
       }}
       onMoveEnd={(e: ViewStateChangeEvent) => reportView(e.target)}
+      onStyleData={(e) => keepRouteLayerOrder(e.target)}
       onDragStart={() => pilot?.onUserMove()}
       onClick={(e) => {
         const feature = e.features?.[0];
@@ -354,57 +388,74 @@ export default function MapView({
         />
       </Source>
 
-      {active && (
-        <Source id="route-active" type="geojson" data={active.geometry}>
-          <Layer
-            id="route-active-casing"
-            type="line"
-            layout={{ "line-cap": "round", "line-join": "round" }}
-            paint={{
-              "line-color": isWalk ? "#ffffff" : ROUTE_CASING,
-              "line-width": isWalk ? 0 : 9,
-            }}
-          />
-          <Layer
-            id="route-active-line"
-            type="line"
-            layout={{ "line-cap": "round", "line-join": "round" }}
-            paint={{
-              "line-color": ROUTE_COLOR,
-              "line-width": isWalk ? 7 : 6,
-              // zero-length dashes with round caps draw as dots
-              "line-dasharray": isWalk ? [0, 1.6] : [1, 0],
-            }}
-          />
-        </Source>
-      )}
-
-      {ride && (
-        <Source id="ride" type="geojson" data={ride.route.geometry}>
-          <Layer
-            id="ride-casing"
-            type="line"
-            layout={{ "line-cap": "round", "line-join": "round" }}
-            paint={{ "line-color": RIDE_CASING, "line-width": 9 }}
-          />
-          <Layer
-            id="ride-line"
-            type="line"
-            layout={{ "line-cap": "round", "line-join": "round" }}
-            paint={{ "line-color": RIDE_COLOR, "line-width": 6 }}
-          />
-        </Source>
-      )}
-      <Source id="ride-stops" type="geojson" data={rideStopsGeoJson}>
+      {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
+          fixed order (it stacks by when a layer was added): bus line under the walk or
+          drive route, then the part already covered, the step highlight, and the bus
+          stop dots on top. */}
+      <Source
+        id="ride"
+        type="geojson"
+        data={ride ? ride.route.geometry : EMPTY}
+      >
         <Layer
-          id="ride-stop-dots"
-          type="circle"
+          id="ride-casing"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{ "line-color": RIDE_CASING, "line-width": 9 }}
+        />
+        <Layer
+          id="ride-line"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{ "line-color": RIDE_COLOR, "line-width": 6 }}
+        />
+      </Source>
+
+      <Source
+        id="route-active"
+        type="geojson"
+        data={active ? active.geometry : EMPTY}
+      >
+        <Layer
+          id="route-active-casing"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
           paint={{
-            "circle-radius": 4,
-            "circle-color": "#ffffff",
-            "circle-stroke-color": RIDE_CASING,
-            "circle-stroke-width": 2,
+            "line-color": isWalk ? "#ffffff" : ROUTE_CASING,
+            "line-width": isWalk ? 0 : 9,
           }}
+        />
+        <Layer
+          id="route-active-line"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{
+            "line-color": ROUTE_COLOR,
+            "line-width": isWalk ? 7 : 6,
+            // zero-length dashes with round caps draw as dots
+            "line-dasharray": isWalk ? [0, 1.6] : [1, 0],
+          }}
+        />
+      </Source>
+
+      <Source
+        id="route-covered"
+        type="geojson"
+        data={
+          pilot && pilot.covered.length > 1
+            ? {
+                type: "Feature",
+                properties: {},
+                geometry: { type: "LineString", coordinates: pilot.covered },
+              }
+            : EMPTY
+        }
+      >
+        <Layer
+          id="route-covered-line"
+          type="line"
+          layout={{ "line-cap": "round", "line-join": "round" }}
+          paint={{ "line-color": "#9ca3af", "line-width": 7 }}
         />
       </Source>
 
@@ -422,6 +473,19 @@ export default function MapView({
           type="line"
           layout={{ "line-cap": "round", "line-join": "round" }}
           paint={{ "line-color": "#f59e0b", "line-width": 8 }}
+        />
+      </Source>
+
+      <Source id="ride-stops" type="geojson" data={rideStopsGeoJson}>
+        <Layer
+          id="ride-stop-dots"
+          type="circle"
+          paint={{
+            "circle-radius": 4,
+            "circle-color": "#ffffff",
+            "circle-stroke-color": RIDE_CASING,
+            "circle-stroke-width": 2,
+          }}
         />
       </Source>
 
@@ -457,25 +521,6 @@ export default function MapView({
         );
       })}
 
-      {pilot && pilot.covered.length > 1 && (
-        <Source
-          id="route-covered"
-          type="geojson"
-          data={{
-            type: "Feature",
-            properties: {},
-            geometry: { type: "LineString", coordinates: pilot.covered },
-          }}
-        >
-          <Layer
-            id="route-covered-line"
-            type="line"
-            layout={{ "line-cap": "round", "line-join": "round" }}
-            paint={{ "line-color": "#9ca3af", "line-width": 7 }}
-          />
-        </Source>
-      )}
-
       {pilot?.puck && (
         <Marker
           longitude={pilot.puck[0]}
@@ -484,7 +529,8 @@ export default function MapView({
           rotation={pilot.heading ?? 0}
           rotationAlignment="map"
           pitchAlignment="map"
-          style={{ zIndex: 4 }}
+          // not interactive: a drag that starts on your own position must pan the map
+          style={{ zIndex: 4, pointerEvents: "none" }}
         >
           <svg
             role="img"
@@ -570,7 +616,7 @@ export default function MapView({
           ),
       )}
 
-      {ride && rideLabelAt && (
+      {ride && rideLabelAt && !piloting && (
         <Marker
           longitude={rideLabelAt[0]}
           latitude={rideLabelAt[1]}

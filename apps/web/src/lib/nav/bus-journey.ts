@@ -42,10 +42,26 @@ const ON_LINE_M = 80;
 const BOARDED_AFTER_M = 80; // moved this far along the line once it's time: on the bus
 const EARLY_MS = 60_000; // buses leave a little early too
 const PASSED_M = 30;
-// a bus covers ground between sparse fixes; search the line well ahead
-const BUS_LOOKAHEAD_M = 5000;
+// The whole line: a bus covers ground between fixes, and a phone that slept for ten
+// minutes wakes up kilometres further on. Safe on loop lines too, because matching takes
+// the first stretch within reach, never a later one that passes nearby.
+const BUS_LOOKAHEAD_M = 50_000;
 
 const ll = (c: { lat: number; lng: number }): LngLat => [c.lng, c.lat];
+
+/**
+ * Where the ride ends. The API ends rideStops at the alighting stop, and on a loop line
+ * that stop is also the first one (Line E: Iwatake → … → Iwatake), so it's the *last*
+ * match, never the first.
+ */
+export function alightIndexOf(
+  option: Pick<BusOption, "rideStops" | "alightStopId">,
+): number {
+  for (let i = option.rideStops.length - 1; i >= 0; i--) {
+    if (option.rideStops[i].stopId === option.alightStopId) return i;
+  }
+  return option.rideStops.length - 1;
+}
 const fixAt = ([lng, lat]: LngLat): Fix => ({
   lat,
   lng,
@@ -90,12 +106,11 @@ export function planBus(option: BusOption, ridePath: Route | null): BusPlan {
       alongM: p.alongM,
     };
   });
-  const alight = stops.findIndex((s) => s.stopId === option.alightStopId);
   return {
     option,
     line,
     stops,
-    alightIndex: alight >= 0 ? alight : stops.length - 1,
+    alightIndex: alightIndexOf(option),
     departsAtMs: Date.parse(option.departsAt),
   };
 }
@@ -163,7 +178,9 @@ export function rideView(plan: BusPlan, s: BusState) {
       st.alongM !== null &&
       st.alongM > s.alongM + PASSED_M,
   );
-  const index = nextIndex >= 0 ? nextIndex : plan.alightIndex;
+  let index = nextIndex >= 0 ? nextIndex : plan.alightIndex;
+  // a stop we can't place, just before the next placed one, is still ahead of us
+  while (index > 1 && plan.stops[index - 1].alongM === null) index -= 1;
   return {
     nextIndex: index,
     next: plan.stops[index],

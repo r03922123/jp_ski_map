@@ -15,6 +15,36 @@ async function walkRoute(page: Page): Promise<[number, number][]> {
 
 const pilot = (page: Page) => page.getByTestId("pilot");
 
+type DevMap = {
+  getStyle(): { layers: { id: string }[] };
+  queryRenderedFeatures(o: { layers: string[] }): unknown[];
+};
+/** Where our route layers sit in the drawn style (bottom first). */
+const layerOrder = (page: Page) =>
+  page.evaluate(() => {
+    const map = (window as unknown as { __hakubaMap: DevMap }).__hakubaMap;
+    const ours = [
+      "ride-line",
+      "route-active-line",
+      "route-covered-line",
+      "ride-stop-dots",
+    ];
+    return map
+      .getStyle()
+      .layers.map((l) => l.id)
+      .filter((id) => ours.includes(id));
+  });
+/** Bus stop dots MapLibre actually rendered on screen. */
+const renderedStopDots = (page: Page) =>
+  page.evaluate(
+    () =>
+      (
+        window as unknown as { __hakubaMap: DevMap }
+      ).__hakubaMap.queryRenderedFeatures({
+        layers: ["ride-stop-dots"],
+      }).length,
+  );
+
 // Pilot is for touch-first devices (SPEC-pilot "Devices"): every journey below runs as a
 // phone (touch, coarse primary pointer); the laptop case is its own describe at the end.
 test.use({ isMobile: true, hasTouch: true });
@@ -62,6 +92,8 @@ test.describe("with location allowed", () => {
     // dragging the map stops following; Re-centre brings it back
     const box = await page.locator("main canvas").boundingBox();
     if (!box) throw new Error("no map canvas");
+    // the drag starts on the position puck (the follow camera keeps it central):
+    // touches must pass through it to the map
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
     await page.mouse.move(
@@ -295,11 +327,24 @@ test.describe("bus journey", () => {
     expect(
       await stopNames(page.getByRole("region", { name: "Trip progress" })),
     ).toEqual(ALL);
-    // and on the map: the bus line with all of its stops
+    // and on the map: the bus line with all of its stops, drawn in a fixed order
+    await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+      timeout: 15_000,
+    });
     await expect(page.locator("main")).toHaveAttribute(
       "data-map-ride-stops",
       "4",
     );
+    // layers arrive asynchronously; once all are there the order must be this
+    await expect
+      .poll(() => layerOrder(page))
+      .toEqual([
+        "ride-line",
+        "route-active-line",
+        "route-covered-line",
+        "ride-stop-dots",
+      ]);
+    await expect.poll(() => renderedStopDots(page)).toBeGreaterThan(0);
 
     // 2. at the stop: wait, with a countdown
     await context.setGeolocation({
@@ -468,5 +513,79 @@ test.describe("a running session", () => {
     await expect(
       page.getByRole("button", { name: "Start navigation" }),
     ).toBeVisible();
+  });
+});
+
+test.describe("a long bus ride on a phone", () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    permissions: ["geolocation"],
+    geolocation: FROM,
+  });
+
+  test("all 8 stops listed, the current one scrolled into view", async ({
+    page,
+    context,
+  }) => {
+    test.slow();
+    const data = JSON.parse(
+      readFileSync("e2e/fixtures/bus-options-2026-03-20.json", "utf8"),
+    );
+    const cortina = data.resorts.find(
+      (r: { resortId: string }) => r.resortId === "cortina",
+    ).options[0];
+    await page.route("**/api/bus/options**", (route) =>
+      route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(data),
+      }),
+    );
+    await page.clock.setFixedTime(new Date("2026-03-20T08:02:00+09:00"));
+    await page.goto(`/?from=${FROM.latitude},${FROM.longitude}&mode=bus`);
+    const card = page.getByRole("region", {
+      name: "Hakuba Cortina Snow Resort",
+    });
+    await card.getByRole("button").first().click({ timeout: 15_000 });
+    await expect(
+      card.getByRole("list", { name: "Bus stops" }).locator("li"),
+    ).toHaveCount(8);
+    await expect(page.locator("main")).not.toHaveAttribute(
+      "data-route-points",
+      "0",
+      {
+        timeout: 15_000,
+      },
+    );
+    await page.getByRole("button", { name: "Start bus journey" }).click();
+
+    const board = cortina.rideStops[0].coord;
+    await context.setGeolocation({ latitude: board.lat, longitude: board.lng });
+    await expect(page.getByTestId("bus-pilot")).toHaveAttribute(
+      "data-bus-phase",
+      "wait",
+      {
+        timeout: 10_000,
+      },
+    );
+    const list = page
+      .getByRole("region", { name: "Bus progress" })
+      .getByRole("list", {
+        name: "Bus stops",
+      });
+    await expect(list.locator("li")).toHaveCount(8);
+    await expect(
+      list.locator('li[data-state="passed"], li[aria-current]'),
+    ).toHaveCount(0);
+
+    await page.getByRole("button", { name: "I'm on the bus" }).click();
+    const norikura = cortina.rideStops[5].coord; // at Norikura: Satomi next
+    await context.setGeolocation({
+      latitude: norikura.lat,
+      longitude: norikura.lng,
+    });
+    const current = list.locator('li[aria-current="step"]');
+    await expect(current).toContainText("Satomi", { timeout: 10_000 });
+    await expect(list.locator("li")).toHaveCount(8);
+    await expect(current).toBeInViewport();
   });
 });

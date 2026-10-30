@@ -592,3 +592,11 @@ Gate shorthand:
 
 ## Task 55: Preview when far from the route
 **Acceptance:** see SPEC-pilot "Preview when you're far away". **Files:** `lib/nav/proximity.ts`, `lib/nav/use-reroute.ts`, `MapShell.tsx`, `DirectionsPanel.tsx`, `PilotView.tsx`, `BusPanel.tsx`, tests, `e2e/pilot.spec.ts`. **Scope:** M
+
+## Task 52b: Review fixes for T52/T53 (20-agent adversarial review: 14 confirmed) ✅
+- Loop lines (Line E: Iwatake → … → Iwatake) collapsed the stop list to one row and "arrived" at once → the ride ends at the *last* match of the alighting stop.
+- A stop we can't place was marked passed early → it stays next until the placed stop after it is passed.
+- A phone that slept on the bus couldn't catch up (5 km look-ahead) → the whole line.
+- Map: route layers had no fixed order (bus line over the walk route, stop dots under the line) → always mounted + order re-applied on every style change; the walk route clears after the stop; arrival keeps the ride grey; no stale ride chip while piloting.
+- Position puck intercepted drags 1 in 5 (couldn't pan from your own position) → pointer-events none.
+- Tests: >4-stop rides on every surface, exact row states, board/alight roles, waiting has no markings, scroll-into-view, loop and unplaced-stop cases, drawn layer order and rendered stop dots via the dev map handle, font test proves labels drew.

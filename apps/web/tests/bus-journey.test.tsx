@@ -192,3 +192,127 @@ describe("BusPilotView", async () => {
     expect(row("Resort")).toHaveAttribute("data-state", "upcoming");
   });
 });
+
+describe("bus journey edge cases from real data shapes", () => {
+  it("a loop line (boards and gets off at the same stop) doesn't arrive at once", () => {
+    const loop = {
+      ...option,
+      alightStopId: "s0",
+      rideStops: [
+        { stopId: "s0", name: "Iwatake", coord: east(0), time: "08:00" },
+        { stopId: "s1", name: "A", coord: east(1000), time: "08:05" },
+        { stopId: "s2", name: "B", coord: east(2000, 300), time: "08:15" },
+        { stopId: "s0", name: "Iwatake", coord: east(0, 20), time: "08:25" },
+      ],
+    } as unknown as BusOption;
+    const plan = planBus(loop, null);
+    expect(plan.alightIndex).toBe(3);
+    let s = boardManually(reduceBus(initialBus(), plan, fix(east(0)), DEPART));
+    s = reduceBus(s, plan, fix(east(100)), DEPART + 30_000);
+    expect(s.phase).toBe("ride");
+  });
+
+  it("a stop we can't place isn't marked passed before the bus gets there", () => {
+    const gap = {
+      ...option,
+      rideStops: [
+        { stopId: "s0", name: "Terminal", coord: east(0), time: "08:11" },
+        { stopId: "sx", name: "Unplaced", coord: null, time: null },
+        { stopId: "s2", name: "Plaza", coord: east(2000), time: "08:16" },
+        { stopId: "s3", name: "Resort", coord: east(3000), time: "08:20" },
+      ],
+    } as unknown as BusOption;
+    const plan = planBus(gap, null);
+    let s = boardManually(reduceBus(initialBus(), plan, fix(east(0)), DEPART));
+    expect(rideView(plan, s)).toMatchObject({ nextIndex: 1, stopsToGo: 3 });
+    s = reduceBus(s, plan, fix(east(2100)), DEPART + 120_000);
+    expect(rideView(plan, s)).toMatchObject({
+      nextIndex: 3,
+      stopsToGo: 1,
+      getOffNext: true,
+    });
+  });
+});
+
+describe("BusPilotView with a long ride", async () => {
+  const { render, screen } = await import("@testing-library/react");
+  const { BusPilotView } = await import("@/components/BusPilotView");
+  const { vi } = await import("vitest");
+  // six stops 1 km apart on a straight line
+  const six = {
+    ...option,
+    alightStopId: "s5",
+    rideStops: Array.from({ length: 6 }, (_, i) => ({
+      stopId: `s${i}`,
+      name: `Stop ${i}`,
+      coord: east(i * 1000),
+      time: `08:${String(11 + i * 2).padStart(2, "0")}`,
+    })),
+  } as unknown as BusOption;
+  const plan = planBus(six, null);
+  const base = {
+    plan,
+    basis: "published" as const,
+    onExit: vi.fn(),
+    muted: false,
+    onToggleMute: vi.fn(),
+    onBoard: vi.fn(),
+  };
+  const rows = () =>
+    screen
+      .getAllByRole("listitem")
+      .filter((li) => li.closest('[aria-label="Bus stops"]'));
+
+  it("waiting: all six stops, nothing passed or current", () => {
+    const wait = reduceBus(initialBus(), plan, fix(east(0)), DEPART - 60_000);
+    render(
+      <BusPilotView {...base} state={wait} now={new Date(DEPART - 60_000)} />,
+    );
+    expect(rows()).toHaveLength(6);
+    expect(rows().map((r) => r.dataset.state)).toEqual(
+      Array(6).fill("upcoming"),
+    );
+    expect(screen.queryByText("(passed)")).toBeNull();
+  });
+
+  it("riding: every row's state, struck-through passed rows, highlighted next", () => {
+    let ride = boardManually(
+      reduceBus(initialBus(), plan, fix(east(0)), DEPART),
+    );
+    ride = reduceBus(ride, plan, fix(east(2500)), DEPART + 300_000);
+    render(<BusPilotView {...base} state={ride} now={new Date(DEPART)} />);
+    expect(rows().map((r) => r.dataset.state)).toEqual([
+      "passed",
+      "passed",
+      "passed",
+      "next",
+      "upcoming",
+      "upcoming",
+    ]);
+    for (const r of rows().slice(0, 3)) {
+      expect(r).toHaveClass("line-through");
+      expect(r).toHaveTextContent("(passed)");
+    }
+    expect(rows()[3]).toHaveAttribute("aria-current", "step");
+    expect(rows()[3]).toHaveClass("bg-teal-50");
+  });
+});
+
+describe("a phone that slept on the bus", () => {
+  it("catches up when it wakes far along the line", () => {
+    const long = {
+      ...option,
+      alightStopId: "s3",
+      rideStops: [
+        { stopId: "s0", name: "Start", coord: east(0), time: "08:00" },
+        { stopId: "s1", name: "Near", coord: east(1000), time: "08:02" },
+        { stopId: "s2", name: "Far", coord: east(12_000), time: "08:20" },
+        { stopId: "s3", name: "End", coord: east(13_000), time: "08:22" },
+      ],
+    } as unknown as BusOption;
+    const plan = planBus(long, null);
+    let s = boardManually(reduceBus(initialBus(), plan, fix(east(0)), DEPART));
+    s = reduceBus(s, plan, fix(east(11_000)), DEPART + 900_000); // 11 km on, one fix
+    expect(rideView(plan, s).next.name).toBe("Far");
+  });
+});

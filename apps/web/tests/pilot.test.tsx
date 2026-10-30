@@ -4,6 +4,7 @@ import {
   render,
   renderHook,
   screen,
+  within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PilotView } from "@/components/PilotView";
@@ -283,5 +284,53 @@ describe("PilotView on the walk to a bus stop", () => {
     expect(list).toHaveTextContent("Terminal08:11");
     expect(list).toHaveTextContent("Echotime not published");
     expect(list).toHaveTextContent("Resort08:20");
+  });
+});
+
+describe("StopList keeps the next stop in view", () => {
+  it("scrolls the current row into view when the next stop changes", async () => {
+    const { StopList } = await import("@/components/StopList");
+    const spy = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = spy;
+    const stops = Array.from({ length: 8 }, (_, i) => ({
+      stopId: `s${i}`,
+      name: `Stop ${i}`,
+      time: null,
+    }));
+    const { rerender } = render(<StopList stops={stops} nextIndex={1} />);
+    spy.mockClear();
+    rerender(<StopList stops={stops} nextIndex={5} />);
+    expect(spy).toHaveBeenCalledWith({ block: "nearest" });
+    expect(spy.mock.contexts.at(-1)).toHaveAttribute("aria-current", "step");
+    expect(spy.mock.contexts.at(-1)).toHaveTextContent("Stop 5");
+    Element.prototype.scrollIntoView = original;
+  });
+
+  it("lists all of a long walk-leg bus (no cap)", () => {
+    const m = manualSource();
+    const { result } = renderHook(() => usePilot(walk, m.source));
+    m.fix(coords[0]);
+    const stops = Array.from({ length: 7 }, (_, i) => ({
+      stopId: `s${i}`,
+      name: `Stop ${i}`,
+      time: null,
+    }));
+    render(
+      <PilotView
+        mode="walk"
+        following
+        onExit={vi.fn()}
+        onRecenter={vi.fn()}
+        now={new Date()}
+        status={result.current}
+        busStops={stops}
+      />,
+    );
+    expect(
+      within(screen.getByRole("list", { name: "Bus stops" })).getAllByRole(
+        "listitem",
+      ),
+    ).toHaveLength(7);
   });
 });
