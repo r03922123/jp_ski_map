@@ -574,3 +574,14 @@ Gate shorthand:
 **Dependencies:** T42, T45
 **Files:** `lib/device.ts`, `components/MapShell.tsx`, `tests/device.test.ts`, `e2e/pilot.spec.ts`, `SPEC-pilot.md`
 **Scope:** S
+
+## Task 52: Every bus stop, before and after Start
+**Description:** BusPanel Journey lists all ride stops with times; PilotView (walk leg) and BusPilotView (wait/ride) show the full list (passed/next/alight states); MapShell draws the bus line + stop dots during the whole bus journey.
+**Acceptance:** component tests + bus e2e as in SPEC-pilot "Bus stops, before and after Start"
+**Files:** `BusPanel.tsx`, `BusPilotView.tsx`, `PilotView.tsx`, `MapShell.tsx`, `lib/nav/bus-journey.ts`, tests, `e2e/pilot.spec.ts`
+**Scope:** M
+
+## Task 53: Map label font 404
+**Description:** name a served font on our symbol layers; e2e for zoomed-in clean console.
+**Files:** `MapView.tsx`, `e2e/map.spec.ts`
+**Scope:** XS

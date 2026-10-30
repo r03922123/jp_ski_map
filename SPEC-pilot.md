@@ -82,3 +82,19 @@ A laptop or desktop isn't carried while driving or walking, and its "location" i
 - [x] E2E desktop (fine pointer): directions show no Start; bus option shows no Start once its walk route has loaded; `?simulate` Start replays the route with no GPS permission.
 - [x] E2E mobile emulation (coarse pointer, touch): the existing pilot journeys pass; a running session survives a pointer flip to fine (CDP touch emulation off), and Start then follows the device.
 - [x] Real iPhone over USB (ios_webkit_debug_proxy): `(pointer: coarse)` is true and Start is shown.
+
+## Bus stops, before and after Start (v1.3.2, 2026-10-30)
+The user asked to see every stop the shuttle passes, both when choosing a bus and while travelling.
+- **Before Start** (bus tab, chosen option): the Journey timeline lists **every stop** from boarding to getting off, in order, with its scheduled time ("time not published" where the timetable has none). The boarding and alighting stops are emphasised. The ride summary ("Line V · 3 stops · 28 min") stays.
+- **After Start:**
+  - *Walk to the stop:* below the footnote ("Then Line V from … at 08:11"), the same list of stops.
+  - *Wait* and *Ride:* the full list, never cut short. During the ride, passed stops are marked as passed (struck through, plus "passed" for screen readers), the next stop is highlighted, and the stop to get off at is bold. The list scrolls if it's long; the next stop stays visible.
+  - *Map:* in every phase of a bus journey the bus line and its stop dots are drawn, so the coming stops are visible on the map too.
+
+**Acceptance**
+- [ ] Component: the Journey lists all ride stops with times / "time not published"; the bus pilot lists all stops in wait and ride (no cap), marks passed and next; the walk leg shows the list.
+- [ ] E2E (bus fixture): the stop names are visible before Start, during the walk, while waiting and while riding (a passed stop marked passed); the map shows the line's stops during the journey.
+
+## Map label font (v1.3.2)
+Our own symbol layers (lodging names) named no font, so MapLibre asked OpenFreeMap for "Open Sans Regular", which it doesn't serve: a 404 console error on every zoomed-in view (seen on the iPhone as Next's "1 Issue"). Every symbol layer we add names a font the style serves ("Noto Sans Regular").
+- [ ] E2E: zoomed in where lodging labels show (zoom ≥ 15), no failed font request and no console error.
