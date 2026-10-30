@@ -1,0 +1,202 @@
+"""In-memory place index for search-as-you-type. Pure matching; loaders are injected.
+
+Sources: bus stops, resorts (+ base areas), the lodging snapshot and the POI snapshot —
+about 350 names we already hold, so suggestions never wait on the network.
+See SPEC-place-search.md v1.2.
+"""
+
+import re
+import unicodedata
+from dataclasses import dataclass
+from typing import Literal
+
+from hakuba_api.bus.models import BusStop
+from hakuba_api.catalog.models import Resort
+from hakuba_api.common.geo import Coord
+from hakuba_api.places.models import Place
+from hakuba_api.pois.models import Poi
+
+Kind = Literal["resort", "stop", "lodging", "food", "convenience", "place"]
+KIND_ORDER: dict[str, int] = {k: i for i, k in enumerate(Kind.__args__)}  # type: ignore[attr-defined]
+
+MIN_FUZZY_LEN = 4
+MAX_EDITS = 2
+
+
+@dataclass(frozen=True)
+class Entry:
+    id: str
+    kind: Kind
+    name: str
+    name_ja: str | None
+    aliases: list[str]
+    coord: Coord
+    detail: str
+
+
+@dataclass(frozen=True)
+class Hit:
+    entry: Entry
+    score: float
+    match: tuple[int, int] | None  # span in `name` to highlight
+    distance_km: float
+
+    @property
+    def name(self) -> str:
+        return self.entry.name
+
+    @property
+    def detail(self) -> str:
+        return self.entry.detail
+
+
+def normalize(text: str) -> str:
+    """NFKC, case-folded, katakana folded to hiragana, whitespace collapsed."""
+    folded = "".join(
+        chr(ord(c) - 0x60) if "ァ" <= c <= "ヶ" else c
+        for c in unicodedata.normalize("NFKC", text).casefold()
+    )
+    return " ".join(folded.split())
+
+
+_TOKEN = re.compile(r"[^\s\-・,./()（）]+")
+
+
+def _tokens(text: str) -> list[str]:
+    return _TOKEN.findall(text)
+
+
+def _edits(a: str, b: str, cap: int = MAX_EDITS) -> int:
+    """Levenshtein distance, capped (returns cap + 1 once exceeded)."""
+    if abs(len(a) - len(b)) > cap:
+        return cap + 1
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i]
+        for j, cb in enumerate(b, 1):
+            cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb)))
+        if min(cur) > cap:
+            return cap + 1
+        prev = cur
+    return prev[-1]
+
+
+def _token_match(q: str, tokens: list[str]) -> float | None:
+    """How well one query token matches some name token: 1 prefix, <1 fuzzy, None no."""
+    if any(t.startswith(q) for t in tokens):
+        return 1.0
+    if len(q) >= MIN_FUZZY_LEN:
+        best = min((_edits(q, t) for t in tokens), default=MAX_EDITS + 1)
+        if best <= MAX_EDITS:
+            return 1 - best / (len(q) + 1)
+    return None
+
+
+def _score_name(q: str, name: str) -> float | None:
+    """Score a normalised query against one normalised name, or None."""
+    if not q or not name:
+        return None
+    if q == name:
+        return 100
+    if name.startswith(q):
+        return 90
+    tokens = _tokens(name)
+    q_tokens = _tokens(q)
+    if not q_tokens:
+        return None
+    coverage = 5 * len(q_tokens) / max(len(tokens), 1)
+    if len(q_tokens) == 1:
+        m = _token_match(q_tokens[0], tokens)
+        if m == 1.0:
+            return 80 + coverage
+        if q in name:
+            return 70 + coverage
+        return 40 + 20 * m + coverage if m is not None else None
+    matches = [_token_match(t, tokens) for t in q_tokens]
+    if any(m is None for m in matches):
+        return None
+    if all(m == 1.0 for m in matches):
+        return 75 + coverage
+    return 40 + 15 * (sum(m for m in matches if m is not None) / len(matches)) + coverage
+
+
+def _span(q: str, name: str) -> tuple[int, int] | None:
+    norm = normalize(name)
+    if len(norm) != len(name):  # NFKC changed lengths; a span would be misaligned
+        return None
+    i = norm.find(q)
+    if i < 0:
+        first = _tokens(q)[0] if _tokens(q) else q
+        i = norm.find(first)
+        return (i, i + len(first)) if i >= 0 else None
+    return (i, i + len(q))
+
+
+def _km(a: Coord, b: Coord) -> float:
+    import math
+
+    la1, lo1, la2, lo2 = map(math.radians, (a.lat, a.lng, b.lat, b.lng))
+    h = (
+        math.sin((la2 - la1) / 2) ** 2
+        + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
+    )
+    return 2 * 6371 * math.asin(math.sqrt(h))
+
+
+def rank(entries: list[Entry], query: str, near: Coord, limit: int) -> list[Hit]:
+    q = normalize(query)
+    hits: list[Hit] = []
+    for e in entries:
+        names = [e.name, *(([e.name_ja]) if e.name_ja else []), *e.aliases]
+        scores = [s for n in names if (s := _score_name(q, normalize(n))) is not None]
+        if not scores:
+            continue
+        hits.append(Hit(e, max(scores), _span(q, e.name), _km(near, e.coord)))
+    hits.sort(key=lambda h: (-h.score, h.distance_km, KIND_ORDER[h.entry.kind]))
+    return hits[:limit]
+
+
+def build_index(
+    stops: list[BusStop], resorts: list[Resort], lodging: list[Place], pois: list[Poi]
+) -> list[Entry]:
+    entries: list[Entry] = []
+    for s in stops:
+        if s.coord:
+            entries.append(
+                Entry(s.id, "stop", s.name.en, s.name.ja, list(s.aliases), s.coord, "Bus stop")
+            )
+    for r in resorts:
+        base = r.access_points[0]
+        entries.append(Entry(r.id, "resort", r.name.en, r.name.ja, [], base.coord, "Ski resort"))
+        if len(r.access_points) > 1:
+            for ap in r.access_points:
+                entries.append(
+                    Entry(
+                        f"{r.id}:{ap.id}",
+                        "resort",
+                        f"{r.name.en} · {ap.name.en}",
+                        f"{r.name.ja} {ap.name.ja}" if r.name.ja and ap.name.ja else None,
+                        [],
+                        ap.coord,
+                        "Ski resort base",
+                    )
+                )
+    for p in lodging:
+        entries.append(
+            Entry(p.id, "lodging", p.name, p.name_ja, [], p.coord, p.kind.replace("_", " ").title())
+        )
+    for poi in pois:
+        label = "Konbini" if poi.category == "convenience" else "Restaurant"
+        extra = poi.brand if poi.category == "convenience" else poi.cuisine
+        entries.append(
+            Entry(
+                poi.id,
+                poi.category,
+                poi.name,
+                poi.name_ja,
+                [poi.brand] if poi.brand else [],
+                poi.coord,
+                f"{label} · {extra}" if extra else label,
+            )
+        )
+    return entries

@@ -10,6 +10,7 @@ LODGING_KINDS: tuple[PlaceKind, ...] = ("hotel", "guest_house", "hostel", "apart
 class Place(ApiModel):
     id: str
     name: str
+    name_ja: str | None = None
     kind: PlaceKind
     coord: Coord
     address: str | None
