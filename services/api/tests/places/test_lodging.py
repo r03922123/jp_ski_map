@@ -110,3 +110,37 @@ def test_lodging_endpoint_filters_by_bbox() -> None:
 )
 def test_lodging_endpoint_rejects_large_or_malformed_bbox(bbox: str) -> None:
     assert client.get("/api/places/lodging", params={"bbox": bbox}).status_code == 422
+
+
+def test_validate_lodging_flags_duplicates_strays_and_overlap() -> None:
+    from hakuba_api.common.geo import Coord
+    from hakuba_api.places.models import Place
+    from hakuba_api.places.validate import validate_lodging
+
+    def place(pid: str, name: str, lat: float, source: str) -> Place:
+        return Place(
+            id=pid,
+            name=name,
+            kind="hotel",
+            coord=Coord(lat=lat, lng=137.84),
+            address=None,
+            source=source,  # type: ignore[arg-type]
+        )
+
+    osm = [place("osm:node/1", "Hotel Green Plaza Hakuba", 36.7754, "osm-snapshot")]
+    overture = [
+        place("overture:a", "Hotel Green Plaza Hakuba", 36.7755, "overture-snapshot"),  # dup
+        place("overture:b", "Far Away Inn", 35.0, "overture-snapshot"),  # outside Hakuba
+        place("osm:node/1", "Same Id", 36.70, "overture-snapshot"),  # id clash
+    ]
+    errors = validate_lodging(osm, overture)
+    assert any("overture:a" in e and "duplicates" in e for e in errors)
+    assert any("overture:b" in e and "outside" in e for e in errors)
+    assert any("osm:node/1" in e and "duplicate id" in e for e in errors)
+
+
+def test_the_committed_lodging_snapshots_are_valid() -> None:
+    from hakuba_api.places.lodging import load_osm_lodging, load_overture_lodging
+    from hakuba_api.places.validate import validate_lodging
+
+    assert validate_lodging(load_osm_lodging(), load_overture_lodging()) == []

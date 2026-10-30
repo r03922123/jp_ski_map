@@ -228,7 +228,7 @@ export default function MapView({
       style={{ position: "absolute", inset: 0 }}
       attributionControl={{
         customAttribution:
-          'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> | Shuttle: <a href="https://www.hakubavalley.com/en/access_en/shuttlebus_en/" target="_blank" rel="noopener">Hakuba Valley</a>',
+          'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> | Shuttle: <a href="https://www.hakubavalley.com/en/access_en/shuttlebus_en/" target="_blank" rel="noopener">Hakuba Valley</a> | Places: <a href="https://overturemaps.org/" target="_blank" rel="noopener">Overture Maps Foundation</a>',
       }}
       interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER]}
       onLoad={(e) => {

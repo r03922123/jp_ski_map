@@ -8,11 +8,13 @@ See SPEC-place-search.md v1.2.
 import re
 import unicodedata
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Literal
 
 from hakuba_api.bus.models import BusStop
 from hakuba_api.catalog.models import Resort
 from hakuba_api.common.geo import Coord
+from hakuba_api.places.kana import sound_key, to_romaji
 from hakuba_api.places.models import Place
 from hakuba_api.pois.models import Poi
 
@@ -51,6 +53,8 @@ class Entry:
     aliases: list[str]
     coord: Coord
     detail: str
+    # romaji of Japanese names (ホテルグレース白馬 → "hotel guresu hakuba"), matched by sound
+    readings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -69,6 +73,7 @@ class Hit:
         return self.entry.detail
 
 
+@lru_cache(maxsize=16_384)  # index names repeat on every query
 def normalize(text: str) -> str:
     """NFKC, case-folded, katakana folded to hiragana, whitespace collapsed."""
     folded = "".join(
@@ -100,10 +105,15 @@ def _edits(a: str, b: str, cap: int = MAX_EDITS) -> int:
     return prev[-1]
 
 
-def _token_match(q: str, tokens: list[str]) -> float | None:
-    """How well one query token matches some name token: 1 prefix, <1 fuzzy, None no."""
+def _token_match(q: str, tokens: list[str], by_sound: bool = False) -> float | None:
+    """How well one query token matches some name token: 1 prefix (or, against a reading,
+    the same sound), <1 fuzzy, None no."""
     if any(t.startswith(q) for t in tokens):
         return 1.0
+    if by_sound and q not in GENERIC and len(q) >= MIN_FUZZY_LEN:
+        key = sound_key(q)
+        if len(key) >= 2 and any(sound_key(t) == key for t in tokens if t not in GENERIC):
+            return 1.0
     if len(q) >= MIN_FUZZY_LEN:
         # one typo in a short word, two in a long one: "ridge" must not become "lodge"
         cap = MAX_EDITS if len(q) >= LONG_WORD else 1
@@ -126,8 +136,9 @@ def shares_distinctive_word(query: str, name: str) -> bool:
     return any(_token_match(t, tokens) is not None for t in wanted)
 
 
-def _score_name(q: str, name: str) -> float | None:
-    """Score a normalised query against one normalised name, or None."""
+def _score_name(q: str, name: str, by_sound: bool = False) -> float | None:
+    """Score a normalised query against one normalised name, or None. `by_sound` is for
+    readings of Japanese names, where "grace" and "guresu" are the same word."""
     if not q or not name:
         return None
     if q == name:
@@ -140,7 +151,7 @@ def _score_name(q: str, name: str) -> float | None:
         return None
     coverage = min(5, 5 * len(q_tokens) / max(len(tokens), 1))
     if len(q_tokens) == 1:
-        m = _token_match(q_tokens[0], tokens)
+        m = _token_match(q_tokens[0], tokens, by_sound)
         if m == 1.0:
             return 80 + coverage
         if q in name:
@@ -148,10 +159,12 @@ def _score_name(q: str, name: str) -> float | None:
         return 40 + 20 * m + coverage if m is not None else None
     # every distinctive word must match; a missing generic word only costs a little
     required = distinctive(q_tokens) or q_tokens
-    matches = [_token_match(t, tokens) for t in required]
+    matches = [_token_match(t, tokens, by_sound) for t in required]
     if any(m is None for m in matches):
         return None
-    missing = sum(1 for t in q_tokens if t not in required and _token_match(t, tokens) is None)
+    missing = sum(
+        1 for t in q_tokens if t not in required and _token_match(t, tokens, by_sound) is None
+    )
     penalty = MISSING_GENERIC_PENALTY * missing
     if all(m == 1.0 for m in matches):
         return 75 + coverage - penalty
@@ -188,6 +201,7 @@ def rank(entries: list[Entry], query: str, near: Coord, limit: int) -> list[Hit]
     for e in entries:
         names = [e.name, *(([e.name_ja]) if e.name_ja else []), *e.aliases]
         scores = [s for n in names if (s := _score_name(q, normalize(n))) is not None]
+        scores += [s for r in e.readings if (s := _score_name(q, r, by_sound=True)) is not None]
         if not scores:
             continue
         hits.append(Hit(e, max(scores), _span(q, e.name), _km(near, e.coord)))
@@ -221,8 +235,19 @@ def build_index(
                     )
                 )
     for p in lodging:
+        japanese = p.name_ja or (None if p.name.isascii() else p.name)
+        reading = to_romaji(japanese) if japanese else ""
         entries.append(
-            Entry(p.id, "lodging", p.name, p.name_ja, [], p.coord, p.kind.replace("_", " ").title())
+            Entry(
+                p.id,
+                "lodging",
+                p.name,
+                p.name_ja,
+                [],
+                p.coord,
+                p.kind.replace("_", " ").title(),
+                readings=(reading,) if reading else (),
+            )
         )
     for poi in pois:
         label = "Konbini" if poi.category == "convenience" else "Restaurant"

@@ -1,0 +1,92 @@
+[
+ {
+  "id": "e5a45891-a20e-4591-938a-e5e79f232383",
+  "name": "Courtyard by Marriott Hakuba - コートヤード･バイ･マリオット 白馬",
+  "tax": "hotel",
+  "conf": 0.9984907302856445,
+  "lat": 36.68853187561035,
+  "lng": 137.83817291259766,
+  "addr": null
+ },
+ {
+  "id": "46d57836-1c76-4d3c-a348-6f991c7fe5b7",
+  "name": "マリオンシナノ(Marion Shinano)",
+  "tax": "hostel",
+  "conf": 0.77,
+  "lat": 36.7501277923584,
+  "lng": 137.87151336669922,
+  "addr": "栂池高原12840-1"
+ },
+ {
+  "id": "4b7feeae-2c71-46bf-b1fb-75311b380289",
+  "name": "Hotel Abest Hakuba Resort",
+  "tax": "resort",
+  "conf": 0.9869237542152405,
+  "lat": 36.66119384765625,
+  "lng": 137.83740234375,
+  "addr": "22199 Kamishiro"
+ },
+ {
+  "id": "a93f5c0c-b1ae-4d48-b266-767faf5989f2",
+  "name": "ホテルアベスト白馬リゾート",
+  "tax": "resort",
+  "conf": 0.77,
+  "lat": 36.65932655334473,
+  "lng": 137.83827209472656,
+  "addr": "白馬村大字神城22199"
+ },
+ {
+  "id": "81a8c6c4-e710-4168-99f0-42db661ddee6",
+  "name": "Piremon - Economy Twin Room",
+  "tax": "lodge",
+  "conf": 0.18323685228824615,
+  "lat": 36.685312271118164,
+  "lng": 137.84741973876953,
+  "addr": "Hokujo"
+ },
+ {
+  "id": "5f223e97-72da-464c-a045-3d56afbb1305",
+  "name": "Hakuba Canadian Lodge",
+  "tax": "lodge",
+  "conf": 0.9882035851478577,
+  "lat": 36.70717430114746,
+  "lng": 137.83934783935547,
+  "addr": "Hokujo"
+ },
+ {
+  "id": "7d63b96f-3c9b-4fb0-b51a-fff05187df86",
+  "name": "Hotel Green Plaza Hakuba",
+  "tax": "resort",
+  "conf": 0.9690889120101929,
+  "lat": 36.775434494018555,
+  "lng": 137.88776397705078,
+  "addr": "12860-1 Chikuniotsu"
+ },
+ {
+  "id": "64358f98-37ac-4850-a0bf-ac97569a83ad",
+  "name": "グランジャム栂池",
+  "tax": "hotel",
+  "conf": 0.9844531214237213,
+  "lat": 36.751047134399414,
+  "lng": 137.87450408935547,
+  "addr": "長野県北安曇郡小谷村千国乙６３９−１"
+ },
+ {
+  "id": "42bcaf4d-c200-4da5-9795-16ce83abe637",
+  "name": "SANU 2nd Home 白馬 1st",
+  "tax": "holiday_rental_home",
+  "conf": 0.20252598822116852,
+  "lat": 36.70412254333496,
+  "lng": 137.83972930908203,
+  "addr": "Hokujo"
+ },
+ {
+  "id": "35e3cfad-85f9-4da5-8959-93eb6cca861d",
+  "name": "Hotel Wohnen ホテル・ボーネン",
+  "tax": "resort",
+  "conf": 0.9532461166381836,
+  "lat": 36.690298080444336,
+  "lng": 137.8479995727539,
+  "addr": "2446 Hokujo"
+ }
+]

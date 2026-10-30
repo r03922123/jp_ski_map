@@ -141,3 +141,55 @@ def test_an_area_name_alone_is_not_a_shared_word() -> None:
         "Hotel Granjam Tsugaike", "Tsugaike Kogen Hotel Hakuba Berghaus"
     )
     assert shares_distinctive_word("Lift Inn Hakuba Goryu", "Lift Inn Hakuba Goryu")
+
+
+# --- v1.3: English queries find katakana-only names ---------------------------------
+
+
+def test_english_finds_a_katakana_only_hotel_over_a_namesake() -> None:
+    entries = build_index([], [], [], []) + [
+        Entry("lodging:inn", "lodging", "Hakuba Grace Inn", None, [], CORTINA, "Inn"),
+        Entry(
+            "lodging:grace",
+            "lodging",
+            "ホテルグレース白馬",
+            "ホテルグレース白馬",
+            [],
+            HAPPO,
+            "Hotel",
+            readings=("hotel guresu hakuba",),
+        ),
+    ]
+    assert names(rank(entries, "Hotel Grace Hakuba", HAPPO, 5))[0] == "ホテルグレース白馬"
+
+
+def test_readings_come_from_japanese_names() -> None:
+    from hakuba_api.places.models import Place
+
+    granjam = Place(
+        id="overture:1",
+        name="グランジャム栂池",
+        name_ja="グランジャム栂池",
+        kind="hotel",
+        coord=HAPPO,
+        address=None,
+        source="overture-snapshot",
+    )
+    entries = build_index([], [], [granjam], [])
+    assert names(rank(entries, "Hotel Granjam Tsugaike", HAPPO, 5)) == ["グランジャム栂池"]
+
+
+def test_sound_matching_never_touches_generic_words() -> None:
+    entries = [
+        Entry(
+            "lodging:x",
+            "lodging",
+            "パウダーロッジ",
+            None,
+            [],
+            HAPPO,
+            "Lodge",
+            readings=("pauda lodge",),
+        )
+    ]
+    assert rank(entries, "The Ridge Hotel", HAPPO, 5) == []

@@ -61,12 +61,12 @@ def test_photon_fills_in_when_few_local_hits(api: TestClient, mock: respx.MockRo
     )
 
     body: Any = api.get(
-        "/api/places/suggest", params={"q": "Hamac", "near": "36.70,137.845"}
+        "/api/places/suggest", params={"q": "Pheonix", "near": "36.70,137.845"}
     ).json()
 
     assert call.call_count == 1
     photon_hits = [b for b in body if b["source"] == "photon"]
-    assert [b["name"] for b in photon_hits] == ["Le Petit Hotel Hamac"]
+    assert [b["name"] for b in photon_hits] == ["Pheonix Hotel"]
     assert all(b["kind"] in ("lodging", "place") for b in photon_hits)
 
 

@@ -549,11 +549,11 @@ Gate shorthand:
 ## Task 48: Scoring v2 + Photon relevance gate ✅
 **Acceptance:** [x] v1.2 index tests pass; [x] eval shows 0 wrong lodging hits (offline and live Photon); 15/25 **Dependencies:** T47 **Scope:** M
 
-## Task 49: Overture lodging snapshot (+ dedupe vs OSM, attribution)
-**Acceptance:** [ ] Fixture-tested refresh; [ ] validator; [ ] eval recall ≥ 85% of present **Dependencies:** T48 **Scope:** M
+## Task 49: Overture lodging snapshot (+ dedupe vs OSM, attribution) ✅
+**Acceptance:** [x] Fixture-tested refresh; [x] validator; [x] eval recall ≥ 85% of present (23/25 alone) **Dependencies:** T48 **Scope:** M
 
-## Task 50: Kana → romaji and sound-key matching
-**Acceptance:** [ ] Unit tests (トロイメライ ↔ Traumerei, カナディアンロッジ ↔ Canadian Lodge); [ ] eval doesn't regress **Dependencies:** T49 **Scope:** S
+## Task 50: Kana → romaji and sound-key matching ✅
+**Acceptance:** [x] Unit tests (トロイメライ ↔ Traumerei, カナディアンロッジ ↔ Canadian Lodge); [x] eval 25/25, 0 wrong **Dependencies:** T49 **Scope:** S
 
 ## Checkpoint L
 - [ ] Eval thresholds met; all gates; search e2e green

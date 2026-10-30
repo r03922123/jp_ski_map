@@ -14,4 +14,4 @@ class Place(ApiModel):
     kind: PlaceKind
     coord: Coord
     address: str | None
-    source: Literal["photon", "osm-snapshot", "gmaps-link"]
+    source: Literal["photon", "osm-snapshot", "overture-snapshot", "gmaps-link"]
