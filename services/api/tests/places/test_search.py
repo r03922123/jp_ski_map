@@ -117,6 +117,7 @@ def test_search_endpoint_parses_google_maps_link_without_photon(
         {
             "id": "gmaps-link",
             "name": "Phoenix Hotel",
+            "nameJa": None,
             "kind": "other",
             "coord": {"lat": 36.7015, "lng": 137.8441},
             "address": None,

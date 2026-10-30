@@ -34,6 +34,7 @@ def elements_to_places(elements: list[dict[str, Any]]) -> list[Place]:
             Place(
                 id=f"osm:{e['type']}/{e['id']}",
                 name=name,
+                name_ja=tags.get("name:ja") or (tags.get("name") if tags.get("name:en") else None),
                 kind=kind,
                 coord=Coord(lat=point["lat"], lng=point["lon"]),
                 address=address or None,
