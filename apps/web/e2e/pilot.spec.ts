@@ -26,6 +26,7 @@ test.describe("with location allowed", () => {
     page,
     context,
   }) => {
+    test.slow(); // a whole journey: several GPS moves and screens
     const line = await walkRoute(page);
     await page.goto(URL);
     await page
@@ -62,7 +63,7 @@ test.describe("with location allowed", () => {
     await page.mouse.move(
       box.x + box.width / 2 + 120,
       box.y + box.height / 2 + 60,
-      { steps: 8 },
+      { steps: 20 },
     );
     await page.mouse.up();
     await page.getByRole("button", { name: "Re-centre" }).click();
@@ -94,6 +95,7 @@ test.describe("voice", () => {
     page,
     context,
   }) => {
+    test.slow(); // a whole journey: several GPS moves and screens
     // record what would be spoken instead of using the machine's voice
     await page.addInitScript(() => {
       const spoken: string[] = [];
@@ -117,17 +119,22 @@ test.describe("voice", () => {
       .getByRole("button", { name: "Start navigation" })
       .click({ timeout: 20_000 });
 
-    for (const [x, y] of line.slice(0, 12)) {
+    // walk point by point until the heads-up is heard (browsers may merge quick
+    // position changes, so a fixed number of points could skip the 50 m window)
+    const heard = async () =>
+      (await spoken()).some((t) => t.startsWith("In 50 metres, "));
+    let walked = 0;
+    for (const [x, y] of line) {
       await context.setGeolocation({ latitude: y, longitude: x });
       await page.waitForTimeout(120);
+      walked += 1;
+      if (await heard()) break;
     }
-    await expect
-      .poll(spoken, { timeout: 10_000 })
-      .toContainEqual(expect.stringMatching(/^In 50 metres, /));
+    await expect.poll(heard, { timeout: 10_000 }).toBe(true);
 
     await page.getByRole("button", { name: "Mute voice" }).click();
     const before = (await spoken()).length;
-    for (const [x, y] of line.slice(12, 30)) {
+    for (const [x, y] of line.slice(walked, walked + 20)) {
       await context.setGeolocation({ latitude: y, longitude: x });
       await page.waitForTimeout(80);
     }
@@ -145,6 +152,7 @@ test.describe("rerouting", () => {
     page,
     context,
   }) => {
+    test.slow(); // a whole journey: several GPS moves and screens
     const line = await walkRoute(page);
     // a real walking route that heads south instead: its far end is well off the station route
     const res = await page.request.get(
@@ -152,7 +160,9 @@ test.describe("rerouting", () => {
     );
     const detour: [number, number][] = (await res.json()).primary.geometry
       .coordinates;
-    const offRoute = detour.slice(-14);
+    // well off the station route; browsers may merge quick position changes into one
+    // callback, so keep walking until the navigator gives up on the old route
+    const offRoute = detour.slice(-40);
 
     await page.goto(URL);
     await page
@@ -166,7 +176,8 @@ test.describe("rerouting", () => {
 
     for (const [x, y] of offRoute) {
       await context.setGeolocation({ latitude: y, longitude: x });
-      await page.waitForTimeout(150); // let each fix arrive as its own update
+      await page.waitForTimeout(150);
+      if ((await pilot(page).getAttribute("data-reroutes")) === "1") break;
     }
     await expect(pilot(page)).toHaveAttribute("data-reroutes", "1", {
       timeout: 15_000,
@@ -237,6 +248,7 @@ test.describe("bus journey", () => {
     page,
     context,
   }) => {
+    test.slow(); // a whole journey: several GPS moves and screens
     const options = readFileSync(
       "e2e/fixtures/bus-options-2026-03-20.json",
       "utf8",

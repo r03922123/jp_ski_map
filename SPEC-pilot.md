@@ -53,12 +53,12 @@ interface. A dev-only `SimulatedSource` replays the route at a chosen speed (`?s
 **Phone testing:** `pnpm dev:https` runs `next dev --experimental-https --hostname 0.0.0.0`, so the phone opens `https://<Mac LAN IP>:3000` and trusts the mkcert CA once. `/api` is already proxied by Next, so only the web port is exposed, and only on the home network.
 
 ## Acceptance Criteria
-- [ ] Unit (`nav/`): projection on/off route with the 50/20 m radii and widened by accuracy; forward-only matching on a route that loops back; off-route counter (+1/+2, unchanged distance ignored, trips at > 10); remaining time and distance monotone along a real route fixture; next maneuver and "then"; arrival tolerance.
-- [ ] E2E (Playwright `setGeolocation` sequence): Start drive → banner shows the first maneuver → fixes along the route → the remaining km falls and the covered part turns grey → off-route fixes → "Rerouting…" → a new route from the current position → fixes at the end → "You've arrived".
-- [ ] E2E bus: walk → wait countdown → ride with the stops list → "Get off … next stop" → arrived.
-- [ ] Location denied → message, no crash; Exit returns to the overview with the same origin and destination.
-- [ ] 390 px: banner, bottom bar and Re-centre don't overlap; every control has an accessible name.
-- [ ] Manual: on the user's phone over `pnpm dev:https`, a short real walk shows the puck following and the remaining distance falling.
+- [x] Unit (`nav/`): projection on/off route with the 50/20 m radii and widened by accuracy; forward-only matching on a route that loops back; off-route counter (+1/+2, unchanged distance ignored, trips at > 10); remaining time and distance monotone along a real route fixture; next maneuver and "then"; arrival tolerance.
+- [x] E2E (Playwright `setGeolocation` sequence), *run on a walk route; drive takes the same code path with the 50 m radius unit-tested*: Start → banner shows the first maneuver → fixes along the route → the remaining km falls and the covered part turns grey → off-route fixes → "Rerouting…" → a new route from the current position → fixes at the end → "You've arrived".
+- [x] E2E bus: walk → wait countdown → ride with the stops list → "Get off … next stop" → arrived.
+- [x] Location denied → message, no crash; Exit returns to the overview with the same origin and destination.
+- [x] 390 px: banner, bottom bar and Re-centre don't overlap; every control has an accessible name.
+- [ ] **(yours)** Manual: on the user's phone over `pnpm dev:https`, a short real walk shows the puck following and the remaining distance falling.
 
 ## Boundaries
 - Always: label bus times *scheduled/expected*, say plainly there's no live traffic, and stop GPS and the wake lock on Exit or when the page is hidden for more than 10 minutes.

@@ -46,12 +46,12 @@ type SavedState = { version: 1; lists: SavedList[]; places: SavedPlace[] };
 6. **Share / import:** "Share list" creates `https://<host>/#import=<base64url(JSON)>`. The data lives in the URL **fragment**, so it never reaches the server or its logs. Opening it shows "Add 12 places to 'Want to go'?" with a preview list, and only confirming writes anything. Malformed or oversized imports (> 200 places) are rejected with a message.
 
 ## Acceptance Criteria
-- [ ] Unit: save/remove/move, one hotel label at most, built-in lists can't be deleted, corrupt storage → empty and kept aside, throwing storage → in-memory fallback, limits enforced.
-- [ ] Unit: share encode → decode round-trips; the import validator rejects bad shapes, NaN coords and > 200 places.
-- [ ] E2E: star a searched hotel → reload → ★ is still on and it's in Saved; "Start from here" sets the origin; "Go here" draws a route.
-- [ ] E2E: My hotel label → open `/` → the origin is the hotel.
-- [ ] E2E: open an import link → confirm → the places appear; cancel → nothing is stored.
-- [ ] 390 px: picker and panel fit without horizontal scroll; every control has an accessible name.
+- [x] Unit: save/remove/move, one hotel label at most, built-in lists can't be deleted, corrupt storage → empty and kept aside, throwing storage → in-memory fallback, limits enforced.
+- [x] Unit: share encode → decode round-trips; the import validator rejects bad shapes, NaN coords and > 200 places.
+- [x] E2E: star a searched hotel → reload → ★ is still on and it's in Saved; "Go here" draws a route. *("Start from here" is covered by the SavedPanel component test, not e2e.)*
+- [x] E2E: My hotel label → open `/` → the origin is the hotel.
+- [x] E2E: open an import link → confirm → the places appear; cancel → nothing is stored.
+- [x] 390 px: picker and panel fit without horizontal scroll; every control has an accessible name.
 
 ## Boundaries
 - Never: send saved places to our API or any third party, put them in query strings, or import without confirmation.

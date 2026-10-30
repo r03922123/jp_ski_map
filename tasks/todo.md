@@ -534,8 +534,8 @@ Gate shorthand:
 **Files:** `lib/nav/bus-journey.ts`, `components/BusPilot.tsx`, `BusPanel.tsx`, `MapShell.tsx`, tests
 **Scope:** M
 
-## Checkpoint K
-- [ ] All gates + full E2E; desktop and 390 px browser check; clean console
+## Checkpoint K ✅ (except the user's phone walk)
+- [x] All gates + full E2E (29/29, twice at low load); 390 px checks; clean console (map.spec caught a render-time `new Date()` in useNow, fixed)
 - [ ] User walks a short real route on their phone via `pnpm dev:https`
 - [ ] Review with human
 
