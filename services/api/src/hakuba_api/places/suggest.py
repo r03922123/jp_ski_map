@@ -71,13 +71,17 @@ def _close(a: Coord, b: Coord) -> bool:
 
 
 def suggest(
-    query: str, near: Coord, limit: int, entries: list[Entry] | None = None
+    query: str,
+    near: Coord,
+    limit: int,
+    entries: list[Entry] | None = None,
+    use_photon: bool = True,
 ) -> list[Suggestion]:
     local = [
         _from_hit(h)
         for h in rank(entries if entries is not None else load_index(), query, near, limit)
     ]
-    if len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
+    if not use_photon or len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
         return local
     try:
         remote = search_photon(query, limit)

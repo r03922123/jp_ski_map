@@ -536,3 +536,24 @@ Gate shorthand:
 - [ ] All gates + full E2E; desktop and 390 px browser check; clean console
 - [ ] User walks a short real route on their phone via `pnpm dev:https`
 - [ ] Review with human
+
+## Phase 12: Search quality: paste a Booking.com hotel (SPEC-place-search v1.3; runs before T41)
+
+## Task 46: Evaluation set and harness ✅
+**Description:** `tests/places/booking_eval.json` (29 names, expected coordinate or `absent`, reviewed) and `places/eval_search.py`, which prints the table and recall, wrong-hit counts. A pytest test pins the thresholds (offline: index only).
+**Acceptance:** [x] Baseline recorded: offline index 10/25 present, 0 wrong (the 6 wrong came from Photon, checked in T48) **Dependencies:** none **Scope:** S
+
+## Task 47: Query cleaning for hotel-site URLs and titles
+**Acceptance:** [ ] Unit tests for Booking/Agoda/Expedia/Hotels.com/Trip.com/Rakuten/Jalan URLs and title noise **Dependencies:** T46 **Scope:** S
+
+## Task 48: Scoring v2 + Photon relevance gate
+**Acceptance:** [ ] v1.2 index tests pass; [ ] eval shows 0 wrong lodging hits **Dependencies:** T47 **Scope:** M
+
+## Task 49: Overture lodging snapshot (+ dedupe vs OSM, attribution)
+**Acceptance:** [ ] Fixture-tested refresh; [ ] validator; [ ] eval recall ≥ 85% of present **Dependencies:** T48 **Scope:** M
+
+## Task 50: Kana → romaji and sound-key matching
+**Acceptance:** [ ] Unit tests (トロイメライ ↔ Traumerei, カナディアンロッジ ↔ Canadian Lodge); [ ] eval doesn't regress **Dependencies:** T49 **Scope:** S
+
+## Checkpoint L
+- [ ] Eval thresholds met; all gates; search e2e green

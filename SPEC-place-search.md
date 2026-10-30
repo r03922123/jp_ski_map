@@ -68,3 +68,26 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - [ ] Mobile: dropdown fits 390 px with no horizontal scroll.
 
 **Not doing:** Google Places (needs billing, Google basemap, caching limits); server-side query logging.
+
+## v1.3 — Paste a hotel name from Booking.com (approved 2026-10-30)
+**Problem (measured):** 29 hotel names as Booking.com lists them → only **10 (34%)** found as the top result; **6** came back as a *confidently wrong* hotel (Photon fallback), and pasted page titles / Booking URLs found nothing. Root causes: (1) coverage, since OSM knows 146 of Hakuba's ~730 stays; (2) matching, since every query word must match ("The Ridge Hotel **&** Apartments") and generic words ("Hotel", "Hakuba") count as much as distinctive ones; (3) no relevance check on Photon results; (4) English vs katakana-only names.
+
+**Decisions:** Overture Maps Places as a second lodging snapshot (CDLA-Permissive-2.0, from Meta, Microsoft, AWS and TomTom; ~870 Hakuba lodgings). Rakuten Travel was rejected: its terms (Art. 10(9)/(10), 8.4) forbid a shared stored copy and apps limited to specific people. No Google, no Booking.com scraping. A pasted Booking.com URL is parsed **as text only** (never fetched).
+
+**Design**
+1. **Query cleaning** (`places/query_clean.py`, pure): a hotel-site URL → the name words from its path (`booking.com/hotel/jp/hakuba-tokyu.en-gb.html` → "hakuba tokyu"; also Agoda, Expedia, Hotels.com, Trip.com, Rakuten Travel, Jalan); page-title noise is stripped ("– Updated 2026 Prices", "(Japan) Deals", "| Booking.com", "Hotel Reviews", trailing ", Hakuba").
+2. **Scoring v2** (`places/index.py`): words are weighted. Generic words (hotel, hakuba, inn, lodge, chalet(s), apartments, resort, house, the, by, &, pension, onsen, japan…) count little; a name must match **every distinctive query word** (prefix or ≤ 2-edit fuzzy). Missing generic words cost a little instead of failing the match. The exact and prefix tiers are unchanged.
+3. **Photon gate:** a Photon result is kept only if it shares at least one distinctive word with the query, so "Hotel 24sweets Hakuba" never returns Hakuba Mominoki Hotel.
+4. **Overture lodging snapshot** (`places/refresh_overture.py`, run via `uv run --with duckdb`, not a project dependency): the Hakuba bbox from release *N*; lodging categories; `operating_status` not closed; confidence ≥ 0.5; English and Japanese names from `names.primary` / `names.common`. **De-duplicated** against OSM (≤ 80 m and a shared distinctive word → keep OSM, add Overture's names as aliases). Output `data/lodging_overture.json`, validated like the others. The map attribution adds "Overture Maps Foundation".
+5. **Kana ↔ English:** Japanese-only names also get a romaji form (Hepburn, long vowels folded) and a consonant "sound key" (l→r, c→k/s, v→b; vowels dropped), so "Traumerei" matches トロイメライ and "Canadian Lodge" matches カナディアンロッジ.
+
+**Evaluation** (`tests/places/booking_eval.json` + `python -m hakuba_api.places.eval_search`): each Booking.com-style name with the expected coordinate (reviewed), or `absent`.
+
+**Acceptance**
+- [ ] Eval: top-1 correct for ≥ 85% of the names whose hotel is in our data; **0** confidently wrong lodging results (top-1 a different hotel) across the whole set.
+- [ ] Booking.com, Agoda and Expedia URLs and page titles resolve like the bare name (unit tests).
+- [ ] The v1.2 index tests still pass (tokyu, 白馬東急, happo bus, 7-eleven, near-ranking, typo).
+- [ ] Overture refresh is tested against a recorded fixture (no network in tests); the validator checks ids, bbox and dedupe; the attribution is shown.
+- [ ] `/suggest` stays < 20 ms for local hits with ~1,000 entries.
+
+**Not doing:** fetching Booking.com/Agoda pages (their terms; also no coordinates in the URL); Rakuten (terms); a paid geocoder.
