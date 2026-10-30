@@ -18,6 +18,7 @@ const pilot = (page: Page) => page.getByTestId("pilot");
 type DevMap = {
   getStyle(): { layers: { id: string }[] };
   queryRenderedFeatures(o: { layers: string[] }): unknown[];
+  zoomTo(zoom: number, options: { duration: number }): void;
 };
 /** Where our route layers sit in the drawn style (bottom first). */
 const layerOrder = (page: Page) =>
@@ -344,7 +345,32 @@ test.describe("bus journey", () => {
         "route-covered-line",
         "ride-stop-dots",
       ]);
-    await expect.poll(() => renderedStopDots(page)).toBeGreaterThan(0);
+    // Drawn, not just in the data: the follow camera is at street zoom and the first
+    // stop is ~900 m away, out of view. Look the way a user would: drag (which stops
+    // following), zoom out, count the drawn dots, then Re-centre.
+    const canvas = await page.locator("main canvas").boundingBox();
+    if (!canvas) throw new Error("no map canvas");
+    await page.mouse.move(
+      canvas.x + canvas.width / 2,
+      canvas.y + canvas.height / 2,
+    );
+    await page.mouse.down();
+    await page.mouse.move(
+      canvas.x + canvas.width / 2 + 80,
+      canvas.y + canvas.height / 2 + 40,
+      { steps: 10 },
+    );
+    await page.mouse.up();
+    await expect(page.getByRole("button", { name: "Re-centre" })).toBeVisible();
+    await page.evaluate(() =>
+      (window as unknown as { __hakubaMap: DevMap }).__hakubaMap.zoomTo(13, {
+        duration: 0,
+      }),
+    );
+    await expect
+      .poll(() => renderedStopDots(page), { timeout: 15_000 })
+      .toBeGreaterThan(0);
+    await page.getByRole("button", { name: "Re-centre" }).click();
 
     // 2. at the stop: wait, with a countdown
     await context.setGeolocation({
