@@ -543,8 +543,8 @@ Gate shorthand:
 **Description:** `tests/places/booking_eval.json` (29 names, expected coordinate or `absent`, reviewed) and `places/eval_search.py`, which prints the table and recall, wrong-hit counts. A pytest test pins the thresholds (offline: index only).
 **Acceptance:** [x] Baseline recorded: offline index 10/25 present, 0 wrong (the 6 wrong came from Photon, checked in T48) **Dependencies:** none **Scope:** S
 
-## Task 47: Query cleaning for hotel-site URLs and titles
-**Acceptance:** [ ] Unit tests for Booking/Agoda/Expedia/Hotels.com/Trip.com/Rakuten/Jalan URLs and title noise **Dependencies:** T46 **Scope:** S
+## Task 47: Query cleaning for hotel-site URLs and titles ✅
+**Acceptance:** [x] Unit tests for Booking/Agoda/Expedia/Hotels.com/Trip.com URLs and title noise (Rakuten/Jalan URLs carry no name); eval 14/25 **Dependencies:** T46 **Scope:** S
 
 ## Task 48: Scoring v2 + Photon relevance gate
 **Acceptance:** [ ] v1.2 index tests pass; [ ] eval shows 0 wrong lodging hits **Dependencies:** T47 **Scope:** M

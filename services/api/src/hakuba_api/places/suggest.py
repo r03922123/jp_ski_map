@@ -9,6 +9,7 @@ from hakuba_api.common.upstream import UpstreamError
 from hakuba_api.places.index import Entry, Hit, Kind, build_index, rank
 from hakuba_api.places.models import Place
 from hakuba_api.places.photon import search_photon
+from hakuba_api.places.query_clean import clean_query
 
 log = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ def suggest(
     entries: list[Entry] | None = None,
     use_photon: bool = True,
 ) -> list[Suggestion]:
+    query = clean_query(query)  # pasted hotel-site URLs and page titles → the name
     local = [
         _from_hit(h)
         for h in rank(entries if entries is not None else load_index(), query, near, limit)
