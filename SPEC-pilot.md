@@ -8,7 +8,7 @@
 When the user taps **Start** on a drive, walk or bus route, the app becomes a navigator like Google
 Maps': it follows the user's GPS position, shows the next turn and the time and distance left,
 re-routes when they leave the route, and, on the bus, shows the coming stops and says when to get off.
-Mobile is the main target; it also works on a desktop browser that has location.
+Pilot is offered **only on touch-first devices** (phones, tablets); see *Devices* below.
 
 ### Behaviour evidence (REA-style: claim → source → limits)
 | Behaviour | Evidence | What we take |
@@ -64,3 +64,17 @@ interface. A dev-only `SimulatedSource` replays the route at a chosen speed (`?s
 - Always: label bus times *scheduled/expected*, say plainly there's no live traffic, and stop GPS and the wake lock on Exit or when the page is hidden for more than 10 minutes.
 - Never: send position fixes anywhere except the reroute request (origin coordinate only), store a location history, or invent traffic.
 - Ask first: TomTom/HERE or another traffic feed; background tracking; exposing the dev server beyond the LAN.
+
+## Devices (v1.3.1, 2026-10-30): no pilot on laptops
+A laptop or desktop isn't carried while driving or walking, and its "location" is Wi-Fi-based (often hundreds of metres off), so pilot mode is removed there.
+- **Laptop/desktop** = the primary pointer is fine (mouse or trackpad): `matchMedia("(pointer: coarse)")` is false. Phones and tablets keep pilot, including iPads (which report a Mac user agent, so the user agent can't decide this). Touchscreen laptops count as laptops (their primary pointer is the trackpad).
+- On a laptop the **Start** buttons (drive/walk directions, and the bus journey) aren't shown. Routes, ETAs and step lists are unchanged.
+- The answer is reactive: if the primary pointer changes (an iPad gets a trackpad keyboard), Start appears or disappears. A session that is already running is never cut off.
+- Server render and first paint: no Start, decided after hydration (no hydration mismatch).
+- Dev builds only: `?simulate` keeps Start on a laptop, so the simulated drive can still be watched on a desk.
+
+**Acceptance**
+- [ ] Unit: coarse pointer → available; fine → not; dev + `?simulate` → available; production ignores `?simulate`; pointer change updates.
+- [ ] E2E desktop (fine pointer): directions show no Start; bus option shows no Start.
+- [ ] E2E mobile emulation (coarse pointer, touch): the existing pilot journeys pass.
+- [ ] Real iPhone over USB (ios_webkit_debug_proxy): `(pointer: coarse)` is true and Start is shown.

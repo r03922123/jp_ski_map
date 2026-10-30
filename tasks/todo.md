@@ -559,3 +559,16 @@ Gate shorthand:
 
 ## Checkpoint L ✅
 - [x] Eval thresholds met (25/25, 0 wrong); all gates; full e2e 23/23 incl. Booking.com paste
+
+## Phase 13: Device gating (SPEC-pilot "Devices")
+
+## Task 51: Pilot only on touch-first devices
+**Description:** `lib/device.ts` `usePilotAvailable()` (coarse primary pointer, reactive, SSR-safe; dev `?simulate` override). MapShell passes `onStart` to directions and the bus panel only when available. Pilot e2e run under mobile emulation; new desktop e2e asserts no Start.
+**Acceptance criteria:**
+- [ ] Unit tests for the rules in SPEC-pilot "Devices"
+- [ ] E2E: desktop → no Start (directions, bus); mobile → all pilot journeys pass
+- [ ] Real iPhone check over USB: coarse pointer, Start shown
+**Verification:** Web gates; full Playwright; iPhone via inspector
+**Dependencies:** T42, T45
+**Files:** `lib/device.ts`, `components/MapShell.tsx`, `tests/device.test.ts`, `e2e/pilot.spec.ts`, `SPEC-pilot.md`
+**Scope:** S
