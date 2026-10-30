@@ -23,23 +23,28 @@ def _location(coord: Coord) -> dict[str, Any]:
     return {"lat": coord.lat, "lon": coord.lng}
 
 
-def _to_route(mode: Mode, trip: dict[str, Any]) -> Route:
-    """One Valhalla trip (all legs joined) → Route."""
+def _to_route(mode: Mode, trip: dict[str, Any], stops: bool = False) -> Route:
+    """One Valhalla trip (all legs joined) → Route. With `stops`, each leg's arrival is a
+    real stop and is kept as "Arrive at stop N"; otherwise it was a pass-through point."""
     coordinates: list[list[float]] = []
     steps: list[Step] = []
     roads: list[tuple[list[str], float]] = []  # (street names, km) per maneuver
-    for leg in trip["legs"]:
+    last_leg = len(trip["legs"]) - 1
+    for leg_index, leg in enumerate(trip["legs"]):
         offset = max(len(coordinates) - 1, 0)  # legs share their joining point
         shape = [[lng, lat] for lng, lat in decode_polyline(leg["shape"])]
         coordinates += shape[1:] if coordinates else shape
         for m in leg["maneuvers"]:
             street_names: list[str] = m.get("street_names") or []
             roads.append((street_names, m["length"]))
-            if steps and m["type"] in (4, 5, 6) and leg is not trip["legs"][-1]:
-                continue  # intermediate "arrive" of a via-point
+            instruction: str = m["instruction"]
+            if m["type"] in (4, 5, 6) and leg_index < last_leg:
+                if not stops:
+                    continue  # intermediate "arrive" of a pass-through point
+                instruction = f"Arrive at stop {leg_index + 1}. {instruction}"
             steps.append(
                 Step(
-                    instruction=m["instruction"],
+                    instruction=instruction,
                     distance_m=round(m["length"] * 1000),
                     duration_s=round(m["time"]),
                     maneuver=maneuver_for(m["type"]),
@@ -97,15 +102,17 @@ class ValhallaClient:
             ][:alternates],
         )
 
-    def path(self, mode: Mode, points: list[Coord]) -> Route:
-        """One route through ordered points; middle points are pass-through (no stop)."""
+    def path(self, mode: Mode, points: list[Coord], stop_at_points: bool = False) -> Route:
+        """One route through ordered points. Middle points are pass-through (a bus line's
+        stops on its road path) unless `stop_at_points`: then each is a real stop."""
         locations = [_location(p) for p in points]
-        for loc in locations[1:-1]:
-            loc["type"] = "through"
+        if not stop_at_points:
+            for loc in locations[1:-1]:
+                loc["type"] = "through"
         data = self._post(
             "/route", {"locations": locations, "costing": COSTING[mode], "units": "kilometers"}
         )
-        return _to_route(mode, data["trip"])
+        return _to_route(mode, data["trip"], stops=stop_at_points)
 
     def matrix(
         self, mode: Mode, origin: Coord, targets: list[tuple[str, Coord]]

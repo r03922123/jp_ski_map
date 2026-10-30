@@ -156,3 +156,50 @@ def test_live_path_passes_near_every_point() -> None:
     line = [Coord(lat=lat, lng=lng) for lng, lat in route.geometry.coordinates]
     for p in points:
         assert min(_km(p, q) for q in line) * 1000 < 50
+
+
+# --- v1.4: stops (SPEC-web-app "Edit the trip") -------------------------------------
+
+
+def test_path_with_stops_sends_break_points_and_announces_each_stop(
+    valhalla: respx.MockRouter,
+) -> None:
+    call = valhalla.post("/route").respond(json=fixture("route_path_stops.json"))
+    points = [
+        Coord(lat=36.69711, lng=137.85393),
+        Coord(lat=36.69877, lng=137.86197),
+        Coord(lat=36.70179, lng=137.83683),
+    ]
+
+    route = ValhallaClient(VALHALLA).path("drive", points, stop_at_points=True)
+
+    sent = json.loads(call.calls.last.request.content)["locations"]
+    assert [loc.get("type") for loc in sent] == [None, None, None]  # Valhalla's default: break
+    arrivals = [s for s in route.steps if s.maneuver == "arrive"]
+    assert [s.instruction.split(".")[0] for s in arrivals] == [
+        "Arrive at stop 1",
+        "You have arrived at your destination",
+    ]
+    stop = arrivals[0]
+    assert stop.shape_range[0] > 0  # placed along the joined line, not at its start
+
+
+def test_path_endpoint_accepts_stop_at_points(valhalla: respx.MockRouter, api: TestClient) -> None:
+    valhalla.post("/route").respond(json=fixture("route_path_stops.json"))
+
+    response = api.post(
+        "/api/route/path",
+        json={
+            "mode": "drive",
+            "points": [
+                {"lat": 36.69711, "lng": 137.85393},
+                {"lat": 36.69877, "lng": 137.86197},
+                {"lat": 36.70179, "lng": 137.83683},
+            ],
+            "stopAtPoints": True,
+        },
+    )
+
+    assert response.status_code == 200
+    instructions = [s["instruction"] for s in response.json()["steps"]]
+    assert any(i.startswith("Arrive at stop 1") for i in instructions)

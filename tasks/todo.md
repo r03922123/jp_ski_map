@@ -601,7 +601,7 @@ Gate shorthand:
 - Position puck intercepted drags 1 in 5 (couldn't pan from your own position) → pointer-events none.
 - Tests: >4-stop rides on every surface, exact row states, board/alight roles, waiting has no markings, scroll-into-view, loop and unplaced-stop cases, drawn layer order and rendered stop dots via the dev map handle, font test proves labels drew.
 
-## Task 56: API: route through real stops (`stopAtPoints`)
+## Task 56: API: route through real stops (`stopAtPoints`) ✅
 **Files:** `routing/client.py`, `routing/router.py`, `tests/routing/*`, fixture. **Scope:** S
 
 ## Task 57: Trip panel: clear boxes, add/remove stops, map tap fills the active box, stops in URL

@@ -69,7 +69,8 @@ export interface paths {
         put?: never;
         /**
          * Post Route Path
-         * @description A route through ordered points, e.g. the stops of a bus ride.
+         * @description A route through ordered points: a bus ride's stops (pass-through), or a trip's
+         *     stops (`stopAtPoints`).
          */
         post: operations["post_route_path_api_route_path_post"];
         delete?: never;
@@ -544,6 +545,11 @@ export interface components {
             mode: "drive" | "walk";
             /** Points */
             points: components["schemas"]["Coord"][];
+            /**
+             * Stopatpoints
+             * @default false
+             */
+            stopAtPoints: boolean;
         };
         /** Place */
         Place: {
@@ -565,7 +571,7 @@ export interface components {
              * Source
              * @enum {string}
              */
-            source: "photon" | "osm-snapshot" | "gmaps-link";
+            source: "photon" | "osm-snapshot" | "overture-snapshot" | "gmaps-link";
         };
         /** RankedResort */
         RankedResort: {

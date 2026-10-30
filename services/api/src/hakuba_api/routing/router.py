@@ -44,14 +44,17 @@ def get_routes(
 class PathRequest(ApiModel):
     mode: Mode
     points: Annotated[list[Coord], Field(min_length=2, max_length=25)]
+    # true: the middle points are stops the trip makes ("Arrive at stop N"), not pass-through
+    stop_at_points: bool = False
 
 
 @router.post("/route/path", response_model=Route, response_model_by_alias=True)
 def post_route_path(
     body: PathRequest, valhalla: Annotated[ValhallaClient, Depends(get_valhalla)]
 ) -> Route:
-    """A route through ordered points, e.g. the stops of a bus ride."""
-    return valhalla.path(body.mode, body.points)
+    """A route through ordered points: a bus ride's stops (pass-through), or a trip's
+    stops (`stopAtPoints`)."""
+    return valhalla.path(body.mode, body.points, stop_at_points=body.stop_at_points)
 
 
 class MatrixTarget(ApiModel):
