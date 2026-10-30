@@ -429,3 +429,110 @@ Gate shorthand:
 
 ## Checkpoint I ✅
 - [x] Typing a known hotel/stop/resort in EN or JA finds it instantly; the console is clean
+
+## Phase 10: Saved places (SPEC-saved-places v1.3)
+
+## Task 36: Saved store
+**Description:** `lib/saved-places.ts`: types, built-in lists, add/remove/move, the hotel label, limits, validated load/save with a corrupt-value backup and in-memory fallback, cross-tab `storage` sync, `useSaved()` hook.
+**Acceptance criteria:**
+- [ ] Unit tests for every rule in the spec's first acceptance bullet
+**Verification:** Web gates
+**Dependencies:** None
+**Files:** `lib/saved-places.ts`, `tests/saved-places.test.ts`
+**Scope:** S
+
+## Task 37: Save button, list picker, map layer
+**Description:** ☆/★ `SaveButton` on the origin, resort, POI, pin and bus-stop cards → `ListPicker` sheet (ticks, + New list, Set as My hotel); saved icons layer in `MapView`; tapping one selects it.
+**Acceptance criteria:**
+- [ ] Component tests: toggle in/out of lists, new list, hotel label moves
+- [ ] E2E: star a searched hotel → reload → still ★
+**Verification:** Web gates; Playwright
+**Dependencies:** T36
+**Files:** `components/SaveButton.tsx`, `components/ListPicker.tsx`, `MapView.tsx`, `MapShell.tsx`, `e2e/saved.spec.ts`
+**Scope:** M
+
+## Task 38: Saved panel, Go here, My hotel, search boost
+**Description:** "Saved" chip → lists → places with Start from here / Go here / note / remove / hide list; `dest=pt:` in URL state and as a route target; My hotel as the default origin; saved matches first in `SearchBox`.
+**Acceptance criteria:**
+- [ ] url-state round-trips `dest=pt:`; SearchBox shows saved first
+- [ ] E2E: Go here draws a route; My hotel opens as the origin
+**Verification:** Web gates; Playwright
+**Dependencies:** T37
+**Files:** `components/SavedPanel.tsx`, `lib/url-state.ts`, `SearchBox.tsx`, `MapShell.tsx`, tests
+**Scope:** M
+
+## Task 39: Share / import link
+**Description:** Encode a list as `#import=<base64url>`; on load, show an import confirmation with a preview; validate and limit to 200 places; clear the fragment afterwards.
+**Acceptance criteria:**
+- [ ] Unit: round-trip and rejection cases
+- [ ] E2E: confirm imports, cancel stores nothing
+**Verification:** Web gates; Playwright
+**Dependencies:** T38
+**Files:** `lib/saved-share.ts`, `components/ImportDialog.tsx`, `MapShell.tsx`, tests
+**Scope:** S
+
+## Checkpoint J
+- [ ] All gates; saved flows E2E; 390 px check; clean console
+
+## Phase 11: Pilot (SPEC-pilot v1.3)
+
+## Task 40: Nav core
+**Description:** `lib/nav/`: `project`, `progress`, `NavSession` reducer (following/offRoute/rerouting/arrived), `cameraFor`. Pure.
+**Acceptance criteria:**
+- [ ] Every unit bullet in SPEC-pilot's acceptance criteria, using the recorded Valhalla route fixture
+**Verification:** Web gates
+**Dependencies:** None
+**Files:** `lib/nav/{project,progress,session,camera}.ts`, `tests/nav/*.test.ts`, fixture
+**Scope:** M
+
+## Task 41: Position sources, wake lock, `dev:https`
+**Description:** `PositionSource` (geolocation watch; dev-only simulated replay); `useWakeLock`; permission/insecure-context errors; `pnpm dev:https` script and README note.
+**Acceptance criteria:**
+- [ ] Unit: the simulated source emits fixes along a route at the given speed; errors map to UI states
+- [ ] `pnpm dev:https` serves over HTTPS on the LAN address
+**Verification:** Web gates; manual `curl -k`
+**Dependencies:** T40
+**Files:** `lib/nav/position.ts`, `lib/wake-lock.ts`, `package.json`, README
+**Scope:** S
+
+## Task 42: Pilot screen (drive/walk)
+**Description:** Start button in `DirectionsPanel`; `PilotView` (banner, bottom bar, exit, re-centre, mute placeholder); `MapView` follow camera, puck, covered/remaining split; `data-nav-*` attributes for tests.
+**Acceptance criteria:**
+- [ ] E2E: Start → banner → fixes along the route → remaining falls → arrival
+- [ ] Location denied → message; Exit restores the overview
+**Verification:** Web gates; Playwright at desktop and 390 px
+**Dependencies:** T41
+**Files:** `components/PilotView.tsx`, `DirectionsPanel.tsx`, `MapView.tsx`, `MapShell.tsx`, `e2e/pilot.spec.ts`
+**Scope:** M
+
+## Task 43: Reroute
+**Description:** On `offRoute`, fetch a route from the current fix; throttle 10 s; failure keeps the old route with a message.
+**Acceptance criteria:**
+- [ ] Unit: throttle and failure handling; E2E: off-route fixes → "Rerouting…" → new route starts at the fix
+**Verification:** Web gates; Playwright
+**Dependencies:** T42
+**Files:** `lib/nav/session.ts`, `components/PilotView.tsx`, `MapShell.tsx`, tests
+**Scope:** S
+
+## Task 44: Voice and vibration
+**Description:** `speechSynthesis` announcements at the spec's distances (each announced once), remembered mute, `navigator.vibrate` on turns; feature-detected.
+**Acceptance criteria:**
+- [ ] Unit: announcement schedule fires once per threshold per maneuver; muted → none
+**Verification:** Web gates
+**Dependencies:** T42
+**Files:** `lib/nav/announce.ts`, `components/PilotView.tsx`, tests
+**Scope:** S
+
+## Task 45: Bus pilot
+**Description:** Journey phases walk → wait → ride → arrived; countdown; upcoming stops with scheduled times; "Get off … next stop" alert; "I'm on the bus" button.
+**Acceptance criteria:**
+- [ ] Unit: phase transitions from time + fixes; E2E: the full journey with simulated fixes and a fixed clock
+**Verification:** Web gates; Playwright
+**Dependencies:** T42, T44
+**Files:** `lib/nav/bus-journey.ts`, `components/BusPilot.tsx`, `BusPanel.tsx`, `MapShell.tsx`, tests
+**Scope:** M
+
+## Checkpoint K
+- [ ] All gates + full E2E; desktop and 390 px browser check; clean console
+- [ ] User walks a short real route on their phone via `pnpm dev:https`
+- [ ] Review with human

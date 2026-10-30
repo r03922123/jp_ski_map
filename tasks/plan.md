@@ -136,3 +136,31 @@ T30 poi data ── T31 nearby API ── T32 destination picker (needs T24/T25)
 | Valhalla returns no alternates for short trips | Low | The UI hides the options list when there is only one route; E2E uses a pair known to have an alternate (JR Hakuba → Iwatake) |
 | The Overpass snapshot is busy or rate-limited | Low | The existing mirror and backoff logic; it is a one-off script |
 | A bus path drawn by Valhalla differs from the real bus route | Med | Labelled "approximate bus path"; only located ride stops are used as through-points |
+
+---
+
+# v1.3 — Saved places + Pilot mode (SPEC-saved-places.md, SPEC-pilot.md)
+
+## Architecture decisions
+- **Saved places live only in the browser** (`localStorage`, validated, `useSyncExternalStore`), shared through a URL *fragment* so they never reach a server. No API changes.
+- **Navigation logic is a pure reducer** (`lib/nav/`) fed by a `PositionSource`; the UI only renders state. Thresholds and the off-route counter follow Organic Maps' open-source behaviour (cited in the spec); the code is our own.
+- **One generic destination** `dest=pt:lat,lng` lets saved places (e.g. back to the hotel) be a drive/walk target without new API.
+- **Testing GPS:** unit tests drive the reducer with fix arrays; Playwright drives `context.setGeolocation`; a dev-only `SimulatedSource` replays a route for desktop demos.
+- **Phone:** `pnpm dev:https` (Next experimental HTTPS on the LAN); the `/api` proxy already exists.
+
+## Task list (details in todo.md)
+### Phase 10: Saved places
+- T36 Saved store · T37 Save button + list picker + map layer · T38 Saved panel, Go here, My hotel, search boost · T39 Share / import link
+### Checkpoint J: a hotel saved once is one tap away after reload; import needs confirmation
+### Phase 11: Pilot
+- T40 Nav core (projection, session reducer, progress) · T41 Position sources + wake lock + `dev:https` · T42 Pilot screen for drive/walk · T43 Reroute · T44 Voice + vibration · T45 Bus pilot
+### Checkpoint K: simulated drive, walk and bus journeys pass E2E; real phone walk checked by the user
+
+## Risks
+| Risk | Impact | Mitigation |
+|---|---|---|
+| GPS jitter causes false reroutes | High | Organic-Maps-style counter (> 10 moving-away fixes), accuracy-widened radius, weak-GPS pause, 10 s reroute throttle |
+| iOS Safari: no wake lock before 16.4, speech needs a user gesture | Med | Feature-detect; start speech from the Start tap; show a "keep screen on" hint when wake lock is missing |
+| Bus "on board" detection is guesswork without live bus data | Med | Time + movement along the ride line, plus a manual "I'm on the bus" button |
+| Playwright geolocation updates under machine load | Low | Assert on state attributes (`data-nav-phase`, `data-nav-remaining-m`), not timing |
+| Saved data lost when the user clears site data | Low | The Share link doubles as a backup; the panel says it's stored on this device |

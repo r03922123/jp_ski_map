@@ -29,6 +29,8 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `bus-schedules` | Timetable ingestion (detect → transcribe → validate → git) + "next bus to resorts" query | `resort-catalog`, `routing` |
 | `resort-ranking` | Single-criterion ranking of resorts from an origin | `resort-catalog`, `routing`, `snow-conditions`, `crowd-level` |
 | `poi-destinations` | Restaurant & convenience-store destinations (OSM snapshot) + nearby-by-ETA query *(added v1.1, 2026-10-30)* | `routing` |
+| `saved-places` | Starred/saved places and lists in browser storage, "My hotel" label, share links *(added v1.3, 2026-10-30)* | — (browser only) |
+| `pilot` | Turn-by-turn navigation from live GPS: snapping, progress/ETA, off-route reroute, bus journey guidance *(added v1.3, 2026-10-30)* | `routing`, `bus-schedules` |
 | `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels | all of the above (via HTTP API only) |
 
 **Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
