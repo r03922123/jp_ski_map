@@ -20,7 +20,7 @@ test("click map → choose resort → drive then walk route with ETA", async ({
 
   // Drive mode lists ranked resorts (map markers share the name, so scope to the list)
   await page
-    .getByRole("list")
+    .getByRole("list", { name: "Ranked resorts" })
     .getByRole("button", { name: /Happo-One/ })
     .click({ timeout: 15_000 });
   await expect(page.getByText(/^ETA ~ \d+ min/)).toBeVisible({

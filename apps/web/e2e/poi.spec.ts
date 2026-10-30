@@ -44,7 +44,9 @@ test("switching back to resorts restores the resort list", async ({ page }) => {
   await page.getByRole("tab", { name: /resorts/i }).click();
 
   await expect(
-    page.getByRole("list").getByRole("button", { name: /Happo-One/ }),
+    page
+      .getByRole("list", { name: "Ranked resorts" })
+      .getByRole("button", { name: /Happo-One/ }),
   ).toBeVisible({
     timeout: 15_000,
   });

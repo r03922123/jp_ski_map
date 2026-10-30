@@ -39,3 +39,27 @@ test("pasting a Google Maps link sets the origin without a text search", async (
 
   await expect(page).toHaveURL(/from=36\.70150%2C137\.84410/);
 });
+
+// SPEC-place-search v1.3: copy a hotel from Booking.com, paste it here.
+test("pasting a Booking.com hotel link or name finds the hotel", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const search = page.getByRole("combobox", { name: /search/i });
+
+  await search.fill(
+    "https://www.booking.com/hotel/jp/hakuba-tokyu.en-gb.html?aid=1",
+  );
+  await page
+    .getByRole("option", { name: /Hakuba Tokyu Hotel/ })
+    .first()
+    .click({ timeout: 15_000 });
+  await expect(page).toHaveURL(/from=36\.70[56]\d*%2C137\.839/);
+
+  // a katakana-only hotel, found by its English name
+  await search.fill("Hotel Grace Hakuba");
+  await expect(page.getByRole("option").first()).toContainText(
+    "ホテルグレース白馬",
+    { timeout: 15_000 },
+  );
+});

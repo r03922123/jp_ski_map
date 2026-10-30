@@ -555,5 +555,5 @@ Gate shorthand:
 ## Task 50: Kana → romaji and sound-key matching ✅
 **Acceptance:** [x] Unit tests (トロイメライ ↔ Traumerei, カナディアンロッジ ↔ Canadian Lodge); [x] eval 25/25, 0 wrong **Dependencies:** T49 **Scope:** S
 
-## Checkpoint L
-- [ ] Eval thresholds met; all gates; search e2e green
+## Checkpoint L ✅
+- [x] Eval thresholds met (25/25, 0 wrong); all gates; full e2e 23/23 incl. Booking.com paste

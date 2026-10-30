@@ -72,7 +72,7 @@ export function ResortList({
   onSelect: (resortId: string, accessPointId: string) => void;
 }) {
   return (
-    <ol className="flex flex-col divide-y">
+    <ol aria-label="Ranked resorts" className="flex flex-col divide-y">
       {resorts.map((r) => {
         const snow = snowSummary(r);
         return (

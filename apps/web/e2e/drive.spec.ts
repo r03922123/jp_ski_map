@@ -6,7 +6,7 @@ test("drive mode ranks every resort and re-sorts on demand", async ({
   page,
 }) => {
   await page.goto(HOTEL_HAKUBA);
-  const list = page.getByRole("list");
+  const list = page.getByRole("list", { name: "Ranked resorts" });
   await expect(list.getByRole("listitem")).toHaveCount(10, { timeout: 20_000 });
 
   // default: nearest first, every ETA labelled as an estimate
@@ -26,7 +26,7 @@ test("choosing a ranked resort draws its drive route", async ({ page }) => {
   await page.goto(HOTEL_HAKUBA);
 
   await page
-    .getByRole("list")
+    .getByRole("list", { name: "Ranked resorts" })
     .getByRole("button", { name: /Tsugaike/ })
     .click({ timeout: 20_000 });
 
