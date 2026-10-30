@@ -13,6 +13,7 @@ import {
   toggleInList,
   useSaved,
 } from "@/lib/saved-places";
+import { encodeList, shareUrl } from "@/lib/saved-share";
 
 type Props = {
   onStartFrom: (place: SavedPlace) => void;
@@ -22,8 +23,6 @@ type Props = {
   canGoHere: boolean;
   /** Open straight to this place (a saved marker tapped on the map). */
   focusId?: string | null;
-  /** Share a list (wired by the share task); hidden when absent. */
-  onShareList?: (listId: string) => void;
 };
 
 /** Google's "Saved" tab: lists → places → start from / go here. */
@@ -33,7 +32,6 @@ export function SavedPanel({
   onClose,
   canGoHere,
   focusId = null,
-  onShareList,
 }: Props) {
   const state = useSaved();
   const [openList, setOpenList] = useState<string | null>(null);
@@ -41,6 +39,21 @@ export function SavedPanel({
   const list = state.lists.find((l) => l.id === openList);
   const hotel = hotelOf(state);
   const actions = { onStartFrom, onGoHere, canGoHere };
+  const [shared, setShared] = useState<string | null>(null);
+
+  async function share(listId: string, name: string) {
+    const url = shareUrl(window.location.origin, encodeList(state, listId));
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `Hakuba: ${name}`, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShared("Link copied");
+    } catch {
+      setShared(url); // share sheet dismissed or clipboard blocked: show the link
+    }
+  }
 
   return (
     <section aria-label="Saved" className="flex flex-col gap-3">
@@ -94,14 +107,19 @@ export function SavedPanel({
               No places in this list yet.
             </p>
           )}
-          {onShareList && (
+          {state.places.some((p) => p.lists.includes(list.id)) && (
             <button
               type="button"
               className="self-start text-sm text-blue-700 underline"
-              onClick={() => onShareList(list.id)}
+              onClick={() => share(list.id, list.name)}
             >
               Share this list
             </button>
+          )}
+          {shared && (
+            <output className="block break-all text-xs text-muted-foreground">
+              {shared}
+            </output>
           )}
         </ul>
       ) : (

@@ -7,6 +7,7 @@ import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
 import { DestinationPicker } from "@/components/DestinationPicker";
 import { DrivePanel, type RankingState } from "@/components/DrivePanel";
+import { ImportDialog } from "@/components/ImportDialog";
 import {
   ModePanel,
   type PanelMode,
@@ -43,6 +44,7 @@ import {
   useSaved,
   visibleMarkers,
 } from "@/lib/saved-places";
+import { readImportHash } from "@/lib/saved-share";
 import {
   DEFAULT_RANK,
   type DestinationCategory,
@@ -100,6 +102,8 @@ export function MapShell() {
   const [savedFocus, setSavedFocus] = useState<string | null>(null);
   // text the app puts in the search box when it sets the origin itself
   const [searchLabel, setSearchLabel] = useState<string | null>(null);
+  // a shared list waiting for the user to confirm (`#import=…`)
+  const [importCode, setImportCode] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
@@ -126,6 +130,7 @@ export function MapShell() {
       setSearchLabel(`My hotel · ${hotel.name}`);
     }
     setPoint(view.point);
+    setImportCode(readImportHash(window.location.hash));
     setSelectedResortId(view.resortId);
     setCategory(view.category);
     setPoiId(view.poiId);
@@ -524,6 +529,16 @@ export function MapShell() {
           />
         )}
       </BottomSheet>
+      {importCode && (
+        <ImportDialog
+          code={importCode}
+          onDone={(imported) => {
+            // the URL mirror above already dropped the fragment, so a reload won't ask again
+            setImportCode(null);
+            if (imported) setSavedOpen(true);
+          }}
+        />
+      )}
     </main>
   );
 }

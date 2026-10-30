@@ -461,18 +461,18 @@ Gate shorthand:
 **Files:** `components/SavedPanel.tsx`, `lib/url-state.ts`, `SearchBox.tsx`, `MapShell.tsx`, tests
 **Scope:** M
 
-## Task 39: Share / import link
+## Task 39: Share / import link ✅
 **Description:** Encode a list as `#import=<base64url>`; on load, show an import confirmation with a preview; validate and limit to 200 places; clear the fragment afterwards.
 **Acceptance criteria:**
-- [ ] Unit: round-trip and rejection cases
-- [ ] E2E: confirm imports, cancel stores nothing
+- [x] Unit: round-trip and rejection cases
+- [x] E2E: confirm imports, cancel stores nothing
 **Verification:** Web gates; Playwright
 **Dependencies:** T38
 **Files:** `lib/saved-share.ts`, `components/ImportDialog.tsx`, `MapShell.tsx`, tests
 **Scope:** S
 
-## Checkpoint J
-- [ ] All gates; saved flows E2E; 390 px check; clean console
+## Checkpoint J ✅
+- [x] All gates; saved flows E2E; 390 px check; clean console
 
 ## Phase 11: Pilot (SPEC-pilot v1.3)
 

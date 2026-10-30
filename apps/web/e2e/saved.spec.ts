@@ -119,3 +119,70 @@ test("Go here on a saved place draws a route to it", async ({ page }) => {
     page.getByRole("list", { name: "Trip" }).getByText("JR Hakuba Station"),
   ).toBeVisible();
 });
+
+// {"v":1,"n":"Onsen trip","i":"bookmark","p":[["osm-node-7","Mimizuku no Yu",36.69735,137.84402,"poi"]]}
+const IMPORT_CODE = Buffer.from(
+  JSON.stringify({
+    v: 1,
+    n: "Onsen trip",
+    i: "bookmark",
+    p: [["osm-node-7", "Mimizuku no Yu", 36.69735, 137.84402, "poi"]],
+  }),
+).toString("base64url");
+
+test("a shared list is imported only after confirming", async ({ page }) => {
+  await page.goto(`/#import=${IMPORT_CODE}`);
+  const dialog = page.getByRole("dialog", {
+    name: /Add 1 place to “Onsen trip”/,
+  });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText("Mimizuku no Yu");
+  await dialog.getByRole("button", { name: "Add to Saved" }).click();
+
+  await expect(
+    page.getByRole("button", { name: /Onsen trip.*1 place/ }),
+  ).toBeVisible();
+  await expect(page).not.toHaveURL(/#import=/);
+  await expect(page.locator('[data-saved-marker="osm-node-7"]')).toHaveCount(1);
+});
+
+test("cancelling an import stores nothing", async ({ page }) => {
+  await page.goto(`/#import=${IMPORT_CODE}`);
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Cancel" })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(
+    await page.evaluate(() => localStorage.getItem("hakuba:saved")),
+  ).toBeNull();
+});
+
+test.describe("mobile", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("list picker and saved panel fit a phone without horizontal scroll", async ({
+    page,
+  }) => {
+    await seedSaved(page);
+    await page.goto("/");
+    const noHorizontalScroll = () =>
+      page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      );
+
+    await page
+      .getByRole("list", { name: "Trip" })
+      .getByRole("button", { name: /Hotel Hakuba/ })
+      .click();
+    await expect(
+      page.getByRole("dialog", { name: "Save to list" }),
+    ).toBeVisible();
+    expect(await noHorizontalScroll()).toBe(true);
+    await page.getByRole("button", { name: "Done" }).click();
+
+    await page.getByRole("button", { name: "Saved places" }).click();
+    await expect(page.getByRole("region", { name: "Saved" })).toBeVisible();
+    expect(await noHorizontalScroll()).toBe(true);
+  });
+});
