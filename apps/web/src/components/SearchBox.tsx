@@ -126,6 +126,8 @@ export function SearchBox({
   return (
     <div className="relative">
       <input
+        // Form-filling extensions tag search inputs (e.g. data-sharkid) before hydration.
+        suppressHydrationWarning
         type="search"
         role="combobox"
         aria-label="Search hotel or place"
