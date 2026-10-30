@@ -176,10 +176,11 @@ def test_path_with_stops_sends_break_points_and_announces_each_stop(
     sent = json.loads(call.calls.last.request.content)["locations"]
     assert [loc.get("type") for loc in sent] == [None, None, None]  # Valhalla's default: break
     arrivals = [s for s in route.steps if s.maneuver == "arrive"]
-    assert [s.instruction.split(".")[0] for s in arrivals] == [
-        "Arrive at stop 1",
-        "You have arrived at your destination",
-    ]
+    # a stop is not the destination: Valhalla's "Your destination is on the right."
+    # becomes the stop's own wording (the fixture's leg 0 ends with type 5, right)
+    assert [s.instruction for s in arrivals][0] == "Arrive at stop 1, on the right."
+    assert "destination" not in arrivals[0].instruction
+    assert arrivals[-1].instruction.startswith("You have arrived at your destination")
     stop = arrivals[0]
     assert stop.shape_range[0] > 0  # placed along the joined line, not at its start
 

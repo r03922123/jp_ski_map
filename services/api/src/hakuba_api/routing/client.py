@@ -23,6 +23,10 @@ def _location(coord: Coord) -> dict[str, Any]:
     return {"lat": coord.lat, "lon": coord.lng}
 
 
+# Valhalla arrive maneuvers: 4 destination, 5 destination on the right, 6 on the left
+_ARRIVE_SIDE = {5: ", on the right", 6: ", on the left"}
+
+
 def _to_route(mode: Mode, trip: dict[str, Any], stops: bool = False) -> Route:
     """One Valhalla trip (all legs joined) → Route. With `stops`, each leg's arrival is a
     real stop and is kept as "Arrive at stop N"; otherwise it was a pass-through point."""
@@ -41,7 +45,9 @@ def _to_route(mode: Mode, trip: dict[str, Any], stops: bool = False) -> Route:
             if m["type"] in (4, 5, 6) and leg_index < last_leg:
                 if not stops:
                     continue  # intermediate "arrive" of a pass-through point
-                instruction = f"Arrive at stop {leg_index + 1}. {instruction}"
+                # Valhalla words every leg end as "your destination"; a stop isn't one
+                side = _ARRIVE_SIDE.get(m["type"], "")
+                instruction = f"Arrive at stop {leg_index + 1}{side}."
             steps.append(
                 Step(
                     instruction=instruction,
