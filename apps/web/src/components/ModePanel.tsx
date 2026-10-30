@@ -106,7 +106,7 @@ export function ModePanel({
       {hasOrigin && placeStrip}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
-          Tap the map to set your starting point.
+          Type a place above, or tap the map, to set your starting point.
         </p>
       ) : mode === "bus" && busPanel ? (
         <>

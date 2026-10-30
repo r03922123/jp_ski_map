@@ -604,5 +604,5 @@ Gate shorthand:
 ## Task 56: API: route through real stops (`stopAtPoints`) ✅
 **Files:** `routing/client.py`, `routing/router.py`, `tests/routing/*`, fixture. **Scope:** S
 
-## Task 57: Trip panel: clear boxes, add/remove stops, map tap fills the active box, stops in URL
+## Task 57: Trip panel: clear boxes, add/remove stops, map tap fills the active box, stops in URL ✅
 **Files:** `components/TripPanel.tsx` (replaces PlaceStrip), `MapShell.tsx`, `MapView.tsx`, `SearchBox.tsx`, `lib/url-state.ts`, `lib/api.ts`, tests, `e2e/stops.spec.ts`. **Scope:** M

@@ -18,6 +18,7 @@ describe("parseViewState", () => {
       category: "resorts",
       rank: DEFAULT_RANK,
       point: null,
+      stops: [],
     });
   });
 
@@ -30,6 +31,7 @@ describe("parseViewState", () => {
       category: "resorts",
       rank: DEFAULT_RANK,
       point: null,
+      stops: [],
     });
   });
 
@@ -49,6 +51,7 @@ describe("serializeViewState", () => {
         category: "resorts",
         rank: DEFAULT_RANK,
         point: null,
+        stops: [],
       }),
     ).toBe("?from=36.69123%2C137.87123&mode=drive");
   });
@@ -62,6 +65,7 @@ describe("serializeViewState", () => {
       category: "resorts",
       rank: DEFAULT_RANK,
       point: null,
+      stops: [],
     };
 
     expect(parseViewState(serializeViewState(state))).toEqual(state);
@@ -84,6 +88,7 @@ describe("rank options in the URL", () => {
         hvPass: false,
       },
       point: null,
+      stops: [],
     };
 
     expect(parseViewState(serializeViewState(state))).toEqual(state);
@@ -127,6 +132,7 @@ describe("place destinations", () => {
       category: "food",
       rank: DEFAULT_RANK,
       point: null,
+      stops: [],
     });
 
     expect(search).toContain("cat=food");

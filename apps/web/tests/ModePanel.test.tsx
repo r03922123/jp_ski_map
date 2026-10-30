@@ -75,7 +75,9 @@ describe("ModePanel", () => {
     renderPanel({ hasOrigin: false, route: { status: "idle" } });
 
     expect(
-      screen.getByText(/tap the map to set your starting point/i),
+      screen.getByText(
+        /type a place above, or tap the map, to set your starting point/i,
+      ),
     ).toBeInTheDocument();
   });
 

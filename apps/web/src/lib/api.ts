@@ -60,11 +60,16 @@ export const fetchRoutes = (mode: Mode, from: Coord, to: Coord) =>
   );
 
 /** One route through ordered points (e.g. a bus ride's stops). */
-export async function fetchPath(mode: Mode, points: Coord[]): Promise<Route> {
+export async function fetchPath(
+  mode: Mode,
+  points: Coord[],
+  { stopAtPoints = false }: { stopAtPoints?: boolean } = {},
+): Promise<Route> {
   const response = await fetch("/api/route/path", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mode, points }),
+    // stopAtPoints: the middle points are a trip's stops, not a bus line's pass-throughs
+    body: JSON.stringify({ mode, points, stopAtPoints }),
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));

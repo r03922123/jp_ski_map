@@ -55,6 +55,10 @@ export type MapViewProps = {
   /** Saved places (SPEC-saved-places); tapping one calls `onSelectSaved`. */
   saved?: SavedMarker[];
   onSelectSaved?: (id: string) => void;
+  /** The trip's stops, in order (numbered 1, 2, …). */
+  stops?: Coord[];
+  /** A stop box is open: a tap places the stop, even on a route line. */
+  placingStop?: boolean;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
   pilot?: {
     camera: Camera | null;
@@ -137,6 +141,8 @@ export default function MapView({
   onSelectResort,
   saved = [],
   onSelectSaved,
+  stops = [],
+  placingStop = false,
   pilot = null,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
@@ -316,7 +322,9 @@ export default function MapView({
       onDragStart={() => pilot?.onUserMove()}
       onClick={(e) => {
         const feature = e.features?.[0];
-        if (feature?.layer.id === ALT_HIT_LAYER) {
+        // a route line selects that route, unless a stop is being placed: a stop along
+        // the way is the likeliest tap then
+        if (feature?.layer.id === ALT_HIT_LAYER && !placingStop) {
           onSelectRoute?.(Number(feature.properties?.index));
           return;
         }
@@ -566,6 +574,26 @@ export default function MapView({
           >
             {SAVED_ICONS[p.icon]}
           </button>
+        </Marker>
+      ))}
+
+      {stops.map((c, i) => (
+        <Marker
+          // biome-ignore lint/suspicious/noArrayIndexKey: a stop is its position in the trip
+          key={`trip-stop-${i}`}
+          latitude={c.lat}
+          longitude={c.lng}
+          anchor="center"
+          style={{ zIndex: 3 }}
+        >
+          <span
+            role="img"
+            aria-label={`Stop ${i + 1}`}
+            data-trip-stop={i + 1}
+            className="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
+          >
+            {i + 1}
+          </span>
         </Marker>
       ))}
 

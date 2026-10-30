@@ -28,6 +28,8 @@ export type ViewState = {
   rank: RankOptions;
   /** A free destination point; when set it wins over resort/place. */
   point: Coord | null;
+  /** Stops between the start and the destination, in order (drive/walk). */
+  stops: Coord[];
 };
 
 export const SORT_KEYS: readonly SortKey[] = [
@@ -94,6 +96,10 @@ export function parseViewState(search: string): ViewState {
     category: cat && CATEGORIES.includes(cat) ? cat : "resorts",
     rank: parseRank(params),
     point: kind === "pt" ? parseCoord(destId) : null,
+    stops: (params.get("stops") ?? "").split(";").flatMap((s) => {
+      const c = parseCoord(s);
+      return c ? [c] : [];
+    }),
   };
 }
 
@@ -105,6 +111,7 @@ export function serializeViewState({
   category,
   rank,
   point,
+  stops,
 }: ViewState): string {
   const params = new URLSearchParams();
   if (origin) {
@@ -113,6 +120,12 @@ export function serializeViewState({
   params.set("mode", mode);
   if (resortId) params.set("resort", resortId);
   if (category !== "resorts") params.set("cat", category);
+  if (stops.length > 0) {
+    params.set(
+      "stops",
+      stops.map((c) => `${c.lat.toFixed(5)},${c.lng.toFixed(5)}`).join(";"),
+    );
+  }
   if (point) {
     params.set("dest", `pt:${point.lat.toFixed(5)},${point.lng.toFixed(5)}`);
   } else if (poiId) {

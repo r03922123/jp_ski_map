@@ -80,6 +80,10 @@ export function SearchBox({
   onClear,
   near = null,
   label,
+  ariaLabel = "Search hotel or place",
+  placeholder = "Search hotel, stop, resort… or paste a Google Maps link",
+  clearLabel = "Clear starting point",
+  autoFocus = false,
 }: {
   onSelect: (place: Suggestion) => void;
   /** The ✕ button: the text is cleared and the starting point should be dropped. */
@@ -88,6 +92,12 @@ export function SearchBox({
   near?: Coord | null;
   /** Text the app puts in the box when it sets the origin itself (e.g. My hotel). */
   label?: string | null;
+  /** The box's accessible name (default: the starting-point search). */
+  ariaLabel?: string;
+  placeholder?: string;
+  /** Accessible name of the ✕ button. */
+  clearLabel?: string;
+  autoFocus?: boolean;
 }) {
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
@@ -158,12 +168,14 @@ export function SearchBox({
         suppressHydrationWarning
         type="search"
         role="combobox"
-        aria-label="Search hotel or place"
+        aria-label={ariaLabel}
+        // biome-ignore lint/a11y/noAutofocus: a new stop box takes focus, as in Google Maps
+        autoFocus={autoFocus}
         aria-expanded={showList || showRecent}
         aria-controls={listId}
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
-        placeholder="Search hotel, stop, resort… or paste a Google Maps link"
+        placeholder={placeholder}
         className="w-full rounded-full border bg-background py-2 pr-10 pl-4 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden"
         value={text}
         onChange={(e) => {
@@ -177,7 +189,7 @@ export function SearchBox({
       {text && (
         <button
           type="button"
-          aria-label="Clear starting point"
+          aria-label={clearLabel}
           className="absolute inset-y-0 right-2 my-auto flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
           onClick={() => {
             setText("");

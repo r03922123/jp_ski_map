@@ -82,5 +82,5 @@ User request: "reverse engineer how google maps initiates pointing a location on
 
 **Acceptance**
 - [x] API: `stopAtPoints` keeps an "Arrive at stop N" step per intermediate point (fixture test); without it, unchanged (pass-through for the bus line).
-- [ ] Unit: URL round-trip of `stops`; the trip panel adds, fills, removes stops, and clears From/To.
-- [ ] E2E: add a stop by typing → the route goes through it (its steps include "Arrive at stop 1"); add a stop by tapping the map; remove it → the route goes direct again; the link keeps the stops; bus mode offers no "Add stop".
+- [x] Unit: URL round-trip of `stops`; the trip panel adds, fills, removes stops, and clears From/To.
+- [x] E2E: add a stop by typing → the route goes through it (its steps include "Arrive at stop 1"); add a stop by tapping the map; remove it → the route goes direct again; the link keeps the stops; bus mode offers no "Add stop".
