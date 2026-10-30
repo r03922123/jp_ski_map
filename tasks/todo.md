@@ -589,3 +589,6 @@ Gate shorthand:
 ## Task 54: iPhone polish: no zoom-on-focus, no browser-attribute hydration warning ✅
 **Found on the real iPhone (USB inspector):** visualViewport.scale 1.14 after typing in search (14px input); hydration error from Chrome iOS's `__gcrremoteframetoken` on `<html>` (the dev overlay's "1 Issue").
 **Acceptance:** [x] e2e 16px fields on touch / 14px on laptop; [x] e2e injected html attribute → no hydration error
+
+## Task 55: Preview when far from the route
+**Acceptance:** see SPEC-pilot "Preview when you're far away". **Files:** `lib/nav/proximity.ts`, `lib/nav/use-reroute.ts`, `MapShell.tsx`, `DirectionsPanel.tsx`, `PilotView.tsx`, `BusPanel.tsx`, tests, `e2e/pilot.spec.ts`. **Scope:** M

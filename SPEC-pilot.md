@@ -104,3 +104,18 @@ Our own symbol layers (lodging names) named no font, so MapLibre asked OpenFreeM
 - **No hydration warning from the browser:** Chrome on iOS adds `__gcrremoteframetoken` to `<html>` before React hydrates. Attribute differences are ignored on `<html>` only (`suppressHydrationWarning` there).
 - [x] E2E: on a touch phone every text field / select is ≥ 16px; on a laptop the search box stays 14px.
 - [x] E2E: an attribute injected on `<html>` before hydration logs no hydration error.
+
+## Preview when you're far away (v1.3.4, 2026-10-30), user decision "Offer Preview"
+Found on the user's iPhone: pressing Start far from the route (the user wasn't in Hakuba) made the navigator ask for a new route from the phone's position every 10 s, and each request failed (404: outside the routing area).
+- **Far** = the phone's position is more than **1 km** from the route's start.
+- **Before tapping:** if the browser already has location permission (`navigator.permissions` says `granted`), the app reads the position quietly. When far, the drive/walk button reads **Preview** ("Preview route") instead of Start. No permission yet: it stays Start (asking would mean a prompt nobody requested).
+- **After tapping Start:** if the first fix turns out far, the session switches to **Preview** by itself, with "You're far from this route: previewing it".
+- **Preview** plays the route along its line (the simulated source: drive 15 m/s, walk 5 m/s) with the normal turn banner and progress. It uses no GPS, never reroutes, and shows a "Preview" label. Exit as usual.
+- **Rerouting is never requested from more than 50 km from the destination** (outside any route the service can plan); the "Can't reroute" note shows instead.
+- Bus journeys: when far from the boarding stop, the bus Start shows "Bus guidance works near the stop" and doesn't start. (A bus journey depends on the real time and place; there is no bus preview.)
+- The phone's position is never shown or stored; the note says "far", not where you are.
+
+**Acceptance**
+- [ ] Unit: far/near decision (1 km); reroute guard (50 km); the permission-granted position check (granted → position read; prompt/denied → unknown, no prompt).
+- [ ] E2E: GPS far away + permission granted → the button reads Preview, the route plays with no GPS-based reroute request; GPS far + permission granted only after load → Start, then automatic switch to Preview with the note; GPS near → Start navigates normally.
+- [ ] E2E bus: far from the stop → message, no session.
