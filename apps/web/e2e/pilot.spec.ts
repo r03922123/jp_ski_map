@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 
 // SPEC-pilot: Start → follow GPS along the route → arrive. GPS is Playwright's mock.
@@ -226,5 +227,81 @@ test.describe("mobile", () => {
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
+  });
+});
+
+test.describe("bus journey", () => {
+  test.use({ permissions: ["geolocation"], geolocation: FROM });
+
+  test("walk to the stop, wait, ride, and get told where to get off", async ({
+    page,
+    context,
+  }) => {
+    const options = readFileSync(
+      "e2e/fixtures/bus-options-2026-03-20.json",
+      "utf8",
+    );
+    await page.route("**/api/bus/options**", (route) =>
+      route.fulfill({ contentType: "application/json", body: options }),
+    );
+    await page.clock.setFixedTime(new Date("2026-03-20T08:02:00+09:00"));
+    await page.goto(`/?from=${FROM.latitude},${FROM.longitude}&mode=bus`);
+
+    const hakuba47 = page.getByRole("region", {
+      name: "Hakuba47 Mountain Resort",
+    });
+    await hakuba47.getByRole("button").first().click({ timeout: 15_000 });
+    await page.getByRole("button", { name: "Start bus journey" }).click();
+
+    // 1. the walk to the stop, with the bus to catch underneath
+    await expect(
+      page.getByRole("region", { name: "Trip progress" }),
+    ).toContainText(
+      "Then Cortina ↔ Hakuba GORYU from Hakuba Happo Bus Terminal at 08:11",
+      { timeout: 15_000 },
+    );
+
+    // 2. at the stop: wait, with a countdown
+    await context.setGeolocation({
+      latitude: 36.7015349,
+      longitude: 137.8456096,
+    });
+    const bus = page.getByTestId("bus-pilot");
+    await expect(bus).toHaveAttribute("data-bus-phase", "wait", {
+      timeout: 10_000,
+    });
+    await expect(
+      page.getByRole("region", { name: "Bus journey" }),
+    ).toContainText("Wait at Hakuba Happo Bus Terminal");
+    await expect(
+      page.getByRole("region", { name: "Bus progress" }),
+    ).toContainText("08:11 · in 9 min");
+
+    // 3. on board: stops counted down
+    await page.getByRole("button", { name: "I'm on the bus" }).click();
+    await expect(bus).toHaveAttribute("data-bus-phase", "ride");
+    await expect(
+      page.getByRole("region", { name: "Bus journey" }),
+    ).toContainText("3 stops to go · next Happo Nakiyama Slope");
+
+    // 4. one stop before: get off next
+    await context.setGeolocation({
+      latitude: 36.6920952,
+      longitude: 137.8449603,
+    });
+    await expect(
+      page.getByRole("region", { name: "Bus journey" }),
+    ).toContainText("Get off at Hakuba 47 Winter Sports Park — next stop", {
+      timeout: 10_000,
+    });
+
+    // 5. there
+    await context.setGeolocation({ latitude: 36.68456, longitude: 137.82773 });
+    await expect(bus).toHaveAttribute("data-bus-phase", "arrived", {
+      timeout: 10_000,
+    });
+    await expect(
+      page.getByRole("region", { name: "Bus journey" }),
+    ).toContainText("You've arrived at Hakuba 47 Winter Sports Park");
   });
 });

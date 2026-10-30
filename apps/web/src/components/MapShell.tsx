@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
+import { BusPilotView } from "@/components/BusPilotView";
 import { DestinationPicker } from "@/components/DestinationPicker";
 import { DrivePanel, type RankingState } from "@/components/DrivePanel";
 import { ImportDialog } from "@/components/ImportDialog";
@@ -33,7 +34,7 @@ import {
   fetchRoutes,
   type Route,
 } from "@/lib/api";
-import { formatDuration } from "@/lib/format";
+import { formatArrival, formatDuration } from "@/lib/format";
 import {
   buzz,
   dueAnnouncement,
@@ -43,11 +44,21 @@ import {
   speak,
 } from "@/lib/nav/announce";
 import {
+  type BusPlan,
+  type BusState,
+  boardManually,
+  initialBus,
+  planBus,
+  reduceBus,
+  rideView,
+} from "@/lib/nav/bus-journey";
+import { cameraFor } from "@/lib/nav/camera";
+import {
   geolocationSource,
   type PositionSource,
   simulatedSource,
 } from "@/lib/nav/position";
-import { splitAt } from "@/lib/nav/project";
+import { projectForward, splitAt } from "@/lib/nav/project";
 import { usePilot } from "@/lib/nav/use-pilot";
 import { useReroute } from "@/lib/nav/use-reroute";
 import type { LngLat } from "@/lib/route-geo";
@@ -70,6 +81,7 @@ import {
   type RankOptions,
   serializeViewState,
 } from "@/lib/url-state";
+import { useNow } from "@/lib/use-now";
 import { useHiddenTimeout, useWakeLock } from "@/lib/wake-lock";
 
 /** Stop navigating after the page has been hidden this long (SPEC-pilot boundaries). */
@@ -350,9 +362,15 @@ export function MapShell() {
   // the destination stays fixed while reroutes replace the route
   const [pilotTarget, setPilotTarget] = useState<Coord | null>(null);
   const [reroutes, setReroutes] = useState(0);
+  // Bus pilot: the walk leg uses the turn-by-turn pilot; then wait → ride → arrived.
+  const [busPlan, setBusPlan] = useState<BusPlan | null>(null);
+  const [busState, setBusState] = useState<BusState>(initialBus);
+  const busPhase = busPlan ? busState.phase : null;
+  const pastWalk = busPhase !== null && busPhase !== "walk";
   const pilot = usePilot(pilotRoute, pilotSource);
   const reroute = useReroute({
-    phase: pilot.phase,
+    // once at the stop the walk route is done: never reroute it
+    phase: pastWalk ? "following" : pilot.phase,
     fix: pilot.fix,
     mode: pilotRoute?.mode ?? "walk",
     target: pilotTarget,
@@ -365,15 +383,13 @@ export function MapShell() {
     onFailure: () => setPilotRoute((r) => (r ? { ...r } : r)),
   });
   const piloting = pilotRoute !== null;
-  const startPilot = () => {
-    const route = routes[activeRoute];
-    if (!route) return;
+  const beginPilot = (route: Route, goal: Coord | null) => {
     const simulate =
       process.env.NODE_ENV !== "production" &&
       new URLSearchParams(window.location.search).has("simulate");
     if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
     setPilotRoute(route);
-    setPilotTarget(target ?? null);
+    setPilotTarget(goal);
     setReroutes(0);
     setFollowing(true);
     setPilotSource(
@@ -385,10 +401,32 @@ export function MapShell() {
         : geolocationSource(),
     );
   };
+  const startPilot = () => {
+    const route = routes[activeRoute];
+    if (route) beginPilot(route, target ?? null);
+  };
+  const startBusPilot = () => {
+    if (!busChoice) return;
+    const plan = planBus(busChoice, ride.data ?? null);
+    setBusPlan(plan);
+    setBusState(initialBus());
+    // the walk to the boarding stop; already there → the bus line stands in
+    beginPilot(routes[0] ?? plan.line.route, busChoice.boardStopCoord);
+  };
   const exitPilot = () => {
     setPilotRoute(null);
     setPilotSource(null);
+    setBusPlan(null);
   };
+  // biome-ignore lint/correctness/useExhaustiveDependencies: advance on each new fix
+  useEffect(() => {
+    const fix = pilot.fix;
+    if (!busPlan || !fix) return;
+    setBusState((s) =>
+      reduceBus(s, busPlan, fix, Date.now(), pilot.phase === "arrived"),
+    );
+  }, [pilot.fix, busPlan]);
+  const now = useNow(busPhase === "wait" ? 15_000 : null);
   // Voice and vibration (SPEC-pilot): each threshold once per maneuver, per route.
   const [muted, setMuted] = useState(false);
   useEffect(() => setMuted(loadMuted()), []); // browser storage: client only
@@ -401,7 +439,7 @@ export function MapShell() {
   const cueKey = next ? `${next.stepIndex}:${Math.round(next.distanceM)}` : "";
   // biome-ignore lint/correctness/useExhaustiveDependencies: cueKey stands for the next maneuver
   useEffect(() => {
-    if (!pilotRoute || pilot.phase !== "following") return;
+    if (!pilotRoute || pilot.phase !== "following" || pastWalk) return;
     const due = dueAnnouncement(pilot.guidance, pilotRoute.mode, said.current);
     if (!due) return;
     buzz();
@@ -409,30 +447,78 @@ export function MapShell() {
   }, [cueKey, pilot.phase]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: once, on arrival
   useEffect(() => {
-    if (pilot.phase === "arrived" && !muted) speak("You've arrived.");
+    if (pilot.phase === "arrived" && !muted && !busPlan)
+      speak("You've arrived.");
   }, [pilot.phase === "arrived"]);
+  const riding =
+    busPlan && busState.phase === "ride" ? rideView(busPlan, busState) : null;
+  const busCue = busPhase ? `${busPhase}:${riding?.getOffNext ?? false}` : "";
+  // biome-ignore lint/correctness/useExhaustiveDependencies: busCue stands for the bus phase
+  useEffect(() => {
+    if (!busPlan || !busPhase || busPhase === "walk") return;
+    const alight = busPlan.stops[busPlan.alightIndex].name;
+    const text =
+      busPhase === "wait"
+        ? `Wait for ${busPlan.option.routeName}.`
+        : busPhase === "arrived"
+          ? `You've arrived at ${alight}.`
+          : riding?.getOffNext
+            ? `Get off at ${alight} at the next stop.`
+            : null;
+    if (!text) return;
+    buzz();
+    if (!muted) speak(text);
+  }, [busCue]);
   useWakeLock(piloting);
   useHiddenTimeout(piloting, PILOT_HIDDEN_STOP_MS, exitPilot);
   const projection = pilot.nav.projection;
   const onRoute = pilot.phase === "following" || pilot.phase === "arrived";
-  const mapPilot = piloting
-    ? {
-        camera: pilot.camera,
-        puck:
-          onRoute && projection
-            ? projection.point
-            : pilot.fix
-              ? ([pilot.fix.lng, pilot.fix.lat] as LngLat)
-              : null,
-        heading: pilot.camera?.bearing ?? null,
-        covered:
-          projection && pilot.route
-            ? splitAt(pilot.route.coords, projection).covered
-            : [],
-        following,
-        onUserMove: () => setFollowing(false),
-      }
-    : null;
+  const rideFix = busPhase === "ride" ? pilot.fix : null;
+  const rideAt =
+    busPlan && rideFix
+      ? projectForward(busPlan.line, rideFix, busState.rideIndex, 80, 5000)
+      : null;
+  const rideCamera =
+    busPlan && rideAt && rideFix
+      ? cameraFor(busPlan.line, rideAt, rideFix)
+      : null;
+  const mapPilot =
+    busPlan && rideAt && rideCamera
+      ? {
+          camera: rideCamera,
+          puck: rideAt.point,
+          heading: rideCamera.bearing,
+          covered: splitAt(busPlan.line.coords, rideAt).covered,
+          following,
+          onUserMove: () => setFollowing(false),
+        }
+      : pastWalk
+        ? {
+            camera: null, // waiting at the stop: the view is the user's
+            puck: pilot.fix ? ([pilot.fix.lng, pilot.fix.lat] as LngLat) : null,
+            heading: null,
+            covered: [],
+            following,
+            onUserMove: () => setFollowing(false),
+          }
+        : piloting
+          ? {
+              camera: pilot.camera,
+              puck:
+                onRoute && projection
+                  ? projection.point
+                  : pilot.fix
+                    ? ([pilot.fix.lng, pilot.fix.lat] as LngLat)
+                    : null,
+              heading: pilot.camera?.bearing ?? null,
+              covered:
+                projection && pilot.route
+                  ? splitAt(pilot.route.coords, projection).covered
+                  : [],
+              following,
+              onUserMove: () => setFollowing(false),
+            }
+          : null;
   const routeLayers = [
     ...routes.map((_, i) =>
       mode === "bus" ? "walk" : i === activeRoute ? "primary" : "alternate",
@@ -503,7 +589,13 @@ export function MapShell() {
         selectedResortId={selectedResortId}
         origin={origin}
         destination={mode === "bus" ? null : (target ?? null)}
-        routes={pilotRoute ? [pilotRoute] : routes}
+        routes={
+          busPlan && busPhase === "ride"
+            ? [busPlan.line.route]
+            : pilotRoute
+              ? [pilotRoute]
+              : routes
+        }
         activeRoute={pilotRoute ? 0 : activeRoute}
         onSelectRoute={setActiveRoute}
         highlight={pilotRoute ? null : highlight}
@@ -526,13 +618,33 @@ export function MapShell() {
           setSavedOpen(true);
         }}
       />
-      {pilotRoute && (
+      {busPlan && pastWalk && (
+        <BusPilotView
+          plan={busPlan}
+          state={busState}
+          now={now}
+          basis={bus.data?.basis === "expected" ? "expected" : "published"}
+          onBoard={() => setBusState(boardManually)}
+          onExit={exitPilot}
+          muted={muted}
+          onToggleMute={() => {
+            saveMuted(!muted);
+            setMuted(!muted);
+          }}
+        />
+      )}
+      {pilotRoute && !pastWalk && (
         <PilotView
           status={pilot}
           mode={pilotRoute.mode}
           following={following}
           reroute={reroute}
           reroutes={reroutes}
+          footnote={
+            busPlan
+              ? `Then ${busPlan.option.routeName} from ${busPlan.stops[0].name} at ${formatArrival(new Date(busPlan.departsAtMs), 0)}`
+              : undefined
+          }
           muted={muted}
           onToggleMute={() => {
             saveMuted(!muted);
@@ -630,6 +742,8 @@ export function MapShell() {
                   onDepartAtChange={setDepartAt}
                   selected={busChoice}
                   onSelect={setBusChoice}
+                  // only once the walk to the stop is known: it is the first leg
+                  onStart={routeQuery.isPending ? undefined : startBusPilot}
                 />
               }
               destinationPicker={

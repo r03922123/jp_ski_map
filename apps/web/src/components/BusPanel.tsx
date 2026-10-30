@@ -24,6 +24,8 @@ export type BusPanelProps = {
   onDepartAtChange: (value: string) => void;
   selected: BusOption | null;
   onSelect: (option: BusOption) => void;
+  /** Guide the chosen journey step by step (SPEC-pilot "bus pilot"). */
+  onStart?: () => void;
 };
 
 const clock = new Intl.DateTimeFormat("en-GB", {
@@ -135,7 +137,11 @@ function Results({
   result,
   selected,
   onSelect,
-}: Pick<BusPanelProps, "resorts" | "result" | "selected" | "onSelect">) {
+  onStart,
+}: Pick<
+  BusPanelProps,
+  "resorts" | "result" | "selected" | "onSelect" | "onStart"
+>) {
   if (result.status === "idle") return null;
   if (result.status === "loading") {
     return <p className="text-sm text-muted-foreground">Finding buses…</p>;
@@ -207,6 +213,16 @@ function Results({
                     onSelect={onSelect}
                   />
                   {isSelected && <Journey option={o} />}
+                  {isSelected && onStart && (
+                    <button
+                      type="button"
+                      aria-label="Start bus journey"
+                      className="mt-1 ml-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+                      onClick={onStart}
+                    >
+                      ▶ Start
+                    </button>
+                  )}
                 </div>
               );
             })}

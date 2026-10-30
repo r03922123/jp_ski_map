@@ -524,10 +524,11 @@ Gate shorthand:
 **Files:** `lib/nav/announce.ts`, `components/PilotView.tsx`, tests
 **Scope:** S
 
-## Task 45: Bus pilot
+## Task 45: Bus pilot ✅
 **Description:** Journey phases walk → wait → ride → arrived; countdown; upcoming stops with scheduled times; "Get off … next stop" alert; "I'm on the bus" button.
 **Acceptance criteria:**
-- [ ] Unit: phase transitions from time + fixes; E2E: the full journey with simulated fixes and a fixed clock
+- [x] Unit: phase transitions from time + fixes; E2E: the full journey with simulated fixes and a fixed clock
+- [x] Found by E2E: Start before the walk route loaded → a step-less route crashed `progress` and blanked the page → `progress` handles step-less lines, bus Start waits for the walk route, and `app/error.tsx` catches anything else
 **Verification:** Web gates; Playwright
 **Dependencies:** T42, T44
 **Files:** `lib/nav/bus-journey.ts`, `components/BusPilot.tsx`, `BusPanel.tsx`, `MapShell.tsx`, tests

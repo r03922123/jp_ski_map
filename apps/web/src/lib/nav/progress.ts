@@ -38,6 +38,13 @@ export function stepAt(r: PreparedRoute, index: number): number {
  */
 export function progress(r: PreparedRoute, p: Projection): Guidance {
   const steps = r.route.steps;
+  const remainingM = Math.max(0, r.totalM - p.alongM);
+  if (steps.length === 0) {
+    // a line with no maneuvers (the bus line): distance only, time pro rata
+    const share = r.totalM > 0 ? remainingM / r.totalM : 0;
+    const remainingS = r.route.durationS * share;
+    return { remainingM, remainingS, stepIndex: 0, next: null, after: null };
+  }
   const si = stepAt(r, p.index);
   const step = steps[si];
   const begin = r.cum[step.shapeRange[0]];
@@ -66,7 +73,7 @@ export function progress(r: PreparedRoute, p: Projection): Guidance {
       : null;
 
   return {
-    remainingM: Math.max(0, r.totalM - p.alongM),
+    remainingM,
     remainingS,
     stepIndex: si,
     next,

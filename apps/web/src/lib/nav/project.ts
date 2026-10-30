@@ -69,6 +69,7 @@ export function projectForward(
   fix: Fix,
   fromIndex: number,
   radiusM = 50,
+  lookaheadM = LOOKAHEAD_M,
 ): Projection {
   const p: LngLat = [fix.lng, fix.lat];
   const last = Math.max(0, r.coords.length - 2);
@@ -76,7 +77,7 @@ export function projectForward(
   let best: Projection | null = null;
   let inRadius = false;
   for (let i = start; i <= last; i++) {
-    if (r.cum[i] - r.cum[start] > LOOKAHEAD_M) break;
+    if (r.cum[i] - r.cum[start] > lookaheadM) break;
     const b = r.coords[i + 1] ?? r.coords[i];
     const s = onSegment(r.coords[i], b, p);
     const segLen = r.cum[i + 1] - r.cum[i] || 0;

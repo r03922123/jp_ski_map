@@ -27,6 +27,8 @@ type Props = {
   reroutes?: number;
   muted?: boolean;
   onToggleMute?: () => void;
+  /** a line under the progress, e.g. the bus to catch after this walk */
+  footnote?: string;
   onExit: () => void;
   onRecenter: () => void;
   now: Date;
@@ -41,6 +43,7 @@ export function PilotView({
   reroutes = 0,
   muted = false,
   onToggleMute,
+  footnote,
   onExit,
   onRecenter,
   now,
@@ -165,6 +168,9 @@ export function PilotView({
               </>
             ) : (
               <p className="text-sm text-muted-foreground">Waiting for GPS…</p>
+            )}
+            {footnote && (
+              <p className="text-sm font-medium text-teal-800">{footnote}</p>
             )}
             <p className="text-xs text-muted-foreground">
               Live traffic unavailable · typical road speeds

@@ -296,3 +296,14 @@ describe("reduceNav before the first match (heading to the route)", () => {
     expect(s.phase).toBe("offRoute");
   });
 });
+
+describe("progress on a route without steps (a bus line)", () => {
+  it("still counts distance down and has no maneuver", () => {
+    const line = { ...straight(), steps: [] } as Route;
+    const r = prepare(line);
+    const g = progress(r, projectForward(r, fix(at(300)), 0));
+    expect(g.remainingM).toBeCloseTo(600, -1);
+    expect(g.next).toBeNull();
+    expect(g.after).toBeNull();
+  });
+});
