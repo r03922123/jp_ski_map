@@ -13,6 +13,7 @@ import { SearchBox } from "@/components/SearchBox";
 import type { Suggestion } from "@/lib/api";
 import * as api from "@/lib/api";
 import { loadRecent, RECENT_KEY, rememberRecent } from "@/lib/recent-searches";
+import { savedStore, setHotel, toggleInList } from "@/lib/saved-places";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 
 const hotelHakuba: Suggestion = {
@@ -77,15 +78,23 @@ describe("recent searches", () => {
 });
 
 describe("SearchBox", () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    savedStore.reset();
+  });
   afterEach(() => vi.restoreAllMocks());
 
-  function renderBox() {
+  function renderBox(label?: string) {
     const onSelect = vi.fn();
     const onClear = vi.fn();
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <SearchBox onSelect={onSelect} onClear={onClear} near={NEAR} />
+        <SearchBox
+          onSelect={onSelect}
+          onClear={onClear}
+          near={NEAR}
+          label={label}
+        />
       </QueryClientProvider>,
     );
     return {
@@ -218,5 +227,54 @@ describe("SearchBox", () => {
     expect(input).toHaveValue("");
     expect(onClear).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+
+  it("puts saved places first, marked with a star, without duplicating them", async () => {
+    savedStore.update((st) =>
+      toggleInList(st, { ...tokyuStop, kind: "stop" }, "starred"),
+    );
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([
+      hotelHakuba,
+      tokyuStop,
+    ]);
+    const { input, onSelect } = renderBox();
+
+    fireEvent.change(input, { target: { value: "Hakuba" } });
+    await screen.findByRole("option", { name: /hotel hakuba/i });
+    const options = screen.getAllByRole("option");
+    expect(options.map((o) => o.textContent)).toEqual([
+      expect.stringContaining("Hakuba Tokyu Hotel"),
+      expect.stringContaining("Hotel Hakuba"),
+    ]);
+    expect(options[0]).toHaveTextContent("★");
+    expect(options[0]).toHaveTextContent("Starred");
+
+    fireEvent.click(options[0]);
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: tokyuStop.id, kind: "stop" }),
+    );
+  });
+
+  it("offers My hotel and saved places above recents on focus", async () => {
+    savedStore.update((st) =>
+      setHotel(st, { ...hotelHakuba, kind: "lodging" }),
+    );
+    rememberRecent(tokyuStop);
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([]);
+    const { input } = renderBox();
+
+    fireEvent.focus(input);
+    const list = await screen.findByRole("listbox", {
+      name: /saved and recent/i,
+    });
+    const options = within(list).getAllByRole("option");
+    expect(options[0]).toHaveTextContent("Hotel Hakuba");
+    expect(options[0]).toHaveTextContent("My hotel");
+    expect(options[1]).toHaveTextContent("Hakuba Tokyu Hotel");
+  });
+
+  it("shows text the app sets, such as My hotel on start", () => {
+    const { input } = renderBox("My hotel · Hotel Hakuba");
+    expect(input).toHaveValue("My hotel · Hotel Hakuba");
   });
 });

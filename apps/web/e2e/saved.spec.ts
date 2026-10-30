@@ -33,3 +33,89 @@ test("a starred hotel stays saved after a reload and shows on the map", async ({
   ).toBeVisible();
   await expect(page.locator("[data-saved-marker]")).toHaveCount(1);
 });
+
+const HOTEL = {
+  id: "osm:node/6312753047",
+  name: "Hotel Hakuba",
+  coord: { lat: 36.69711, lng: 137.85393 },
+  kind: "lodging",
+};
+const STATION = {
+  id: "stop-jr-hakuba",
+  name: "JR Hakuba Station",
+  coord: { lat: 36.69877, lng: 137.86197 },
+  kind: "stop",
+};
+
+function seedSaved(page: import("@playwright/test").Page) {
+  const state = {
+    version: 1,
+    lists: [
+      {
+        id: "starred",
+        name: "Starred",
+        icon: "star",
+        hidden: false,
+        builtIn: true,
+      },
+      {
+        id: "favorites",
+        name: "Favorites",
+        icon: "heart",
+        hidden: false,
+        builtIn: true,
+      },
+      {
+        id: "want-to-go",
+        name: "Want to go",
+        icon: "flag",
+        hidden: false,
+        builtIn: true,
+      },
+    ],
+    places: [
+      { ...HOTEL, lists: [], label: "hotel", savedAt: "2026-10-30T00:00:00Z" },
+      { ...STATION, lists: ["favorites"], savedAt: "2026-10-30T00:00:01Z" },
+    ],
+  };
+  return page.addInitScript((value) => {
+    localStorage.setItem("hakuba:saved", value);
+  }, JSON.stringify(state));
+}
+
+test("the app opens from My hotel when the link has no starting point", async ({
+  page,
+}) => {
+  await seedSaved(page);
+  await page.goto("/");
+  await expect(page).toHaveURL(/from=36\.69711%2C137\.85393/);
+  await expect(page.getByRole("combobox", { name: /search/i })).toHaveValue(
+    "My hotel · Hotel Hakuba",
+  );
+  await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible();
+});
+
+test("Go here on a saved place draws a route to it", async ({ page }) => {
+  await seedSaved(page);
+  await page.goto("/?mode=drive");
+  await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+    timeout: 15_000,
+  });
+
+  await page.getByRole("button", { name: "Saved places" }).click();
+  await page.getByRole("button", { name: /Favorites/ }).click();
+  await page
+    .getByRole("listitem", { name: "JR Hakuba Station" })
+    .getByRole("button", { name: "Go here" })
+    .click();
+
+  await expect(page).toHaveURL(/dest=pt%3A36\.69877%2C137\.86197/);
+  await expect(page.locator("main")).not.toHaveAttribute(
+    "data-route-points",
+    "0",
+    { timeout: 15_000 },
+  );
+  await expect(
+    page.getByRole("list", { name: "Trip" }).getByText("JR Hakuba Station"),
+  ).toBeVisible();
+});

@@ -17,6 +17,7 @@ describe("parseViewState", () => {
       poiId: null,
       category: "resorts",
       rank: DEFAULT_RANK,
+      point: null,
     });
   });
 
@@ -28,6 +29,7 @@ describe("parseViewState", () => {
       poiId: null,
       category: "resorts",
       rank: DEFAULT_RANK,
+      point: null,
     });
   });
 
@@ -46,6 +48,7 @@ describe("serializeViewState", () => {
         poiId: null,
         category: "resorts",
         rank: DEFAULT_RANK,
+        point: null,
       }),
     ).toBe("?from=36.69123%2C137.87123&mode=drive");
   });
@@ -58,6 +61,7 @@ describe("serializeViewState", () => {
       poiId: null,
       category: "resorts",
       rank: DEFAULT_RANK,
+      point: null,
     };
 
     expect(parseViewState(serializeViewState(state))).toEqual(state);
@@ -79,6 +83,7 @@ describe("rank options in the URL", () => {
         nightSkiing: true,
         hvPass: false,
       },
+      point: null,
     };
 
     expect(parseViewState(serializeViewState(state))).toEqual(state);
@@ -121,10 +126,30 @@ describe("place destinations", () => {
       poiId: "osm:node/123",
       category: "food",
       rank: DEFAULT_RANK,
+      point: null,
     });
 
     expect(search).toContain("cat=food");
     expect(parseViewState(search).poiId).toBe("osm:node/123");
     expect(search).not.toContain("resort=");
+  });
+});
+
+describe("point destinations (saved places: Go here)", () => {
+  it("reads dest=pt:lat,lng and round-trips it", () => {
+    const view = parseViewState(
+      "?from=36.69,137.87&mode=drive&dest=pt%3A36.70001%2C137.85002",
+    );
+    expect(view.point).toEqual({ lat: 36.70001, lng: 137.85002 });
+    expect(view.poiId).toBeNull();
+    expect(view.resortId).toBeNull();
+
+    const search = serializeViewState({ ...view, point: view.point });
+    expect(search).toContain("dest=pt%3A36.70001%2C137.85002");
+    expect(parseViewState(search).point).toEqual(view.point);
+  });
+
+  it("ignores a malformed point", () => {
+    expect(parseViewState("?dest=pt%3Anope").point).toBeNull();
   });
 });

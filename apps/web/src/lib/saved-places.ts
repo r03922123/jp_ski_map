@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { Coord } from "@/lib/api";
+import type { Coord, Suggestion } from "@/lib/api";
 
 /**
  * Saved places and lists, kept only in this browser (SPEC-saved-places).
@@ -396,4 +396,51 @@ export function visibleMarkers(state: SavedState): SavedMarker[] {
       ? [{ id: p.id, name: p.name, coord: p.coord, icon: list.icon }]
       : [];
   });
+}
+
+const SUGGESTION_KIND: Record<SavedKind, Suggestion["kind"]> = {
+  lodging: "lodging",
+  stop: "stop",
+  resort: "resort",
+  poi: "food",
+  pin: "place",
+};
+const MAX_SAVED_SUGGESTIONS = 3;
+
+const fold = (text: string) => text.normalize("NFKC").toLowerCase();
+
+/**
+ * Saved places as search suggestions (`source: "saved"`): those whose name contains
+ * the query, or for an empty query My hotel first and then the most recent saves.
+ */
+export function savedMatches(state: SavedState, query: string): Suggestion[] {
+  const q = fold(query.trim());
+  const names = new Map(state.lists.map((l) => [l.id, l.name]));
+  const ordered = [...state.places].sort(
+    (a, b) =>
+      Number(b.label === "hotel") - Number(a.label === "hotel") ||
+      b.savedAt.localeCompare(a.savedAt),
+  );
+  return ordered
+    .flatMap((p): Suggestion[] => {
+      const at = q ? fold(p.name).indexOf(q) : -1;
+      if (q && at < 0) return [];
+      const lists = p.lists.flatMap((id) => names.get(id) ?? []);
+      const detail = [p.label === "hotel" ? "My hotel" : null, ...lists]
+        .filter(Boolean)
+        .join(" · ");
+      return [
+        {
+          id: p.id,
+          kind: SUGGESTION_KIND[p.kind],
+          name: p.name,
+          nameJa: null,
+          coord: p.coord,
+          detail: detail || null,
+          match: q ? [at, at + q.length] : null,
+          source: "saved",
+        },
+      ];
+    })
+    .slice(0, MAX_SAVED_SUGGESTIONS);
 }

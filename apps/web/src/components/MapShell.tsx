@@ -14,6 +14,7 @@ import {
 } from "@/components/ModePanel";
 import { PlaceStrip } from "@/components/PlaceStrip";
 import { PoiList, type PoiListState } from "@/components/PoiList";
+import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import {
   ApiError,
@@ -32,10 +33,13 @@ import {
 } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 import {
+  hotelOf,
   kindFromSuggestion,
   type PlaceInput,
   pinId,
   placeAt,
+  type SavedPlace,
+  savedStore,
   useSaved,
   visibleMarkers,
 } from "@/lib/saved-places";
@@ -89,6 +93,13 @@ export function MapShell() {
   const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
   const [category, setCategory] = useState<DestinationCategory>("resorts");
   const [poiId, setPoiId] = useState<string | null>(null);
+  // a free destination: a saved place's "Go here"
+  const [point, setPoint] = useState<Coord | null>(null);
+  // Saved panel: open, and optionally focused on one place (a tapped saved marker)
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [savedFocus, setSavedFocus] = useState<string | null>(null);
+  // text the app puts in the search box when it sets the origin itself
+  const [searchLabel, setSearchLabel] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
@@ -106,6 +117,15 @@ export function MapShell() {
     const view = parseViewState(window.location.search);
     setMode(view.mode);
     setOrigin(view.origin);
+    // No shared origin: start from My hotel, like Google starting from Home.
+    const hotel = view.origin ? undefined : hotelOf(savedStore.getSnapshot());
+    if (hotel) {
+      setOrigin(hotel.coord);
+      setOriginName(hotel.name);
+      setOriginSource(hotel);
+      setSearchLabel(`My hotel · ${hotel.name}`);
+    }
+    setPoint(view.point);
     setSelectedResortId(view.resortId);
     setCategory(view.category);
     setPoiId(view.poiId);
@@ -121,9 +141,37 @@ export function MapShell() {
       poiId,
       category,
       rank: rankOptions,
+      point,
     });
     window.history.replaceState(null, "", search);
-  }, [ready, origin, mode, selectedResortId, poiId, category, rankOptions]);
+  }, [
+    ready,
+    origin,
+    mode,
+    selectedResortId,
+    poiId,
+    category,
+    rankOptions,
+    point,
+  ]);
+
+  // Choosing a resort or nearby place replaces a saved place's "Go here".
+  const selectResort = (id: string) => {
+    setSelectedResortId(id);
+    setPoint(null);
+  };
+  const startFrom = (place: SavedPlace) => {
+    setOrigin(place.coord);
+    setOriginName(place.kind === "pin" ? null : place.name);
+    setOriginSource(place);
+    setSearchLabel(place.name);
+    setFlyTo(place.coord);
+    setSavedOpen(false);
+  };
+  const goTo = (place: SavedPlace) => {
+    setPoint(place.coord);
+    setSavedOpen(false);
+  };
 
   const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
 
@@ -230,7 +278,9 @@ export function MapShell() {
   const poiTarget = poiCategory ? (selectedPoi?.coord ?? null) : null;
 
   const target =
-    mode === "bus" ? busStop : poiCategory ? poiTarget : destination;
+    mode === "bus"
+      ? busStop
+      : (point ?? (poiCategory ? poiTarget : destination));
   const routeQuery = useQuery({
     queryKey: ["routes", routeMode, origin, target],
     queryFn: () => fetchRoutes(routeMode, origin!, target!),
@@ -281,33 +331,43 @@ export function MapShell() {
         kind: "pin",
       })
     : null;
+  const pointPlace: PlaceInput | null = point
+    ? (placeAt(savedState, point) ?? {
+        id: pinId(point),
+        name: "Chosen place",
+        coord: point,
+        kind: "pin",
+      })
+    : null;
   const toPlace: PlaceInput | null =
-    mode === "bus"
-      ? busChoice?.boardStopCoord
-        ? {
-            id: busChoice.boardStopId,
-            name: busChoice.boardStopName,
-            coord: busChoice.boardStopCoord,
-            kind: "stop",
-          }
-        : null
-      : poiCategory
-        ? selectedPoi
+    mode !== "bus" && pointPlace
+      ? pointPlace
+      : mode === "bus"
+        ? busChoice?.boardStopCoord
           ? {
-              id: selectedPoi.id,
-              name: selectedPoi.name,
-              coord: selectedPoi.coord,
-              kind: "poi",
+              id: busChoice.boardStopId,
+              name: busChoice.boardStopName,
+              coord: busChoice.boardStopCoord,
+              kind: "stop",
             }
           : null
-        : resort && destination
-          ? {
-              id: resort.id,
-              name: resort.name.en,
-              coord: destination,
-              kind: "resort",
-            }
-          : null;
+        : poiCategory
+          ? selectedPoi
+            ? {
+                id: selectedPoi.id,
+                name: selectedPoi.name,
+                coord: selectedPoi.coord,
+                kind: "poi",
+              }
+            : null
+          : resort && destination
+            ? {
+                id: resort.id,
+                name: resort.name.en,
+                coord: destination,
+                kind: "resort",
+              }
+            : null;
 
   return (
     <main
@@ -337,90 +397,132 @@ export function MapShell() {
           setOriginName(null);
           setOriginSource(null);
         }}
-        onSelectResort={setSelectedResortId}
+        onSelectResort={selectResort}
         saved={savedMarkers}
+        onSelectSaved={(id) => {
+          setSavedFocus(id);
+          setSavedOpen(true);
+        }}
       />
       <BottomSheet
         label="Directions"
         header={
-          <SearchBox
-            onSelect={(place) => {
-              setOrigin(place.coord);
-              setOriginName(place.name);
-              setOriginSource({
-                id: place.id,
-                name: place.name,
-                coord: place.coord,
-                kind: kindFromSuggestion(place.kind),
-              });
-              setFlyTo(place.coord);
-            }}
-            onClear={() => {
-              setOrigin(null);
-              setOriginName(null);
-              setOriginSource(null);
-              setBusChoice(null);
-            }}
-            near={
-              view
-                ? {
-                    lat: (view.bbox.south + view.bbox.north) / 2,
-                    lng: (view.bbox.west + view.bbox.east) / 2,
-                  }
-                : null
-            }
-          />
+          <div className="flex flex-col gap-2">
+            <SearchBox
+              label={searchLabel}
+              onSelect={(place) => {
+                setOrigin(place.coord);
+                setOriginName(place.name);
+                setOriginSource({
+                  id: place.id,
+                  name: place.name,
+                  coord: place.coord,
+                  kind: kindFromSuggestion(place.kind),
+                });
+                setFlyTo(place.coord);
+              }}
+              onClear={() => {
+                setOrigin(null);
+                setOriginName(null);
+                setOriginSource(null);
+                setSearchLabel(null);
+                setBusChoice(null);
+              }}
+              near={
+                view
+                  ? {
+                      lat: (view.bbox.south + view.bbox.north) / 2,
+                      lng: (view.bbox.west + view.bbox.east) / 2,
+                    }
+                  : null
+              }
+            />
+            <button
+              type="button"
+              aria-label="Saved places"
+              aria-pressed={savedOpen}
+              className="self-start rounded-full border bg-background px-3 py-1 text-xs font-medium shadow-sm hover:bg-muted aria-pressed:bg-amber-50"
+              onClick={() => {
+                setSavedFocus(null);
+                setSavedOpen((v) => !v);
+              }}
+            >
+              <span aria-hidden="true" className="text-amber-500">
+                ★
+              </span>{" "}
+              Saved
+            </button>
+          </div>
         }
       >
-        <ModePanel
-          mode={mode}
-          onModeChange={setMode}
-          resorts={resorts.data ?? []}
-          selectedResortId={selectedResortId}
-          onSelectResort={setSelectedResortId}
-          hasOrigin={origin !== null}
-          placeStrip={<PlaceStrip from={fromPlace} to={toPlace} />}
-          route={routeState}
-          routes={routes}
-          activeRoute={activeRoute}
-          onSelectRoute={setActiveRoute}
-          onHighlightStep={setHighlight}
-          departAt={departAt ? new Date(`${departAt}:00+09:00`) : undefined}
-          busPanel={
-            <BusPanel
-              resorts={resorts.data ?? []}
-              result={loadable(bus)}
-              night={loadable(night)}
-              showNight={showNight}
-              onShowNightChange={setShowNight}
-              departAt={departAt}
-              onDepartAtChange={setDepartAt}
-              selected={busChoice}
-              onSelect={setBusChoice}
-            />
-          }
-          destinationPicker={
-            <DestinationPicker value={category} onChange={setCategory} />
-          }
-          poiPanel={
-            poiCategory ? (
-              <PoiList
-                state={poiState}
-                selectedId={poiId}
-                onSelect={(p) => setPoiId(p.id)}
+        {savedOpen ? (
+          <SavedPanel
+            focusId={savedFocus}
+            canGoHere={mode !== "bus"}
+            onStartFrom={startFrom}
+            onGoHere={goTo}
+            onClose={() => setSavedOpen(false)}
+          />
+        ) : (
+          <ModePanel
+            mode={mode}
+            onModeChange={setMode}
+            resorts={resorts.data ?? []}
+            selectedResortId={selectedResortId}
+            onSelectResort={selectResort}
+            hasOrigin={origin !== null}
+            placeStrip={<PlaceStrip from={fromPlace} to={toPlace} />}
+            route={routeState}
+            routes={routes}
+            activeRoute={activeRoute}
+            onSelectRoute={setActiveRoute}
+            onHighlightStep={setHighlight}
+            departAt={departAt ? new Date(`${departAt}:00+09:00`) : undefined}
+            busPanel={
+              <BusPanel
+                resorts={resorts.data ?? []}
+                result={loadable(bus)}
+                night={loadable(night)}
+                showNight={showNight}
+                onShowNightChange={setShowNight}
+                departAt={departAt}
+                onDepartAtChange={setDepartAt}
+                selected={busChoice}
+                onSelect={setBusChoice}
               />
-            ) : undefined
-          }
-          drivePanel={
-            <DrivePanel
-              options={rankOptions}
-              onOptionsChange={setRankOptions}
-              ranking={rankingState}
-              selectedResortId={selectedResortId}
-              onSelectResort={setSelectedResortId}
-            />
-          }
-        />
+            }
+            destinationPicker={
+              <DestinationPicker
+                value={category}
+                onChange={(c) => {
+                  setCategory(c);
+                  setPoint(null);
+                }}
+              />
+            }
+            poiPanel={
+              poiCategory ? (
+                <PoiList
+                  state={poiState}
+                  selectedId={poiId}
+                  onSelect={(p) => {
+                    setPoiId(p.id);
+                    setPoint(null);
+                  }}
+                />
+              ) : undefined
+            }
+            drivePanel={
+              <DrivePanel
+                options={rankOptions}
+                onOptionsChange={setRankOptions}
+                ranking={rankingState}
+                selectedResortId={selectedResortId}
+                onSelectResort={selectResort}
+              />
+            }
+          />
+        )}
       </BottomSheet>
     </main>
   );

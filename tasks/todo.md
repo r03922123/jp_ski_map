@@ -451,11 +451,11 @@ Gate shorthand:
 **Files:** `components/SaveButton.tsx`, `components/ListPicker.tsx`, `MapView.tsx`, `MapShell.tsx`, `e2e/saved.spec.ts`
 **Scope:** M
 
-## Task 38: Saved panel, Go here, My hotel, search boost
+## Task 38: Saved panel, Go here, My hotel, search boost ✅
 **Description:** "Saved" chip → lists → places with Start from here / Go here / note / remove / hide list; `dest=pt:` in URL state and as a route target; My hotel as the default origin; saved matches first in `SearchBox`.
 **Acceptance criteria:**
-- [ ] url-state round-trips `dest=pt:`; SearchBox shows saved first
-- [ ] E2E: Go here draws a route; My hotel opens as the origin
+- [x] url-state round-trips `dest=pt:`; SearchBox shows saved first
+- [x] E2E: Go here draws a route; My hotel opens as the origin
 **Verification:** Web gates; Playwright
 **Dependencies:** T37
 **Files:** `components/SavedPanel.tsx`, `lib/url-state.ts`, `SearchBox.tsx`, `MapShell.tsx`, tests

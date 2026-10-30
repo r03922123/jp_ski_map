@@ -16,7 +16,8 @@ export type DestinationCategory = "resorts" | PoiCategory;
 /**
  * The shareable part of the view:
  * `?from=lat,lng&mode=drive&resort=happo-one&sort=…`, or for a place
- * `?from=…&mode=walk&cat=convenience&dest=poi:osm:node/123`.
+ * `?from=…&mode=walk&cat=convenience&dest=poi:osm:node/123`, or any point
+ * (a saved place's "Go here") `?from=…&mode=drive&dest=pt:36.70001,137.85002`.
  */
 export type ViewState = {
   origin: Coord | null;
@@ -25,6 +26,8 @@ export type ViewState = {
   poiId: string | null;
   category: DestinationCategory;
   rank: RankOptions;
+  /** A free destination point; when set it wins over resort/place. */
+  point: Coord | null;
 };
 
 export const SORT_KEYS: readonly SortKey[] = [
@@ -90,6 +93,7 @@ export function parseViewState(search: string): ViewState {
     poiId: kind === "poi" && destId ? destId : null,
     category: cat && CATEGORIES.includes(cat) ? cat : "resorts",
     rank: parseRank(params),
+    point: kind === "pt" ? parseCoord(destId) : null,
   };
 }
 
@@ -100,6 +104,7 @@ export function serializeViewState({
   poiId,
   category,
   rank,
+  point,
 }: ViewState): string {
   const params = new URLSearchParams();
   if (origin) {
@@ -108,7 +113,11 @@ export function serializeViewState({
   params.set("mode", mode);
   if (resortId) params.set("resort", resortId);
   if (category !== "resorts") params.set("cat", category);
-  if (poiId) params.set("dest", `poi:${poiId}`);
+  if (point) {
+    params.set("dest", `pt:${point.lat.toFixed(5)},${point.lng.toFixed(5)}`);
+  } else if (poiId) {
+    params.set("dest", `poi:${poiId}`);
+  }
   // only non-default rank options, so ordinary links stay short
   if (rank.sort !== DEFAULT_RANK.sort) params.set("sort", rank.sort);
   if (rank.date) params.set("date", rank.date);
