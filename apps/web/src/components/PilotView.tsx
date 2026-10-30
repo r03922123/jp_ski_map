@@ -2,6 +2,7 @@
 
 import { Crosshair, Volume2, VolumeX, X } from "lucide-react";
 import { ManeuverIcon } from "@/components/ManeuverIcon";
+import { StopList, type StopRow } from "@/components/StopList";
 import { formatArrival, formatDistance, formatDuration } from "@/lib/format";
 import type { PositionError } from "@/lib/nav/position";
 import type { PilotStatus } from "@/lib/nav/use-pilot";
@@ -29,6 +30,8 @@ type Props = {
   onToggleMute?: () => void;
   /** a line under the progress, e.g. the bus to catch after this walk */
   footnote?: string;
+  /** walking to a bus stop: that bus's stops, listed under the footnote */
+  busStops?: StopRow[];
   onExit: () => void;
   onRecenter: () => void;
   now: Date;
@@ -44,6 +47,7 @@ export function PilotView({
   muted = false,
   onToggleMute,
   footnote,
+  busStops,
   onExit,
   onRecenter,
   now,
@@ -171,6 +175,12 @@ export function PilotView({
             )}
             {footnote && (
               <p className="text-sm font-medium text-teal-800">{footnote}</p>
+            )}
+            {busStops && busStops.length > 0 && (
+              <StopList
+                stops={busStops}
+                className="mt-1 max-h-28 overflow-y-auto"
+              />
             )}
             <p className="text-xs text-muted-foreground">
               Live traffic unavailable · typical road speeds

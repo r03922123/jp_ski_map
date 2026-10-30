@@ -82,6 +82,25 @@ describe("BusPanel", () => {
     expect(journey).toHaveTextContent(/Arrive 08:39/);
   });
 
+  it("lists every stop of the ride, in order, with its time", () => {
+    const option = (fixture as BusResult).resorts.find(
+      (r) => r.resortId === "hakuba47",
+    )?.options[0];
+    if (!option) throw new Error("fixture has no Hakuba47 option");
+    renderPanel({ selected: option });
+
+    const stops = within(
+      screen.getByRole("list", { name: "Journey" }),
+    ).getByRole("list", { name: "Bus stops" });
+    const rows = within(stops).getAllByRole("listitem");
+    expect(rows.map((r) => r.textContent)).toEqual([
+      "Hakuba Happo Bus Terminal08:11",
+      "Happo Nakiyama Slope08:16",
+      "Echoland (Spicy)08:24",
+      "Hakuba 47 Winter Sports Park08:39",
+    ]);
+  });
+
   it("always shows the source and the may-change notice", () => {
     renderPanel();
 

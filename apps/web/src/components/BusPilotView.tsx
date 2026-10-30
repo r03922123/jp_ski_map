@@ -1,6 +1,7 @@
 "use client";
 
 import { Bus, MapPin, Volume2, VolumeX, X } from "lucide-react";
+import { StopList } from "@/components/StopList";
 import { formatArrival } from "@/lib/format";
 import { type BusPlan, type BusState, rideView } from "@/lib/nav/bus-journey";
 
@@ -94,22 +95,13 @@ export function BusPilotView({
               </button>
             </>
           )}
-          {ride && (
-            <ol
-              aria-label="Upcoming stops"
-              className="mt-1 flex flex-col gap-0.5 text-sm"
-            >
-              {ride.upcoming.slice(0, 4).map((st) => (
-                <li key={st.stopId} className="flex justify-between gap-2">
-                  <span className={st === alight ? "font-semibold" : undefined}>
-                    {st.name}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {st.time ?? "time not published"}
-                  </span>
-                </li>
-              ))}
-            </ol>
+          {(state.phase === "wait" || state.phase === "ride") && (
+            // every stop, boarding to getting off: never cut short (SPEC-pilot)
+            <StopList
+              stops={stops.slice(0, plan.alightIndex + 1)}
+              nextIndex={ride ? ride.nextIndex : null}
+              className="mt-1 max-h-40 overflow-y-auto"
+            />
           )}
           <p className="mt-1 text-xs text-muted-foreground">
             {timesLabel} · no live bus position

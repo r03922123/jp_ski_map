@@ -257,3 +257,31 @@ describe("PilotView voice toggle", () => {
     ).toHaveAttribute("aria-pressed", "true");
   });
 });
+
+describe("PilotView on the walk to a bus stop", () => {
+  it("shows the bus's stops under the footnote", () => {
+    const m = manualSource();
+    const { result } = renderHook(() => usePilot(walk, m.source));
+    m.fix(coords[0]);
+    render(
+      <PilotView
+        mode="walk"
+        following
+        onExit={vi.fn()}
+        onRecenter={vi.fn()}
+        now={new Date()}
+        status={result.current}
+        footnote="Then Line V from Terminal at 08:11"
+        busStops={[
+          { stopId: "a", name: "Terminal", time: "08:11" },
+          { stopId: "b", name: "Echo", time: null },
+          { stopId: "c", name: "Resort", time: "08:20" },
+        ]}
+      />,
+    );
+    const list = screen.getByRole("list", { name: "Bus stops" });
+    expect(list).toHaveTextContent("Terminal08:11");
+    expect(list).toHaveTextContent("Echotime not published");
+    expect(list).toHaveTextContent("Resort08:20");
+  });
+});

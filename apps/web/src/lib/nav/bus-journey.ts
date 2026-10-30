@@ -165,6 +165,7 @@ export function rideView(plan: BusPlan, s: BusState) {
   );
   const index = nextIndex >= 0 ? nextIndex : plan.alightIndex;
   return {
+    nextIndex: index,
     next: plan.stops[index],
     upcoming: plan.stops.slice(index, plan.alightIndex + 1),
     stopsToGo: plan.alightIndex - index + 1,

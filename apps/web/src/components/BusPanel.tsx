@@ -1,5 +1,6 @@
 "use client";
 
+import { StopList } from "@/components/StopList";
 import type { BusOption, BusResult, NightResult, Resort } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,16 @@ const monthDay = (ymd: string) =>
   }).format(new Date(`${ymd}T00:00:00+09:00`));
 const walk = (s: number) => (s < 60 ? "<1 min" : formatDuration(s));
 
+/** The stops this option rides through, boarding to getting off. */
+export function rideStopRows(option: BusOption) {
+  const alight = option.rideStops.findIndex(
+    (s) => s.stopId === option.alightStopId,
+  );
+  const stops =
+    alight >= 0 ? option.rideStops.slice(0, alight + 1) : option.rideStops;
+  return stops.map(({ stopId, name, time }) => ({ stopId, name, time }));
+}
+
 /** Google-transit-style timeline for the chosen option: walk → board → ride → arrive. */
 function Journey({ option }: { option: BusOption }) {
   const line = option.lineId.replace("line-", "").toUpperCase();
@@ -69,6 +80,7 @@ function Journey({ option }: { option: BusOption }) {
       </li>
       <li>
         🚌 Line {line} · {ride}
+        <StopList stops={rideStopRows(option)} className="mt-0.5 mb-1" />
       </li>
       <li>⛷ Arrive{option.arrivesAt ? ` ${hhmm(option.arrivesAt)}` : ""}</li>
       <li className="text-muted-foreground">

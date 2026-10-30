@@ -267,14 +267,38 @@ test.describe("bus journey", () => {
       name: "Hakuba47 Mountain Resort",
     });
     await hakuba47.getByRole("button").first().click({ timeout: 15_000 });
+
+    // 0. before Start: every stop of the ride, in order, with times
+    const ALL = [
+      "Hakuba Happo Bus Terminal",
+      "Happo Nakiyama Slope",
+      "Echoland (Spicy)",
+      "Hakuba 47 Winter Sports Park",
+    ];
+    const stopNames = (scope: import("@playwright/test").Locator) =>
+      scope
+        .getByRole("list", { name: "Bus stops" })
+        .locator("[data-stop-name]")
+        .allTextContents();
+    await expect
+      .poll(() => stopNames(hakuba47.getByRole("list", { name: "Journey" })))
+      .toEqual(ALL);
     await page.getByRole("button", { name: "Start bus journey" }).click();
 
-    // 1. the walk to the stop, with the bus to catch underneath
+    // 1. the walk to the stop, with the bus to catch and its stops underneath
     await expect(
       page.getByRole("region", { name: "Trip progress" }),
     ).toContainText(
       "Then Cortina ↔ Hakuba GORYU from Hakuba Happo Bus Terminal at 08:11",
       { timeout: 15_000 },
+    );
+    expect(
+      await stopNames(page.getByRole("region", { name: "Trip progress" })),
+    ).toEqual(ALL);
+    // and on the map: the bus line with all of its stops
+    await expect(page.locator("main")).toHaveAttribute(
+      "data-map-ride-stops",
+      "4",
     );
 
     // 2. at the stop: wait, with a countdown
@@ -292,6 +316,9 @@ test.describe("bus journey", () => {
     await expect(
       page.getByRole("region", { name: "Bus progress" }),
     ).toContainText("08:11 · in 9 min");
+    expect(
+      await stopNames(page.getByRole("region", { name: "Bus progress" })),
+    ).toEqual(ALL);
 
     // 3. on board: stops counted down
     await page.getByRole("button", { name: "I'm on the bus" }).click();
@@ -310,6 +337,21 @@ test.describe("bus journey", () => {
     ).toContainText("Get off at Hakuba 47 Winter Sports Park — next stop", {
       timeout: 10_000,
     });
+    // the whole list stays, earlier stops marked passed, the next one current
+    const progress = page.getByRole("region", { name: "Bus progress" });
+    expect(await stopNames(progress)).toEqual(ALL);
+    await expect(
+      progress.locator('li[data-state="passed"]', {
+        hasText: "Happo Nakiyama Slope",
+      }),
+    ).toHaveCount(1);
+    await expect(progress.locator('li[aria-current="step"]')).toContainText(
+      "Hakuba 47 Winter Sports Park",
+    );
+    await expect(page.locator("main")).toHaveAttribute(
+      "data-map-ride-stops",
+      "4",
+    );
 
     // 5. there
     await context.setGeolocation({ latitude: 36.68456, longitude: 137.82773 });

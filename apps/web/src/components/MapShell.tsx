@@ -473,6 +473,22 @@ export function MapShell() {
   }, [busCue]);
   useWakeLock(piloting);
   useHiddenTimeout(piloting, PILOT_HIDDEN_STOP_MS, exitPilot);
+  // During a bus journey the map shows the bus line and every stop, in every phase.
+  const busRide = useMemo(
+    () =>
+      busPlan
+        ? {
+            route: busPlan.line.route,
+            stops: busPlan.stops
+              .slice(0, busPlan.alightIndex + 1)
+              .flatMap((st) =>
+                st.coord ? [{ lat: st.coord[1], lng: st.coord[0] }] : [],
+              ),
+            label: null,
+          }
+        : null,
+    [busPlan],
+  );
   const projection = pilot.nav.projection;
   const onRoute = pilot.phase === "following" || pilot.phase === "arrived";
   const rideFix = busPhase === "ride" ? pilot.fix : null;
@@ -585,6 +601,9 @@ export function MapShell() {
       data-route-layers={routeLayers}
       data-lodging-pins={lodgingPins.length}
       data-piloting={piloting}
+      data-map-ride-stops={
+        (busRide ?? (pilotRoute ? null : rideLeg))?.stops.length ?? 0
+      }
     >
       <MapView
         resorts={resorts.data ?? []}
@@ -593,7 +612,7 @@ export function MapShell() {
         destination={mode === "bus" ? null : (target ?? null)}
         routes={
           busPlan && busPhase === "ride"
-            ? [busPlan.line.route]
+            ? [] // riding: the bus line below is the route
             : pilotRoute
               ? [pilotRoute]
               : routes
@@ -601,7 +620,7 @@ export function MapShell() {
         activeRoute={pilotRoute ? 0 : activeRoute}
         onSelectRoute={setActiveRoute}
         highlight={pilotRoute ? null : highlight}
-        ride={pilotRoute ? null : rideLeg}
+        ride={busRide ?? (pilotRoute ? null : rideLeg)}
         pilot={mapPilot}
         lodging={lodgingPins}
         busStop={busStop}
@@ -645,6 +664,11 @@ export function MapShell() {
           footnote={
             busPlan
               ? `Then ${busPlan.option.routeName} from ${busPlan.stops[0].name} at ${formatArrival(new Date(busPlan.departsAtMs), 0)}`
+              : undefined
+          }
+          busStops={
+            busPlan
+              ? busPlan.stops.slice(0, busPlan.alightIndex + 1)
               : undefined
           }
           muted={muted}

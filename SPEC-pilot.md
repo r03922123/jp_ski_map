@@ -92,8 +92,8 @@ The user asked to see every stop the shuttle passes, both when choosing a bus an
   - *Map:* in every phase of a bus journey the bus line and its stop dots are drawn, so the coming stops are visible on the map too.
 
 **Acceptance**
-- [ ] Component: the Journey lists all ride stops with times / "time not published"; the bus pilot lists all stops in wait and ride (no cap), marks passed and next; the walk leg shows the list.
-- [ ] E2E (bus fixture): the stop names are visible before Start, during the walk, while waiting and while riding (a passed stop marked passed); the map shows the line's stops during the journey.
+- [x] Component: the Journey lists all ride stops with times / "time not published"; the bus pilot lists all stops in wait and ride (no cap), marks passed and next; the walk leg shows the list.
+- [x] E2E (bus fixture): the stop names are visible before Start, during the walk, while waiting and while riding (a passed stop marked passed); the map shows the line's stops during the journey.
 
 ## Map label font (v1.3.2)
 Our own symbol layers (lodging names) named no font, so MapLibre asked OpenFreeMap for "Open Sans Regular", which it doesn't serve: a 404 console error on every zoomed-in view (seen on the iPhone as Next's "1 Issue"). Every symbol layer we add names a font the style serves ("Noto Sans Regular").

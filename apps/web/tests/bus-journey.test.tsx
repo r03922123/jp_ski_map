@@ -139,7 +139,7 @@ describe("BusPilotView", async () => {
         onBoard={vi.fn()}
       />,
     );
-    const stops = screen.getByRole("list", { name: "Upcoming stops" });
+    const stops = screen.getByRole("list", { name: "Bus stops" });
     expect(stops).toHaveTextContent("Echo08:14");
     expect(stops).toHaveTextContent("Plazatime not published");
     state = reduceBus(state, plan, fix(east(2100)), DEPART);
@@ -154,5 +154,41 @@ describe("BusPilotView", async () => {
     expect(
       screen.getByRole("region", { name: "Bus journey" }),
     ).toHaveTextContent("Get off at Resort — next stop");
+  });
+
+  it("lists every stop while waiting, and marks passed and next while riding", () => {
+    const wait = reduceBus(initialBus(), plan, fix(east(0)), DEPART - 60_000);
+    const { rerender } = render(
+      <BusPilotView
+        {...base}
+        state={wait}
+        now={new Date(DEPART - 60_000)}
+        onBoard={vi.fn()}
+      />,
+    );
+    const names = () =>
+      screen
+        .getAllByRole("listitem")
+        .filter((li) => li.closest('[aria-label="Bus stops"]'))
+        .map((li) => li.querySelector("[data-stop-name]")?.textContent);
+    expect(names()).toEqual(["Terminal", "Echo", "Plaza", "Resort"]);
+
+    let ride = boardManually(wait);
+    ride = reduceBus(ride, plan, fix(east(1500)), DEPART + 120_000); // past Echo
+    rerender(
+      <BusPilotView
+        {...base}
+        state={ride}
+        now={new Date(DEPART)}
+        onBoard={vi.fn()}
+      />,
+    );
+    expect(names()).toEqual(["Terminal", "Echo", "Plaza", "Resort"]); // never cut short
+    const row = (name: string) =>
+      screen.getByText(name, { selector: "[data-stop-name]" }).closest("li");
+    expect(row("Echo")).toHaveAttribute("data-state", "passed");
+    expect(row("Echo")).toHaveTextContent("(passed)");
+    expect(row("Plaza")).toHaveAttribute("aria-current", "step");
+    expect(row("Resort")).toHaveAttribute("data-state", "upcoming");
   });
 });
