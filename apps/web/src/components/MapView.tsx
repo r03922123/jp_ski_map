@@ -186,6 +186,23 @@ export default function MapView({
     });
   }, [fitKey, mapReady, piloting]);
 
+  // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
+  // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
+  // the swipe. The follow camera waits for the release, then catches up, unless the press
+  // became a drag, which stops following.
+  const [pressing, setPressing] = useState(false);
+  useEffect(() => {
+    const release = () => setPressing(false);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    window.addEventListener("blur", release);
+    return () => {
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      window.removeEventListener("blur", release);
+    };
+  }, []);
+
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
   // and an identity-keyed effect would re-ease after each of its own moveend reports.
   const cam = pilot?.following ? pilot.camera : null;
@@ -195,7 +212,7 @@ export default function MapView({
   // biome-ignore lint/correctness/useExhaustiveDependencies: camKey stands for `cam`
   useEffect(() => {
     const map = mapRef.current;
-    if (!mapReady || !map || !cam) return;
+    if (!mapReady || !map || !cam || pressing) return;
     map.easeTo({
       center: cam.center,
       bearing: cam.bearing,
@@ -210,7 +227,7 @@ export default function MapView({
       },
       duration: prefersReducedMotion() ? 0 : 900,
     });
-  }, [camKey, mapReady]);
+  }, [camKey, mapReady, pressing]);
 
   const active = routes[activeRoute] ?? null;
   const activeCoords = (active?.geometry.coordinates ?? []) as LngLat[];
@@ -320,6 +337,9 @@ export default function MapView({
       onMoveEnd={(e: ViewStateChangeEvent) => reportView(e.target)}
       onStyleData={(e) => keepRouteLayerOrder(e.target)}
       onDragStart={() => pilot?.onUserMove()}
+      // wired when the map is created, so a press during loading counts too
+      onMouseDown={() => setPressing(true)}
+      onTouchStart={() => setPressing(true)}
       onClick={(e) => {
         const feature = e.features?.[0];
         // a route line selects that route, unless a stop is being placed: a stop along
@@ -655,7 +675,7 @@ export default function MapView({
           longitude={rideLabelAt[0]}
           latitude={rideLabelAt[1]}
           anchor="bottom"
-          style={{ zIndex: 3 }}
+          style={{ zIndex: 3, pointerEvents: "none" }}
         >
           <span
             data-route-label="ride"
@@ -671,6 +691,8 @@ export default function MapView({
           latitude={destination.lat}
           longitude={destination.lng}
           anchor="bottom"
+          // nothing to tap: a press here is a press on the map (a pan must start)
+          style={{ pointerEvents: "none" }}
         >
           <svg
             role="img"
@@ -691,7 +713,13 @@ export default function MapView({
       )}
 
       {origin && (
-        <Marker latitude={origin.lat} longitude={origin.lng} anchor="center">
+        <Marker
+          latitude={origin.lat}
+          longitude={origin.lng}
+          anchor="center"
+          // nothing to tap: a press here is a press on the map (a pan must start)
+          style={{ pointerEvents: "none" }}
+        >
           <span
             role="img"
             aria-label="Starting point"

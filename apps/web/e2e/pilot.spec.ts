@@ -57,6 +57,43 @@ async function remaining(page: Page): Promise<number> {
 test.describe("with location allowed", () => {
   test.use({ permissions: ["geolocation"], geolocation: FROM });
 
+  test("a drag that begins just before a GPS fix still pans: the follow camera waits", async ({
+    page,
+    context,
+  }) => {
+    test.slow();
+    const line = await walkRoute(page);
+    await page.goto(URL);
+    await page
+      .getByRole("button", { name: "Start navigation" })
+      .click({ timeout: 20_000 });
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+      timeout: 15_000,
+    });
+    await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+      timeout: 15_000,
+    });
+    const box = await page.locator("main canvas").boundingBox();
+    if (!box) throw new Error("no map canvas");
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+
+    // the finger is down when a fix arrives: the follow camera's ease would cancel the
+    // press (MapLibre's easeTo stops gesture handlers), so the swipe would do nothing
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    const before = await remaining(page);
+    const [lng, lat] = line[Math.floor(line.length / 3)];
+    await context.setGeolocation({ latitude: lat, longitude: lng });
+    await expect
+      .poll(() => remaining(page), { timeout: 10_000 })
+      .toBeLessThan(before - 100);
+    await page.mouse.move(x + 120, y + 60, { steps: 20 });
+    await page.mouse.up();
+
+    await expect(page.getByRole("button", { name: "Re-centre" })).toBeVisible();
+  });
+
   test("start, follow the walk, see the distance fall, arrive", async ({
     page,
     context,
