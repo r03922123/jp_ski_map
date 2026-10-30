@@ -16,7 +16,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
+    // Browsers tag <html> before React hydrates (Chrome on iOS adds
+    // __gcrremoteframetoken): ignore attribute differences on this element only.
+    <html
+      lang="en"
+      className={`${geistSans.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
       <body className="h-full">
         <Providers>{children}</Providers>
       </body>

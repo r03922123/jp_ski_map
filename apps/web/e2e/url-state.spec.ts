@@ -68,3 +68,36 @@ test.describe("mobile", () => {
       .toBeGreaterThan(844 * 0.6);
   });
 });
+
+test.describe("iPhone zoom-on-focus", () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+  });
+
+  test("form fields use at least 16px text on touch devices, so iOS doesn't zoom in", async ({
+    page,
+  }) => {
+    await page.goto("/?from=36.69711,137.85393&mode=bus");
+    await expect(page.locator("#depart-at")).toBeVisible({ timeout: 15_000 });
+    const sizes = await page.evaluate(() =>
+      [...document.querySelectorAll("input, select, textarea")]
+        .filter((el) => (el as HTMLInputElement).type !== "checkbox")
+        .map((el) => ({
+          field: el.getAttribute("aria-label") ?? el.id ?? el.tagName,
+          px: Number.parseFloat(getComputedStyle(el).fontSize),
+        })),
+    );
+    expect(sizes.length).toBeGreaterThan(1);
+    expect(sizes.filter((s) => s.px < 16)).toEqual([]);
+  });
+});
+
+test("on a laptop the search box keeps its compact text", async ({ page }) => {
+  await page.goto("/");
+  const px = await page
+    .getByRole("combobox", { name: /search/i })
+    .evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize));
+  expect(px).toBe(14);
+});

@@ -63,3 +63,31 @@ test("zoomed in, hotel labels load their font: no 404s, clean console", async ({
   expect(badFonts).toEqual([]);
   expect(errors).toEqual([]);
 });
+
+test("an attribute a browser adds to <html> (Chrome on iOS) causes no hydration error", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error") errors.push(msg.text().slice(0, 200));
+  });
+  // what Chrome on iOS does: tag the root element before React hydrates
+  await page.addInitScript(() => {
+    const tag = () =>
+      document.documentElement?.setAttribute("__gcrremoteframetoken", "test");
+    new MutationObserver(tag).observe(document, {
+      childList: true,
+      subtree: true,
+    });
+    tag();
+  });
+  await page.goto("/");
+  await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+    timeout: 15_000,
+  });
+  await expect(page.locator("html")).toHaveAttribute(
+    "__gcrremoteframetoken",
+    "test",
+  );
+  expect(errors.filter((e) => /hydrat/i.test(e))).toEqual([]);
+});

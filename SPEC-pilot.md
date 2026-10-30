@@ -98,3 +98,9 @@ The user asked to see every stop the shuttle passes, both when choosing a bus an
 ## Map label font (v1.3.2)
 Our own symbol layers (lodging names) named no font, so MapLibre asked OpenFreeMap for "Open Sans Regular", which it doesn't serve: a 404 console error on every zoomed-in view (seen on the iPhone as Next's "1 Issue"). Every symbol layer we add names a font the style serves ("Noto Sans Regular").
 - [x] E2E: zoomed in where lodging labels show (zoom ≥ 15), no failed font request and no console error.
+
+## iPhone polish (v1.3.3, 2026-10-30), found on the user's iPhone over USB
+- **No zoom-on-focus:** iOS zooms the page in when a focused field's text is under 16px and stays zoomed (the right edge looked cut off). On touch devices (`pointer: coarse`) form fields use 16px. Laptops keep the compact text.
+- **No hydration warning from the browser:** Chrome on iOS adds `__gcrremoteframetoken` to `<html>` before React hydrates. Attribute differences are ignored on `<html>` only (`suppressHydrationWarning` there).
+- [x] E2E: on a touch phone every text field / select is ≥ 16px; on a laptop the search box stays 14px.
+- [x] E2E: an attribute injected on `<html>` before hydration logs no hydration error.
