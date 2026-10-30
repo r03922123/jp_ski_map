@@ -432,10 +432,10 @@ Gate shorthand:
 
 ## Phase 10: Saved places (SPEC-saved-places v1.3)
 
-## Task 36: Saved store
+## Task 36: Saved store ✅
 **Description:** `lib/saved-places.ts`: types, built-in lists, add/remove/move, the hotel label, limits, validated load/save with a corrupt-value backup and in-memory fallback, cross-tab `storage` sync, `useSaved()` hook.
 **Acceptance criteria:**
-- [ ] Unit tests for every rule in the spec's first acceptance bullet
+- [x] Unit tests for every rule in the spec's first acceptance bullet
 **Verification:** Web gates
 **Dependencies:** None
 **Files:** `lib/saved-places.ts`, `tests/saved-places.test.ts`

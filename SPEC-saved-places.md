@@ -18,7 +18,7 @@ Google's code or data.
 | Lists can be shared | Help page above | Share as a link; the receiver must confirm before importing |
 | Saved places rank high in search | Observed behaviour, not in help docs (**unverified**) | Saved matches first in the dropdown, with the list icon |
 
-## Data (browser `localStorage`, key `hakuba.saved.v1`)
+## Data (browser `localStorage`, key `hakuba:saved`)
 ```ts
 type SavedPlace = {
   id: string;              // stable: source id (e.g. "stop-happo-bt", "osm-node-1") or "pt:36.69812,137.86123"
@@ -34,7 +34,7 @@ type SavedList = { id: string; name: string; icon: "star" | "heart" | "flag" | "
 type SavedState = { version: 1; lists: SavedList[]; places: SavedPlace[] };
 ```
 - Built-in lists `starred` ⭐, `favorites` ❤, `want-to-go` 🚩 always exist and can't be deleted. Custom lists can be added (≤ 20 lists, ≤ 500 places).
-- Every read is validated: a corrupt or unknown version → start empty, keep the raw value under `hakuba.saved.corrupt`, and never throw. Every access is wrapped in try/catch because private mode or blocked storage can throw.
+- Every read is validated: a corrupt or unknown version → start empty, keep the raw value under `hakuba:saved-corrupt`, and never throw. Every access is wrapped in try/catch because private mode or blocked storage can throw.
 - Tabs stay in sync through the `storage` event; React reads the store via `useSyncExternalStore`.
 
 ## Behaviour
