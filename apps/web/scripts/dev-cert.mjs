@@ -32,7 +32,10 @@ function current() {
       encoding: "utf8",
     },
   );
-  return lanIps.every((ip) => text.includes(ip));
+  const named = new Set(
+    [...text.matchAll(/IP Address:([0-9.]+)/g)].map((m) => m[1]),
+  );
+  return lanIps.every((ip) => named.has(ip)); // exact: 192.168.50.15 isn't 192.168.50.158
 }
 
 if (!current()) {
@@ -59,5 +62,10 @@ if (!current()) {
     { stdio: "ignore" },
   );
 }
-for (const ip of lanIps)
+// 169.254.x.x is link-local (an interface with no network): a phone can't reach it
+for (const ip of lanIps.filter((ip) => !ip.startsWith("169.254."))) {
   console.log(`  On your phone (same Wi-Fi): https://${ip}:3443`);
+}
+console.log(
+  "  Changed network (new address)? Restart dev:https so the phone can load the app.",
+);

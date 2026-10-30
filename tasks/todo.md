@@ -562,12 +562,14 @@ Gate shorthand:
 
 ## Phase 13: Device gating (SPEC-pilot "Devices")
 
-## Task 51: Pilot only on touch-first devices
+## Task 51: Pilot only on touch-first devices ✅
 **Description:** `lib/device.ts` `usePilotAvailable()` (coarse primary pointer, reactive, SSR-safe; dev `?simulate` override). MapShell passes `onStart` to directions and the bus panel only when available. Pilot e2e run under mobile emulation; new desktop e2e asserts no Start.
 **Acceptance criteria:**
-- [ ] Unit tests for the rules in SPEC-pilot "Devices"
-- [ ] E2E: desktop → no Start (directions, bus); mobile → all pilot journeys pass
-- [ ] Real iPhone check over USB: coarse pointer, Start shown
+- [x] Unit tests for the rules in SPEC-pilot "Devices" (mutation-checked)
+- [x] E2E: desktop → no Start (directions, bus); mobile → all pilot journeys pass; running session survives a pointer flip
+- [x] Real iPhone check over USB: coarse pointer, Start shown
+- [x] Found on the way: dev:https phones got a page that never started (Next blocked its dev resources for LAN hosts) → allowedDevOrigins
+- [x] Adversarial review (19 agents): 12 confirmed findings, 10 fixed, 2 accepted and documented
 **Verification:** Web gates; full Playwright; iPhone via inspector
 **Dependencies:** T42, T45
 **Files:** `lib/device.ts`, `components/MapShell.tsx`, `tests/device.test.ts`, `e2e/pilot.spec.ts`, `SPEC-pilot.md`

@@ -64,7 +64,9 @@ uv run --project services/api fastapi dev services/api/src/hakuba_api/main.py --
 pnpm --dir apps/web dev                                                          # :3000
 pnpm --dir apps/web dev:https    # instead of `dev`: https://<Mac Wi-Fi IP>:3443 for pilot mode on a phone
                                  # (self-signed cert in apps/web/.certs, nothing installed; accept the
-                                 # warning once on the phone; LAN only; stop `dev` first, Next allows one)
+                                 # warning once on the phone; LAN only; stop `dev` first, Next allows one;
+                                 # restart it after a network change)
+E2E_BASE_URL=https://127.0.0.1:3443 pnpm --dir apps/web e2e   # run the suite against dev:https
 pnpm --dir apps/web gen:api        # regenerate TS types from http://127.0.0.1:8010/openapi.json
 
 # quality gates (all must pass before commit)

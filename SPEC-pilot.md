@@ -71,10 +71,14 @@ A laptop or desktop isn't carried while driving or walking, and its "location" i
 - On a laptop the **Start** buttons (drive/walk directions, and the bus journey) aren't shown. Routes, ETAs and step lists are unchanged.
 - The answer is reactive: if the primary pointer changes (an iPad gets a trackpad keyboard), Start appears or disappears. A session that is already running is never cut off.
 - Server render and first paint: no Start, decided after hydration (no hydration mismatch).
-- Dev builds only: `?simulate` keeps Start on a laptop, so the simulated drive can still be watched on a desk.
+- Dev builds only: `?simulate` keeps Start on a laptop, so the simulated drive can still be watched on a desk. It is kept for the tab (sessionStorage) because the URL mirror drops it from the address bar; `?simulate=0` turns it off.
+
+**Known limits (accepted, from the adversarial review 2026-10-30)**
+- Firefox on a **Windows 10** touchscreen laptop with *Tablet mode* switched on reports a coarse pointer, so it is offered Start. A platform allowlist would avoid that but would remove pilot from real Windows tablets (a Surface without its keyboard). Windows 10 is past end of support, so we accept it.
+- `pnpm dev:https` allows this Mac's addresses *as they were at start*. After a network change (new IP), restart it. The startup message says so.
 
 **Acceptance**
-- [ ] Unit: coarse pointer → available; fine → not; dev + `?simulate` → available; production ignores `?simulate`; pointer change updates.
-- [ ] E2E desktop (fine pointer): directions show no Start; bus option shows no Start.
-- [ ] E2E mobile emulation (coarse pointer, touch): the existing pilot journeys pass.
-- [ ] Real iPhone over USB (ios_webkit_debug_proxy): `(pointer: coarse)` is true and Start is shown.
+- [x] Unit: coarse pointer → available; fine → not (also with touch points: a touchscreen laptop); dev + `?simulate` → available, kept across a reload; production ignores `?simulate` (hook-level); pointer change updates both ways; server render says no. *Each rule is mutation-checked: breaking it fails a test.*
+- [x] E2E desktop (fine pointer): directions show no Start; bus option shows no Start once its walk route has loaded; `?simulate` Start replays the route with no GPS permission.
+- [x] E2E mobile emulation (coarse pointer, touch): the existing pilot journeys pass; a running session survives a pointer flip to fine (CDP touch emulation off), and Start then follows the device.
+- [x] Real iPhone over USB (ios_webkit_debug_proxy): `(pointer: coarse)` is true and Start is shown.

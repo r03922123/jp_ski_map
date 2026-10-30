@@ -15,6 +15,10 @@ async function walkRoute(page: Page): Promise<[number, number][]> {
 
 const pilot = (page: Page) => page.getByTestId("pilot");
 
+// Pilot is for touch-first devices (SPEC-pilot "Devices"): every journey below runs as a
+// phone (touch, coarse primary pointer); the laptop case is its own describe at the end.
+test.use({ isMobile: true, hasTouch: true });
+
 async function remaining(page: Page): Promise<number> {
   return Number(await pilot(page).getAttribute("data-nav-remaining-m"));
 }
@@ -315,5 +319,112 @@ test.describe("bus journey", () => {
     await expect(
       page.getByRole("region", { name: "Bus journey" }),
     ).toContainText("You've arrived at Hakuba 47 Winter Sports Park");
+  });
+});
+
+test.describe("on a laptop (fine pointer)", () => {
+  test.use({ isMobile: false, hasTouch: false });
+
+  test("no Start for directions or the bus: routes and ETAs stay", async ({
+    page,
+  }) => {
+    await page.goto(URL);
+    await expect(page.getByRole("list", { name: "Steps" })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.getByText(/ETA ~/).first()).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Start navigation" }),
+    ).toHaveCount(0);
+
+    const options = readFileSync(
+      "e2e/fixtures/bus-options-2026-03-20.json",
+      "utf8",
+    );
+    await page.route("**/api/bus/options**", (route) =>
+      route.fulfill({ contentType: "application/json", body: options }),
+    );
+    await page.goto(`/?from=${FROM.latitude},${FROM.longitude}&mode=bus`);
+    const hakuba47 = page.getByRole("region", {
+      name: "Hakuba47 Mountain Resort",
+    });
+    await hakuba47.getByRole("button").first().click({ timeout: 15_000 });
+    await expect(hakuba47.getByRole("list", { name: "Journey" })).toBeVisible();
+    // Start is hidden anyway while the walk to the stop loads: wait for it, or this
+    // assertion would pass whether or not the laptop gate works
+    await expect(page.locator("main")).not.toHaveAttribute(
+      "data-route-points",
+      "0",
+      { timeout: 15_000 },
+    );
+    await expect(
+      page.getByRole("button", { name: "Start bus journey" }),
+    ).toHaveCount(0);
+  });
+
+  test("dev ?simulate keeps Start, and Start replays the route without GPS", async ({
+    page,
+  }) => {
+    test.slow();
+    // no geolocation permission here: real GPS would fail with "Location is off"
+    await page.goto(`${URL}&simulate`);
+    await page
+      .getByRole("button", { name: "Start navigation" })
+      .click({ timeout: 20_000 });
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+      timeout: 15_000,
+    });
+    const first = await remaining(page);
+    await expect
+      .poll(() => remaining(page), { timeout: 15_000 })
+      .toBeLessThan(first - 20);
+    await expect(pilot(page).getByRole("alert")).toHaveCount(0);
+  });
+});
+
+test.describe("a running session", () => {
+  test.use({ permissions: ["geolocation"], geolocation: FROM });
+
+  test("is never cut off when the pointer changes; Start follows the device", async ({
+    page,
+    context,
+  }) => {
+    test.slow();
+    const line = await walkRoute(page);
+    await page.goto(URL);
+    await page
+      .getByRole("button", { name: "Start navigation" })
+      .click({ timeout: 20_000 });
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+      timeout: 15_000,
+    });
+
+    // an iPad gets a trackpad keyboard mid-trip: the primary pointer turns fine
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+    await expect
+      .poll(() => page.evaluate(() => matchMedia("(pointer: coarse)").matches))
+      .toBe(false);
+    const before = await remaining(page);
+    const [lng, lat] = line[Math.floor(line.length / 2)];
+    await context.setGeolocation({ latitude: lat, longitude: lng });
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following");
+    await expect
+      .poll(() => remaining(page), { timeout: 10_000 })
+      .toBeLessThan(before - 100);
+
+    // after the trip the laptop-like device gets no Start; touch again brings it back
+    await page.getByRole("button", { name: "Exit navigation" }).click();
+    await expect(page.getByRole("list", { name: "Steps" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Start navigation" }),
+    ).toHaveCount(0);
+    await cdp.send("Emulation.setTouchEmulationEnabled", {
+      enabled: true,
+      maxTouchPoints: 5,
+    });
+    await expect(
+      page.getByRole("button", { name: "Start navigation" }),
+    ).toBeVisible();
   });
 });

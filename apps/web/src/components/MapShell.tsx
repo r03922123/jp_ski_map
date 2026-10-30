@@ -34,6 +34,7 @@ import {
   fetchRoutes,
   type Route,
 } from "@/lib/api";
+import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
 import {
   buzz,
@@ -383,10 +384,11 @@ export function MapShell() {
     onFailure: () => setPilotRoute((r) => (r ? { ...r } : r)),
   });
   const piloting = pilotRoute !== null;
+  // Start is offered on touch-first devices only (SPEC-pilot "Devices")
+  const pilotAvailable = usePilotAvailable();
   const beginPilot = (route: Route, goal: Coord | null) => {
     const simulate =
-      process.env.NODE_ENV !== "production" &&
-      new URLSearchParams(window.location.search).has("simulate");
+      process.env.NODE_ENV !== "production" && simulateRequested();
     if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
     setPilotRoute(route);
     setPilotTarget(goal);
@@ -724,7 +726,9 @@ export function MapShell() {
               onSelectResort={selectResort}
               hasOrigin={origin !== null}
               placeStrip={<PlaceStrip from={fromPlace} to={toPlace} />}
-              onStart={mode === "bus" ? undefined : startPilot}
+              onStart={
+                mode === "bus" || !pilotAvailable ? undefined : startPilot
+              }
               route={routeState}
               routes={routes}
               activeRoute={activeRoute}
@@ -743,7 +747,11 @@ export function MapShell() {
                   selected={busChoice}
                   onSelect={setBusChoice}
                   // only once the walk to the stop is known: it is the first leg
-                  onStart={routeQuery.isPending ? undefined : startBusPilot}
+                  onStart={
+                    routeQuery.isPending || !pilotAvailable
+                      ? undefined
+                      : startBusPilot
+                  }
                 />
               }
               destinationPicker={
