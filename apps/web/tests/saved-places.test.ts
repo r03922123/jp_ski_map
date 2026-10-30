@@ -9,6 +9,7 @@ import {
   MAX_PLACES,
   type PlaceInput,
   parseState,
+  placeAt,
   removePlace,
   SAVED_KEY,
   savedStore,
@@ -16,6 +17,7 @@ import {
   setListHidden,
   setNote,
   toggleInList,
+  visibleMarkers,
 } from "@/lib/saved-places";
 
 const hotel: PlaceInput = {
@@ -175,5 +177,26 @@ describe("savedStore (localStorage)", () => {
     expect(listener).toHaveBeenCalled();
     expect(isSaved(savedStore.getSnapshot(), ramen.id)).toBe(true);
     unsubscribe();
+  });
+});
+
+describe("visibleMarkers", () => {
+  it("draws My hotel and places in visible lists only", () => {
+    let s = setHotel(emptyState(), hotel);
+    s = toggleInList(s, ramen, "favorites");
+    expect(visibleMarkers(s).map((m) => [m.id, m.icon])).toEqual([
+      [hotel.id, "hotel"],
+      [ramen.id, "heart"],
+    ]);
+    s = setListHidden(s, "favorites", true);
+    expect(visibleMarkers(s).map((m) => m.id)).toEqual([hotel.id]);
+  });
+});
+
+describe("placeAt", () => {
+  it("finds a saved place by coordinate to about a metre", () => {
+    const s = toggleInList(emptyState(), hotel, "starred");
+    expect(placeAt(s, { lat: 36.698121, lng: 137.861229 })?.id).toBe(hotel.id);
+    expect(placeAt(s, { lat: 36.6982, lng: 137.86123 })).toBeUndefined();
   });
 });

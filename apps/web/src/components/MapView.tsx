@@ -25,6 +25,7 @@ import {
   routeBounds,
   segment,
 } from "@/lib/route-geo";
+import type { SavedMarker } from "@/lib/saved-places";
 
 setWorkerUrl(MAPLIBRE_WORKER_URL);
 
@@ -50,6 +51,17 @@ export type MapViewProps = {
   onViewChange?: (view: { bbox: Bbox; zoom: number }) => void;
   onPickOrigin: (coord: Coord) => void;
   onSelectResort: (id: string) => void;
+  /** Saved places (SPEC-saved-places); tapping one calls `onSelectSaved`. */
+  saved?: SavedMarker[];
+  onSelectSaved?: (id: string) => void;
+};
+
+const SAVED_ICONS: Record<SavedMarker["icon"], string> = {
+  hotel: "🏨",
+  star: "⭐",
+  heart: "❤️",
+  flag: "🚩",
+  bookmark: "🔖",
 };
 
 const LODGING_LAYER = "lodging-pins";
@@ -83,6 +95,8 @@ export default function MapView({
   onViewChange,
   onPickOrigin,
   onSelectResort,
+  saved = [],
+  onSelectSaved,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   // routes can arrive before the map instance exists (shared URL); fit once it has
@@ -397,6 +411,29 @@ export default function MapView({
           </Marker>
         );
       })}
+
+      {saved.map((p) => (
+        <Marker
+          key={`saved-${p.id}`}
+          latitude={p.coord.lat}
+          longitude={p.coord.lng}
+          anchor="center"
+          onClick={(e) => {
+            e.originalEvent.stopPropagation();
+            onSelectSaved?.(p.id);
+          }}
+        >
+          <button
+            type="button"
+            data-saved-marker={p.id}
+            aria-label={`Saved: ${p.name}`}
+            title={p.name}
+            className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
+          >
+            {SAVED_ICONS[p.icon]}
+          </button>
+        </Marker>
+      ))}
 
       {busStop && (
         <Marker latitude={busStop.lat} longitude={busStop.lng} anchor="bottom">

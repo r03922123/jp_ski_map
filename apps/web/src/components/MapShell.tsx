@@ -12,6 +12,7 @@ import {
   type PanelMode,
   type RouteState,
 } from "@/components/ModePanel";
+import { PlaceStrip } from "@/components/PlaceStrip";
 import { PoiList, type PoiListState } from "@/components/PoiList";
 import { SearchBox } from "@/components/SearchBox";
 import {
@@ -30,6 +31,14 @@ import {
   type Route,
 } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
+import {
+  kindFromSuggestion,
+  type PlaceInput,
+  pinId,
+  placeAt,
+  useSaved,
+  visibleMarkers,
+} from "@/lib/saved-places";
 import {
   DEFAULT_RANK,
   type DestinationCategory,
@@ -75,6 +84,8 @@ export function MapShell() {
   const [origin, setOrigin] = useState<Coord | null>(null);
   // name of the searched place, if the origin came from search (not a dropped pin)
   const [originName, setOriginName] = useState<string | null>(null);
+  // what the origin is, for saving it (a search result's id, else the pin's coordinate)
+  const [originSource, setOriginSource] = useState<PlaceInput | null>(null);
   const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
   const [category, setCategory] = useState<DestinationCategory>("resorts");
   const [poiId, setPoiId] = useState<string | null>(null);
@@ -259,6 +270,45 @@ export function MapShell() {
     ...(rideLeg ? ["ride"] : []),
   ].join(",");
 
+  const savedState = useSaved();
+  const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
+  const fromPlace: PlaceInput | null = origin
+    ? (originSource ??
+      placeAt(savedState, origin) ?? {
+        id: pinId(origin),
+        name: "Dropped pin",
+        coord: origin,
+        kind: "pin",
+      })
+    : null;
+  const toPlace: PlaceInput | null =
+    mode === "bus"
+      ? busChoice?.boardStopCoord
+        ? {
+            id: busChoice.boardStopId,
+            name: busChoice.boardStopName,
+            coord: busChoice.boardStopCoord,
+            kind: "stop",
+          }
+        : null
+      : poiCategory
+        ? selectedPoi
+          ? {
+              id: selectedPoi.id,
+              name: selectedPoi.name,
+              coord: selectedPoi.coord,
+              kind: "poi",
+            }
+          : null
+        : resort && destination
+          ? {
+              id: resort.id,
+              name: resort.name.en,
+              coord: destination,
+              kind: "resort",
+            }
+          : null;
+
   return (
     <main
       className="fixed inset-0"
@@ -285,8 +335,10 @@ export function MapShell() {
         onPickOrigin={(coord) => {
           setOrigin(coord);
           setOriginName(null);
+          setOriginSource(null);
         }}
         onSelectResort={setSelectedResortId}
+        saved={savedMarkers}
       />
       <BottomSheet
         label="Directions"
@@ -295,11 +347,18 @@ export function MapShell() {
             onSelect={(place) => {
               setOrigin(place.coord);
               setOriginName(place.name);
+              setOriginSource({
+                id: place.id,
+                name: place.name,
+                coord: place.coord,
+                kind: kindFromSuggestion(place.kind),
+              });
               setFlyTo(place.coord);
             }}
             onClear={() => {
               setOrigin(null);
               setOriginName(null);
+              setOriginSource(null);
               setBusChoice(null);
             }}
             near={
@@ -320,6 +379,7 @@ export function MapShell() {
           selectedResortId={selectedResortId}
           onSelectResort={setSelectedResortId}
           hasOrigin={origin !== null}
+          placeStrip={<PlaceStrip from={fromPlace} to={toPlace} />}
           route={routeState}
           routes={routes}
           activeRoute={activeRoute}

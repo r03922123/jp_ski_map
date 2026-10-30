@@ -83,6 +83,19 @@ export function isSaved(state: SavedState, id: string): boolean {
   return findPlace(state, id) !== undefined;
 }
 
+/** The saved place at this coordinate (to ~1 m), e.g. an origin restored from the URL. */
+export function placeAt(
+  state: SavedState,
+  coord: Coord,
+): SavedPlace | undefined {
+  const eps = 1e-5;
+  return state.places.find(
+    (p) =>
+      Math.abs(p.coord.lat - coord.lat) < eps &&
+      Math.abs(p.coord.lng - coord.lng) < eps,
+  );
+}
+
 export function hotelOf(state: SavedState): SavedPlace | undefined {
   return state.places.find((p) => p.label === "hotel");
 }
@@ -349,4 +362,38 @@ export function useSaved(): SavedState {
     () => savedStore.getSnapshot(),
     () => savedStore.getServerSnapshot(),
   );
+}
+
+// --- adapters -----------------------------------------------------------------
+
+/** Our place kinds from a search suggestion's kind. */
+export function kindFromSuggestion(
+  kind: "resort" | "stop" | "lodging" | "food" | "convenience" | "place",
+): SavedKind {
+  if (kind === "food" || kind === "convenience") return "poi";
+  if (kind === "place") return "pin";
+  return kind;
+}
+
+export type SavedMarker = {
+  id: string;
+  name: string;
+  coord: Coord;
+  icon: ListIcon | "hotel";
+};
+
+/** What the map draws: places in a visible list, plus My hotel. */
+export function visibleMarkers(state: SavedState): SavedMarker[] {
+  const visible = new Map(
+    state.lists.filter((l) => !l.hidden).map((l) => [l.id, l]),
+  );
+  return state.places.flatMap((p): SavedMarker[] => {
+    if (p.label === "hotel") {
+      return [{ id: p.id, name: p.name, coord: p.coord, icon: "hotel" }];
+    }
+    const list = p.lists.map((id) => visible.get(id)).find(Boolean);
+    return list
+      ? [{ id: p.id, name: p.name, coord: p.coord, icon: list.icon }]
+      : [];
+  });
 }

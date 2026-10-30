@@ -37,6 +37,8 @@ export type ModePanelProps = {
   poiPanel?: ReactNode;
   /** Bus mode: shuttle options; the route shown is the walk to the chosen stop. */
   busPanel?: ReactNode;
+  /** From/To with Save stars, shown under the tabs once there is an origin. */
+  placeStrip?: ReactNode;
 };
 
 const LONG_WALK_S = 45 * 60;
@@ -65,6 +67,7 @@ export function ModePanel({
   destinationPicker,
   poiPanel,
   busPanel,
+  placeStrip,
 }: ModePanelProps) {
   const directions =
     route.status === "success" ? (
@@ -93,6 +96,7 @@ export function ModePanel({
         </TabsList>
       </Tabs>
 
+      {hasOrigin && placeStrip}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
           Tap the map to set your starting point.

@@ -441,11 +441,11 @@ Gate shorthand:
 **Files:** `lib/saved-places.ts`, `tests/saved-places.test.ts`
 **Scope:** S
 
-## Task 37: Save button, list picker, map layer
+## Task 37: Save button, list picker, map layer ✅
 **Description:** ☆/★ `SaveButton` on the origin, resort, POI, pin and bus-stop cards → `ListPicker` sheet (ticks, + New list, Set as My hotel); saved icons layer in `MapView`; tapping one selects it.
 **Acceptance criteria:**
-- [ ] Component tests: toggle in/out of lists, new list, hotel label moves
-- [ ] E2E: star a searched hotel → reload → still ★
+- [x] Component tests: toggle in/out of lists, new list, hotel label moves
+- [x] E2E: star a searched hotel → reload → still ★
 **Verification:** Web gates; Playwright
 **Dependencies:** T36
 **Files:** `components/SaveButton.tsx`, `components/ListPicker.tsx`, `MapView.tsx`, `MapShell.tsx`, `e2e/saved.spec.ts`
