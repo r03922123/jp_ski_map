@@ -600,3 +600,9 @@ Gate shorthand:
 - Map: route layers had no fixed order (bus line over the walk route, stop dots under the line) → always mounted + order re-applied on every style change; the walk route clears after the stop; arrival keeps the ride grey; no stale ride chip while piloting.
 - Position puck intercepted drags 1 in 5 (couldn't pan from your own position) → pointer-events none.
 - Tests: >4-stop rides on every surface, exact row states, board/alight roles, waiting has no markings, scroll-into-view, loop and unplaced-stop cases, drawn layer order and rendered stop dots via the dev map handle, font test proves labels drew.
+
+## Task 56: API: route through real stops (`stopAtPoints`)
+**Files:** `routing/client.py`, `routing/router.py`, `tests/routing/*`, fixture. **Scope:** S
+
+## Task 57: Trip panel: clear boxes, add/remove stops, map tap fills the active box, stops in URL
+**Files:** `components/TripPanel.tsx` (replaces PlaceStrip), `MapShell.tsx`, `MapView.tsx`, `SearchBox.tsx`, `lib/url-state.ts`, `lib/api.ts`, tests, `e2e/stops.spec.ts`. **Scope:** M

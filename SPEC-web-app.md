@@ -59,3 +59,28 @@ Design reference: Google Maps directions (web and mobile), rebuilt with our own 
 - [ ] Component: step list renders a maneuver icon per step, and the distance format is "300 m" / "1.2 km".
 - [ ] Mobile 390 px: no horizontal scroll, and the pills don't overlap the bottom sheet (fitBounds padding).
 - [ ] The browser console is clean on all three flows (no hydration or React key warnings from our code).
+
+## v1.4: Edit the trip like Google Maps: clear a box, add stops (2026-10-30)
+User request: "reverse engineer how google maps initiates pointing a location only by 1. cancel the place name in the search box 2. open a mid point box for typing or put point on the map"; user chose **Add a stop (waypoint)**.
+
+**Behaviour evidence (REA method: claim → source → what we take)**
+| Google Maps behaviour | Evidence | Ours |
+|---|---|---|
+| ⋮ → "Add stop" adds a box between start and destination; the route goes through the stops in order | How-To Geek, Android Central, Search Engine Land (multi-stop launch) | "+ Add stop" adds a box between From and To; the route visits stops in order |
+| Each box has ✕; clearing a box lets you type again or choose a point on the map | Google Maps app behaviour (observed) | ✕ on every row; an empty, active box is filled by typing (same suggestions as search) or by tapping the map |
+| Up to ~9 stops (sources differ: 9 stops / 10 destinations) | the same sources | Up to **5** stops (plenty for a ski day; `/api/route/path` takes 25 points) |
+| Stops can be reordered by dragging | How-To Geek, Android Central | Not in v1.4 (↑/↓ buttons later if wanted) |
+| Transit with stops | not documented in what we found | **Our decision:** no stops in 🚌 Bus mode (a shuttle can't detour); drive and walk only |
+
+**Design**
+- **Trip panel** (replaces the From/To strip): rows *From* · *Stop 1…n* · *To*, each with the name, a Save star and ✕. "+ Add stop" appears when there is a From and a To (drive/walk).
+  - ✕ on *From* clears the starting point (as the search box's ✕ does); ✕ on *To* clears the destination; ✕ on a stop removes it.
+  - A new stop row opens as an **active empty box** with focus: type for suggestions (the same index as the main search) or **tap the map** to drop it there. The map tap goes to the active box; with no active box it sets the starting point as before.
+- **Route:** with stops, the route is one request through From → stops → To as *real stops* (`POST /api/route/path` with `stopAtPoints: true`). Each stop gets an "Arrive at stop N" step, so the banner and voice announce it. No alternates when there are stops (as in Google). Pilot works unchanged on that route.
+- **Map:** stops are numbered white circles (1, 2, …), clickable like other markers.
+- **URL:** `stops=lat,lng;lat,lng` keeps them in shared links (coordinates only; names come back from saved places, else "Stop N").
+
+**Acceptance**
+- [ ] API: `stopAtPoints` keeps an "Arrive at stop N" step per intermediate point (fixture test); without it, unchanged (pass-through for the bus line).
+- [ ] Unit: URL round-trip of `stops`; the trip panel adds, fills, removes stops, and clears From/To.
+- [ ] E2E: add a stop by typing → the route goes through it (its steps include "Arrive at stop 1"); add a stop by tapping the map; remove it → the route goes direct again; the link keeps the stops; bus mode offers no "Add stop".
