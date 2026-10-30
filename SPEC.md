@@ -62,6 +62,9 @@ docker compose -f infra/docker-compose.yml up -d valhalla      # first run build
 # dev
 uv run --project services/api fastapi dev services/api/src/hakuba_api/main.py --port 8010   # :8010 (8000 is used by another local project)
 pnpm --dir apps/web dev                                                          # :3000
+pnpm --dir apps/web dev:https    # instead of `dev`: https://<Mac Wi-Fi IP>:3443 for pilot mode on a phone
+                                 # (self-signed cert in apps/web/.certs, nothing installed; accept the
+                                 # warning once on the phone; LAN only; stop `dev` first, Next allows one)
 pnpm --dir apps/web gen:api        # regenerate TS types from http://127.0.0.1:8010/openapi.json
 
 # quality gates (all must pass before commit)

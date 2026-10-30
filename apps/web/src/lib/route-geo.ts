@@ -14,6 +14,16 @@ export function distanceM([lng1, lat1]: LngLat, [lng2, lat2]: LngLat): number {
   return 2 * EARTH_M * Math.asin(Math.sqrt(a));
 }
 
+/** Initial compass bearing from a to b, degrees clockwise from north. */
+export function bearingDeg([lng1, lat1]: LngLat, [lng2, lat2]: LngLat): number {
+  const rad = Math.PI / 180;
+  const y = Math.sin((lng2 - lng1) * rad) * Math.cos(lat2 * rad);
+  const x =
+    Math.cos(lat1 * rad) * Math.sin(lat2 * rad) -
+    Math.sin(lat1 * rad) * Math.cos(lat2 * rad) * Math.cos((lng2 - lng1) * rad);
+  return (Math.atan2(y, x) / rad + 360) % 360;
+}
+
 /** [[west, south], [east, north]], the shape MapLibre's fitBounds takes. */
 export function routeBounds(coords: LngLat[]): [LngLat, LngLat] {
   const lngs = coords.map((c) => c[0]);

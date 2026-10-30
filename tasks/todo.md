@@ -485,11 +485,11 @@ Gate shorthand:
 **Files:** `lib/nav/{project,progress,session,camera}.ts`, `tests/nav/*.test.ts`, fixture
 **Scope:** M
 
-## Task 41: Position sources, wake lock, `dev:https`
+## Task 41: Position sources, wake lock, `dev:https` ✅
 **Description:** `PositionSource` (geolocation watch; dev-only simulated replay); `useWakeLock`; permission/insecure-context errors; `pnpm dev:https` script and README note.
 **Acceptance criteria:**
-- [ ] Unit: the simulated source emits fixes along a route at the given speed; errors map to UI states
-- [ ] `pnpm dev:https` serves over HTTPS on the LAN address
+- [x] Unit: the simulated source emits fixes along a route at the given speed; errors map to UI states
+- [x] `pnpm dev:https` serves over HTTPS on the LAN address (verified: 200 on 127.0.0.1 and 192.168.50.158:3443, /api proxied; self-signed, nothing installed)
 **Verification:** Web gates; manual `curl -k`
 **Dependencies:** T40
 **Files:** `lib/nav/position.ts`, `lib/wake-lock.ts`, `package.json`, README

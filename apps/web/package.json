@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/copy-maplibre-worker.mjs && next dev",
+    "dev:https": "node scripts/copy-maplibre-worker.mjs && node scripts/dev-cert.mjs && next dev --hostname 0.0.0.0 --port 3443 --experimental-https --experimental-https-key .certs/dev-key.pem --experimental-https-cert .certs/dev-cert.pem",
     "build": "node scripts/copy-maplibre-worker.mjs && next build",
     "start": "next start",
     "lint": "biome check --write",
