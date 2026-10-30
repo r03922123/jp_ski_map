@@ -57,9 +57,15 @@ const CATEGORIES: readonly DestinationCategory[] = [
   "convenience",
 ];
 
+/** Stops between start and destination (SPEC-web-app v1.4; Google allows ~9). */
+export const MAX_STOPS = 5;
+
 function parseCoord(value: string | null): Coord | null {
-  const parts = value?.split(",").map(Number);
-  if (parts?.length !== 2 || parts.some(Number.isNaN)) return null;
+  const raw = value?.split(",");
+  // Number("") is 0: an empty part would be a real place (Null Island)
+  if (raw?.length !== 2 || raw.some((p) => p.trim() === "")) return null;
+  const parts = raw.map(Number);
+  if (parts.some(Number.isNaN)) return null;
   const [lat, lng] = parts;
   if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
   return { lat, lng };
@@ -96,10 +102,13 @@ export function parseViewState(search: string): ViewState {
     category: cat && CATEGORIES.includes(cat) ? cat : "resorts",
     rank: parseRank(params),
     point: kind === "pt" ? parseCoord(destId) : null,
-    stops: (params.get("stops") ?? "").split(";").flatMap((s) => {
-      const c = parseCoord(s);
-      return c ? [c] : [];
-    }),
+    stops: (params.get("stops") ?? "")
+      .split(";")
+      .flatMap((s) => {
+        const c = parseCoord(s);
+        return c ? [c] : [];
+      })
+      .slice(0, MAX_STOPS),
   };
 }
 

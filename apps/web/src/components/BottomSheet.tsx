@@ -65,7 +65,15 @@ export function BottomSheet({
           {header}
         </div>
       )}
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">{children}</div>
+      <div
+        className="min-h-0 flex-1 overflow-y-auto px-4 pb-4"
+        // a search box down here (a trip stop) needs the room too
+        onFocusCapture={(e) => {
+          if (e.target instanceof HTMLInputElement) setExpanded(true);
+        }}
+      >
+        {children}
+      </div>
     </section>
   );
 }

@@ -61,7 +61,7 @@ import {
 } from "@/lib/nav/position";
 import { projectForward, splitAt } from "@/lib/nav/project";
 import { isFarFromRoute, useRouteProximity } from "@/lib/nav/proximity";
-import { stopsAhead } from "@/lib/nav/stops";
+import { type NumberedStop, numberStops, stopsAhead } from "@/lib/nav/stops";
 import { usePilot } from "@/lib/nav/use-pilot";
 import { useReroute } from "@/lib/nav/use-reroute";
 import type { LngLat } from "@/lib/route-geo";
@@ -80,15 +80,13 @@ import { readImportHash } from "@/lib/saved-share";
 import {
   DEFAULT_RANK,
   type DestinationCategory,
+  MAX_STOPS,
   parseViewState,
   type RankOptions,
   serializeViewState,
 } from "@/lib/url-state";
 import { useNow } from "@/lib/use-now";
 import { useHiddenTimeout, useWakeLock } from "@/lib/wake-lock";
-
-/** Stops between start and destination (SPEC-web-app v1.4; Google allows ~9). */
-const MAX_STOPS = 5;
 
 /** Stop navigating after the page has been hidden this long (SPEC-pilot boundaries). */
 const PILOT_HIDDEN_STOP_MS = 10 * 60_000;
@@ -144,6 +142,7 @@ export function MapShell() {
   // stops between start and destination; an empty one is waiting for typing or a map tap
   const [stops, setStops] = useState<TripStop[]>([]);
   const stopKeys = useRef(0);
+  const [searchKey, setSearchKey] = useState(0);
   const newStopKey = () => {
     stopKeys.current += 1;
     return `stop-${stopKeys.current}`;
@@ -192,12 +191,7 @@ export function MapShell() {
     setStops(
       view.stops.map((coord, i) => ({
         key: `stop-url-${i}`,
-        place: placeAt(savedStore.getSnapshot(), coord) ?? {
-          id: pinId(coord),
-          name: `Stop ${i + 1}`,
-          coord,
-          kind: "pin",
-        },
+        place: { id: pinId(coord), name: "Dropped pin", coord, kind: "pin" },
       })),
     );
     setImportCode(readImportHash(window.location.hash));
@@ -412,7 +406,7 @@ export function MapShell() {
   // the destination stays fixed while reroutes replace the route
   const [pilotTarget, setPilotTarget] = useState<Coord | null>(null);
   // the trip's stops for this session, so a reroute still visits the ones ahead
-  const [pilotStops, setPilotStops] = useState<Coord[]>([]);
+  const [pilotStops, setPilotStops] = useState<NumberedStop[]>([]);
   const [reroutes, setReroutes] = useState(0);
   // Bus pilot: the walk leg uses the turn-by-turn pilot; then wait → ride → arrived.
   const [busPlan, setBusPlan] = useState<BusPlan | null>(null);
@@ -434,10 +428,18 @@ export function MapShell() {
       const ahead = pilot.route
         ? stopsAhead(pilot.route, pilot.nav.lastGood?.alongM ?? 0, pilotStops)
         : pilotStops;
-      if (ahead.length !== pilotStops.length) setPilotStops(ahead);
-      return ahead.length > 0
-        ? fetchPath(m, [from, ...ahead, to], { stopAtPoints: true })
-        : (await fetchRoutes(m, from, to)).primary;
+      const route =
+        ahead.length > 0
+          ? numberStops(
+              await fetchPath(m, [from, ...ahead.map((s) => s.coord), to], {
+                stopAtPoints: true,
+              }),
+              ahead.map((s) => s.n),
+            )
+          : (await fetchRoutes(m, from, to)).primary;
+      // only now: a failed reroute keeps the old route, whose stops are all still listed
+      setPilotStops(ahead);
+      return route;
     },
     onNewRoute: (r) => {
       setPilotRoute(r);
@@ -460,7 +462,7 @@ export function MapShell() {
     {
       asPreview = false,
       stops: viaStopsForPilot = [],
-    }: { asPreview?: boolean; stops?: Coord[] } = {},
+    }: { asPreview?: boolean; stops?: NumberedStop[] } = {},
   ) => {
     const simulate =
       process.env.NODE_ENV !== "production" && simulateRequested();
@@ -487,7 +489,7 @@ export function MapShell() {
     if (route)
       beginPilot(route, target ?? null, {
         asPreview: proximity === "far",
-        stops: viaStops,
+        stops: viaStops.map((coord, i) => ({ n: i + 1, coord })),
       });
   };
   const startBusPilot = () => {
@@ -664,6 +666,33 @@ export function MapShell() {
       }
     : null;
   const savedState = useSaved();
+  // Map-tapped and linked stops are pins: name them as the start is named (a saved
+  // place's name, else "Dropped pin") when drawn, so renumbering never strands a "Stop 2".
+  const tripStops = stops.map((st) =>
+    st.place?.kind === "pin"
+      ? { ...st, place: placeAt(savedState, st.place.coord) ?? st.place }
+      : st,
+  );
+  const clearOrigin = () => {
+    setOrigin(null);
+    setOriginName(null);
+    setOriginSource(null);
+    setSearchLabel(null);
+    setBusChoice(null);
+    // an empty stop box would take the next tap, which is meant for the new start
+    setStops((list) => list.filter((st) => st.place !== null));
+  };
+  // An open stop box takes map taps only while it is on screen (SPEC-web-app v1.4).
+  const placingStop =
+    mode !== "bus" &&
+    origin !== null &&
+    !piloting &&
+    !savedOpen &&
+    stops.some((st) => st.place === null);
+  const fillOpenStop = (place: PlaceInput) => {
+    const open = stops.find((st) => st.place === null);
+    if (open) fillStop(open.key, place);
+  };
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const fromPlace: PlaceInput | null = origin
     ? (originSource ??
@@ -746,11 +775,10 @@ export function MapShell() {
         onViewChange={setView}
         onPickOrigin={(coord) => {
           // an open stop box takes the tap (Google: type, or put a point on the map)
-          const open = stops.findIndex((s) => s.place === null);
-          if (open >= 0 && mode !== "bus") {
-            fillStop(stops[open].key, {
+          if (placingStop) {
+            fillOpenStop({
               id: pinId(coord),
-              name: `Stop ${open + 1}`,
+              name: "Dropped pin",
               coord,
               kind: "pin",
             });
@@ -760,11 +788,42 @@ export function MapShell() {
           setOriginName(null);
           setOriginSource(null);
         }}
-        stops={mode === "bus" ? [] : filledStops.map((s) => s.coord)}
-        placingStop={mode !== "bus" && stops.some((s) => s.place === null)}
-        onSelectResort={selectResort}
+        stops={
+          mode === "bus"
+            ? []
+            : tripStops.flatMap((st) =>
+                st.place
+                  ? [{ coord: st.place.coord, name: st.place.name }]
+                  : [],
+              )
+        }
+        placingStop={placingStop}
+        onSelectResort={(id) => {
+          // while placing a stop, a resort marker is the stop, not a new destination
+          const r = placingStop
+            ? resorts.data?.find((x) => x.id === id)
+            : undefined;
+          const at = r?.accessPoints[0]?.coord;
+          if (r && at) {
+            fillOpenStop({
+              id: r.id,
+              name: r.name.en,
+              coord: at,
+              kind: "resort",
+            });
+            return;
+          }
+          selectResort(id);
+        }}
         saved={savedMarkers}
         onSelectSaved={(id) => {
+          const place = placingStop
+            ? savedState.places.find((p) => p.id === id)
+            : undefined;
+          if (place) {
+            fillOpenStop(place);
+            return;
+          }
           setSavedFocus(id);
           setSavedOpen(true);
         }}
@@ -818,6 +877,8 @@ export function MapShell() {
           header={
             <div className="flex flex-col gap-2">
               <SearchBox
+                // remounted (emptied) when the trip panel's ✕ clears the start
+                key={searchKey}
                 label={searchLabel}
                 onSelect={(place) => {
                   setOrigin(place.coord);
@@ -830,13 +891,7 @@ export function MapShell() {
                   });
                   setFlyTo(place.coord);
                 }}
-                onClear={() => {
-                  setOrigin(null);
-                  setOriginName(null);
-                  setOriginSource(null);
-                  setSearchLabel(null);
-                  setBusChoice(null);
-                }}
+                onClear={clearOrigin}
                 near={
                   view
                     ? {
@@ -884,7 +939,7 @@ export function MapShell() {
                 <TripPanel
                   from={fromPlace}
                   to={toPlace}
-                  stops={mode === "bus" ? [] : stops}
+                  stops={mode === "bus" ? [] : tripStops}
                   canAddStop={
                     mode !== "bus" &&
                     fromPlace !== null &&
@@ -903,11 +958,20 @@ export function MapShell() {
                     setStops((list) => list.filter((s) => s.key !== key))
                   }
                   onFillStop={fillStop}
-                  onClearTo={() => {
-                    setSelectedResortId(null);
-                    setPoiId(null);
-                    setPoint(null);
+                  onClearFrom={() => {
+                    clearOrigin();
+                    setSearchKey((k) => k + 1);
                   }}
+                  onClearTo={
+                    // bus: the destination is the chosen option's stop, not the user's
+                    mode === "bus"
+                      ? undefined
+                      : () => {
+                          setSelectedResortId(null);
+                          setPoiId(null);
+                          setPoint(null);
+                        }
+                  }
                 />
               }
               onStart={

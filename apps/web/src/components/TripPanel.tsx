@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { SaveButton } from "@/components/SaveButton";
 import { SearchBox } from "@/components/SearchBox";
 import type { Coord } from "@/lib/api";
@@ -10,6 +11,7 @@ import { kindFromSuggestion, type PlaceInput } from "@/lib/saved-places";
 export type TripStop = { key: string; place: PlaceInput | null };
 
 export type TripPanelProps = {
+  /** null while the start is being changed: the stops and destination stay listed */
   from: PlaceInput | null;
   to: PlaceInput | null;
   stops: TripStop[];
@@ -20,12 +22,14 @@ export type TripPanelProps = {
   onAddStop: () => void;
   onRemoveStop: (key: string) => void;
   onFillStop: (key: string, place: PlaceInput) => void;
-  onClearTo: () => void;
+  onClearFrom: () => void;
+  /** absent when the destination isn't the user's to clear (bus: the chosen option's stop) */
+  onClearTo?: () => void;
 };
 
 /**
- * The trip, Google-style (SPEC-web-app v1.4): From, any stops, To, each with a Save star.
- * The start is edited in the search box above; ✕ removes a stop or the destination.
+ * The trip, Google-style (SPEC-web-app v1.4): From, any stops, To, each with a Save star
+ * and ✕. The start can also be retyped in the search box above.
  */
 export function TripPanel({
   from,
@@ -36,13 +40,42 @@ export function TripPanel({
   onAddStop,
   onRemoveStop,
   onFillStop,
+  onClearFrom,
   onClearTo,
 }: TripPanelProps) {
-  if (!from && !to) return null;
+  const addRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  // Filling or removing a stop unmounts the focused control: hand focus to Add stop (or
+  // the list) instead of letting it drop to the page.
+  const [refocus, setRefocus] = useState(false);
+  useEffect(() => {
+    if (!refocus) return;
+    (addRef.current ?? listRef.current)?.focus();
+    setRefocus(false);
+  }, [refocus]);
+  const removeStop = (key: string) => {
+    setRefocus(true);
+    onRemoveStop(key);
+  };
+
+  if (!from && !to && stops.length === 0) return null;
   return (
     <div className="flex flex-col gap-1">
-      <ul aria-label="Trip" className="flex flex-col rounded-lg border text-sm">
-        {from && <Row marker="🔵" label="From" place={from} />}
+      <ul
+        ref={listRef}
+        tabIndex={-1}
+        aria-label="Trip"
+        className="flex flex-col rounded-lg border text-sm outline-none"
+      >
+        {from && (
+          <Row
+            marker="🔵"
+            label="From"
+            place={from}
+            removeLabel="Remove starting point"
+            onRemove={onClearFrom}
+          />
+        )}
         {stops.map((stop, i) =>
           stop.place ? (
             <Row
@@ -51,37 +84,35 @@ export function TripPanel({
               label={`Stop ${i + 1}`}
               place={stop.place}
               removeLabel={`Remove stop ${i + 1}`}
-              onRemove={() => onRemoveStop(stop.key)}
+              onRemove={() => removeStop(stop.key)}
             />
           ) : (
             <li
               key={stop.key}
-              className="flex flex-col gap-0.5 px-2 py-1 not-last:border-b"
+              className="flex items-center gap-2 px-2 py-1 not-last:border-b"
             >
-              <div className="flex items-center gap-2">
-                <StopBadge n={i + 1} />
-                <div className="min-w-0 flex-1">
-                  <SearchBox
-                    ariaLabel={`Stop ${i + 1}`}
-                    placeholder="Add a stop"
-                    clearLabel={`Remove stop ${i + 1}`}
-                    near={near}
-                    autoFocus
-                    onSelect={(s) =>
-                      onFillStop(stop.key, {
-                        id: s.id,
-                        name: s.name,
-                        coord: s.coord,
-                        kind: kindFromSuggestion(s.kind),
-                      })
-                    }
-                    onClear={() => onRemoveStop(stop.key)}
-                  />
-                </div>
+              <StopBadge n={i + 1} />
+              <div className="min-w-0 flex-1">
+                <SearchBox
+                  ariaLabel={`Stop ${i + 1}`}
+                  // the hint lives here: a line under the box would sit under its dropdown
+                  placeholder="Type a place, or tap the map"
+                  clearLabel={`Remove stop ${i + 1}`}
+                  alwaysClearable
+                  near={near}
+                  autoFocus
+                  onSelect={(s) => {
+                    setRefocus(true);
+                    onFillStop(stop.key, {
+                      id: s.id,
+                      name: s.name,
+                      coord: s.coord,
+                      kind: kindFromSuggestion(s.kind),
+                    });
+                  }}
+                  onClear={() => removeStop(stop.key)}
+                />
               </div>
-              <p className="pl-7 text-xs text-muted-foreground">
-                Type a place, or tap the map
-              </p>
             </li>
           ),
         )}
@@ -90,13 +121,14 @@ export function TripPanel({
             marker="📍"
             label="To"
             place={to}
-            removeLabel="Remove destination"
+            removeLabel={onClearTo ? "Remove destination" : undefined}
             onRemove={onClearTo}
           />
         )}
       </ul>
       {canAddStop && (
         <button
+          ref={addRef}
           type="button"
           aria-label="Add stop"
           className="flex items-center gap-1 self-start rounded-full px-2 py-1 text-sm font-medium text-blue-700 hover:bg-muted"

@@ -74,11 +74,12 @@ User request: "reverse engineer how google maps initiates pointing a location on
 
 **Design**
 - **Trip panel** (replaces the From/To strip): rows *From* · *Stop 1…n* · *To*, each with the name, a Save star and ✕. "+ Add stop" appears when there is a From and a To (drive/walk).
-  - ✕ on *From* clears the starting point (as the search box's ✕ does); ✕ on *To* clears the destination; ✕ on a stop removes it.
-  - A new stop row opens as an **active empty box** with focus: type for suggestions (the same index as the main search) or **tap the map** to drop it there. The map tap goes to the active box; with no active box it sets the starting point as before.
-- **Route:** with stops, the route is one request through From → stops → To as *real stops* (`POST /api/route/path` with `stopAtPoints: true`). Each stop gets an "Arrive at stop N" step, so the banner and voice announce it. No alternates when there are stops (as in Google). Pilot works unchanged on that route.
-- **Map:** stops are numbered white circles (1, 2, …), clickable like other markers.
-- **URL:** `stops=lat,lng;lat,lng` keeps them in shared links (coordinates only; names come back from saved places, else "Stop N").
+  - ✕ on *From* clears the starting point (as the search box's ✕ does); the stops and the destination **stay listed** while a new start is chosen. ✕ on *To* clears the destination (not in 🚌 Bus, where *To* is the chosen option's stop). ✕ on a stop removes it, including an empty one before anything is typed.
+  - A new stop row opens as an **active empty box** with focus: type for suggestions (the same index as the main search) or **tap the map** to drop it there (the hint is the box's placeholder). The map tap goes to the active box **only while the box is on screen** (a start is set, the trip panel is showing, not navigating); otherwise it sets the starting point as before. While placing, a tap on an alternate route line, a resort marker or a saved marker is the stop, not a route/destination/panel change. Clearing the start drops an empty stop box, so the next tap is the new start.
+  - After a stop is filled or removed, focus goes to "+ Add stop" (else the trip list), not to the page. On phones the sheet expands when any box in it is focused.
+- **Route:** with stops, the route is one request through From → stops → To as *real stops* (`POST /api/route/path` with `stopAtPoints: true`). Each stop gets an "Arrive at stop N" step worded as a stop ("Arrive at stop 1, on the right.", never Valhalla's "Your destination is…"), so the banner and voice announce it. No alternates when there are stops (as in Google). Pilot works unchanged on that route; a **reroute goes through the stops still ahead** (a stop within 30 m ahead of the last on-route point counts as reached) and keeps the trip's stop numbers, so voice and map circles agree. The stop list is cut only once a reroute succeeds.
+- **Map:** stops are numbered white circles (1, 2, …) named "Stop N: <name>", drawn above the route time chips. A tap on one never moves the start or drops a second stop on it.
+- **URL:** `stops=lat,lng;lat,lng` keeps them in shared links (coordinates only, at most 5, empty parts ignored; names come back from saved places, else "Dropped pin", like the start).
 
 **Acceptance**
 - [x] API: `stopAtPoints` keeps an "Arrive at stop N" step per intermediate point (fixture test); without it, unchanged (pass-through for the bus line).

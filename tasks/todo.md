@@ -606,3 +606,7 @@ Gate shorthand:
 
 ## Task 57: Trip panel: clear boxes, add/remove stops, map tap fills the active box, stops in URL ✅
 **Files:** `components/TripPanel.tsx` (replaces PlaceStrip), `MapShell.tsx`, `MapView.tsx`, `SearchBox.tsx`, `lib/url-state.ts`, `lib/api.ts`, tests, `e2e/stops.spec.ts`. **Scope:** M
+
+## Task 57b: Trip stops review fixes ✅
+Adversarial review (3 reviewers + verifier): 19 confirmed, all fixed. Empty stop box had no ✕ and took every map tap (also hidden, or while navigating); clearing From stranded stops; bus-mode To ✕ wiped the drive destination; frozen "Stop N" names; no ✕ on From; Valhalla "destination" wording at each stop; reroute renumbering and stop list cut before a failed reroute; no reach tolerance; URL junk (Number("") = 0) and no stop cap; resort/saved marker taps while placing; stop circles fell through to the map and sat under route chips; phone sheet didn't expand for a stop box; hint covered by the dropdown; focus lost on fill/remove; tests that passed without testing (bus rule, route-line rule, fill).
+**Known flake (pre-existing, not from T57):** `pilot.spec.ts` "start, follow the walk…" fails ~1 in 4 when several copies run in parallel: the drag never shows Re-centre. Same rate on the code before T57b (A/B, 2026-10-30). Follow-up.

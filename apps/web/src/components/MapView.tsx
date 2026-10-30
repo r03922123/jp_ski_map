@@ -56,7 +56,7 @@ export type MapViewProps = {
   saved?: SavedMarker[];
   onSelectSaved?: (id: string) => void;
   /** The trip's stops, in order (numbered 1, 2, …). */
-  stops?: Coord[];
+  stops?: { coord: Coord; name: string }[];
   /** A stop box is open: a tap places the stop, even on a route line. */
   placingStop?: boolean;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
@@ -515,6 +515,7 @@ export default function MapView({
               type="button"
               aria-label={r.name.en}
               aria-pressed={selected}
+              data-resort-marker={r.id}
               className={`rounded-full border-2 border-white px-2 py-0.5 text-xs font-semibold shadow ${
                 selected ? "bg-blue-600 text-white" : "bg-white text-slate-800"
               }`}
@@ -538,7 +539,8 @@ export default function MapView({
           rotationAlignment="map"
           pitchAlignment="map"
           // not interactive: a drag that starts on your own position must pan the map
-          style={{ zIndex: 4, pointerEvents: "none" }}
+          // on top of everything, and never in the way of a tap
+          style={{ zIndex: 5, pointerEvents: "none" }}
         >
           <svg
             role="img"
@@ -577,18 +579,22 @@ export default function MapView({
         </Marker>
       ))}
 
-      {stops.map((c, i) => (
+      {stops.map((stop, i) => (
         <Marker
           // biome-ignore lint/suspicious/noArrayIndexKey: a stop is its position in the trip
           key={`trip-stop-${i}`}
-          latitude={c.lat}
-          longitude={c.lng}
+          latitude={stop.coord.lat}
+          longitude={stop.coord.lng}
           anchor="center"
-          style={{ zIndex: 3 }}
+          // above the route time chips (3): a chip can land right on a stop
+          style={{ zIndex: 4 }}
+          // a tap on a stop must not fall through to the map (moving the start, or
+          // dropping a second stop on top of it)
+          onClick={(e) => e.originalEvent.stopPropagation()}
         >
           <span
             role="img"
-            aria-label={`Stop ${i + 1}`}
+            aria-label={`Stop ${i + 1}: ${stop.name}`}
             data-trip-stop={i + 1}
             className="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
           >

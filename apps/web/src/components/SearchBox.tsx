@@ -83,6 +83,7 @@ export function SearchBox({
   ariaLabel = "Search hotel or place",
   placeholder = "Search hotel, stop, resort… or paste a Google Maps link",
   clearLabel = "Clear starting point",
+  alwaysClearable = false,
   autoFocus = false,
 }: {
   onSelect: (place: Suggestion) => void;
@@ -97,6 +98,8 @@ export function SearchBox({
   placeholder?: string;
   /** Accessible name of the ✕ button. */
   clearLabel?: string;
+  /** Show ✕ even while the box is empty (a stop box: ✕ removes the stop). */
+  alwaysClearable?: boolean;
   autoFocus?: boolean;
 }) {
   const [text, setText] = useState("");
@@ -186,7 +189,7 @@ export function SearchBox({
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
       />
-      {text && (
+      {(text || alwaysClearable) && (
         <button
           type="button"
           aria-label={clearLabel}

@@ -103,7 +103,8 @@ export function ModePanel({
         </TabsList>
       </Tabs>
 
-      {hasOrigin && placeStrip}
+      {/* the trip stays listed while the start is being changed (its stops survive) */}
+      {placeStrip}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
           Type a place above, or tap the map, to set your starting point.
