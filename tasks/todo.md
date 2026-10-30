@@ -581,7 +581,7 @@ Gate shorthand:
 **Files:** `BusPanel.tsx`, `BusPilotView.tsx`, `PilotView.tsx`, `MapShell.tsx`, `lib/nav/bus-journey.ts`, tests, `e2e/pilot.spec.ts`
 **Scope:** M
 
-## Task 53: Map label font 404
+## Task 53: Map label font 404 ✅
 **Description:** name a served font on our symbol layers; e2e for zoomed-in clean console.
 **Files:** `MapView.tsx`, `e2e/map.spec.ts`
 **Scope:** XS

@@ -97,4 +97,4 @@ The user asked to see every stop the shuttle passes, both when choosing a bus an
 
 ## Map label font (v1.3.2)
 Our own symbol layers (lodging names) named no font, so MapLibre asked OpenFreeMap for "Open Sans Regular", which it doesn't serve: a 404 console error on every zoomed-in view (seen on the iPhone as Next's "1 Issue"). Every symbol layer we add names a font the style serves ("Noto Sans Regular").
-- [ ] E2E: zoomed in where lodging labels show (zoom ≥ 15), no failed font request and no console error.
+- [x] E2E: zoomed in where lodging labels show (zoom ≥ 15), no failed font request and no console error.

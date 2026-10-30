@@ -315,6 +315,8 @@ export default function MapView({
           minzoom={15}
           layout={{
             "text-field": ["get", "name"],
+            // a font the OpenFreeMap style serves; MapLibre's default (Open Sans) 404s
+            "text-font": ["Noto Sans Regular"],
             "text-size": 11,
             "text-offset": [0, 1.2],
             "text-anchor": "top",
