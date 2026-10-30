@@ -515,10 +515,10 @@ Gate shorthand:
 **Files:** `lib/nav/session.ts`, `components/PilotView.tsx`, `MapShell.tsx`, tests
 **Scope:** S
 
-## Task 44: Voice and vibration
+## Task 44: Voice and vibration ✅
 **Description:** `speechSynthesis` announcements at the spec's distances (each announced once), remembered mute, `navigator.vibrate` on turns; feature-detected.
 **Acceptance criteria:**
-- [ ] Unit: announcement schedule fires once per threshold per maneuver; muted → none
+- [x] Unit: announcement schedule fires once per threshold per maneuver; muted → none (+ e2e with a recorded speechSynthesis)
 **Verification:** Web gates
 **Dependencies:** T42
 **Files:** `lib/nav/announce.ts`, `components/PilotView.tsx`, tests

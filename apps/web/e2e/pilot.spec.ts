@@ -86,6 +86,57 @@ test.describe("with location allowed", () => {
   });
 });
 
+test.describe("voice", () => {
+  test.use({ permissions: ["geolocation"], geolocation: FROM });
+
+  test("speaks the turn as you walk up to it, and Mute silences it", async ({
+    page,
+    context,
+  }) => {
+    // record what would be spoken instead of using the machine's voice
+    await page.addInitScript(() => {
+      const spoken: string[] = [];
+      Object.assign(window, { __spoken: spoken });
+      Object.defineProperty(window, "speechSynthesis", {
+        value: {
+          speak: (u: { text: string }) => {
+            if (u.text) spoken.push(u.text);
+          },
+          cancel: () => {},
+        },
+      });
+    });
+    const spoken = () =>
+      page.evaluate(
+        () => (window as unknown as { __spoken: string[] }).__spoken,
+      );
+    const line = await walkRoute(page);
+    await page.goto(URL);
+    await page
+      .getByRole("button", { name: "Start navigation" })
+      .click({ timeout: 20_000 });
+
+    for (const [x, y] of line.slice(0, 12)) {
+      await context.setGeolocation({ latitude: y, longitude: x });
+      await page.waitForTimeout(120);
+    }
+    await expect
+      .poll(spoken, { timeout: 10_000 })
+      .toContainEqual(expect.stringMatching(/^In 50 metres, /));
+
+    await page.getByRole("button", { name: "Mute voice" }).click();
+    const before = (await spoken()).length;
+    for (const [x, y] of line.slice(12, 30)) {
+      await context.setGeolocation({ latitude: y, longitude: x });
+      await page.waitForTimeout(80);
+    }
+    expect((await spoken()).length).toBe(before);
+    expect(
+      await page.evaluate(() => localStorage.getItem("hakuba:pilot-muted")),
+    ).toBe("1");
+  });
+});
+
 test.describe("rerouting", () => {
   test.use({ permissions: ["geolocation"], geolocation: FROM });
 

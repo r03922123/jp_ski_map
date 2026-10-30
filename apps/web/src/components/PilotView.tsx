@@ -1,6 +1,6 @@
 "use client";
 
-import { Crosshair, X } from "lucide-react";
+import { Crosshair, Volume2, VolumeX, X } from "lucide-react";
 import { ManeuverIcon } from "@/components/ManeuverIcon";
 import { formatArrival, formatDistance, formatDuration } from "@/lib/format";
 import type { PositionError } from "@/lib/nav/position";
@@ -25,6 +25,8 @@ type Props = {
   reroute?: RerouteState;
   /** how many times the route was replaced (shown to tests as data-reroutes) */
   reroutes?: number;
+  muted?: boolean;
+  onToggleMute?: () => void;
   onExit: () => void;
   onRecenter: () => void;
   now: Date;
@@ -37,6 +39,8 @@ export function PilotView({
   following,
   reroute = "idle",
   reroutes = 0,
+  muted = false,
+  onToggleMute,
   onExit,
   onRecenter,
   now,
@@ -107,11 +111,11 @@ export function PilotView({
             Can't reroute — continue to the blue line
           </p>
         )}
-        {phase === "following" && guidance?.then && (
+        {phase === "following" && guidance?.after && (
           <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-950/40 px-2 py-0.5 text-sm">
             Then
             <ManeuverIcon
-              maneuver={guidance.then.maneuver}
+              maneuver={guidance.after.maneuver}
               className="size-4 text-white"
             />
           </p>
@@ -166,6 +170,21 @@ export function PilotView({
               Live traffic unavailable · typical road speeds
             </p>
           </div>
+          {onToggleMute && (
+            <button
+              type="button"
+              aria-label={muted ? "Unmute voice" : "Mute voice"}
+              aria-pressed={muted}
+              className="flex size-11 items-center justify-center rounded-full border bg-background shadow-sm"
+              onClick={onToggleMute}
+            >
+              {muted ? (
+                <VolumeX aria-hidden="true" className="size-5" />
+              ) : (
+                <Volume2 aria-hidden="true" className="size-5" />
+              )}
+            </button>
+          )}
           <button
             type="button"
             aria-label="Exit navigation"

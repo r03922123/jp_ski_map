@@ -18,7 +18,8 @@ export type Guidance = {
   remainingS: number;
   stepIndex: number;
   next: UpcomingManeuver | null;
-  then: Pick<UpcomingManeuver, "maneuver" | "instruction"> | null;
+  /** the maneuver after `next` when it follows closely (shown as "Then ↱") */
+  after: Pick<UpcomingManeuver, "maneuver" | "instruction"> | null;
 };
 
 /** The step whose shape contains segment `index` (the last step once past the end). */
@@ -55,13 +56,13 @@ export function progress(r: PreparedRoute, p: Projection): Guidance {
         distanceM: Math.max(0, r.cum[nextStep.shapeRange[0]] - p.alongM),
       }
     : null;
-  const thenStep = steps[si + 2];
-  const then =
+  const afterStep = steps[si + 2];
+  const after =
     nextStep &&
-    thenStep &&
-    r.cum[thenStep.shapeRange[0]] - r.cum[nextStep.shapeRange[0]] <=
+    afterStep &&
+    r.cum[afterStep.shapeRange[0]] - r.cum[nextStep.shapeRange[0]] <=
       THEN_WITHIN_M
-      ? { maneuver: thenStep.maneuver, instruction: thenStep.instruction }
+      ? { maneuver: afterStep.maneuver, instruction: afterStep.instruction }
       : null;
 
   return {
@@ -69,6 +70,6 @@ export function progress(r: PreparedRoute, p: Projection): Guidance {
     remainingS,
     stepIndex: si,
     next,
-    then,
+    after,
   };
 }

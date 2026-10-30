@@ -165,7 +165,7 @@ describe("progress", () => {
     const near = progress(s, projectForward(s, fix(at(420)), 0));
     expect(near.next?.maneuver).toBe("straight");
     expect(near.next?.distanceM).toBeCloseTo(80, 0);
-    expect(near.then).toBeNull(); // the arrival is 400 m after it, too far for "then"
+    expect(near.after).toBeNull(); // the arrival is 400 m after it, too far for "then"
   });
 });
 

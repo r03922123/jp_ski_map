@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
 import { DestinationPicker } from "@/components/DestinationPicker";
@@ -34,6 +34,14 @@ import {
   type Route,
 } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
+import {
+  buzz,
+  dueAnnouncement,
+  loadMuted,
+  primeSpeech,
+  saveMuted,
+  speak,
+} from "@/lib/nav/announce";
 import {
   geolocationSource,
   type PositionSource,
@@ -363,6 +371,7 @@ export function MapShell() {
     const simulate =
       process.env.NODE_ENV !== "production" &&
       new URLSearchParams(window.location.search).has("simulate");
+    if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
     setPilotRoute(route);
     setPilotTarget(target ?? null);
     setReroutes(0);
@@ -380,6 +389,28 @@ export function MapShell() {
     setPilotRoute(null);
     setPilotSource(null);
   };
+  // Voice and vibration (SPEC-pilot): each threshold once per maneuver, per route.
+  const [muted, setMuted] = useState(false);
+  useEffect(() => setMuted(loadMuted()), []); // browser storage: client only
+  const said = useRef(new Set<string>());
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new (re)route starts fresh
+  useEffect(() => {
+    said.current = new Set();
+  }, [pilotRoute]);
+  const next = pilot.guidance?.next;
+  const cueKey = next ? `${next.stepIndex}:${Math.round(next.distanceM)}` : "";
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cueKey stands for the next maneuver
+  useEffect(() => {
+    if (!pilotRoute || pilot.phase !== "following") return;
+    const due = dueAnnouncement(pilot.guidance, pilotRoute.mode, said.current);
+    if (!due) return;
+    buzz();
+    if (!muted) speak(due.text);
+  }, [cueKey, pilot.phase]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once, on arrival
+  useEffect(() => {
+    if (pilot.phase === "arrived" && !muted) speak("You've arrived.");
+  }, [pilot.phase === "arrived"]);
   useWakeLock(piloting);
   useHiddenTimeout(piloting, PILOT_HIDDEN_STOP_MS, exitPilot);
   const projection = pilot.nav.projection;
@@ -502,6 +533,11 @@ export function MapShell() {
           following={following}
           reroute={reroute}
           reroutes={reroutes}
+          muted={muted}
+          onToggleMute={() => {
+            saveMuted(!muted);
+            setMuted(!muted);
+          }}
           onExit={exitPilot}
           onRecenter={() => setFollowing(true)}
           now={new Date()}
