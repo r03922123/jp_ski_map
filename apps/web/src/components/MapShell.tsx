@@ -60,6 +60,7 @@ import {
   simulatedSource,
 } from "@/lib/nav/position";
 import { projectForward, splitAt } from "@/lib/nav/project";
+import { isFarFromRoute, useRouteProximity } from "@/lib/nav/proximity";
 import { usePilot } from "@/lib/nav/use-pilot";
 import { useReroute } from "@/lib/nav/use-reroute";
 import type { LngLat } from "@/lib/route-geo";
@@ -87,7 +88,9 @@ import { useHiddenTimeout, useWakeLock } from "@/lib/wake-lock";
 
 /** Stop navigating after the page has been hidden this long (SPEC-pilot boundaries). */
 const PILOT_HIDDEN_STOP_MS = 10 * 60_000;
-/** `?simulate` (dev builds only): replay the route at these speeds instead of GPS. */
+const FAR_FROM_STOP =
+  "Bus guidance works near the start. You're far from it right now.";
+/** Preview, and `?simulate` in dev builds: replay the route at these speeds. */
 const SIMULATED_MPS = { drive: 15, walk: 5 } as const;
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
@@ -368,10 +371,14 @@ export function MapShell() {
   const [busState, setBusState] = useState<BusState>(initialBus);
   const busPhase = busPlan ? busState.phase : null;
   const pastWalk = busPhase !== null && busPhase !== "walk";
+  // Preview: the route plays instead of GPS (the phone is far from it; SPEC-pilot)
+  const [preview, setPreview] = useState<null | "chosen" | "switched">(null);
+  const [busNote, setBusNote] = useState<string | null>(null);
+  const firstFixChecked = useRef(false);
   const pilot = usePilot(pilotRoute, pilotSource);
   const reroute = useReroute({
-    // once at the stop the walk route is done: never reroute it
-    phase: pastWalk ? "following" : pilot.phase,
+    // at the stop the walk route is done, and a preview has no position: never reroute
+    phase: pastWalk || preview ? "following" : pilot.phase,
     fix: pilot.fix,
     mode: pilotRoute?.mode ?? "walk",
     target: pilotTarget,
@@ -386,16 +393,28 @@ export function MapShell() {
   const piloting = pilotRoute !== null;
   // Start is offered on touch-first devices only (SPEC-pilot "Devices")
   const pilotAvailable = usePilotAvailable();
-  const beginPilot = (route: Route, goal: Coord | null) => {
+  // is the phone near where this route starts? (read only if location is already allowed)
+  const routeStart =
+    (routes[activeRoute]?.geometry.coordinates[0] as LngLat | undefined) ??
+    null;
+  const proximity = useRouteProximity(routeStart, pilotAvailable && !piloting);
+  const beginPilot = (
+    route: Route,
+    goal: Coord | null,
+    { asPreview = false }: { asPreview?: boolean } = {},
+  ) => {
     const simulate =
       process.env.NODE_ENV !== "production" && simulateRequested();
     if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
+    firstFixChecked.current = false;
+    setPreview(asPreview ? "chosen" : null);
+    setBusNote(null);
     setPilotRoute(route);
     setPilotTarget(goal);
     setReroutes(0);
     setFollowing(true);
     setPilotSource(
-      simulate
+      simulate || asPreview
         ? simulatedSource(
             route.geometry.coordinates as LngLat[],
             SIMULATED_MPS[route.mode],
@@ -405,10 +424,15 @@ export function MapShell() {
   };
   const startPilot = () => {
     const route = routes[activeRoute];
-    if (route) beginPilot(route, target ?? null);
+    if (route)
+      beginPilot(route, target ?? null, { asPreview: proximity === "far" });
   };
   const startBusPilot = () => {
     if (!busChoice) return;
+    if (proximity === "far") {
+      setBusNote(FAR_FROM_STOP);
+      return;
+    }
     const plan = planBus(busChoice, ride.data ?? null);
     setBusPlan(plan);
     setBusState(initialBus());
@@ -419,7 +443,30 @@ export function MapShell() {
     setPilotRoute(null);
     setPilotSource(null);
     setBusPlan(null);
+    setPreview(null);
   };
+  // Tapped Start without knowing where the phone is: the first fix decides.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once per session, on its first fix
+  useEffect(() => {
+    const fix = pilot.fix;
+    const route = pilotRoute;
+    if (!fix || !route || preview || firstFixChecked.current) return;
+    firstFixChecked.current = true;
+    const start = route.geometry.coordinates[0] as LngLat;
+    if (!isFarFromRoute(fix, start)) return;
+    if (busPlan) {
+      exitPilot(); // a bus journey depends on the real place and time: no preview
+      setBusNote(FAR_FROM_STOP);
+      return;
+    }
+    setPreview("switched");
+    setPilotSource(
+      simulatedSource(
+        route.geometry.coordinates as LngLat[],
+        SIMULATED_MPS[route.mode],
+      ),
+    );
+  }, [pilot.fix]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: advance on each new fix
   useEffect(() => {
     const fix = pilot.fix;
@@ -680,6 +727,7 @@ export function MapShell() {
           onExit={exitPilot}
           onRecenter={() => setFollowing(true)}
           now={new Date()}
+          preview={preview}
         />
       )}
       {!pilotRoute && (
@@ -754,6 +802,7 @@ export function MapShell() {
               onStart={
                 mode === "bus" || !pilotAvailable ? undefined : startPilot
               }
+              startKind={proximity === "far" ? "preview" : "start"}
               route={routeState}
               routes={routes}
               activeRoute={activeRoute}
@@ -777,6 +826,7 @@ export function MapShell() {
                       ? undefined
                       : startBusPilot
                   }
+                  startNote={busNote}
                 />
               }
               destinationPicker={

@@ -116,6 +116,6 @@ Found on the user's iPhone: pressing Start far from the route (the user wasn't i
 - The phone's position is never shown or stored; the note says "far", not where you are.
 
 **Acceptance**
-- [ ] Unit: far/near decision (1 km); reroute guard (50 km); the permission-granted position check (granted → position read; prompt/denied → unknown, no prompt).
-- [ ] E2E: GPS far away + permission granted → the button reads Preview, the route plays with no GPS-based reroute request; GPS far + permission granted only after load → Start, then automatic switch to Preview with the note; GPS near → Start navigates normally.
-- [ ] E2E bus: far from the stop → message, no session.
+- [x] Unit: far/near decision (1 km); reroute guard (50 km); the permission-granted position check (granted → position read; prompt/denied → unknown, no prompt).
+- [x] E2E: GPS far away + permission granted → the button reads Preview, the route plays with no GPS-based reroute request; GPS far + permission granted only after load → Start, then automatic switch to Preview with the note; GPS near → Start navigates normally.
+- [x] E2E bus: far from the stop → message, no session.

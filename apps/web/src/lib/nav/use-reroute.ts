@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Coord, Mode, Route } from "@/lib/api";
 import type { Fix } from "@/lib/nav/project";
+import { canReroute } from "@/lib/nav/proximity";
 import type { PilotStatus } from "@/lib/nav/use-pilot";
 
 /** At most one reroute request this often (SPEC-pilot). */
@@ -45,9 +46,16 @@ export function useReroute(args: Args): RerouteState {
     const { fix, mode, target, fetchRoute } = latest.current;
     if (!fix || !target) return;
     lastAttempt.current = Date.now();
+    const from = { lat: fix.lat, lng: fix.lng };
+    if (!canReroute(from, target)) {
+      // nowhere near the region the routes come from: a request could only fail
+      setState("failed");
+      latest.current.onFailure();
+      return;
+    }
     inFlight.current = true;
     setState("rerouting");
-    fetchRoute(mode, { lat: fix.lat, lng: fix.lng }, target).then(
+    fetchRoute(mode, from, target).then(
       (route) => {
         inFlight.current = false;
         setState("idle");

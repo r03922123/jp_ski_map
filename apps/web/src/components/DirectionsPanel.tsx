@@ -1,6 +1,6 @@
 "use client";
 
-import { Navigation } from "lucide-react";
+import { Eye, Navigation } from "lucide-react";
 import { useState } from "react";
 import { ManeuverIcon } from "@/components/ManeuverIcon";
 import type { Route } from "@/lib/api";
@@ -17,6 +17,8 @@ export type DirectionsPanelProps = {
   departAt: Date;
   /** Turn-by-turn navigation along the active route (SPEC-pilot). */
   onStart?: () => void;
+  /** "preview" when the phone is known to be far from the route's start */
+  startKind?: "start" | "preview";
 };
 
 const LONG_WALK_S = 45 * 60;
@@ -30,6 +32,7 @@ export function DirectionsPanel({
   onHighlightStep,
   departAt,
   onStart,
+  startKind = "start",
 }: DirectionsPanelProps) {
   const [showAll, setShowAll] = useState(false);
   const route = routes[activeRoute] ?? routes[0];
@@ -47,11 +50,21 @@ export function DirectionsPanel({
           {onStart && (
             <button
               type="button"
-              aria-label="Start navigation"
+              aria-label={
+                startKind === "preview" ? "Preview route" : "Start navigation"
+              }
               className="flex shrink-0 items-center gap-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
               onClick={onStart}
             >
-              <Navigation aria-hidden="true" className="size-4" /> Start
+              {startKind === "preview" ? (
+                <>
+                  <Eye aria-hidden="true" className="size-4" /> Preview
+                </>
+              ) : (
+                <>
+                  <Navigation aria-hidden="true" className="size-4" /> Start
+                </>
+              )}
             </button>
           )}
         </div>

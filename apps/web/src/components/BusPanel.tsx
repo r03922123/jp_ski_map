@@ -28,6 +28,8 @@ export type BusPanelProps = {
   onSelect: (option: BusOption) => void;
   /** Guide the chosen journey step by step (SPEC-pilot "bus pilot"). */
   onStart?: () => void;
+  /** why Start didn't start (e.g. far from the stop) */
+  startNote?: string | null;
 };
 
 const clock = new Intl.DateTimeFormat("en-GB", {
@@ -150,9 +152,10 @@ function Results({
   selected,
   onSelect,
   onStart,
+  startNote,
 }: Pick<
   BusPanelProps,
-  "resorts" | "result" | "selected" | "onSelect" | "onStart"
+  "resorts" | "result" | "selected" | "onSelect" | "onStart" | "startNote"
 >) {
   if (result.status === "idle") return null;
   if (result.status === "loading") {
@@ -234,6 +237,11 @@ function Results({
                     >
                       ▶ Start
                     </button>
+                  )}
+                  {isSelected && startNote && (
+                    <output className="mt-1 ml-1 block text-xs text-amber-800">
+                      {startNote}
+                    </output>
                   )}
                 </div>
               );

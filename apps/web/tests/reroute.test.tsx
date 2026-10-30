@@ -101,3 +101,33 @@ describe("useReroute", () => {
     expect(onFailure).toHaveBeenCalled();
   });
 });
+
+describe("useReroute far from everything", () => {
+  it("doesn't ask for a route from more than 50 km away; reports it can't reroute", async () => {
+    const fetchRoute = vi.fn().mockResolvedValue(walk);
+    const onFailure = vi.fn();
+    const tokyo: Fix = {
+      lat: 35.68,
+      lng: 139.76,
+      accuracyM: 5,
+      speedMps: 1,
+      headingDeg: null,
+      t: 1,
+    };
+    const { result } = renderHook(() =>
+      useReroute({
+        phase: "offRoute",
+        fix: tokyo,
+        mode: "walk",
+        target: TARGET,
+        fetchRoute,
+        onNewRoute: vi.fn(),
+        onFailure,
+      }),
+    );
+    await act(async () => {});
+    expect(fetchRoute).not.toHaveBeenCalled();
+    expect(result.current).toBe("failed");
+    expect(onFailure).toHaveBeenCalled();
+  });
+});

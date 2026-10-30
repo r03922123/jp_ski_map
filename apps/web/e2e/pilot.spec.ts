@@ -589,3 +589,85 @@ test.describe("a long bus ride on a phone", () => {
     await expect(current).toBeInViewport();
   });
 });
+
+// SPEC-pilot "Preview when you're far away"
+const FAR = { latitude: 35.68, longitude: 139.76 }; // Tokyo: far from any Hakuba route
+
+test.describe("far from the route, location already allowed", () => {
+  test.use({ permissions: ["geolocation"], geolocation: FAR });
+
+  test("the button reads Preview and the route plays, with no reroute requests", async ({
+    page,
+  }) => {
+    test.slow();
+    const farRequests: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("/api/routes") && r.url().includes("from=35.68"))
+        farRequests.push(r.url());
+    });
+    await page.goto(URL);
+    await page
+      .getByRole("button", { name: "Preview route" })
+      .click({ timeout: 20_000 });
+    await expect(pilot(page)).toHaveAttribute("data-preview", "chosen");
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+      timeout: 15_000,
+    });
+    const first = await remaining(page);
+    await expect
+      .poll(() => remaining(page), { timeout: 15_000 })
+      .toBeLessThan(first - 20);
+    await expect(page.getByRole("region", { name: "Next turn" })).toContainText(
+      "Preview",
+    );
+    expect(farRequests).toEqual([]);
+  });
+
+  test("the bus explains instead of starting", async ({ page }) => {
+    const options = readFileSync(
+      "e2e/fixtures/bus-options-2026-03-20.json",
+      "utf8",
+    );
+    await page.route("**/api/bus/options**", (route) =>
+      route.fulfill({ contentType: "application/json", body: options }),
+    );
+    await page.goto(`/?from=${FROM.latitude},${FROM.longitude}&mode=bus`);
+    const card = page.getByRole("region", { name: "Hakuba47 Mountain Resort" });
+    await card.getByRole("button").first().click({ timeout: 15_000 });
+    await page
+      .getByRole("button", { name: "Start bus journey" })
+      .click({ timeout: 15_000 });
+    await expect(
+      card.getByText("Bus guidance works near the start"),
+    ).toBeVisible();
+    await expect(page.getByTestId("bus-pilot")).toHaveCount(0);
+    await expect(pilot(page)).toHaveCount(0);
+  });
+});
+
+test("far, with location allowed only after the page loaded: Start, then Preview", async ({
+  page,
+  context,
+}) => {
+  test.slow();
+  await page.goto(URL);
+  const start = page.getByRole("button", { name: "Start navigation" });
+  await expect(start).toBeVisible({ timeout: 20_000 }); // position unknown: no prompt
+  await context.grantPermissions(["geolocation"]);
+  await context.setGeolocation(FAR);
+  await start.click();
+  await expect(pilot(page)).toHaveAttribute("data-preview", "switched", {
+    timeout: 15_000,
+  });
+  await expect(
+    page.getByText("You're far from this route: previewing it"),
+  ).toBeVisible();
+  await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+    timeout: 15_000,
+  });
+  await expect.poll(() => remaining(page)).toBeGreaterThan(0);
+  const first = await remaining(page);
+  await expect
+    .poll(() => remaining(page), { timeout: 15_000 })
+    .toBeLessThan(first - 20);
+});

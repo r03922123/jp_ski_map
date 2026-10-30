@@ -32,6 +32,8 @@ type Props = {
   footnote?: string;
   /** walking to a bus stop: that bus's stops, listed under the footnote */
   busStops?: StopRow[];
+  /** playing the route instead of navigating ("switched": the phone turned out far) */
+  preview?: "chosen" | "switched" | null;
   onExit: () => void;
   onRecenter: () => void;
   now: Date;
@@ -48,6 +50,7 @@ export function PilotView({
   onToggleMute,
   footnote,
   busStops,
+  preview = null,
   onExit,
   onRecenter,
   now,
@@ -61,6 +64,7 @@ export function PilotView({
       data-nav-phase={error ? "error" : phase}
       data-nav-remaining-m={guidance ? Math.round(guidance.remainingM) : ""}
       data-reroutes={reroutes}
+      data-preview={preview ?? ""}
       className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-between"
     >
       <section
@@ -113,7 +117,17 @@ export function PilotView({
             </div>
           </div>
         ) : null}
-        {reroute === "failed" && (
+        {preview && (
+          <p className="mt-2 inline-flex rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold tracking-wide uppercase">
+            Preview
+          </p>
+        )}
+        {preview === "switched" && (
+          <output className="mt-1 block text-sm text-emerald-100">
+            You're far from this route: previewing it
+          </output>
+        )}
+        {reroute === "failed" && !preview && (
           <p className="mt-1 text-sm text-emerald-100">
             Can't reroute — continue to the blue line
           </p>
