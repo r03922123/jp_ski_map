@@ -13,6 +13,7 @@ export type BusOption = components["schemas"]["BusOption"];
 export type NightDeparture = components["schemas"]["NightDeparture"];
 export type NightResult = components["schemas"]["NightResult"];
 export type NearbyPoi = components["schemas"]["NearbyPoi"];
+export type Suggestion = components["schemas"]["Suggestion"];
 export type PoiCategory = NearbyPoi["category"];
 export type SortKey = NonNullable<
   NonNullable<
@@ -74,6 +75,12 @@ export async function fetchPath(mode: Mode, points: Coord[]): Promise<Route> {
   }
   return response.json() as Promise<Route>;
 }
+
+/** Search-as-you-type: local index first, Photon when it comes up short, links handled. */
+export const fetchSuggestions = (q: string, near: Coord | null) =>
+  getJson<Suggestion[]>(
+    `/api/places/suggest?q=${encodeURIComponent(q)}${near ? `&near=${latLng(near)}` : ""}`,
+  );
 
 export const fetchPlaces = (q: string) =>
   getJson<Place[]>(`/api/places/search?q=${encodeURIComponent(q)}`);

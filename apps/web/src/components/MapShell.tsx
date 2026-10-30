@@ -288,8 +288,9 @@ export function MapShell() {
         }}
         onSelectResort={setSelectedResortId}
       />
-      <BottomSheet label="Directions">
-        <div className="mb-3">
+      <BottomSheet
+        label="Directions"
+        header={
           <SearchBox
             onSelect={(place) => {
               setOrigin(place.coord);
@@ -301,8 +302,17 @@ export function MapShell() {
               setOriginName(null);
               setBusChoice(null);
             }}
+            near={
+              view
+                ? {
+                    lat: (view.bbox.south + view.bbox.north) / 2,
+                    lng: (view.bbox.west + view.bbox.east) / 2,
+                  }
+                : null
+            }
           />
-        </div>
+        }
+      >
         <ModePanel
           mode={mode}
           onModeChange={setMode}

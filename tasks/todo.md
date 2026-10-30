@@ -397,35 +397,35 @@ Gate shorthand:
 
 ## Phase 9: Google-style search (SPEC-place-search v1.2)
 
-## Task 33: Search index and scoring
+## Task 33: Search index and scoring ✅
 **Description:** `places/index.py`: entries from stops, resorts (+ base areas), lodging and POIs; normalisation (NFKC, casefold, katakana→hiragana); scoring and ranking with `near`; `match` span.
 **Acceptance criteria:**
-- [ ] The spec's index unit tests pass (tokyu / 白馬東急 / happo bus / 7-eleven / near-ranking / typo)
-- [ ] Pure: no I/O in `score`/`rank`; loaders injected
+- [x] The spec's index unit tests pass (tokyu / 白馬東急 / happo bus / 7-eleven / near-ranking / typo)
+- [x] Pure: no I/O in `score`/`rank`; loaders injected
 **Verification:** API gates
 **Dependencies:** None
 **Files:** `places/index.py`, `places/models.py`, `tests/places/test_index.py`
 **Scope:** M
 
-## Task 34: `/api/places/suggest` with Photon fallback; lodging keeps Japanese names
+## Task 34: `/api/places/suggest` with Photon fallback; lodging keeps Japanese names ✅
 **Description:** Endpoint with `near`; Photon appended only when < 3 local hits (≥ 3 chars), de-duplicated, failures swallowed. `refresh_lodging` keeps `name:ja`; snapshot refreshed.
 **Acceptance criteria:**
-- [ ] respx: ≥ 3 local hits → no Photon call; Photon down → 200 with local hits
-- [ ] `data/lodging_osm.json` entries carry `nameJa` where OSM has it
+- [x] respx: ≥ 3 local hits → no Photon call; Photon down → 200 with local hits
+- [x] `data/lodging_osm.json` entries carry `nameJa` where OSM has it
 **Verification:** API gates; `pnpm gen:api`
 **Dependencies:** T33
 **Files:** `places/router.py`, `places/refresh_lodging.py`, `places/models.py`, `tests/places/test_suggest.py`, `data/lodging_osm.json`
 **Scope:** M
 
-## Task 35: Web — suggestion dropdown
+## Task 35: Web — suggestion dropdown ✅
 **Description:** `SearchBox` uses `/suggest` with the map centre; icon per kind, bold match, detail line, recents on focus, Enter = top; 150 ms debounce.
 **Acceptance criteria:**
-- [ ] Component tests: bold match, icon per kind, recents stored/shown, Enter picks top
-- [ ] E2E search spec passes against the new endpoint; 390 px no horizontal scroll
+- [x] Component tests: bold match, icon per kind, recents stored/shown, Enter picks top
+- [x] E2E search spec passes against the new endpoint; 390 px no horizontal scroll
 **Verification:** Web gates; Playwright
 **Dependencies:** T34
 **Files:** `components/SearchBox.tsx`, `lib/api.ts`, `lib/recent-searches.ts`, `MapShell.tsx`, `tests/SearchBox.test.tsx`, `e2e/search.spec.ts`
 **Scope:** M
 
-## Checkpoint I
-- [ ] Typing a known hotel/stop/resort in EN or JA finds it instantly; the console is clean
+## Checkpoint I ✅
+- [x] Typing a known hotel/stop/resort in EN or JA finds it instantly; the console is clean

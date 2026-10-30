@@ -1,40 +1,108 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useId, useState } from "react";
-import { fetchPlaces, type Place } from "@/lib/api";
+import { useEffect, useId, useState } from "react";
+import { type Coord, fetchSuggestions, type Suggestion } from "@/lib/api";
+import { loadRecent, rememberRecent } from "@/lib/recent-searches";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 
-const DEBOUNCE_MS = 300;
+const DEBOUNCE_MS = 150; // the index answers in milliseconds, so keep up with typing
 
-/** Hotel / place search (Photon) that also accepts a pasted Google Maps link. */
+const ICONS: Record<Suggestion["kind"], string> = {
+  resort: "⛷",
+  stop: "🚏",
+  lodging: "🏨",
+  food: "🍜",
+  convenience: "🏪",
+  place: "📍",
+};
+
+/** The name with its matched span in bold, like Google's suggestions. */
+function Highlighted({
+  name,
+  match,
+}: {
+  name: string;
+  match: Suggestion["match"];
+}) {
+  if (!match || match[0] < 0 || match[1] <= match[0]) return <>{name}</>;
+  const [a, b] = match;
+  return (
+    <>
+      {name.slice(0, a)}
+      <b>{name.slice(a, b)}</b>
+      {name.slice(b)}
+    </>
+  );
+}
+
+function Row({ s }: { s: Suggestion }) {
+  return (
+    <span className="flex items-start gap-2">
+      <span aria-hidden="true" className="mt-0.5 w-5 text-center">
+        {ICONS[s.kind] ?? "📍"}
+      </span>
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate font-medium">
+          <Highlighted name={s.name} match={s.match} />
+          {s.nameJa && s.nameJa !== s.name && (
+            <span className="ml-2 font-normal text-muted-foreground">
+              {s.nameJa}
+            </span>
+          )}
+        </span>
+        {s.detail && (
+          <span className="truncate text-xs text-muted-foreground">
+            {s.detail}
+          </span>
+        )}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Search-as-you-type over our own place index (hotels, stops, resorts, food, konbini),
+ * with Photon behind it and pasted Google Maps links handled by the API.
+ */
 export function SearchBox({
   onSelect,
   onClear,
+  near = null,
 }: {
-  onSelect: (place: Place) => void;
+  onSelect: (place: Suggestion) => void;
   /** The ✕ button: the text is cleared and the starting point should be dropped. */
   onClear?: () => void;
+  /** Map centre: nearer places rank first. */
+  near?: Coord | null;
 }) {
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  const [recent, setRecent] = useState<Suggestion[]>([]);
   const query = useDebouncedValue(text.trim(), DEBOUNCE_MS);
   const listId = useId();
 
+  useEffect(() => setRecent(loadRecent()), []); // browser storage: client only
+
   const results = useQuery({
-    queryKey: ["places", query],
-    queryFn: () => fetchPlaces(query),
+    queryKey: ["suggest", query, near],
+    queryFn: () => fetchSuggestions(query, near),
     enabled: query.length > 0,
     retry: false,
-    staleTime: 5 * 60_000,
+    staleTime: 60_000,
+    placeholderData: (previous) => previous, // keep rows while the next keystroke loads
   });
-  const places = results.data ?? [];
-  const showList = open && query.length > 0 && !results.isPending;
+  const suggestions = query.length > 0 ? (results.data ?? []) : [];
+  const showRecent = open && query.length === 0 && recent.length > 0;
+  const showList = open && query.length > 0 && results.data !== undefined;
+  const rows = showRecent ? recent : suggestions;
 
-  function choose(place: Place) {
-    onSelect(place);
-    setText(place.name);
+  function choose(s: Suggestion) {
+    onSelect(s);
+    rememberRecent(s);
+    setRecent(loadRecent());
+    setText(s.name);
     setOpen(false);
     setActive(-1);
   }
@@ -43,13 +111,13 @@ export function SearchBox({
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setOpen(true);
-      setActive((i) => Math.min(i + 1, places.length - 1));
+      setActive((i) => Math.min(i + 1, rows.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter" && places.length > 0) {
+    } else if (e.key === "Enter" && rows.length > 0) {
       e.preventDefault();
-      choose(places[Math.max(active, 0)]);
+      choose(rows[Math.max(active, 0)]); // Enter = the top suggestion
     } else if (e.key === "Escape") {
       setOpen(false);
     }
@@ -61,11 +129,11 @@ export function SearchBox({
         type="search"
         role="combobox"
         aria-label="Search hotel or place"
-        aria-expanded={showList}
+        aria-expanded={showList || showRecent}
         aria-controls={listId}
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
-        placeholder="Search hotel, or paste a Google Maps link"
+        placeholder="Search hotel, stop, resort… or paste a Google Maps link"
         className="w-full rounded-full border bg-background py-2 pr-10 pl-4 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden"
         value={text}
         onChange={(e) => {
@@ -97,38 +165,38 @@ export function SearchBox({
           map instead.
         </p>
       )}
-      {showList && !results.isError && (
+      {(showList || showRecent) && !results.isError && (
         <div
           id={listId}
           role="listbox"
-          aria-label="Search results"
-          className="absolute inset-x-0 top-full z-20 mt-1 max-h-72 overflow-y-auto rounded-xl border bg-background py-1 shadow-lg"
+          aria-label={showRecent ? "Recent searches" : "Search results"}
+          className="absolute inset-x-0 top-full z-20 mt-1 max-h-80 overflow-y-auto rounded-xl border bg-background py-1 shadow-lg"
         >
-          {places.length === 0 ? (
+          {showRecent && (
+            <p className="px-4 pt-1 pb-0.5 text-xs text-muted-foreground">
+              Recent
+            </p>
+          )}
+          {rows.length === 0 ? (
             <p className="px-4 py-2 text-sm text-muted-foreground">
               No matches. Paste a Google Maps link or tap the map.
             </p>
           ) : (
-            places.map((p, i) => (
+            rows.map((s, i) => (
               // Combobox pattern: focus stays in the input (aria-activedescendant),
               // which owns the keyboard handling; options only take pointer clicks.
               // biome-ignore lint/a11y/useKeyWithClickEvents: keys handled on the input
               <div
-                key={p.id}
+                key={s.id}
                 id={`${listId}-${i}`}
                 role="option"
                 tabIndex={-1}
                 aria-selected={i === active}
-                className="cursor-pointer px-4 py-2 text-sm aria-selected:bg-muted hover:bg-muted"
+                className="cursor-pointer px-3 py-1.5 text-sm aria-selected:bg-muted hover:bg-muted"
                 onMouseDown={(e) => e.preventDefault()} // keep input focus
-                onClick={() => choose(p)}
+                onClick={() => choose(s)}
               >
-                <span className="font-medium">{p.name}</span>
-                {p.address && (
-                  <span className="block text-xs text-muted-foreground">
-                    {p.address}
-                  </span>
-                )}
+                <Row s={s} />
               </div>
             ))
           )}

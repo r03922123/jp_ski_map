@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// Live Photon via the API (started by playwright.config).
+// The local index via the API (started by playwright.config); Photon only as fallback.
 test("search a hotel by name sets the origin and shows lodging pins", async ({
   page,
 }) => {
@@ -12,7 +12,7 @@ test("search a hotel by name sets the origin and shows lodging pins", async ({
   const search = page.getByRole("combobox", { name: /search/i });
   await search.fill("Hotel Hakuba");
   await page
-    .getByRole("option", { name: /^Hotel Hakuba/ })
+    .getByRole("option", { name: /Hotel Hakuba/ })
     .first()
     .click({ timeout: 15_000 });
 

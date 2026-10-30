@@ -112,6 +112,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/places/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Suggest Places
+         * @description Search-as-you-type: a pasted Google Maps link, else the local index, else Photon.
+         */
+        get: operations["suggest_places_api_places_suggest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/places/lodging": {
         parameters: {
             query?: never;
@@ -531,6 +551,8 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+            /** Nameja */
+            nameJa?: string | null;
             /**
              * Kind
              * @enum {string}
@@ -711,6 +733,30 @@ export interface components {
                 number,
                 number
             ];
+        };
+        /** Suggestion */
+        Suggestion: {
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "resort" | "stop" | "lodging" | "food" | "convenience" | "place";
+            /** Name */
+            name: string;
+            /** Nameja */
+            nameJa: string | null;
+            coord: components["schemas"]["Coord"];
+            /** Detail */
+            detail: string | null;
+            /** Match */
+            match: [
+                number,
+                number
+            ] | null;
+            /** Source */
+            source: string;
         };
         /** SummitTemps */
         SummitTemps: {
@@ -922,6 +968,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Place"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suggest_places_api_places_suggest_get: {
+        parameters: {
+            query: {
+                q: string;
+                near?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Suggestion"][];
                 };
             };
             /** @description Validation Error */
