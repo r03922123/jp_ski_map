@@ -40,13 +40,15 @@ const ICONS: Record<Maneuver, LucideIcon> = {
   ferry: Ship,
 };
 
-export function ManeuverIcon({ maneuver }: { maneuver: Maneuver }) {
+export function ManeuverIcon({
+  maneuver,
+  className = "size-5 shrink-0 text-muted-foreground",
+}: {
+  maneuver: Maneuver;
+  className?: string;
+}) {
   const Icon = ICONS[maneuver] ?? ArrowUp;
   return (
-    <Icon
-      aria-hidden="true"
-      data-maneuver={maneuver}
-      className="size-5 shrink-0 text-muted-foreground"
-    />
+    <Icon aria-hidden="true" data-maneuver={maneuver} className={className} />
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Navigation } from "lucide-react";
 import { useState } from "react";
 import { ManeuverIcon } from "@/components/ManeuverIcon";
 import type { Route } from "@/lib/api";
@@ -14,6 +15,8 @@ export type DirectionsPanelProps = {
   /** Shape range of the hovered/focused step, or null when none. */
   onHighlightStep: (range: [number, number] | null) => void;
   departAt: Date;
+  /** Turn-by-turn navigation along the active route (SPEC-pilot). */
+  onStart?: () => void;
 };
 
 const LONG_WALK_S = 45 * 60;
@@ -26,6 +29,7 @@ export function DirectionsPanel({
   onSelectRoute,
   onHighlightStep,
   departAt,
+  onStart,
 }: DirectionsPanelProps) {
   const [showAll, setShowAll] = useState(false);
   const route = routes[activeRoute] ?? routes[0];
@@ -35,10 +39,22 @@ export function DirectionsPanel({
   return (
     <div className="flex flex-col gap-2">
       <div>
-        <p className="text-lg font-semibold">
-          ETA ~ {formatDuration(route.durationS)} ·{" "}
-          {formatDistance(route.distanceM)}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-lg font-semibold">
+            ETA ~ {formatDuration(route.durationS)} ·{" "}
+            {formatDistance(route.distanceM)}
+          </p>
+          {onStart && (
+            <button
+              type="button"
+              aria-label="Start navigation"
+              className="flex shrink-0 items-center gap-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+              onClick={onStart}
+            >
+              <Navigation aria-hidden="true" className="size-4" /> Start
+            </button>
+          )}
+        </div>
         {route.summary && (
           <p className="text-sm text-muted-foreground">{route.summary}</p>
         )}

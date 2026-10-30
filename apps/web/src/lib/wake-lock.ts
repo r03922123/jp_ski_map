@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 /**
  * Keep the screen on while `active` (Screen Wake Lock API). The browser drops the lock
@@ -33,4 +33,32 @@ export function useWakeLock(active: boolean): { supported: boolean } {
   }, [active, supported]);
 
   return { supported };
+}
+
+/**
+ * Call `onTimeout` once the page has stayed hidden for `ms` (e.g. the phone went into a
+ * pocket and the trip was forgotten): GPS and the wake lock shouldn't run forever.
+ */
+export function useHiddenTimeout(
+  active: boolean,
+  ms: number,
+  onTimeout: () => void,
+): void {
+  const latest = useRef(onTimeout);
+  latest.current = onTimeout;
+  useEffect(() => {
+    if (!active) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const onChange = () => {
+      clearTimeout(timer);
+      if (document.visibilityState === "hidden") {
+        timer = setTimeout(() => latest.current(), ms);
+      }
+    };
+    document.addEventListener("visibilitychange", onChange);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onChange);
+    };
+  }, [active, ms]);
 }

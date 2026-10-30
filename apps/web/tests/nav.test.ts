@@ -268,3 +268,31 @@ describe("cameraFor", () => {
     ).toBe(45);
   });
 });
+
+describe("reduceNav before the first match (heading to the route)", () => {
+  const w = prepare(straight("walk"));
+
+  it("a start near the route is an approach, not leaving it, even with GPS jitter", () => {
+    let s = reduceNav(initialNav(), w, fix(at(-30, 10))); // 30 m before the start, at the door
+    expect(s.phase).toBe("following");
+    expect(s.approachM).toBeCloseTo(32, -1);
+    for (let i = 0; i < 30; i++) {
+      s = reduceNav(
+        s,
+        w,
+        fix(at(-30 + (i % 3), 10 + (i % 2)), { speedMps: 0.4 }),
+      );
+    }
+    expect(s.phase).toBe("following");
+    expect(s.moveAway).toBe(0);
+    s = reduceNav(s, w, fix(at(5)));
+    expect(s.approachM).toBeNull();
+    expect(s.projection).not.toBeNull();
+  });
+
+  it("a start far from the route counts as off it (reroute from where you are)", () => {
+    let s = initialNav();
+    for (let i = 0; i < 12; i++) s = reduceNav(s, w, fix(at(0, 500 + i * 10)));
+    expect(s.phase).toBe("offRoute");
+  });
+});

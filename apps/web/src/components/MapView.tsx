@@ -18,6 +18,7 @@ import {
   MAP_STYLE_URL,
   MAPLIBRE_WORKER_URL,
 } from "@/lib/map-config";
+import type { Camera } from "@/lib/nav/camera";
 import {
   type LngLat,
   labelAnchor,
@@ -54,6 +55,16 @@ export type MapViewProps = {
   /** Saved places (SPEC-saved-places); tapping one calls `onSelectSaved`. */
   saved?: SavedMarker[];
   onSelectSaved?: (id: string) => void;
+  /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
+  pilot?: {
+    camera: Camera | null;
+    puck: LngLat | null;
+    heading: number | null;
+    covered: LngLat[];
+    following: boolean;
+    /** the user dragged the map: stop following until they re-centre */
+    onUserMove: () => void;
+  } | null;
 };
 
 const SAVED_ICONS: Record<SavedMarker["icon"], string> = {
@@ -97,6 +108,7 @@ export default function MapView({
   onSelectResort,
   saved = [],
   onSelectSaved,
+  pilot = null,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   // routes can arrive before the map instance exists (shared URL); fit once it has
@@ -118,10 +130,12 @@ export default function MapView({
         `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,
     )
     .join("|");
+  const piloting = pilot !== null;
   // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
   useEffect(() => {
     const map = mapRef.current;
-    if (!mapReady || !map || drawn.length === 0) return;
+    // while navigating the follow camera owns the view (a reroute must not zoom out)
+    if (!mapReady || !map || drawn.length === 0 || piloting) return;
     const all = drawn.flatMap((r) => r.geometry.coordinates as LngLat[]);
     if (all.length < 2) return;
     const canvas = map.getCanvas();
@@ -131,9 +145,37 @@ export default function MapView({
         height: canvas.clientHeight,
       }),
       maxZoom: 16,
+      pitch: 0,
+      bearing: 0,
       duration: prefersReducedMotion() ? 0 : 700,
     });
-  }, [fitKey, mapReady]);
+  }, [fitKey, mapReady, piloting]);
+
+  // Follow camera. Keyed on its values: usePilot hands over a new object every render,
+  // and an identity-keyed effect would re-ease after each of its own moveend reports.
+  const cam = pilot?.following ? pilot.camera : null;
+  const camKey = cam
+    ? `${cam.center[0].toFixed(6)},${cam.center[1].toFixed(6)},${Math.round(cam.bearing)},${cam.pitch},${cam.zoom.toFixed(2)}`
+    : "";
+  // biome-ignore lint/correctness/useExhaustiveDependencies: camKey stands for `cam`
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map || !cam) return;
+    map.easeTo({
+      center: cam.center,
+      bearing: cam.bearing,
+      pitch: cam.pitch,
+      zoom: cam.zoom,
+      // the puck sits in the lower part of the screen, the road ahead above it
+      padding: {
+        top: map.getCanvas().clientHeight * 0.4,
+        bottom: 0,
+        left: 0,
+        right: 0,
+      },
+      duration: prefersReducedMotion() ? 0 : 900,
+    });
+  }, [camKey, mapReady]);
 
   const active = routes[activeRoute] ?? null;
   const activeCoords = (active?.geometry.coordinates ?? []) as LngLat[];
@@ -237,6 +279,7 @@ export default function MapView({
         onLoad?.();
       }}
       onMoveEnd={(e: ViewStateChangeEvent) => reportView(e.target)}
+      onDragStart={() => pilot?.onUserMove()}
       onClick={(e) => {
         const feature = e.features?.[0];
         if (feature?.layer.id === ALT_HIT_LAYER) {
@@ -412,6 +455,49 @@ export default function MapView({
         );
       })}
 
+      {pilot && pilot.covered.length > 1 && (
+        <Source
+          id="route-covered"
+          type="geojson"
+          data={{
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: pilot.covered },
+          }}
+        >
+          <Layer
+            id="route-covered-line"
+            type="line"
+            layout={{ "line-cap": "round", "line-join": "round" }}
+            paint={{ "line-color": "#9ca3af", "line-width": 7 }}
+          />
+        </Source>
+      )}
+
+      {pilot?.puck && (
+        <Marker
+          longitude={pilot.puck[0]}
+          latitude={pilot.puck[1]}
+          anchor="center"
+          rotation={pilot.heading ?? 0}
+          rotationAlignment="map"
+          pitchAlignment="map"
+          style={{ zIndex: 4 }}
+        >
+          <svg
+            role="img"
+            aria-label="Your position"
+            width="34"
+            height="34"
+            viewBox="0 0 34 34"
+            className="drop-shadow"
+          >
+            <circle cx="17" cy="17" r="15" fill="#ffffff" />
+            <path d="M17 5 L26 27 L17 22 L8 27 Z" fill="#2563eb" />
+          </svg>
+        </Marker>
+      )}
+
       {saved.map((p) => (
         <Marker
           key={`saved-${p.id}`}
@@ -449,7 +535,8 @@ export default function MapView({
 
       {labels.map(
         ({ index, at, text }) =>
-          at && (
+          at &&
+          !piloting && (
             <Marker
               key={`label-${index}`}
               longitude={at[0]}

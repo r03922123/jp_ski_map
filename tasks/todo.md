@@ -495,11 +495,12 @@ Gate shorthand:
 **Files:** `lib/nav/position.ts`, `lib/wake-lock.ts`, `package.json`, README
 **Scope:** S
 
-## Task 42: Pilot screen (drive/walk)
+## Task 42: Pilot screen (drive/walk) ✅
 **Description:** Start button in `DirectionsPanel`; `PilotView` (banner, bottom bar, exit, re-centre, mute placeholder); `MapView` follow camera, puck, covered/remaining split; `data-nav-*` attributes for tests.
 **Acceptance criteria:**
-- [ ] E2E: Start → banner → fixes along the route → remaining falls → arrival
-- [ ] Location denied → message; Exit restores the overview
+- [x] E2E: Start → banner → fixes along the route → remaining falls → arrival (+ drag pauses follow, Re-centre)
+- [x] Location denied → message; Exit restores the overview
+- [x] Found in E2E: routes start on the nearest road, so the first fix is often outside the 20 m walk radius → *approach* phase (≤ 150 m walk / 250 m drive before the first match is "Head to the route", not off-route)
 **Verification:** Web gates; Playwright at desktop and 390 px
 **Dependencies:** T41
 **Files:** `components/PilotView.tsx`, `DirectionsPanel.tsx`, `MapView.tsx`, `MapShell.tsx`, `e2e/pilot.spec.ts`

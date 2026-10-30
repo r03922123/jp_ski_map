@@ -39,6 +39,8 @@ export type ModePanelProps = {
   busPanel?: ReactNode;
   /** From/To with Save stars, shown under the tabs once there is an origin. */
   placeStrip?: ReactNode;
+  /** Drive/walk: start turn-by-turn navigation on the active route. */
+  onStart?: () => void;
 };
 
 const LONG_WALK_S = 45 * 60;
@@ -68,6 +70,7 @@ export function ModePanel({
   poiPanel,
   busPanel,
   placeStrip,
+  onStart,
 }: ModePanelProps) {
   const directions =
     route.status === "success" ? (
@@ -77,6 +80,7 @@ export function ModePanel({
         onSelectRoute={onSelectRoute}
         onHighlightStep={onHighlightStep}
         departAt={departAt ?? new Date()}
+        onStart={onStart}
       />
     ) : (
       <RouteSummary mode={mode} route={route} />

@@ -23,6 +23,8 @@ export type NavState = {
   lastGood: Projection | null;
   moveAway: number;
   lastDistanceM: number;
+  /** before the first match: how far the user is from the route's start, else null */
+  approachM: number | null;
 };
 
 export const OFF_ROUTE_LIMIT = 10; // kOnRouteMissedCount
@@ -30,9 +32,12 @@ const WEAK_GPS_M = 100; // too vague to judge; don't count it either way
 const RUNAWAY_SENSITIVITY_M = 0.01;
 
 const SETTINGS = {
-  // matchingThresholdM, finishToleranceM, minSpeedForRouteRebuildMpS
-  drive: { matchM: 50, finishM: 20, minSpeedMps: 3 / 3.6 },
-  walk: { matchM: 20, finishM: 15, minSpeedMps: -1 },
+  // matchingThresholdM, finishToleranceM, minSpeedForRouteRebuildMpS (Organic Maps), and
+  // ours: approachM. A route starts on the nearest road, not at the hotel door, so until
+  // the first match being this close to its start is "heading to it", not leaving it
+  // (otherwise GPS jitter at the door would reroute, onto the same road, forever).
+  drive: { matchM: 50, finishM: 20, minSpeedMps: 3 / 3.6, approachM: 250 },
+  walk: { matchM: 20, finishM: 15, minSpeedMps: -1, approachM: 150 },
 } as const;
 
 export function initialNav(): NavState {
@@ -43,6 +48,7 @@ export function initialNav(): NavState {
     lastGood: null,
     moveAway: 0,
     lastDistanceM: 0,
+    approachM: null,
   };
 }
 
@@ -60,7 +66,12 @@ export function reduceNav(s: NavState, r: PreparedRoute, fix: Fix): NavState {
       lastGood: p,
       moveAway: 0,
       lastDistanceM: 0,
+      approachM: null,
     };
+  }
+  if (!s.lastGood) {
+    const toStart = distanceM(r.coords[0], [fix.lng, fix.lat]);
+    if (toStart <= cfg.approachM) return { ...s, approachM: toStart };
   }
   if (fix.accuracyM > WEAK_GPS_M) return s;
 

@@ -110,3 +110,14 @@ export function projectForward(
     }
   );
 }
+
+/** The route split at the user's spot: what is behind them (drawn grey) and ahead. */
+export function splitAt(
+  coords: LngLat[],
+  p: Pick<Projection, "index" | "t" | "point">,
+): { covered: LngLat[]; ahead: LngLat[] } {
+  return {
+    covered: [...coords.slice(0, p.index + 1), p.point],
+    ahead: [p.point, ...coords.slice(p.index + 1)],
+  };
+}

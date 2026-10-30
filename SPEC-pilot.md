@@ -29,6 +29,8 @@ Mobile is the main target; it also works on a desktop browser that has location.
 - `progress(route, projection)` → remaining distance (along the line), remaining seconds (the rest of the current step, pro rata, plus later steps' Valhalla durations), the current step, the next maneuver with its distance, and a "then" maneuver when it's < 300 m after the next.
 - `cameraFor(state, speed, heading)` → centre, bearing (GPS heading when speed > 1.5 m/s, else the route's bearing), pitch (drive 60°, walk 45°), zoom (by speed: 17.5 → 15.5).
 
+**Before the first match (approach):** routes start on the nearest road, not at the hotel door, so the first fixes are often outside the matching radius. Until the first on-route match, being ≤ 150 m (walk) / 250 m (drive) from the route's start shows "Head to the route · *n* m" and doesn't count towards leaving the route. Without this, GPS jitter at the door would trip a reroute onto the same road, again and again. A start farther away counts normally, so it reroutes from where the user is. *(Found by the T42 e2e; Organic Maps doesn't need it because its routes begin at the GPS position.)*
+
 **Position source:** `watchPosition({ enableHighAccuracy: true, maximumAge: 1000 })` behind a `PositionSource`
 interface. A dev-only `SimulatedSource` replays the route at a chosen speed (`?simulate=1`, also a
 "Simulate" button in dev builds) so the full flow can be watched on a desktop.
