@@ -43,6 +43,7 @@ LOANWORDS = {
     "ヒュッテ": "hutte",
     "ホテル": "hotel",
     "ロッジ": "lodge",
+    "ロッヂ": "lodge",  # older spelling
     "ハウス": "house",
     "ヴィラ": "villa",
     "ビラ": "villa",

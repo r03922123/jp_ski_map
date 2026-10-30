@@ -1,3 +1,5 @@
+import dataclasses
+
 from hakuba_api.common.geo import Coord
 from hakuba_api.places.index import Entry, Hit, build_index, normalize, rank
 
@@ -193,3 +195,59 @@ def test_sound_matching_never_touches_generic_words() -> None:
         )
     ]
     assert rank(entries, "The Ridge Hotel", HAPPO, 5) == []
+
+
+def test_short_sound_keys_never_match() -> None:
+    # "tokyu" and "tokiwa" both reduce to "tk": two consonants say nothing
+    entries = [
+        *ENTRIES,
+        Entry(
+            "lodging:tokiwa",
+            "lodging",
+            "ときわ亭",
+            "ときわ亭",
+            [],
+            HAPPO,
+            "Inn",
+            readings=("tokiwa",),
+        ),
+    ]
+    assert "ときわ亭" not in names(rank(entries, "tokyu", HAPPO, 5))
+
+
+def test_a_spelling_match_beats_a_sound_match() -> None:
+    entries = [
+        Entry("lodging:a", "lodging", "Grace Lodge", None, [], HAPPO, "Lodge"),
+        Entry(
+            "lodging:b", "lodging", "グレース", "グレース", [], HAPPO, "Lodge", readings=("guresu",)
+        ),
+    ]
+    assert names(rank(entries, "grace", HAPPO, 5))[0] == "Grace Lodge"
+
+
+def test_an_area_name_puts_its_ski_resort_first() -> None:
+    # Google-style prominence: "iwatake" means the resort, even with lodges nearer
+    far = Coord(lat=36.72, lng=137.86)
+    entries = [
+        entry("Hakuba Iwatake Snow Field", "resort", far),
+        entry("岩岳セブンロッジ", "lodging", HAPPO),
+        entry("ABLE Hakuba GORYU", "resort", far),
+        entry("Goryu Hon-dorinishi", "stop", HAPPO),
+    ]
+    entries[1] = dataclasses.replace(entries[1], readings=("iwatake sebun lodge",))
+    assert names(rank(entries, "iwatake", HAPPO, 5))[0] == "Hakuba Iwatake Snow Field"
+    assert names(rank(entries, "goryu", HAPPO, 5))[0] == "ABLE Hakuba GORYU"
+    # a distinctive word keeps plain relevance: no resort boost
+    assert names(rank(entries, "sebun", HAPPO, 5)) == ["岩岳セブンロッジ"]
+
+
+def test_a_reading_never_counts_as_an_exact_name() -> None:
+    # 乗鞍荘 reads "norikura" once 荘 is dropped; it isn't *named* Norikura
+    far = Coord(lat=36.62, lng=137.85)
+    entries = [
+        entry("Hakuba Norikura Onsen Snow Resort", "resort", far),
+        Entry("lodging:n", "lodging", "乗鞍荘", "乗鞍荘", [], HAPPO, "Inn", readings=("norikura",)),
+    ]
+    entries_no_boost = [entries[1], entry("Norikura Lodge", "lodging", far)]
+    assert names(rank(entries, "norikura", HAPPO, 5))[0] == "Hakuba Norikura Onsen Snow Resort"
+    assert names(rank(entries_no_boost, "norikura lodge", HAPPO, 5))[0] == "Norikura Lodge"

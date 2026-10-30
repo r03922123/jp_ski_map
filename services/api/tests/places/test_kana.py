@@ -14,6 +14,7 @@ from hakuba_api.places.kana import sound_key, to_romaji
         ("パルズイン雷鳥", "paruzu inn"),  # 雷鳥 isn't in the place-kanji table: dropped
         ("ほてるしろうま", "hotel shiroma"),  # hiragana too; long vowels folded
         ("ペンション・ミーティア", "pension mitia"),
+        ("ロッヂ幸", "lodge"),  # the older spelling of ロッジ
     ],
 )
 def test_to_romaji(ja: str, romaji: str) -> None:

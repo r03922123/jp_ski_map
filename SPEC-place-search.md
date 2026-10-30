@@ -90,4 +90,9 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - [x] Overture refresh is tested against a recorded fixture (no network in tests); the validator checks ids, bbox and dedupe; the attribution is shown.
 - [x] `/suggest` stays < 20 ms for local hits with ~1,000 entries. *1,100 entries: median 9 ms, p95 13 ms (`normalize`/`sound_key` memoised).*
 
+**Ranking fixes found in the post-build sweep** (everyday queries against the full 1,100-entry index):
+- Sound keys need ≥ 3 consonants ("tokyu" and "tokiwa" both reduce to "tk"); a sound match scores just below a spelled one.
+- A reading's score is capped at 85, below the exact and name-prefix tiers, because it approximates the name (乗鞍荘 reads "norikura").
+- *Prominence:* a query with only area or generic words ("iwatake", "goryu", "hakuba") boosts resorts by 15, so the ski area leads, not the nearest lodge or stop.
+
 **Not doing:** fetching Booking.com/Agoda pages (their terms; also no coordinates in the URL); Rakuten (terms); a paid geocoder.

@@ -24,6 +24,17 @@ KIND_ORDER: dict[str, int] = {k: i for i, k in enumerate(Kind.__args__)}  # type
 MIN_FUZZY_LEN = 4
 MAX_EDITS = 2
 LONG_WORD = 8  # from this length a query word may carry two typos
+# A reading that sounds like the query word ("guresu" for "grace") counts as a full
+# match, a hair below a spelled one; keys need 3 consonants ("tokyu"/"tokiwa" are "tk").
+SOUND_MATCH = 0.99
+SOUND_PENALTY = 2
+MIN_SOUND_KEY = 3
+# A reading approximates a name (unknown kanji dropped), so it stays below the
+# exact (100) and name-prefix (90) tiers: 乗鞍荘 reads "norikura" but isn't named it.
+READING_MAX = 85
+# Area-only queries mean the well-known place: this clears the name-prefix tier, so
+# "goryu" gives the resort before the "Goryu Hon-dorinishi" bus stop.
+RESORT_PROMINENCE = 15
 MISSING_GENERIC_PENALTY = 3
 
 # Words that say what a place is, or where, rather than which one: a query may carry
@@ -112,8 +123,10 @@ def _token_match(q: str, tokens: list[str], by_sound: bool = False) -> float | N
         return 1.0
     if by_sound and q not in GENERIC and len(q) >= MIN_FUZZY_LEN:
         key = sound_key(q)
-        if len(key) >= 2 and any(sound_key(t) == key for t in tokens if t not in GENERIC):
-            return 1.0
+        if len(key) >= MIN_SOUND_KEY and any(
+            sound_key(t) == key for t in tokens if t not in GENERIC
+        ):
+            return SOUND_MATCH
     if len(q) >= MIN_FUZZY_LEN:
         # one typo in a short word, two in a long one: "ridge" must not become "lodge"
         cap = MAX_EDITS if len(q) >= LONG_WORD else 1
@@ -152,8 +165,8 @@ def _score_name(q: str, name: str, by_sound: bool = False) -> float | None:
     coverage = min(5, 5 * len(q_tokens) / max(len(tokens), 1))
     if len(q_tokens) == 1:
         m = _token_match(q_tokens[0], tokens, by_sound)
-        if m == 1.0:
-            return 80 + coverage
+        if m is not None and m >= SOUND_MATCH:
+            return 80 + coverage - (SOUND_PENALTY if m < 1.0 else 0)
         if q in name:
             return 70 + coverage
         return 40 + 20 * m + coverage if m is not None else None
@@ -166,7 +179,8 @@ def _score_name(q: str, name: str, by_sound: bool = False) -> float | None:
         1 for t in q_tokens if t not in required and _token_match(t, tokens, by_sound) is None
     )
     penalty = MISSING_GENERIC_PENALTY * missing
-    if all(m == 1.0 for m in matches):
+    penalty += SOUND_PENALTY * sum(1 for m in matches if m is not None and m < 1.0)
+    if all(m is not None and m >= SOUND_MATCH for m in matches):
         return 75 + coverage - penalty
     found = [m for m in matches if m is not None]
     return 40 + 15 * (sum(found) / len(found)) + coverage - penalty
@@ -197,14 +211,23 @@ def _km(a: Coord, b: Coord) -> float:
 
 def rank(entries: list[Entry], query: str, near: Coord, limit: int) -> list[Hit]:
     q = normalize(query)
+    # Only area/generic words ("iwatake", "goryu"): the user means the well-known place,
+    # so resorts come before nearer lodges and stops, like Google's prominence ranking.
+    boost_resorts = not distinctive(_tokens(q))
     hits: list[Hit] = []
     for e in entries:
         names = [e.name, *(([e.name_ja]) if e.name_ja else []), *e.aliases]
         scores = [s for n in names if (s := _score_name(q, normalize(n))) is not None]
-        scores += [s for r in e.readings if (s := _score_name(q, r, by_sound=True)) is not None]
+        # a reading approximates the name (unknown kanji dropped): never an exact/prefix hit
+        scores += [
+            min(s, READING_MAX)
+            for r in e.readings
+            if (s := _score_name(q, r, by_sound=True)) is not None
+        ]
         if not scores:
             continue
-        hits.append(Hit(e, max(scores), _span(q, e.name), _km(near, e.coord)))
+        score = max(scores) + (RESORT_PROMINENCE if boost_resorts and e.kind == "resort" else 0)
+        hits.append(Hit(e, score, _span(q, e.name), _km(near, e.coord)))
     hits.sort(key=lambda h: (-h.score, h.distance_km, KIND_ORDER[h.entry.kind]))
     return hits[:limit]
 
