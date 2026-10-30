@@ -94,3 +94,50 @@ def test_build_index_covers_every_source() -> None:
     assert len(index) > 300
     assert names(rank(index, "happo bus terminal", HAPPO, limit=1)) == ["Hakuba Happo Bus Terminal"]
     assert "Bus stop" in rank(index, "happo bus terminal", HAPPO, limit=1)[0].detail
+
+
+# --- v1.3: generic words weigh little; every distinctive word must match ----------
+
+
+def test_extra_generic_words_in_the_query_dont_block_a_match() -> None:
+    entries = [entry("The Ridge Hotel & Apartments", "lodging")]
+    assert names(rank(entries, "The Ridge Hotel & Apartments Hakuba", HAPPO, 5)) == [
+        "The Ridge Hotel & Apartments"
+    ]
+
+
+def test_a_different_distinctive_word_is_not_a_match() -> None:
+    entries = [entry("Hakuba Mominoki Hotel", "lodging"), entry("Hakuba Tokyu Hotel", "lodging")]
+    assert rank(entries, "Hakuba Park Hotel", HAPPO, 5) == []
+    assert rank(entries, "Hotel 24sweets Hakuba", HAPPO, 5) == []
+
+
+def test_the_fuller_name_beats_a_bare_namesake() -> None:
+    entries = [
+        entry("Meteor", "stop"),
+        entry("Hakuba Valley Pension Meteor Garden", "lodging"),
+    ]
+    assert names(rank(entries, "Hakuba Pension Meteor", HAPPO, 5))[0] == (
+        "Hakuba Valley Pension Meteor Garden"
+    )
+
+
+def test_all_generic_queries_still_need_every_word() -> None:
+    # "Hotel Hakuba" has no distinctive word, so it must not match every "… Hotel" in Hakuba
+    assert names(rank(ENTRIES, "Hotel Hakuba", HAPPO, 5))[0] == "Hotel Hakuba"
+
+
+def test_short_words_allow_one_typo_only() -> None:
+    entries = [entry("Hakuba Powder Lodge", "lodging"), entry("Hakuba Braze Club", "lodging")]
+    assert rank(entries, "The Ridge Hotel Hakuba", HAPPO, 5) == []  # ridge→lodge is 2 edits
+    assert rank(entries, "Hotel Grace Hakuba", HAPPO, 5) == []  # grace→braze is 2 edits
+    assert names(rank(entries, "Hakuba Powdr Lodge", HAPPO, 5)) == ["Hakuba Powder Lodge"]
+
+
+def test_an_area_name_alone_is_not_a_shared_word() -> None:
+    from hakuba_api.places.index import shares_distinctive_word
+
+    assert not shares_distinctive_word(
+        "Hotel Granjam Tsugaike", "Tsugaike Kogen Hotel Hakuba Berghaus"
+    )
+    assert shares_distinctive_word("Lift Inn Hakuba Goryu", "Lift Inn Hakuba Goryu")

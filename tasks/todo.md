@@ -546,8 +546,8 @@ Gate shorthand:
 ## Task 47: Query cleaning for hotel-site URLs and titles ✅
 **Acceptance:** [x] Unit tests for Booking/Agoda/Expedia/Hotels.com/Trip.com URLs and title noise (Rakuten/Jalan URLs carry no name); eval 14/25 **Dependencies:** T46 **Scope:** S
 
-## Task 48: Scoring v2 + Photon relevance gate
-**Acceptance:** [ ] v1.2 index tests pass; [ ] eval shows 0 wrong lodging hits **Dependencies:** T47 **Scope:** M
+## Task 48: Scoring v2 + Photon relevance gate ✅
+**Acceptance:** [x] v1.2 index tests pass; [x] eval shows 0 wrong lodging hits (offline and live Photon); 15/25 **Dependencies:** T47 **Scope:** M
 
 ## Task 49: Overture lodging snapshot (+ dedupe vs OSM, attribution)
 **Acceptance:** [ ] Fixture-tested refresh; [ ] validator; [ ] eval recall ≥ 85% of present **Dependencies:** T48 **Scope:** M

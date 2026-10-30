@@ -21,6 +21,25 @@ KIND_ORDER: dict[str, int] = {k: i for i, k in enumerate(Kind.__args__)}  # type
 
 MIN_FUZZY_LEN = 4
 MAX_EDITS = 2
+LONG_WORD = 8  # from this length a query word may carry two typos
+MISSING_GENERIC_PENALTY = 3
+
+# Words that say what a place is, or where, rather than which one: a query may carry
+# them ("The Ridge Hotel & Apartments Hakuba") without the name having them, and they
+# never make two different hotels match (SPEC-place-search v1.3).
+GENERIC = frozenset(
+    {
+        "the", "by", "and", "&", "of", "at", "in", "a",
+        "hotel", "hotels", "inn", "lodge", "lodges", "chalet", "chalets", "apartment",
+        "apartments", "resort", "house", "pension", "onsen", "ryokan", "villa", "villas",
+        "cottage", "cottages", "hostel", "guesthouse", "guest", "condominium", "restaurant",
+        "hakuba", "japan", "nagano", "mura",
+        # areas: where a place is, not which one ("Granjam Tsugaike" ≠ "Tsugaike Berghaus")
+        "happo", "echoland", "wadano", "goryu", "iwatake", "tsugaike", "kamishiro", "sakka",
+        "misorano", "norikura", "cortina", "otari", "omachi", "hokujo", "kogen", "valley",
+        "ほてる", "ぺんしょん", "白馬",
+    }
+)  # fmt: skip
 
 
 @dataclass(frozen=True)
@@ -86,10 +105,25 @@ def _token_match(q: str, tokens: list[str]) -> float | None:
     if any(t.startswith(q) for t in tokens):
         return 1.0
     if len(q) >= MIN_FUZZY_LEN:
-        best = min((_edits(q, t) for t in tokens), default=MAX_EDITS + 1)
-        if best <= MAX_EDITS:
+        # one typo in a short word, two in a long one: "ridge" must not become "lodge"
+        cap = MAX_EDITS if len(q) >= LONG_WORD else 1
+        best = min((_edits(q, t, cap) for t in tokens), default=cap + 1)
+        if best <= cap:
             return 1 - best / (len(q) + 1)
     return None
+
+
+def distinctive(tokens: list[str]) -> list[str]:
+    return [t for t in tokens if t not in GENERIC]
+
+
+def shares_distinctive_word(query: str, name: str) -> bool:
+    """True when `name` contains one of the query's distinctive words (all words when
+    the query has none): the relevance check for results from outside our index."""
+    q_tokens = _tokens(normalize(query))
+    wanted = distinctive(q_tokens) or q_tokens
+    tokens = _tokens(normalize(name))
+    return any(_token_match(t, tokens) is not None for t in wanted)
 
 
 def _score_name(q: str, name: str) -> float | None:
@@ -104,7 +138,7 @@ def _score_name(q: str, name: str) -> float | None:
     q_tokens = _tokens(q)
     if not q_tokens:
         return None
-    coverage = 5 * len(q_tokens) / max(len(tokens), 1)
+    coverage = min(5, 5 * len(q_tokens) / max(len(tokens), 1))
     if len(q_tokens) == 1:
         m = _token_match(q_tokens[0], tokens)
         if m == 1.0:
@@ -112,12 +146,17 @@ def _score_name(q: str, name: str) -> float | None:
         if q in name:
             return 70 + coverage
         return 40 + 20 * m + coverage if m is not None else None
-    matches = [_token_match(t, tokens) for t in q_tokens]
+    # every distinctive word must match; a missing generic word only costs a little
+    required = distinctive(q_tokens) or q_tokens
+    matches = [_token_match(t, tokens) for t in required]
     if any(m is None for m in matches):
         return None
+    missing = sum(1 for t in q_tokens if t not in required and _token_match(t, tokens) is None)
+    penalty = MISSING_GENERIC_PENALTY * missing
     if all(m == 1.0 for m in matches):
-        return 75 + coverage
-    return 40 + 15 * (sum(m for m in matches if m is not None) / len(matches)) + coverage
+        return 75 + coverage - penalty
+    found = [m for m in matches if m is not None]
+    return 40 + 15 * (sum(found) / len(found)) + coverage - penalty
 
 
 def _span(q: str, name: str) -> tuple[int, int] | None:

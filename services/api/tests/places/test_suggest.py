@@ -61,12 +61,26 @@ def test_photon_fills_in_when_few_local_hits(api: TestClient, mock: respx.MockRo
     )
 
     body: Any = api.get(
-        "/api/places/suggest", params={"q": "something obscure", "near": "36.70,137.845"}
+        "/api/places/suggest", params={"q": "Hamac", "near": "36.70,137.845"}
     ).json()
 
     assert call.call_count == 1
-    assert any(b["source"] == "photon" for b in body)
-    assert all(b["kind"] in ("lodging", "place") for b in body if b["source"] == "photon")
+    photon_hits = [b for b in body if b["source"] == "photon"]
+    assert [b["name"] for b in photon_hits] == ["Le Petit Hotel Hamac"]
+    assert all(b["kind"] in ("lodging", "place") for b in photon_hits)
+
+
+def test_photon_results_without_a_shared_distinctive_word_are_dropped(
+    api: TestClient, mock: respx.MockRouter
+) -> None:
+    # Photon answers "Hotel 24sweets Hakuba" with other Hakuba hotels; none may be shown
+    mock.get(PHOTON_URL).respond(json=json.loads((FIXTURES / "hotel_hakuba.json").read_text()))
+
+    body: Any = api.get(
+        "/api/places/suggest", params={"q": "Hotel 24sweets Hakuba", "near": "36.70,137.845"}
+    ).json()
+
+    assert [b for b in body if b["source"] == "photon"] == []
 
 
 def test_photon_failure_still_returns_local_hits(api: TestClient, mock: respx.MockRouter) -> None:

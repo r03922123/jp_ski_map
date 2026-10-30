@@ -1,6 +1,7 @@
 """Score search against hotel names pasted from booking sites (SPEC-place-search v1.3).
 
-Usage: `python -m hakuba_api.places.eval_search` (local index only, no network).
+Usage: `python -m hakuba_api.places.eval_search [--photon]` (default: local index only,
+no network; `--photon` adds the live Photon fallback, as the API does).
 """
 
 import json
@@ -45,11 +46,11 @@ def judge(case: dict[str, object], top: Suggestion | None, tolerance_m: float) -
     return "wrong" if top.kind == "lodging" else "miss"
 
 
-def evaluate(entries: list[Entry] | None = None) -> list[CaseResult]:
+def evaluate(entries: list[Entry] | None = None, photon: bool = False) -> list[CaseResult]:
     data = json.loads(EVAL_FILE.read_text())
     out: list[CaseResult] = []
     for case in data["cases"]:
-        hits = suggest(case["q"], NEAR, 5, entries=entries, use_photon=False)
+        hits = suggest(case["q"], NEAR, 5, entries=entries, use_photon=photon)
         top = hits[0] if hits else None
         out.append(CaseResult(case["q"], judge(case, top, data["toleranceM"]), top))
     return out
@@ -63,7 +64,7 @@ def summary(results: list[CaseResult]) -> dict[str, int]:
 
 
 def main() -> int:
-    results = evaluate()
+    results = evaluate(photon="--photon" in sys.argv[1:])
     for r in results:
         top = f"{r.top.name} ({r.top.kind})" if r.top else "-"
         print(f"{r.verdict:9} {r.query[:48]:48} → {top}")

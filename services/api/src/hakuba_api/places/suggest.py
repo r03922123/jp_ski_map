@@ -6,7 +6,7 @@ from functools import cache
 from hakuba_api.common.geo import Coord, in_hakuba
 from hakuba_api.common.models import ApiModel
 from hakuba_api.common.upstream import UpstreamError
-from hakuba_api.places.index import Entry, Hit, Kind, build_index, rank
+from hakuba_api.places.index import Entry, Hit, Kind, build_index, rank, shares_distinctive_word
 from hakuba_api.places.models import Place
 from hakuba_api.places.photon import search_photon
 from hakuba_api.places.query_clean import clean_query
@@ -93,6 +93,8 @@ def suggest(
     extra = [
         from_place(p)
         for p in remote
-        if in_hakuba(p.coord) and not any(_close(p.coord, s.coord) for s in local)
+        if in_hakuba(p.coord)
+        and shares_distinctive_word(query, p.name)  # no confidently wrong hotels
+        and not any(_close(p.coord, s.coord) for s in local)
     ]
     return (local + extra)[:limit]
