@@ -4,7 +4,7 @@ export type LngLat = [number, number]; // GeoJSON order
 
 const EARTH_M = 6_371_000;
 
-function distanceM([lng1, lat1]: LngLat, [lng2, lat2]: LngLat): number {
+export function distanceM([lng1, lat1]: LngLat, [lng2, lat2]: LngLat): number {
   const rad = Math.PI / 180;
   const dLat = (lat2 - lat1) * rad;
   const dLng = (lng2 - lng1) * rad;

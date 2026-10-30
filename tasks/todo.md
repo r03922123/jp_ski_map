@@ -476,10 +476,10 @@ Gate shorthand:
 
 ## Phase 11: Pilot (SPEC-pilot v1.3)
 
-## Task 40: Nav core
+## Task 40: Nav core ✅
 **Description:** `lib/nav/`: `project`, `progress`, `NavSession` reducer (following/offRoute/rerouting/arrived), `cameraFor`. Pure.
 **Acceptance criteria:**
-- [ ] Every unit bullet in SPEC-pilot's acceptance criteria, using the recorded Valhalla route fixture
+- [x] Every unit bullet in SPEC-pilot's acceptance criteria, using the recorded Valhalla route fixture
 **Verification:** Web gates
 **Dependencies:** None
 **Files:** `lib/nav/{project,progress,session,camera}.ts`, `tests/nav/*.test.ts`, fixture
