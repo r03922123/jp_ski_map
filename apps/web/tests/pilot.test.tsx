@@ -203,3 +203,32 @@ describe("useHiddenTimeout", () => {
     setVisibility("visible");
   });
 });
+
+describe("PilotView rerouting", () => {
+  const props = {
+    mode: "walk" as const,
+    following: true,
+    onExit: vi.fn(),
+    onRecenter: vi.fn(),
+    now: new Date("2027-01-15T08:00:00+09:00"),
+  };
+
+  it("says Rerouting… while a new route is on its way, and when it can't", () => {
+    const m = manualSource();
+    const { result } = renderHook(() => usePilot(walk, m.source));
+    m.fix(coords[10]);
+    for (let i = 1; i <= 12; i++)
+      m.fix([coords[10][0], coords[10][1] + 0.002 * i]);
+    expect(result.current.phase).toBe("offRoute");
+    const { rerender } = render(
+      <PilotView {...props} status={result.current} reroute="rerouting" />,
+    );
+    expect(screen.getByRole("region", { name: "Next turn" })).toHaveTextContent(
+      "Rerouting…",
+    );
+    rerender(<PilotView {...props} status={result.current} reroute="failed" />);
+    expect(screen.getByRole("region", { name: "Next turn" })).toHaveTextContent(
+      "Can't reroute — continue to the blue line",
+    );
+  });
+});

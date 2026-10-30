@@ -86,6 +86,48 @@ test.describe("with location allowed", () => {
   });
 });
 
+test.describe("rerouting", () => {
+  test.use({ permissions: ["geolocation"], geolocation: FROM });
+
+  test("leaving the route asks for a new one from where you are", async ({
+    page,
+    context,
+  }) => {
+    const line = await walkRoute(page);
+    // a real walking route that heads south instead: its far end is well off the station route
+    const res = await page.request.get(
+      `http://127.0.0.1:8010/api/routes?mode=walk&from=${FROM.latitude},${FROM.longitude}&to=36.6905,137.8545`,
+    );
+    const detour: [number, number][] = (await res.json()).primary.geometry
+      .coordinates;
+    const offRoute = detour.slice(-14);
+
+    await page.goto(URL);
+    await page
+      .getByRole("button", { name: "Start navigation" })
+      .click({ timeout: 20_000 });
+    const [lng, lat] = line[6];
+    await context.setGeolocation({ latitude: lat, longitude: lng });
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+      timeout: 15_000,
+    });
+
+    for (const [x, y] of offRoute) {
+      await context.setGeolocation({ latitude: y, longitude: x });
+      await page.waitForTimeout(150); // let each fix arrive as its own update
+    }
+    await expect(pilot(page)).toHaveAttribute("data-reroutes", "1", {
+      timeout: 15_000,
+    });
+
+    const [x, y] = offRoute[offRoute.length - 1];
+    await context.setGeolocation({ latitude: y + 0.00002, longitude: x });
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+      timeout: 10_000,
+    });
+  });
+});
+
 test("location denied: a message, and Exit returns to the directions", async ({
   page,
 }) => {

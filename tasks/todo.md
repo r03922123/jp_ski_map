@@ -506,10 +506,10 @@ Gate shorthand:
 **Files:** `components/PilotView.tsx`, `DirectionsPanel.tsx`, `MapView.tsx`, `MapShell.tsx`, `e2e/pilot.spec.ts`
 **Scope:** M
 
-## Task 43: Reroute
+## Task 43: Reroute ✅
 **Description:** On `offRoute`, fetch a route from the current fix; throttle 10 s; failure keeps the old route with a message.
 **Acceptance criteria:**
-- [ ] Unit: throttle and failure handling; E2E: off-route fixes → "Rerouting…" → new route starts at the fix
+- [x] Unit: throttle and failure handling; E2E: off-route fixes → "Rerouting…" → new route starts at the fix
 **Verification:** Web gates; Playwright
 **Dependencies:** T42
 **Files:** `lib/nav/session.ts`, `components/PilotView.tsx`, `MapShell.tsx`, tests

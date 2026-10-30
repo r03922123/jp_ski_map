@@ -41,6 +41,7 @@ import {
 } from "@/lib/nav/position";
 import { splitAt } from "@/lib/nav/project";
 import { usePilot } from "@/lib/nav/use-pilot";
+import { useReroute } from "@/lib/nav/use-reroute";
 import type { LngLat } from "@/lib/route-geo";
 import {
   hotelOf,
@@ -338,7 +339,23 @@ export function MapShell() {
   const [pilotRoute, setPilotRoute] = useState<Route | null>(null);
   const [pilotSource, setPilotSource] = useState<PositionSource | null>(null);
   const [following, setFollowing] = useState(true);
+  // the destination stays fixed while reroutes replace the route
+  const [pilotTarget, setPilotTarget] = useState<Coord | null>(null);
+  const [reroutes, setReroutes] = useState(0);
   const pilot = usePilot(pilotRoute, pilotSource);
+  const reroute = useReroute({
+    phase: pilot.phase,
+    fix: pilot.fix,
+    mode: pilotRoute?.mode ?? "walk",
+    target: pilotTarget,
+    fetchRoute: async (m, from, to) => (await fetchRoutes(m, from, to)).primary,
+    onNewRoute: (r) => {
+      setPilotRoute(r);
+      setReroutes((n) => n + 1);
+    },
+    // a fresh copy restarts matching on the old route, so the user can rejoin it
+    onFailure: () => setPilotRoute((r) => (r ? { ...r } : r)),
+  });
   const piloting = pilotRoute !== null;
   const startPilot = () => {
     const route = routes[activeRoute];
@@ -347,6 +364,8 @@ export function MapShell() {
       process.env.NODE_ENV !== "production" &&
       new URLSearchParams(window.location.search).has("simulate");
     setPilotRoute(route);
+    setPilotTarget(target ?? null);
+    setReroutes(0);
     setFollowing(true);
     setPilotSource(
       simulate
@@ -481,6 +500,8 @@ export function MapShell() {
           status={pilot}
           mode={pilotRoute.mode}
           following={following}
+          reroute={reroute}
+          reroutes={reroutes}
           onExit={exitPilot}
           onRecenter={() => setFollowing(true)}
           now={new Date()}

@@ -5,6 +5,7 @@ import { ManeuverIcon } from "@/components/ManeuverIcon";
 import { formatArrival, formatDistance, formatDuration } from "@/lib/format";
 import type { PositionError } from "@/lib/nav/position";
 import type { PilotStatus } from "@/lib/nav/use-pilot";
+import type { RerouteState } from "@/lib/nav/use-reroute";
 
 const ERROR_TEXT: Record<PositionError, string> = {
   denied:
@@ -21,6 +22,9 @@ type Props = {
   mode: "drive" | "walk";
   /** false once the user panned the map away from their position */
   following: boolean;
+  reroute?: RerouteState;
+  /** how many times the route was replaced (shown to tests as data-reroutes) */
+  reroutes?: number;
   onExit: () => void;
   onRecenter: () => void;
   now: Date;
@@ -31,6 +35,8 @@ export function PilotView({
   status,
   mode,
   following,
+  reroute = "idle",
+  reroutes = 0,
   onExit,
   onRecenter,
   now,
@@ -43,6 +49,7 @@ export function PilotView({
       data-testid="pilot"
       data-nav-phase={error ? "error" : phase}
       data-nav-remaining-m={guidance ? Math.round(guidance.remainingM) : ""}
+      data-reroutes={reroutes}
       className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-between"
     >
       <section
@@ -55,7 +62,9 @@ export function PilotView({
         ) : phase === "starting" ? (
           <p className="font-semibold">Finding your location…</p>
         ) : phase === "offRoute" ? (
-          <p className="text-lg font-semibold">Off route</p>
+          <p className="text-lg font-semibold">
+            {reroute === "rerouting" ? "Rerouting…" : "Off route"}
+          </p>
         ) : phase === "arrived" ? (
           <p className="flex items-center gap-2 text-lg font-semibold">
             <ManeuverIcon maneuver="arrive" className="size-6 text-white" />
@@ -93,6 +102,11 @@ export function PilotView({
             </div>
           </div>
         ) : null}
+        {reroute === "failed" && (
+          <p className="mt-1 text-sm text-emerald-100">
+            Can't reroute — continue to the blue line
+          </p>
+        )}
         {phase === "following" && guidance?.then && (
           <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-950/40 px-2 py-0.5 text-sm">
             Then
