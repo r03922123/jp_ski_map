@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 
 from hakuba_api.catalog.store import load_resorts
+from hakuba_api.common.params import PlausibleDate
 from hakuba_api.common.upstream import UpstreamError
 from hakuba_api.crowd.heuristic import HeuristicCrowdSource, load_periods
 from hakuba_api.crowd.models import CrowdEstimate
@@ -31,7 +32,7 @@ def get_snow_by_resort() -> dict[str, SnowReport]:
 def get_crowd(
     today: Annotated[date, Depends(get_today)],
     snow: Annotated[dict[str, SnowReport], Depends(get_snow_by_resort)],
-    day: Annotated[date | None, Query(alias="date")] = None,
+    day: Annotated[PlausibleDate | None, Query(alias="date")] = None,
 ) -> list[CrowdEstimate]:
     source = HeuristicCrowdSource(load_periods())
     target = day or today

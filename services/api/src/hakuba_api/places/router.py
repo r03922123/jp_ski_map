@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
 
-from hakuba_api.common.params import parse_lat_lng
+from hakuba_api.common.params import MAX_QUERY_CHARS, parse_lat_lng
 from hakuba_api.places.gmaps_link import (
     is_google_maps_url,
     is_short_link,
@@ -16,9 +16,11 @@ from hakuba_api.places.suggest import Suggestion, from_place, suggest
 
 router = APIRouter(prefix="/api/places")
 
+SearchText = Annotated[str, Query(max_length=MAX_QUERY_CHARS)]
+
 
 @router.get("/search", response_model=list[Place], response_model_by_alias=True)
-def search(q: str, limit: Annotated[int, Query(ge=1, le=20)] = 10) -> list[Place]:
+def search(q: SearchText, limit: Annotated[int, Query(ge=1, le=20)] = 10) -> list[Place]:
     if not q.strip():
         raise HTTPException(422, "q must not be empty")
     if is_google_maps_url(q):
@@ -30,7 +32,7 @@ def search(q: str, limit: Annotated[int, Query(ge=1, le=20)] = 10) -> list[Place
 
 @router.get("/suggest", response_model=list[Suggestion], response_model_by_alias=True)
 def suggest_places(
-    q: str,
+    q: SearchText,
     near: Annotated[str, Query()] = "36.70,137.86",
     limit: Annotated[int, Query(ge=1, le=20)] = 8,
 ) -> list[Suggestion]:

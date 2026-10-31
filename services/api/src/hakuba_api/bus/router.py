@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Query
 from hakuba_api.bus.models import BusStop, Timetable
 from hakuba_api.bus.query import BusResult, NightResult, bus_options, night_departures
 from hakuba_api.bus.store import load_manifest_season, load_stops, load_timetables
-from hakuba_api.common.params import parse_lat_lng
+from hakuba_api.common.params import PlausibleDateTime, parse_lat_lng
 from hakuba_api.routing.client import ValhallaClient
 from hakuba_api.routing.router import get_valhalla
 from hakuba_api.snow.compute import JST
@@ -114,7 +114,7 @@ def get_bus_options(
     walks: Annotated[dict[str, int], Depends(get_walks)],
     timetables: Annotated[list[Timetable], Depends(get_bus_data)],
     manifest_season: Annotated[str | None, Depends(get_manifest_season)],
-    at: datetime | None = None,
+    at: PlausibleDateTime | None = None,
 ) -> BusResult:
     stops = {s.id: s for s in load_stops()}
     alias = {a: s.id for s in stops.values() for a in s.aliases}
@@ -127,7 +127,7 @@ def get_night_bus(
     walks: Annotated[dict[str, int], Depends(get_walks)],
     timetables: Annotated[list[Timetable], Depends(get_bus_data)],
     manifest_season: Annotated[str | None, Depends(get_manifest_season)],
-    at: datetime | None = None,
+    at: PlausibleDateTime | None = None,
 ) -> NightResult:
     stops = {s.id: s for s in load_stops()}
     alias = {a: s.id for s in stops.values() for a in s.aliases}

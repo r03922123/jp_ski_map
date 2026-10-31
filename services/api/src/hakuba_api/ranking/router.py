@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 
 from hakuba_api.catalog.store import load_resorts
-from hakuba_api.common.params import parse_lat_lng
+from hakuba_api.common.params import PlausibleDate, parse_lat_lng
 from hakuba_api.crowd.heuristic import HeuristicCrowdSource, load_periods
 from hakuba_api.crowd.models import CrowdEstimate
 from hakuba_api.crowd.router import get_snow_by_resort, get_today
@@ -43,7 +43,7 @@ def get_rank(
     crowd_for: Annotated[CrowdFor, Depends(get_crowd_for)],
     today: Annotated[date, Depends(get_today)],
     sort: SortKey = "drive_time",
-    day: Annotated[date | None, Query(alias="date")] = None,
+    day: Annotated[PlausibleDate | None, Query(alias="date")] = None,
     night_skiing: Annotated[bool | None, Query(alias="nightSkiing")] = None,
     hakuba_valley_pass: Annotated[bool | None, Query(alias="hakubaValleyPass")] = None,
     max_drive_min: Annotated[float | None, Query(alias="maxDriveMin", gt=0)] = None,

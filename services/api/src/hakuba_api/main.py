@@ -1,7 +1,9 @@
 from collections.abc import Awaitable, Callable
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from hakuba_api.bus.router import router as bus_router
 from hakuba_api.catalog.router import router as catalog_router
@@ -15,7 +17,50 @@ from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
 from hakuba_api.routing.router import router as routing_router
 from hakuba_api.snow.router import router as snow_router
 
+# The app's biggest request is a 25-point path (~2 KB); anything far over it is refused
+# before it is read, parsed or echoed back
+MAX_BODY_BYTES = 64 * 1024
+
+
+class BodyTooLargeError(HTTPException):
+    """Raised from inside the body read; FastAPI passes an HTTPException through as is."""
+
+    def __init__(self) -> None:
+        super().__init__(413, "request body too large")
+
+
+class BodyLimit:
+    """Refuse a body over the limit: by its Content-Length up front, or, when streamed
+    without one, as soon as the bytes read pass it."""
+
+    def __init__(self, app: ASGIApp, max_bytes: int) -> None:
+        self.app = app
+        self.max_bytes = max_bytes
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        length = dict(scope["headers"]).get(b"content-length")
+        if length is not None and (not length.isdigit() or int(length) > self.max_bytes):
+            await JSONResponse({"error": "body_too_large"}, status_code=413)(scope, receive, send)
+            return
+        read = 0
+
+        async def limited() -> Message:
+            nonlocal read
+            message = await receive()
+            if message["type"] == "http.request":
+                read += len(message.get("body", b""))
+                if read > self.max_bytes:
+                    raise BodyTooLargeError
+            return message
+
+        await self.app(scope, limited, send)
+
+
 app = FastAPI(title="Hakuba Ski Map API")
+app.add_middleware(BodyLimit, max_bytes=MAX_BODY_BYTES)
 app.include_router(catalog_router)
 app.include_router(routing_router)
 app.include_router(places_router)
@@ -43,6 +88,18 @@ async def limit_clients(
                 {"error": "rate_limited"}, status_code=429, headers={"Retry-After": str(wait)}
             )
     return await call_next(request)
+
+
+@app.exception_handler(RequestValidationError)
+def invalid_request(_: Request, exc: RequestValidationError) -> JSONResponse:
+    """FastAPI's 422, minus the `input` it would echo back (and its `ctx`, `url`)."""
+    errors = [{k: e[k] for k in ("type", "loc", "msg") if k in e} for e in exc.errors()]
+    return JSONResponse({"detail": errors}, status_code=422)
+
+
+@app.exception_handler(BodyTooLargeError)
+def body_too_large(_: Request, __: BodyTooLargeError) -> JSONResponse:
+    return JSONResponse({"error": "body_too_large"}, status_code=413)
 
 
 @app.exception_handler(NoRouteError)
