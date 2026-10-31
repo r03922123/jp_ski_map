@@ -614,3 +614,22 @@ Adversarial review (3 reviewers + verifier): 19 confirmed, all fixed. Empty stop
 ## Task 58: A swipe on the navigation map is never lost ✅
 Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers()`, which cancels a gesture in progress. The follow camera eases at map load and on every GPS fix, so a swipe that began just before one did nothing. Fix: the follow camera waits while the map is pressed (map `mousedown`/`touchstart`, wired at map creation; released on window `pointerup`/`pointercancel`/`blur`) and catches up on release unless the press became a drag. New e2e presses, lets a fix arrive, then drags (failed 3/3 before, passes after). Every remaining reproduction began on the destination pin, so non-interactive markers (destination pin, start dot, bus label) now let presses through, like the puck. Walk test: 23/24 in parallel at load 25–54 (the one failure a 90 s timeout at load 47), full suite 47/47 with 2 workers at load ~15.
 
+
+## Phase 14: Go public, Phase A (SPEC-deploy v1.5)
+
+## Task 59: Hakuba-only Valhalla tiles, reproducible
+**Acceptance:** `infra/valhalla/build-hakuba.sh` builds `custom_files/hakuba/tiles.tar` from Geofabrik chubu (osmium bbox crop + admins + `default_speeds.json`); the dev compose serves it, bound to 127.0.0.1; a unit test proves every coordinate in `data/` lies inside the bbox with ≥ 2 km margin; a live test compares 4 drive and walk pairs with the expected values. **Files:** `infra/valhalla/build-hakuba.sh`, `infra/docker-compose.yml`, `services/api/tests/routing/test_bbox.py`, live test. **Scope:** S
+
+## Task 60: API rate limits + identify upstream
+**Acceptance:** global token buckets per upstream (Photon 1/s, Open-Meteo 1/s, Google short links 1 per 2 s) → 503 `upstream_busy`; per-client 120/min keyed on the first `X-Forwarded-For` hop → 429; cache hits spend nothing; `USER_AGENT` uses `PUBLIC_URL`. No new dependency. **Files:** `common/ratelimit.py`, `common/upstream.py`, `main.py`, upstream callers, tests. **Scope:** M
+
+## Task 61: Production web: security headers, no indexing, e2e on `next start`
+**Acceptance:** `nosniff`, `Referrer-Policy`, `Permissions-Policy: geolocation=(self)`, `X-Frame-Options: DENY`; `/robots.txt` disallows all, plus a `noindex` meta tag; the e2e suite passes against a production build. **Files:** `next.config.ts`, `app/robots.ts`, `app/layout.tsx`, `e2e/prod.spec.ts`. **Scope:** S
+
+## Task 62: `scripts/serve-public.sh` (+ `--stop`)
+**Acceptance:** builds the web app, starts Valhalla + API + `next start`, waits for `/api/health`, then (only with `--funnel`) runs `tailscale funnel --bg 3000`; `--stop` turns Funnel off first, then stops the services. Refuses to publish if health fails. **Files:** `scripts/serve-public.sh`, SPEC-deploy commands. **Scope:** S
+
+## Checkpoint M: Phase A ready
+- [ ] All gates green, the full e2e suite passes against `next start`
+- [ ] The author installs Tailscale, renames the machine to `hakuba-map`, enables HTTPS + Funnel in the admin console
+- [ ] **Ask before** turning Funnel on; then a phone on mobile data runs search → bus/drive/walk → Start
