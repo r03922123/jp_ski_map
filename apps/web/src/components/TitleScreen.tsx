@@ -50,12 +50,21 @@ export function TitleScreen() {
     // biome-ignore lint/suspicious/noDocumentCookie: a session cookie, read on this device only
     document.cookie = `${TITLE_COOKIE}=seen; path=/; SameSite=Lax`;
     setOpen(false);
+    // into the app: the first thing to do is search
+    document.querySelector<HTMLElement>("main [role='combobox']")?.focus();
   };
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
+      // a modal with one control: Tab stays on it
+      onKeyDown={(e) => {
+        if (e.key === "Tab") {
+          e.preventDefault();
+          start.current?.focus();
+        }
+      }}
       className="title-screen fixed inset-0 z-[60] flex flex-col items-center justify-center gap-6 overflow-hidden bg-[#2c3e6b] text-[#fffaf0]"
     >
       {FLAKES.map((f, i) => (

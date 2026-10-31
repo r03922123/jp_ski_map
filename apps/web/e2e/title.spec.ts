@@ -70,7 +70,9 @@ test.describe("HUD and level select", () => {
 
     await happo.getByText("Details").click();
     await happo.getByRole("button", { name: "Check in" }).click();
-    await page.getByRole("button", { name: "OK" }).click({ timeout: 15_000 });
+    await page
+      .getByRole("button", { name: "OK", exact: true })
+      .click({ timeout: 15_000 });
     await expect(
       page.getByRole("button", {
         name: /^Rider card: Rider, First Tracks, 1 of 10 stamps/,

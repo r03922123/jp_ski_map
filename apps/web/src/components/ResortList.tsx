@@ -101,6 +101,11 @@ export function ResortList({
               </span>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="truncate font-medium">{r.name}</span>
+                {catalog.data?.find((c) => c.id === r.resortId)?.name.ja && (
+                  <span lang="ja" className="truncate text-xs">
+                    {catalog.data.find((c) => c.id === r.resortId)?.name.ja}
+                  </span>
+                )}
                 {worlds.has(r.resortId) && (
                   <span
                     data-world={worlds.get(r.resortId)}

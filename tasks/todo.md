@@ -681,5 +681,16 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 **Acceptance:** title screen once per session (skipped by shared links and `?skip-title`, keyboard-operable, reduced motion); HUD with name, title, stamps n/10, quest badge, sound toggle; resort cards as level cards with world badge and stamp state in any sort order. **Files:** `components/TitleScreen.tsx`, `components/Hud.tsx`, `ResortList.tsx`, `MapShell.tsx`, tests, e2e. **Scope:** M
 **Done:** "seen the title" is a session cookie (`hakuba_title`): once per browser session, and Playwright's config presets it so every existing test runs unchanged (`e2e/title.spec.ts` clears it). Skipped for `from`/`resort`/`dest`/`skip-title` and `#import`/`#rider`; Enter or a tap starts; reduced motion hides the snow and stops the blink. HUD = the panel's top row: rider (name, title, ★ n/10) → rider card, quest log with its open count, sound. Level cards: world badge, "World N", ★ stamped / ☆ not yet; numbers stay with each resort in any sort order (e2e).
 
+## Task 72b: Review fixes for v1.6 (3 reviewers + verifier: 15 confirmed, 1 refuted) ✅
+- **High:** a far-away **preview** (simulated fixes) reached the resort and earned its stamp, quests and km: tapping Start in Tokyo could collect every stamp. Only real-GPS trips count now (not preview, not `?simulate`); e2e failed on the old code, passes now.
+- **High:** a **bus journey** counted at the boarding stop (the pilot route is only the walk there), so arriving by bus never stamped and bus km stayed 0. `journeyArrived` waits for the bus; the bus-journey e2e now checks bus km (0 on the old code).
+- Starting at the stop counted the bus line again as walking (`tripKm`, `walkIsLine`); the konbini quest read live planner state instead of the trip as started; the off-route chime could play on the bus or in a preview; after Reset, today's quests stayed empty.
+- Accessibility: focus ring 1.6:1 → dark amber ≥ 3:1 (tested); rider-card dialog traps Tab and returns focus; title screen keeps Tab on its button and hands focus to search; the blink stays ≥ 4.5:1; stamp status is the badge's own alt text; level cards show the Japanese name.
+- Copy: the share notice said "no visit dates", but the first-stamp day travels; now it says exactly what is shared.
+- Spec decisions recorded: no dark mode exists, so no night palette in v1.6; the konbini quest is offered every day (it only finishes on a navigated trip).
+- Test bug found on the way: `name: "OK"` matched the HUD's "R**ook**ie" label (Playwright names are case-insensitive substrings) → `exact: true`.
+
 ## Checkpoint O: v1.6 done
-- [ ] Gates green; full e2e unchanged plus the new flows; adversarial review; phone check over the dev HTTPS server
+- [x] Gates green; unit 320; e2e dev 61/62 (the one failure is the open pre-existing pilot-drag flake, Task 67); `E2E_PROD=1` 57 passed, 4 dev-only skipped (before the review fixes)
+- [x] Adversarial review (3 lenses + refuting verifier): 15 confirmed, all fixed (Task 72b)
+- [ ] Phone check over the dev HTTPS server: needs the author's iPhone (title, HUD, check-in at a base, stamp moment, sound toggle)

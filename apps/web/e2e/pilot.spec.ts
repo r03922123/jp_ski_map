@@ -471,6 +471,19 @@ test.describe("bus journey", () => {
     await expect(
       page.getByRole("region", { name: "Bus journey" }),
     ).toContainText("You've arrived at Hakuba 47 Winter Sports Park");
+
+    // SPEC-progression: the journey counts when the bus arrives, with its ride
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => JSON.parse(localStorage.getItem("hakuba:rider") ?? "{}").stats,
+        ),
+      )
+      .toMatchObject({ trips: 1 });
+    const stats = await page.evaluate(
+      () => JSON.parse(localStorage.getItem("hakuba:rider") ?? "{}").stats,
+    );
+    expect(stats.km.bus).toBeGreaterThan(1);
   });
 });
 

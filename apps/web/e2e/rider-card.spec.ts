@@ -15,16 +15,18 @@ test("stamp a world, rename, share a read-only card, then reset", async ({
     .filter({ hasText: "Hakuba Happo-One" });
   await card.getByText("Details").click();
   await card.getByRole("button", { name: "Check in" }).click();
-  await page.getByRole("button", { name: "OK" }).click({ timeout: 15_000 });
+  await page
+    .getByRole("button", { name: "OK", exact: true })
+    .click({ timeout: 15_000 });
 
   await page.getByRole("button", { name: "Rider card" }).click();
   const dialog = page.getByRole("dialog", { name: "Rider card" });
   await expect(dialog).toContainText("First Tracks · 1/10 stamps");
   await expect(
-    dialog.getByRole("listitem", { name: /World 5, .*: stamped \d{4}-/ }),
+    dialog.getByRole("img", { name: /World 5, .*: stamped \d{4}-/ }),
   ).toBeVisible();
   await expect(
-    dialog.getByRole("listitem", { name: /World 1, .*: not yet/ }),
+    dialog.getByRole("img", { name: /World 1, .*: not yet/ }),
   ).toBeVisible();
 
   const name = dialog.getByLabel("Name");

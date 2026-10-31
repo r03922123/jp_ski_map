@@ -14,7 +14,7 @@ import {
 } from "@/lib/game/quests";
 import { emptyRider, type RiderState } from "@/lib/game/rider";
 import { recordVisit } from "@/lib/game/stamps";
-import { addTrip, coveredKm } from "@/lib/game/stats";
+import { addTrip, coveredKm, journeyArrived, tripKm } from "@/lib/game/stats";
 
 const resorts = JSON.parse(
   readFileSync("../../data/resorts.json", "utf8"),
@@ -137,5 +137,36 @@ describe("stats: pilot trips only", () => {
     expect(coveredKm(1250, 3000)).toBe(1.25);
     expect(coveredKm(3500, 3000)).toBe(3);
     expect(coveredKm(-5, 3000)).toBe(0);
+  });
+});
+
+describe("when a journey counts (review fixes)", () => {
+  it("a bus journey arrives with the bus, not at the end of the walk to the stop", () => {
+    expect(journeyArrived(null, "arrived")).toBe(true);
+    expect(journeyArrived("wait", "arrived")).toBe(false); // the walk leg finished
+    expect(journeyArrived("ride", "arrived")).toBe(false);
+    expect(journeyArrived("arrived", "arrived")).toBe(true);
+  });
+
+  it("km by mode: drive/walk the route; a bus journey its walk plus the ride", () => {
+    expect(tripKm({ mode: "drive", routeM: 8900 })).toEqual({ drive: 8.9 });
+    expect(tripKm({ mode: "walk", routeM: 400 })).toEqual({ walk: 0.4 });
+    expect(
+      tripKm({
+        mode: "bus",
+        routeM: 350,
+        bus: { alongM: 6200, lineM: 9000, walkIsLine: false },
+      }),
+    ).toEqual({ walk: 0.35, bus: 6.2 });
+  });
+
+  it("starting at the stop, the 'walk' leg is the bus line: no walking km", () => {
+    expect(
+      tripKm({
+        mode: "bus",
+        routeM: 9000,
+        bus: { alongM: 6200, lineM: 9000, walkIsLine: true },
+      }),
+    ).toEqual({ walk: 0, bus: 6.2 });
   });
 });

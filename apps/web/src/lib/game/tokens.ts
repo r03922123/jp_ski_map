@@ -20,7 +20,7 @@ export const TOKENS = {
   destructive: "#b3261e",
   border: "#b8c4ce",
   input: "#b8c4ce",
-  ring: "#d98e04", // amber
+  ring: "#8a5a00", // dark amber: focus rings need ≥ 3:1 on panels
   ink: "#22223a", // pixel frames
 } as const;
 
@@ -39,6 +39,13 @@ export const TEXT_PAIRS: [Token, Token][] = [
   ["accent-foreground", "accent"],
   ["destructive", "card"],
   ["primary", "card"],
+];
+
+/** Non-text pairs (WCAG 1.4.11): focus rings need 3:1 against what they sit on. */
+export const UI_PAIRS: [Token, Token][] = [
+  ["ring", "card"],
+  ["ring", "background"],
+  ["ring", "muted"],
 ];
 
 function luminance(hex: string): number {

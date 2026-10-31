@@ -54,7 +54,7 @@ A visit counts when you are **at** a resort:
 |---|---|---|
 | **Powder day:** "N cm fell at X: ride there today" | a resort's fresh snow is ≥ 10 cm (the biggest one) | a visit to X that day |
 | **New world:** "Explore X" | at least one resort has no stamp yet (the nearest unstamped one by drive time; else the lowest world number) | a stamp at X |
-| **Konbini break:** "Stop at a konbini on the way" | always, on days with a planned trip | a pilot trip with a convenience-store stop arrives |
+| **Konbini break:** "Stop at a konbini on the way" | every day (it only finishes on a navigated trip, so it never nags) | a pilot trip with a convenience-store stop (or to one) arrives |
 
 - Quests expire at midnight JST. A done quest stays in the log.
 - If the snow data can't be loaded, Powder day isn't offered that day. Quests never show a made-up number.

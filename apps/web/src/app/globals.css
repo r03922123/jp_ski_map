@@ -66,7 +66,7 @@
   --destructive: #b3261e;
   --border: #b8c4ce;
   --input: #b8c4ce;
-  --ring: #d98e04;
+  --ring: #8a5a00;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -121,7 +121,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
     @apply bg-background text-foreground;
@@ -169,7 +169,7 @@
 }
 @keyframes title-blink {
   50% {
-    opacity: 0.35;
+    opacity: 0.75; /* still ≥ 4.5:1 on the navy */
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -30,6 +30,9 @@ export function useDailyQuests() {
   const now = useNow(60_000);
   const date = now.getTime() === 0 ? null : jstDate(now);
   const settled = date !== null && resorts.isSuccess && !snow.isPending;
+  // a reset empties the log: make today's set again
+  const noneToday = date !== null && todaysQuests(rider, date).length === 0;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: noneToday re-runs it after a reset
   useEffect(() => {
     if (!settled || !date || !resorts.data) return;
     const fresh = snow.data?.map((s) => ({
@@ -39,7 +42,7 @@ export function useDailyQuests() {
     riderStore.update((s) =>
       syncQuests(s, date, questsFor(date, s, resorts.data, fresh ?? null)),
     );
-  }, [settled, date, resorts.data, snow.data]);
+  }, [settled, date, resorts.data, snow.data, noneToday]);
   if (!date) return [];
   return todaysQuests(rider, date).map((q) => ({
     ...questOf(q.id),

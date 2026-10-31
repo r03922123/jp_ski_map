@@ -28,7 +28,7 @@ test.describe("check in at the base", () => {
     await expect(
       page.getByRole("status").filter({ hasText: "World 5" }),
     ).toContainText("Hakuba Happo-One Snow Resort");
-    await page.getByRole("button", { name: "OK" }).click();
+    await page.getByRole("button", { name: "OK", exact: true }).click();
 
     // nothing about the position is stored: just the resort and the day
     const stored = await page.evaluate(() =>
@@ -116,5 +116,43 @@ test.describe("a trip that ends at the base", () => {
     expect(stats.trips).toBe(1);
     expect(stats.km.walk).toBeGreaterThan(0.3);
     expect(stats.km.drive).toBe(0);
+  });
+});
+
+test.describe("a preview from far away", () => {
+  test.use({
+    isMobile: true,
+    hasTouch: true,
+    permissions: ["geolocation"],
+    geolocation: { latitude: 35.68, longitude: 139.76 }, // Tokyo
+  });
+
+  test("plays to the resort but earns nothing: no stamp, no trip, no km", async ({
+    page,
+  }) => {
+    test.setTimeout(240_000); // the preview really walks the ~400 m (about 90 s)
+    await page.goto("/?from=36.70052,137.84132&mode=walk&resort=happo-one");
+    await page
+      .getByRole("button", { name: "Preview route" })
+      .click({ timeout: 20_000 });
+    await expect(page.locator("[data-nav-phase]")).toHaveAttribute(
+      "data-nav-phase",
+      "arrived",
+      {
+        timeout: 150_000, // the preview walks the ~400 m at 5 m/s
+      },
+    );
+    await page.waitForTimeout(1000);
+    await expect(page.getByText("Stamp earned!")).toHaveCount(0);
+    const rider = JSON.parse(
+      (await page.evaluate(() => localStorage.getItem("hakuba:rider"))) ?? "{}",
+    );
+    expect(rider.stamps ?? {}).toEqual({});
+    expect(rider.stats?.trips ?? 0).toBe(0);
+    await page.getByRole("button", { name: "Exit navigation" }).click();
+    const after = JSON.parse(
+      (await page.evaluate(() => localStorage.getItem("hakuba:rider"))) ?? "{}",
+    );
+    expect(after.stats?.km.walk ?? 0).toBe(0);
   });
 });

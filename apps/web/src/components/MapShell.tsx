@@ -52,7 +52,7 @@ import { readRiderHash } from "@/lib/game/rider-share";
 import { sfx } from "@/lib/game/sfx";
 import { earnVisit } from "@/lib/game/stamp-moment";
 import { arrivedAt, jstDate } from "@/lib/game/stamps";
-import { addTrip, coveredKm } from "@/lib/game/stats";
+import { addTrip, coveredKm, journeyArrived, tripKm } from "@/lib/game/stats";
 import { worldNumbers } from "@/lib/game/worlds";
 import {
   buzz,
@@ -422,6 +422,12 @@ export function MapShell() {
   // Pilot (turn-by-turn): the route is frozen at Start; GPS (or a simulation) drives it.
   const [pilotRoute, setPilotRoute] = useState<Route | null>(null);
   const tripCounted = useRef(false);
+  // SPEC-progression: only a trip on real GPS earns stamps or counts (never a preview or
+  // ?simulate); captured at Start, so later planner edits can't change what was ridden
+  const realTrip = useRef(false);
+  const konbiniTrip = useRef(false);
+  /** the bus journey started at the stop: its "walk" leg is the bus line itself */
+  const walkIsLine = useRef(false);
   // SPEC-progression: your rider card, or someone's from a #rider= link
   const [riderOpen, setRiderOpen] = useState(false);
   const [riderCode, setRiderCode] = useState<string | null>(null);
@@ -492,6 +498,13 @@ export function MapShell() {
       process.env.NODE_ENV !== "production" && simulateRequested();
     sfx().play("confirm");
     tripCounted.current = false; // a new trip for the rider's stats
+    realTrip.current = !asPreview && !simulate;
+    konbiniTrip.current =
+      mode !== "bus" &&
+      ((point === null &&
+        poiCategory === "convenience" &&
+        selectedPoi !== null) ||
+        filledStops.some((st) => isKonbini(st.name)));
     if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
     firstFixChecked.current = false;
     setPreview(asPreview ? "chosen" : null);
@@ -528,20 +541,27 @@ export function MapShell() {
     setBusPlan(plan);
     setBusState(initialBus());
     // the walk to the boarding stop; already there → the bus line stands in
+    walkIsLine.current = !routes[0];
     beginPilot(routes[0] ?? plan.line.route, busChoice.boardStopCoord);
   };
   const exitPilot = () => {
-    if (pilotRoute && !tripCounted.current && pilot.route) {
+    if (
+      pilotRoute &&
+      realTrip.current &&
+      !preview &&
+      !tripCounted.current &&
+      pilot.route
+    ) {
       tripCounted.current = true;
       const along = pilot.nav.lastGood?.alongM ?? 0;
       const km =
         busPlan && busPhase === "ride"
           ? { bus: coveredKm(busState.alongM, busPlan.line.totalM) }
           : {
-              [busPlan || mode === "walk" ? "walk" : "drive"]: coveredKm(
-                along,
-                pilot.route.totalM,
-              ),
+              [busPlan || mode === "walk" ? "walk" : "drive"]:
+                busPlan && walkIsLine.current
+                  ? 0
+                  : coveredKm(along, pilot.route.totalM),
             };
       riderStore.update((s) => addTrip(s, km, false));
     }
@@ -606,10 +626,11 @@ export function MapShell() {
   }, [pilot.phase === "arrived"]);
   // SPEC-progression: a trip that ends at a resort's base earns its stamp (the
   // position is compared and dropped; only the resort and the day are kept)
-  const tripArrived = pilot.phase === "arrived" || busPhase === "arrived";
+  // a bus journey arrives with the bus (its pilot route is only the walk to the stop)
+  const tripArrived = journeyArrived(busPhase, pilot.phase);
   // biome-ignore lint/correctness/useExhaustiveDependencies: once, on arrival
   useEffect(() => {
-    if (!tripArrived) return;
+    if (!tripArrived || preview || !realTrip.current) return;
     if (pilot.fix && resorts.data) {
       const at = arrivedAt(resorts.data, pilot.fix);
       if (at) earnVisit(at, worldNumbers(resorts.data).get(at.id) ?? 0);
@@ -617,27 +638,33 @@ export function MapShell() {
     if (tripCounted.current) return;
     tripCounted.current = true;
     // stats: a navigated trip that arrived; a konbini on the way finishes that quest
-    const routeKm = (pilot.route?.totalM ?? 0) / 1000;
-    const km = busPlan
-      ? {
-          walk: routeKm,
-          bus: coveredKm(busState.alongM, busPlan.line.totalM),
-        }
-      : { [mode === "walk" ? "walk" : "drive"]: routeKm };
-    const konbini =
-      (poiCategory === "convenience" && selectedPoi !== null) ||
-      stops.some((st) => st.place && isKonbini(st.place.name));
+    const km = tripKm({
+      mode: busPlan ? "bus" : mode === "walk" ? "walk" : "drive",
+      routeM: pilot.route?.totalM ?? 0,
+      bus: busPlan
+        ? {
+            alongM: busState.alongM,
+            lineM: busPlan.line.totalM,
+            walkIsLine: walkIsLine.current,
+          }
+        : undefined,
+    });
     riderStore.update((s) => {
       const next = addTrip(s, km, true);
-      return konbini ? completeKonbini(next, jstDate(new Date())) : next;
+      return konbiniTrip.current
+        ? completeKonbini(next, jstDate(new Date()))
+        : next;
     });
   }, [tripArrived]);
   // SPEC-game-theme: the bus has come (boarding), and leaving the route
   useEffect(() => {
     if (busPhase === "ride") sfx().play("bus");
   }, [busPhase]);
+  // only where the off-route banner shows (not on the bus, not in a preview)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the phase change is the cue
   useEffect(() => {
-    if (pilot.phase === "offRoute") sfx().play("offRoute");
+    if (pilot.phase === "offRoute" && !pastWalk && !preview)
+      sfx().play("offRoute");
   }, [pilot.phase]);
   const riding =
     busPlan && busState.phase === "ride" ? rideView(busPlan, busState) : null;

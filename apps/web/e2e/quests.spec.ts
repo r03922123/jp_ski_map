@@ -42,7 +42,7 @@ test("a powder day at the nearest new world: checking in there finishes both que
   await expect(page.getByText("Stamp earned!").first()).toBeVisible({
     timeout: 15_000,
   });
-  await page.getByRole("button", { name: "OK" }).click();
+  await page.getByRole("button", { name: "OK", exact: true }).click();
 
   await expect(
     page.getByRole("button", { name: /^Quests, 1 open/ }),

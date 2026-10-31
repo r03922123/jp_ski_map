@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
+  type KeyboardEvent,
   type ReactNode,
   useEffect,
   useId,
@@ -60,7 +61,6 @@ function CardBody({
           return (
             <li
               key={r.id}
-              aria-label={`World ${n}, ${r.name.en}: ${at ? `stamped ${at}` : "not yet"}`}
               data-stamped={at ? "true" : "false"}
               className="flex justify-center"
             >
@@ -68,7 +68,7 @@ function CardBody({
                 id={`world-${n}`}
                 sprite={worldBadge(n)}
                 scale={2}
-                alt=""
+                alt={`World ${n}, ${r.name.en}: ${at ? `stamped ${at}` : "not yet"}`}
                 className={at ? "" : "opacity-30 grayscale"}
               />
             </li>
@@ -89,6 +89,26 @@ function CardBody({
   );
 }
 
+/** Tab and Shift+Tab wrap around inside a modal dialog. */
+function trapTab(e: KeyboardEvent<HTMLElement>, root: HTMLElement | null) {
+  const items = Array.from(
+    root?.querySelectorAll<HTMLElement>(
+      "button:not([disabled]), input, [href], select, textarea, [tabindex]:not([tabindex='-1'])",
+    ) ?? [],
+  );
+  if (items.length === 0) return;
+  const first = items[0];
+  const last = items[items.length - 1];
+  const at = document.activeElement;
+  if (e.shiftKey && (at === first || at === root)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && at === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
 function Dialog({
   title,
   onClose,
@@ -100,7 +120,12 @@ function Dialog({
 }) {
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => ref.current?.focus(), []);
+  // focus moves in, and back to whatever opened the dialog when it closes
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    ref.current?.focus();
+    return () => opener?.focus();
+  }, []);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 md:items-center">
       <div
@@ -112,6 +137,7 @@ function Dialog({
         className="pixel-frame m-2 flex max-h-[85dvh] w-full max-w-sm flex-col gap-3 overflow-y-auto p-4 outline-none"
         onKeyDown={(e) => {
           if (e.key === "Escape") onClose();
+          if (e.key === "Tab") trapTab(e, ref.current);
         }}
       >
         <div className="flex items-center gap-2">
@@ -211,8 +237,8 @@ export function MyRiderCard({ onClose }: { onClose: () => void }) {
       </div>
       {link && (
         <p className="text-xs">
-          Link copied. Anyone with it sees this card (no visit dates, no
-          places):
+          Link copied. Anyone with it sees your name, stats and the day each
+          stamp was first earned (no other visits, no positions):
           <input
             readOnly
             aria-label="Rider card link"

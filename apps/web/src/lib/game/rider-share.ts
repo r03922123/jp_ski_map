@@ -4,7 +4,8 @@ import { fromBase64url, toBase64url } from "@/lib/saved-share";
 /**
  * Share a rider card as a link: `/#rider=<base64url JSON>` (SPEC-progression). Like
  * saved-list links it rides in the URL fragment, so it never reaches a server. The
- * receiver only views it; nothing is imported. Visit dates are never included.
+ * receiver only views it; nothing is imported. Only the day each stamp was first earned
+ * travels: never later visits, never positions.
  * Payload: `{ v: 1, n: name, s: [[resortId, firstAt], …], k: [bus, drive, walk], t: trips }`.
  */
 export const MAX_CODE = 4000;

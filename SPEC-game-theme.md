@@ -62,7 +62,8 @@ The order comes from `resorts.json` by northernmost access point. A test checks 
 - **Level card:** a world badge, the resort name (EN and JA), stamp state, then the same facts as today
   (ETA, fresh snow, crowd...).
 - **Buttons:** chunky, with a 2 px press-down offset. Every control keeps its current accessible name.
-- **Colour:** text contrast ≥ 4.5:1 (checked by a test on the theme tokens). Dark mode is a night-skiing palette.
+- **Colour:** text contrast ≥ 4.5:1 (checked by a test on the theme tokens), focus rings ≥ 3:1. The app has no dark mode today; a
+  night-skiing palette comes with one (not part of v1.6).
 
 ## Sound
 - **Chiptune effects synthesised with the Web Audio API** (square and triangle oscillators, short envelopes)
@@ -92,7 +93,7 @@ The order comes from `resorts.json` by northernmost access point. A test checks 
 - [ ] Every sprite is valid: every row of every frame has the declared width, uses only palette indices, and matches the pose table.
 - [ ] `gameStyle` keeps every layer id, source and layout property of the base style and changes only paint; the snapshot of changed properties is reviewed.
 - [ ] W1–W10 are assigned north to south, every resort has exactly one, and the order is stable.
-- [ ] Theme tokens meet 4.5:1 text contrast in light and dark.
+- [ ] Theme tokens meet 4.5:1 text contrast and 3:1 for focus rings (light theme; there is no dark mode yet).
 - [ ] Sound is off on first load; turning it on plays `select`; the choice survives a reload; no AudioContext exists before a gesture.
 - [ ] Reduced motion: no animation frames advance, and no snow particles appear.
 - [ ] Every e2e test that finds controls by role and name passes unchanged (the theme changes look, not semantics).

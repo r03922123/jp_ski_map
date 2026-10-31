@@ -52,3 +52,28 @@ describe("TitleScreen", () => {
     expect(document.cookie).toContain(`${TITLE_COOKIE}=seen`);
   });
 });
+
+describe("TitleScreen focus (review fixes)", () => {
+  beforeEach(clearCookie);
+
+  it("Tab stays on the start button, and starting hands focus to the search box", () => {
+    render(
+      <main>
+        <input
+          role="combobox"
+          aria-label="Search hotel or place"
+          aria-expanded={false}
+          aria-controls="x"
+        />
+        <TitleScreen />
+      </main>,
+    );
+    const start = screen.getByRole("button", { name: /tap to start/i });
+    fireEvent.keyDown(start, { key: "Tab" });
+    expect(start).toHaveFocus();
+    act(() => fireEvent.click(start));
+    expect(
+      screen.getByRole("combobox", { name: "Search hotel or place" }),
+    ).toHaveFocus();
+  });
+});
