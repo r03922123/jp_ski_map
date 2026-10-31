@@ -92,7 +92,7 @@ Choices: game skin + progression; the real map, game-styled; original art and so
 Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats: [SPEC-progression.md](SPEC-progression.md).
 
 **Screens**
-- **Title screen**, first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: tap to start" (Enter or a tap; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
+- **Title screen**, first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: press start" (a tap, click or Enter; on a touch screen focus then lands on the sheet, not the search box, so no keyboard rises; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
 - **HUD** (top bar): rider name and title, stamps n/10, a quest-log button with a badge for active quests, and the sound toggle.
 - **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow, crowd...). The sort controls and the order work as today.
 - **Directions and navigation:** steps in dialog boxes. The hero sprite replaces the position puck; pose by mode, facing the direction of travel. Navigation keeps high-contrast banners.

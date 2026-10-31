@@ -21,14 +21,19 @@ test.describe("check in at the base", () => {
     page,
   }) => {
     await page.goto(DRIVE);
-    await checkInAtHappo(page);
-    await expect(page.getByText("Stamp earned!").first()).toBeVisible({
+    const card = await checkInAtHappo(page);
+    await expect(page.getByText("Stamp earned!")).toBeVisible({
       timeout: 15_000,
     });
+    // said once (T78): the card's own status says it checked in, the toast says the rest
+    await expect(page.getByText("Stamp earned!")).toHaveCount(1);
+    await expect(card.getByRole("status")).toHaveText("Checked in");
     await expect(
       page.getByRole("status").filter({ hasText: "World 5" }),
     ).toContainText("Hakuba Happo-One Snow Resort");
-    await page.getByRole("button", { name: "OK", exact: true }).click();
+    // Escape dismisses it, like the app's other pop-ups (T78)
+    await page.keyboard.press("Escape");
+    await expect(page.getByText("Stamp earned!")).toHaveCount(0);
 
     // nothing about the position is stored: just the resort and the day
     const stored = await page.evaluate(() =>

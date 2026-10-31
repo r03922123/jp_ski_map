@@ -14,7 +14,15 @@ export function StampMoment() {
   useEffect(() => {
     if (!moment) return;
     const id = setTimeout(() => stampMoment.dismiss(), 8000);
-    return () => clearTimeout(id);
+    // Escape dismisses it, like the app's other pop-ups
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") stampMoment.dismiss();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(id);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [moment]);
   return (
     <output

@@ -848,6 +848,7 @@ export function MapShell() {
   return (
     <main
       className="fixed inset-0"
+      aria-labelledby="app-title"
       data-map-loaded={loaded}
       data-route-points={routeData?.geometry.coordinates.length ?? 0}
       data-route-layers={routeLayers}
@@ -855,83 +856,9 @@ export function MapShell() {
       data-piloting={piloting}
       data-map-ride-stops={mapRide?.stops.length ?? 0}
     >
-      <MapView
-        resorts={resorts.data ?? []}
-        selectedResortId={selectedResortId}
-        origin={origin}
-        destination={mode === "bus" ? null : (target ?? null)}
-        routes={
-          pastWalk
-            ? [] // at the stop or on the bus: the bus line is the route now
-            : pilotRoute
-              ? [pilotRoute]
-              : routes
-        }
-        activeRoute={pilotRoute ? 0 : activeRoute}
-        onSelectRoute={setActiveRoute}
-        highlight={pilotRoute ? null : highlight}
-        ride={mapRide}
-        pilot={mapPilot}
-        lodging={lodgingPins}
-        busStop={busStop}
-        flyTo={flyTo}
-        onLoad={() => setLoaded(true)}
-        onViewChange={setView}
-        onPickOrigin={(coord) => {
-          // an open stop box takes the tap (Google: type, or put a point on the map)
-          if (placingStop) {
-            fillOpenStop({
-              id: pinId(coord),
-              name: "Dropped pin",
-              coord,
-              kind: "pin",
-            });
-            return;
-          }
-          setOrigin(coord);
-          setOriginName(null);
-          setOriginSource(null);
-        }}
-        stops={
-          mode === "bus"
-            ? []
-            : tripStops.flatMap((st) =>
-                st.place
-                  ? [{ coord: st.place.coord, name: st.place.name }]
-                  : [],
-              )
-        }
-        placingStop={placingStop}
-        onSelectResort={(id) => {
-          // while placing a stop, a resort marker is the stop, not a new destination
-          const r = placingStop
-            ? resorts.data?.find((x) => x.id === id)
-            : undefined;
-          const at = r?.accessPoints[0]?.coord;
-          if (r && at) {
-            fillOpenStop({
-              id: r.id,
-              name: r.name.en,
-              coord: at,
-              kind: "resort",
-            });
-            return;
-          }
-          selectResort(id);
-        }}
-        saved={savedMarkers}
-        onSelectSaved={(id) => {
-          const place = placingStop
-            ? savedState.places.find((p) => p.id === id)
-            : undefined;
-          if (place) {
-            fillOpenStop(place);
-            return;
-          }
-          setSavedFocus(id);
-          setSavedOpen(true);
-        }}
-      />
+      <h1 id="app-title" className="sr-only">
+        Hakuba Valley trip planner
+      </h1>
       {busPlan && pastWalk && (
         <BusPilotView
           plan={busPlan}
@@ -1152,6 +1079,85 @@ export function MapShell() {
           )}
         </BottomSheet>
       )}
+      {/* after the sheet in the DOM, so Tab reaches the search box before the map's
+          ~20 markers and links (T78); it paints below everything (z-index 0) */}
+      <MapView
+        resorts={resorts.data ?? []}
+        selectedResortId={selectedResortId}
+        origin={origin}
+        destination={mode === "bus" ? null : (target ?? null)}
+        routes={
+          pastWalk
+            ? [] // at the stop or on the bus: the bus line is the route now
+            : pilotRoute
+              ? [pilotRoute]
+              : routes
+        }
+        activeRoute={pilotRoute ? 0 : activeRoute}
+        onSelectRoute={setActiveRoute}
+        highlight={pilotRoute ? null : highlight}
+        ride={mapRide}
+        pilot={mapPilot}
+        lodging={lodgingPins}
+        busStop={busStop}
+        flyTo={flyTo}
+        onLoad={() => setLoaded(true)}
+        onViewChange={setView}
+        onPickOrigin={(coord) => {
+          // an open stop box takes the tap (Google: type, or put a point on the map)
+          if (placingStop) {
+            fillOpenStop({
+              id: pinId(coord),
+              name: "Dropped pin",
+              coord,
+              kind: "pin",
+            });
+            return;
+          }
+          setOrigin(coord);
+          setOriginName(null);
+          setOriginSource(null);
+        }}
+        stops={
+          mode === "bus"
+            ? []
+            : tripStops.flatMap((st) =>
+                st.place
+                  ? [{ coord: st.place.coord, name: st.place.name }]
+                  : [],
+              )
+        }
+        placingStop={placingStop}
+        onSelectResort={(id) => {
+          // while placing a stop, a resort marker is the stop, not a new destination
+          const r = placingStop
+            ? resorts.data?.find((x) => x.id === id)
+            : undefined;
+          const at = r?.accessPoints[0]?.coord;
+          if (r && at) {
+            fillOpenStop({
+              id: r.id,
+              name: r.name.en,
+              coord: at,
+              kind: "resort",
+            });
+            return;
+          }
+          selectResort(id);
+        }}
+        saved={savedMarkers}
+        onSelectSaved={(id) => {
+          const place = placingStop
+            ? savedState.places.find((p) => p.id === id)
+            : undefined;
+          if (place) {
+            fillOpenStop(place);
+            return;
+          }
+          setSavedFocus(id);
+          setSavedOpen(true);
+        }}
+      />
       {importCode && (
         <ImportDialog
           code={importCode}

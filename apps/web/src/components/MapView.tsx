@@ -343,7 +343,7 @@ export default function MapView({
       ref={mapRef}
       initialViewState={HAKUBA_VIEW}
       mapStyle={mapStyle}
-      style={{ position: "absolute", inset: 0 }}
+      style={{ position: "absolute", inset: 0, zIndex: 0 }}
       attributionControl={{
         customAttribution:
           'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> | Shuttle: <a href="https://www.hakubavalley.com/en/access_en/shuttlebus_en/" target="_blank" rel="noopener">Hakuba Valley</a> | Places: <a href="https://overturemaps.org/" target="_blank" rel="noopener">Overture Maps Foundation</a>',
@@ -555,8 +555,9 @@ export default function MapView({
             latitude={point.coord.lat}
             longitude={point.coord.lng}
             anchor="bottom"
-            // the chosen world's chip stays above the destination flag on the same spot
-            style={{ zIndex: selected ? 2 : undefined }}
+            // labels stay readable above the idle hero (z auto), and the chosen world's
+            // chip stays above the destination flag on the same spot
+            style={{ zIndex: selected ? 2 : 1 }}
             onClick={(e) => {
               e.originalEvent.stopPropagation();
               onSelectResort(r.id);

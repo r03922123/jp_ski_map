@@ -12,7 +12,7 @@ test.describe("the title screen", () => {
     const title = page.getByRole("dialog", { name: "Hakuba Valley" });
     await expect(title).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /tap to start/i }),
+      page.getByRole("button", { name: /^press start$/i }),
     ).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(title).toHaveCount(0);

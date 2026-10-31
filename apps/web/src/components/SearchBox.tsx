@@ -81,7 +81,7 @@ export function SearchBox({
   near = null,
   label,
   ariaLabel = "Search hotel or place",
-  placeholder = "Search hotel, stop, resort… or paste a Google Maps link",
+  placeholder = "Search or paste a Maps link",
   clearLabel = "Clear starting point",
   alwaysClearable = false,
   autoFocus = false,

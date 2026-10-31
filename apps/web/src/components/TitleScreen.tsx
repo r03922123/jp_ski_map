@@ -98,7 +98,7 @@ export function TitleScreen() {
         onClick={begin}
         className="title-start border-4 border-[#fffaf0] px-6 py-2 text-xl"
       >
-        Tap to start
+        Press start
       </button>
     </div>
   );

@@ -42,7 +42,7 @@ describe("TitleScreen", () => {
 
   it("starts on Enter (or a tap) and remembers it for the session", () => {
     render(<TitleScreen />);
-    const start = screen.getByRole("button", { name: /tap to start/i });
+    const start = screen.getByRole("button", { name: /^press start$/i });
     expect(
       screen.getByRole("dialog", { name: "Hakuba Valley" }),
     ).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe("TitleScreen focus (review fixes)", () => {
         <TitleScreen />
       </main>,
     );
-    const start = screen.getByRole("button", { name: /tap to start/i });
+    const start = screen.getByRole("button", { name: /^press start$/i });
     fireEvent.keyDown(start, { key: "Tab" });
     expect(start).toHaveFocus();
     act(() => fireEvent.click(start));
@@ -100,7 +100,7 @@ describe("TitleScreen focus (review fixes)", () => {
         </main>,
       );
       act(() =>
-        fireEvent.click(screen.getByRole("button", { name: /to start/i })),
+        fireEvent.click(screen.getByRole("button", { name: /^press start$/i })),
       );
       expect(screen.getByRole("region", { name: "Directions" })).toHaveFocus();
     } finally {

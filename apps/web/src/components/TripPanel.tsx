@@ -96,7 +96,7 @@ export function TripPanel({
                 <SearchBox
                   ariaLabel={`Stop ${i + 1}`}
                   // the hint lives here: a line under the box would sit under its dropdown
-                  placeholder="Type a place, or tap the map"
+                  placeholder="Search, or tap the map"
                   clearLabel={`Remove stop ${i + 1}`}
                   alwaysClearable
                   near={near}

@@ -43,8 +43,9 @@ export function CheckInButton({ resortId }: { resortId: string }) {
         }
         const { stamped, visited } = earnVisit(resort, world);
         setStatus(
+          // the stamp moment announces the stamp itself; saying it here too doubled it
           stamped
-            ? "Stamp earned!"
+            ? "Checked in"
             : visited
               ? "Visit logged for today"
               : "Already checked in today",

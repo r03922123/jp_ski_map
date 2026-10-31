@@ -144,3 +144,40 @@ test("double-click zooms without moving the start; a single click still moves it
     .poll(() => new URL(page.url()).searchParams.get("from"))
     .not.toBe(startBefore);
 });
+
+// T78: the search box is the first stop for the keyboard (it was behind ~20 map
+// markers and attribution links), and the page has a top-level heading
+test("Tab reaches the search box first; the page has an h1", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+    timeout: 15_000,
+  });
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("combobox", { name: "Search hotel or place" }),
+  ).toBeFocused();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+});
+
+// T78: standing at Happo village, the hero hid the Happo-One label; labels stay on top
+// (the hero takes no taps, so this is about reading the label)
+test("resort labels draw above the idle hero", async ({ page }) => {
+  await page.goto("/?from=36.6985,137.8376&mode=drive");
+  await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible({
+    timeout: 15_000,
+  });
+  const z = (el: Element) =>
+    Number.parseInt(
+      getComputedStyle(el.closest(".maplibregl-marker") ?? el).zIndex,
+      10,
+    ) || 0;
+  const hero = await page
+    .getByRole("img", { name: "Starting point" })
+    .evaluate(z);
+  const chip = await page
+    .locator("[data-resort-marker='happo-one']")
+    .evaluate(z);
+  expect(chip).toBeGreaterThan(hero);
+});
