@@ -56,9 +56,10 @@ test.describe("check in from the hotel", () => {
     ).toBeVisible({
       timeout: 15_000,
     });
-    expect(
-      await page.evaluate(() => localStorage.getItem("hakuba:rider")),
-    ).toBeNull();
+    const rider = await page.evaluate(() =>
+      localStorage.getItem("hakuba:rider"),
+    );
+    expect(JSON.parse(rider ?? "{}").stamps ?? {}).toEqual({});
   });
 });
 
@@ -107,5 +108,13 @@ test.describe("a trip that ends at the base", () => {
       },
     );
     await expect(page.getByText("Stamp earned!").first()).toBeVisible();
+
+    // the rider's stats count the navigated trip, by mode
+    const stats = await page.evaluate(
+      () => JSON.parse(localStorage.getItem("hakuba:rider") ?? "{}").stats,
+    );
+    expect(stats.trips).toBe(1);
+    expect(stats.km.walk).toBeGreaterThan(0.3);
+    expect(stats.km.drive).toBe(0);
   });
 });

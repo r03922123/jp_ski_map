@@ -667,8 +667,9 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 ## Task 69: Stamps: arrival and check-in ✅
 **Acceptance:** a pilot arrival within 150 m of a resort access point stamps it (200 m doesn't); "Check in" on a resort card takes one fix: ≤ 300 m and accuracy ≤ 100 m counts, else the distance or accuracy message; one visit per JST day; the stamp moment (dialog, sound, aria-live); no position stored. **Files:** `lib/game/stamps.ts`, `ResortList.tsx`, pilot arrival hook, `components/StampMoment.tsx`, tests, e2e. **Scope:** M
 
-## Task 70: Quests + stats
+## Task 70: Quests + stats ✅
 **Acceptance:** `questsFor(date, rider, resorts, snow)` deterministic (powder ≥ 10 cm biggest, none without snow data; new world; konbini break), ≤ 3, expire at JST midnight; done by visits/trips; quest log; km by mode and trips from pilot trips only. **Files:** `lib/game/quests.ts`, `lib/game/stats.ts`, `components/QuestLog.tsx`, tests. **Scope:** M
+**Done:** a day's set is saved the first time it's made (else earning the stamp would swap "Explore X" for the next world); details travel in the quest id; powder uses the snow API's past-24 h fresh snow; new world uses world order (drive-time order is supported but not wired yet: the ranking lives in the drive panel); konbini by chain name (EN/JA) on a stop or a convenience destination. Stats at arrival (route km; bus = distance along the line) or at exit (distance covered, no trip). The clock is read after mount (`useNow`): `new Date()` while rendering is an unstable value under Cache Components (caught by the clean-console e2e).
 
 ## Task 71: Rider card + share + reset
 **Acceptance:** card with name, title, W1–W10 stamp grid, stats, quests; `#rider=` read-only share (round-trip; tampered/oversized rejected); reset behind confirm. **Files:** `components/RiderCard.tsx`, `lib/game/rider-share.ts`, tests. **Scope:** S

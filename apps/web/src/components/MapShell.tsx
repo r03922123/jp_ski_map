@@ -17,6 +17,7 @@ import {
 } from "@/components/ModePanel";
 import { PilotView } from "@/components/PilotView";
 import { PoiList, type PoiListState } from "@/components/PoiList";
+import { QuestLog } from "@/components/QuestLog";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import { SoundToggle } from "@/components/SoundToggle";
@@ -39,9 +40,12 @@ import {
 } from "@/lib/api";
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
+import { completeKonbini, isKonbini } from "@/lib/game/quests";
+import { riderStore } from "@/lib/game/rider";
 import { sfx } from "@/lib/game/sfx";
 import { earnVisit } from "@/lib/game/stamp-moment";
-import { arrivedAt } from "@/lib/game/stamps";
+import { arrivedAt, jstDate } from "@/lib/game/stamps";
+import { addTrip, coveredKm } from "@/lib/game/stats";
 import { worldNumbers } from "@/lib/game/worlds";
 import {
   buzz,
@@ -409,6 +413,7 @@ export function MapShell() {
 
   // Pilot (turn-by-turn): the route is frozen at Start; GPS (or a simulation) drives it.
   const [pilotRoute, setPilotRoute] = useState<Route | null>(null);
+  const tripCounted = useRef(false);
   const [pilotSource, setPilotSource] = useState<PositionSource | null>(null);
   const [following, setFollowing] = useState(true);
   // the destination stays fixed while reroutes replace the route
@@ -475,6 +480,7 @@ export function MapShell() {
     const simulate =
       process.env.NODE_ENV !== "production" && simulateRequested();
     sfx().play("confirm");
+    tripCounted.current = false; // a new trip for the rider's stats
     if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
     firstFixChecked.current = false;
     setPreview(asPreview ? "chosen" : null);
@@ -514,6 +520,20 @@ export function MapShell() {
     beginPilot(routes[0] ?? plan.line.route, busChoice.boardStopCoord);
   };
   const exitPilot = () => {
+    if (pilotRoute && !tripCounted.current && pilot.route) {
+      tripCounted.current = true;
+      const along = pilot.nav.lastGood?.alongM ?? 0;
+      const km =
+        busPlan && busPhase === "ride"
+          ? { bus: coveredKm(busState.alongM, busPlan.line.totalM) }
+          : {
+              [busPlan || mode === "walk" ? "walk" : "drive"]: coveredKm(
+                along,
+                pilot.route.totalM,
+              ),
+            };
+      riderStore.update((s) => addTrip(s, km, false));
+    }
     setPilotRoute(null);
     setPilotSource(null);
     setBusPlan(null);
@@ -578,9 +598,28 @@ export function MapShell() {
   const tripArrived = pilot.phase === "arrived" || busPhase === "arrived";
   // biome-ignore lint/correctness/useExhaustiveDependencies: once, on arrival
   useEffect(() => {
-    if (!tripArrived || !pilot.fix || !resorts.data) return;
-    const at = arrivedAt(resorts.data, pilot.fix);
-    if (at) earnVisit(at, worldNumbers(resorts.data).get(at.id) ?? 0);
+    if (!tripArrived) return;
+    if (pilot.fix && resorts.data) {
+      const at = arrivedAt(resorts.data, pilot.fix);
+      if (at) earnVisit(at, worldNumbers(resorts.data).get(at.id) ?? 0);
+    }
+    if (tripCounted.current) return;
+    tripCounted.current = true;
+    // stats: a navigated trip that arrived; a konbini on the way finishes that quest
+    const routeKm = (pilot.route?.totalM ?? 0) / 1000;
+    const km = busPlan
+      ? {
+          walk: routeKm,
+          bus: coveredKm(busState.alongM, busPlan.line.totalM),
+        }
+      : { [mode === "walk" ? "walk" : "drive"]: routeKm };
+    const konbini =
+      (poiCategory === "convenience" && selectedPoi !== null) ||
+      stops.some((st) => st.place && isKonbini(st.place.name));
+    riderStore.update((s) => {
+      const next = addTrip(s, km, true);
+      return konbini ? completeKonbini(next, jstDate(new Date())) : next;
+    });
   }, [tripArrived]);
   // SPEC-game-theme: the bus has come (boarding), and leaving the route
   useEffect(() => {
@@ -949,7 +988,10 @@ export function MapShell() {
                   </span>{" "}
                   Saved
                 </button>
-                <SoundToggle />
+                <span className="flex items-center gap-2">
+                  <QuestLog />
+                  <SoundToggle />
+                </span>
               </div>
             </div>
           }

@@ -8,6 +8,7 @@ export type Maneuver = Step["maneuver"];
 export type Coord = components["schemas"]["Coord"];
 export type Place = components["schemas"]["Place"];
 export type RankedResort = components["schemas"]["RankedResort"];
+export type SnowReport = components["schemas"]["SnowReport"];
 export type BusResult = components["schemas"]["BusResult"];
 export type BusOption = components["schemas"]["BusOption"];
 export type NightDeparture = components["schemas"]["NightDeparture"];
@@ -47,6 +48,7 @@ async function getJson<T>(path: string): Promise<T> {
 const latLng = (c: Coord) => `${c.lat},${c.lng}`;
 
 export const fetchResorts = () => getJson<Resort[]>("/api/resorts");
+export const fetchSnow = () => getJson<SnowReport[]>("/api/snow");
 
 export const fetchRoute = (mode: Mode, from: Coord, to: Coord) =>
   getJson<Route>(

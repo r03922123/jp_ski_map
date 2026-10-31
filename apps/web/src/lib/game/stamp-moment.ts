@@ -1,4 +1,5 @@
 import type { Resort } from "@/lib/api";
+import { completeVisitQuests } from "@/lib/game/quests";
 import { riderStore } from "@/lib/game/rider";
 import { sfx } from "@/lib/game/sfx";
 import { jstDate, recordVisit } from "@/lib/game/stamps";
@@ -34,11 +35,19 @@ export function earnVisit(
   world: number,
   at: Date = new Date(),
 ): { stamped: boolean; visited: boolean } {
-  const result = recordVisit(riderStore.getSnapshot(), resort.id, jstDate(at));
-  if (result.visited) riderStore.update(() => result.state);
+  const date = jstDate(at);
+  const result = recordVisit(riderStore.getSnapshot(), resort.id, date);
+  // a visit can finish today's powder or new-world quest
+  const next = completeVisitQuests(result.state, date);
+  const questDone = next.quests.some(
+    (q, i) => q.status === "done" && result.state.quests[i]?.status !== "done",
+  );
+  if (result.visited) riderStore.update(() => next);
   if (result.stamped) {
     sfx().play("stamp");
     stampMoment.show({ resortId: resort.id, name: resort.name.en, world });
+  } else if (questDone) {
+    sfx().play("quest");
   }
   return { stamped: result.stamped, visited: result.visited };
 }
