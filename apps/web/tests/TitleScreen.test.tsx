@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   shouldShowTitle,
   TITLE_COOKIE,
@@ -75,5 +75,36 @@ describe("TitleScreen focus (review fixes)", () => {
     expect(
       screen.getByRole("combobox", { name: "Search hotel or place" }),
     ).toHaveFocus();
+  });
+
+  // T77: on a phone, focusing the search box raises the keyboard over the map
+  it("on a touch screen, starting hands focus to the sheet, not the search box", () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query === "(pointer: coarse)",
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    }));
+    try {
+      render(
+        <main>
+          <section aria-label="Directions" data-sheet tabIndex={-1}>
+            <input
+              role="combobox"
+              aria-label="Search hotel or place"
+              aria-expanded={false}
+              aria-controls="x"
+            />
+          </section>
+          <TitleScreen />
+        </main>,
+      );
+      act(() =>
+        fireEvent.click(screen.getByRole("button", { name: /to start/i })),
+      );
+      expect(screen.getByRole("region", { name: "Directions" })).toHaveFocus();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

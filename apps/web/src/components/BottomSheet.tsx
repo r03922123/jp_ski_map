@@ -41,9 +41,12 @@ export function BottomSheet({
   return (
     <section
       aria-label={label}
+      // a place to hand focus without raising a phone's keyboard (the title screen)
+      data-sheet
+      tabIndex={-1}
       data-state={expanded ? "expanded" : "collapsed"}
       className={cn(
-        "pixel-frame fixed inset-x-1 bottom-1 z-10 flex flex-col transition-[height] duration-200",
+        "pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
         expanded ? "h-[80dvh]" : "h-[40dvh]",
         "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
       )}

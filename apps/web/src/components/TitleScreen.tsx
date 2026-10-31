@@ -50,8 +50,14 @@ export function TitleScreen() {
     // biome-ignore lint/suspicious/noDocumentCookie: a session cookie, read on this device only
     document.cookie = `${TITLE_COOKIE}=seen; path=/; SameSite=Lax`;
     setOpen(false);
-    // into the app: the first thing to do is search
-    document.querySelector<HTMLElement>("main [role='combobox']")?.focus();
+    // into the app: the first thing to do is search. On a touch screen focusing the
+    // box would raise the keyboard over the map, so focus lands on the sheet instead.
+    const touch = window.matchMedia?.("(pointer: coarse)").matches;
+    document
+      .querySelector<HTMLElement>(
+        touch ? "main [data-sheet]" : "main [role='combobox']",
+      )
+      ?.focus();
   };
   return (
     <div
