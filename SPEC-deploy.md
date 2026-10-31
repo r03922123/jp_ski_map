@@ -41,8 +41,9 @@ Map tiles come straight from OpenFreeMap to the browser, so they never touch our
   else to undo. Taking the site down is the rollback.
 - **Uptime is the Mac's uptime.** The site is down while the Mac sleeps, reboots, or is offline. The author
   changes the energy settings (Claude doesn't change system settings).
-- A script, `scripts/serve-public.sh`, builds, starts the three services, checks `/api/health`, then
-  turns Funnel on. `--stop` reverses it.
+- A script, `scripts/serve-public.sh`, starts the three services on their own ports (API :8011,
+  web :3000, so the dev servers keep running beside them), checks `/api/health` *through the web
+  rewrite*, and only then, with `--funnel`, turns Funnel on. `--stop` turns Funnel off first.
 
 ### Phase B: Oracle Always Free VM (after Phase A is live)
 - One Ampere A1 VM in the home region (Tokyo or Osaka if capacity allows), run with Docker Compose:
@@ -84,8 +85,9 @@ Map tiles come straight from OpenFreeMap to the browser, so they never touch our
 ## Commands
 ```bash
 infra/valhalla/build-hakuba.sh            # → infra/valhalla/custom_files/hakuba/tiles.tar (gitignored)
-scripts/serve-public.sh                   # build web, start valhalla + api + web, health check, funnel on
-scripts/serve-public.sh --stop            # funnel off, stop api + web
+scripts/serve-public.sh                   # valhalla + api (:8011) + production web (:3000), health check
+scripts/serve-public.sh --funnel          # ... then publish :3000 on https://<machine>.<tailnet>.ts.net (ask first)
+scripts/serve-public.sh --stop            # Funnel off first, then stop api + web (dev servers keep running)
 tailscale funnel status                   # what is public right now
 ```
 

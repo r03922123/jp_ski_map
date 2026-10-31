@@ -23,3 +23,6 @@ data/bus/raw/
 .env.*
 
 .DS_Store
+
+# scripts/serve-public.sh logs and PIDs
+.run/

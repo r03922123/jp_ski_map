@@ -626,7 +626,7 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 ## Task 61: Production web: security headers, no indexing, e2e on `next start` ✅
 **Acceptance:** `nosniff`, `Referrer-Policy`, `Permissions-Policy: geolocation=(self)`, `X-Frame-Options: DENY`; `/robots.txt` disallows all, plus a `noindex` meta tag; the e2e suite passes against a production build (`E2E_PROD=1`: 45 passed, 4 dev-only skipped; dev: 49/49). **Files:** `next.config.ts`, `app/robots.ts`, `app/layout.tsx`, `e2e/prod.spec.ts`. **Scope:** S
 
-## Task 62: `scripts/serve-public.sh` (+ `--stop`)
+## Task 62: `scripts/serve-public.sh` (+ `--stop`) ✅
 **Acceptance:** builds the web app, starts Valhalla + API + `next start`, waits for `/api/health`, then (only with `--funnel`) runs `tailscale funnel --bg 3000`; `--stop` turns Funnel off first, then stops the services. Refuses to publish if health fails. **Files:** `scripts/serve-public.sh`, SPEC-deploy commands. **Scope:** S
 
 ## Checkpoint M: Phase A ready
