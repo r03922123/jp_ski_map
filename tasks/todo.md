@@ -664,7 +664,7 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 ## Task 68: Rider store + titles ✅
 **Acceptance:** `hakuba:rider` validated store (corrupt → empty + raw kept; storage throws → session only), `useSyncExternalStore`, tab sync, rename (≤ 20 chars), titles at every threshold. **Files:** `lib/game/rider.ts`, tests. **Scope:** S
 
-## Task 69: Stamps: arrival and check-in
+## Task 69: Stamps: arrival and check-in ✅
 **Acceptance:** a pilot arrival within 150 m of a resort access point stamps it (200 m doesn't); "Check in" on a resort card takes one fix: ≤ 300 m and accuracy ≤ 100 m counts, else the distance or accuracy message; one visit per JST day; the stamp moment (dialog, sound, aria-live); no position stored. **Files:** `lib/game/stamps.ts`, `ResortList.tsx`, pilot arrival hook, `components/StampMoment.tsx`, tests, e2e. **Scope:** M
 
 ## Task 70: Quests + stats

@@ -1,8 +1,21 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  fireEvent,
+  render as rtlRender,
+  screen,
+  within,
+} from "@testing-library/react";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ResortList } from "@/components/ResortList";
 import { SortControls } from "@/components/SortControls";
 import type { RankedResort } from "@/lib/api";
+
+// resort cards carry a Check in button, which reads the resort catalog
+const render = (ui: ReactElement) =>
+  rtlRender(
+    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
+  );
 
 function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
   return {

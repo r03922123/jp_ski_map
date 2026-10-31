@@ -20,6 +20,7 @@ import { PoiList, type PoiListState } from "@/components/PoiList";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import { SoundToggle } from "@/components/SoundToggle";
+import { StampMoment } from "@/components/StampMoment";
 import { TripPanel, type TripStop } from "@/components/TripPanel";
 import {
   ApiError,
@@ -39,6 +40,9 @@ import {
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
 import { sfx } from "@/lib/game/sfx";
+import { earnVisit } from "@/lib/game/stamp-moment";
+import { arrivedAt } from "@/lib/game/stamps";
+import { worldNumbers } from "@/lib/game/worlds";
 import {
   buzz,
   dueAnnouncement,
@@ -569,6 +573,15 @@ export function MapShell() {
     if (pilot.phase === "arrived" && !muted && !busPlan)
       speak("You've arrived.");
   }, [pilot.phase === "arrived"]);
+  // SPEC-progression: a trip that ends at a resort's base earns its stamp (the
+  // position is compared and dropped; only the resort and the day are kept)
+  const tripArrived = pilot.phase === "arrived" || busPhase === "arrived";
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once, on arrival
+  useEffect(() => {
+    if (!tripArrived || !pilot.fix || !resorts.data) return;
+    const at = arrivedAt(resorts.data, pilot.fix);
+    if (at) earnVisit(at, worldNumbers(resorts.data).get(at.id) ?? 0);
+  }, [tripArrived]);
   // SPEC-game-theme: the bus has come (boarding), and leaving the route
   useEffect(() => {
     if (busPhase === "ride") sfx().play("bus");
@@ -1073,6 +1086,7 @@ export function MapShell() {
           }}
         />
       )}
+      <StampMoment />
     </main>
   );
 }

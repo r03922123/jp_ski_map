@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckInButton } from "@/components/CheckInButton";
 import type { RankedResort } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -110,6 +111,9 @@ export function ResortList({
               <summary className="cursor-pointer text-muted-foreground">
                 Details
               </summary>
+              <div className="mt-1">
+                <CheckInButton resortId={r.resortId} />
+              </div>
               <dl className="mt-1 grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
                 {FACTOR_ROWS.map(({ key, label, format }) => {
                   const value = r.factors[key];
