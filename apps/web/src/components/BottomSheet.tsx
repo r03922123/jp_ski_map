@@ -33,9 +33,9 @@ export function BottomSheet({
       aria-label={label}
       data-state={expanded ? "expanded" : "collapsed"}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-10 flex flex-col rounded-t-2xl bg-background shadow-[0_-4px_16px_rgb(0_0_0/0.15)] transition-[height] duration-200",
+        "pixel-frame fixed inset-x-1 bottom-1 z-10 flex flex-col transition-[height] duration-200",
         expanded ? "h-[80dvh]" : "h-[40dvh]",
-        "md:absolute md:inset-x-auto md:bottom-auto md:top-3 md:left-3 md:h-auto md:max-h-[calc(100dvh-1.5rem)] md:w-96 md:rounded-xl md:shadow-lg",
+        "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
       )}
     >
       <button

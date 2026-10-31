@@ -637,7 +637,7 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 
 ## Phase 15: Game theme (SPEC-game-theme v1.6)
 
-## Task 63: Theme foundation: font, tokens, frames
+## Task 63: Theme foundation: font, tokens, frames ✅
 **Acceptance:** DotGothic16 via `next/font/google` replaces Geist; snowy theme tokens (cream panels, ink text, pine/ice/amber accents) with a unit test that every text/background pair is ≥ 4.5:1; CSS utilities `.pixel-frame` (stepped border, no images) and chunky pressable buttons, applied to the sheet/panels and shadcn buttons; every e2e test passes unchanged. **Files:** `app/layout.tsx`, `app/globals.css`, `lib/game/tokens.ts`, `components/ui/button.tsx`, tests. **Scope:** M
 
 ## Task 64: Sprites in code + world numbers

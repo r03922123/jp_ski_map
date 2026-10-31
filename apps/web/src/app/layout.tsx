@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { DotGothic16 } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 
-const geistSans = Geist({
+// SPEC-game-theme: a pixel font that also covers Japanese (stop and hotel names). Self-hosted
+// at build; Japanese glyphs load on demand by unicode-range.
+const pixelFont = DotGothic16({
   variable: "--font-sans",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -22,7 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // __gcrremoteframetoken): ignore attribute differences on this element only.
     <html
       lang="en"
-      className={`${geistSans.variable} h-full antialiased`}
+      className={`${pixelFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="h-full">
