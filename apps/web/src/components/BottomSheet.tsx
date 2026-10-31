@@ -52,7 +52,10 @@ export function BottomSheet({
         type="button"
         aria-label={expanded ? "Collapse directions" : "Expand directions"}
         aria-expanded={expanded}
-        className="flex touch-none justify-center py-2 md:hidden"
+        // the bar is thin to save the sheet's height; its hit area reaches up over the
+        // map edge, so the target is 44 px tall (T75)
+        data-touch-exempt
+        className="relative flex touch-none justify-center py-2 before:absolute before:inset-x-0 before:-top-[22px] before:h-[22px] md:hidden"
         onPointerDown={(e) => {
           dragStartY.current = e.clientY;
           // keep getting the pointer when the finger leaves the thin handle

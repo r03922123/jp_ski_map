@@ -142,6 +142,57 @@
   }
 }
 
+/* T75: on touch screens every control is at least 44×44 CSS px (Apple's 44 pt; Android's
+   48 dp is about this at common densities). One rule, so a new button can't forget it.
+   Desktop keeps its compact sizes. Exempt with data-touch-exempt (the sheet handle grows
+   its hit area another way); map markers are annotations and keep their size. */
+@media (pointer: coarse) {
+  :is(
+      button,
+      [role="button"],
+      [role="tab"],
+      summary,
+      select,
+      input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+      label:has(> input:is([type="checkbox"], [type="radio"]))
+    ):not(.sr-only):not([data-touch-exempt]):not(.maplibregl-marker *) {
+    min-height: 44px;
+  }
+  :is(button, [role="button"], [role="tab"]):not(.sr-only):not(
+      [data-touch-exempt]
+    ):not(.maplibregl-marker *) {
+    min-width: 44px;
+  }
+  /* stays a list item, so it keeps its disclosure triangle */
+  summary {
+    padding-block: 12px;
+  }
+  label:has(> input:is([type="checkbox"], [type="radio"])) {
+    display: flex;
+    align-items: center;
+  }
+  /* a tab list has a fixed height on desktop; let the bigger tabs set it */
+  [data-slot="tabs-list"] {
+    height: auto;
+  }
+  .maplibregl-ctrl-group button {
+    width: 44px;
+    height: 44px;
+  }
+  /* the ⓘ keeps its 24 px look inside the attribution pill; its hit area reaches 10 px
+     past it, into the pill's margin (MapLibre's sheet loads later: match its weight) */
+  .maplibregl-ctrl-attrib summary.maplibregl-ctrl-attrib-button {
+    width: 44px;
+    height: 44px;
+    top: -10px;
+    right: -10px;
+    background-size: 24px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+  }
+}
+
 /* SPEC-game-theme: a stepped pixel border drawn with box-shadows (no images). The four
    outer shadows leave the corners notched, like a sprite's frame. */
 .pixel-frame {
