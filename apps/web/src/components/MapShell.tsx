@@ -19,6 +19,7 @@ import { PilotView } from "@/components/PilotView";
 import { PoiList, type PoiListState } from "@/components/PoiList";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
+import { SoundToggle } from "@/components/SoundToggle";
 import { TripPanel, type TripStop } from "@/components/TripPanel";
 import {
   ApiError,
@@ -37,6 +38,7 @@ import {
 } from "@/lib/api";
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
+import { sfx } from "@/lib/game/sfx";
 import {
   buzz,
   dueAnnouncement,
@@ -230,6 +232,7 @@ export function MapShell() {
 
   // Choosing a resort or nearby place replaces a saved place's "Go here".
   const selectResort = (id: string) => {
+    sfx().play("select");
     setSelectedResortId(id);
     setPoint(null);
   };
@@ -467,6 +470,7 @@ export function MapShell() {
   ) => {
     const simulate =
       process.env.NODE_ENV !== "production" && simulateRequested();
+    sfx().play("confirm");
     if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
     firstFixChecked.current = false;
     setPreview(asPreview ? "chosen" : null);
@@ -565,6 +569,13 @@ export function MapShell() {
     if (pilot.phase === "arrived" && !muted && !busPlan)
       speak("You've arrived.");
   }, [pilot.phase === "arrived"]);
+  // SPEC-game-theme: the bus has come (boarding), and leaving the route
+  useEffect(() => {
+    if (busPhase === "ride") sfx().play("bus");
+  }, [busPhase]);
+  useEffect(() => {
+    if (pilot.phase === "offRoute") sfx().play("offRoute");
+  }, [pilot.phase]);
   const riding =
     busPlan && busState.phase === "ride" ? rideView(busPlan, busState) : null;
   const busCue = busPhase ? `${busPhase}:${riding?.getOffNext ?? false}` : "";
@@ -909,21 +920,24 @@ export function MapShell() {
                     : null
                 }
               />
-              <button
-                type="button"
-                aria-label="Saved places"
-                aria-pressed={savedOpen}
-                className="self-start rounded-full border bg-background px-3 py-1 text-xs font-medium shadow-sm hover:bg-muted aria-pressed:bg-amber-50"
-                onClick={() => {
-                  setSavedFocus(null);
-                  setSavedOpen((v) => !v);
-                }}
-              >
-                <span aria-hidden="true" className="text-amber-500">
-                  ★
-                </span>{" "}
-                Saved
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  aria-label="Saved places"
+                  aria-pressed={savedOpen}
+                  className="self-start rounded-full border bg-background px-3 py-1 text-xs font-medium shadow-sm hover:bg-muted aria-pressed:bg-amber-50"
+                  onClick={() => {
+                    setSavedFocus(null);
+                    setSavedOpen((v) => !v);
+                  }}
+                >
+                  <span aria-hidden="true" className="text-amber-500">
+                    ★
+                  </span>{" "}
+                  Saved
+                </button>
+                <SoundToggle />
+              </div>
             </div>
           }
         >
@@ -938,7 +952,10 @@ export function MapShell() {
           ) : (
             <ModePanel
               mode={mode}
-              onModeChange={setMode}
+              onModeChange={(m) => {
+                sfx().play("select");
+                setMode(m);
+              }}
               resorts={resorts.data ?? []}
               selectedResortId={selectedResortId}
               onSelectResort={selectResort}
