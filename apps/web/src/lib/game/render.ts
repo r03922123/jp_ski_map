@@ -65,3 +65,19 @@ export function spriteCanvas(
   cache.set(id, canvas);
   return canvas;
 }
+
+/** A data URL of one frame, for <img> in markers and panels ("" outside the browser). */
+export function spriteUrl(
+  key: string,
+  sprite: Sprite,
+  frame = 0,
+  scale = 2,
+  mirrored = false,
+): string {
+  if (typeof document === "undefined") return "";
+  try {
+    return spriteCanvas(key, sprite, frame, scale, mirrored).toDataURL();
+  } catch {
+    return ""; // no canvas (tests without one)
+  }
+}

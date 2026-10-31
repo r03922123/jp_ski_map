@@ -11,8 +11,12 @@ import MapGL, {
   Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
+import { PixelSprite } from "@/components/PixelSprite";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
+import { ICONS, worldBadge } from "@/lib/game/sprites";
+import { useGameStyle } from "@/lib/game/use-game-style";
+import { worldNumbers } from "@/lib/game/worlds";
 import {
   HAKUBA_VIEW,
   MAP_STYLE_URL,
@@ -82,9 +86,9 @@ const SAVED_ICONS: Record<SavedMarker["icon"], string> = {
 const LODGING_LAYER = "lodging-pins";
 const ALT_HIT_LAYER = "route-alts-hit";
 
-const ROUTE_COLOR = "#2563eb";
-const ROUTE_CASING = "#1e3a8a";
-const ALT_COLOR = "#a3b1c6";
+// SPEC-game-theme: the chosen route is an overworld trail
+const TRAIL_INK = "#22223a";
+const TRAIL_GOLD = "#ffd25e";
 const RIDE_COLOR = "#0f766e"; // the line badge colour in the bus panel
 const RIDE_CASING = "#134e4a";
 const ALT_CASING = "#6b7a90";
@@ -146,6 +150,8 @@ export default function MapView({
   pilot = null,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
+  const mapStyle = useGameStyle(MAP_STYLE_URL);
+  const worlds = useMemo(() => worldNumbers(resorts), [resorts]);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
 
@@ -314,11 +320,12 @@ export default function MapView({
     });
   }
 
+  if (!mapStyle) return null; // the overworld style loads first (one fetch, as MapLibre would)
   return (
     <MapGL
       ref={mapRef}
       initialViewState={HAKUBA_VIEW}
-      mapStyle={MAP_STYLE_URL}
+      mapStyle={mapStyle}
       style={{ position: "absolute", inset: 0 }}
       attributionControl={{
         customAttribution:
@@ -396,13 +403,18 @@ export default function MapView({
           id="route-alts-casing"
           type="line"
           layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": ALT_CASING, "line-width": 8 }}
+          // no casing under the alternates: it would fill their dashes in
+          paint={{ "line-color": ALT_CASING, "line-width": 0 }}
         />
         <Layer
           id="route-alts-line"
           type="line"
           layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": ALT_COLOR, "line-width": 5 }}
+          paint={{
+            "line-color": ALT_CASING,
+            "line-width": 5,
+            "line-dasharray": [1.2, 1.6],
+          }}
         />
         {/* invisible, finger-sized tap target */}
         <Layer
@@ -448,8 +460,9 @@ export default function MapView({
           id="route-active-casing"
           type="line"
           layout={{ "line-cap": "round", "line-join": "round" }}
+          // the overworld path: an ink track (gold dashes on top by car)
           paint={{
-            "line-color": isWalk ? "#ffffff" : ROUTE_CASING,
+            "line-color": isWalk ? "#ffffff" : TRAIL_INK,
             "line-width": isWalk ? 0 : 9,
           }}
         />
@@ -458,10 +471,12 @@ export default function MapView({
           type="line"
           layout={{ "line-cap": "round", "line-join": "round" }}
           paint={{
-            "line-color": ROUTE_COLOR,
-            "line-width": isWalk ? 7 : 6,
+            "line-color": isWalk ? TRAIL_INK : TRAIL_GOLD,
+            "line-width": isWalk ? 7 : 4,
             // zero-length dashes with round caps draw as dots
-            "line-dasharray": isWalk ? [0, 1.6] : [1, 0],
+            // an overworld trail: footprint dots on foot, a dashed track by car
+            // (round caps add a line width to every dash, so the gap must be wider than 1)
+            "line-dasharray": isWalk ? [0, 1.6] : [1.5, 2],
           }}
         />
       </Source>
@@ -526,6 +541,8 @@ export default function MapView({
             latitude={point.coord.lat}
             longitude={point.coord.lng}
             anchor="bottom"
+            // the chosen world's chip stays above the destination flag on the same spot
+            style={{ zIndex: selected ? 2 : undefined }}
             onClick={(e) => {
               e.originalEvent.stopPropagation();
               onSelectResort(r.id);
@@ -536,11 +553,18 @@ export default function MapView({
               aria-label={r.name.en}
               aria-pressed={selected}
               data-resort-marker={r.id}
-              className={`rounded-full border-2 border-white px-2 py-0.5 text-xs font-semibold shadow ${
-                selected ? "bg-blue-600 text-white" : "bg-white text-slate-800"
+              className={`flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] ${
+                selected
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-card-foreground"
               }`}
             >
-              ⛷{" "}
+              <PixelSprite
+                id={`world-${worlds.get(r.id)}`}
+                sprite={worldBadge(worlds.get(r.id) ?? 0)}
+                scale={1.5}
+                alt=""
+              />
               {r.name.en.replace(
                 / (Snow Resort|Snow Field|Mountain Resort|Ski Resort.*)$/,
                 "",
@@ -625,13 +649,7 @@ export default function MapView({
 
       {busStop && (
         <Marker latitude={busStop.lat} longitude={busStop.lng} anchor="bottom">
-          <span
-            role="img"
-            aria-label="Bus stop"
-            className="text-2xl drop-shadow"
-          >
-            🚏
-          </span>
+          <PixelSprite id="stop" sprite={ICONS.stop} alt="Bus stop" />
         </Marker>
       )}
 
@@ -657,10 +675,10 @@ export default function MapView({
                   e.stopPropagation();
                   onSelectRoute?.(index);
                 }}
-                className={`mb-1 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-semibold shadow-md ring-1 ${
+                className={`mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] ${
                   index === activeRoute
-                    ? "bg-blue-600 text-white ring-blue-700"
-                    : "bg-white text-slate-700 ring-slate-300"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card text-card-foreground"
                 }`}
               >
                 {active?.mode === "walk" ? "🚶 " : "🚗 "}
@@ -692,23 +710,9 @@ export default function MapView({
           longitude={destination.lng}
           anchor="bottom"
           // nothing to tap: a press here is a press on the map (a pan must start)
-          style={{ pointerEvents: "none" }}
+          style={{ zIndex: 1, pointerEvents: "none" }}
         >
-          <svg
-            role="img"
-            aria-label="Destination"
-            width="28"
-            height="38"
-            viewBox="0 0 28 38"
-            className="drop-shadow"
-          >
-            <path
-              d="M14 0C6.3 0 0 6.2 0 13.9 0 24.3 14 38 14 38s14-13.7 14-24.1C28 6.2 21.7 0 14 0z"
-              fill="#dc2626"
-              stroke="#991b1b"
-            />
-            <circle cx="14" cy="14" r="5" fill="#7f1d1d" />
-          </svg>
+          <PixelSprite id="flag" sprite={ICONS.flag} alt="Destination" />
         </Marker>
       )}
 
