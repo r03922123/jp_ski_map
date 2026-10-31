@@ -677,8 +677,9 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 
 ## Phase 17: The adventure (SPEC-web-app v1.6)
 
-## Task 72: Title screen, HUD, level select
+## Task 72: Title screen, HUD, level select ✅
 **Acceptance:** title screen once per session (skipped by shared links and `?skip-title`, keyboard-operable, reduced motion); HUD with name, title, stamps n/10, quest badge, sound toggle; resort cards as level cards with world badge and stamp state in any sort order. **Files:** `components/TitleScreen.tsx`, `components/Hud.tsx`, `ResortList.tsx`, `MapShell.tsx`, tests, e2e. **Scope:** M
+**Done:** "seen the title" is a session cookie (`hakuba_title`): once per browser session, and Playwright's config presets it so every existing test runs unchanged (`e2e/title.spec.ts` clears it). Skipped for `from`/`resort`/`dest`/`skip-title` and `#import`/`#rider`; Enter or a tap starts; reduced motion hides the snow and stops the blink. HUD = the panel's top row: rider (name, title, ★ n/10) → rider card, quest log with its open count, sound. Level cards: world badge, "World N", ★ stamped / ☆ not yet; numbers stay with each resort in any sort order (e2e).
 
 ## Checkpoint O: v1.6 done
 - [ ] Gates green; full e2e unchanged plus the new flows; adversarial review; phone check over the dev HTTPS server

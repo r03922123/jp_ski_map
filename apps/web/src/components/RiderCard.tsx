@@ -250,16 +250,27 @@ export function SharedRiderCard({
   );
 }
 
-/** Opens your rider card. */
+/** The HUD's rider: name, title and stamps; opens your rider card. */
 export function RiderButton({ onOpen }: { onOpen: () => void }) {
+  const rider = useRider();
+  const worlds = useResorts().length;
+  const stamps = Object.keys(rider.stamps).length;
+  const title = titleFor(stamps, worlds);
   return (
     <button
       type="button"
-      aria-label="Rider card"
+      aria-label={`Rider card: ${rider.name}, ${title}, ${stamps} of ${worlds} stamps`}
       onClick={onOpen}
-      className="flex size-8 items-center justify-center overflow-hidden border-2 border-[var(--ink)] bg-card shadow-[2px_2px_0_var(--ink)] active:translate-y-0.5 active:shadow-none"
+      className="flex min-w-0 items-center gap-1.5 border-2 border-[var(--ink)] bg-card py-0.5 pr-2 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] active:translate-y-0.5 active:shadow-none"
     >
       <Hero pose="idle" alt="" scale={1} />
+      <span className="flex min-w-0 flex-col items-start leading-tight">
+        <span className="max-w-24 truncate">{rider.name}</span>
+        <span className="text-muted-foreground">{title}</span>
+      </span>
+      <span aria-hidden="true" className="ml-1 tabular-nums">
+        ★ {stamps}/{worlds}
+      </span>
     </button>
   );
 }

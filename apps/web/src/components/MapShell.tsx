@@ -27,6 +27,7 @@ import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import { SoundToggle } from "@/components/SoundToggle";
 import { StampMoment } from "@/components/StampMoment";
+import { TitleScreen } from "@/components/TitleScreen";
 import { TripPanel, type TripStop } from "@/components/TripPanel";
 import {
   ApiError,
@@ -1144,6 +1145,7 @@ export function MapShell() {
         <SharedRiderCard code={riderCode} onClose={() => setRiderCode(null)} />
       )}
       <StampMoment />
+      <TitleScreen />
     </main>
   );
 }

@@ -8,6 +8,7 @@ test("stamp a world, rename, share a read-only card, then reset", async ({
   page,
   browser,
 }) => {
+  test.slow(); // a whole flow across two pages
   await page.goto("/?from=36.69711,137.85393&mode=drive");
   const card = page
     .getByRole("listitem")

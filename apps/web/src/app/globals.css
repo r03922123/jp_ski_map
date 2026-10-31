@@ -154,3 +154,29 @@
     inset 0 0 0 2px #fff,
     0 8px 0 0 rgb(34 34 58 / 0.25);
 }
+
+/* SPEC-web-app v1.6 title screen: drifting snow and a blinking start, still with reduced motion */
+.title-flake {
+  animation: title-snow 6s linear infinite;
+}
+.title-start {
+  animation: title-blink 1.2s steps(2, jump-none) infinite;
+}
+@keyframes title-snow {
+  to {
+    transform: translate(-40px, 105vh);
+  }
+}
+@keyframes title-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-flake {
+    display: none;
+  }
+  .title-start {
+    animation: none;
+  }
+}

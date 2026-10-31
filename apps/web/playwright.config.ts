@@ -11,6 +11,23 @@ export default defineConfig({
   testDir: "./e2e",
   use: {
     baseURL: BASE_URL ?? `http://127.0.0.1:${PORT}`,
+    // the title screen shows once per browser session (a session cookie); tests start
+    // past it, and e2e/title.spec.ts clears it
+    storageState: {
+      cookies: [
+        {
+          name: "hakuba_title",
+          value: "seen",
+          domain: "127.0.0.1",
+          path: "/",
+          expires: -1,
+          httpOnly: false,
+          secure: false,
+          sameSite: "Lax",
+        },
+      ],
+      origins: [],
+    },
     ignoreHTTPSErrors: BASE_URL !== undefined,
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

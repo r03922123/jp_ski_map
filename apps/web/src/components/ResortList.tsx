@@ -1,8 +1,13 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { CheckInButton } from "@/components/CheckInButton";
-import type { RankedResort } from "@/lib/api";
+import { PixelSprite } from "@/components/PixelSprite";
+import { fetchResorts, type RankedResort } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
+import { useRider } from "@/lib/game/rider";
+import { worldBadge } from "@/lib/game/sprites";
+import { worldNumbers } from "@/lib/game/worlds";
 import { cn } from "@/lib/utils";
 
 type Factors = RankedResort["factors"];
@@ -72,6 +77,10 @@ export function ResortList({
   selectedId: string | null;
   onSelect: (resortId: string, accessPointId: string) => void;
 }) {
+  // SPEC-web-app v1.6 level select: each card is a world, numbered by geography
+  const catalog = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+  const worlds = worldNumbers(catalog.data ?? []);
+  const rider = useRider();
   return (
     <ol aria-label="Ranked resorts" className="flex flex-col divide-y">
       {resorts.map((r) => {
@@ -92,6 +101,21 @@ export function ResortList({
               </span>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="truncate font-medium">{r.name}</span>
+                {worlds.has(r.resortId) && (
+                  <span
+                    data-world={worlds.get(r.resortId)}
+                    className="flex items-center gap-1 text-xs"
+                  >
+                    <PixelSprite
+                      id={`world-${worlds.get(r.resortId)}`}
+                      sprite={worldBadge(worlds.get(r.resortId) ?? 0)}
+                      scale={1}
+                      alt=""
+                    />
+                    World {worlds.get(r.resortId)} ·{" "}
+                    {rider.stamps[r.resortId] ? "★ stamped" : "☆ not yet"}
+                  </span>
+                )}
                 {snow && (
                   <span className="text-xs text-muted-foreground">{snow}</span>
                 )}
