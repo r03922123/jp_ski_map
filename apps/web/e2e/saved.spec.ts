@@ -20,6 +20,11 @@ test("a starred hotel stays saved after a reload and shows on the map", async ({
   await expect(
     trip.getByRole("button", { name: /^Saved: Hotel Hakuba/ }),
   ).toHaveAttribute("aria-pressed", "true");
+  // closing the list picker hands its Back entry back (an async history.back(), T76);
+  // a reload racing that traversal is aborted
+  await expect
+    .poll(() => page.evaluate(() => history.state?.overlay === true))
+    .toBe(false);
 
   await page.reload();
   await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
