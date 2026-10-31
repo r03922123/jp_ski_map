@@ -31,9 +31,13 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `poi-destinations` | Restaurant & convenience-store destinations (OSM snapshot) + nearby-by-ETA query *(added v1.1, 2026-10-30)* | `routing` |
 | `saved-places` | Starred/saved places and lists in browser storage, "My hotel" label, share links *(added v1.3, 2026-10-30)* | — (browser only) |
 | `pilot` | Turn-by-turn navigation from live GPS: snapping, progress/ETA, off-route reroute, bus journey guidance *(added v1.3, 2026-10-30)* | `routing`, `bus-schedules` |
-| `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels | all of the above (via HTTP API only) |
+| `game-theme` | Original game look and sound: game-styled map, pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio), DotGothic16 *(added v1.6, 2026-10-31)* | — (browser only) |
+| `progression` | Rider profile on the device: resort stamps from real visits, daily powder quests, ride stats, rider card share link *(added v1.6, 2026-10-31)* | `resort-catalog`, `snow-conditions`, `pilot` |
+| `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels; from v1.6 presented as the adventure | all of the above (via HTTP API only) |
+| `deploy` | Zero-cost hosting: Phase A this Mac + Tailscale Funnel, Phase B Oracle Always Free *(added v1.5, 2026-10-31)* | hosts every server module |
 
 **Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
+**v1.6 build order:** `game-theme` → `progression` → `web-app` wiring
 
 Dependency arrows point one way. `web-app` talks only to the HTTP API and never imports backend modules.
 
@@ -43,8 +47,9 @@ Dependency arrows point one way. `web-app` talks only to the HTTP API and never 
 |---|---|
 | Frontend | Next.js (App Router, latest stable, version pinned at scaffold) + TypeScript (strict), MapLibre GL JS via `react-map-gl/maplibre`, Tailwind CSS + shadcn/ui, TanStack Query |
 | Base map | OpenFreeMap vector tiles (`https://tiles.openfreemap.org/styles/liberty`); Protomaps PMTiles is the fallback |
+| Game theme (v1.6) | DotGothic16 (OFL) via `next/font/google`, self-hosted at build; sprites, map restyle and chiptune effects written in code (no game engine, no asset files) |
 | Backend | Python 3.12+, FastAPI, Pydantic v2, httpx; managed with `uv` |
-| Routing | Valhalla (Docker `ghcr.io/valhalla/valhalla-scripted`) built from the Geofabrik `asia/japan/chubu-latest.osm.pbf` extract |
+| Routing | Valhalla (Docker `ghcr.io/valhalla/valhalla-scripted:3.9.1`) built from the Geofabrik `asia/japan/chubu-latest.osm.pbf` extract, cropped to the Hakuba valley (`infra/valhalla/build-hakuba.sh`, v1.5) |
 | Geocoding / POI | Photon (komoot) for text search, Overpass API for `tourism=hotel|guest_house|hostel|apartment` |
 | Weather / snow | Open-Meteo forecast API (no key) |
 | Data store (v1) | Versioned JSON under `data/`, validated by Pydantic models. **No database.** |

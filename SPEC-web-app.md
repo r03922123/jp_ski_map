@@ -85,3 +85,24 @@ User request: "reverse engineer how google maps initiates pointing a location on
 - [x] API: `stopAtPoints` keeps an "Arrive at stop N" step per intermediate point (fixture test); without it, unchanged (pass-through for the bus line).
 - [x] Unit: URL round-trip of `stops`; the trip panel adds, fills, removes stops, and clears From/To.
 - [x] E2E: add a stop by typing → the route goes through it (its steps include "Arrive at stop 1"); add a stop by tapping the map; remove it → the route goes direct again; the link keeps the stops; bus mode offers no "Add stop".
+
+## v1.6: The planner as an adventure (2026-10-31)
+User request: "redesign the whole work like a fun game like pokemon or mario world, but main character is a solo snowboarder".
+Choices: game skin + progression; the real map, game-styled; original art and sound made in code; DotGothic16; no classic toggle.
+Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats: [SPEC-progression.md](SPEC-progression.md).
+
+**Screens**
+- **Title screen**, first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: tap to start" (Enter or a tap; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
+- **HUD** (top bar): rider name and title, stamps n/10, a quest-log button with a badge for active quests, and the sound toggle.
+- **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow, crowd...). The sort controls and the order work as today.
+- **Directions and navigation:** steps in dialog boxes. The hero sprite replaces the position puck; pose by mode, facing the direction of travel. Navigation keeps high-contrast banners.
+- **Stamp moment and quest log:** dialog boxes (SPEC-progression).
+- **Every existing panel** (bus, trip, saved, POIs) gets the frames and font, with no change in behaviour.
+
+**Acceptance**
+- [ ] The existing e2e suite passes unchanged: roles, names and behaviour are untouched.
+- [ ] Title screen once per session; skipped for shared links and with `?skip-title`; keyboard-operable.
+- [ ] HUD shows the title and stamps n/10 from the rider store, and updates when a stamp is earned (e2e with mocked geolocation at a resort base).
+- [ ] Level cards show the fixed world number and stamp state in any sort order.
+- [ ] While navigating, the hero sprite shows the right pose per mode and faces the direction of travel.
+
