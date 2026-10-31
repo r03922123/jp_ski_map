@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { useBackToClose } from "@/lib/back-close";
 import {
   addList,
   findPlace,
@@ -32,6 +33,7 @@ export function ListPicker({
   const [newName, setNewName] = useState("");
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
+  useBackToClose(true, onClose);
 
   useEffect(() => {
     dialogRef.current?.focus();

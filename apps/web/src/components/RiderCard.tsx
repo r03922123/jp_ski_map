@@ -14,6 +14,7 @@ import { Hero } from "@/components/HeroMarker";
 import { PixelSprite } from "@/components/PixelSprite";
 import { QuestList } from "@/components/QuestLog";
 import { fetchResorts, type Resort } from "@/lib/api";
+import { useBackToClose } from "@/lib/back-close";
 import {
   emptyRider,
   MAX_NAME,
@@ -120,6 +121,7 @@ function Dialog({
 }) {
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
+  useBackToClose(true, onClose);
   // focus moves in, and back to whatever opened the dialog when it closes
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;

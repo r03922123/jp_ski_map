@@ -44,6 +44,7 @@ import {
   fetchRoutes,
   type Route,
 } from "@/lib/api";
+import { mirrorUrl } from "@/lib/back-close";
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
 import { completeKonbini, isKonbini } from "@/lib/game/quests";
@@ -233,7 +234,7 @@ export function MapShell() {
       point,
       stops: filledStops.map((s) => s.coord),
     });
-    window.history.replaceState(null, "", search);
+    mirrorUrl(search);
   }, [
     ready,
     origin,

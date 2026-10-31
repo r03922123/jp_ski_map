@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ScrollText } from "lucide-react";
 import { useState } from "react";
 import { fetchResorts } from "@/lib/api";
+import { useBackToClose } from "@/lib/back-close";
 import type { Quest } from "@/lib/game/quests";
 import { useDailyQuests } from "@/lib/game/use-quests";
 
@@ -43,6 +44,7 @@ export function QuestList() {
 export function QuestLog() {
   const quests = useDailyQuests();
   const [open, setOpen] = useState(false);
+  useBackToClose(open, () => setOpen(false));
   const active = quests.filter((q) => q.status === "active").length;
   return (
     <div className="relative">

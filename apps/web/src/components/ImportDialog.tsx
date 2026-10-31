@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef } from "react";
+import { useBackToClose } from "@/lib/back-close";
 import { savedStore } from "@/lib/saved-places";
 import { decodeImport, importList } from "@/lib/saved-share";
 
@@ -19,6 +20,7 @@ export function ImportDialog({
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => ref.current?.focus(), []);
+  useBackToClose(true, () => onDone(false));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 md:items-center">
