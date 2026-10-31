@@ -28,13 +28,13 @@ export type DecodeResult =
 
 type Row = [string, string, number, number, SavedKind];
 
-function toBase64url(text: string): string {
+export function toBase64url(text: string): string {
   let bin = "";
   for (const b of new TextEncoder().encode(text)) bin += String.fromCharCode(b);
   return btoa(bin).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
 }
 
-function fromBase64url(code: string): string {
+export function fromBase64url(code: string): string {
   const b64 = code.replaceAll("-", "+").replaceAll("_", "/");
   const bin = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
   return new TextDecoder("utf-8", { fatal: true }).decode(

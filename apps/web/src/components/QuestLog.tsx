@@ -14,13 +14,35 @@ function questText(q: Quest, name: (id: string) => string): string {
   return "Stop at a konbini on the way";
 }
 
+/** Today's quests as a list (shared by the quest log and the rider card). */
+export function QuestList() {
+  const quests = useDailyQuests();
+  const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+  const name = (id: string) =>
+    resorts.data?.find((r) => r.id === id)?.name.en ?? id;
+  if (quests.length === 0)
+    return <p className="text-muted-foreground">Loading…</p>;
+  return (
+    <ul className="flex flex-col gap-1">
+      {quests.map((q) => (
+        <li key={q.id} className="flex gap-2">
+          <span aria-hidden="true">{q.status === "done" ? "✔" : "◇"}</span>
+          <span className={q.status === "done" ? "line-through" : ""}>
+            {questText(q, name)}
+            <span className="sr-only">
+              {q.status === "done" ? " (done)" : " (open)"}
+            </span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** Today's quests (SPEC-progression), behind a button with a count of open ones. */
 export function QuestLog() {
   const quests = useDailyQuests();
-  const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
   const [open, setOpen] = useState(false);
-  const name = (id: string) =>
-    resorts.data?.find((r) => r.id === id)?.name.en ?? id;
   const active = quests.filter((q) => q.status === "active").length;
   return (
     <div className="relative">
@@ -47,25 +69,7 @@ export function QuestLog() {
           className="pixel-frame absolute right-0 z-30 mt-3 w-64 p-3 text-sm"
         >
           <h2 className="mb-1">Today's quests</h2>
-          {quests.length === 0 ? (
-            <p className="text-muted-foreground">Loading…</p>
-          ) : (
-            <ul className="flex flex-col gap-1">
-              {quests.map((q) => (
-                <li key={q.id} className="flex gap-2">
-                  <span aria-hidden="true">
-                    {q.status === "done" ? "✔" : "◇"}
-                  </span>
-                  <span className={q.status === "done" ? "line-through" : ""}>
-                    {questText(q, name)}
-                    <span className="sr-only">
-                      {q.status === "done" ? " (done)" : " (open)"}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <QuestList />
         </section>
       )}
     </div>

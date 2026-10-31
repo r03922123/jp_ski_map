@@ -18,6 +18,11 @@ import {
 import { PilotView } from "@/components/PilotView";
 import { PoiList, type PoiListState } from "@/components/PoiList";
 import { QuestLog } from "@/components/QuestLog";
+import {
+  MyRiderCard,
+  RiderButton,
+  SharedRiderCard,
+} from "@/components/RiderCard";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import { SoundToggle } from "@/components/SoundToggle";
@@ -42,6 +47,7 @@ import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
 import { completeKonbini, isKonbini } from "@/lib/game/quests";
 import { riderStore } from "@/lib/game/rider";
+import { readRiderHash } from "@/lib/game/rider-share";
 import { sfx } from "@/lib/game/sfx";
 import { earnVisit } from "@/lib/game/stamp-moment";
 import { arrivedAt, jstDate } from "@/lib/game/stamps";
@@ -206,6 +212,7 @@ export function MapShell() {
       })),
     );
     setImportCode(readImportHash(window.location.hash));
+    setRiderCode(readRiderHash(window.location.hash));
     setSelectedResortId(view.resortId);
     setCategory(view.category);
     setPoiId(view.poiId);
@@ -414,6 +421,9 @@ export function MapShell() {
   // Pilot (turn-by-turn): the route is frozen at Start; GPS (or a simulation) drives it.
   const [pilotRoute, setPilotRoute] = useState<Route | null>(null);
   const tripCounted = useRef(false);
+  // SPEC-progression: your rider card, or someone's from a #rider= link
+  const [riderOpen, setRiderOpen] = useState(false);
+  const [riderCode, setRiderCode] = useState<string | null>(null);
   const [pilotSource, setPilotSource] = useState<PositionSource | null>(null);
   const [following, setFollowing] = useState(true);
   // the destination stays fixed while reroutes replace the route
@@ -989,6 +999,7 @@ export function MapShell() {
                   Saved
                 </button>
                 <span className="flex items-center gap-2">
+                  <RiderButton onOpen={() => setRiderOpen(true)} />
                   <QuestLog />
                   <SoundToggle />
                 </span>
@@ -1127,6 +1138,10 @@ export function MapShell() {
             if (imported) setSavedOpen(true);
           }}
         />
+      )}
+      {riderOpen && <MyRiderCard onClose={() => setRiderOpen(false)} />}
+      {riderCode && (
+        <SharedRiderCard code={riderCode} onClose={() => setRiderCode(null)} />
       )}
       <StampMoment />
     </main>

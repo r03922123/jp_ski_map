@@ -671,8 +671,9 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 **Acceptance:** `questsFor(date, rider, resorts, snow)` deterministic (powder ≥ 10 cm biggest, none without snow data; new world; konbini break), ≤ 3, expire at JST midnight; done by visits/trips; quest log; km by mode and trips from pilot trips only. **Files:** `lib/game/quests.ts`, `lib/game/stats.ts`, `components/QuestLog.tsx`, tests. **Scope:** M
 **Done:** a day's set is saved the first time it's made (else earning the stamp would swap "Explore X" for the next world); details travel in the quest id; powder uses the snow API's past-24 h fresh snow; new world uses world order (drive-time order is supported but not wired yet: the ranking lives in the drive panel); konbini by chain name (EN/JA) on a stop or a convenience destination. Stats at arrival (route km; bus = distance along the line) or at exit (distance covered, no trip). The clock is read after mount (`useNow`): `new Date()` while rendering is an unstable value under Cache Components (caught by the clean-console e2e).
 
-## Task 71: Rider card + share + reset
+## Task 71: Rider card + share + reset ✅
 **Acceptance:** card with name, title, W1–W10 stamp grid, stats, quests; `#rider=` read-only share (round-trip; tampered/oversized rejected); reset behind confirm. **Files:** `components/RiderCard.tsx`, `lib/game/rider-share.ts`, tests. **Scope:** S
+**Done:** card dialog (rename, title, W1–W10 stamp grid greyed until stamped, stats, today's quests, share, two-step reset that keeps the name); `#rider=` opens a read-only card (nothing imported; no visit dates in the link; tampered, oversized and malformed codes rejected with a message). Found and fixed a hydration mismatch: a sprite's data URL needs a canvas, so `PixelSprite` now renders without a source on the server and during hydration (sprites used to be client-only on the map, so it never showed before the rider button).
 
 ## Phase 17: The adventure (SPEC-web-app v1.6)
 
