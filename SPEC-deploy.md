@@ -26,7 +26,7 @@ friend's phone ──HTTPS──▶ Tailscale Funnel (https://hakuba-map.<tailne
                      FastAPI (uvicorn, 127.0.0.1:8010) ──▶ Photon, Open-Meteo, maps.app.goo.gl (HEAD)
                               │
                               ▼
-                     Valhalla (docker, 127.0.0.1:8002), Hakuba-only tiles (4.2 MB, ~40 MB RAM)
+                     Valhalla (docker, 127.0.0.1:8002), Hakuba-only tiles (5.7 MB, ~65 MB RAM)
 ```
 Map tiles come straight from OpenFreeMap to the browser, so they never touch our server.
 
@@ -57,10 +57,10 @@ Map tiles come straight from OpenFreeMap to the browser, so they never touch our
 
 ## Changes to the repo (both phases)
 1. **Hakuba-only Valhalla tiles, reproducible.** `infra/valhalla/build-hakuba.sh`: download Geofabrik
-   chubu → `osmium extract -b 137.70,36.45,138.00,36.90 --strategy smart` → `valhalla_build_admins`
+   chubu → `osmium extract` to the box in `infra/valhalla/hakuba.bbox` (`--strategy smart`) → `valhalla_build_admins`
    + `valhalla_build_tiles` with `default_speeds.json` → `tiles.tar`. Without the speeds file, drive
    times came out up to 37% too fast. The bbox covers every resort, bus stop and lodging in `data/`;
-   a test checks this.
+   a test checks this with a 5 km margin (the first box, 137.70,36.45,138.00,36.90, left Otari lodgings 1 km from its edge).
 2. **Rate limits on the API (no new dependency).**
    - A **global** budget per upstream protects the third parties. Photon ≤ 1 req/s, Open-Meteo ≤ 1 req/s
      (with the existing 24 h / 1 h caches, real traffic stays well below), and Google short links ≤ 1 per 2 s.
@@ -89,7 +89,7 @@ tailscale funnel status                   # what is public right now
 | What | How |
 |---|---|
 | Hakuba tiles give the same answers | `pytest -m live`: 4 fixed origin → resort pairs, drive and walk, equal to the Chubu build. Measured 2026-10-31: identical. |
-| bbox covers all data | unit test: every coordinate in `data/*.json` is inside the bbox with ≥ 2 km margin |
+| bbox covers all data | unit test: every coordinate in `data/*.json` is inside the bbox with ≥ 5 km margin |
 | Rate limits | unit tests: token bucket refill and limits; 429 per client; 503 when the global budget is spent; cache hits don't spend budget |
 | Headers, robots | e2e against `next start`: headers are present, and `/robots.txt` disallows all |
 | Production build | the full e2e suite runs against `next start` (not dev) before going public |

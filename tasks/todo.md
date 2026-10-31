@@ -617,8 +617,8 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 
 ## Phase 14: Go public, Phase A (SPEC-deploy v1.5)
 
-## Task 59: Hakuba-only Valhalla tiles, reproducible
-**Acceptance:** `infra/valhalla/build-hakuba.sh` builds `custom_files/hakuba/tiles.tar` from Geofabrik chubu (osmium bbox crop + admins + `default_speeds.json`); the dev compose serves it, bound to 127.0.0.1; a unit test proves every coordinate in `data/` lies inside the bbox with ≥ 2 km margin; a live test compares 4 drive and walk pairs with the expected values. **Files:** `infra/valhalla/build-hakuba.sh`, `infra/docker-compose.yml`, `services/api/tests/routing/test_bbox.py`, live test. **Scope:** S
+## Task 59: Hakuba-only Valhalla tiles, reproducible ✅
+**Acceptance:** `infra/valhalla/build-hakuba.sh` builds `custom_files/hakuba/tiles.tar` from Geofabrik chubu (osmium bbox crop + admins + `default_speeds.json`); the dev compose serves it, bound to 127.0.0.1; a unit test proves every coordinate in `data/` lies inside the bbox with ≥ 5 km margin (the first box failed it: Otari lodgings 1 km from the edge); a live test compares 7 drive and walk pairs with the expected values. **Files:** `infra/valhalla/build-hakuba.sh`, `infra/docker-compose.yml`, `services/api/tests/routing/test_bbox.py`, live test. **Scope:** S
 
 ## Task 60: API rate limits + identify upstream
 **Acceptance:** global token buckets per upstream (Photon 1/s, Open-Meteo 1/s, Google short links 1 per 2 s) → 503 `upstream_busy`; per-client 120/min keyed on the first `X-Forwarded-For` hop → 429; cache hits spend nothing; `USER_AGENT` uses `PUBLIC_URL`. No new dependency. **Files:** `common/ratelimit.py`, `common/upstream.py`, `main.py`, upstream callers, tests. **Scope:** M

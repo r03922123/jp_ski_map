@@ -1,17 +1,18 @@
 services:
   valhalla:
-    image: ghcr.io/valhalla/valhalla-scripted:latest
+    image: ghcr.io/valhalla/valhalla-scripted:3.9.1
     ports:
-      - "8002:8002"
+      # localhost only: the API is Valhalla's one client (SPEC-deploy)
+      - "127.0.0.1:8002:8002"
     volumes:
-      # tiles + downloaded pbf live here (gitignored); first start builds them (~10-30 min)
-      - ./valhalla/custom_files:/custom_files
+      # Hakuba-only crop from infra/valhalla/build-hakuba.sh (gitignored); tiles build on first start (seconds)
+      - ./valhalla/custom_files/hakuba:/custom_files
     environment:
-      tile_urls: https://download.geofabrik.de/asia/japan/chubu-latest.osm.pbf
       serve_tiles: "True"
+      use_default_speeds_config: "True" # without it, drive times come out up to 37% too fast
       build_elevation: "False"
-      build_admins: "True"
-      build_time_zones: "True"
+      build_admins: "True" # country rules: Japan drives on the left
+      build_time_zones: "False" # requests carry no date_time
       force_rebuild: "False"
       server_threads: "2"
     restart: unless-stopped
