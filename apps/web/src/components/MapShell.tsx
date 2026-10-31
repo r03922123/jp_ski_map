@@ -8,6 +8,7 @@ import { BusPanel } from "@/components/BusPanel";
 import { BusPilotView } from "@/components/BusPilotView";
 import { DestinationPicker } from "@/components/DestinationPicker";
 import { DrivePanel, type RankingState } from "@/components/DrivePanel";
+import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import {
   ModePanel,
@@ -614,7 +615,13 @@ export function MapShell() {
     busPlan && rideAt && rideFix
       ? cameraFor(busPlan.line, rideAt, rideFix)
       : null;
-  const mapPilot =
+  // SPEC-game-theme: the rider's pose follows the trip
+  const pose = heroPose({
+    mode: busPlan ? "bus" : mode === "walk" ? "walk" : "drive",
+    phase: pilot.phase,
+    bus: busPhase ?? undefined,
+  });
+  const mapPilotBase =
     busPlan && rideAt && rideCamera
       ? {
           camera: rideCamera,
@@ -652,6 +659,7 @@ export function MapShell() {
               onUserMove: () => setFollowing(false),
             }
           : null;
+  const mapPilot = mapPilotBase ? { ...mapPilotBase, pose } : null;
   const routeLayers = [
     ...routes.map((_, i) =>
       mode === "bus" ? "walk" : i === activeRoute ? "primary" : "alternate",

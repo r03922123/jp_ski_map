@@ -12,6 +12,8 @@ type Props = {
   /** "" for decoration next to a text label */
   alt: string;
   className?: string;
+  /** test and styling hooks, e.g. data-pose */
+  data?: Record<`data-${string}`, string | number>;
 };
 
 /** One frame of an in-code pixel sprite (SPEC-game-theme), crisp at any scale. */
@@ -23,6 +25,7 @@ export function PixelSprite({
   mirrored = false,
   alt,
   className = "",
+  data,
 }: Props) {
   return (
     // biome-ignore lint/performance/noImgElement: a few-hundred-byte data URL drawn in code; next/image has nothing to optimise
@@ -32,6 +35,7 @@ export function PixelSprite({
       width={sprite.w * scale}
       height={sprite.h * scale}
       className={`[image-rendering:pixelated] ${className}`}
+      {...data}
     />
   );
 }

@@ -11,10 +11,11 @@ import MapGL, {
   Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
+import { facesLeft, Hero } from "@/components/HeroMarker";
 import { PixelSprite } from "@/components/PixelSprite";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
-import { ICONS, worldBadge } from "@/lib/game/sprites";
+import { ICONS, type Pose, worldBadge } from "@/lib/game/sprites";
 import { useGameStyle } from "@/lib/game/use-game-style";
 import { worldNumbers } from "@/lib/game/worlds";
 import {
@@ -72,6 +73,8 @@ export type MapViewProps = {
     following: boolean;
     /** the user dragged the map: stop following until they re-centre */
     onUserMove: () => void;
+    /** the rider's pose (SPEC-game-theme) */
+    pose: Pose;
   } | null;
 };
 
@@ -366,7 +369,6 @@ export default function MapView({
       }}
     >
       <NavigationControl position="bottom-right" />
-
       <Source id="lodging" type="geojson" data={lodgingGeoJson}>
         <Layer
           id={LODGING_LAYER}
@@ -397,7 +399,6 @@ export default function MapView({
           }}
         />
       </Source>
-
       <Source id="route-alts" type="geojson" data={altGeoJson}>
         <Layer
           id="route-alts-casing"
@@ -427,7 +428,6 @@ export default function MapView({
           }}
         />
       </Source>
-
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or
           drive route, then the part already covered, the step highlight, and the bus
@@ -450,7 +450,6 @@ export default function MapView({
           paint={{ "line-color": RIDE_COLOR, "line-width": 6 }}
         />
       </Source>
-
       <Source
         id="route-active"
         type="geojson"
@@ -480,7 +479,6 @@ export default function MapView({
           }}
         />
       </Source>
-
       <Source
         id="route-covered"
         type="geojson"
@@ -501,7 +499,6 @@ export default function MapView({
           paint={{ "line-color": "#9ca3af", "line-width": 7 }}
         />
       </Source>
-
       <Source
         id="route-highlight"
         type="geojson"
@@ -518,7 +515,6 @@ export default function MapView({
           paint={{ "line-color": "#f59e0b", "line-width": 8 }}
         />
       </Source>
-
       <Source id="ride-stops" type="geojson" data={rideStopsGeoJson}>
         <Layer
           id="ride-stop-dots"
@@ -531,7 +527,6 @@ export default function MapView({
           }}
         />
       </Source>
-
       {resorts.map((r) => {
         const point = r.accessPoints[0];
         const selected = r.id === selectedResortId;
@@ -573,30 +568,22 @@ export default function MapView({
           </Marker>
         );
       })}
-
       {pilot?.puck && (
         <Marker
           longitude={pilot.puck[0]}
           latitude={pilot.puck[1]}
-          anchor="center"
-          rotation={pilot.heading ?? 0}
-          rotationAlignment="map"
-          pitchAlignment="map"
+          // the rider stands on the spot: feet at the position, never rotated
+          anchor="bottom"
           // not interactive: a drag that starts on your own position must pan the map
           // on top of everything, and never in the way of a tap
           style={{ zIndex: 5, pointerEvents: "none" }}
         >
-          <svg
-            role="img"
-            aria-label="Your position"
-            width="34"
-            height="34"
-            viewBox="0 0 34 34"
-            className="drop-shadow"
-          >
-            <circle cx="17" cy="17" r="15" fill="#ffffff" />
-            <path d="M17 5 L26 27 L17 22 L8 27 Z" fill="#2563eb" />
-          </svg>
+          <Hero
+            pose={pilot.pose}
+            left={facesLeft(pilot.heading, pilot.camera?.bearing ?? 0)}
+            alt="Your position"
+            scale={2} // a tilted navigation map: big enough to find at a glance
+          />
         </Marker>
       )}
 
@@ -622,7 +609,6 @@ export default function MapView({
           </button>
         </Marker>
       ))}
-
       {stops.map((stop, i) => (
         <Marker
           // biome-ignore lint/suspicious/noArrayIndexKey: a stop is its position in the trip
@@ -646,13 +632,11 @@ export default function MapView({
           </span>
         </Marker>
       ))}
-
       {busStop && (
         <Marker latitude={busStop.lat} longitude={busStop.lng} anchor="bottom">
           <PixelSprite id="stop" sprite={ICONS.stop} alt="Bus stop" />
         </Marker>
       )}
-
       {labels.map(
         ({ index, at, text }) =>
           at &&
@@ -687,7 +671,6 @@ export default function MapView({
             </Marker>
           ),
       )}
-
       {ride && rideLabelAt && !piloting && (
         <Marker
           longitude={rideLabelAt[0]}
@@ -703,7 +686,6 @@ export default function MapView({
           </span>
         </Marker>
       )}
-
       {destination && (
         <Marker
           latitude={destination.lat}
@@ -715,20 +697,23 @@ export default function MapView({
           <PixelSprite id="flag" sprite={ICONS.flag} alt="Destination" />
         </Marker>
       )}
-
       {origin && (
         <Marker
           latitude={origin.lat}
           longitude={origin.lng}
-          anchor="center"
+          anchor={pilot ? "center" : "bottom"}
           // nothing to tap: a press here is a press on the map (a pan must start)
           style={{ pointerEvents: "none" }}
         >
-          <span
-            role="img"
-            aria-label="Starting point"
-            className="block size-[18px] rounded-full border-[3px] border-white bg-blue-600 shadow-[0_0_0_6px_rgb(37_99_235/0.2),0_1px_4px_rgb(0_0_0/0.4)]"
-          />
+          {pilot ? (
+            <span
+              role="img"
+              aria-label="Starting point"
+              className="block size-[18px] rounded-full border-[3px] border-white bg-blue-600 shadow-[0_0_0_6px_rgb(37_99_235/0.2),0_1px_4px_rgb(0_0_0/0.4)]"
+            />
+          ) : (
+            <Hero pose="idle" alt="Starting point" />
+          )}
         </Marker>
       )}
     </MapGL>
