@@ -10,7 +10,7 @@
     "lint": "biome check --write",
     "format": "biome format --write",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "e2e": "playwright test",
     "gen:api": "openapi-typescript ${API_URL:-http://127.0.0.1:8010}/openapi.json -o src/lib/api-types.ts"
   },
