@@ -2,6 +2,7 @@ from typing import Any, cast
 
 import httpx
 
+from hakuba_api.common.ratelimit import spend_upstream
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
@@ -13,6 +14,7 @@ Point = tuple[float, float, int]
 def fetch_hourly(points: list[Point]) -> list[dict[str, Any]]:
     """One batched call for every point; `elevation` is set explicitly so values are
     downscaled to that height instead of the grid cell's average terrain."""
+    spend_upstream("open-meteo")
     try:
         response = httpx.get(
             OPEN_METEO_URL,

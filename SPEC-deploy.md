@@ -65,9 +65,13 @@ Map tiles come straight from OpenFreeMap to the browser, so they never touch our
    - A **global** budget per upstream protects the third parties. Photon ≤ 1 req/s, Open-Meteo ≤ 1 req/s
      (with the existing 24 h / 1 h caches, real traffic stays well below), and Google short links ≤ 1 per 2 s.
      Over budget → 503 `upstream_busy`, which the UI already shows as unavailable.
-   - A **per-client** budget, keyed on the first `X-Forwarded-For` hop: 120 requests/min across the API.
-     Over → 429. Funnel and Next both add `X-Forwarded-For`; verify the exact hop at implementation,
-     and if it isn't there, fall back to the global budget only.
+   - A **per-client** budget: 120 requests/min across the API (`/api/health` exempt). Over → 429 with
+     `Retry-After`. The client is the address our trusted proxy *appended* to `X-Forwarded-For`
+     (`TRUSTED_PROXY_HOPS=1` behind Funnel). Earlier hops come from the client and may be forged.
+     **Measured 2026-10-31:** Next's rewrite passes `X-Forwarded-For` through but never adds one, so the
+     API's socket peer is always Next (127.0.0.1). So `TRUSTED_PROXY_HOPS` unset (local dev) turns
+     per-client limits off, and a missing hop means "unknown": then only the upstream budgets apply,
+     never one bucket shared by everyone. Whether Funnel appends the hop is checked at Checkpoint M.
 3. **Identify ourselves upstream.** `USER_AGENT` includes the public URL and drops "local dev"
    (env `PUBLIC_URL`).
 4. **Security headers.** Next `headers()`: `X-Content-Type-Options: nosniff`,

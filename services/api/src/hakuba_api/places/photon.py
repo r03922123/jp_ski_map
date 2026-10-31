@@ -4,6 +4,7 @@ import httpx
 
 from hakuba_api.common.cache import TtlCache
 from hakuba_api.common.geo import Coord, in_hakuba
+from hakuba_api.common.ratelimit import spend_upstream
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
 from hakuba_api.places.models import LODGING_KINDS, Place, PlaceKind
 
@@ -38,6 +39,7 @@ def search_photon(query: str, limit: int) -> list[Place]:
     key = (" ".join(query.lower().split()), limit)
     if (cached := _cache.get(key)) is not None:
         return cached
+    spend_upstream("photon")
     try:
         response = httpx.get(
             PHOTON_URL,

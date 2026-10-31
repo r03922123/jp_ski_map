@@ -620,8 +620,8 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 ## Task 59: Hakuba-only Valhalla tiles, reproducible ✅
 **Acceptance:** `infra/valhalla/build-hakuba.sh` builds `custom_files/hakuba/tiles.tar` from Geofabrik chubu (osmium bbox crop + admins + `default_speeds.json`); the dev compose serves it, bound to 127.0.0.1; a unit test proves every coordinate in `data/` lies inside the bbox with ≥ 5 km margin (the first box failed it: Otari lodgings 1 km from the edge); a live test compares 7 drive and walk pairs with the expected values. **Files:** `infra/valhalla/build-hakuba.sh`, `infra/docker-compose.yml`, `services/api/tests/routing/test_bbox.py`, live test. **Scope:** S
 
-## Task 60: API rate limits + identify upstream
-**Acceptance:** global token buckets per upstream (Photon 1/s, Open-Meteo 1/s, Google short links 1 per 2 s) → 503 `upstream_busy`; per-client 120/min keyed on the first `X-Forwarded-For` hop → 429; cache hits spend nothing; `USER_AGENT` uses `PUBLIC_URL`. No new dependency. **Files:** `common/ratelimit.py`, `common/upstream.py`, `main.py`, upstream callers, tests. **Scope:** M
+## Task 60: API rate limits + identify upstream ✅
+**Acceptance:** global token buckets per upstream (Photon 1/s, Open-Meteo 1/s, Google short links 1 per 2 s) → 503 `upstream_busy`; per-client 120/min keyed on the hop our trusted proxy appended to `X-Forwarded-For` (`TRUSTED_PROXY_HOPS`; unset = off, since Next never adds one) → 429; cache hits spend nothing; `USER_AGENT` uses `PUBLIC_URL`. No new dependency. **Files:** `common/ratelimit.py`, `common/upstream.py`, `main.py`, upstream callers, tests. **Scope:** M
 
 ## Task 61: Production web: security headers, no indexing, e2e on `next start`
 **Acceptance:** `nosniff`, `Referrer-Policy`, `Permissions-Policy: geolocation=(self)`, `X-Frame-Options: DENY`; `/robots.txt` disallows all, plus a `noindex` meta tag; the e2e suite passes against a production build. **Files:** `next.config.ts`, `app/robots.ts`, `app/layout.tsx`, `e2e/prod.spec.ts`. **Scope:** S
@@ -631,5 +631,6 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 
 ## Checkpoint M: Phase A ready
 - [ ] All gates green, the full e2e suite passes against `next start`
+- [ ] With Funnel on, a request from a phone reaches the API with its address as the last `X-Forwarded-For` hop (then run with `TRUSTED_PROXY_HOPS=1`)
 - [ ] The author installs Tailscale, renames the machine to `hakuba-map`, enables HTTPS + Funnel in the admin console
 - [ ] **Ask before** turning Funnel on; then a phone on mobile data runs search → bus/drive/walk → Start

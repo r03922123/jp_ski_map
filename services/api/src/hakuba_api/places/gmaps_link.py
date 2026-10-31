@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, unquote_plus, urlparse
 import httpx
 
 from hakuba_api.common.geo import Coord
+from hakuba_api.common.ratelimit import spend_upstream
 from hakuba_api.common.upstream import USER_AGENT
 from hakuba_api.places.models import Place
 
@@ -72,6 +73,7 @@ def resolve_short_link(url: str, timeout_s: float = 5) -> str | None:
     parsed = urlparse(url.strip())
     if parsed.scheme != "https" or parsed.hostname not in SHORT_LINK_HOSTS:
         return None
+    spend_upstream("gmaps-link")
     try:
         response = httpx.head(
             url.strip(),
