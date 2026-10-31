@@ -696,22 +696,27 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 - [ ] Phone check over the dev HTTPS server: needs the author's iPhone (title, HUD, check-in at a base, stamp moment, sound toggle)
 
 ## Phase 18: Device QA fixes (from the 2026-11-01 QA: real iPhone over USB, Android emulation, desktop + API)
-Not started. Write a failing test first for each bug (as in T72b). Evidence: QA reports in the session, screenshots were in the session scratchpad (gone).
+Done 2026-11-01 (T73–T78, each red-first; 332 unit, 84 e2e, 359 API green). Not yet re-checked on the real iPhone. Evidence: QA reports in the session, screenshots were in the session scratchpad (gone).
 
 ## Task 73: Double-click zoom must not move the start
 Desktop: double-clicking the map zooms AND calls `onPickOrigin` (MapView.tsx map `onClick`, no dblclick guard) → the hotel start is lost. Fix: ignore the click that belongs to a double-click (e.g. defer single-click ~250 ms / check `originalEvent.detail`). **Scope:** S
+**Done:** a pick waits out a 300 ms double-click window; a second click or dblclick cancels it.
 
 ## Task 74: Sheet handle swipe on touch
 Android (emulated): a swipe on the BottomSheet handle does nothing (it only reads `onClick`; no click after a moving touch). Support drag up/down via pointer events; keep tap-to-toggle and keyboard. **Scope:** S
+**Done:** the swipe acts on pointerup (pointer capture, pointercancel); a mouse drag's trailing click is ignored for 400 ms.
 
 ## Task 75: Touch targets ≥ 44 pt / 48 dp
 Real iPhone: a tap on the HUD Rider button registered on the Quests button next to it (HUD buttons 32×32, tight). Also mode/category tabs 25 px tall, Check in 24 px, Details 16 px, Saved 26 px, ✕/star 28–32 px, MapLibre zoom 29 px. **Scope:** M
+**Done:** one `(pointer: coarse)` rule in globals.css (44×44 for buttons, tabs, summaries, fields, checkbox labels; MapLibre controls); the sheet handle and ⓘ grow their hit area instead. Map markers and inline links exempt. e2e sweep: `e2e/touch-targets.spec.ts`.
 
 ## Task 76: Back closes overlays instead of leaving the trip
 Android/desktop: Back with the rider card (or quest log) open navigates away and loses from/resort (URL mirror uses `replaceState` only). Push a history entry while an overlay is open; popstate closes it. Decide whether resort selection should push history. **Scope:** M
+**Done:** `lib/back-close.ts` (`useBackToClose`, `mirrorUrl`). Decided: resort selection does not push history (✕ undoes it; an entry per pick would flood Back). Closing an overlay calls `history.back()` async, so tests that reload right after must wait (see saved.spec).
 
 ## Task 77: Small phones: Start/ETA visible in the collapsed sheet
 At 360×740 / Pixel 7 walk, Start and ETA are below the collapsed sheet's fold. Also "Tap to start" expands the sheet and focuses search (may raise the keyboard on Android): don't auto-focus search on touch. **Scope:** S
+**Done:** the ETA row is sticky to the sheet's bottom while below the fold; title start focuses the sheet on touch.
 
 ## Task 78: Keyboard + API hygiene
 - Skip link / tab order: 20 map stops (markers, attribution) before the search box.
@@ -720,8 +725,9 @@ At 360×740 / Pixel 7 walk, Start and ETA are below the collapsed sheet's fold. 
 - `/api/resorts` fetched twice per load; Cache-Control on static API data.
 - Polish: cut-off search placeholder, desktop title says "Tap to start", "Stamp earned!" announced twice (toast + output), hero covers the Happo-One map label, no h1, Escape doesn't dismiss the stamp toast.
 **Scope:** M
+**Done:** API: dates 2000–2100 (422), 64 KB body limit (413), 422 without the input echo, `q` ≤ 2048, /api/resorts cached 1 h. Web: date min/max + clamp, one resorts fetch, map after the sheet in the DOM (Tab → search first), sr-only h1, "Checked in" + Escape on the stamp toast, shorter hints, "Press start", resort labels above the idle hero.
 
-## State at handoff (2026-11-01)
-- v1.6 game redesign done through T72b; 19+ commits local, NOT pushed (the user hasn't OK'd the push).
+## State at handoff (2026-11-01, after Phase 18)
+- v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
+- Next: re-check T73–T77 on the real iPhone / an Android device (the e2e uses emulation and CDP touch); then push on the user's OK.
 - Open issue: pilot walk-drag flake (Task 67 note).
-- Phone check done on a real iPhone (Chrome iOS 27): title, sound, search, check-in message, simulated walk demo all fine; no app console errors.
