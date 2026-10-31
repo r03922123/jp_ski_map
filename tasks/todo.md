@@ -634,3 +634,45 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 - [ ] With Funnel on, a request from a phone reaches the API with its address as the last `X-Forwarded-For` hop (then run with `TRUSTED_PROXY_HOPS=1`)
 - [ ] The author installs Tailscale, renames the machine to `hakuba-map`, enables HTTPS + Funnel in the admin console
 - [ ] **Ask before** turning Funnel on; then a phone on mobile data runs search → bus/drive/walk → Start
+
+## Phase 15: Game theme (SPEC-game-theme v1.6)
+
+## Task 63: Theme foundation: font, tokens, frames
+**Acceptance:** DotGothic16 via `next/font/google` replaces Geist; snowy theme tokens (cream panels, ink text, pine/ice/amber accents) with a unit test that every text/background pair is ≥ 4.5:1; CSS utilities `.pixel-frame` (stepped border, no images) and chunky pressable buttons, applied to the sheet/panels and shadcn buttons; every e2e test passes unchanged. **Files:** `app/layout.tsx`, `app/globals.css`, `lib/game/tokens.ts`, `components/ui/button.tsx`, tests. **Scope:** M
+
+## Task 64: Sprites in code + world numbers
+**Acceptance:** sprite format (palette + rows of indices) and a canvas renderer (pixelated, cached); hero poses idle/walk/ride/bus/drive with the frame counts in the spec, mirrored for facing; icons: world badge, stop sign, konbini, food, star, flag; `worldNumbers(resorts)` W1–W10 north → south. Tests: every frame's size and palette indices, pose table, world numbering complete and stable. **Files:** `lib/game/sprites.ts`, `lib/game/render.ts`, `lib/game/worlds.ts`, tests. **Scope:** M
+
+## Task 65: Game-styled map
+**Acceptance:** `gameStyle(base)` changes paint only (test: every layer id, source, layout kept); MapView loads it; resort/stop/POI/saved/destination markers use the sprites; routes are dotted trails (active thick dashed, alternates thin grey); labels keep a dark halo. **Files:** `lib/game/map-style.ts`, `MapView.tsx`, tests. **Scope:** M
+
+## Task 66: The hero on the map
+**Acceptance:** while navigating, the hero sprite replaces the puck: pose from the mode (walk/drive/bus legs), facing from the bearing (mirrored, never rotated), accuracy circle kept; planning shows the idle hero at the start; reduced motion → static frame. **Files:** `components/HeroMarker.tsx`, `MapView.tsx`, `PilotView`/`BusPilotView` wiring, tests. **Scope:** M
+
+## Task 67: Chiptune sound
+**Acceptance:** `sfx.ts` synthesises select/confirm/stamp/quest/bus/offRoute with Web Audio; muted by default; a speaker toggle saved in `hakuba:sound`; no AudioContext before an unmuted gesture; wired to tab/card choice, Start, next bus, off-route. Tests with a fake AudioContext. **Files:** `lib/game/sfx.ts`, `components/SoundToggle.tsx`, wiring, tests. **Scope:** M
+
+## Checkpoint N: Game theme
+- [ ] All gates green, the full e2e suite unchanged (dev + `E2E_PROD=1`), screenshots reviewed on desktop and a phone viewport
+
+## Phase 16: Progression (SPEC-progression v1.6)
+
+## Task 68: Rider store + titles
+**Acceptance:** `hakuba:rider` validated store (corrupt → empty + raw kept; storage throws → session only), `useSyncExternalStore`, tab sync, rename (≤ 20 chars), titles at every threshold. **Files:** `lib/game/rider.ts`, tests. **Scope:** S
+
+## Task 69: Stamps: arrival and check-in
+**Acceptance:** a pilot arrival within 150 m of a resort access point stamps it (200 m doesn't); "Check in" on a resort card takes one fix: ≤ 300 m and accuracy ≤ 100 m counts, else the distance or accuracy message; one visit per JST day; the stamp moment (dialog, sound, aria-live); no position stored. **Files:** `lib/game/stamps.ts`, `ResortList.tsx`, pilot arrival hook, `components/StampMoment.tsx`, tests, e2e. **Scope:** M
+
+## Task 70: Quests + stats
+**Acceptance:** `questsFor(date, rider, resorts, snow)` deterministic (powder ≥ 10 cm biggest, none without snow data; new world; konbini break), ≤ 3, expire at JST midnight; done by visits/trips; quest log; km by mode and trips from pilot trips only. **Files:** `lib/game/quests.ts`, `lib/game/stats.ts`, `components/QuestLog.tsx`, tests. **Scope:** M
+
+## Task 71: Rider card + share + reset
+**Acceptance:** card with name, title, W1–W10 stamp grid, stats, quests; `#rider=` read-only share (round-trip; tampered/oversized rejected); reset behind confirm. **Files:** `components/RiderCard.tsx`, `lib/game/rider-share.ts`, tests. **Scope:** S
+
+## Phase 17: The adventure (SPEC-web-app v1.6)
+
+## Task 72: Title screen, HUD, level select
+**Acceptance:** title screen once per session (skipped by shared links and `?skip-title`, keyboard-operable, reduced motion); HUD with name, title, stamps n/10, quest badge, sound toggle; resort cards as level cards with world badge and stamp state in any sort order. **Files:** `components/TitleScreen.tsx`, `components/Hud.tsx`, `ResortList.tsx`, `MapShell.tsx`, tests, e2e. **Scope:** M
+
+## Checkpoint O: v1.6 done
+- [ ] Gates green; full e2e unchanged plus the new flows; adversarial review; phone check over the dev HTTPS server
