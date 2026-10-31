@@ -656,8 +656,8 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 **Done:** effects as note lists (square/triangle, 5 ms attack, exponential release, no files); the speaker toggle sits on the Saved row until the HUD (T72); `select` on mode tabs and resort choice, `confirm` on Start, `bus` when the journey reaches the ride (boarding: the app has no "next bus is coming" signal), `offRoute` on leaving the route. e2e counts real AudioContexts: none while muted, one on the tap that turns sound on, none after a reload until the next tap.
 **Open issue (pre-existing, not from v1.6):** `pilot.spec.ts` "start, follow the walk…" fails ~1 in 4 when 4 copies run at once (load ~8): the drag doesn't stop following, so Re-centre never shows. A/B on 2026-11-01: T62 code 9/12, current 9–10/12, with the hero animation frozen 10/12; nothing covers the press point (only the canvas is under it). So T58's "never lost" holds for one run at a time, not under this concurrency. Next step when picked up: trace MapLibre's `dragstart` vs the follow camera under CPU throttling.
 
-## Checkpoint N: Game theme
-- [ ] All gates green, the full e2e suite unchanged (dev + `E2E_PROD=1`), screenshots reviewed on desktop and a phone viewport
+## Checkpoint N: Game theme ✅
+- [x] All gates green; e2e dev 51/51 (49 + 2 new) apart from the open pilot-drag flake; `E2E_PROD=1` 47 passed, 4 dev-only skipped; screenshots reviewed on desktop and an iPhone 13 viewport (production build)
 
 ## Phase 16: Progression (SPEC-progression v1.6)
 
