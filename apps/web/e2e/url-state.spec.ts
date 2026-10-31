@@ -101,3 +101,55 @@ test("on a laptop the search box keeps its compact text", async ({ page }) => {
     .evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize));
   expect(px).toBe(14);
 });
+
+// T74: Android sends no click after a moving touch; the swipe itself must move the sheet
+test.describe("sheet swipe on touch", () => {
+  test.use({
+    viewport: { width: 412, height: 915 },
+    isMobile: true,
+    hasTouch: true,
+  });
+
+  test("swiping the handle up expands the sheet, down collapses it", async ({
+    page,
+  }) => {
+    await page.goto(SHARED);
+    await expect(page.getByText(/^ETA ~/)).toBeVisible({ timeout: 15_000 });
+    const sheet = page.getByRole("region", { name: "Directions" });
+    const handle = page.getByRole("button", {
+      name: /(expand|collapse) directions/i,
+    });
+    const cdp = await page.context().newCDPSession(page);
+
+    async function swipe(dy: number) {
+      const box = await handle.boundingBox();
+      if (!box) throw new Error("no sheet handle");
+      const x = box.x + box.width / 2;
+      const y = box.y + box.height / 2;
+      const point = (py: number) => [{ x, y: py, id: 1 }];
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: point(y),
+      });
+      for (let i = 1; i <= 5; i++) {
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchMove",
+          touchPoints: point(y + (dy * i) / 5),
+        });
+      }
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: [],
+      });
+    }
+
+    await swipe(-150);
+    await expect(sheet).toHaveAttribute("data-state", "expanded");
+    // the handle rides the sheet's 200 ms height animation; swipe once it has settled
+    await expect
+      .poll(async () => (await sheet.boundingBox())?.height ?? 0)
+      .toBeGreaterThan(915 * 0.75);
+    await swipe(150);
+    await expect(sheet).toHaveAttribute("data-state", "collapsed");
+  });
+});
