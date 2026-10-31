@@ -13,7 +13,7 @@ import {
 import { Hero } from "@/components/HeroMarker";
 import { PixelSprite } from "@/components/PixelSprite";
 import { QuestList } from "@/components/QuestLog";
-import { fetchResorts, type Resort } from "@/lib/api";
+import { type Resort, resortsQuery } from "@/lib/api";
 import { useBackToClose } from "@/lib/back-close";
 import {
   emptyRider,
@@ -33,7 +33,7 @@ import { worldBadge } from "@/lib/game/sprites";
 import { worldNumbers } from "@/lib/game/worlds";
 
 function useResorts(): Resort[] {
-  return useQuery({ queryKey: ["resorts"], queryFn: fetchResorts }).data ?? [];
+  return useQuery(resortsQuery).data ?? [];
 }
 
 /** Name, title, the stamp grid (one slot per world, north to south) and stats. */

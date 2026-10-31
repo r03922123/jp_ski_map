@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { CheckInButton } from "@/components/CheckInButton";
 import { PixelSprite } from "@/components/PixelSprite";
-import { fetchResorts, type RankedResort } from "@/lib/api";
+import { type RankedResort, resortsQuery } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 import { useRider } from "@/lib/game/rider";
 import { worldBadge } from "@/lib/game/sprites";
@@ -78,7 +78,7 @@ export function ResortList({
   onSelect: (resortId: string, accessPointId: string) => void;
 }) {
   // SPEC-web-app v1.6 level select: each card is a world, numbered by geography
-  const catalog = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+  const catalog = useQuery(resortsQuery);
   const worlds = worldNumbers(catalog.data ?? []);
   const rider = useRider();
   return (

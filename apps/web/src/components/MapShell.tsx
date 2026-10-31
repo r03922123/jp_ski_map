@@ -40,11 +40,12 @@ import {
   fetchNightBus,
   fetchPath,
   fetchRank,
-  fetchResorts,
   fetchRoutes,
   type Route,
+  resortsQuery,
 } from "@/lib/api";
 import { mirrorUrl } from "@/lib/back-close";
+import { nowInHakuba } from "@/lib/depart-at";
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
 import { completeKonbini, isKonbini } from "@/lib/game/quests";
@@ -120,13 +121,6 @@ const MapView = dynamic(() => import("./MapView"), { ssr: false });
 const LODGING_MIN_ZOOM = 14;
 
 /** Current Hakuba time as "YYYY-MM-DDTHH:mm" for the datetime-local input. */
-function nowInHakuba(): string {
-  return new Date()
-    .toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
-    .slice(0, 16)
-    .replace(" ", "T");
-}
-
 type Loadable<T> =
   | { status: "idle" }
   | { status: "loading" }
@@ -266,7 +260,7 @@ export function MapShell() {
     setSavedOpen(false);
   };
 
-  const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+  const resorts = useQuery(resortsQuery);
 
   const showLodging = view !== null && view.zoom >= LODGING_MIN_ZOOM;
   const lodging = useQuery({

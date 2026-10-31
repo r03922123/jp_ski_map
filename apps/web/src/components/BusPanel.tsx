@@ -2,6 +2,7 @@
 
 import { StopList } from "@/components/StopList";
 import type { BusOption, BusResult, NightResult, Resort } from "@/lib/api";
+import { clampDepart, departRange } from "@/lib/depart-at";
 import { formatDuration } from "@/lib/format";
 import { alightIndexOf } from "@/lib/nav/bus-journey";
 import { cn } from "@/lib/utils";
@@ -278,6 +279,8 @@ function SeasonNotice({
 export function BusPanel(props: BusPanelProps) {
   const { departAt, onDepartAtChange, showNight, onShowNightChange, night } =
     props;
+  // computed per render: a page left open overnight moves its range on
+  const range = departRange();
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-3 text-sm">
@@ -290,7 +293,12 @@ export function BusPanel(props: BusPanelProps) {
             type="datetime-local"
             className="rounded-md border bg-background px-2 py-1"
             value={departAt}
-            onChange={(e) => onDepartAtChange(e.target.value)}
+            min={range.min}
+            max={range.max}
+            // a typed date can still fall outside min/max: pull it back in
+            onChange={(e) =>
+              onDepartAtChange(clampDepart(e.target.value, range))
+            }
           />
         </div>
         <label className="flex items-center gap-2 pb-1">

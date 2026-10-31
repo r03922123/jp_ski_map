@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import type { components, operations } from "@/lib/api-types";
 
 export type Resort = components["schemas"]["Resort"];
@@ -48,6 +49,16 @@ async function getJson<T>(path: string): Promise<T> {
 const latLng = (c: Coord) => `${c.lat},${c.lng}`;
 
 export const fetchResorts = () => getJson<Resort[]>("/api/resorts");
+
+/**
+ * The catalogue changes with a deploy, not during a visit: fetched once, then shared
+ * by every reader (map, ranked list, quests, rider card), whenever it mounts (T78).
+ */
+export const resortsQuery = queryOptions({
+  queryKey: ["resorts"],
+  queryFn: fetchResorts,
+  staleTime: Number.POSITIVE_INFINITY,
+});
 export const fetchSnow = () => getJson<SnowReport[]>("/api/snow");
 
 export const fetchRoute = (mode: Mode, from: Coord, to: Coord) =>

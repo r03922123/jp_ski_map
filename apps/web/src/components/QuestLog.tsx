@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ScrollText } from "lucide-react";
 import { useState } from "react";
-import { fetchResorts } from "@/lib/api";
+import { resortsQuery } from "@/lib/api";
 import { useBackToClose } from "@/lib/back-close";
 import type { Quest } from "@/lib/game/quests";
 import { useDailyQuests } from "@/lib/game/use-quests";
@@ -18,7 +18,7 @@ function questText(q: Quest, name: (id: string) => string): string {
 /** Today's quests as a list (shared by the quest log and the rider card). */
 export function QuestList() {
   const quests = useDailyQuests();
-  const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+  const resorts = useQuery(resortsQuery);
   const name = (id: string) =>
     resorts.data?.find((r) => r.id === id)?.name.en ?? id;
   if (quests.length === 0)

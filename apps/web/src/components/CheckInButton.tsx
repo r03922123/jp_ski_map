@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { fetchResorts } from "@/lib/api";
+import { resortsQuery } from "@/lib/api";
 import { formatDistance } from "@/lib/format";
 import { earnVisit } from "@/lib/game/stamp-moment";
 import { checkIn } from "@/lib/game/stamps";
@@ -15,7 +15,7 @@ type Status = "idle" | "locating" | string;
  * never in the background. The reading is compared and dropped; only the day is kept.
  */
 export function CheckInButton({ resortId }: { resortId: string }) {
-  const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+  const resorts = useQuery(resortsQuery);
   const [status, setStatus] = useState<Status>("idle");
   const resort = resorts.data?.find((r) => r.id === resortId);
   if (!resort || !resorts.data) return null;

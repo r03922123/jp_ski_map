@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { fetchResorts, fetchSnow } from "@/lib/api";
+import { fetchSnow, resortsQuery } from "@/lib/api";
 import {
   questOf,
   questsFor,
@@ -19,7 +19,7 @@ import { useNow } from "@/lib/use-now";
  */
 export function useDailyQuests() {
   const rider = useRider();
-  const resorts = useQuery({ queryKey: ["resorts"], queryFn: fetchResorts });
+  const resorts = useQuery(resortsQuery);
   const snow = useQuery({
     queryKey: ["snow"],
     queryFn: fetchSnow,

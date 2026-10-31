@@ -384,3 +384,17 @@ describe("Journey stop list (long rides, loops)", () => {
     ]);
   });
 });
+
+describe("BusPanel date box (T78)", () => {
+  it("offers today to a year ahead, and pulls a far-off typed date back in", () => {
+    const props = renderPanel();
+    const box = screen.getByLabelText("Leave after");
+    const min = box.getAttribute("min") ?? "";
+    const max = box.getAttribute("max") ?? "";
+    expect(min).toMatch(/^\d{4}-\d{2}-\d{2}T00:00$/);
+    expect(max > min).toBe(true);
+
+    fireEvent.change(box, { target: { value: "9999-12-31T23:59" } });
+    expect(props.onDepartAtChange).toHaveBeenLastCalledWith(max);
+  });
+});
