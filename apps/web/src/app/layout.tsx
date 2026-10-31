@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   title: "Hakuba Ski Map",
   description:
     "Bus, drive and walk to Hakuba Valley ski resorts from your hotel",
+  // shared by link with friends, not listed: strangers would spend the free upstreams' budgets
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
+import { devOnly } from "./dev-only";
 
 // SPEC-pilot: Start → follow GPS along the route → arrive. GPS is Playwright's mock.
 const FROM = { latitude: 36.69711, longitude: 137.85393 }; // Hotel Hakuba
@@ -322,6 +323,7 @@ test.describe("bus journey", () => {
     page,
     context,
   }) => {
+    devOnly("checks the drawn stop dots through the dev map handle");
     test.slow(); // a whole journey: several GPS moves and screens
     const options = readFileSync(
       "e2e/fixtures/bus-options-2026-03-20.json",
@@ -515,6 +517,7 @@ test.describe("on a laptop (fine pointer)", () => {
   test("dev ?simulate keeps Start, and Start replays the route without GPS", async ({
     page,
   }) => {
+    devOnly("?simulate is off in production builds");
     test.slow();
     // no geolocation permission here: real GPS would fail with "Location is off"
     await page.goto(`${URL}&simulate`);

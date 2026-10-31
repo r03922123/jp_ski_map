@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
+import { devOnly } from "./dev-only";
 
 // SPEC-web-app v1.4: add a stop by typing or by tapping the map; remove it; share it.
 const DRIVE = "/?from=36.69711,137.85393&mode=drive&resort=happo-one";
@@ -127,6 +128,7 @@ test("add a stop by typing: the route goes through it, and the link keeps it", a
 test("a stop box takes a tap on an alternate route line (a stop on the way), then ✕ removes it", async ({
   page,
 }) => {
+  devOnly("finds the route line on screen through the dev map handle");
   await page.goto(DRIVE);
   await loaded(page);
   // the case this rule exists for: without a stop box, this tap would pick that route
@@ -210,6 +212,7 @@ test("clearing the start keeps the stops listed; the next tap is the new start",
 test("while a stop box is open, a resort marker is the stop, not a new destination", async ({
   page,
 }) => {
+  devOnly("zooms out through the dev map handle");
   await page.goto(DRIVE);
   await loaded(page);
   await page.getByRole("button", { name: "Add stop" }).click();

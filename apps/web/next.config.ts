@@ -23,6 +23,24 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // SPEC-deploy: basic hardening for the public site. A full CSP is out of scope for now
+  // (MapLibre's workers and OpenFreeMap tiles need careful tuning).
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "DENY" },
+          {
+            key: "Permissions-Policy",
+            value: "geolocation=(self), camera=(), microphone=()",
+          },
+        ],
+      },
+    ];
+  },
   // The browser only ever talks to /api; upstream services stay behind the FastAPI service.
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${API_URL}/api/:path*` }];
