@@ -87,6 +87,9 @@ const SAVED_ICONS: Record<SavedMarker["icon"], string> = {
 };
 
 const LODGING_LAYER = "lodging-pins";
+// MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
+// but a longer wait makes every single pick feel late
+const DOUBLE_CLICK_MS = 300;
 const ALT_HIT_LAYER = "route-alts-hit";
 
 // SPEC-game-theme: the chosen route is an overworld trail
@@ -157,6 +160,17 @@ export default function MapView({
   const worlds = useMemo(() => worldNumbers(resorts), [resorts]);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
+  // A double-click (double-tap) zooms; its first click must not also move the start.
+  // A pick waits out the double-click window, and a second click inside it cancels it.
+  const pendingPick = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelPick = () => {
+    if (pendingPick.current === null) return false;
+    clearTimeout(pendingPick.current);
+    pendingPick.current = null;
+    return true;
+  };
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cancelPick only reads a ref
+  useEffect(() => () => void cancelPick(), []);
 
   useEffect(() => {
     if (flyTo) {
@@ -358,15 +372,20 @@ export default function MapView({
           onSelectRoute?.(Number(feature.properties?.index));
           return;
         }
+        // the second click of a double-click: it zooms, nothing is picked
+        if (cancelPick() || e.originalEvent.detail > 1) return;
         // a lodging pin snaps the origin onto the hotel itself
         const pin = feature?.geometry;
-        if (pin?.type === "Point") {
-          const [lng, lat] = pin.coordinates;
-          onPickOrigin({ lat, lng });
-        } else {
-          onPickOrigin({ lat: e.lngLat.lat, lng: e.lngLat.lng });
-        }
+        const at: Coord =
+          pin?.type === "Point"
+            ? { lat: pin.coordinates[1], lng: pin.coordinates[0] }
+            : { lat: e.lngLat.lat, lng: e.lngLat.lng };
+        pendingPick.current = setTimeout(() => {
+          pendingPick.current = null;
+          onPickOrigin(at);
+        }, DOUBLE_CLICK_MS);
       }}
+      onDblClick={() => cancelPick()}
     >
       <NavigationControl position="bottom-right" />
       <Source id="lodging" type="geojson" data={lodgingGeoJson}>

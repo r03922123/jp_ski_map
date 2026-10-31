@@ -100,3 +100,47 @@ test("an attribute a browser adds to <html> (Chrome on iOS) causes no hydration 
   );
   expect(errors.filter((e) => /hydrat/i.test(e))).toEqual([]);
 });
+
+// T73: a double-click zooms; it must not also move the start (the hotel is lost)
+test("double-click zooms without moving the start; a single click still moves it", async ({
+  page,
+}) => {
+  await page.goto("/?from=36.6985,137.8376");
+  const main = page.locator("main[data-map-loaded='true']");
+  await expect(main).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible();
+  const startBefore = new URL(page.url()).searchParams.get("from");
+
+  const canvas = page.locator("canvas.maplibregl-canvas");
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error("map canvas has no size");
+  const zoomBefore = await page.evaluate(() =>
+    (
+      window as unknown as { __hakubaMap: { getZoom(): number } }
+    ).__hakubaMap.getZoom(),
+  );
+  await page.mouse.dblclick(
+    box.x + box.width / 2 + 60,
+    box.y + box.height / 2 + 60,
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        (
+          window as unknown as { __hakubaMap: { getZoom(): number } }
+        ).__hakubaMap.getZoom(),
+      ),
+    )
+    .toBeGreaterThan(zoomBefore + 0.5);
+  // past any single-click delay: the start is where the URL put it
+  await page.waitForTimeout(600);
+  expect(new URL(page.url()).searchParams.get("from")).toBe(startBefore);
+
+  await page.mouse.click(
+    box.x + box.width / 2 + 60,
+    box.y + box.height / 2 + 60,
+  );
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("from"))
+    .not.toBe(startBefore);
+});
