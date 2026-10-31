@@ -661,7 +661,7 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 
 ## Phase 16: Progression (SPEC-progression v1.6)
 
-## Task 68: Rider store + titles
+## Task 68: Rider store + titles ✅
 **Acceptance:** `hakuba:rider` validated store (corrupt → empty + raw kept; storage throws → session only), `useSyncExternalStore`, tab sync, rename (≤ 20 chars), titles at every threshold. **Files:** `lib/game/rider.ts`, tests. **Scope:** S
 
 ## Task 69: Stamps: arrival and check-in
