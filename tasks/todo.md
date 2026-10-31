@@ -694,3 +694,34 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 - [x] Gates green; unit 320; e2e dev 61/62 (the one failure is the open pre-existing pilot-drag flake, Task 67); `E2E_PROD=1` 57 passed, 4 dev-only skipped (before the review fixes)
 - [x] Adversarial review (3 lenses + refuting verifier): 15 confirmed, all fixed (Task 72b)
 - [ ] Phone check over the dev HTTPS server: needs the author's iPhone (title, HUD, check-in at a base, stamp moment, sound toggle)
+
+## Phase 18: Device QA fixes (from the 2026-11-01 QA: real iPhone over USB, Android emulation, desktop + API)
+Not started. Write a failing test first for each bug (as in T72b). Evidence: QA reports in the session, screenshots were in the session scratchpad (gone).
+
+## Task 73: Double-click zoom must not move the start
+Desktop: double-clicking the map zooms AND calls `onPickOrigin` (MapView.tsx map `onClick`, no dblclick guard) → the hotel start is lost. Fix: ignore the click that belongs to a double-click (e.g. defer single-click ~250 ms / check `originalEvent.detail`). **Scope:** S
+
+## Task 74: Sheet handle swipe on touch
+Android (emulated): a swipe on the BottomSheet handle does nothing (it only reads `onClick`; no click after a moving touch). Support drag up/down via pointer events; keep tap-to-toggle and keyboard. **Scope:** S
+
+## Task 75: Touch targets ≥ 44 pt / 48 dp
+Real iPhone: a tap on the HUD Rider button registered on the Quests button next to it (HUD buttons 32×32, tight). Also mode/category tabs 25 px tall, Check in 24 px, Details 16 px, Saved 26 px, ✕/star 28–32 px, MapLibre zoom 29 px. **Scope:** M
+
+## Task 76: Back closes overlays instead of leaving the trip
+Android/desktop: Back with the rider card (or quest log) open navigates away and loses from/resort (URL mirror uses `replaceState` only). Push a history entry while an overlay is open; popstate closes it. Decide whether resort selection should push history. **Scope:** M
+
+## Task 77: Small phones: Start/ETA visible in the collapsed sheet
+At 360×740 / Pixel 7 walk, Start and ETA are below the collapsed sheet's fold. Also "Tap to start" expands the sheet and focuses search (may raise the keyboard on Android): don't auto-focus search on touch. **Scope:** S
+
+## Task 78: Keyboard + API hygiene
+- Skip link / tab order: 20 map stops (markers, attribution) before the search box.
+- `/api/bus/options` and `/api/bus/night` 500 on extreme dates (9999-12-31, 0001-01-01) → 422; clamp the date input (min/max).
+- Request size limit (a 5 MB POST is parsed and echoed in the 422 body); cap `q` length.
+- `/api/resorts` fetched twice per load; Cache-Control on static API data.
+- Polish: cut-off search placeholder, desktop title says "Tap to start", "Stamp earned!" announced twice (toast + output), hero covers the Happo-One map label, no h1, Escape doesn't dismiss the stamp toast.
+**Scope:** M
+
+## State at handoff (2026-11-01)
+- v1.6 game redesign done through T72b; 19+ commits local, NOT pushed (the user hasn't OK'd the push).
+- Open issue: pilot walk-drag flake (Task 67 note).
+- Phone check done on a real iPhone (Chrome iOS 27): title, sound, search, check-in message, simulated walk demo all fine; no app console errors.
