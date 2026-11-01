@@ -727,7 +727,11 @@ At 360×740 / Pixel 7 walk, Start and ETA are below the collapsed sheet's fold. 
 **Scope:** M
 **Done:** API: dates 2000–2100 (422), 64 KB body limit (413), 422 without the input echo, `q` ≤ 2048, /api/resorts cached 1 h. Web: date min/max + clamp, one resorts fetch, map after the sheet in the DOM (Tab → search first), sr-only h1, "Checked in" + Escape on the stamp toast, shorter hints, "Press start", resort labels above the idle hero.
 
+## Task 79: Pulling the sheet down reloads the page on iPhone (backlog)
+From the 2026-11-01 real-iPhone re-check: dragging the sheet/panel down to collapse it can trigger Safari's pull-to-refresh and reload the trip. Approach it as a mobile UX task (iOS gesture conventions + UX research), not a one-line CSS patch: decide which areas own vertical drags (sheet handle, sheet body at scroll-top, map) and what a downward pull should mean there. Candidate mechanics: `overscroll-behavior-y` on the page/sheet, `touch-action` on drag areas, keeping the sheet's own scroll from chaining to the page. Verify on the real iPhone (pull-to-refresh can't be reproduced in Playwright). **Scope:** S–M
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
-- Next: re-check T73–T77 on the real iPhone / an Android device (the e2e uses emulation and CDP touch); then push on the user's OK.
+- Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).
+- Next: push on the user's OK; later T79 (pull-to-refresh).
 - Open issue: pilot walk-drag flake (Task 67 note).
