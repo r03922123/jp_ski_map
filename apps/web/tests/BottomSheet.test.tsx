@@ -76,4 +76,106 @@ describe("BottomSheet", () => {
     fireEvent.click(handle()); // a later tap is not swallowed
     expect(sheet()).toHaveAttribute("data-state", "expanded");
   });
+
+  // T79: on iPhone, a downward drag on the sheet whose list is already at the top went
+  // to Safari as pull-to-refresh and reloaded the trip. Like a native iOS sheet (and
+  // Vaul's shouldDrag), the sheet owns that drag; who owns it is decided at touch start.
+  const body = () => {
+    const el = sheet().querySelector<HTMLElement>("[data-sheet-body]");
+    if (!el) throw new Error("no sheet body");
+    return el;
+  };
+
+  function scrolledTo(top: number) {
+    Object.defineProperty(body(), "scrollTop", {
+      configurable: true,
+      value: top,
+    });
+  }
+
+  /** Returns whether the browser may still act on the move (false = the sheet took it). */
+  function drag(target: Element, fromY: number, toY: number) {
+    fireEvent.touchStart(target, { touches: [{ clientY: fromY }] });
+    const browserMayAct = fireEvent.touchMove(target, {
+      touches: [{ clientY: toY }],
+    });
+    fireEvent.touchEnd(target, { changedTouches: [{ clientY: toY }] });
+    return browserMayAct;
+  }
+
+  it("a downward drag in the list at its top is the sheet's: Safari never sees a pull, the sheet collapses", () => {
+    renderSheet();
+    fireEvent.focus(screen.getByRole("textbox", { name: "Search" })); // expanded
+    scrolledTo(0);
+    expect(
+      drag(screen.getByRole("button", { name: "Add stop" }), 300, 400),
+    ).toBe(false);
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
+  it("a collapsed sheet still keeps the pull from Safari", () => {
+    renderSheet();
+    scrolledTo(0);
+    expect(drag(body(), 300, 400)).toBe(false);
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
+  it("a downward drag in a list scrolled down scrolls the list, as before", () => {
+    renderSheet();
+    fireEvent.focus(screen.getByRole("textbox", { name: "Search" }));
+    scrolledTo(120);
+    expect(drag(body(), 300, 400)).toBe(true);
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
+
+  it("on an expanded sheet an upward drag is left to the list", () => {
+    renderSheet();
+    fireEvent.focus(screen.getByRole("textbox", { name: "Search" }));
+    scrolledTo(0);
+    expect(drag(body(), 400, 300)).toBe(true);
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
+
+  // iPhone QA: an upward swipe on the collapsed sheet bounced the whole page and left the
+  // sheet small. UIKit sheets expand first (prefersScrollingExpandsWhenScrolledToEdge).
+  it("on a collapsed sheet an upward drag is the sheet's: it expands, the page does not bounce", () => {
+    renderSheet();
+    scrolledTo(0);
+    expect(drag(body(), 400, 300)).toBe(false);
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
+
+  it("a collapsed sheet expands from an upward drag even with its list scrolled", () => {
+    renderSheet();
+    scrolledTo(80);
+    expect(drag(body(), 400, 300)).toBe(false);
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
+
+  it("a downward drag on the header (search box) is the sheet's too", () => {
+    renderSheet();
+    fireEvent.focus(screen.getByRole("textbox", { name: "Search" }));
+    expect(
+      drag(screen.getByRole("textbox", { name: "Search" }), 300, 400),
+    ).toBe(false);
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
+  it("a short downward wobble keeps Safari out but does not collapse", () => {
+    renderSheet();
+    fireEvent.focus(screen.getByRole("textbox", { name: "Search" }));
+    scrolledTo(0);
+    expect(drag(body(), 300, 310)).toBe(false);
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
+
+  it("a cancelled downward drag (the system took the touch) does not collapse", () => {
+    renderSheet();
+    fireEvent.focus(screen.getByRole("textbox", { name: "Search" }));
+    scrolledTo(0);
+    fireEvent.touchStart(body(), { touches: [{ clientY: 300 }] });
+    fireEvent.touchMove(body(), { touches: [{ clientY: 400 }] });
+    fireEvent.touchCancel(body(), { changedTouches: [{ clientY: 400 }] });
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
 });

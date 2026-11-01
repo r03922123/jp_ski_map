@@ -129,6 +129,12 @@
   html {
     @apply font-sans;
   }
+  /* T79: a pull-to-refresh reloads the trip. Chrome on Android honours this; iPhone
+     Safari ignores it (WebKit bug 275947), so BottomSheet also owns the downward drag. */
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
 }
 
 /* iOS zooms the page in when a focused field's text is under 16px, and stays zoomed

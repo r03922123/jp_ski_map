@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const DRAG_THRESHOLD_PX = 30;
@@ -22,6 +22,77 @@ export function BottomSheet({
   // a mouse drag still sends a click afterwards; it must not undo the swipe. (A moving
   // touch on Android sends none, so the swipe acts on pointerup, not on click.)
   const swipedAt = useRef(Number.NEGATIVE_INFINITY);
+  const sectionRef = useRef<HTMLElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
+
+  // T79: iPhone Safari took a downward drag on a sheet whose list was at its top as
+  // pull-to-refresh (overscroll-behavior does not stop it there: WebKit bug 275947), and
+  // an upward swipe on the collapsed sheet bounced the page instead of expanding it.
+  // Like a UIKit sheet (prefersScrollingExpandsWhenScrolledToEdge) and Vaul's shouldDrag,
+  // the sheet owns a drag down from a list at its top, and a drag up while collapsed.
+  // Who owns it is decided when the touch starts and on its first move, so a flick that
+  // scrolls the list to its top stays a scroll. React's touch handlers are passive, so
+  // these are native listeners that may preventDefault.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    let gesture: {
+      startY: number;
+      lastY: number;
+      mayOwnDown: boolean;
+      mayOwnUp: boolean;
+      owned: boolean | null; // null until the first move picks a direction
+    } | null = null;
+    const onStart = (e: TouchEvent) => {
+      const target = e.target as Element;
+      if (target.closest("[data-touch-exempt]")) {
+        gesture = null; // the handle has its own swipe
+        return;
+      }
+      const body = bodyRef.current;
+      const inBody = body?.contains(target) ?? false;
+      const y = e.touches[0].clientY;
+      gesture = {
+        startY: y,
+        lastY: y,
+        mayOwnDown: !inBody || (body?.scrollTop ?? 0) <= 0,
+        mayOwnUp: !expandedRef.current,
+        owned: null,
+      };
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!gesture) return;
+      gesture.lastY = e.touches[0].clientY;
+      const dy = gesture.lastY - gesture.startY;
+      if (gesture.owned === null && dy !== 0)
+        gesture.owned = dy > 0 ? gesture.mayOwnDown : gesture.mayOwnUp;
+      if (gesture.owned && e.cancelable) e.preventDefault();
+    };
+    const onEnd = () => {
+      if (gesture?.owned) {
+        const dy = gesture.lastY - gesture.startY;
+        if (dy > DRAG_THRESHOLD_PX) setExpanded(false);
+        else if (dy < -DRAG_THRESHOLD_PX) setExpanded(true);
+      }
+      gesture = null;
+    };
+    const onCancel = () => {
+      gesture = null;
+    };
+    section.addEventListener("touchstart", onStart, { passive: true });
+    section.addEventListener("touchmove", onMove, { passive: false });
+    section.addEventListener("touchend", onEnd);
+    section.addEventListener("touchcancel", onCancel);
+    return () => {
+      section.removeEventListener("touchstart", onStart);
+      section.removeEventListener("touchmove", onMove);
+      section.removeEventListener("touchend", onEnd);
+      section.removeEventListener("touchcancel", onCancel);
+    };
+  }, []);
 
   function onHandlePointerUp(clientY: number) {
     const start = dragStartY.current;
@@ -40,6 +111,7 @@ export function BottomSheet({
 
   return (
     <section
+      ref={sectionRef}
       aria-label={label}
       // a place to hand focus without raising a phone's keyboard (the title screen)
       data-sheet
@@ -82,7 +154,9 @@ export function BottomSheet({
         </div>
       )}
       <div
-        className="min-h-0 flex-1 overflow-y-auto px-4 pb-4"
+        ref={bodyRef}
+        data-sheet-body
+        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4"
         // a search box down here (a trip stop) needs the room too
         onFocusCapture={(e) => {
           if (e.target instanceof HTMLInputElement) setExpanded(true);

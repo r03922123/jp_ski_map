@@ -729,9 +729,11 @@ At 360×740 / Pixel 7 walk, Start and ETA are below the collapsed sheet's fold. 
 
 ## Task 79: Pulling the sheet down reloads the page on iPhone (backlog)
 From the 2026-11-01 real-iPhone re-check: dragging the sheet/panel down to collapse it can trigger Safari's pull-to-refresh and reload the trip. Approach it as a mobile UX task (iOS gesture conventions + UX research), not a one-line CSS patch: decide which areas own vertical drags (sheet handle, sheet body at scroll-top, map) and what a downward pull should mean there. Candidate mechanics: `overscroll-behavior-y` on the page/sheet, `touch-action` on drag areas, keeping the sheet's own scroll from chaining to the page. Verify on the real iPhone (pull-to-refresh can't be reproduced in Playwright). **Scope:** S–M
+**Done:** the sheet owns a downward drag when its list is at the top (collapses; Safari never sees a pull) and an upward drag while collapsed (expands; the page no longer bounces), decided at touch start + first move, as in UIKit sheets (`prefersScrollingExpandsWhenScrolledToEdge`) and Vaul's `shouldDrag`. Native non-passive listeners in `BottomSheet.tsx`; `overscroll-behavior-y: none` on the root for Android Chrome (Safari ignores it, WebKit bug 275947). Verified on the iPhone with a touch logger: 0 reloads in 12+ downward drags.
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).
-- Next: push on the user's OK; later T79 (pull-to-refresh).
+- Pushed 2026-11-01 (9a25e4a, CI green). T79 done after that, local.
+- Next: Checkpoint M once the user has installed Tailscale.
 - Open issue: pilot walk-drag flake (Task 67 note).
