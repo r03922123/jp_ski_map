@@ -24,6 +24,7 @@ import {
   MAPLIBRE_WORKER_URL,
 } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
+import { type RideStopMark, rideStopFeatures } from "@/lib/ride-stops";
 import {
   type LngLat,
   labelAnchor,
@@ -50,7 +51,7 @@ export type MapViewProps = {
   /** Boarding stop of the chosen bus option. */
   busStop: Coord | null;
   /** The bus ride of the chosen option: its road path, its stops, and the ride time. */
-  ride: { route: Route; stops: Coord[]; label: string | null } | null;
+  ride: { route: Route; stops: RideStopMark[]; label: string | null } | null;
   /** When this changes, the map flies to it (e.g. a search result). */
   flyTo: Coord | null;
   onLoad?: () => void;
@@ -117,6 +118,7 @@ export const ROUTE_LAYER_ORDER = [
   "route-covered-line",
   "route-highlight-line",
   "ride-stop-dots",
+  "ride-stop-names",
 ];
 
 export function keepRouteLayerOrder(map: MapLibreMap): void {
@@ -303,14 +305,7 @@ export default function MapView({
     [routes, activeRoute],
   );
   const rideStopsGeoJson = useMemo(
-    () => ({
-      type: "FeatureCollection" as const,
-      features: (ride?.stops ?? []).map((c) => ({
-        type: "Feature" as const,
-        properties: {},
-        geometry: { type: "Point" as const, coordinates: [c.lng, c.lat] },
-      })),
-    }),
+    () => rideStopFeatures(ride?.stops ?? []),
     [ride],
   );
   const rideLabelAt =
@@ -384,6 +379,9 @@ export default function MapView({
           onSelectRoute?.(Number(feature.properties?.index));
           return;
         }
+        // navigating (or previewing): the pilot owns the map, a tap must not replace
+        // the trip being followed with a new start
+        if (piloting) return;
         // the second click of a double-click: it zooms, nothing is picked
         if (cancelPick() || e.originalEvent.detail > 1) return;
         // a lodging pin snaps the origin onto the hotel itself
@@ -547,14 +545,40 @@ export default function MapView({
         />
       </Source>
       <Source id="ride-stops" type="geojson" data={rideStopsGeoJson}>
+        {/* Google-Maps transit style: on and off stand out, stops between are small */}
         <Layer
           id="ride-stop-dots"
           type="circle"
           paint={{
-            "circle-radius": 4,
+            "circle-radius": ["match", ["get", "role"], "via", 5, 8],
             "circle-color": "#ffffff",
             "circle-stroke-color": RIDE_CASING,
-            "circle-stroke-width": 2,
+            "circle-stroke-width": ["match", ["get", "role"], "via", 2.5, 3.5],
+          }}
+        />
+        <Layer
+          id="ride-stop-names"
+          type="symbol"
+          layout={{
+            // where you get on and off: always; the stops between: once zoomed in
+            // (MapLibre allows "zoom" only as the input of a top-level step)
+            "text-field": [
+              "step",
+              ["zoom"],
+              ["case", ["==", ["get", "role"], "via"], "", ["get", "name"]],
+              14,
+              ["get", "name"],
+            ],
+            "text-font": ["Noto Sans Regular"],
+            "text-size": ["match", ["get", "role"], "via", 11, 12.5],
+            "text-offset": [0, 1.1],
+            "text-anchor": "top",
+            "text-max-width": 9,
+          }}
+          paint={{
+            "text-color": RIDE_CASING,
+            "text-halo-color": "#ffffff",
+            "text-halo-width": 1.6,
           }}
         />
       </Source>
@@ -572,7 +596,7 @@ export default function MapView({
             style={{ zIndex: selected ? 2 : 1 }}
             onClick={(e) => {
               e.originalEvent.stopPropagation();
-              onSelectResort(r.id);
+              if (!piloting) onSelectResort(r.id); // navigating: the trip stays
             }}
           >
             <button
@@ -627,7 +651,7 @@ export default function MapView({
           anchor="center"
           onClick={(e) => {
             e.originalEvent.stopPropagation();
-            onSelectSaved?.(p.id);
+            if (!piloting) onSelectSaved?.(p.id); // navigating: the trip stays
           }}
         >
           <button

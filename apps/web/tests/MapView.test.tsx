@@ -1,7 +1,9 @@
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Resort } from "@/lib/api";
 import type { Camera } from "@/lib/nav/camera";
+import type { SavedMarker } from "@/lib/saved-places";
 
 // Task 67: under load the pilot drag sometimes did nothing. The follow camera's ease was
 // scheduled in an effect; a press that landed after React committed but before that
@@ -44,17 +46,39 @@ vi.mock("react-map-gl/maplibre", async () => {
     return <div>{p.children}</div>;
   });
   const Nothing = () => null;
+  const Marker = (p: { onClick?: (e: unknown) => void }) =>
+    p.onClick ? (
+      <button
+        type="button"
+        data-marker
+        onClick={() =>
+          p.onClick?.({ originalEvent: { stopPropagation: () => {} } })
+        }
+      />
+    ) : null;
   return {
     __esModule: true,
     default: MapGL,
     Layer: Nothing,
-    Marker: Nothing,
+    Marker,
     NavigationControl: Nothing,
     Source: Nothing,
   };
 });
 
 const { default: MapView } = await import("@/components/MapView");
+
+const RESORT = {
+  id: "happo-one",
+  name: { en: "Hakuba Happo-One", ja: "白馬八方尾根" },
+  accessPoints: [{ coord: { lat: 36.69, lng: 137.83 } }],
+} as unknown as Resort;
+const SAVED = {
+  id: "s1",
+  coord: { lat: 36.7, lng: 137.84 },
+  name: "Hotel",
+  icon: "hotel",
+} as unknown as SavedMarker;
 
 const cam = (lng: number): Camera => ({
   center: [lng, 36.7],
@@ -63,10 +87,17 @@ const cam = (lng: number): Camera => ({
   zoom: 16,
 });
 
-function view(camera: Camera) {
+function view(
+  camera: Camera | null,
+  onPickOrigin: (c: { lat: number; lng: number }) => void = () => {},
+  markers: {
+    onSelectResort?: (id: string) => void;
+    onSelectSaved?: (id: string) => void;
+  } = {},
+) {
   return (
     <MapView
-      resorts={[]}
+      resorts={markers.onSelectResort ? [RESORT] : []}
       selectedResortId={null}
       origin={null}
       destination={null}
@@ -76,17 +107,21 @@ function view(camera: Camera) {
       busStop={null}
       ride={null}
       flyTo={null}
-      onPickOrigin={() => {}}
-      onSelectResort={() => {}}
-      pilot={{
-        camera,
-        puck: camera.center,
-        heading: 0,
-        covered: [],
-        following: true,
-        onUserMove: () => {},
-        pose: "walk",
-      }}
+      onPickOrigin={onPickOrigin}
+      onSelectResort={markers.onSelectResort ?? (() => {})}
+      saved={markers.onSelectSaved ? [SAVED] : []}
+      onSelectSaved={markers.onSelectSaved}
+      pilot={
+        camera && {
+          camera,
+          puck: camera.center,
+          heading: 0,
+          covered: [],
+          following: true,
+          onUserMove: () => {},
+          pose: "walk",
+        }
+      }
     />
   );
 }
@@ -129,5 +164,67 @@ describe("MapView follow camera (Task 67)", () => {
     expect(h.map.easeTo.mock.calls[0][0]).toMatchObject({
       center: [137.86, 36.7],
     });
+  });
+});
+
+// iPhone QA (2026-11-02): a tap on the map during navigation or its preview dropped a
+// new start, which replaced the trip being followed. Taps pick a start only when
+// planning, never while the pilot owns the map.
+describe("MapView taps while navigating", () => {
+  const tap = () =>
+    h.props.onClick({
+      features: [],
+      lngLat: { lat: 36.7, lng: 137.85 },
+      originalEvent: { detail: 1 },
+    });
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("planning: a tap sets the start (after the double-click window)", () => {
+    const pick = vi.fn();
+    render(view(null, pick));
+    act(() => tap());
+    act(() => vi.advanceTimersByTime(400));
+    expect(pick).toHaveBeenCalledWith({ lat: 36.7, lng: 137.85 });
+  });
+
+  it("navigating or previewing: a tap drops nothing", () => {
+    const pick = vi.fn();
+    render(view(cam(137.85), pick));
+    act(() => tap());
+    act(() => vi.advanceTimersByTime(400));
+    expect(pick).not.toHaveBeenCalled();
+  });
+
+  it("navigating or previewing: a resort or saved-place marker changes nothing", () => {
+    const resort = vi.fn();
+    const saved = vi.fn();
+    render(
+      view(cam(137.85), () => {}, {
+        onSelectResort: resort,
+        onSelectSaved: saved,
+      }),
+    );
+    for (const m of document.querySelectorAll("[data-marker]"))
+      fireEvent.click(m);
+    expect(resort).not.toHaveBeenCalled();
+    expect(saved).not.toHaveBeenCalled();
+  });
+
+  it("planning: the same markers still choose the resort / saved place", () => {
+    const resort = vi.fn();
+    const saved = vi.fn();
+    render(
+      view(null, () => {}, { onSelectResort: resort, onSelectSaved: saved }),
+    );
+    for (const m of document.querySelectorAll("[data-marker]"))
+      fireEvent.click(m);
+    expect(resort).toHaveBeenCalledWith("happo-one");
+    expect(saved).toHaveBeenCalledWith("s1");
   });
 });

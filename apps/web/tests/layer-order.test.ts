@@ -45,6 +45,10 @@ describe("keepRouteLayerOrder", () => {
 
   it("knows every route layer MapView draws", () => {
     expect(ROUTE_LAYER_ORDER).toContain("route-covered-line");
-    expect(ROUTE_LAYER_ORDER.at(-1)).toBe("ride-stop-dots");
+    // stop names on top, then their dots under them
+    expect(ROUTE_LAYER_ORDER.slice(-2)).toEqual([
+      "ride-stop-dots",
+      "ride-stop-names",
+    ]);
   });
 });

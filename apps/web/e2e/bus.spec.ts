@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+import { devOnly } from "./dev-only";
 
 // Bus options computed by the real query over the transcribed 2025-26 timetables with
 // review simulated (the committed timetables are reviewed=false, so the live API
@@ -77,6 +78,70 @@ test("bus tab lists next shuttles and draws the walk to the stop", async ({
   await expect(page.locator(".maplibregl-ctrl-attrib")).toContainText(
     "Hakuba Valley",
   );
+});
+
+type DevMap = {
+  queryRenderedFeatures(o: {
+    layers: string[];
+  }): { properties: { name: string; role: string } }[];
+};
+const rendered = (page: Page, layer: string) =>
+  page.evaluate(
+    (id) =>
+      (window as unknown as { __hakubaMap: DevMap }).__hakubaMap
+        .queryRenderedFeatures({ layers: [id] })
+        .map((f) => f.properties),
+    layer,
+  );
+
+// iPhone QA (2026-11-02): "show all stops on the route, like Google Maps". Every stop of
+// the chosen ride is a dot; where you get on and off are named on the map.
+test("a chosen bus option shows every stop of the ride, board and alight named", async ({
+  page,
+}) => {
+  devOnly("counts what MapLibre drew through the dev map handle");
+  await page.route("**/api/bus/options**", (route) =>
+    route.fulfill({ contentType: "application/json", body: MARCH_20 }),
+  );
+  await page.goto(HOTEL_HAKUBA);
+  await page.getByLabel("Leave after").fill("2026-03-20T08:00");
+  const hakuba47 = page.getByRole("region", {
+    name: "Hakuba47 Mountain Resort",
+  });
+  await expect(hakuba47.getByText("08:11 → 08:39")).toBeVisible({
+    timeout: 15_000,
+  });
+  await hakuba47.getByRole("button").first().click();
+  await expect(page.locator("main")).toHaveAttribute(
+    "data-route-layers",
+    "walk,ride",
+    { timeout: 10_000 },
+  );
+
+  await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+    timeout: 15_000,
+  });
+  // Happo Bus Terminal → Nakiyama → Echoland → Hakuba 47 (fixture, to the alighting stop)
+  await expect
+    .poll(async () => (await rendered(page, "ride-stop-dots")).length, {
+      timeout: 10_000,
+    })
+    .toBe(4);
+  const dots = await rendered(page, "ride-stop-dots");
+  expect(dots.filter((d) => d.role === "board")).toHaveLength(1);
+  expect(dots.filter((d) => d.role === "alight")).toHaveLength(1);
+  await expect
+    .poll(
+      async () =>
+        (await rendered(page, "ride-stop-names")).map((f) => f.name).sort(),
+      { timeout: 10_000 },
+    )
+    .toEqual(
+      expect.arrayContaining([
+        "Hakuba 47 Winter Sports Park",
+        "Hakuba Happo Bus Terminal",
+      ]),
+    );
 });
 
 test("an off-season date says there is no shuttle service", async ({

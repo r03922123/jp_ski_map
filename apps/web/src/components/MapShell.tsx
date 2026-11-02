@@ -65,6 +65,7 @@ import {
   speak,
 } from "@/lib/nav/announce";
 import {
+  alightIndexOf,
   type BusPlan,
   type BusState,
   boardManually,
@@ -302,9 +303,19 @@ export function MapShell() {
     mode === "bus" && !showNight ? (busChoice?.boardStopCoord ?? null) : null;
 
   // The bus ride, drawn along the roads between its located stops (approximate).
-  const rideStops = useMemo(
-    () => busChoice?.rideStops.flatMap((s) => (s.coord ? [s.coord] : [])) ?? [],
+  // To the stop where you get off (as the journey list), with names for the map.
+  const rideStopMarks = useMemo(
+    () =>
+      busChoice
+        ? busChoice.rideStops
+            .slice(0, alightIndexOf(busChoice) + 1)
+            .flatMap((s) => (s.coord ? [{ coord: s.coord, name: s.name }] : []))
+        : [],
     [busChoice],
+  );
+  const rideStops = useMemo(
+    () => rideStopMarks.map((m) => m.coord),
+    [rideStopMarks],
   );
   const ride = useQuery({
     queryKey: [
@@ -326,12 +337,12 @@ export function MapShell() {
       busStop !== null && busChoice && ride.data
         ? {
             route: ride.data,
-            stops: rideStops,
+            stops: rideStopMarks,
             label:
               busChoice.rideS != null ? formatDuration(busChoice.rideS) : null,
           }
         : null,
-    [busStop, busChoice, ride.data, rideStops],
+    [busStop, busChoice, ride.data, rideStopMarks],
   );
 
   // Drive to the access point the ranking found nearest; otherwise the first one.
@@ -691,7 +702,14 @@ export function MapShell() {
             stops: busPlan.stops
               .slice(0, busPlan.alightIndex + 1)
               .flatMap((st) =>
-                st.coord ? [{ lat: st.coord[1], lng: st.coord[0] }] : [],
+                st.coord
+                  ? [
+                      {
+                        coord: { lat: st.coord[1], lng: st.coord[0] },
+                        name: st.name,
+                      },
+                    ]
+                  : [],
               ),
             label: null,
           }
