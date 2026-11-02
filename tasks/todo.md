@@ -629,11 +629,11 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 ## Task 62: `scripts/serve-public.sh` (+ `--stop`) ✅
 **Acceptance:** builds the web app, starts Valhalla + API + `next start`, waits for `/api/health`, then (only with `--funnel`) runs `tailscale funnel --bg 3000`; `--stop` turns Funnel off first, then stops the services. Refuses to publish if health fails. **Files:** `scripts/serve-public.sh`, SPEC-deploy commands. **Scope:** S
 
-## Checkpoint M: Phase A ready
+## Checkpoint M: Phase A ready ✅ (public since 2026-11-02)
 - [x] All gates green, the full e2e suite passes against `next start` (2026-11-02: `E2E_PROD=1` 79 passed, 5 dev-only skipped, 0 failed; dev 79 + the 5 load-timeouts in stops.spec 6/6 serial; unit 343; API 359, ruff, pyright, data OK. Fixed on the way: Task 67 pilot-drag flake; T73 double-click test needed `devOnly` (reads the dev map handle); small-phone layout check now waits for a settled layout, 111/112 after vs 14/16 before)
 - [x] With Funnel on, a request from a phone reaches the API with its address as the last `X-Forwarded-For` hop (then run with `TRUSTED_PROXY_HOPS=1`) (2026-11-02: the iPhone's own IPv6 address arrived; serve-public.sh runs the API with `TRUSTED_PROXY_HOPS=1` and now logs the visitor address)
 - [x] The author installs Tailscale, renames the machine to `hakuba-map`, enables HTTPS + Funnel in the admin console (2026-11-02: brew CLI, `tailscale up --hostname=hakuba-map`)
-- [ ] **Ask before** turning Funnel on; then a phone on mobile data runs search → bus/drive/walk → Start
+- [x] **Ask before** turning Funnel on; then a phone on mobile data runs search → bus/drive/walk → Start (2026-11-02: asked, Funnel on. Full flow search → bus/drive/walk → Start run on the real iPhone through the public URL (home Wi-Fi, not on the tailnet); then with Wi-Fi off the phone loaded the site and fetched bus options over its mobile carrier, 0 errors. Live-eval fixes shipped the same day: no pins while navigating, Google-style bus stops, hotel label, keyboard dismiss, bus order by arrival, location hint)
 
 ## Phase 15: Game theme (SPEC-game-theme v1.6)
 
