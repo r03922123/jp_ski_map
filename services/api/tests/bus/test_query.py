@@ -90,6 +90,16 @@ def test_at_most_three_options_per_resort_sorted_by_arrival() -> None:
         assert arrivals == sorted(arrivals)  # type: ignore[type-var]
 
 
+# Live iPhone QA (2026-11-02): resorts came alphabetically (Cortina, 48 min, first). Like
+# Google Maps transit, the resort you can reach soonest comes first.
+def test_resorts_are_listed_by_their_earliest_arrival() -> None:
+    result = options({"stop-happo-bus-terminal": 0}, [table("line-v-v2")])
+
+    firsts = [r.options[0].arrives_at or r.options[0].departs_at for r in result.resorts]
+    assert len(firsts) > 2
+    assert firsts == sorted(firsts)
+
+
 def test_one_trip_counts_once_per_resort_using_the_closest_stop() -> None:
     walks = {"stop-happo-bus-terminal": 300, "stop-jr-hakuba": 60}
 

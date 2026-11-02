@@ -172,9 +172,15 @@ def bus_options(
     by_resort: dict[str, list[BusOption]] = {}
     for option in best.values():
         by_resort.setdefault(option.resort_id, []).append(option)
+    ranked = {
+        resort: sorted(opts, key=_rank)[:MAX_OPTIONS_PER_RESORT]
+        for resort, opts in by_resort.items()
+    }
+    # the resort you can reach soonest first (Google Maps transit orders by arrival);
+    # the id breaks ties so the order is stable
     resorts = [
-        ResortBusOptions(resort_id=resort, options=sorted(opts, key=_rank)[:MAX_OPTIONS_PER_RESORT])
-        for resort, opts in sorted(by_resort.items())
+        ResortBusOptions(resort_id=resort, options=opts)
+        for resort, opts in sorted(ranked.items(), key=lambda kv: (_rank(kv[1][0]), kv[0]))
     ]
     return BusResult(status="ok", next_service_date=None, resorts=resorts, **meta)
 
