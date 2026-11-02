@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { devOnly } from "./dev-only";
 
 test("renders a full-screen map of Hakuba with attribution", async ({
   page,
@@ -105,6 +106,7 @@ test("an attribute a browser adds to <html> (Chrome on iOS) causes no hydration 
 test("double-click zooms without moving the start; a single click still moves it", async ({
   page,
 }) => {
+  devOnly("reads the zoom through the dev map handle");
   await page.goto("/?from=36.6985,137.8376");
   const main = page.locator("main[data-map-loaded='true']");
   await expect(main).toBeAttached({ timeout: 15_000 });

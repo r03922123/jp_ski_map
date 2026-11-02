@@ -12,19 +12,23 @@ async function visibleAndOnTop(page: Page, name: RegExp | string) {
       ? page.getByText(name).first()
       : page.getByRole("button", { name });
   await expect(el).toBeVisible({ timeout: 15_000 });
-  const box = await el.boundingBox();
-  if (!box) throw new Error("not laid out");
-  const viewport = page.viewportSize();
-  expect(box.y + box.height).toBeLessThanOrEqual(viewport?.height ?? 0);
-  const onTop = await el.evaluate((node) => {
-    const r = node.getBoundingClientRect();
-    const hit = document.elementFromPoint(
-      r.left + r.width / 2,
-      r.top + r.height / 2,
-    );
-    return hit !== null && (node === hit || node.contains(hit));
-  });
-  expect(onTop).toBe(true);
+  // measured once the layout settles: the sheet animates its height and the panel
+  // re-renders as routes arrive, so a single early reading can catch it mid-change
+  await expect(async () => {
+    const box = await el.boundingBox();
+    if (!box) throw new Error("not laid out");
+    const viewport = page.viewportSize();
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport?.height ?? 0);
+    const onTop = await el.evaluate((node) => {
+      const r = node.getBoundingClientRect();
+      const hit = document.elementFromPoint(
+        r.left + r.width / 2,
+        r.top + r.height / 2,
+      );
+      return hit !== null && (node === hit || node.contains(hit));
+    });
+    expect(onTop).toBe(true);
+  }).toPass({ timeout: 10_000 });
 }
 
 for (const [label, size] of [

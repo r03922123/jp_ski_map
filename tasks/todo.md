@@ -630,7 +630,7 @@ Root cause (MapLibre source): `easeTo()` calls `_stop(false)` → `_stopHandlers
 **Acceptance:** builds the web app, starts Valhalla + API + `next start`, waits for `/api/health`, then (only with `--funnel`) runs `tailscale funnel --bg 3000`; `--stop` turns Funnel off first, then stops the services. Refuses to publish if health fails. **Files:** `scripts/serve-public.sh`, SPEC-deploy commands. **Scope:** S
 
 ## Checkpoint M: Phase A ready
-- [ ] All gates green, the full e2e suite passes against `next start`
+- [x] All gates green, the full e2e suite passes against `next start` (2026-11-02: `E2E_PROD=1` 79 passed, 5 dev-only skipped, 0 failed; dev 79 + the 5 load-timeouts in stops.spec 6/6 serial; unit 343; API 359, ruff, pyright, data OK. Fixed on the way: Task 67 pilot-drag flake; T73 double-click test needed `devOnly` (reads the dev map handle); small-phone layout check now waits for a settled layout, 111/112 after vs 14/16 before)
 - [ ] With Funnel on, a request from a phone reaches the API with its address as the last `X-Forwarded-For` hop (then run with `TRUSTED_PROXY_HOPS=1`)
 - [ ] The author installs Tailscale, renames the machine to `hakuba-map`, enables HTTPS + Funnel in the admin console
 - [ ] **Ask before** turning Funnel on; then a phone on mobile data runs search → bus/drive/walk → Start
