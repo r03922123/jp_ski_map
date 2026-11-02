@@ -55,6 +55,24 @@ _KIND: dict[str, PlaceKind] = {
     "cottage": "chalet",
 }
 
+# A place whose own name says hotel is one, whatever a loose category says: Overture
+# files some big hotels under "lodge" (Hakuba Tokyu Hotel showed as "Guest House").
+_HOTEL_NAME = re.compile(r"\bhotel\b|ホテル", re.IGNORECASE)
+# ...except a "hotel pension" (ホテルペンション): a small family-run guest house
+_PENSION_NAME = re.compile(r"\bpension\b|ペンション", re.IGNORECASE)
+
+
+def _kind(tax: str | None, name: str) -> PlaceKind:
+    kind = _KIND.get(tax or "", "other")
+    if (
+        kind in ("guest_house", "other")
+        and _HOTEL_NAME.search(name)
+        and not _PENSION_NAME.search(name)
+    ):
+        return "hotel"
+    return kind
+
+
 _JA = r"　-ヿ㐀-鿿＀-￯"
 # "Latin name - 日本語名" / "Latin name 日本語名", and "日本語名(Latin name)"
 _LATIN_THEN_JA = re.compile(
@@ -104,7 +122,7 @@ def rows_to_places(rows: list[OvertureRow], min_confidence: float = MIN_CONFIDEN
                 id=f"overture:{r['id']}",
                 name=name,
                 name_ja=ja,
-                kind=_KIND.get(r["tax"] or "", "other"),
+                kind=_kind(r["tax"], r["name"]),
                 coord=Coord(lat=r["lat"], lng=r["lng"]),
                 address=r["addr"],
                 source="overture-snapshot",

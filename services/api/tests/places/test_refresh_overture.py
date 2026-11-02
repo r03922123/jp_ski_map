@@ -110,3 +110,25 @@ def test_neighbours_of_one_brand_are_different_places() -> None:
     # a typo'd OSM name with an extra word is still the same place
     osm = [place("Rosort Inn Marion Shinano", 36.75022, "osm-snapshot")]
     assert dedupe_against([place("Marion Shinano", 36.75013)], osm) == []
+
+
+# Live iPhone QA (2026-11-02): "Hakuba Tokyu Hotel" showed as "Guest House": Overture's
+# category said lodge. A place whose own name says hotel is a hotel.
+@pytest.mark.parametrize(
+    ("name", "tax", "kind"),
+    [
+        ("Hakuba Tokyu Hotel", "lodge", "hotel"),
+        ("白馬東急ホテル", "lodge", "hotel"),
+        ("Hakuba Luna Hotel", "bed_and_breakfast", "hotel"),
+        ("Hakuba Canadian Lodge", "lodge", "guest_house"),  # the name agrees: unchanged
+        ("Hotel-ish Hostel", "hostel", "hostel"),  # a hostel stays a hostel
+        # a "hotel pension" (ホテルペンション) is a small family-run guest house in Japan
+        ("ホテルペンション アルピーヌ", "lodge", "guest_house"),
+        ("Hotel Pension Alpine", "lodge", "guest_house"),
+    ],
+)
+def test_a_name_that_says_hotel_beats_a_guest_house_category(
+    name: str, tax: str, kind: str
+) -> None:
+    row = OvertureRow(id="x", name=name, tax=tax, conf=0.9, lat=36.7, lng=137.84, addr=None)
+    assert rows_to_places([row], min_confidence=0.5)[0].kind == kind

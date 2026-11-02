@@ -1659,7 +1659,7 @@
   "id": "overture:2b9c943a-1e64-403e-9ffb-d2b8aba269f4",
   "name": "Hakuba Tokyu Hotel",
   "nameJa": null,
-  "kind": "guest_house",
+  "kind": "hotel",
   "coord": {
    "lat": 36.70624542236328,
    "lng": 137.83965301513672
@@ -3675,7 +3675,7 @@
   "id": "overture:6c01ade7-5812-459f-8f4d-0f644149834d",
   "name": "The Ridge Hotel & Apartments",
   "nameJa": null,
-  "kind": "other",
+  "kind": "hotel",
   "coord": {
    "lat": 36.70575141906738,
    "lng": 137.83721160888672
@@ -4623,7 +4623,7 @@
   "id": "overture:8597e296-2056-4d11-bb38-c183a91aaf3f",
   "name": "ホテル・ラ・ブランシェ",
   "nameJa": "ホテル・ラ・ブランシェ",
-  "kind": "other",
+  "kind": "hotel",
   "coord": {
    "lat": 36.75102424621582,
    "lng": 137.87464141845703
@@ -8487,7 +8487,7 @@
   "id": "overture:eeafe05a-c490-40c6-8ded-d44ba56f5f4b",
   "name": "Hakuba Luna Hotel",
   "nameJa": null,
-  "kind": "guest_house",
+  "kind": "hotel",
   "coord": {
    "lat": 36.71167182922363,
    "lng": 137.8315200805664
