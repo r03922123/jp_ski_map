@@ -213,9 +213,21 @@ export default function MapView({
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
   // the swipe. The follow camera waits for the release, then catches up, unless the press
   // became a drag, which stops following.
+  // The state re-runs the follow camera on release; the ref is what it reads. A press can
+  // land after React committed a new camera but before that effect ran: React then runs
+  // the effect first, with the old state, and the ease would start inside the press
+  // (Task 67). The ref is set before React sees the press.
   const [pressing, setPressing] = useState(false);
+  const pressed = useRef(false);
+  const press = () => {
+    pressed.current = true;
+    setPressing(true);
+  };
   useEffect(() => {
-    const release = () => setPressing(false);
+    const release = () => {
+      pressed.current = false;
+      setPressing(false);
+    };
     window.addEventListener("pointerup", release);
     window.addEventListener("pointercancel", release);
     window.addEventListener("blur", release);
@@ -235,7 +247,7 @@ export default function MapView({
   // biome-ignore lint/correctness/useExhaustiveDependencies: camKey stands for `cam`
   useEffect(() => {
     const map = mapRef.current;
-    if (!mapReady || !map || !cam || pressing) return;
+    if (!mapReady || !map || !cam || pressed.current) return;
     map.easeTo({
       center: cam.center,
       bearing: cam.bearing,
@@ -362,8 +374,8 @@ export default function MapView({
       onStyleData={(e) => keepRouteLayerOrder(e.target)}
       onDragStart={() => pilot?.onUserMove()}
       // wired when the map is created, so a press during loading counts too
-      onMouseDown={() => setPressing(true)}
-      onTouchStart={() => setPressing(true)}
+      onMouseDown={press}
+      onTouchStart={press}
       onClick={(e) => {
         const feature = e.features?.[0];
         // a route line selects that route, unless a stop is being placed: a stop along
