@@ -113,6 +113,24 @@ describe("PilotView", () => {
     now: new Date("2027-01-15T08:00:00+09:00"),
   };
 
+  // Live iPhone QA (2026-11-02): "Finding your location…" sat for 12 s while Safari's
+  // permission prompt waited for a tap, with no hint. After a short wait, say so.
+  it("while waiting for a first fix, a hint to allow location appears after a few seconds", () => {
+    vi.useFakeTimers();
+    try {
+      const m = manualSource();
+      const { result } = renderHook(() => usePilot(walk, m.source));
+      render(<PilotView {...base} status={result.current} />);
+      const banner = screen.getByRole("region", { name: "Next turn" });
+      expect(banner).toHaveTextContent("Finding your location…");
+      expect(banner).not.toHaveTextContent(/allow/i);
+      act(() => vi.advanceTimersByTime(4500));
+      expect(banner).toHaveTextContent(/tap allow/i);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("shows the next turn, then the arrival time, time and distance left", () => {
     const m = manualSource();
     const { result } = renderHook(() => usePilot(walk, m.source));

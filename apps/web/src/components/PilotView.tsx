@@ -1,6 +1,7 @@
 "use client";
 
 import { Crosshair, Volume2, VolumeX, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ManeuverIcon } from "@/components/ManeuverIcon";
 import { StopList, type StopRow } from "@/components/StopList";
 import { formatArrival, formatDistance, formatDuration } from "@/lib/format";
@@ -57,6 +58,10 @@ export function PilotView({
 }: Props) {
   const { phase, error, guidance } = status;
   const next = guidance?.next;
+  const waitingLong = useAfter(
+    phase === "starting" && !error,
+    LOCATION_HINT_MS,
+  );
 
   return (
     <div
@@ -75,7 +80,14 @@ export function PilotView({
         {error ? (
           <p className="font-semibold">Navigation paused</p>
         ) : phase === "starting" ? (
-          <p className="font-semibold">Finding your location…</p>
+          <>
+            <p className="font-semibold">Finding your location…</p>
+            {waitingLong && (
+              <p className="mt-1 text-sm text-emerald-100">
+                Tap Allow if your browser asks to use your location.
+              </p>
+            )}
+          </>
         ) : phase === "offRoute" ? (
           <p className="text-lg font-semibold">
             {reroute === "rerouting" ? "Rerouting…" : "Off route"}
@@ -227,4 +239,22 @@ export function PilotView({
       </div>
     </div>
   );
+}
+
+// A first fix usually comes within a couple of seconds; longer means the browser is
+// most likely waiting on its permission prompt (or GPS is weak indoors).
+const LOCATION_HINT_MS = 4000;
+
+/** True once `active` has held for `ms` (false again as soon as it stops). */
+function useAfter(active: boolean, ms: number) {
+  const [elapsed, setElapsed] = useState(false);
+  useEffect(() => {
+    if (!active) {
+      setElapsed(false);
+      return;
+    }
+    const t = setTimeout(() => setElapsed(true), ms);
+    return () => clearTimeout(t);
+  }, [active, ms]);
+  return active && elapsed;
 }
