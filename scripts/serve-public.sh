@@ -65,7 +65,8 @@ wait_for http://127.0.0.1:8002/status 120
 echo "api on :$API_PORT ($PUBLIC_URL)"
 stop_pid api
 start_bg api "$ROOT/services/api" env PUBLIC_URL="$PUBLIC_URL" TRUSTED_PROXY_HOPS="$HOPS" \
-  .venv/bin/uvicorn hakuba_api.main:app --host 127.0.0.1 --port $API_PORT
+  .venv/bin/uvicorn hakuba_api.main:app --host 127.0.0.1 --port $API_PORT \
+  --proxy-headers --forwarded-allow-ips 127.0.0.1 # access log: the visitor, not the web server
 wait_for "http://127.0.0.1:$API_PORT/api/health" 30
 
 echo "web: production build"
