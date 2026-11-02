@@ -91,6 +91,21 @@ scripts/serve-public.sh --stop            # Funnel off first, then stop api + we
 tailscale funnel status                   # what is public right now
 ```
 
+### When the public link fails (Phase A runbook)
+Seen 2026-11-02: after the Mac changed networks (it had been on the phone's hotspot, which left
+with the phone), phones got `ERR_SSL_PROTOCOL_ERROR`: the Funnel relay accepted the connection but
+could not hand it to the Mac. `tailscale status` looked healthy; re-applying `tailscale funnel` did
+not help. A full reconnect did:
+```bash
+tailscale down && tailscale up --hostname=hakuba-map   # rebuilds every path; the Funnel config persists
+```
+- Test from a device **outside** the tailnet (a phone on mobile data, or an external fetch). From the
+  Mac itself the public URL takes the tailnet shortcut, and its relay test fails even when Funnel works.
+- An external fetch can succeed through another region's relay while phones in Asia fail: test from
+  where the users are.
+- While the Mac serves the site, keep it on a network that does not move (home Wi-Fi or a cable),
+  never on the phone's hotspot.
+
 ## Testing
 | What | How |
 |---|---|
