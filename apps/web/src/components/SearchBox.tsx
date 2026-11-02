@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { type Coord, fetchSuggestions, type Suggestion } from "@/lib/api";
 import { loadRecent, rememberRecent } from "@/lib/recent-searches";
 import { savedMatches, useSaved } from "@/lib/saved-places";
@@ -139,8 +139,14 @@ export function SearchBox({
     (results.data !== undefined || savedRows.length > 0);
   const rows = showRecent ? recentRows : suggestions;
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   function choose(s: Suggestion) {
     onSelect(s);
+    // a touch screen's keyboard would stay up over the results (the rows keep the box
+    // focused while pressed): let go, as Google Maps does; a desktop keeps focus
+    if (window.matchMedia?.("(pointer: coarse)").matches)
+      inputRef.current?.blur();
     rememberRecent(s);
     setRecent(loadRecent());
     setText(s.name);
@@ -167,6 +173,7 @@ export function SearchBox({
   return (
     <div className="relative">
       <input
+        ref={inputRef}
         // Form-filling extensions tag search inputs (e.g. data-sharkid) before hydration.
         suppressHydrationWarning
         type="search"

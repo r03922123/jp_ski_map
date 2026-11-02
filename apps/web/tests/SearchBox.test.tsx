@@ -158,6 +158,48 @@ describe("SearchBox", () => {
     expect(loadRecent()[0].id).toBe(hotelHakuba.id);
   });
 
+  // Live iPhone QA (2026-11-02): the rows keep the input focused while pressed (so the
+  // tap lands), which left the phone keyboard up over the results after a pick. On a
+  // touch screen a pick lets go of the box, as in Google Maps; a desktop keeps focus.
+  function pointer(coarse: boolean) {
+    vi.spyOn(window, "matchMedia").mockImplementation(
+      (q: string) =>
+        ({
+          matches: coarse && q.includes("coarse"),
+          media: q,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        }) as unknown as MediaQueryList,
+    );
+  }
+
+  it("touch: picking a suggestion closes the keyboard (the box lets go of focus)", async () => {
+    if (!window.matchMedia) window.matchMedia = (() => ({})) as never;
+    pointer(true);
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input, onSelect } = renderBox();
+    input.focus();
+    fireEvent.change(input, { target: { value: "Hotel" } });
+    const [row] = await screen.findAllByRole("option");
+    fireEvent.mouseDown(row);
+    fireEvent.click(row);
+    expect(onSelect).toHaveBeenCalledWith(hotelHakuba);
+    expect(input).not.toHaveFocus();
+  });
+
+  it("desktop: picking a suggestion keeps focus in the box (keyboard users)", async () => {
+    if (!window.matchMedia) window.matchMedia = (() => ({})) as never;
+    pointer(false);
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input } = renderBox();
+    input.focus();
+    fireEvent.change(input, { target: { value: "Hotel" } });
+    const [row] = await screen.findAllByRole("option");
+    fireEvent.mouseDown(row);
+    fireEvent.click(row);
+    expect(input).toHaveFocus();
+  });
+
   it("selects with arrow keys and Enter", async () => {
     vi.spyOn(api, "fetchSuggestions").mockResolvedValue([
       hotelHakuba,
