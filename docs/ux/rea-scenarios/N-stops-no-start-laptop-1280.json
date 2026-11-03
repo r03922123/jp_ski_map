@@ -1,0 +1,17 @@
+{
+  "browser": { "mode": "launch", "executable_path": "__CHROMIUM__" },
+  "start_url": { "url": "http://127.0.0.1:3000/", "query": [
+    { "name": "from", "value": { "source": "literal", "value": "36.69711,137.85393" } },
+    { "name": "mode", "value": { "source": "literal", "value": "drive" } },
+    { "name": "resort", "value": { "source": "literal", "value": "happo-one" } },
+    { "name": "stops", "value": { "source": "literal", "value": "36.700886,137.8468474;36.6910032,137.8430989" } } ] },
+  "environment": { "viewport": { "width": 1280, "height": 720, "device_scale_factor": 1 }, "timezone": "Asia/Tokyo", "reduced_motion": "no-preference" },
+  "storage": { "cookies": [ { "name": "hakuba_title", "value": { "source": "literal", "value": "seen" }, "destination": { "url": "http://127.0.0.1:3000/" }, "http_only": false, "secure": false, "same_site": "Lax" } ] },
+  "actions": [
+    { "step_id": "route-drawn", "action": "wait_for", "locator": { "kind": "css", "selector": "main[data-map-loaded='true']:not([data-route-points='0'])" }, "state": "attached", "timeout_ms": 40000 },
+    { "step_id": "stop-2-drawn", "action": "wait_for", "locator": { "kind": "css", "selector": "[data-trip-stop='2']" }, "state": "visible", "timeout_ms": 20000 },
+    { "step_id": "remove-stop-1", "action": "click", "locator": { "kind": "role", "role": "button", "name": "Remove stop 1" }, "timeout_ms": 10000 },
+    { "step_id": "settle", "action": "wait_for_timeout", "duration_ms": 3000 }
+  ],
+  "capture": { "after_each_step": ["url"], "at_end": ["url", "screenshot", "accessibility"] }
+}

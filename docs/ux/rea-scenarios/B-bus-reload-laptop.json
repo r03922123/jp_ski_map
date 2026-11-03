@@ -1,0 +1,155 @@
+{
+  "browser": {
+    "mode": "launch",
+    "executable_path": "__CHROMIUM__"
+  },
+  "start_url": {
+    "url": "http://127.0.0.1:3001/",
+    "query": [
+      {
+        "name": "from",
+        "value": {
+          "source": "literal",
+          "value": "36.6985,137.8376"
+        }
+      },
+      {
+        "name": "mode",
+        "value": {
+          "source": "literal",
+          "value": "bus"
+        }
+      }
+    ]
+  },
+  "environment": {
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "device_scale_factor": 1
+    },
+    "timezone": "Asia/Tokyo",
+    "reduced_motion": "no-preference"
+  },
+  "storage": {
+    "cookies": [
+      {
+        "name": "hakuba_title",
+        "value": {
+          "source": "literal",
+          "value": "seen"
+        },
+        "destination": {
+          "url": "http://127.0.0.1:3001/"
+        },
+        "http_only": false,
+        "secure": false,
+        "same_site": "Lax"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "step_id": "map-loaded",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "main[data-map-loaded='true']"
+      },
+      "state": "attached",
+      "timeout_ms": 30000
+    },
+    {
+      "step_id": "set-time",
+      "action": "fill",
+      "locator": {
+        "kind": "css",
+        "selector": "#depart-at"
+      },
+      "value": {
+        "source": "literal",
+        "value": "2027-01-15T08:00"
+      },
+      "timeout_ms": 10000
+    },
+    {
+      "step_id": "options",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "section[aria-label='Tsugaike Mountain Resort'] > div:first-of-type > button"
+      },
+      "state": "visible",
+      "timeout_ms": 30000
+    },
+    {
+      "step_id": "choose-first",
+      "action": "click",
+      "locator": {
+        "kind": "css",
+        "selector": "section[aria-label='Tsugaike Mountain Resort'] > div:first-of-type > button"
+      },
+      "timeout_ms": 10000
+    },
+    {
+      "step_id": "journey",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "main[data-route-layers='walk,ride']"
+      },
+      "state": "attached",
+      "timeout_ms": 30000
+    },
+    {
+      "step_id": "open-same-link",
+      "action": "goto",
+      "timeout_ms": 30000,
+      "destination": {
+        "url": "http://127.0.0.1:3001/",
+        "query": [
+          {
+            "name": "from",
+            "value": {
+              "source": "literal",
+              "value": "36.6985,137.8376"
+            }
+          },
+          {
+            "name": "mode",
+            "value": {
+              "source": "literal",
+              "value": "bus"
+            }
+          }
+        ]
+      },
+      "wait_until": "load"
+    },
+    {
+      "step_id": "reloaded",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "main[data-map-loaded='true']"
+      },
+      "state": "attached",
+      "timeout_ms": 30000
+    },
+    {
+      "step_id": "settle",
+      "action": "wait_for_timeout",
+      "duration_ms": 4000
+    }
+  ],
+  "capture": {
+    "after_each_step": [
+      "url"
+    ],
+    "at_end": [
+      "url",
+      "screenshot",
+      "accessibility"
+    ]
+  }
+}

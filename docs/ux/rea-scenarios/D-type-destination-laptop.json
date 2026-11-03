@@ -1,0 +1,17 @@
+{
+  "browser": { "mode": "launch", "executable_path": "__CHROMIUM__" },
+  "start_url": { "url": "http://127.0.0.1:3001/", "query": [
+    { "name": "from", "value": { "source": "literal", "value": "36.69877,137.86197" } },
+    { "name": "mode", "value": { "source": "literal", "value": "drive" } },
+    { "name": "resort", "value": { "source": "literal", "value": "happo-one" } } ] },
+  "environment": { "viewport": { "width": 1440, "height": 900, "device_scale_factor": 1 }, "timezone": "Asia/Tokyo", "reduced_motion": "no-preference" },
+  "storage": { "cookies": [ { "name": "hakuba_title", "value": { "source": "literal", "value": "seen" }, "destination": { "url": "http://127.0.0.1:3001/" }, "http_only": false, "secure": false, "same_site": "Lax" } ] },
+  "actions": [
+    { "step_id": "route-drawn", "action": "wait_for", "locator": { "kind": "css", "selector": "main[data-map-loaded='true']:not([data-route-points='0'])" }, "state": "attached", "timeout_ms": 30000 },
+    { "step_id": "type-destination", "action": "fill", "locator": { "kind": "role", "role": "combobox", "name": "Search hotel or place" }, "value": { "source": "literal", "value": "Cortina" }, "timeout_ms": 10000 },
+    { "step_id": "suggestion", "action": "wait_for", "locator": { "kind": "css", "selector": "[role='option']:has-text('Hakuba Cortina Snow Resort'):has-text('Ski resort')" }, "state": "visible", "timeout_ms": 15000 },
+    { "step_id": "choose-suggestion", "action": "click", "locator": { "kind": "css", "selector": "[role='option']:has-text('Hakuba Cortina Snow Resort'):has-text('Ski resort')" }, "timeout_ms": 10000 },
+    { "step_id": "settle", "action": "wait_for_timeout", "duration_ms": 2500 }
+  ],
+  "capture": { "after_each_step": ["url"], "at_end": ["url", "screenshot", "accessibility"] }
+}
