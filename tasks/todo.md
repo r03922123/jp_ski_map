@@ -737,7 +737,8 @@ From the 2026-11-01 real-iPhone re-check: dragging the sheet/panel down to colla
 
 ## Task 80: On touch, a tap looks and a long-press drops a pin (cluster A, SPEC-web-app v1.7)
 Reference: BC-A1 (Google Maps iOS, recorded over USB). Red first: 7 MapView + 3 PinCard + 2 hint tests, then the fix. e2e `pin-card.spec.ts` 9/9 (×3), full e2e 88/88 on dev, unit 365+.
-**Open:** a real-iPhone check (Safari + Chrome); the laptop rule waits for the desktop reference (L1: a click that closes a popover also moves the start). **Scope:** M
+Follow-up from the journey matrix: S1 (the box keeps the old name after Start here), S4 (a long-press on a hotel pin loses its name), S6 (the card cut off at an edge: no fixed anchor now) fixed, and their known-fail tests flipped. Real iPhone: Chrome ✅.
+**Open:** a Safari check; the laptop rule waits for the desktop reference (L1: a click that closes a popover also moves the start). **Scope:** M
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).

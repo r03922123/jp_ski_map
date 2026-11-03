@@ -1,7 +1,11 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
+import {
+  type MapGeoJSONFeature,
+  type Map as MapLibreMap,
+  setWorkerUrl,
+} from "maplibre-gl";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import MapGL, {
   Layer,
@@ -211,19 +215,31 @@ export default function MapView({
   };
   // biome-ignore lint/correctness/useExhaustiveDependencies: endHold only reads a ref
   useEffect(() => () => endHold(), []);
-  const startHold = (e: MapTouchEvent) => {
+  // react-map-gl 8 sets `features` on touch events too (its _onPointerEvent queries
+  // the interactive layers for every pointer event); only its types leave it out
+  const startHold = (e: MapTouchEvent & { features?: MapGeoJSONFeature[] }) => {
     endHold();
     lastTouch.current = Date.now();
     longPressed.current = false;
     if (e.points.length !== 1 || pilot !== null || !onDropPin) return;
-    const coord: Coord = { lat: e.lngLat.lat, lng: e.lngLat.lng };
+    // pressed on a hotel pin: the card is about that hotel (its spot and name)
+    const hotel = e.features?.find((f) => f.layer.id === LODGING_LAYER);
+    const geom = hotel?.geometry;
+    const coord: Coord =
+      geom?.type === "Point"
+        ? { lat: geom.coordinates[1], lng: geom.coordinates[0] }
+        : { lat: e.lngLat.lat, lng: e.lngLat.lng };
+    const name =
+      geom?.type === "Point"
+        ? ((hotel?.properties?.name as string) ?? null)
+        : null;
     hold.current = {
       x: e.point.x,
       y: e.point.y,
       timer: setTimeout(() => {
         hold.current = null;
         longPressed.current = true;
-        onDropPin(coord, null);
+        onDropPin(coord, name);
       }, LONG_PRESS_MS),
     };
   };
@@ -488,7 +504,8 @@ export default function MapView({
         <Popup
           longitude={droppedPin.coord.lng}
           latitude={droppedPin.coord.lat}
-          anchor="bottom"
+          // no fixed anchor: MapLibre puts the card on whichever side of the pin keeps
+          // it inside the map, so a pin near an edge never cuts off ✕ or Go here (S6)
           closeButton={false}
           closeOnClick={false}
           maxWidth="280px"

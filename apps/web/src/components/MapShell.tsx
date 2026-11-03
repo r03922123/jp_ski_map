@@ -893,7 +893,10 @@ export function MapShell() {
         setOrigin(droppedPin.coord);
         setOriginName(droppedPin.name);
         setOriginSource(droppedPin.name ? pinPlace(droppedPin) : null);
-        setSearchLabel(droppedPin.name);
+        // the box shows the new start, as Google's From box does ("Dropped pin" when it
+        // has no name); a fresh box, so it replaces whatever was typed before (S1)
+        setSearchLabel(droppedPin.name ?? "Dropped pin");
+        setSearchKey((k) => k + 1);
         setDroppedPin(null);
       }}
       onGo={

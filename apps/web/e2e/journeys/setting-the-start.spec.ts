@@ -408,9 +408,7 @@ for (const dev of [PHONE, SMALL]) {
     test("long-press → Start here: the box stops showing the old hotel's name", async ({
       page,
     }) => {
-      // known: S1 — Start here on a dropped pin sets the label to null, so the box keeps
-      // "Hotel Hakuba" while the trip says "Dropped pin" (cluster A's box half, on touch)
-      test.fail();
+      // fixed: S1 — Start here sets the box to the new start ("Dropped pin" if unnamed)
       await open(page, "/?mode=drive&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
@@ -461,9 +459,7 @@ test.describe(`${PHONE.name} touch: long-press on a hotel pin`, () => {
   test("a long-press on a hotel pin names the card after the hotel", async ({
     page,
   }) => {
-    // known: S4 — startHold always calls onDropPin(coord, null): the card says
-    // "Dropped pin" and the start lands on the pressed point, not the hotel
-    test.fail();
+    // fixed: S4 — a long-press on a hotel pin uses the hotel's spot and name
     await open(page, "/?mode=drive&from=36.6985,137.8376");
     const pin = await hotelPin(page, { minX: 0, maxY: 450 });
     const cdp = await page.context().newCDPSession(page);
@@ -480,9 +476,7 @@ test.describe(`${PHONE.name} touch: pin card near the edge`, () => {
   test("a pin card dropped near the right edge is fully on screen", async ({
     page,
   }) => {
-    // known: S6 — the Popup is pinned to anchor="bottom" with no camera ease, so a card
-    // near the top (or a hotel pin near the right edge) is cut off, ✕ and Go here included
-    test.fail();
+    // fixed: S6 — the card has no fixed anchor; MapLibre keeps it inside the map
     await open(page, "/?mode=drive&from=36.6985,137.8376");
     const cdp = await page.context().newCDPSession(page);
     // the card is ~223 px wide and centred on the finger: x > 282 pushes it off a 393 screen

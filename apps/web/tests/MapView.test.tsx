@@ -345,6 +345,32 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
     expect(pick).not.toHaveBeenCalled();
   });
 
+  // S4 (journey matrix): a long-press that lands on a hotel pin is about that hotel
+  it("a long-press on a hotel pin drops the pin at the hotel, named", () => {
+    const drop = vi.fn();
+    render(view(null, () => {}, {}, { onDropPin: drop }));
+    act(() =>
+      h.props.onTouchStart({
+        point: { x: 100, y: 100 },
+        points: [{ x: 100, y: 100 }],
+        lngLat: at,
+        originalEvent: {},
+        features: [
+          {
+            layer: { id: "lodging-pins" },
+            geometry: { type: "Point", coordinates: [137.86, 36.71] },
+            properties: { name: "Hotel Hakuba" },
+          },
+        ],
+      }),
+    );
+    act(() => vi.advanceTimersByTime(500));
+    expect(drop).toHaveBeenCalledWith(
+      { lat: 36.71, lng: 137.86 },
+      "Hotel Hakuba",
+    );
+  });
+
   it("an open stop box still takes a tap: the user asked for a point", () => {
     const pick = vi.fn();
     render(view(null, pick, {}, { placingStop: true, onDropPin: () => {} }));
