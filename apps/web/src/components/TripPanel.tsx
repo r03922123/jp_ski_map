@@ -4,7 +4,7 @@ import { Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SaveButton } from "@/components/SaveButton";
 import { SearchBox } from "@/components/SearchBox";
-import type { Coord } from "@/lib/api";
+import type { Coord, Suggestion } from "@/lib/api";
 import { kindFromSuggestion, type PlaceInput } from "@/lib/saved-places";
 
 /** A stop row: filled with a place, or an empty box waiting for typing or a map tap. */
@@ -25,6 +25,11 @@ export type TripPanelProps = {
   onClearFrom: () => void;
   /** absent when the destination isn't the user's to clear (bus: the chosen option's stop) */
   onClearTo?: () => void;
+  /**
+   * Drive and walk: the To row is a search box (SPEC-web-app v1.8, BC-T1) and a pick there
+   * goes here. Absent in bus, where To is the chosen option's stop, shown read-only.
+   */
+  onChooseTo?: (place: Suggestion) => void;
 };
 
 /**
@@ -42,6 +47,7 @@ export function TripPanel({
   onFillStop,
   onClearFrom,
   onClearTo,
+  onChooseTo,
 }: TripPanelProps) {
   const addRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -116,14 +122,36 @@ export function TripPanel({
             </li>
           ),
         )}
-        {to && (
-          <Row
-            marker="📍"
-            label="To"
-            place={to}
-            removeLabel={onClearTo ? "Remove destination" : undefined}
-            onRemove={onClearTo}
-          />
+        {onChooseTo ? (
+          <li className="flex items-center gap-2 px-2 py-1 not-last:border-b">
+            <span aria-hidden="true" className="w-5 text-center text-xs">
+              📍
+            </span>
+            <div className="min-w-0 flex-1">
+              <SearchBox
+                ariaLabel="To"
+                placeholder="Search a destination"
+                // typing is a draft: leaving without a pick puts the name back (BC-T1)
+                label={to?.name ?? null}
+                restoreOnBlur
+                clearLabel="Remove destination"
+                near={near}
+                onSelect={onChooseTo}
+                onClear={onClearTo}
+              />
+            </div>
+            {to && <SaveButton place={to} />}
+          </li>
+        ) : (
+          to && (
+            <Row
+              marker="📍"
+              label="To"
+              place={to}
+              removeLabel={onClearTo ? "Remove destination" : undefined}
+              onRemove={onClearTo}
+            />
+          )
         )}
       </ul>
       {canAddStop && (

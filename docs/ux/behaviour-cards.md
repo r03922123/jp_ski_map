@@ -38,3 +38,39 @@ Reference observations for [rea-benchmark-workflow.md](rea-benchmark-workflow.md
 - Times outside the device's zone carry the zone: "07:21 (JST)", matching Google's "(GMT+9)".
 
 **What we don't take:** Google's pin, colours, icons and card layout; the plus code; "Add a missing place". We use our own components and styles (SPEC-web-app v1.1 rule).
+
+---
+
+### BC-T1 Typing a new destination while a route is shown (Google Maps in desktop Chrome, 2026-11-04)
+
+**Setup.** MacBook, Chrome 156 with a fresh signed-out profile, Traditional Chinese UI. Directions Hakuba → Hakuba Happo-One, driving. The user did every click and keystroke. REA `inspect_web_page` (passive: no script, no navigation, no input) recorded **only the accessibility tree** at three moments. Scripts, storage and network content were not kept. Evidence: `.ux-evidence/bc-t1/` (git-ignored); REA `ev_61e1c0d5…` (M1), `ev_8317b8a6…` and `ev_38f08a0b…` (M2), `ev_ae833c23…` (M3).
+
+**Observed:**
+- **M1, route shown.** Two stacked fields. Each is a `combobox` (popup: `grid`) wrapping an editable `textbox` (`autocomplete=list`, not read-only). Each field's accessible name is its role word plus its current value: "Starting point Hakuba …", "Destination Hakuba Happo-One …". **Both stay editable while a route is shown**; setting a start locks nothing. Next to them: *swap start and destination*, *add destination*, *close directions*. Below: a radio group of modes, each with its duration (Drive 7 min · Transit 23 min · Walk 40 min).
+- **M2, typing "cortina" into the destination field.**
+  - The start is unchanged and focus is in the destination field.
+  - **The previous route and its durations stay on screen while typing**: nothing is cleared until a choice.
+  - The combobox reports `expanded=true` with a single-select grid of 5 rows. Each row is one cell named "place + region, country" (e.g. "Cortina d'Ampezzo · Belluno, Italy"). The results were worldwide (Italy, Romania, a shop in Taipei), not biased to the start's area.
+  - Leaving the window closed the list (`expanded=false` with the text kept). The first M2 capture missed the list for that reason; a polling capture caught it open.
+- **M3, picking "Hakuba Cortina".**
+  - The list closes and focus stays in the destination field.
+  - The field now reads the place's full name and address. The start is unchanged.
+  - The mode durations recompute at once: Drive 19 min · Transit 1 h 47 min · Walk 3 h 3 min, with "best mode" still selected.
+
+**Inferred:**
+- The destination is a plain editable field at all times. "Changing the destination" is just typing in it, the same gesture as setting it the first time.
+- A search in one field only ever changes that field. The start field's suggestions can't touch the destination, and vice versa.
+- Typing is a draft: the committed trip (route on the map) changes only on a pick.
+
+**Unknown:**
+- What Escape or blur does to a half-typed destination: does it restore the old name, or keep the draft? We saw blur keep the text; we didn't see whether the route then followed the text.
+- Phone behaviour. iOS Chrome can't be attached (WebKit), and the iPhone app wasn't recorded for this card.
+- Keyboard selection (arrow keys) in the grid: the tree showed no active-descendant during M2.
+
+**What we take** (SPEC-web-app v1.8):
+- An always-editable **To** combobox in drive and walk, showing the destination's name; a search in it changes only the destination (rule 1; this is what fixes T and D1).
+- **Typing is a draft.** The current destination and its route stay until a suggestion is chosen. Leaving the box without choosing puts the current destination's name back, so the box never disagrees with the map.
+- After a choice: the list closes, focus stays in the box, and the trip panel's times recompute.
+- Each suggestion has a second line saying where or what it is. Ours already shows a detail line, and our resort index is local, so resorts rank first, which beats Google's worldwide mix for this app.
+
+**What we don't take (now):** a swap button and "add destination" (we have Add stop) are noted for later, not v1.8. No Google wording, icons, addresses or layout.

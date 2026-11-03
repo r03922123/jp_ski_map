@@ -164,3 +164,31 @@ T30 poi data ── T31 nearby API ── T32 destination picker (needs T24/T25)
 | Bus "on board" detection is guesswork without live bus data | Med | Time + movement along the ride line, plus a manual "I'm on the bus" button |
 | Playwright geolocation updates under machine load | Low | Assert on state attributes (`data-nav-phase`, `data-nav-remaining-m`), not timing |
 | Saved data lost when the user clears site data | Low | The Share link doubles as a backup; the panel says it's stored on this device |
+
+# v1.8: A typed destination (SPEC-web-app v1.8, behaviour card BC-T1)
+
+## Overview
+Give drive and walk an always-editable **To** box in the trip panel, so a skier with a start set can type where they are going (T, D1, L18). A search in the To box changes only the destination; typing is a draft until a choice (BC-T1). Tasks T81–T84 in todo.md, Phase 19.
+
+## Architecture decisions
+- **Reuse `SearchBox` for the To box.** It already has the combobox pattern, saved/recent rows, a detail line per suggestion, debounce and a ✕. TripPanel already renders it for empty stop boxes. A new prop `restoreOnBlur` adds the BC-T1 draft rule (blur or Escape without a choice puts the current name back), so the box never disagrees with the map.
+- **A resort suggestion goes through `selectResort(id)`**, since suggestion ids for resorts are the resort ids (`"id":"cortina","kind":"resort"`, checked against the dev API). Any other suggestion becomes the free destination point.
+- **The free destination carries its name.** `point: Coord` becomes `point: {coord, name}`, so "To: Lawson …" replaces "Chosen place". The pin card's Go here passes the pin's name too (S4's hotel name). Names in the URL stay out of scope (cluster E).
+- **The To box shows in drive and walk once there is a start or a destination**; in bus the To row stays the read-only chosen stop (spec rule 1).
+- **Rule 2 amended (approved 2026-11-04): a From-box result replaces the start directly.** BC-T1 observed that Google's fields are *field-scoped*: a search in the start field changes the start directly, with no card. D1 happened because the start's box was the only box, so a destination typed there had nowhere else to go. With a To box beside it, the From box only means "start", so a card there would add a tap and contradict the reference we just recorded. Recommended: keep the direct replace (today's behaviour, already covered by `setting-the-start.spec.ts` "change it by typing another"), and drop T83's code. If you prefer the card, T83 implements it.
+
+## Task list (details in todo.md)
+- T81 The free destination keeps its name (refactor + PinCard Go here name) · S
+- T82 SearchBox draft rule: `restoreOnBlur` · S
+- ~~T83 From box with a start set~~ dropped: rule 2 amended
+- T84 The To box in drive and walk; flip T, D1 (rewritten to type in To) and L18 · M
+- Checkpoint P: full e2e green, REA after-capture
+- T85 Real-device check, review, commit · S
+
+## Risks
+| Risk | Impact | Mitigation |
+|---|---|---|
+| D1 recurs on phones if the To box is out of sight with the sheet collapsed, so the user types in the top box again | High | e2e on 393×852: with a start and destination the To box is in the viewport at the default sheet height; real-iPhone check |
+| Two SearchBoxes share recent/saved rows; a To-box pick is written to "recent" for the From box too | Low | Intended (Google shares history); unit test that a To pick doesn't change the start |
+| `restoreOnBlur` + MapLibre click: a map click blurs the box and also fires a map action | Med | Draft rule restores text only; map clicks already go through the pin-card rules (v1.7); e2e "click map while typing in To" keeps the trip |
+| The `point` refactor touches ~8 call sites in MapShell | Med | Type change makes tsc list every site; full e2e before the To box lands |

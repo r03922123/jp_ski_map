@@ -120,9 +120,10 @@ test("Go here on a saved place draws a route to it", async ({ page }) => {
     "0",
     { timeout: 15_000 },
   );
+  // the destination is the To box's value (SPEC-web-app v1.8), not row text
   await expect(
-    page.getByRole("list", { name: "Trip" }).getByText("JR Hakuba Station"),
-  ).toBeVisible();
+    page.getByRole("combobox", { name: "To", exact: true }),
+  ).toHaveValue("JR Hakuba Station");
 });
 
 // {"v":1,"n":"Onsen trip","i":"bookmark","p":[["osm-node-7","Mimizuku no Yu",36.69735,137.84402,"poi"]]}

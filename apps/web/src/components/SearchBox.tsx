@@ -86,6 +86,7 @@ export function SearchBox({
   clearLabel = "Clear starting point",
   alwaysClearable = false,
   autoFocus = false,
+  restoreOnBlur = false,
 }: {
   onSelect: (place: Suggestion) => void;
   /** The ✕ button: the text is cleared and the starting point should be dropped. */
@@ -102,19 +103,36 @@ export function SearchBox({
   /** Show ✕ even while the box is empty (a stop box: ✕ removes the stop). */
   alwaysClearable?: boolean;
   autoFocus?: boolean;
+  /**
+   * Typing is a draft (BC-T1): leaving the box (blur, Escape) without a pick puts `label`
+   * back, so the box never disagrees with the map. The To box uses it; the From box
+   * keeps what was typed.
+   */
+  restoreOnBlur?: boolean;
 }) {
   const touch = useCoarsePointer();
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [recent, setRecent] = useState<Suggestion[]>([]);
-  const query = useDebouncedValue(text.trim(), DEBOUNCE_MS);
+  // only typed text is a query: text the app puts in the box (a label, a pick) is not, or
+  // every page with a destination would search for its name (found by the resilience
+  // journey: a broken suggest endpoint crashed the page on load)
+  const [typed, setTyped] = useState(false);
+  const query = useDebouncedValue(typed ? text.trim() : "", DEBOUNCE_MS);
   const listId = useId();
 
   useEffect(() => setRecent(loadRecent()), []); // browser storage: client only
+  // what the box last committed to (the app's label or the last pick): the draft rule
+  // restores this, so a pick is never undone while the app catches up
+  const committed = useRef(label ?? "");
   useEffect(() => {
+    committed.current = label ?? "";
+    setTyped(false);
     if (label) setText(label);
-  }, [label]);
+    // a box that mirrors the app (the To box) empties when the app clears it
+    else if (restoreOnBlur) setText("");
+  }, [label, restoreOnBlur]);
 
   const results = useQuery({
     queryKey: ["suggest", query, near],
@@ -144,6 +162,8 @@ export function SearchBox({
   const inputRef = useRef<HTMLInputElement>(null);
 
   function choose(s: Suggestion) {
+    // committed first: on touch the blur() below runs the draft rule, which must keep the pick
+    committed.current = s.name;
     onSelect(s);
     // a touch screen's keyboard would stay up over the results (the rows keep the box
     // focused while pressed): let go, as Google Maps does; a desktop keeps focus
@@ -151,12 +171,23 @@ export function SearchBox({
       inputRef.current?.blur();
     rememberRecent(s);
     setRecent(loadRecent());
+    setTyped(false);
     setText(s.name);
     setOpen(false);
     setActive(-1);
   }
 
+  function restoreDraft() {
+    setTyped(false);
+    setText(committed.current);
+    setOpen(false);
+    setActive(-1);
+  }
+
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    // Japanese input: Enter/Escape while composing confirm or cancel the kana→kanji
+    // conversion; they are the input method's keys, not ours
+    if (e.nativeEvent.isComposing) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setOpen(true);
@@ -164,11 +195,19 @@ export function SearchBox({
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter" && rows.length > 0) {
+    } else if (
+      e.key === "Enter" &&
+      open &&
+      rows.length > 0 &&
+      // only an explicit choice: typed text (Enter = its top suggestion) or a row
+      // highlighted with the arrows; never the top recent of a box nobody typed in
+      (query.length > 0 || active >= 0)
+    ) {
       e.preventDefault();
-      choose(rows[Math.max(active, 0)]); // Enter = the top suggestion
+      choose(rows[Math.max(active, 0)]);
     } else if (e.key === "Escape") {
-      setOpen(false);
+      if (restoreOnBlur) restoreDraft();
+      else setOpen(false);
     }
   }
 
@@ -191,11 +230,15 @@ export function SearchBox({
         className="w-full rounded-full border bg-background py-2 pr-10 pl-4 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden"
         value={text}
         onChange={(e) => {
+          setTyped(true);
           setText(e.target.value);
           setOpen(true);
           setActive(-1);
         }}
         onFocus={() => setOpen(true)}
+        // a row's mousedown keeps focus, so a pick never blurs first; on touch, choose()
+        // blurs after onSelect and its own setText(s.name) wins
+        onBlur={restoreOnBlur ? restoreDraft : undefined}
         onKeyDown={onKeyDown}
       />
       {(text || alwaysClearable) && (
@@ -204,6 +247,7 @@ export function SearchBox({
           aria-label={clearLabel}
           className="absolute inset-y-0 right-2 my-auto flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
           onClick={() => {
+            committed.current = "";
             setText("");
             setOpen(false);
             setActive(-1);

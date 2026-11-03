@@ -337,3 +337,216 @@ describe("SearchBox", () => {
     expect(input).toHaveValue("My hotel · Hotel Hakuba");
   });
 });
+
+// BC-T1 (docs/ux/behaviour-cards.md): in Google's destination field typing is a draft; the
+// trip changes only on a pick. Our To box adds: leaving without a pick puts the current
+// name back, so the box never disagrees with the map (SPEC-web-app v1.8 rule 1).
+describe("SearchBox draft rule (restoreOnBlur)", () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => vi.restoreAllMocks());
+
+  function renderToBox(label: string | null, restoreOnBlur = true) {
+    const onSelect = vi.fn();
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <SearchBox
+          onSelect={onSelect}
+          near={NEAR}
+          label={label}
+          ariaLabel="To"
+          restoreOnBlur={restoreOnBlur}
+        />
+      </QueryClientProvider>,
+    );
+    return { onSelect, input: screen.getByRole("combobox", { name: "To" }) };
+  }
+
+  it("leaving the box without a pick puts the current name back and closes the list", async () => {
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input, onSelect } = renderToBox("Happo-One");
+    input.focus();
+    fireEvent.change(input, { target: { value: "Hotel" } });
+    await screen.findAllByRole("option");
+    fireEvent.blur(input);
+    expect(input).toHaveValue("Happo-One");
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("Escape without a pick puts the current name back and closes the list", async () => {
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input } = renderToBox("Happo-One");
+    input.focus();
+    fireEvent.change(input, { target: { value: "Hotel" } });
+    await screen.findAllByRole("option");
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(input).toHaveValue("Happo-One");
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("a pick is not undone: the box shows the chosen place", async () => {
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input, onSelect } = renderToBox("Happo-One");
+    input.focus();
+    fireEvent.change(input, { target: { value: "Hotel" } });
+    const [row] = await screen.findAllByRole("option");
+    fireEvent.mouseDown(row);
+    fireEvent.click(row);
+    fireEvent.blur(input);
+    expect(onSelect).toHaveBeenCalledWith(hotelHakuba);
+    expect(input).toHaveValue("Hotel Hakuba");
+  });
+
+  it("an empty To box (no destination) is empty again after leaving it", () => {
+    const { input } = renderToBox(null);
+    input.focus();
+    fireEvent.change(input, { target: { value: "Cort" } });
+    fireEvent.blur(input);
+    expect(input).toHaveValue("");
+  });
+
+  it("without the rule (the From box) typed text stays on blur, as today", () => {
+    const { input } = renderToBox("Hotel Hakuba", false);
+    input.focus();
+    fireEvent.change(input, { target: { value: "Tokyu" } });
+    fireEvent.blur(input);
+    expect(input).toHaveValue("Tokyu");
+  });
+});
+
+describe("SearchBox draft rule and ✕", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("after ✕ a blur keeps the box empty (the cleared name doesn't come back)", () => {
+    const onClear = vi.fn();
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <SearchBox
+          onSelect={vi.fn()}
+          onClear={onClear}
+          near={NEAR}
+          label="Happo-One"
+          ariaLabel="To"
+          clearLabel="Remove destination"
+          restoreOnBlur
+        />
+      </QueryClientProvider>,
+    );
+    const input = screen.getByRole("combobox", { name: "To" });
+    input.focus();
+    fireEvent.click(screen.getByRole("button", { name: "Remove destination" }));
+    fireEvent.blur(input);
+    expect(onClear).toHaveBeenCalled();
+    expect(input).toHaveValue("");
+  });
+});
+
+// Found by the resilience journey (suggest → wrongShape crashed on load): the To box
+// showed the destination's name and searched for it with nobody typing. Only typed text
+// is a query; text the app puts in the box (a label, a pick) is not.
+describe("SearchBox searches only what was typed", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("a label the app sets (the destination, My hotel) sends no search", async () => {
+    const suggest = vi.spyOn(api, "fetchSuggestions").mockResolvedValue([]);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <SearchBox
+          onSelect={vi.fn()}
+          near={NEAR}
+          label="Hakuba Happo-One"
+          ariaLabel="To"
+          restoreOnBlur
+        />
+      </QueryClientProvider>,
+    );
+    await new Promise((r) => setTimeout(r, 300)); // past the 150 ms debounce
+    expect(suggest).not.toHaveBeenCalled();
+  });
+
+  it("typing after the label does search", async () => {
+    const suggest = vi.spyOn(api, "fetchSuggestions").mockResolvedValue([]);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <SearchBox
+          onSelect={vi.fn()}
+          near={NEAR}
+          label="Hakuba Happo-One"
+          ariaLabel="To"
+          restoreOnBlur
+        />
+      </QueryClientProvider>,
+    );
+    const input = screen.getByRole("combobox", { name: "To" });
+    input.focus();
+    fireEvent.change(input, { target: { value: "Cortina" } });
+    await waitFor(() => expect(suggest).toHaveBeenCalledWith("Cortina", NEAR));
+  });
+});
+
+// Code review of v1.8: Enter must never pick something nobody chose (spec: nothing a
+// search does edits the trip without an explicit choice), and Japanese input must work.
+describe("SearchBox Enter picks only an explicit choice", () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => vi.restoreAllMocks());
+
+  function renderFilled() {
+    const onSelect = vi.fn();
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <SearchBox
+          onSelect={onSelect}
+          near={NEAR}
+          label="Hakuba Happo-One"
+          ariaLabel="To"
+          restoreOnBlur
+        />
+      </QueryClientProvider>,
+    );
+    return { onSelect, input: screen.getByRole("combobox", { name: "To" }) };
+  }
+
+  it("focus then Enter on a filled box picks nothing (not the top recent or My hotel)", () => {
+    rememberRecent(hotelHakuba);
+    const { input, onSelect } = renderFilled();
+    input.focus();
+    fireEvent.focus(input); // opens the list: the recents are showing
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("an arrow-key choice from the recents then Enter is a pick", () => {
+    rememberRecent(hotelHakuba);
+    const { input, onSelect } = renderFilled();
+    input.focus();
+    fireEvent.focus(input); // the recents open
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ id: hotelHakuba.id }),
+    );
+  });
+
+  it("Escape then a quick Enter does not pick the abandoned draft's top result", async () => {
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input, onSelect } = renderFilled();
+    input.focus();
+    fireEvent.change(input, { target: { value: "Hotel" } });
+    await screen.findAllByRole("option");
+    fireEvent.keyDown(input, { key: "Escape" });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("Enter that confirms a Japanese conversion (IME composing) picks nothing", async () => {
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input, onSelect } = renderFilled();
+    input.focus();
+    fireEvent.change(input, { target: { value: "はくば" } });
+    await screen.findAllByRole("option");
+    fireEvent.keyDown(input, { key: "Enter", isComposing: true });
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(input).toHaveValue("はくば");
+  });
+});

@@ -740,6 +740,67 @@ Reference: BC-A1 (Google Maps iOS, recorded over USB). Red first: 7 MapView + 3 
 Follow-up from the journey matrix: S1 (the box keeps the old name after Start here), S4 (a long-press on a hotel pin loses its name), S6 (the card cut off at an edge: no fixed anchor now) fixed, and their known-fail tests flipped. Real iPhone: Chrome ✅.
 **Open:** a Safari check; the laptop rule waits for the desktop reference (L1: a click that closes a popover also moves the start). **Scope:** M
 
+## Task 81: The free destination keeps its name (SPEC-web-app v1.8) ✅
+**Description:** `point` becomes `{coord, name}`; the To row shows that name instead of "Chosen place". The pin card's Go here passes the pin's name (a long-pressed hotel pin → "To: <hotel>").
+**Acceptance:**
+- [x] Long-press a hotel pin → Go here → the trip reads "To: <hotel name>" (e2e `setting-the-start.spec.ts`, phone: Go here needs touch)
+- [x] Saved-place Go here and every existing destination journey unchanged (113/113 on the three suites, 366 unit)
+**Verify:** `npx tsc --noEmit`; `npx vitest run`; `E2E_BASE_URL=https://127.0.0.1:3443 npx playwright test e2e/journeys/destination-route.spec.ts e2e/pin-card.spec.ts`
+**Dependencies:** none · **Files:** `src/components/MapShell.tsx`, `e2e/journeys/destination-route.spec.ts` · **Scope:** S
+
+## Task 82: SearchBox draft rule: `restoreOnBlur` (BC-T1) ✅
+**Description:** With `restoreOnBlur` and a `label`, leaving the box (blur or Escape) without choosing puts the label back and closes the list. Choosing still calls `onSelect`. The From box keeps today's behaviour (prop off).
+**Acceptance:**
+- [x] Unit: type, blur → text = label; type, Escape → text = label, list closed; choose → onSelect, no restore (it restores the last *committed* text: a pick or the label; the guard test caught a restore-to-old-label bug)
+- [x] Unit: prop off → typed text kept on blur (today); ✕ then blur stays empty
+**Verify:** `npx vitest run tests/SearchBox.test.tsx`; `npx biome check src tests`
+**Dependencies:** none · **Files:** `src/components/SearchBox.tsx`, `tests/SearchBox.test.tsx` · **Scope:** S
+
+## Task 83: ~~From box with a start set~~ DROPPED (2026-11-04): rule 2 amended, a From-box result replaces the start as today
+**Description:** A From-box result with a start set opens the pin card at the place (Start here · Go here · Add stop) and flies there; without a start it sets the start.
+**Acceptance:**
+- [ ] e2e: start set, From-box result → card, `from` unchanged; Start here → replaced
+- [ ] setting-the-start tests that expect a direct replace go through the card (recorded behaviour change)
+**Verify:** `E2E_BASE_URL=https://127.0.0.1:3443 npx playwright test e2e/journeys/setting-the-start.spec.ts e2e/pin-card.spec.ts`
+**Dependencies:** none · **Files:** `src/components/MapShell.tsx`, `e2e/journeys/setting-the-start.spec.ts`, `e2e/pin-card.spec.ts` · **Scope:** S
+
+## Task 84: The To box in drive and walk (T, D1, L18) ✅
+**Description:** In drive and walk, once there is a start or a destination, the To row is a SearchBox (name "To", placeholder "Search a destination", label = destination name, `restoreOnBlur`, ✕ = Remove destination) with the Save star when filled. A resort suggestion → `selectResort`; any other → free point with its name (T81). Bus: read-only row, as today.
+**Acceptance:**
+- [x] Unit (tests/trip.test.tsx): To combobox filled and empty; a pick goes to onChooseTo; follows the destination; bus row read-only
+- [x] e2e: known tests T and L18 flip to plain passes; D1 is rewritten to type "Cortina" in the To box and passes on 4 devices, `from` unchanged. Recorded test change: the destination is the To box's *value* (`expectTo()`), no longer row text
+- [x] e2e: the To box is fully in the viewport as the page opens, on all 4 devices
+- [x] Found by resilience (suggest → wrongShape crashed on load): the To box searched for its own label. SearchBox now queries only typed text (2 unit tests); the `{}.filter` crash itself is cluster R10
+**Verify:** `npx vitest run`; `npx tsc --noEmit`; `npx biome check src tests e2e`; `E2E_BASE_URL=https://127.0.0.1:3443 npx playwright test e2e/journeys/destination-route.spec.ts`
+**Dependencies:** T81, T82 · **Files:** `src/components/TripPanel.tsx`, `src/components/MapShell.tsx`, `tests/trip.test.tsx`, `e2e/journeys/destination-route.spec.ts` · **Scope:** M
+
+## Checkpoint P: v1.8 core
+- [x] Full e2e 331/334, then the 3 fixed and their 4 suites 152/152; unit 379, tsc + biome clean. The off-season known-fail (H) passed unexpectedly once: the API's crowd estimate uses the server's real clock, not the page's (time-of-day dependent, not this change)
+- [x] REA after-capture `ev_ad259bf7…` with `D-type-destination-to-box-laptop.json`; compare `ev_00c83cbd…` vs D1 before `ev_0bceab1c…`: steps up to the suggestion unchanged; after the pick, before = `from` moved to Cortina, after = `from` unchanged and `resort=cortina`
+- [ ] Review with the user
+
+## Task 85: Real device, review, commit
+**Review (agent-skills code-reviewer, fresh context):** 9 findings; fixed:
+- D1 e2e only read the box's own echo → also asserts `resort=cortina`, `from` unchanged, route drawn.
+- Enter on a box nobody typed in picked the top saved/recent place (My hotel) → Enter picks only typed text or an arrow-highlighted row; also after Escape.
+- Japanese IME: Enter/Escape while composing are the input method's → ignored.
+- A non-resort To pick left the old resort selected and in the link → cleared (new e2e: konbini typed into To, 4 devices). The same gap in pin/saved Go here stays D5 (cluster J).
+- Pick ordering on touch: `committed` is set before `onSelect`/blur.
+Not taken: resort pick while resorts load (rare), re-pick name mismatch (cosmetic), "From shows a visible label" (it doesn't: both rows use sr-only labels).
+**iPhone check, by emulation and the real phone:**
+- `playwright.iphone.config.ts` + `e2e-iphone/trip.spec.ts` (WebKit, iPhone 15 and SE): v1.8 flows and the v1.7 tap pass; desktop WebKit can't synthesise a long-press (fixme, covered by CDP touch and the 11-03 real Chrome check).
+- Real iPhone, Safari over Web Inspector: connected (visible area 390×699); the run was cut short when another project's session took the phone; the shared-phone lock `~/.iphone-lab` now prevents that.
+- **Found: T-fold** (see Task 86).
+**Acceptance:**
+- [x] agent-skills code-review-and-quality pass; findings fixed
+- [ ] Real iPhone Safari: v1.8 To box and the v1.7 long-press (needs a phone turn via the lock)
+- [x] Commit; push with the user's OK ("go all", 2026-11-04)
+**Dependencies:** Checkpoint P · **Scope:** S
+
+## Task 86: T-fold: the To box is cut off on a Safari-sized screen (found by the iPhone run)
+The collapsed sheet is a fixed 40dvh. On phones its fixed rows (search, Saved/HUD row, mode tabs, ETA/Start from T77) fill it, and the trip panel starts at its bottom edge. Emulated iPhone 15 (393×659): the To box is 32 % visible. Real iPhone Safari (390×699): it sits at y 665–709 while the sheet ends at 695, so a third is cut off. Chromium's phone profile (393×852) is taller, which is why the e2e test passed. Risk: users type the destination in the top box again (D1 in another form). Known-fail `e2e-iphone/trip.spec.ts` "the To box is in view". **Open: layout decision** (trade-off with T77's ETA row and the v1.6 HUD row). **Scope:** M
+
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).

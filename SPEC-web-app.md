@@ -137,3 +137,64 @@ From the [2026-11-03 UX review](docs/ux/2026-11-03-ux-review.md), cluster A: on 
 - [x] REA laptop before/after (`ev_fe286f…` → `ev_1ef036…`): the mouse click still picks a start (the URL changes in both; only the clicked coordinate differs).
 - [x] Real iPhone, Chrome (2026-11-03, USB recording `.ux-evidence/ours-A1-device.mov`, about 123 s): a long-press shows the card with no iOS callout or loupe.
 - [ ] Real iPhone, Safari: the same.
+
+## v1.8: A typed destination, and search results that never replace the start silently (2026-11-03, approved)
+**Objective.** A skier who knows where they're going must be able to type it.
+- Today, once a start is set, the only text box is the start's (**T**, found by the user on a real iPhone).
+- Choosing a resort from that box's suggestions silently **replaces the start**: the trip becomes Cortina → Happo-One (**D1**, severity 4, REA `ev_0bceab1c…`).
+
+Success means:
+- typing a destination takes one box and one choice, on phone and laptop;
+- nothing a search does ever edits the trip without an explicit choice.
+
+**Behaviour evidence (REA method: claim → source → what we take)**
+| Google Maps behaviour | Evidence | Ours |
+|---|---|---|
+| Directions show two stacked fields, start and destination | BC-A1 (observed: the From/To header in route preview) | The search box above is the **From** box (it already shows the start); the trip panel's To row becomes an editable **To** box |
+| Both fields stay editable while a route is shown; typing is a draft, and only a pick changes the trip | **BC-T1** (observed, REA `ev_61e1c0d5…`, `ev_38f08a0b…`, `ev_ae833c23…`) | The To box shows the destination's name; typing keeps the current route until a choice; ✕ clears it |
+| Each field's search changes only that field | **BC-T1** (observed: the start's search never touched the destination, and the reverse) | A From-box result sets the start directly, as today; a To-box result sets the destination. D1 came from there being only one box, not from the replace (rule 2 amended 2026-11-04) |
+
+**Reference step (REA, before code).** ② Laptop: you drive Google Maps directions in your own Chrome, started with `--remote-debugging-port=9333` and a fresh signed-out profile. REA `inspect_web_page` records **only the accessibility tree** (roles, names, focus) of the From/To fields: what a tap or focus does, and whether the destination stays editable. That becomes behaviour card BC-T1. The Google boundaries in docs/ux/rea-benchmark-workflow.md apply.
+
+**Rules**
+1. **To box** (🚗 Drive, 🚶 Walk):
+   - The To row is a combobox named "To", placeholder "Search a destination".
+   - It shows the current destination's name; it is empty when there is none, which includes after ✕.
+   - Suggestions come from the same index as the start search, biased to the map centre.
+   - A resort suggestion selects that resort, as the list does. Any other place becomes a free destination point **with its name** ("To: Lawson …", not "Chosen place").
+   - The Save star and ✕ stay. In 🚌 Bus the To row stays read-only (it is the chosen option's stop).
+   - Typing is a draft (BC-T1): the current destination and its route stay until a suggestion is chosen. Leaving the box (blur or Escape) without choosing puts the current name back. After a choice, the list closes and focus stays in the box.
+2. **From box with a start already set:** choosing a result replaces the start, as today; the destination and stops stay. *Amended 2026-11-04, approved:* the first draft opened the pin card here, but BC-T1 showed Google's fields are field-scoped, and with a To box the From box only means "start".
+3. **From box with no start:** a result sets the start, as today.
+4. The destination's name survives mode switches. Surviving a reload is out of scope here; that is cluster E.
+
+**Commands.**
+- `cd apps/web && npx vitest run`
+- `npx tsc --noEmit`
+- `npx biome check src tests e2e`
+- `E2E_BASE_URL=https://127.0.0.1:3443 npx playwright test --workers=3`
+- REA scenarios: `npx -y rea-agents@6.8.0 capture-browser-scenario docs/ux/rea-scenarios/D-type-destination-laptop.json` (with `__CHROMIUM__` substituted)
+
+**Structure.** `src/components/TripPanel.tsx` (the To box), `MapShell.tsx` (wiring; the From box goes through `PinCard`). Tests go in `tests/trip.test.tsx`, `tests/SearchBox.test.tsx` and `e2e/journeys/destination-route.spec.ts`. Code style follows the existing components (SearchBox reused, lucide icons, Tailwind tokens).
+
+**Testing.** Red first:
+- Unit: TripPanel renders the To combobox (filled and empty); choosing a resort or place calls the right handler.
+- e2e: the agent's known-fail tests **T** ("an editable To box") and **D1** ("typing a resort … makes it the destination, not the start") flip to plain passes. D1 is rewritten to type in the To box. The From-box tests in `setting-the-start.spec.ts` stay as they are (rule 2 amended).
+- REA laptop before/after on `D-type-destination-laptop.json`: `from` unchanged, the destination changes.
+- Real iPhone in Chrome, plus Safari for v1.7.
+
+**Boundaries.**
+- *Always:* tests first; full e2e green before commit; the REA before/after.
+- *Ask first:* Bus-mode destination typing; changing what the From box means beyond rule 2.
+- *Never:* Google assets or copy; scripted access to google.com.
+
+**Acceptance**
+- [x] BC-T1 recorded (REA accessibility capture of Google's From/To fields), 2026-11-04
+- [x] The To box works on 4 devices; known tests T, D1 and L18 flip; full e2e green (2026-11-04)
+- [x] ~~A From-box result with a start set opens the card~~ Rule 2 amended: a From-box result replaces the start (already covered by `setting-the-start.spec.ts`)
+- [x] REA before/after diff: compare `ev_00c83cbd…` (before `ev_0bceab1c…`, after `ev_ad259bf7…`)
+- [ ] Real-iPhone check
+
+**Open questions**
+1. Bus mode: should typing a resort in Bus pick its best bus option? (Proposed: later, as its own spec.)
+2. ~~The REA reference step: now or later?~~ Done first, 2026-11-04 (BC-T1).

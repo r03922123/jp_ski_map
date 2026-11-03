@@ -99,7 +99,6 @@ async function press(target: Locator, touch: boolean) {
 
 const ranked = (page: Page) =>
   page.getByRole("list", { name: "Ranked resorts" });
-const tripList = (page: Page) => page.getByRole("list", { name: "Trip" });
 const fromParam = (page: Page) => new URL(page.url()).searchParams.get("from");
 const param = (page: Page, name: string) =>
   new URL(page.url()).searchParams.get(name);
@@ -204,7 +203,7 @@ async function chooseResort(page: Page, name: RegExp, touch: boolean) {
   const card = ranked(page).getByRole("button", { name });
   await press(card, touch);
   await expect(card).toHaveAttribute("aria-pressed", "true");
-  await expect(tripList(page)).toContainText(name);
+  await expectTo(page, name);
   await routeDrawn(page);
 }
 
@@ -224,6 +223,18 @@ async function bareMapPoint(page: Page, y: number) {
     expect(found, `bare map near y=${y}`).not.toBeNull();
   }).toPass({ timeout: 10_000 });
   return found as unknown as { x: number; y: number };
+}
+
+/** The To box (SPEC-web-app v1.8): drive and walk; bus keeps a read-only To row. */
+const toBox = (page: Page) =>
+  page.getByRole("combobox", { name: "To", exact: true });
+/** The destination is the To box's value (an input's value is not text content). */
+async function expectTo(page: Page, name: string | RegExp) {
+  const pattern =
+    typeof name === "string"
+      ? new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      : name;
+  await expect(toBox(page)).toHaveValue(pattern);
 }
 
 /** A real finger (CDP), so MapLibre and the browser see touch, not a mouse. */
@@ -281,7 +292,7 @@ async function goHereFromSaved(page: Page, touch: boolean) {
       .getByRole("button", { name: "Go here" }),
     touch,
   );
-  await expect(tripList(page)).toContainText(SAVED_LODGE.name);
+  await expectTo(page, SAVED_LODGE.name);
   await routeDrawn(page);
 }
 
@@ -294,7 +305,6 @@ for (const d of ALL) {
     test("once a start is set there is an editable To box (Google: From and To)", async ({
       page,
     }) => {
-      test.fail(); // known: T — the only text box is the start's; no box to type a destination
       await open(page, `${PLAN}&resort=happo-one`);
       await routeDrawn(page);
       await expect(
@@ -304,23 +314,52 @@ for (const d of ALL) {
       ).toBeVisible({ timeout: 3_000 });
     });
 
-    test("typing a resort into the search box with a start set makes it the destination, not the start", async ({
+    test("with a start and a destination the To box is in view as the page opens (else D1 returns: the user types in the top box)", async ({
       page,
     }) => {
-      test.fail(); // known: D1 (T) — choosing "Hakuba Cortina" replaces the START; the trip silently becomes Cortina → Happo-One
+      await open(page, `${PLAN}&resort=happo-one`);
+      await routeDrawn(page);
+      await expect(toBox(page)).toBeInViewport({ ratio: 1 });
+    });
+
+    test("typing a resort into the To box with a start set makes it the destination, not the start", async ({
+      page,
+    }) => {
+      // fixed: D1 (T) — SPEC-web-app v1.8: the destination is typed in the To box; the
+      // From box keeps meaning the start (BC-T1: each field's search changes only itself)
       await open(page, `${PLAN}&resort=happo-one`);
       await routeDrawn(page);
       const before = fromParam(page);
-      const box = page.getByRole("combobox", { name: /search/i });
+      const box = toBox(page);
       await box.fill("Cortina");
       const option = page.getByRole("option", {
         name: /Hakuba Cortina Snow Resort/,
       });
       await press(option.first(), d.touch);
-      await expect(tripList(page)).toContainText(/To:\s*Hakuba Cortina/, {
+      await expect(toBox(page)).toHaveValue(/Hakuba Cortina/, {
         timeout: 5_000,
       });
+      // the box's text alone is SearchBox's own echo: check the trip itself changed
+      await expect.poll(() => param(page, "resort")).toBe("cortina");
       expect(fromParam(page)).toBe(before);
+      await routeDrawn(page);
+    });
+
+    test("typing a konbini into the To box makes it the destination with its name, and no resort stays chosen", async ({
+      page,
+    }) => {
+      // code review of v1.8: the non-resort branch (spec rule 1: a free point with its name)
+      await open(page, `${PLAN}&resort=happo-one`);
+      await routeDrawn(page);
+      const before = fromParam(page);
+      await toBox(page).fill("7-Eleven");
+      const option = page.getByRole("option", { name: /7-Eleven/ }).first();
+      await press(option, d.touch);
+      await expect(page).toHaveURL(/dest=pt%3A/);
+      await expect(page).not.toHaveURL(/resort=/, { timeout: 3_000 });
+      await expectTo(page, /7-Eleven/); // its name, not "Chosen place"
+      expect(fromParam(page)).toBe(before);
+      await routeDrawn(page);
     });
   });
 }
@@ -339,7 +378,7 @@ for (const d of [PHONE, LAPTOP]) {
         d.touch,
       );
       await expect(page).not.toHaveURL(/resort=/);
-      await expect(tripList(page)).not.toContainText("To:");
+      await expect(toBox(page)).toHaveValue("");
       await chooseResort(page, /Tsugaike/, d.touch);
       expect(param(page, "resort")).toBe("tsugaike");
     });
@@ -347,7 +386,6 @@ for (const d of [PHONE, LAPTOP]) {
     test("✕ on To leaves a box to type the next destination in", async ({
       page,
     }) => {
-      test.fail(); // known: L18 — after ✕ on To only the start's search box remains
       await open(page, `${PLAN}&resort=cortina`);
       await routeDrawn(page);
       await press(
@@ -403,7 +441,7 @@ test.describe("ranked list · laptop 1440x900", () => {
       const top = ranked(page).getByRole("button", { name: new RegExp(name) });
       await top.click();
       await expect(top).toHaveAttribute("aria-pressed", "true");
-      await expect(tripList(page)).toContainText(name);
+      await expectTo(page, name);
       await routeDrawn(page);
     }
   });
@@ -413,7 +451,7 @@ test.describe("ranked list · laptop 1440x900", () => {
   }) => {
     await open(page, PLAN);
     await page.locator("[data-resort-marker='tsugaike']").click();
-    await expect(tripList(page)).toContainText(/To:\s*Tsugaike/);
+    await expect(toBox(page)).toHaveValue(/Tsugaike/);
     await routeDrawn(page);
   });
 
@@ -451,7 +489,7 @@ for (const d of [PHONE, LAPTOP]) {
         const name = (await row.innerText()).split("\n")[0].trim();
         await press(row, d.touch);
         await expect(row).toHaveAttribute("aria-pressed", "true");
-        await expect(tripList(page)).toContainText(name);
+        await expectTo(page, name);
         await expect(page).toHaveURL(/dest=poi%3A/);
         await routeDrawn(page);
       });
@@ -495,7 +533,7 @@ for (const d of PHONES) {
         .getByRole("button", { name: "Go here" })
         .tap();
       await expect(page).toHaveURL(/dest=pt%3A/);
-      await expect(tripList(page)).toContainText(/To:\s*Chosen place/);
+      await expect(toBox(page)).toHaveValue(/Chosen place/);
       expect(fromParam(page)).toBe(before);
       await routeDrawn(page);
       await expectRouteUncovered(page);
@@ -547,7 +585,7 @@ for (const d of [PHONE, LAPTOP]) {
       await expect(page).toHaveURL(/dest=pt%3A36\.77650%2C137\.88680/);
       await page.reload();
       await routeDrawn(page);
-      await expect(tripList(page)).toContainText(SAVED_LODGE.name);
+      await expectTo(page, SAVED_LODGE.name);
     });
   });
 }
@@ -639,7 +677,7 @@ test.describe("destination survives · laptop 1440x900", () => {
       await page.getByRole("tab", { name: m }).click();
       await expect(page).toHaveURL(/resort=cortina/);
     }
-    await expect(tripList(page)).toContainText(/To:\s*Hakuba Cortina/);
+    await expect(toBox(page)).toHaveValue(/Hakuba Cortina/);
     await routeDrawn(page);
   });
 
@@ -648,7 +686,7 @@ test.describe("destination survives · laptop 1440x900", () => {
     await routeDrawn(page);
     await page.getByRole("tab", { name: /Walk/ }).click();
     await expect(page.locator("#resort-picker")).toHaveValue("cortina");
-    await expect(tripList(page)).toContainText(/To:\s*Hakuba Cortina/);
+    await expect(toBox(page)).toHaveValue(/Hakuba Cortina/);
   });
 
   test("a food destination survives Walk and back to Drive", async ({
@@ -664,11 +702,11 @@ test.describe("destination survives · laptop 1440x900", () => {
     await expect(row).toBeVisible({ timeout: 20_000 });
     const name = (await row.innerText()).split("\n")[0].trim();
     await row.click();
-    await expect(tripList(page)).toContainText(name);
+    await expectTo(page, name);
     await page.getByRole("tab", { name: /Walk/ }).click();
-    await expect(tripList(page)).toContainText(name);
+    await expectTo(page, name);
     await page.getByRole("tab", { name: /Drive/ }).click();
-    await expect(tripList(page)).toContainText(name);
+    await expectTo(page, name);
     await routeDrawn(page);
   });
 
@@ -678,7 +716,7 @@ test.describe("destination survives · laptop 1440x900", () => {
     await chooseResort(page, /Cortina/, false);
     await page.reload();
     await routeDrawn(page);
-    await expect(tripList(page)).toContainText(/To:\s*Hakuba Cortina/);
+    await expect(toBox(page)).toHaveValue(/Hakuba Cortina/);
   });
 
   test("a shared link opens with the same destination in a fresh browser", async ({
@@ -699,7 +737,7 @@ test.describe("destination survives · laptop 1440x900", () => {
       const p2 = await other.newPage();
       await open(p2, link);
       await routeDrawn(p2);
-      await expect(tripList(p2)).toContainText(/To:\s*Hakuba Cortina/);
+      await expect(toBox(p2)).toHaveValue(/Hakuba Cortina/);
     } finally {
       await other?.close();
     }
@@ -825,7 +863,7 @@ for (const d of [PHONE, LAPTOP]) {
       await expect(page.getByText("Finding route…").first()).toBeAttached();
       await context.setOffline(false);
       await routeDrawn(page);
-      await expect(tripList(page)).toContainText(/To:\s*Hakuba Cortina/);
+      await expect(toBox(page)).toHaveValue(/Hakuba Cortina/);
     });
   });
 }
@@ -870,7 +908,7 @@ test.describe("odd input in the only search box · phone 393x852", () => {
     await box.press("Enter");
     await box.fill("");
     await box.press("Enter");
-    await expect(tripList(page)).toContainText(/To:\s*Hakuba Happo-One/);
+    await expect(toBox(page)).toHaveValue(/Hakuba Happo-One/);
     expect(page.url()).toBe(before);
   });
 });

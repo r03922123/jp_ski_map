@@ -44,6 +44,7 @@ import {
   fetchRoutes,
   type Route,
   resortsQuery,
+  type Suggestion,
 } from "@/lib/api";
 import { mirrorUrl } from "@/lib/back-close";
 import { nowInHakuba } from "@/lib/depart-at";
@@ -152,8 +153,12 @@ export function MapShell() {
   const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
   const [category, setCategory] = useState<DestinationCategory>("resorts");
   const [poiId, setPoiId] = useState<string | null>(null);
-  // a free destination: a saved place's "Go here"
-  const [point, setPoint] = useState<Coord | null>(null);
+  // a free destination (a saved place's or a pin's "Go here", a To-box place), with its
+  // name when it has one; the link holds only the coordinate (names in the URL: cluster E)
+  const [point, setPoint] = useState<{
+    coord: Coord;
+    name: string | null;
+  } | null>(null);
   // stops between start and destination; an empty one is waiting for typing or a map tap
   const [stops, setStops] = useState<TripStop[]>([]);
   // A long-pressed point (or tapped hotel pin) and its card: touch edits the trip only
@@ -208,7 +213,7 @@ export function MapShell() {
       setOriginSource(hotel);
       setSearchLabel(`My hotel · ${hotel.name}`);
     }
-    setPoint(view.point);
+    setPoint(view.point ? { coord: view.point, name: null } : null);
     setStops(
       view.stops.map((coord, i) => ({
         key: `stop-url-${i}`,
@@ -233,7 +238,7 @@ export function MapShell() {
       poiId,
       category,
       rank: rankOptions,
-      point,
+      point: point?.coord ?? null,
       stops: filledStops.map((s) => s.coord),
     });
     mirrorUrl(search);
@@ -255,6 +260,26 @@ export function MapShell() {
     setSelectedResortId(id);
     setPoint(null);
   };
+  // The To box (SPEC-web-app v1.8, BC-T1): a pick there changes only the destination. A
+  // resort selects it as the list does (the resorts tab, or a food tab would win); any
+  // other place is a free destination with its name.
+  const chooseTo = (place: Suggestion) => {
+    if (
+      place.kind === "resort" &&
+      resorts.data?.some((r) => r.id === place.id)
+    ) {
+      setCategory("resorts");
+      setPoiId(null);
+      selectResort(place.id);
+    } else {
+      // the place replaces whatever was chosen: no resort card or food row stays pressed,
+      // and the link holds only the point (the same gap in Go here is D5, cluster J)
+      sfx().play("select");
+      setSelectedResortId(null);
+      setPoiId(null);
+      setPoint({ coord: place.coord, name: place.name });
+    }
+  };
   const startFrom = (place: SavedPlace) => {
     setOrigin(place.coord);
     setOriginName(place.kind === "pin" ? null : place.name);
@@ -264,7 +289,7 @@ export function MapShell() {
     setSavedOpen(false);
   };
   const goTo = (place: SavedPlace) => {
-    setPoint(place.coord);
+    setPoint({ coord: place.coord, name: place.name });
     setSavedOpen(false);
   };
 
@@ -385,7 +410,7 @@ export function MapShell() {
   const target =
     mode === "bus"
       ? busStop
-      : (point ?? (poiCategory ? poiTarget : destination));
+      : (point?.coord ?? (poiCategory ? poiTarget : destination));
   // With stops (drive/walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
   const routeQuery = useQuery({
@@ -833,10 +858,10 @@ export function MapShell() {
       })
     : null;
   const pointPlace: PlaceInput | null = point
-    ? (placeAt(savedState, point) ?? {
-        id: pinId(point),
-        name: "Chosen place",
-        coord: point,
+    ? (placeAt(savedState, point.coord) ?? {
+        id: pinId(point.coord),
+        name: point.name ?? "Chosen place",
+        coord: point.coord,
         kind: "pin",
       })
     : null;
@@ -904,7 +929,7 @@ export function MapShell() {
         mode === "bus"
           ? undefined
           : () => {
-              setPoint(droppedPin.coord);
+              setPoint({ coord: droppedPin.coord, name: droppedPin.name });
               setDroppedPin(null);
             }
       }
@@ -1074,6 +1099,7 @@ export function MapShell() {
                     clearOrigin();
                     setSearchKey((k) => k + 1);
                   }}
+                  onChooseTo={mode === "bus" ? undefined : chooseTo}
                   onClearTo={
                     // bus: the destination is the chosen option's stop, not the user's
                     mode === "bus"

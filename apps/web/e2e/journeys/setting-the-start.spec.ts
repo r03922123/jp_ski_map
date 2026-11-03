@@ -74,8 +74,9 @@ const searchBox = (page: Page) =>
 const trip = (page: Page) => page.getByRole("list", { name: "Trip" });
 const fromRow = (page: Page) =>
   trip(page).locator("li").filter({ hasText: "From:" });
-const toRow = (page: Page) =>
-  trip(page).locator("li").filter({ hasText: "To:" });
+/** The To box (SPEC-web-app v1.8): the destination is its value, not row text. */
+const toBox = (page: Page) =>
+  page.getByRole("combobox", { name: "To", exact: true });
 
 async function open(page: Page, path: string) {
   await page.goto(path);
@@ -237,7 +238,7 @@ for (const dev of DEVICES) {
       await expect(fromRow(page)).toContainText(TOKYU.name);
       await expect(fromRow(page)).toHaveCount(1);
       await expect(searchBox(page)).toHaveValue(TOKYU.name);
-      await expect(toRow(page)).toContainText("Happo-One");
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(
         page.getByRole("img", { name: "Starting point" }),
       ).toHaveCount(1);
@@ -295,7 +296,7 @@ for (const dev of DEVICES) {
       await expect.poll(() => fromParam(page)).toBeNull();
       expect(new URL(page.url()).searchParams.get("resort")).toBe("happo-one");
       await expect(fromRow(page)).toHaveCount(0);
-      await expect(toRow(page)).toContainText("Happo-One");
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(searchBox(page)).toHaveValue("");
       await expect(
         page.getByText(/to set\s+your starting point/),
@@ -303,14 +304,14 @@ for (const dev of DEVICES) {
 
       await searchAndPick(dev, page, "Hakuba Tokyu", /Tokyu/);
       await expect.poll(() => fromParam(page)).toMatch(TOKYU.from);
-      await expect(toRow(page)).toContainText("Happo-One");
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
 
       await press(
         dev,
         page.getByRole("button", { name: "Clear starting point" }),
       );
       await expect.poll(() => fromParam(page)).toBeNull();
-      await expect(toRow(page)).toContainText("Happo-One");
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(searchBox(page)).toHaveValue("");
     });
 
@@ -341,7 +342,7 @@ for (const dev of DEVICES) {
       await expect.poll(() => fromParam(page)).toMatch(TOKYU.from);
       await expect(searchBox(page)).toHaveValue(TOKYU.name);
       await expect(fromRow(page)).toContainText(TOKYU.name);
-      await expect(toRow(page)).toContainText("Happo-One");
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
     });
 
     test("Back after changing the start returns to the previous start", async ({
@@ -427,7 +428,7 @@ for (const dev of [PHONE, SMALL]) {
       await pinCard(page).getByRole("button", { name: "Start here" }).tap();
       await expect.poll(() => fromParam(page)).not.toMatch(HOTEL.from);
       await expect(fromRow(page)).toContainText("Dropped pin");
-      await expect(toRow(page)).toContainText("Happo-One");
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(searchBox(page)).not.toHaveValue(HOTEL.name, {
         timeout: 5_000,
       });
@@ -468,6 +469,19 @@ test.describe(`${PHONE.name} touch: long-press on a hotel pin`, () => {
     await expect(pinCard(page).locator("legend")).toHaveText(pin.name, {
       timeout: 3_000,
     });
+  });
+  test("Go here on a hotel pin's card puts the hotel's name in To", async ({
+    page,
+  }) => {
+    // T81 (SPEC-web-app v1.8): a free destination keeps its name, not "Chosen place"
+    await open(page, "/?mode=drive&from=36.6985,137.8376");
+    const pin = await hotelPin(page, { minX: 0, maxY: 450 });
+    const cdp = await page.context().newCDPSession(page);
+    await touch(cdp, pin, 700);
+    await expect(pinCard(page).locator("legend")).toHaveText(pin.name);
+    await pinCard(page).getByRole("button", { name: "Go here" }).tap();
+    await expect(page).toHaveURL(/dest=pt%3A/);
+    await expect(toBox(page)).toHaveValue(pin.name, { timeout: 3_000 });
   });
 });
 

@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   TripPanel,
   type TripPanelProps,
@@ -297,5 +297,101 @@ describe("stop numbers and reroutes", () => {
       "Drive east.",
       "You have arrived at your destination.",
     ]);
+  });
+});
+
+// SPEC-web-app v1.8 rule 1 (BC-T1): in drive and walk the To row is a search box that
+// shows the destination's name; a pick there changes only the destination.
+describe("TripPanel To box", () => {
+  const cortina: Suggestion = {
+    id: "cortina",
+    kind: "resort",
+    name: "Hakuba Cortina Snow Resort",
+    nameJa: null,
+    coord: { lat: 36.777, lng: 137.888 },
+    detail: "Ski resort",
+    match: [7, 14],
+    source: "index",
+  };
+
+  beforeEach(() => localStorage.clear()); // saved places and recents from other tests
+
+  function renderToBox(to: TripPanelProps["to"], onChooseTo = vi.fn()) {
+    const onClearTo = vi.fn();
+    const props: TripPanelProps = {
+      from: hotel,
+      to,
+      stops: [],
+      canAddStop: false,
+      near: null,
+      onAddStop: vi.fn(),
+      onRemoveStop: vi.fn(),
+      onFillStop: vi.fn(),
+      onClearFrom: vi.fn(),
+      onClearTo,
+      onChooseTo,
+    };
+    const client = new QueryClient();
+    const view = render(
+      <QueryClientProvider client={client}>
+        <TripPanel {...props} />
+      </QueryClientProvider>,
+    );
+    const rerender = (next: Partial<TripPanelProps>) =>
+      view.rerender(
+        <QueryClientProvider client={client}>
+          <TripPanel {...props} {...next} />
+        </QueryClientProvider>,
+      );
+    return { onChooseTo, onClearTo, rerender };
+  }
+
+  it("is a combobox named To that shows the destination, with its Save star and ✕", () => {
+    const { onClearTo } = renderToBox(resort);
+    const box = screen.getByRole("combobox", { name: "To" });
+    expect(box).toHaveValue("Happo-One");
+    expect(box).toHaveAttribute("placeholder", "Search a destination");
+    expect(
+      screen.getByRole("button", { name: "Save Happo-One" }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Remove destination" }));
+    expect(onClearTo).toHaveBeenCalled();
+  });
+
+  it("is an empty box, with no Save star, when there is no destination", () => {
+    renderToBox(null);
+    expect(screen.getByRole("combobox", { name: "To" })).toHaveValue("");
+    expect(
+      screen.queryByRole("button", { name: /^Save (?!Hotel)/ }),
+    ).toBeNull();
+  });
+
+  it("a pick in the To box goes to onChooseTo", async () => {
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([cortina]);
+    const { onChooseTo } = renderToBox(resort);
+    const box = screen.getByRole("combobox", { name: "To" });
+    box.focus();
+    fireEvent.change(box, { target: { value: "Cortina" } });
+    const row = await screen.findByRole("option", { name: /Hakuba Cortina/ });
+    fireEvent.mouseDown(row);
+    fireEvent.click(row);
+    expect(onChooseTo).toHaveBeenCalledWith(cortina);
+  });
+
+  it("follows the destination: a new one replaces the text, none empties it", () => {
+    const { rerender } = renderToBox(resort);
+    const box = screen.getByRole("combobox", { name: "To" });
+    rerender({ to: { ...resort, id: "cortina", name: "Hakuba Cortina" } });
+    expect(box).toHaveValue("Hakuba Cortina");
+    rerender({ to: null });
+    expect(screen.getByRole("combobox", { name: "To" })).toHaveValue("");
+  });
+
+  it("without onChooseTo (bus: the chosen option's stop) the To row stays read-only", () => {
+    renderTrip({ onClearTo: undefined });
+    expect(screen.queryByRole("combobox", { name: "To" })).toBeNull();
+    expect(screen.getByRole("list", { name: "Trip" })).toHaveTextContent(
+      "To: Happo-One",
+    );
   });
 });
