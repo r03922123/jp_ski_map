@@ -79,6 +79,8 @@ const PANEL_WIDTH_PX = 384; // BottomSheet md:w-96
 const PANEL_INSET_PX = 12; // md:left-3
 const SHEET_FRACTION = 0.4; // collapsed bottom sheet, h-[40dvh]
 const MD_BREAKPOINT_PX = 768;
+// v1.9 (BC-L1): the From/To card on top of the map on phones, plus a margin
+const TRIP_CARD_PX = 136;
 
 /** fitBounds padding that keeps the route clear of the directions panel. */
 export function mapPadding({
@@ -97,7 +99,7 @@ export function mapPadding({
     };
   }
   return {
-    top: 72,
+    top: TRIP_CARD_PX,
     right: 32,
     bottom: Math.round(height * SHEET_FRACTION) + 32,
     left: 32,

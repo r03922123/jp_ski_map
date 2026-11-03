@@ -1,5 +1,6 @@
 "use client";
 
+import { type ReactNode, useEffect, useRef } from "react";
 import { StopList } from "@/components/StopList";
 import type { BusOption, BusResult, NightResult, Resort } from "@/lib/api";
 import { clampDepart, departRange } from "@/lib/depart-at";
@@ -56,6 +57,30 @@ export function rideStopRows(
   return option.rideStops
     .slice(0, alightIndexOf(option) + 1)
     .map(({ stopId, name, time }) => ({ stopId, name, time }));
+}
+
+/**
+ * The chosen option's answer (its journey and Start). It comes into view when it appears,
+ * so a choice is never left below the sheet's fold (v1.9, cluster F; Google shows the
+ * chosen trip, BC-L1).
+ */
+function ChosenTrip({
+  revealKey,
+  children,
+}: {
+  /** changes when the answer grows (Start arrives once the walk is known): reveal again */
+  revealKey: string;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const shown = useRef(new Set<string>());
+  // once per state: a route refetch that hides and brings back Start doesn't jump again
+  useEffect(() => {
+    if (shown.current.has(revealKey)) return;
+    shown.current.add(revealKey);
+    ref.current?.scrollIntoView?.({ block: "nearest" });
+  }, [revealKey]);
+  return <div ref={ref}>{children}</div>;
 }
 
 /** Google-transit-style timeline for the chosen option: walk → board → ride → arrive. */
@@ -228,21 +253,25 @@ function Results({
                     selected={isSelected}
                     onSelect={onSelect}
                   />
-                  {isSelected && <Journey option={o} />}
-                  {isSelected && onStart && (
-                    <button
-                      type="button"
-                      aria-label="Start bus journey"
-                      className="mt-1 ml-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
-                      onClick={onStart}
-                    >
-                      ▶ Start
-                    </button>
-                  )}
-                  {isSelected && startNote && (
-                    <output className="mt-1 ml-1 block text-xs text-amber-800">
-                      {startNote}
-                    </output>
+                  {isSelected && (
+                    <ChosenTrip revealKey={onStart ? "start" : "journey"}>
+                      <Journey option={o} />
+                      {onStart && (
+                        <button
+                          type="button"
+                          aria-label="Start bus journey"
+                          className="mt-1 ml-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+                          onClick={onStart}
+                        >
+                          ▶ Start
+                        </button>
+                      )}
+                      {startNote && (
+                        <output className="mt-1 ml-1 block text-xs text-amber-800">
+                          {startNote}
+                        </output>
+                      )}
+                    </ChosenTrip>
                   )}
                 </div>
               );

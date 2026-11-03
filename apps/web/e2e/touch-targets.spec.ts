@@ -93,6 +93,8 @@ test("bus: date, time and the options", async ({ page }) => {
 
 test("the rider card and the quest log", async ({ page }) => {
   await open(page, "/");
+  // v1.9: the game HUD shows once the sheet is swiped up (the resting sheet holds the answer)
+  await expandSheet(page);
   await page.getByRole("button", { name: /^Rider card/ }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(await tooSmall(page)).toEqual([]);
@@ -105,6 +107,7 @@ test("HUD buttons are spaced: a tap between Rider and Quests hits neither twice"
   page,
 }) => {
   await open(page, "/");
+  await expandSheet(page); // v1.9: the HUD shows in the swiped-up sheet
   const rider = await page
     .getByRole("button", { name: /^Rider card/ })
     .boundingBox();

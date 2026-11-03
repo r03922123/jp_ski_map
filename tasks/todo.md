@@ -801,6 +801,19 @@ Not taken: resort pick while resorts load (rare), re-pick name mismatch (cosmeti
 The collapsed sheet is a fixed 40dvh. On phones its fixed rows (search, Saved/HUD row, mode tabs, ETA/Start from T77) fill it, and the trip panel starts at its bottom edge. Emulated iPhone 15 (393×659): the To box is 32 % visible. Real iPhone Safari (390×699): it sits at y 665–709 while the sheet ends at 695, so a third is cut off. Chromium's phone profile (393×852) is taller, which is why the e2e test passed. Risk: users type the destination in the top box again (D1 in another form). Known-fail `e2e-iphone/trip.spec.ts` "the To box is in view". **Open: layout decision** (trade-off with T77's ETA row and the v1.6 HUD row). **Scope:** M
 
 
+## Task 87: Map first on phones (SPEC-web-app v1.9: T-fold + cluster F)
+- [x] Trip header (From + To, the To's Save star) on top: fixed on phones, static in the laptop card; the To row leaves the trip panel in drive/walk. The From box shows the start's name (never blank under a To)
+- [x] The HUD row moves into the sheet body: hidden while the phone sheet rests, first in the laptop card. ★ Saved sits beside the From box
+- [x] The peek stays at 40 % (BC-L1: Google ≈44 %); mapPadding leaves room for the top card; focusing the header doesn't expand the sheet
+- [x] A destination change collapses the sheet (F). Flipped: F "expanded sheet → route above the sheet" and "saved place Go here" (phones), bus "journey and Start in view" (small phone, laptop 1440) and "board stop not hidden" (phones); T-fold in e2e-iphone
+- [x] Fallout found by e2e and fixed test-first: (1) a pin dropped near the top opened its card under the top card, so the camera now eases to a dropped pin like Google (BC-A1) once the finger lifts; (2) a tapped checkbox (Night bus) grew the sheet mid-tap and lost the tap, so only typing boxes expand it; (3) the chosen bus trip now scrolls into view, again when its Start arrives
+- [x] Emulated iPhone 15/SE and iPhone 12 twin (WebKit, the user's measured Safari profile) + iPad Air both ways added to `playwright.iphone.config.ts`
+- [x] Code review (agent-skills code-reviewer, fresh context): 0 critical, 4 important, 9 minor. Fixed: (1) the top card's suggestion lists couldn't be scrolled by finger (the sheet owned every drag), so the list now scrolls like the body, a pull from its top still kept from Safari; (2) touch-targets HUD checks now swipe the sheet up first; (3) a bus option chosen from a swiped-up sheet left it at 80 %, so the bus choice joins the collapse key (new e2e); (4) the expanded sheet could reach under the top card on short or landscape phones, now `min(80dvh, 100dvh − 136px)`; plus a stale "My hotel" label after a map click, a bus re-scroll on route refetch, a release while a second finger stays down, and **device details in a public config file made generic**; iPad mini (744 px) profile added. Not taken now: the Quests popover inside the scrolling body, unit tests for MapShell wiring, the duplicate start row
+- [ ] Full e2e + WebKit device suites green (final run waiting for load < 20, 2026-11-04 07:05)
+- [ ] Real-device check: the iPhone is unplugged. Plan: iOS Simulator (Xcode 27 needs macOS 26.6; this Mac is 26.5), or the public link once the iPhone is back
+- Open: the start appears twice on laptops/tablets (top From box and the trip panel's From row); candidate follow-up
+**Scope:** M–L (BottomSheet, MapShell, TripPanel, route-geo, tests)
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).

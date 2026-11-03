@@ -305,19 +305,56 @@ export default function MapView({
     setPressing(true);
   };
   useEffect(() => {
-    const release = () => {
+    const release = (e?: Event) => {
+      // a lifted finger with another still on the map is not a release
+      // (no `instanceof TouchEvent`: desktop Firefox has no TouchEvent global)
+      if (e && "touches" in e && (e as TouchEvent).touches.length > 0) return;
       pressed.current = false;
       setPressing(false);
     };
-    window.addEventListener("pointerup", release);
-    window.addEventListener("pointercancel", release);
-    window.addEventListener("blur", release);
+    // touchend too: a touch sequence without pointer events (some WebViews, scripted
+    // touches) would otherwise leave the map thinking a finger is still down
+    const ends = [
+      "pointerup",
+      "pointercancel",
+      "touchend",
+      "touchcancel",
+      "blur",
+    ];
+    for (const e of ends) window.addEventListener(e, release);
     return () => {
-      window.removeEventListener("pointerup", release);
-      window.removeEventListener("pointercancel", release);
-      window.removeEventListener("blur", release);
+      for (const e of ends) window.removeEventListener(e, release);
     };
   }, []);
+
+  // A dropped pin's card must not open under the trip card on top or the sheet (v1.9).
+  // Google eases the camera to a dropped pin (BC-A1); ours centres it in the clear part
+  // of the map, once per pin, after the finger is up (an ease inside a press cancels
+  // MapLibre's gestures, see above).
+  const pinKey = droppedPin
+    ? `${droppedPin.coord.lat},${droppedPin.coord.lng}`
+    : "";
+  const easedPin = useRef("");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pinKey stands for droppedPin
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!pinKey) {
+      easedPin.current = "";
+      return;
+    }
+    if (!mapReady || !map || !droppedPin || pressing) return;
+    if (easedPin.current === pinKey) return;
+    easedPin.current = pinKey;
+    const canvas = map.getCanvas();
+    map.easeTo({
+      center: [droppedPin.coord.lng, droppedPin.coord.lat],
+      padding: mapPadding({
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
+      }),
+      duration: prefersReducedMotion() ? 0 : 600,
+    });
+  }, [pinKey, pressing, mapReady]);
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
   // and an identity-keyed effect would re-ease after each of its own moveend reports.

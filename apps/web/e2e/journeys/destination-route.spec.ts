@@ -608,7 +608,8 @@ for (const d of PHONES) {
     test("expanded sheet (swiped up to browse): after choosing, the whole route is above the sheet", async ({
       page,
     }) => {
-      test.fail(); // known: F — the sheet stays at 80 % and covers the route (user's iPhone report)
+      // fixed: F (v1.9) — a new destination collapses the sheet so the route shows (was: the
+      // sheet stayed at 80 % over the route, the user's iPhone report)
       await open(page, PLAN);
       await expect(ranked(page)).toBeVisible({ timeout: 20_000 });
       await expandSheet(page);
@@ -619,7 +620,7 @@ for (const d of PHONES) {
     test("saved place Go here: the whole route is above the sheet", async ({
       page,
     }) => {
-      test.fail(); // known: F — the Saved panel leaves the sheet expanded over the route
+      // fixed: F (v1.9) — Go here is a new destination, so the sheet collapses over the map
       await seedSaved(page);
       await open(page, `${PLAN}&resort=happo-one`);
       await routeDrawn(page);

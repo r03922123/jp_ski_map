@@ -86,6 +86,70 @@ describe("BusPanel", () => {
     expect(journey).toHaveTextContent(/Arrive 08:39/);
   });
 
+  // v1.9 (cluster F): a choice shows its answer. The chosen option's journey and Start
+  // come into view in the sheet (phones) or panel instead of staying below the fold
+  it("brings the chosen option's journey and Start into view", () => {
+    const option = (fixture as BusResult).resorts.find(
+      (r) => r.resortId === "hakuba47",
+    )?.options[0];
+    if (!option) throw new Error("fixture has no Hakuba47 option");
+    const spy = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = spy;
+    try {
+      renderPanel({ selected: option, onStart: vi.fn() });
+      expect(spy).toHaveBeenCalledWith({ block: "nearest" });
+      const target = spy.mock.contexts.at(-1) as HTMLElement;
+      expect(target).toContainElement(
+        screen.getByRole("list", { name: "Journey" }),
+      );
+      expect(target).toContainElement(
+        screen.getByRole("button", { name: "Start bus journey" }),
+      );
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
+  // traced on a phone: Start appears only once the walk to the stop is known, after the
+  // journey has scrolled into view, and landed just below the screen
+  it("brings Start into view too when it arrives after the journey", () => {
+    const option = (fixture as BusResult).resorts.find(
+      (r) => r.resortId === "hakuba47",
+    )?.options[0];
+    if (!option) throw new Error("fixture has no Hakuba47 option");
+    const spy = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = spy;
+    try {
+      const props: BusPanelProps = {
+        resorts,
+        result: { status: "success", data: fixture as BusResult },
+        night: { status: "idle" },
+        showNight: false,
+        onShowNightChange: vi.fn(),
+        departAt: "2026-03-20T08:00",
+        onDepartAtChange: vi.fn(),
+        selected: option,
+        onSelect: vi.fn(),
+      };
+      const view = render(<BusPanel {...props} />);
+      spy.mockClear();
+      view.rerender(<BusPanel {...props} onStart={vi.fn()} />);
+      expect(spy).toHaveBeenCalledWith({ block: "nearest" });
+      expect(spy.mock.contexts.at(-1)).toContainElement(
+        screen.getByRole("button", { name: "Start bus journey" }),
+      );
+      // the walk route refetching (Start gone, then back) doesn't jump the list again
+      spy.mockClear();
+      view.rerender(<BusPanel {...props} />);
+      view.rerender(<BusPanel {...props} onStart={vi.fn()} />);
+      expect(spy).not.toHaveBeenCalled();
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
   it("lists every stop of the ride, in order, with its time", () => {
     const option = (fixture as BusResult).resorts.find(
       (r) => r.resortId === "hakuba47",

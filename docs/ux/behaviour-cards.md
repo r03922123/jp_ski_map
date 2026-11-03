@@ -74,3 +74,36 @@ Reference observations for [rea-benchmark-workflow.md](rea-benchmark-workflow.md
 - Each suggestion has a second line saying where or what it is. Ours already shows a detail line, and our resort index is local, so resorts rank first, which beats Google's worldwide mix for this app.
 
 **What we don't take (now):** a swap button and "add destination" (we have Add stop) are noted for later, not v1.8. No Google wording, icons, addresses or layout.
+
+---
+
+### BC-L1 How much of the phone screen goes to the map (Google Maps iOS app, measured 2026-11-04)
+
+**Setup.** Frames from the BC-A1 recording (`.ux-evidence/gmaps-A1.mov`, iPhone, 1170×2532, scaled to 390×844 for measuring; frames in `.ux-evidence/L1/`). The user drove the app; no Google page was scripted. Values are the y-coordinates of the visible edges, so they're approximate (±10 px).
+
+**Observed:**
+
+| State | Top card | Bottom sheet | Unobstructed map |
+|---|---|---|---|
+| Place card, Hakuba Station (50 s) | none | from y≈460: ≈46 % | ≈54 % |
+| Route preview, public transport (70 s) | From/To stacked, y≈55–150: ≈11 % | from y≈470: ≈44 % | ≈38 % |
+| Dropped pin (90 s) | none | from y≈455: ≈46 % | ≈54 % |
+
+- The sheet's resting height is about **half the screen** in every state, the iOS sheet's medium detent. The list scrolls inside it.
+- **Route preview content, top to bottom:** a title row ("Public transport", with filter, share and ✕); a row of every mode **with its duration** (🚗 7 min · 🏍 — · 🚌 23 min · 🚶 40 min); the time chips ("Leave 5:19 PM", "Modes"); then the options. There are no decorative rows.
+- **From/To live in a card at the top**, with ⋯ and a swap ⇅ button. The map controls (layers, locate, a Street View thumbnail) float at the map's edges, next to the sheet.
+
+**Inferred:**
+- Google doesn't make the map dominant by area; in route preview the answer gets more room than the map. The map stays usable because the sheet holds only the answer, the fields are out of the sheet, and nothing leaves a tall sheet over the route.
+
+**Unknown:**
+- Whether choosing a different route option or destination resizes the sheet (not in the recording).
+- What tapping the top card does (BC-T1 desktop: the field becomes editable in place; on iOS it may open a full-screen search).
+
+**What we take** (SPEC-web-app v1.9):
+- From/To move to a top card (this fixes T-fold).
+- The sheet's peek stays at about 40 %, close to Google's ≈44 %. We fix what fills it: the answer (tabs, ETA/Start) instead of the game HUD row.
+- The sheet never stays tall over the route after a choice (cluster F), and focusing a field doesn't grow it.
+- Candidate for later: durations on the mode tabs, as Google's mode row has (cluster G).
+
+**What we don't take:** Google's card styling, icons, or the Street View thumbnail.

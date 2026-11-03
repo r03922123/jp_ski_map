@@ -25,11 +25,6 @@ export type TripPanelProps = {
   onClearFrom: () => void;
   /** absent when the destination isn't the user's to clear (bus: the chosen option's stop) */
   onClearTo?: () => void;
-  /**
-   * Drive and walk: the To row is a search box (SPEC-web-app v1.8, BC-T1) and a pick there
-   * goes here. Absent in bus, where To is the chosen option's stop, shown read-only.
-   */
-  onChooseTo?: (place: Suggestion) => void;
 };
 
 /**
@@ -47,7 +42,6 @@ export function TripPanel({
   onFillStop,
   onClearFrom,
   onClearTo,
-  onChooseTo,
 }: TripPanelProps) {
   const addRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -122,36 +116,16 @@ export function TripPanel({
             </li>
           ),
         )}
-        {onChooseTo ? (
-          <li className="flex items-center gap-2 px-2 py-1 not-last:border-b">
-            <span aria-hidden="true" className="w-5 text-center text-xs">
-              📍
-            </span>
-            <div className="min-w-0 flex-1">
-              <SearchBox
-                ariaLabel="To"
-                placeholder="Search a destination"
-                // typing is a draft: leaving without a pick puts the name back (BC-T1)
-                label={to?.name ?? null}
-                restoreOnBlur
-                clearLabel="Remove destination"
-                near={near}
-                onSelect={onChooseTo}
-                onClear={onClearTo}
-              />
-            </div>
-            {to && <SaveButton place={to} />}
-          </li>
-        ) : (
-          to && (
-            <Row
-              marker="📍"
-              label="To"
-              place={to}
-              removeLabel={onClearTo ? "Remove destination" : undefined}
-              onRemove={onClearTo}
-            />
-          )
+        {to && (
+          // bus: the chosen option's stop, read-only. Drive and walk pass no `to`: their
+          // destination is the To box in the trip card on top (v1.9)
+          <Row
+            marker="📍"
+            label="To"
+            place={to}
+            removeLabel={onClearTo ? "Remove destination" : undefined}
+            onRemove={onClearTo}
+          />
         )}
       </ul>
       {canAddStop && (
@@ -218,5 +192,41 @@ function Row({
         </button>
       )}
     </li>
+  );
+}
+
+/**
+ * The To box (SPEC-web-app v1.8 rule 1, BC-T1): a search box showing the destination's
+ * name, with its Save star. Typing is a draft; a pick changes only the destination. It
+ * lives in the trip card on top, under the From box (v1.9, BC-L1).
+ */
+export function DestinationBox({
+  to,
+  near,
+  onChoose,
+  onClear,
+}: {
+  to: PlaceInput | null;
+  near: Coord | null;
+  onChoose: (place: Suggestion) => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="min-w-0 flex-1">
+        <SearchBox
+          ariaLabel="To"
+          placeholder="Search a destination"
+          // typing is a draft: leaving without a pick puts the name back (BC-T1)
+          label={to?.name ?? null}
+          restoreOnBlur
+          clearLabel="Remove destination"
+          near={near}
+          onSelect={onChoose}
+          onClear={onClear}
+        />
+      </div>
+      {to && <SaveButton place={to} />}
+    </div>
   );
 }

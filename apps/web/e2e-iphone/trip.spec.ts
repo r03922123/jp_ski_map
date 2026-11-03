@@ -72,10 +72,8 @@ async function longPress(page: Page, at: { x: number; y: number }, ms = 700) {
 }
 
 test("v1.8: the To box is in view as the trip opens", async ({ page }) => {
-  // known: T-fold — on a Safari-sized screen (393×659) the collapsed sheet (40dvh) ends
-  // above the trip panel, so only the top search box is visible and D1 can return. The
-  // Chromium phone profile (393×852) is taller and passes
-  test.fail();
+  // fixed: T-fold — v1.9 puts From/To in a card on top (BC-L1); it was cut off at the
+  // collapsed sheet's bottom edge on Safari-sized screens
   await openTrip(page);
   await expect(toBox(page)).toBeInViewport({ ratio: 1 });
   await expect(toBox(page)).toHaveValue(/Happo-One/);

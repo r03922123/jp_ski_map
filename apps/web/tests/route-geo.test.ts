@@ -69,9 +69,11 @@ describe("mapPadding", () => {
     expect(p.bottom).toBeLessThan(100);
   });
 
-  it("leaves room for the bottom sheet on phones", () => {
+  // v1.9 (BC-L1): the peek stays at 40 % and the From/To card sits on top of the map
+  it("leaves room for the 40 % sheet below and the trip card above on phones", () => {
     const p = mapPadding({ width: 390, height: 844 });
     expect(p.bottom).toBeGreaterThanOrEqual(0.4 * 844);
+    expect(p.top).toBeGreaterThanOrEqual(120);
     expect(p.left).toBeLessThan(60);
   });
 });

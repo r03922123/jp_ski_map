@@ -387,6 +387,35 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
     expect(drop).not.toHaveBeenCalled();
   });
 
+  // v1.9 (found by e2e): the top trip card covers the map's top edge, so a pin dropped
+  // there opened its card underneath it. Google eases the camera to a dropped pin (BC-A1);
+  // ours does too, once the finger is up (an ease inside a press cancels gestures, T67)
+  it("a dropped pin brings the camera to it, clear of the top card and the sheet, after the finger lifts", () => {
+    h.map.easeTo.mockClear();
+    const extra = {
+      droppedPin: { coord: at, name: null },
+      pinCard: <p>card</p>,
+    };
+    const { rerender } = render(view(null, () => {}, {}, {}));
+    act(() => h.props.onLoad({ target: h.map }));
+    act(() => touch("onTouchStart"));
+    rerender(view(null, () => {}, {}, extra));
+    expect(h.map.easeTo).not.toHaveBeenCalled(); // finger still down
+    act(() => {
+      window.dispatchEvent(new Event("touchend"));
+    });
+    expect(h.map.easeTo).toHaveBeenCalledTimes(1);
+    const [opts] = h.map.easeTo.mock.calls[0] as [
+      { center: [number, number]; padding: { top: number; bottom: number } },
+    ];
+    expect(opts.center).toEqual([at.lng, at.lat]);
+    expect(opts.padding.top).toBeGreaterThanOrEqual(120); // the trip card
+    expect(opts.padding.bottom).toBeGreaterThanOrEqual(0.4 * 800); // the sheet
+    // the same pin doesn't pull the camera again on later renders
+    rerender(view(null, () => {}, {}, { ...extra, pinCard: <p>card 2</p> }));
+    expect(h.map.easeTo).toHaveBeenCalledTimes(1);
+  });
+
   it("the dropped pin's card is drawn at the pin", () => {
     render(
       view(

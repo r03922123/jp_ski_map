@@ -170,11 +170,9 @@ for (const [device, options] of Object.entries(DEVICES)) {
     test("after choosing an option the journey (and Start on touch) is in view", async ({
       page,
     }) => {
-      // known: F — 1440×900: the journey is scrolled below the panel; 360×740: Start is below the fold
-      test.fail(
-        device === "laptop 1440" || device === "small phone",
-        "known: F",
-      );
+      // fixed: F (v1.9) — the trip fields moved to the top card and the HUD out of the
+      // resting sheet, so the journey and Start fit (was: 1440×900 scrolled below the
+      // panel; 360×740 Start below the fold)
       await openBus(page, EVE);
       await busAt(page, TOMORROW_8);
       await chooseTsugaike(page);
@@ -186,11 +184,32 @@ for (const [device, options] of Object.entries(DEVICES)) {
         ).toBe(true);
     });
 
+    test("choosing from a swiped-up sheet still shows the board stop (the sheet comes back down)", async ({
+      page,
+    }) => {
+      // code review of v1.9: the bus choice is part of the sheet's collapse key
+      test.skip(!touch(device), "phones: the laptop panel doesn't swipe");
+      await openBus(page, EVE);
+      await busAt(page, TOMORROW_8);
+      await page.getByRole("button", { name: "Expand directions" }).tap();
+      await expect(
+        page.getByRole("region", { name: "Directions" }),
+      ).toHaveAttribute("data-state", "expanded");
+      await chooseTsugaike(page);
+      await expect(
+        page.getByRole("region", { name: "Directions" }),
+      ).toHaveAttribute("data-state", "collapsed");
+      await page.waitForTimeout(2000); // fitBounds animation
+      await expect
+        .poll(() => onMapArea(page, "img[alt='Bus stop']"), { timeout: 5_000 })
+        .toBe(true);
+    });
+
     test("the board stop is not hidden under the panel or sheet after choosing", async ({
       page,
     }) => {
-      // known: F — phones: the sheet stays ~80 % tall over the walk leg and board stop
-      test.fail(touch(device), "known: F");
+      // fixed: F (v1.9) — the sheet rests at its peek and the map's fit leaves room for the
+      // top card (was: phones, the sheet stayed ~80 % tall over the walk leg and board stop)
       await openBus(page, EVE);
       await busAt(page, TOMORROW_8);
       await chooseTsugaike(page);

@@ -3,6 +3,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  DestinationBox,
   TripPanel,
   type TripPanelProps,
   type TripStop,
@@ -302,7 +303,8 @@ describe("stop numbers and reroutes", () => {
 
 // SPEC-web-app v1.8 rule 1 (BC-T1): in drive and walk the To row is a search box that
 // shows the destination's name; a pick there changes only the destination.
-describe("TripPanel To box", () => {
+// v1.9: the To box lives in the trip card on top (DestinationBox), not in the trip list
+describe("DestinationBox (the To box)", () => {
   const cortina: Suggestion = {
     id: "cortina",
     kind: "resort",
@@ -318,31 +320,20 @@ describe("TripPanel To box", () => {
 
   function renderToBox(to: TripPanelProps["to"], onChooseTo = vi.fn()) {
     const onClearTo = vi.fn();
-    const props: TripPanelProps = {
-      from: hotel,
-      to,
-      stops: [],
-      canAddStop: false,
-      near: null,
-      onAddStop: vi.fn(),
-      onRemoveStop: vi.fn(),
-      onFillStop: vi.fn(),
-      onClearFrom: vi.fn(),
-      onClearTo,
-      onChooseTo,
-    };
     const client = new QueryClient();
-    const view = render(
+    const box = (next: TripPanelProps["to"]) => (
       <QueryClientProvider client={client}>
-        <TripPanel {...props} />
-      </QueryClientProvider>,
+        <DestinationBox
+          to={next}
+          near={null}
+          onChoose={onChooseTo}
+          onClear={onClearTo}
+        />
+      </QueryClientProvider>
     );
+    const view = render(box(to));
     const rerender = (next: Partial<TripPanelProps>) =>
-      view.rerender(
-        <QueryClientProvider client={client}>
-          <TripPanel {...props} {...next} />
-        </QueryClientProvider>,
-      );
+      view.rerender(box(next.to === undefined ? to : next.to));
     return { onChooseTo, onClearTo, rerender };
   }
 
@@ -387,7 +378,7 @@ describe("TripPanel To box", () => {
     expect(screen.getByRole("combobox", { name: "To" })).toHaveValue("");
   });
 
-  it("without onChooseTo (bus: the chosen option's stop) the To row stays read-only", () => {
+  it("the trip list's To row (bus: the chosen option's stop) stays read-only", () => {
     renderTrip({ onClearTo: undefined });
     expect(screen.queryByRole("combobox", { name: "To" })).toBeNull();
     expect(screen.getByRole("list", { name: "Trip" })).toHaveTextContent(

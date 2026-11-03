@@ -10,14 +10,28 @@ const SWIPE_CLICK_MS = 400;
 export function BottomSheet({
   label,
   header,
+  collapseKey,
   children,
 }: {
   label: string;
-  /** Rendered above the scroll area, so its dropdowns are not clipped by it. */
+  /**
+   * The trip's From/To (SPEC-web-app v1.9, BC-L1): a card fixed to the top of the map on
+   * phones, like Google's route preview, and the top of the side card from `md` up.
+   * Outside the scroll area, so its dropdowns are not clipped.
+   */
   header?: ReactNode;
+  /** A new value collapses the sheet: a new destination shows its route (cluster F). */
+  collapseKey?: string;
   children: ReactNode;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const lastCollapseKey = useRef(collapseKey);
+  useEffect(() => {
+    if (collapseKey === lastCollapseKey.current) return;
+    lastCollapseKey.current = collapseKey;
+    setExpanded(false);
+  }, [collapseKey]);
   const dragStartY = useRef<number | null>(null);
   // a mouse drag still sends a click afterwards; it must not undo the swipe. (A moving
   // touch on Android sends none, so the swipe acts on pointerup, not on click.)
@@ -45,6 +59,8 @@ export function BottomSheet({
       mayOwnDown: boolean;
       mayOwnUp: boolean;
       owned: boolean | null; // null until the first move picks a direction
+      // the top card (phones) keeps Safari's pull away but doesn't resize the sheet
+      resizes: boolean;
     } | null = null;
     const onStart = (e: TouchEvent) => {
       const target = e.target as Element;
@@ -54,13 +70,21 @@ export function BottomSheet({
       }
       const body = bodyRef.current;
       const inBody = body?.contains(target) ?? false;
+      // the top card's suggestion list scrolls like the body: its own drags, except a pull
+      // down from its top (kept from Safari's pull-to-refresh, T79)
+      const list = headerRef.current?.contains(target)
+        ? target.closest<HTMLElement>("[role=listbox]")
+        : null;
       const y = e.touches[0].clientY;
       gesture = {
         startY: y,
         lastY: y,
-        mayOwnDown: !inBody || (body?.scrollTop ?? 0) <= 0,
-        mayOwnUp: !expandedRef.current,
+        mayOwnDown: list
+          ? list.scrollTop <= 0
+          : !inBody || (body?.scrollTop ?? 0) <= 0,
+        mayOwnUp: list ? false : !expandedRef.current,
         owned: null,
+        resizes: !(headerRef.current?.contains(target) ?? false),
       };
     };
     const onMove = (e: TouchEvent) => {
@@ -72,7 +96,7 @@ export function BottomSheet({
       if (gesture.owned && e.cancelable) e.preventDefault();
     };
     const onEnd = () => {
-      if (gesture?.owned) {
+      if (gesture?.owned && gesture.resizes) {
         const dy = gesture.lastY - gesture.startY;
         if (dy > DRAG_THRESHOLD_PX) setExpanded(false);
         else if (dy < -DRAG_THRESHOLD_PX) setExpanded(true);
@@ -119,7 +143,9 @@ export function BottomSheet({
       data-state={expanded ? "expanded" : "collapsed"}
       className={cn(
         "pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
-        expanded ? "h-[80dvh]" : "h-[40dvh]",
+        // expanded: never up under the trip card on top (136 px), even on a short or
+        // landscape phone (code review of v1.9)
+        expanded ? "h-[min(80dvh,calc(100dvh-136px))]" : "h-[40dvh]",
         "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
       )}
     >
@@ -145,21 +171,31 @@ export function BottomSheet({
         <span className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
       </button>
       {header && (
+        // phones: fixed to the top of the screen (the sheet has no transform, so `fixed`
+        // is relative to the viewport); its suggestions drop over the map, so focusing it
+        // doesn't grow the sheet (v1.9 rule 5). md: back in the side card's flow
         <div
-          className="relative z-20 px-4 pb-3 md:pt-4"
-          // typing in the search box on a phone needs room for the suggestions
-          onFocusCapture={() => setExpanded(true)}
+          ref={headerRef}
+          data-trip-header
+          className="fixed inset-x-2 top-2 z-20 md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
         >
-          {header}
+          <div className="pixel-frame p-2 md:contents">{header}</div>
         </div>
       )}
       <div
         ref={bodyRef}
         data-sheet-body
         className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4"
-        // a search box down here (a trip stop) needs the room too
+        // a search box down here (a trip stop) needs room for its suggestions. Only a box
+        // you type in: a tapped checkbox or date field that grew the sheet moved out from
+        // under the finger, and the tap was lost (v1.9)
         onFocusCapture={(e) => {
-          if (e.target instanceof HTMLInputElement) setExpanded(true);
+          const t = e.target;
+          if (
+            t instanceof HTMLInputElement &&
+            (t.type === "search" || t.type === "text")
+          )
+            setExpanded(true);
         }}
       >
         {children}

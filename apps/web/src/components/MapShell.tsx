@@ -29,7 +29,11 @@ import { SearchBox } from "@/components/SearchBox";
 import { SoundToggle } from "@/components/SoundToggle";
 import { StampMoment } from "@/components/StampMoment";
 import { TitleScreen } from "@/components/TitleScreen";
-import { TripPanel, type TripStop } from "@/components/TripPanel";
+import {
+  DestinationBox,
+  TripPanel,
+  type TripStop,
+} from "@/components/TripPanel";
 import {
   ApiError,
   type Bbox,
@@ -279,6 +283,11 @@ export function MapShell() {
       setPoiId(null);
       setPoint({ coord: place.coord, name: place.name });
     }
+  };
+  const clearTo = () => {
+    setSelectedResortId(null);
+    setPoiId(null);
+    setPoint(null);
   };
   const startFrom = (place: SavedPlace) => {
     setOrigin(place.coord);
@@ -894,6 +903,16 @@ export function MapShell() {
                 kind: "resort",
               }
             : null;
+  // the To box in the trip card (drive/walk), once there is a start or a destination
+  const showToBox = mode !== "bus" && (origin !== null || toPlace !== null);
+  // a new destination collapses the sheet so its route shows (v1.9 rule 4, cluster F)
+  // bus: the chosen option is the answer too (code review: choosing one from a swiped-up
+  // sheet left it at 80 % over the walk leg and the board stop)
+  const busKey =
+    mode === "bus" && busChoice
+      ? `${busChoice.routeId}/${busChoice.trip}/${busChoice.boardStopId}`
+      : "";
+  const destinationKey = `${selectedResortId}|${poiId}|${point ? `${point.coord.lat},${point.coord.lng}` : ""}|${busKey}`;
 
   const canAddStop =
     mode !== "bus" &&
@@ -1009,37 +1028,40 @@ export function MapShell() {
           label="Directions"
           header={
             <div className="flex flex-col gap-2">
-              <SearchBox
-                // remounted (emptied) when the trip panel's ✕ clears the start
-                key={searchKey}
-                label={searchLabel}
-                onSelect={(place) => {
-                  setOrigin(place.coord);
-                  setOriginName(place.name);
-                  setOriginSource({
-                    id: place.id,
-                    name: place.name,
-                    coord: place.coord,
-                    kind: kindFromSuggestion(place.kind),
-                  });
-                  setFlyTo(place.coord);
-                }}
-                onClear={clearOrigin}
-                near={
-                  view
-                    ? {
-                        lat: (view.bbox.south + view.bbox.north) / 2,
-                        lng: (view.bbox.west + view.bbox.east) / 2,
-                      }
-                    : null
-                }
-              />
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <SearchBox
+                    // remounted (emptied) when the trip panel's ✕ clears the start
+                    key={searchKey}
+                    // the top card reads From → To (BC-L1): never blank while there is a start
+                    label={searchLabel ?? fromPlace?.name ?? null}
+                    onSelect={(place) => {
+                      setOrigin(place.coord);
+                      setOriginName(place.name);
+                      setOriginSource({
+                        id: place.id,
+                        name: place.name,
+                        coord: place.coord,
+                        kind: kindFromSuggestion(place.kind),
+                      });
+                      setFlyTo(place.coord);
+                    }}
+                    onClear={clearOrigin}
+                    near={
+                      view
+                        ? {
+                            lat: (view.bbox.south + view.bbox.north) / 2,
+                            lng: (view.bbox.west + view.bbox.east) / 2,
+                          }
+                        : null
+                    }
+                  />
+                </div>
                 <button
                   type="button"
                   aria-label="Saved places"
                   aria-pressed={savedOpen}
-                  className="self-start rounded-full border bg-background px-3 py-1 text-xs font-medium shadow-sm hover:bg-muted aria-pressed:bg-amber-50"
+                  className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border bg-background px-3 text-xs font-medium shadow-sm hover:bg-muted aria-pressed:bg-amber-50"
                   onClick={() => {
                     setSavedFocus(null);
                     setSavedOpen((v) => !v);
@@ -1047,18 +1069,29 @@ export function MapShell() {
                 >
                   <span aria-hidden="true" className="text-amber-500">
                     ★
-                  </span>{" "}
-                  Saved
+                  </span>
+                  <span className="max-md:sr-only">Saved</span>
                 </button>
-                <span className="flex items-center gap-2">
-                  <RiderButton onOpen={() => setRiderOpen(true)} />
-                  <QuestLog />
-                  <SoundToggle />
-                </span>
               </div>
+              {showToBox && (
+                <DestinationBox
+                  to={toPlace}
+                  near={viewCentre}
+                  onChoose={chooseTo}
+                  onClear={clearTo}
+                />
+              )}
             </div>
           }
+          collapseKey={destinationKey}
         >
+          {/* the game HUD: first in the side card; on a phone it shows once the sheet is
+              swiped up, so the resting sheet holds only the answer (v1.9, BC-L1) */}
+          <div className="flex items-center justify-end gap-2 pb-3 max-md:in-data-[state=collapsed]:hidden">
+            <RiderButton onOpen={() => setRiderOpen(true)} />
+            <QuestLog />
+            <SoundToggle />
+          </div>
           {savedOpen ? (
             <SavedPanel
               focusId={savedFocus}
@@ -1081,7 +1114,7 @@ export function MapShell() {
               placeStrip={
                 <TripPanel
                   from={fromPlace}
-                  to={toPlace}
+                  to={mode === "bus" ? toPlace : null}
                   stops={mode === "bus" ? [] : tripStops}
                   canAddStop={canAddStop}
                   near={viewCentre}
@@ -1099,17 +1132,6 @@ export function MapShell() {
                     clearOrigin();
                     setSearchKey((k) => k + 1);
                   }}
-                  onChooseTo={mode === "bus" ? undefined : chooseTo}
-                  onClearTo={
-                    // bus: the destination is the chosen option's stop, not the user's
-                    mode === "bus"
-                      ? undefined
-                      : () => {
-                          setSelectedResortId(null);
-                          setPoiId(null);
-                          setPoint(null);
-                        }
-                  }
                 />
               }
               onStart={
@@ -1214,6 +1236,8 @@ export function MapShell() {
           setOrigin(coord);
           setOriginName(null);
           setOriginSource(null);
+          // the From box then shows "Dropped pin", not an older label such as My hotel
+          setSearchLabel(null);
         }}
         stops={
           mode === "bus"

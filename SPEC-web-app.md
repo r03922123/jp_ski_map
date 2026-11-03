@@ -198,3 +198,31 @@ Success means:
 **Open questions**
 1. Bus mode: should typing a resort in Bus pick its best bus option? (Proposed: later, as its own spec.)
 2. ~~The REA reference step: now or later?~~ Done first, 2026-11-04 (BC-T1).
+
+## v1.9: Map first on phones (2026-11-04, approved: the user's "make the map the main part, get it done")
+**Objective.** On a phone the map is the main surface. Today, as measured on the user's iPhone in Safari (390×699):
+- the collapsed sheet takes 40 % of the screen;
+- the game HUD row uses about half of it;
+- after a choice the sheet can stay 80 % tall over the route (cluster F);
+- the To box is cut off at the sheet's bottom edge (T-fold, Task 86).
+
+**Reference: behaviour card BC-L1, measured from the user's Google Maps iPhone recording.** Google's sheet rests at about half the screen (≈44–46 %). In route preview its unobstructed map is only ≈38 %, below a top From/To card of ≈11 %. So the map isn't dominant by area. It feels usable because the sheet holds only the answer (title, modes with times, options), the fields sit in the top card, and nothing leaves a tall sheet over the route. *Corrected 2026-11-04 after the measurement: the first draft shrank the peek to 26 %, which BC-L1 doesn't support.*
+
+**Rules (phones, under `md`).**
+1. **Trip header on top.** The From box and, in drive and walk, the To box sit stacked in a card fixed to the top of the screen, over the map. The To box carries the destination's Save star. On laptops the same header stays at the top of the side card, like Google desktop.
+2. **The sheet holds the answer.** The HUD row (Rider, Quests, Sound) moves out of the header into the sheet body: hidden while the phone sheet rests, shown at the top once it's swiped up, and first in the laptop card. ★ Saved moves into the top card beside the From box, so it's always one tap away.
+3. **The peek stays at 40 %** (Google ≈44 %). What changes is what fills it: tabs and ETA/Start (T77) first, the HUD row out of it. The map's fit padding leaves room for the top card.
+4. **A choice reveals the result** (F). When the destination changes (a resort, a POI, the To box, Go here, a saved place) the sheet collapses to its peek and the route is fitted between the header and the sheet.
+5. **Focusing the header doesn't expand the sheet.** Its suggestions drop down over the map.
+6. In drive and walk the trip panel no longer lists a To row, because the header's To box is the destination. Bus keeps its read-only To row.
+
+**Success criteria.**
+- The To box is fully in view on 393×659, 375×667, 393×852 and 360×740 (the known T-fold fail flips).
+- The known F fails flip: "expanded sheet: after choosing, the whole route is above the sheet" and "saved place Go here: the whole route is above the sheet".
+- With a route shown on 390×699, the unobstructed map is at least Google's route-preview share (≈38 %), the To box is fully visible, and ETA/Start are in the peek.
+- Full e2e green, the iPhone WebKit suite green, and a real-iPhone check on the public link.
+
+7. **Dropped pins and choices stay in the clear area.** A dropped pin eases the camera to it (BC-A1), so its card never opens under the top card. A chosen bus trip and its Start scroll into view. The expanded sheet never reaches under the top card: `min(80dvh, 100dvh − 136px)`.
+8. **The top card's suggestion lists scroll by finger.** A drag on them scrolls them, except a pull down from their top, which stays away from Safari's pull-to-refresh (T79).
+
+**Boundaries.** *Always:* tests first; keep T77 (ETA/Start in the peek) and T75 (touch targets). *Never:* a second copy of a search box (one instance, positioned per breakpoint).
