@@ -16,6 +16,7 @@ import {
   type RouteState,
 } from "@/components/ModePanel";
 import { PilotView } from "@/components/PilotView";
+import { PinCard } from "@/components/PinCard";
 import { PoiList, type PoiListState } from "@/components/PoiList";
 import { QuestLog } from "@/components/QuestLog";
 import {
@@ -155,6 +156,12 @@ export function MapShell() {
   const [point, setPoint] = useState<Coord | null>(null);
   // stops between start and destination; an empty one is waiting for typing or a map tap
   const [stops, setStops] = useState<TripStop[]>([]);
+  // A long-pressed point (or tapped hotel pin) and its card: touch edits the trip only
+  // through the card's buttons (docs/ux/behaviour-cards.md BC-A1)
+  const [droppedPin, setDroppedPin] = useState<{
+    coord: Coord;
+    name: string | null;
+  } | null>(null);
   const stopKeys = useRef(0);
   const [searchKey, setSearchKey] = useState(0);
   const newStopKey = () => {
@@ -863,6 +870,55 @@ export function MapShell() {
               }
             : null;
 
+  const canAddStop =
+    mode !== "bus" &&
+    fromPlace !== null &&
+    toPlace !== null &&
+    stops.length < MAX_STOPS &&
+    stops.every((s) => s.place !== null);
+  const pinPlace = (pin: {
+    coord: Coord;
+    name: string | null;
+  }): PlaceInput => ({
+    id: pinId(pin.coord),
+    name: pin.name ?? "Dropped pin",
+    coord: pin.coord,
+    kind: "pin",
+  });
+  const pinCard = droppedPin && (
+    <PinCard
+      name={droppedPin.name}
+      onClose={() => setDroppedPin(null)}
+      onStart={() => {
+        setOrigin(droppedPin.coord);
+        setOriginName(droppedPin.name);
+        setOriginSource(droppedPin.name ? pinPlace(droppedPin) : null);
+        setSearchLabel(droppedPin.name);
+        setDroppedPin(null);
+      }}
+      onGo={
+        // Bus: the destination is the chosen option's stop
+        mode === "bus"
+          ? undefined
+          : () => {
+              setPoint(droppedPin.coord);
+              setDroppedPin(null);
+            }
+      }
+      onAddStop={
+        canAddStop
+          ? () => {
+              setStops((list) => [
+                ...list,
+                { key: newStopKey(), place: pinPlace(droppedPin) },
+              ]);
+              setDroppedPin(null);
+            }
+          : undefined
+      }
+    />
+  );
+
   return (
     <main
       className="fixed inset-0"
@@ -999,13 +1055,7 @@ export function MapShell() {
                   from={fromPlace}
                   to={toPlace}
                   stops={mode === "bus" ? [] : tripStops}
-                  canAddStop={
-                    mode !== "bus" &&
-                    fromPlace !== null &&
-                    toPlace !== null &&
-                    stops.length < MAX_STOPS &&
-                    stops.every((s) => s.place !== null)
-                  }
+                  canAddStop={canAddStop}
                   near={viewCentre}
                   onAddStop={() =>
                     setStops((list) => [
@@ -1146,6 +1196,10 @@ export function MapShell() {
               )
         }
         placingStop={placingStop}
+        onDropPin={(coord, name) => setDroppedPin({ coord, name })}
+        onMapTap={() => setDroppedPin(null)}
+        droppedPin={piloting ? null : droppedPin}
+        pinCard={pinCard}
         onSelectResort={(id) => {
           // while placing a stop, a resort marker is the stop, not a new destination
           const r = placingStop

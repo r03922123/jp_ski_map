@@ -46,6 +46,9 @@ vi.mock("react-map-gl/maplibre", async () => {
     return <div>{p.children}</div>;
   });
   const Nothing = () => null;
+  const Popup = (p: { children?: ReactNode }) => (
+    <div data-popup>{p.children}</div>
+  );
   const Marker = (p: { onClick?: (e: unknown) => void }) =>
     p.onClick ? (
       <button
@@ -62,6 +65,7 @@ vi.mock("react-map-gl/maplibre", async () => {
     Layer: Nothing,
     Marker,
     NavigationControl: Nothing,
+    Popup,
     Source: Nothing,
   };
 });
@@ -94,6 +98,7 @@ function view(
     onSelectResort?: (id: string) => void;
     onSelectSaved?: (id: string) => void;
   } = {},
+  extra: Partial<Parameters<typeof MapView>[0]> = {},
 ) {
   return (
     <MapView
@@ -122,6 +127,7 @@ function view(
           pose: "walk",
         }
       }
+      {...extra}
     />
   );
 }
@@ -185,7 +191,7 @@ describe("MapView taps while navigating", () => {
     vi.useRealTimers();
   });
 
-  it("planning: a tap sets the start (after the double-click window)", () => {
+  it("planning, mouse: a click sets the start (after the double-click window)", () => {
     const pick = vi.fn();
     render(view(null, pick));
     act(() => tap());
@@ -226,5 +232,149 @@ describe("MapView taps while navigating", () => {
       fireEvent.click(m);
     expect(resort).toHaveBeenCalledWith("happo-one");
     expect(saved).toHaveBeenCalledWith("s1");
+  });
+});
+
+// Cluster A (docs/ux/2026-11-03-ux-review.md): one tap on the phone map replaced the start
+// with "Dropped pin", with no undo. Google Maps (BC-A1, docs/ux/behaviour-cards.md): a tap
+// on the map changes nothing; a long-press drops a pin with a card, and only a button on
+// the card edits the trip. Hold time and slop are the platform defaults: UIKit's long
+// press (0.5 s, 10 pt allowable movement), Android's long-press timeout (400–500 ms).
+describe("MapView touch: a tap looks, a long-press drops a pin", () => {
+  const at = { lat: 36.7, lng: 137.85 };
+  const touch = (name: string, x = 100, y = 100, fingers = 1) =>
+    h.props[name]({
+      point: { x, y },
+      points: Array.from({ length: fingers }, () => ({ x, y })),
+      lngLat: at,
+      originalEvent: {},
+    });
+  const click = (features: unknown[] = []) =>
+    h.props.onClick({ features, lngLat: at, originalEvent: { detail: 1 } });
+  const tapMap = (features: unknown[] = []) => {
+    touch("onTouchStart");
+    touch("onTouchEnd");
+    click(features);
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("a tap on empty map keeps the start: nothing is picked, an open card closes", () => {
+    const pick = vi.fn();
+    const drop = vi.fn();
+    const mapTap = vi.fn();
+    render(view(null, pick, {}, { onDropPin: drop, onMapTap: mapTap }));
+    act(() => tapMap());
+    act(() => vi.advanceTimersByTime(800));
+    expect(pick).not.toHaveBeenCalled();
+    expect(drop).not.toHaveBeenCalled();
+    expect(mapTap).toHaveBeenCalledTimes(1);
+  });
+
+  it("a long-press drops a pin there; its own lift-off click closes nothing", () => {
+    const pick = vi.fn();
+    const drop = vi.fn();
+    const mapTap = vi.fn();
+    render(view(null, pick, {}, { onDropPin: drop, onMapTap: mapTap }));
+    act(() => touch("onTouchStart"));
+    act(() => vi.advanceTimersByTime(499));
+    expect(drop).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1));
+    expect(drop).toHaveBeenCalledWith(at, null);
+    act(() => {
+      touch("onTouchEnd");
+      click();
+    });
+    act(() => vi.advanceTimersByTime(800));
+    expect(pick).not.toHaveBeenCalled();
+    expect(mapTap).not.toHaveBeenCalled();
+  });
+
+  it("a pan (finger moves past 10 px), a pinch (two fingers) or an early lift drops nothing", () => {
+    const drop = vi.fn();
+    render(view(null, () => {}, {}, { onDropPin: drop }));
+    act(() => {
+      touch("onTouchStart");
+      touch("onTouchMove", 100, 111);
+    });
+    act(() => vi.advanceTimersByTime(800));
+    act(() => touch("onTouchStart", 100, 100, 2));
+    act(() => vi.advanceTimersByTime(800));
+    act(() => {
+      touch("onTouchStart");
+      touch("onTouchEnd");
+    });
+    act(() => vi.advanceTimersByTime(800));
+    expect(drop).not.toHaveBeenCalled();
+  });
+
+  it("a finger that wobbles within 10 px still counts as a press", () => {
+    const drop = vi.fn();
+    render(view(null, () => {}, {}, { onDropPin: drop }));
+    act(() => {
+      touch("onTouchStart");
+      touch("onTouchMove", 106, 104);
+    });
+    act(() => vi.advanceTimersByTime(500));
+    expect(drop).toHaveBeenCalledTimes(1);
+  });
+
+  it("a tap on a hotel pin opens that hotel's card, named", () => {
+    const pick = vi.fn();
+    const drop = vi.fn();
+    render(view(null, pick, {}, { onDropPin: drop }));
+    act(() =>
+      tapMap([
+        {
+          layer: { id: "lodging-pins" },
+          geometry: { type: "Point", coordinates: [137.86, 36.71] },
+          properties: { name: "Hotel Hakuba" },
+        },
+      ]),
+    );
+    act(() => vi.advanceTimersByTime(800));
+    expect(drop).toHaveBeenCalledWith(
+      { lat: 36.71, lng: 137.86 },
+      "Hotel Hakuba",
+    );
+    expect(pick).not.toHaveBeenCalled();
+  });
+
+  it("an open stop box still takes a tap: the user asked for a point", () => {
+    const pick = vi.fn();
+    render(view(null, pick, {}, { placingStop: true, onDropPin: () => {} }));
+    act(() => tapMap());
+    act(() => vi.advanceTimersByTime(400));
+    expect(pick).toHaveBeenCalledWith(at);
+  });
+
+  it("navigating or previewing: a long-press drops nothing", () => {
+    const drop = vi.fn();
+    render(view(cam(137.85), () => {}, {}, { onDropPin: drop }));
+    act(() => touch("onTouchStart"));
+    act(() => vi.advanceTimersByTime(800));
+    expect(drop).not.toHaveBeenCalled();
+  });
+
+  it("the dropped pin's card is drawn at the pin", () => {
+    render(
+      view(
+        null,
+        () => {},
+        {},
+        {
+          droppedPin: { coord: at, name: null },
+          pinCard: <p>card body</p>,
+        },
+      ),
+    );
+    expect(document.querySelector("[data-popup]")?.textContent).toBe(
+      "card body",
+    );
   });
 });

@@ -733,6 +733,12 @@ At 360×740 / Pixel 7 walk, Start and ETA are below the collapsed sheet's fold. 
 From the 2026-11-01 real-iPhone re-check: dragging the sheet/panel down to collapse it can trigger Safari's pull-to-refresh and reload the trip. Approach it as a mobile UX task (iOS gesture conventions + UX research), not a one-line CSS patch: decide which areas own vertical drags (sheet handle, sheet body at scroll-top, map) and what a downward pull should mean there. Candidate mechanics: `overscroll-behavior-y` on the page/sheet, `touch-action` on drag areas, keeping the sheet's own scroll from chaining to the page. Verify on the real iPhone (pull-to-refresh can't be reproduced in Playwright). **Scope:** S–M
 **Done:** the sheet owns a downward drag when its list is at the top (collapses; Safari never sees a pull) and an upward drag while collapsed (expands; the page no longer bounces), decided at touch start + first move, as in UIKit sheets (`prefersScrollingExpandsWhenScrolledToEdge`) and Vaul's `shouldDrag`. Native non-passive listeners in `BottomSheet.tsx`; `overscroll-behavior-y: none` on the root for Android Chrome (Safari ignores it, WebKit bug 275947). Verified on the iPhone with a touch logger: 0 reloads in 12+ downward drags.
 
+## Phase 19: UX review fixes (docs/ux/2026-11-03-ux-review.md, REA loop: docs/ux/rea-benchmark-workflow.md)
+
+## Task 80: On touch, a tap looks and a long-press drops a pin (cluster A, SPEC-web-app v1.7)
+Reference: BC-A1 (Google Maps iOS, recorded over USB). Red first: 7 MapView + 3 PinCard + 2 hint tests, then the fix. e2e `pin-card.spec.ts` 9/9 (×3), full e2e 88/88 on dev, unit 365+.
+**Open:** a real-iPhone check (Safari + Chrome); the laptop rule waits for the desktop reference (L1: a click that closes a popover also moves the start). **Scope:** M
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).

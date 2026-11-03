@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { DirectionsPanel } from "@/components/DirectionsPanel";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Mode, Resort, Route } from "@/lib/api";
+import { useCoarsePointer } from "@/lib/device";
 import { formatDistance, formatDuration } from "@/lib/format";
 
 export type PanelMode = Mode | "bus";
@@ -74,6 +75,7 @@ export function ModePanel({
   onStart,
   startKind,
 }: ModePanelProps) {
+  const touch = useCoarsePointer();
   const directions =
     route.status === "success" ? (
       <DirectionsPanel
@@ -107,7 +109,8 @@ export function ModePanel({
       {placeStrip}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
-          Type a place above, or tap the map, to set your starting point.
+          Type a place above, or {touch ? "long-press" : "tap"} the map, to set
+          your starting point.
         </p>
       ) : mode === "bus" && busPanel ? (
         <>

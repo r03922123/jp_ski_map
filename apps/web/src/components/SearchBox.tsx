@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { type Coord, fetchSuggestions, type Suggestion } from "@/lib/api";
+import { useCoarsePointer } from "@/lib/device";
 import { loadRecent, rememberRecent } from "@/lib/recent-searches";
 import { savedMatches, useSaved } from "@/lib/saved-places";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
@@ -102,6 +103,7 @@ export function SearchBox({
   alwaysClearable?: boolean;
   autoFocus?: boolean;
 }) {
+  const touch = useCoarsePointer();
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -237,7 +239,8 @@ export function SearchBox({
           )}
           {rows.length === 0 ? (
             <p className="px-4 py-2 text-sm text-muted-foreground">
-              No matches. Paste a Google Maps link or tap the map.
+              No matches. Paste a Google Maps link or{" "}
+              {touch ? "long-press" : "tap"} the map.
             </p>
           ) : (
             rows.map((s, i) => (

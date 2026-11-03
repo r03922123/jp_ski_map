@@ -70,3 +70,24 @@ function getSnapshot(): boolean {
 export function usePilotAvailable(): boolean {
   return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }
+
+function getCoarse(): boolean {
+  return window.matchMedia?.(COARSE).matches ?? false;
+}
+
+/**
+ * A finger is the primary pointer (phones, tablets). Map hints follow it: on touch a tap
+ * looks and a long-press drops a pin (docs/ux/behaviour-cards.md BC-A1). False on the
+ * server and in the first paint (no hydration mismatch).
+ */
+export function useCoarsePointer(): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia?.(COARSE);
+      mq?.addEventListener?.("change", onChange);
+      return () => mq?.removeEventListener?.("change", onChange);
+    },
+    getCoarse,
+    () => false,
+  );
+}

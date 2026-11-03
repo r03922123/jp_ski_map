@@ -70,6 +70,15 @@ function renderPanel(overrides: Partial<ModePanelProps> = {}) {
   return props;
 }
 
+function stubCoarse(matches: boolean) {
+  window.matchMedia = ((query: string) => ({
+    matches: matches && query === "(pointer: coarse)",
+    media: query,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  })) as unknown as typeof window.matchMedia;
+}
+
 describe("ModePanel", () => {
   it("asks for a starting point before anything else", () => {
     renderPanel({ hasOrigin: false, route: { status: "idle" } });
@@ -79,6 +88,16 @@ describe("ModePanel", () => {
         /type a place above, or tap the map, to set your starting point/i,
       ),
     ).toBeInTheDocument();
+  });
+
+  // cluster A / BC-A1: on touch a tap no longer sets the start; a long-press does
+  it("on a phone, the hint says long-press the map", () => {
+    stubCoarse(true);
+    renderPanel({ hasOrigin: false, route: { status: "idle" } });
+    expect(
+      screen.getByText(/type a place above, or long-press the map/i),
+    ).toBeInTheDocument();
+    stubCoarse(false);
   });
 
   it("shows the ETA labelled as an estimate with distance", () => {

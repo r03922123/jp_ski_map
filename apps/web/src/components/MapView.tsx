@@ -2,12 +2,14 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import MapGL, {
   Layer,
   type MapRef,
+  type MapTouchEvent,
   Marker,
   NavigationControl,
+  Popup,
   Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
@@ -65,6 +67,16 @@ export type MapViewProps = {
   stops?: { coord: Coord; name: string }[];
   /** A stop box is open: a tap places the stop, even on a route line. */
   placingStop?: boolean;
+  /**
+   * Touch: a long-press on the map (or a tap on a hotel pin) drops a pin there. On touch a
+   * tap never edits the trip (Google Maps, docs/ux/behaviour-cards.md BC-A1).
+   */
+  onDropPin?: (coord: Coord, name: string | null) => void;
+  /** Touch: a tap on the map that edits nothing (it closes the pin card). */
+  onMapTap?: () => void;
+  /** The dropped pin, with its card (`pinCard`) drawn at it. */
+  droppedPin?: { coord: Coord; name: string | null } | null;
+  pinCard?: ReactNode;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
   pilot?: {
     camera: Camera | null;
@@ -91,6 +103,11 @@ const LODGING_LAYER = "lodging-pins";
 // MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
 // but a longer wait makes every single pick feel late
 const DOUBLE_CLICK_MS = 300;
+/** Touch long-press: UIKit's default hold (0.5 s) and allowable movement (10 pt). */
+const LONG_PRESS_MS = 500;
+const LONG_PRESS_SLOP_PX = 10;
+/** A click this soon after a touch ended was made by that finger (the mouse never touches). */
+const TOUCH_CLICK_MS = 700;
 const ALT_HIT_LAYER = "route-alts-hit";
 
 // SPEC-game-theme: the chosen route is an overworld trail
@@ -155,6 +172,10 @@ export default function MapView({
   onSelectSaved,
   stops = [],
   placingStop = false,
+  onDropPin,
+  onMapTap,
+  droppedPin = null,
+  pinCard,
   pilot = null,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
@@ -173,6 +194,48 @@ export default function MapView({
   };
   // biome-ignore lint/correctness/useExhaustiveDependencies: cancelPick only reads a ref
   useEffect(() => () => void cancelPick(), []);
+
+  // Touch long-press, with the platform defaults: UIKit's long press (0.5 s, 10 pt of
+  // allowable movement) and Android's long-press timeout. A second finger is a pinch, a
+  // finger that travels is a pan; neither drops a pin.
+  const hold = useRef<{
+    x: number;
+    y: number;
+    timer: ReturnType<typeof setTimeout>;
+  } | null>(null);
+  const longPressed = useRef(false); // its lift-off click belongs to the press
+  const lastTouch = useRef(0); // a click this soon after a touch came from a finger
+  const endHold = () => {
+    if (hold.current) clearTimeout(hold.current.timer);
+    hold.current = null;
+  };
+  // biome-ignore lint/correctness/useExhaustiveDependencies: endHold only reads a ref
+  useEffect(() => () => endHold(), []);
+  const startHold = (e: MapTouchEvent) => {
+    endHold();
+    lastTouch.current = Date.now();
+    longPressed.current = false;
+    if (e.points.length !== 1 || pilot !== null || !onDropPin) return;
+    const coord: Coord = { lat: e.lngLat.lat, lng: e.lngLat.lng };
+    hold.current = {
+      x: e.point.x,
+      y: e.point.y,
+      timer: setTimeout(() => {
+        hold.current = null;
+        longPressed.current = true;
+        onDropPin(coord, null);
+      }, LONG_PRESS_MS),
+    };
+  };
+  const moveHold = (e: MapTouchEvent) => {
+    const h = hold.current;
+    if (!h) return;
+    if (
+      e.points.length !== 1 ||
+      Math.hypot(e.point.x - h.x, e.point.y - h.y) > LONG_PRESS_SLOP_PX
+    )
+      endHold();
+  };
 
   useEffect(() => {
     if (flyTo) {
@@ -370,7 +433,16 @@ export default function MapView({
       onDragStart={() => pilot?.onUserMove()}
       // wired when the map is created, so a press during loading counts too
       onMouseDown={press}
-      onTouchStart={press}
+      onTouchStart={(e) => {
+        press();
+        startHold(e);
+      }}
+      onTouchMove={moveHold}
+      onTouchEnd={() => {
+        endHold();
+        lastTouch.current = Date.now();
+      }}
+      onTouchCancel={endHold}
       onClick={(e) => {
         const feature = e.features?.[0];
         // a route line selects that route, unless a stop is being placed: a stop along
@@ -382,6 +454,11 @@ export default function MapView({
         // navigating (or previewing): the pilot owns the map, a tap must not replace
         // the trip being followed with a new start
         if (piloting) return;
+        // the click that ends a long-press: the press already dropped its pin
+        if (longPressed.current) {
+          longPressed.current = false;
+          return;
+        }
         // the second click of a double-click: it zooms, nothing is picked
         if (cancelPick() || e.originalEvent.detail > 1) return;
         // a lodging pin snaps the origin onto the hotel itself
@@ -390,6 +467,15 @@ export default function MapView({
           pin?.type === "Point"
             ? { lat: pin.coordinates[1], lng: pin.coordinates[0] }
             : { lat: e.lngLat.lat, lng: e.lngLat.lng };
+        // a finger looks, it doesn't edit (BC-A1): a hotel pin opens its card, empty map
+        // closes one. An open stop box is the exception: the user asked for a point.
+        const byFinger = Date.now() - lastTouch.current < TOUCH_CLICK_MS;
+        if (byFinger && onDropPin && !placingStop) {
+          if (pin?.type === "Point")
+            onDropPin(at, (feature?.properties?.name as string) ?? null);
+          else onMapTap?.();
+          return;
+        }
         pendingPick.current = setTimeout(() => {
           pendingPick.current = null;
           onPickOrigin(at);
@@ -398,6 +484,18 @@ export default function MapView({
       onDblClick={() => cancelPick()}
     >
       <NavigationControl position="bottom-right" />
+      {droppedPin && (
+        <Popup
+          longitude={droppedPin.coord.lng}
+          latitude={droppedPin.coord.lat}
+          anchor="bottom"
+          closeButton={false}
+          closeOnClick={false}
+          maxWidth="280px"
+        >
+          {pinCard}
+        </Popup>
+      )}
       <Source id="lodging" type="geojson" data={lodgingGeoJson}>
         <Layer
           id={LODGING_LAYER}

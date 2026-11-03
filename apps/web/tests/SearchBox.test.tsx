@@ -239,6 +239,23 @@ describe("SearchBox", () => {
     ).toBeInTheDocument();
   });
 
+  it("on a phone, no matches suggests a long-press on the map", async () => {
+    window.matchMedia = ((query: string) => ({
+      matches: query === "(pointer: coarse)",
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([]);
+    const { input } = renderBox();
+    fireEvent.change(input, { target: { value: "Courtyard Hakuba" } });
+    expect(
+      await screen.findByText(
+        /paste a google maps link or long-press the map/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("shows an error but keeps working when search is down", async () => {
     vi.spyOn(api, "fetchSuggestions").mockRejectedValue(
       new api.ApiError("upstream_unavailable", 502),

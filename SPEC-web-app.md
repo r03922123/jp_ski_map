@@ -106,3 +106,34 @@ Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats:
 - [ ] Level cards show the fixed world number and stamp state in any sort order.
 - [ ] While navigating, the hero sprite shows the right pose per mode and faces the direction of travel.
 
+
+## v1.7: On touch, a tap looks and a long-press drops a pin (2026-11-03)
+From the [2026-11-03 UX review](docs/ux/2026-11-03-ux-review.md), cluster A: on phones, one tap on the map replaced the start with "Dropped pin", with no undo. Three of four evaluators reported it, and it was verified by script and by REA (`ev_ad3d13…`). It also contradicted "long-pressing on mobile" in Screens & flow 2.
+
+**Behaviour evidence (REA method: claim → source → what we take)**
+| Google Maps behaviour | Evidence | Ours |
+|---|---|---|
+| A tap on empty map during route preview changes nothing | BC-A1 (iPhone recording, 2026-11-03): 13 s with no frame change around the tap | Touch: a tap never edits the trip; it closes an open pin card |
+| A long-press drops a pin and opens a card (Directions / Save / Share); the trip isn't edited | BC-A1: pin at 76.0 s, card about 0.1 s later | A long-press (0.5 s, ≤ 10 px of movement: UIKit defaults) drops a pin with a card: **Start here · Go here · Add stop** (each shown only when it applies) |
+| A place's card comes from tapping the place | BC-A1 (inferred) | A tap on a hotel pin opens that hotel's card, named |
+
+**Rules**
+- **Touch:**
+  - A tap on empty map edits nothing.
+  - A long-press drops a pin. A second finger (pinch) or more than 10 px of movement (pan) cancels it.
+  - The lift-off click that ends a long-press doesn't close the card it opened.
+  - An open stop box still takes a tap (the user asked for a point), as in v1.4.
+  - Nothing is dropped while navigating.
+- **Card:** ✕ or Escape closes it, and so does a tap elsewhere on the map. "Go here" is hidden in 🚌 Bus. "Add stop" appears only when a stop can be added.
+- **Hints on touch** say "long-press the map".
+- **Mouse is unchanged** (a click picks the start after the double-click window) until the laptop reference (Google's left and right click) is observed.
+
+**Acceptance:**
+- [x] Unit tests:
+  - MapView: tap, long-press, pan/pinch/early lift, wobble ≤ 10 px, hotel pin, stop box, navigating.
+  - PinCard: actions shown only when they apply, ✕/Escape.
+  - Hints on touch.
+- [x] e2e (`e2e/pin-card.spec.ts`, real CDP touch): a tap keeps the start; long-press → Start here moves it; a tap elsewhere closes the card.
+- [x] REA laptop before/after (`ev_fe286f…` → `ev_1ef036…`): the mouse click still picks a start (the URL changes in both; only the clicked coordinate differs).
+- [x] Real iPhone, Chrome (2026-11-03, USB recording `.ux-evidence/ours-A1-device.mov`, about 123 s): a long-press shows the card with no iOS callout or loupe.
+- [ ] Real iPhone, Safari: the same.
