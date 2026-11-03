@@ -26,3 +26,6 @@ data/bus/raw/
 
 # scripts/serve-public.sh logs and PIDs
 .run/
+
+# UX benchmark evidence (third-party screenshots/recordings; never commit)
+.ux-evidence/
