@@ -1,0 +1,218 @@
+# Architecture: a top-down tour
+
+A map of the project for someone new to it: what it does for a skier, which module does what and
+where its code lives, how the pieces connect, one request traced end to end, and where the data
+comes from. The SPECs say what each module *should* do. This page says what the code does today,
+and lists every place where the two disagree (see [Follow-ups](#follow-ups)).
+
+Checked against `main` on 2026-11-04. Status comes from `tasks/todo.md` (✅ per task) and the code,
+not from the SPEC checkboxes, which are mostly left unticked.
+
+## 1. What it does for a skier
+
+The app is a Google-Maps-style trip planner for **Hakuba Valley** (10 ski resorts in Nagano, Japan).
+Everything starts from one point, *the start*: your hotel, a bus stop, a pin you drop, or a pasted
+Google Maps link.
+
+1. **"How do I get to the slopes by bus?"** You search for your hotel ("tokyu", or 白馬東急) and open 🚌.
+   The app shows the walk to the nearest shuttle stop, the next 3 departures, and when each bus
+   reaches each resort. When this season's timetable isn't out yet, times are labelled **Expected**.
+2. **"Which resort should I drive to today?"** In 🚗 all 10 resorts are ranked by the one thing you
+   care about: drive time, fresh snow, snow depth, crowd level, terrain size or vertical drop.
+   Each row shows the drive ETA, the snow, and an estimated crowd badge with its reasons.
+   Tapping a row draws the route.
+3. **"Where can I eat, and how far is it?"** In 🚗 or 🚶, pick a restaurant or a konbini and get a
+   route with an ETA. You can add stops along the way.
+4. **"Guide me there."** On a phone, **Start** turns the route into turn-by-turn navigation from
+   live GPS. It reroutes when you leave the route and, on the bus, says when to get off. When you
+   reach a resort you collect a **stamp** (the light game layer).
+
+Saved places ("My hotel", favourites) and the rider profile stay in the browser only. There are no
+accounts and no database.
+
+## 2. Feature map
+
+Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (api).
+
+| Module (SPEC) | What it does for the user | Web code | API code | Status |
+|---|---|---|---|---|
+| [resort-catalog](../SPEC-resort-catalog.md) | The 10 resorts, their lift bases and 100 bus stops on the map | `components/MapView.tsx` | `catalog/`, `GET /api/resorts` | Shipped |
+| [place-search](../SPEC-place-search.md) | Find a hotel or place, or paste a Google Maps link, to set the start | `components/SearchBox.tsx`, `lib/recent-searches.ts` | `places/` (`index.py` local index, `photon.py` fallback, `gmaps_link.py`), `/api/places/suggest`, `/search`, `/lodging` | Shipped |
+| [routing](../SPEC-routing.md) | Drive and walk routes, ETAs, turn list | `components/DirectionsPanel.tsx`, `lib/route-geo.ts` | `routing/` (Valhalla client), `/api/route`, `/routes`, `/route/path`, `/matrix` | Shipped |
+| [snow-conditions](../SPEC-snow-conditions.md) | Snow depth and new snow per resort | shown in `components/ResortList.tsx` | `snow/` (Open-Meteo, 1 h cache), `GET /api/snow` | Partly built: model only, the "reported" source isn't built |
+| [crowd-level](../SPEC-crowd-level.md) | "Crowd: high (est.)" with reasons | shown in `components/ResortList.tsx` | `crowd/heuristic.py`, `GET /api/crowd` (unused by the web) | Shipped (heuristic v1) |
+| [bus-schedules](../SPEC-bus-schedules.md) | Next shuttle from the nearest stop, night bus | `components/BusPanel.tsx`, `StopList.tsx` | `bus/` (`query.py`, `season.py`, `check_sources.py`), `/api/bus/options`, `/night` | Shipped |
+| [resort-ranking](../SPEC-resort-ranking.md) | Resorts sorted by one chosen factor | `components/DrivePanel.tsx`, `SortControls.tsx`, `ResortList.tsx` | `ranking/`, `GET /api/rank` | Partly built: price and night-skiing have no data |
+| [poi-destinations](../SPEC-poi-destinations.md) | Restaurants and konbini as destinations | `components/PoiList.tsx`, `DestinationPicker.tsx` | `pois/`, `GET /api/pois/nearby` | Shipped |
+| [saved-places](../SPEC-saved-places.md) | Star places, lists, "My hotel", share link | `components/SavedPanel.tsx`, `SaveButton.tsx`, `lib/saved-places.ts`, `lib/saved-share.ts` | — (browser only) | Shipped |
+| [pilot](../SPEC-pilot.md) | Turn-by-turn navigation from GPS, bus guidance | `components/PilotView.tsx`, `BusPilotView.tsx`, `lib/nav/` | uses `/api/route/path` for reroutes | Shipped; the real-phone walk test is still open |
+| [game-theme](../SPEC-game-theme.md) | Pixel snowboarder, game-styled map, chiptune sounds | `lib/game/` (`sprites.ts`, `map-style.ts`, `sfx.ts`), `components/HeroMarker.tsx`, `TitleScreen.tsx` | — (browser only) | Shipped |
+| [progression](../SPEC-progression.md) | Resort stamps, daily powder quests, rider card | `lib/game/` (`rider.ts`, `stamps.ts`, `quests.ts`), `components/QuestLog.tsx`, `RiderCard.tsx`, `CheckInButton.tsx` | — (browser only) | Shipped |
+| [web-app](../SPEC-web-app.md) | The map page that ties it all together; state in the URL | `app/page.tsx`, `components/MapShell.tsx`, `BottomSheet.tsx`, `TripPanel.tsx`, `lib/url-state.ts` | — | Shipped; phone layout fixes ongoing (Tasks 86–88) |
+| [deploy](../SPEC-deploy.md) | Friends open it on their phones over HTTPS for $0 | `next.config.ts` (rewrite, headers) | `scripts/serve-public.sh`, `infra/` | Phase A shipped; Phase B (Oracle VM) is an idea only |
+
+**Where the SPECs and the code disagree** (each one is a [follow-up](#follow-ups)):
+
+- **resort-ranking.** The `price` sort and the `nightSkiing` filter exist, but `dayTicketJpy` and
+  `nightSkiing` are `null` for all 10 resorts. Sorting by price quietly falls back to drive time
+  (unknown values sort last), and turning on the night-skiing filter empties the list.
+- **crowd-level.** `GET /api/crowd` exists, but the web app never calls it. Crowd reaches the
+  screen inside `/api/rank` (section 4). The SPEC ranks a public holiday above a Saturday, but
+  both weigh 0.30 in `CrowdConfig`. February 3-day weekends come from the holiday calendar, not
+  from `data/crowd_periods.json` as the SPEC says.
+- **snow-conditions.** `source: "reported"` exists only as a type value. Nothing parses the
+  resort-reported snow page, so every depth is modelled.
+- **place-search.** The "Decision" at the top of the SPEC (Photon first, no lodging list) was
+  replaced by the v1.2 local index and the v1.3 Overture lodging snapshot lower in the same file.
+- **deploy.** The SPEC-deploy diagram and its "one public port" bullet put the API on `:8010`;
+  `scripts/serve-public.sh` uses `:8011`, and so does the spec's own later bullet.
+- **SPEC.md.** Its layout says `infra/docker-compose.yml` also runs `api` and `web`; it runs only
+  `valhalla`. The package list misses `pois/` and `common/`. The "hosting target" open question
+  was answered by SPEC-deploy.
+
+## 3. System diagram
+
+```mermaid
+flowchart TB
+  subgraph Phone["Friend's phone or laptop"]
+    UI["Next.js page<br/>MapLibre map, panels"]
+    LS[("localStorage<br/>saved places, rider")]
+  end
+
+  subgraph Mac["The author's Mac ($0)"]
+    TS["Tailscale Funnel<br/>HTTPS :443"]
+    WEB["Next.js server<br/>next start :3000<br/>rewrites /api/*"]
+    API["FastAPI<br/>127.0.0.1 only"]
+    VAL["Valhalla (Docker)<br/>127.0.0.1:8002<br/>Hakuba-only tiles"]
+    DATA[("data/*.json<br/>resorts, stops, timetables,<br/>lodging, POIs, crowd periods")]
+  end
+
+  subgraph Net["Free public services"]
+    OFM["OpenFreeMap<br/>map tiles"]
+    PH["Photon<br/>place search fallback"]
+    OM["Open-Meteo<br/>snow and weather"]
+    GOO["maps.app.goo.gl<br/>one HEAD per short link"]
+  end
+
+  UI -- HTTPS --> TS --> WEB -- "/api/*" --> API
+  UI -- tiles --> OFM
+  UI <--> LS
+  API --> VAL
+  API --> DATA
+  API --> PH
+  API --> OM
+  API --> GOO
+```
+
+- **The browser only ever talks to `/api`** on its own site. Every upstream service sits behind
+  FastAPI, which caches it (Open-Meteo 1 h) and rate-limits clients. Map tiles are the one
+  exception: they go from OpenFreeMap straight to the browser.
+- **Only port 443 is public.** Funnel forwards it to `:3000`; the API and Valhalla bind
+  `127.0.0.1`. `tailscale funnel --https=443 off` takes the site down at once.
+- **Offline, not per request:** the lodging and POI snapshots (`places/refresh_lodging.py`,
+  `places/refresh_overture.py`, `pois/refresh_pois.py`), the Valhalla tile build
+  (`infra/valhalla/build-hakuba.sh` from Geofabrik), and the timetable watch
+  (`.github/workflows/timetable-watch.yml`, which opens an issue when the operator's page changes).
+- **Types cross the boundary once:** FastAPI's OpenAPI schema → `pnpm gen:api` →
+  `apps/web/src/lib/api-types.ts`. The web app never writes API types by hand.
+
+## 4. One request end to end: the crowd level
+
+What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the sort menu.
+
+**In the browser**
+
+1. `components/SortControls.tsx` (inside `DrivePanel.tsx`) changes the sort to `crowd`.
+2. `components/MapShell.tsx` holds the options; its TanStack Query `useQuery(["rank", origin, rankOptions])`
+   sees a new key and runs `fetchRank`. `placeholderData` keeps the old list on screen meanwhile.
+3. `lib/api.ts` `fetchRank` calls `GET /api/rank?from=36.70,137.86&sort=crowd&date=…`.
+
+**Across the boundary**
+
+4. On the public site the request goes Funnel → `next start`. `next.config.ts` rewrites `/api/*`
+   to the FastAPI service, so the browser never sees another origin (no CORS).
+5. `main.py`: `BodyLimit` refuses large bodies, `limit_clients` applies the per-client rate limit
+   (429 with `Retry-After`), and the request reaches the ranking router.
+
+**In the API** (`ranking/router.py` `get_rank`, three inputs gathered with FastAPI `Depends`)
+
+6. **Drive times.** `routing/client.py` sends one matrix request to Valhalla: the start → every
+   resort's lift bases. The nearest base per resort is kept.
+7. **Snow.** `crowd/router.py` `get_snow_by_resort` → `snow/router.py` (1 h `TtlCache`) →
+   Open-Meteo. If Open-Meteo is down, crowd is still computed, just without the powder factor.
+8. **Crowd.** `crowd/heuristic.py` `HeuristicCrowdSource.estimate` adds up, per resort:
+   day type (3-day weekend 0.35, holiday or Saturday 0.30, Sunday 0.20, via the `holidays`
+   package) + the strongest matching peak period in `data/crowd_periods.json` + powder
+   (≥ 20 cm new: +0.15) + a fixed resort prior (Happo-One 0.25 … Jigatake 0) − 0.15 at the
+   season's edges. It clamps the result to 0–1 and maps it to a level
+   (< 0.3 low, < 0.55 medium, < 0.8 high, else very high). Every term becomes a reason.
+9. `ranking/rank.py` `rank` sorts by the crowd score (lower is better; unknowns last; drive
+   time breaks ties) and returns `RankedResort` objects, serialised as camelCase JSON.
+
+**Back in the browser**
+
+10. `components/ResortList.tsx` shows "Crowd: very high (est.)" on each row. Under **Details**,
+    it lists the reasons and every factor's raw value.
+
+A worked example (run against the real code): Happo-One on Saturday 14 Feb 2026 scores
+0.30 (Saturday) + 0.25 (Lunar New Year week) + 0.25 (large resort) = **0.80, very high**.
+Jigatake on Wednesday 18 Feb scores 0.25, **low**, with "Lunar New Year week" as its only reason.
+
+If Valhalla is down, `/api/rank` returns 503 (`routing_unavailable`) and the Drive panel shows an
+error. Crowd disappears with it, even though the crowd estimate itself doesn't need Valhalla,
+because the two travel in one response. Each panel fetches on its own, so one panel's error
+doesn't blank the others.
+
+## 5. Where the data comes from
+
+The code is MIT. The data keeps its own licence; [DATA-LICENSES.md](../DATA-LICENSES.md) is the
+source of truth.
+
+| Data | File | Source | Licence |
+|---|---|---|---|
+| Lodging (146) and POIs (87) | `data/lodging_osm.json`, `data/poi_osm.json` | OpenStreetMap via Overpass (snapshot) | ODbL 1.0 |
+| Lodging (755) | `data/lodging_overture.json` | Overture Maps Places (snapshot) | CDLA-Permissive-2.0 |
+| Road network | Valhalla tiles, built at setup, not committed | OpenStreetMap via Geofabrik | ODbL 1.0 |
+| Map tiles | fetched at runtime | OpenFreeMap / OpenMapTiles | ODbL (OSM data) |
+| Place search fallback | queried at runtime | Photon (komoot) | ODbL (OSM data) |
+| Snow and weather | queried at runtime | Open-Meteo | CC BY 4.0 |
+| Resorts, stops, crowd periods | `data/resorts.json`, `data/bus_stops.json`, `data/crowd_periods.json` | compiled by hand | facts for trip planning |
+| Timetables (42 files, 2025–26) | `data/bus/timetables/` | transcribed from the operators' published timetables (`data/bus/sources.json`) | facts; originals not committed |
+
+> **Open licensing risk: bus-stop coordinates.** DATA-LICENSES.md credits `data/bus_stops.json`
+> only as "compiled by hand". The `coordSource` fields and `data/bus/stop_evidence.json` show
+> that many of the 100 coordinates came from other sources:
+> - **Photon results** are OpenStreetMap data, under ODbL. They probably need the OSM
+>   attribution and share-alike terms, like the other OSM files.
+> - **GSI address search** (`bus/locate_stops.py`, Japan's Geospatial Information Authority)
+>   results probably need a GSI source credit.
+> - **The operator's Google My Maps pins** (`bus/import_mymaps.py`): coordinates copied out of
+>   Google Maps content may not be allowed under Google's terms.
+>
+> This repository is public, so this needs a decision. It isn't settled here, and this page
+> doesn't change any data.
+
+Timetables can be wrong or out of date. The app labels every estimate, and the README tells users
+to check the official timetable.
+
+## Follow-ups
+
+Each item is small enough for its own PR. None is fixed by this page.
+
+1. **Bus-stop licensing.** Decide what to do with the Photon, GSI and Google My Maps coordinates
+   (credit, replace, or remove), then update `DATA-LICENSES.md`.
+2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
+   the price sort and night-skiing filter until there's data.
+3. **Crowd: holiday vs Saturday.** Make the code match SPEC-crowd-level (holiday > Saturday), or
+   change the SPEC.
+4. **Crowd: February 3-day weekends.** Say in the SPEC that they come from the holiday calendar,
+   not `crowd_periods.json`.
+5. **Crowd: `/api/crowd`.** Note in the SPEC that the web app gets crowd through `/api/rank`, or
+   remove the unused endpoint.
+6. **Snow: "reported" source.** Mark it as not built in SPEC-snow-conditions, or drop it from the model.
+7. **Place-search SPEC.** Mark the 2026-10-28 decision as replaced by v1.2/v1.3.
+8. **Deploy port.** Fix SPEC-deploy's diagram and "one public port" bullet to `:8011`.
+9. **SPEC.md layout.** Fix the compose line, add `pois/` and `common/`, and close the hosting
+   open question.
+10. **SPEC checkboxes.** Tick the acceptance criteria that `tasks/todo.md` shows are done, or say
+    in SPEC.md that `tasks/todo.md` is the status record.
