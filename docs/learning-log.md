@@ -23,14 +23,17 @@ but it would touch `snow/compute.py` and every test fake, which is a bigger chan
 *Analogy:* the receiving clerk ticks the boxes on the checklist and passes the crate on as it came,
 instead of repacking everything into the restaurant's own boxes.
 
-**3. What could go wrong: a check that is too strict, or a count that doesn't match.**
+**3. What could go wrong: a check that is too strict, too loose, or a count that doesn't match.**
 If the check were stricter than the service (for example, refusing `null` hours), a normal answer
 would look like an outage and snow would vanish from the app. So `null` values stay allowed, as
 `compute.py` already expects. A real winter week recorded from Open-Meteo is a test, so a too-strict
-check fails CI. The function also checks that it got one location per point it asked for. Without
-that, a short answer would crash later with an `IndexError`.
-*Analogy:* a bouncer who turns away everyone in sneakers empties the club; the guest list has to
-match the real crowd, and someone has to count heads at the door.
+check fails CI. Too loose is the other trap, and the pre-merge review caught it. By default,
+Pydantic quietly accepts the text `"1.5"` as a number. Because we hand on the original data, that
+text would reach the math and crash it. So the models run in strict mode, and only real numbers
+pass. The function also checks that it got one location per point it asked for. Without that, a
+short answer would crash later with an `IndexError`.
+*Analogy:* a bouncer who turns away everyone in sneakers empties the club; one who waves in a
+photocopied ID lets trouble in. And someone has to count heads at the door.
 
 ## 2026-11-05 · PR #2: docs/ARCHITECTURE.md, a top-down tour
 

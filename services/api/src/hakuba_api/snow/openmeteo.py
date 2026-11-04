@@ -2,7 +2,14 @@ from datetime import datetime
 from typing import Any, Self, cast
 
 import httpx
-from pydantic import BaseModel, TypeAdapter, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    TypeAdapter,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from hakuba_api.common.ratelimit import spend_upstream
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
@@ -12,9 +19,15 @@ OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 # (lat, lng, elevation_m)
 Point = tuple[float, float, int]
 
+# Strict, because the raw dicts are handed on: a value pydantic would only convert (the text
+# "1.5", true, Infinity) must be refused here, or it reaches the math in compute.py as is.
+_STRICT = ConfigDict(strict=True, allow_inf_nan=False)
+
 
 class _Hourly(BaseModel):
     """The part of a location that snow/compute.py reads; extra keys are ignored."""
+
+    model_config = _STRICT
 
     time: list[str]
     snowfall: list[float | None]
@@ -37,6 +50,8 @@ class _Hourly(BaseModel):
 
 
 class _Location(BaseModel):
+    model_config = _STRICT
+
     hourly: _Hourly
 
 

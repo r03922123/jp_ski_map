@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from hakuba_api.common.upstream import UpstreamError
 from hakuba_api.main import app
+from hakuba_api.ranking.router import get_snow_reports
 from hakuba_api.snow.openmeteo import fetch_hourly
 from hakuba_api.snow.router import clear_cache
 
@@ -58,6 +59,14 @@ def test_single_location_object_becomes_a_list(monkeypatch: pytest.MonkeyPatch) 
         pytest.param({"json": {"hourly": {"time": HOURLY["time"]}}}, id="missing series"),
         pytest.param({"json": {"hourly": {**HOURLY, "snowfall": [0.5]}}}, id="uneven series"),
         pytest.param({"json": {"hourly": {**HOURLY, "snowfall": ["a lot", 1]}}}, id="not a number"),
+        pytest.param({"json": {"hourly": {**HOURLY, "snowfall": ["0.5", 1]}}}, id="number as text"),
+        pytest.param(
+            {"json": {"hourly": {**HOURLY, "snow_depth": [True, 1]}}}, id="bool as number"
+        ),
+        pytest.param(
+            {"text": json.dumps({"hourly": {**HOURLY, "snow_depth": [float("inf"), 1]}})},
+            id="infinite number",
+        ),
         pytest.param({"json": {"hourly": {**HOURLY, "time": ["today", "x"]}}}, id="bad time"),
         pytest.param({"json": "Service Unavailable"}, id="not an object"),
         pytest.param({"text": "<html>busy</html>"}, id="not json"),
@@ -90,3 +99,11 @@ def test_snow_endpoint_reports_a_malformed_response_as_upstream_unavailable(
 
     assert response.status_code == 502
     assert response.json() == {"error": "upstream_unavailable", "source": "open-meteo"}
+
+
+def test_rank_goes_on_without_snow_when_the_response_is_malformed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    serve(monkeypatch, json={"reason": "busy"})
+
+    assert get_snow_reports() == {}  # the snow /api/rank ranks with
