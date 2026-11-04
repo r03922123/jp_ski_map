@@ -213,7 +213,7 @@ describe("BottomSheet", () => {
           label="Directions"
           header={
             <div role="listbox" aria-label="Search results">
-              <div role="option" aria-selected={false}>
+              <div role="option" aria-selected={false} tabIndex={-1}>
                 Hakuba Cortina
               </div>
             </div>
