@@ -2,6 +2,36 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · fix(snow): check the Open-Meteo response at the door
+
+**1. Principle: check what a stranger hands you at the door, not deep inside the house.**
+Open-Meteo is a free service we don't control. Before, its answer went straight to the snow math,
+so a missing field turned into a `KeyError` three functions later, and `/api/snow` crashed with a
+500. Now `snow/openmeteo.py` checks the shape once, with small Pydantic models, right where the
+answer arrives. A bad answer becomes an `UpstreamError`, the same error as an outage, so the code
+that already handles outages takes over: `/api/snow` says "upstream unavailable" (502), and
+`/api/rank` keeps ranking without snow.
+*Analogy:* a restaurant checks a delivery at the back door. A crate of spoiled fish is refused
+there, not discovered by the cook halfway through a dish.
+
+**2. Trade-off: check only the fields we use, and hand back the original data.**
+The models list the four hourly series that `snow/compute.py` reads and ignore everything else, so
+a new field from Open-Meteo can't break us. After the check, the function returns the same dicts
+as before, so the rest of the code and its tests didn't change. The cost: the type the rest of the
+code sees is still a loose `dict`, not the checked model. Passing the model on would be cleaner,
+but it would touch `snow/compute.py` and every test fake, which is a bigger change for another day.
+*Analogy:* the receiving clerk ticks the boxes on the checklist and passes the crate on as it came,
+instead of repacking everything into the restaurant's own boxes.
+
+**3. What could go wrong: a check that is too strict, or a count that doesn't match.**
+If the check were stricter than the service (for example, refusing `null` hours), a normal answer
+would look like an outage and snow would vanish from the app. So `null` values stay allowed, as
+`compute.py` already expects. A real winter week recorded from Open-Meteo is a test, so a too-strict
+check fails CI. The function also checks that it got one location per point it asked for. Without
+that, a short answer would crash later with an `IndexError`.
+*Analogy:* a bouncer who turns away everyone in sneakers empties the club; the guest list has to
+match the real crowd, and someone has to count heads at the door.
+
 ## 2026-11-05 · PR #2: docs/ARCHITECTURE.md, a top-down tour
 
 **1. Principle: describe the house that was built, not the blueprint.**
