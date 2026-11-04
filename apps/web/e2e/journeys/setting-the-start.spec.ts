@@ -437,8 +437,8 @@ for (const dev of [PHONE, SMALL]) {
     test("after picking a suggestion, the start is visible above the sheet", async ({
       page,
     }) => {
-      // known: F — the sheet stays ~80 % tall over the start and route after a choice
-      test.fail();
+      // fixed: F (v1.9) — the search lives in the top card and focusing it no longer grows
+      // the sheet, so the start shows (was: the sheet stayed ~80 % tall after a choice)
       await open(page, "/?mode=drive&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
@@ -514,9 +514,8 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
     test("a map click that moves the start also updates the search box", async ({
       page,
     }) => {
-      // known: A — onPickOrigin never touches the search label: box "Hotel Hakuba",
-      // trip "Dropped pin"
-      test.fail();
+      // fixed: A (v1.9 review) — a map-picked start clears the old label, and the From box
+      // shows the start's name (was: box "Hotel Hakuba", trip "Dropped pin")
       await open(page, "/?mode=drive&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);

@@ -31,7 +31,10 @@ async function mapPoint(page: Page, y: number) {
   await expect(async () => {
     found = await page.evaluate((near) => {
       for (let dy = 0; dy <= 120; dy += 20)
-        for (const x of [200, 120, 280, 80, 300]) {
+        // fractions of the width: on an iPad the side card covers the left part
+        for (const x of [0.5, 0.3, 0.7, 0.85, 0.2].map((f) =>
+          Math.round(innerWidth * f),
+        )) {
           const hit = document.elementFromPoint(x, near + dy);
           if (hit?.classList.contains("maplibregl-canvas"))
             return { x, y: near + dy };

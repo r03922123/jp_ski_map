@@ -546,6 +546,9 @@ export default function MapView({
           closeButton={false}
           closeOnClick={false}
           maxWidth="280px"
+          // above every marker (they use z-index 1–5): on a real iPad a resort marker
+          // painted over the card's middle, where a tap would choose that resort
+          style={{ zIndex: 10 }}
         >
           {pinCard}
         </Popup>

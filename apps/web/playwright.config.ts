@@ -29,6 +29,8 @@ export default defineConfig({
       origins: [],
     },
     ignoreHTTPSErrors: BASE_URL !== undefined,
+    // a failure that shows only under load (Task 88) leaves a full trace to read
+    trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: [

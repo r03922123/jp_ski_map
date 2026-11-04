@@ -102,7 +102,7 @@ test("add a stop by typing: the route goes through it, and the link keeps it", a
     .first()
     .click({ timeout: 15_000 });
 
-  await expect(trip(page).getByRole("listitem")).toHaveCount(3);
+  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
   await expect(trip(page).getByRole("listitem").nth(1)).toContainText(
     "7-Eleven",
   );
@@ -119,7 +119,7 @@ test("add a stop by typing: the route goes through it, and the link keeps it", a
   // the shared link brings the stop back
   await page.reload();
   await loaded(page);
-  await expect(trip(page).getByRole("listitem")).toHaveCount(3);
+  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
   await expect
     .poll(() => allSteps(page), { timeout: 15_000 })
     .toContain("Arrive at stop 1");
@@ -147,10 +147,10 @@ test("a stop box takes a tap on an alternate route line (a stop on the way), the
   // tapping the stop's own circle does nothing to the trip
   await page.locator('[data-trip-stop="1"]').click();
   await expect(page).toHaveURL(/from=36\.69711%2C137\.85393/);
-  await expect(trip(page).getByRole("listitem")).toHaveCount(3);
+  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
 
   await page.getByRole("button", { name: "Remove stop 1" }).click();
-  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
+  await expect(trip(page).getByRole("listitem")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Add stop" })).toBeFocused();
   await expect
     .poll(() => allSteps(page), { timeout: 15_000 })
@@ -183,7 +183,7 @@ test("clearing the start keeps the stops listed; the next tap is the new start",
 }) => {
   await page.goto(`${DRIVE}&stops=36.69877,137.86197`);
   await loaded(page);
-  await expect(trip(page).getByRole("listitem")).toHaveCount(3);
+  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
   // an open, empty box too: it must not take the tap meant for the new start
   await page.getByRole("button", { name: "Add stop" }).click();
 
@@ -192,11 +192,15 @@ test("clearing the start keeps the stops listed; the next tap is the new start",
     page.getByRole("combobox", { name: "Search hotel or place" }),
   ).toHaveValue("");
   await expect(page.getByRole("combobox", { name: "Stop 2" })).toHaveCount(0);
-  // stop 1 and the destination are still there, and still removable
-  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
+  // stop 1 and the destination are still there, and still removable (v1.9: the
+  // destination is the To box on top, the list holds stop 1)
+  await expect(trip(page).getByRole("listitem")).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: "Remove stop 1" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("combobox", { name: "To", exact: true }),
+  ).toHaveValue(/Happo-One/);
   await expect(page).toHaveURL(/stops=36\.69877%2C137\.86197/);
 
   const canvas = await page.locator("main canvas").boundingBox();
@@ -206,7 +210,7 @@ test("clearing the start keeps the stops listed; the next tap is the new start",
     canvas.y + canvas.height * 0.5,
   );
   await expect(page).toHaveURL(/from=36\.\d+%2C137\.\d+/);
-  await expect(trip(page).getByRole("listitem")).toHaveCount(3);
+  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
 });
 
 test("while a stop box is open, a resort marker is the stop, not a new destination", async ({

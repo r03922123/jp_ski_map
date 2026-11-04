@@ -46,8 +46,10 @@ vi.mock("react-map-gl/maplibre", async () => {
     return <div>{p.children}</div>;
   });
   const Nothing = () => null;
-  const Popup = (p: { children?: ReactNode }) => (
-    <div data-popup>{p.children}</div>
+  const Popup = (p: { children?: ReactNode; style?: React.CSSProperties }) => (
+    <div data-popup style={p.style}>
+      {p.children}
+    </div>
   );
   const Marker = (p: { onClick?: (e: unknown) => void }) =>
     p.onClick ? (
@@ -414,6 +416,21 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
     // the same pin doesn't pull the camera again on later renders
     rerender(view(null, () => {}, {}, { ...extra, pinCard: <p>card 2</p> }));
     expect(h.map.easeTo).toHaveBeenCalledTimes(1);
+  });
+
+  // found on a real iPad: a resort marker (z-index 1–5) painted over the pin card's
+  // middle, so a tap there would choose that resort instead of a card button
+  it("the dropped pin's card is drawn above every map marker", () => {
+    render(
+      view(
+        null,
+        () => {},
+        {},
+        { droppedPin: { coord: at, name: null }, pinCard: <p>card</p> },
+      ),
+    );
+    const popup = document.querySelector<HTMLElement>("[data-popup]");
+    expect(Number(popup?.style.zIndex)).toBeGreaterThan(5);
   });
 
   it("the dropped pin's card is drawn at the pin", () => {
