@@ -17,6 +17,10 @@ HourlyFetcher = Callable[[list[Point]], list[dict[str, Any]]]
 _cache = TtlCache[str, list[SnowReport]](ttl_s=3600)
 
 
+def clear_cache() -> None:
+    _cache.clear()
+
+
 def get_hourly_fetcher() -> HourlyFetcher:
     return fetch_hourly
 
