@@ -73,7 +73,7 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 ## 3. System diagram
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph Phone["Friend's phone or laptop"]
     UI["Next.js page<br/>MapLibre map, panels"]
     LS[("localStorage<br/>saved places, rider")]
