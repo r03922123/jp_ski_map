@@ -112,6 +112,7 @@ DRAW_REASONS = {"Large, popular resort", "Moderately popular resort", "Less-visi
     ("resort_id", "draw"),
     [
         ("happo-one", "Large, popular resort"),
+        ("goryu", "Large, popular resort"),  # exactly 0.20, the edge of the top label
         ("hakuba47", "Moderately popular resort"),
         ("norikura", "Less-visited resort"),
         ("jigatake", None),  # prior 0 adds nothing, so there is nothing to explain
