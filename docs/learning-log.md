@@ -6,9 +6,9 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 
 **1. Principle: a PR merges the exact version that was checked, not whatever its branch holds later.**
 PR #10 was merged at the version that CI and the fresh review had checked. The review fixes were
-pushed 11 minutes later, so they missed it. GitHub had already deleted the merged branch, so the
-push made a new branch instead of updating PR #10, and its output said so. Check that a PR is still
-open before pushing a fix to it.
+pushed 11 minutes later, so they missed it. PR #10 was already merged and closed, so nothing pushed
+afterwards could join it. GitHub had also deleted its branch, so the push created a new branch with
+the same name, and its output said so. Check that a PR is still open before pushing a fix to it.
 *Analogy:* the train leaves with the luggage that was on board; a bag thrown on afterwards needs the
 next train.
 

@@ -11,9 +11,8 @@ Accepted (2026-11-05)
 ## Context
 
 [docs/ARCHITECTURE.md](../ARCHITECTURE.md) lists 10 follow-ups where the SPECs and the code disagree.
-Six needed no owner decision: 7–9 were closed in
-[PR #6](https://github.com/r03922123/jp_ski_map/pull/6), and 4, 6 and 10 in
-[PR #9](https://github.com/r03922123/jp_ski_map/pull/9). The remaining four needed the owner's
+Six are already closed: 7–9 in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6), and 4, 6
+and 10 in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9). The remaining four needed the owner's
 choice, so the work session that produced PR #9 ended with a decision brief, given in chat rather
 than in the PR: for each one, what the code does now, the options, and a recommendation. The owner
 took the recommendation on all four. This ADR records them and the brief's reasons, re-checked
