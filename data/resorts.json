@@ -37,10 +37,10 @@
         "advanced": 0
       },
       "nightSkiing": true,
-      "dayTicketJpy": null
+      "dayTicketJpy": 5500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://jiigatake.com/price/ (checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://jiigatake.com/price/ (checked 2026-11-06); dayTicketJpy: https://jiigatake.com/price/ (checked 2026-11-06)"
   },
   {
     "id": "kashimayari",
@@ -80,10 +80,10 @@
         "advanced": 17
       },
       "nightSkiing": false,
-      "dayTicketJpy": null
+      "dayTicketJpy": 6200
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.kashimayari.net/snow/tickets/ (checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.kashimayari.net/snow/tickets/ (checked 2026-11-06); dayTicketJpy: https://www.kashimayari.net/snow/tickets/ (checked 2026-11-06)"
   },
   {
     "id": "sanosaka",
@@ -123,10 +123,10 @@
         "advanced": 20
       },
       "nightSkiing": true,
-      "dayTicketJpy": null
+      "dayTicketJpy": 5700
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://sanosaka.jp/nightski/ (checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://sanosaka.jp/nightski/ (checked 2026-11-06); dayTicketJpy: https://sanosaka.jp/lift/ (checked 2026-11-06)"
   },
   {
     "id": "goryu",
@@ -178,10 +178,10 @@
         "advanced": 25
       },
       "nightSkiing": true,
-      "dayTicketJpy": null
+      "dayTicketJpy": 9500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (checked 2026-11-06); dayTicketJpy: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (window ¥10,000 incl. ¥500 IC deposit; checked 2026-11-06)"
   },
   {
     "id": "hakuba47",
@@ -221,10 +221,10 @@
         "advanced": 30
       },
       "nightSkiing": null,
-      "dayTicketJpy": null
+      "dayTicketJpy": 9500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://hakuba47.co.jp/en/lift-tickets/ (window ¥10,000 incl. ¥500 IC deposit; checked 2026-11-06)"
   },
   {
     "id": "happo-one",
@@ -276,10 +276,10 @@
         "advanced": 20
       },
       "nightSkiing": null,
-      "dayTicketJpy": null
+      "dayTicketJpy": 9800
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://www.happo-one.jp/ticket/ (high season 12/19–3/22; checked 2026-11-06)"
   },
   {
     "id": "iwatake",
@@ -319,10 +319,10 @@
         "advanced": 20
       },
       "nightSkiing": null,
-      "dayTicketJpy": null
+      "dayTicketJpy": 7500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://iwatake-mountain-resort.com/2026/10/25/2026-2027%e6%97%a9%e5%89%b2%e3%83%aa%e3%83%95%e3%83%88%e5%88%b8%e3%80%80%e8%b2%a9%e5%a3%b2%e4%b8%ad%ef%bc%81 (the 通常 price in the 2026-27 early-bird news; checked 2026-11-06)"
   },
   {
     "id": "tsugaike",
@@ -362,10 +362,10 @@
         "advanced": 20
       },
       "nightSkiing": false,
-      "dayTicketJpy": null
+      "dayTicketJpy": 9800
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.tsugaike.gr.jp/snow/price (checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.tsugaike.gr.jp/snow/price (checked 2026-11-06); dayTicketJpy: https://www.tsugaike.gr.jp/snow/price (checked 2026-11-06)"
   },
   {
     "id": "norikura",
@@ -405,10 +405,10 @@
         "advanced": 30
       },
       "nightSkiing": null,
-      "dayTicketJpy": null
+      "dayTicketJpy": 6500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://www.hakunori.com/ticket/?id=lift (joint Norikura and Cortina ticket; checked 2026-11-06)"
   },
   {
     "id": "cortina",
