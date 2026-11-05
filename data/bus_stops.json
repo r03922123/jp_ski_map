@@ -73,15 +73,15 @@
    "ja": "ANAホリデイ・インリゾート信濃大町くろよん"
   },
   "coord": {
-   "lat": 36.5296726,
-   "lng": 137.7955189
+   "lat": 36.52966,
+   "lng": 137.79619
   },
   "servesResortId": null,
   "aliases": [
    "ANA Holiday Inn Resort Shinano Omachi Kuroyon",
    "ANA Holiday Inn Resort Shinano-Omachi Kuroyon"
   ],
-  "coordSource": "operator My Maps pin (ANA Holiday Inn Resort Shinano Omachi Kuroyon / ANAホリデイ・インリゾート信濃大町くろよん) — https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  "coordSource": "osm:node/10142969632 (日向山高原 bus stop) — OpenStreetMap"
  },
  {
   "id": "stop-bosco",
@@ -995,15 +995,15 @@
    "ja": "みそらの入口（流星花園）"
   },
   "coord": {
-   "lat": 36.683037,
-   "lng": 137.851429
+   "lat": 36.68319,
+   "lng": 137.85121
   },
   "servesResortId": null,
   "aliases": [
    "Misorano Ent. (Ryusei Kaen)",
    "Ryusei Kaen"
   ],
-  "coordSource": "operator My Maps pin (Ryusei Kaen / 流星花園) — https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  "coordSource": "osm:node/4424692394 (Hakuba Valley Pension Meteor Garden) — OpenStreetMap"
  },
  {
   "id": "stop-misorano-seven-eleven",
@@ -1144,14 +1144,14 @@
    "ja": "大町温泉郷（くろべ路、薬師の湯）"
   },
   "coord": {
-   "lat": 36.526847,
-   "lng": 137.8100166
+   "lat": 36.52698,
+   "lng": 137.80991
   },
   "servesResortId": null,
   "aliases": [
    "Omachi Onsen Yakushinoyu"
   ],
-  "coordSource": "operator My Maps pin (Omachi Onsenkyo (Kurobeji, Yakushi-no-yu) / 大町温泉郷(くろべ路、薬師の湯)) — https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  "coordSource": "osm:way/162565438 (薬師の湯) (approximate) — OpenStreetMap"
  },
  {
   "id": "stop-omachi-onsenkyo",
