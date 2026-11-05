@@ -6,11 +6,11 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 
 **1. Principle: accept a weaker match only with a second fact behind it, and record how weak it is.**
 PR #17 left 6 stops whose OSM candidate matched only indirectly. Three have a second fact that
-backs the match. The 日向山高原 bus stop's `old_name` is the hotel's former name, and it is 60 m
-from the pin. Pension "Meteor Garden" is a translation of 流星花園, 26 m away. 薬師の湯 has two
-buildings with that name, 26 m apart, so the stop takes the nearer one and is marked
-`(approximate)`. That mark stays with the coordinate, so a later reader knows it is close, not
-exact.
+backs the match. The 日向山高原 bus stop used to be named after the hotel (`old_name:en`
+"Holiday Inn Resort Kuroyon"), and it is 60 m from the pin. Pension "Meteor Garden" is a
+translation of 流星花園, 26 m away. The Yakushi-no-yu stop takes the nearer of two 薬師の湯
+buildings, and is marked `(approximate)` because the stop also serves くろべ路, which OSM lacks.
+That mark stays with the coordinate, so a later reader knows it is close, not exact.
 *Analogy:* a letter addressed to someone's maiden name is delivered when the street number matches
 too, and a note says so.
 
@@ -23,11 +23,15 @@ stop in the wrong place.
 *Analogy:* you guess between two doors of the same building, but not between two buildings.
 
 **3. What could go wrong: copies outside the data files.**
-The end-to-end tests use a saved API answer, `apps/web/e2e/fixtures/bus-options-2026-03-20.json`.
-It still holds 4 My Maps pins, including Snowlines Lodge's old pin that PR #17 took out of
-`bus_stops.json`. The licence test counts only `bus_stops.json`, so it can't see them, and
-DATA-LICENSES.md didn't mention them. Now it names the fixture. The pins go away only when someone
-regenerates the fixture with the API running.
+Coordinates get copied into tests. The end-to-end tests use a saved API answer,
+`apps/web/e2e/fixtures/bus-options-2026-03-20.json`, that still holds 4 My Maps pins, including
+Snowlines Lodge's old pin that PR #17 took out of `bus_stops.json`. The first pass checked only
+that file, and the review found 3 more test files with exact copies. So a scan then compared every
+tracked file with every My Maps or GSI point any version of the data has held, allowing for
+rounding: 7 test files hold copies, all within 6 m of the original. The licence test counts only
+`bus_stops.json`, so it can't see them. DATA-LICENSES.md now names all 7 under the same
+exceptions. The copies go away only when someone swaps in made-up points, or regenerates the
+fixture with the API running. The lesson: search every file, not just the one you expect.
 *Analogy:* a shop recalls a product from its shelves; the boxes in the stockroom still need a label.
 
 ## 2026-11-06 · tidy: PR #17 fix(data): re-locate 7 bus stops from OpenStreetMap

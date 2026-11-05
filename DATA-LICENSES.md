@@ -22,6 +22,14 @@ The code in this repository is MIT-licensed (see [LICENSE](LICENSE)). The data b
 
 The other 2 stops have no coordinates yet (`coord` is `null`).
 
-**Test fixture.** `apps/web/e2e/fixtures/bus-options-2026-03-20.json` is a captured bus-options API response that the end-to-end tests serve in place of the live API, so it holds copies of stop coordinates from `bus_stops.json`. For 4 stops those copies are Google My Maps pins, and they fall under the My Maps exception above: `stop-3-parking`, `stop-cook` and `stop-echoland-spicy`, and the old pin of `stop-snowlines-lodge`, which [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) replaced in `bus_stops.json`. The fixture is left as captured, because regenerating it needs the running API.
+**Test files.** These test files hold copies of excepted coordinates, exact or rounded (all within 6 m of the original). They were found on 2026-11-06 by comparing every tracked file with every My Maps or GSI coordinate that any version of `bus_stops.json` or `stop_evidence.json` has held. The copies fall under the same exceptions as the stops they copy, and the files are left as they are:
+
+- `apps/web/e2e/fixtures/bus-options-2026-03-20.json`, a captured bus-options API response that the end-to-end tests serve in place of the live API: the My Maps pins of `stop-3-parking`, `stop-cook` and `stop-echoland-spicy`, and the old pin of `stop-snowlines-lodge`, which [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) replaced in `bus_stops.json`. Regenerating it needs the running API.
+- `apps/web/e2e/pilot.spec.ts`: `stop-echoland-spicy`'s My Maps pin, used as a test GPS position.
+- `services/api/tests/fixtures/mymaps/sample.kml`, a sample My Maps KML export for the importer tests: its Kanemaru placemark is `stop-kanemaru`'s pin. Its other 3 placemarks are in no version of the data files, so their source can't be checked here; they count as My Maps pins too.
+- `services/api/tests/bus/test_import_mymaps.py`: the first of those 3 placemarks, and points within 5 m of the My Maps pins of `stop-la-vigne-hakuba-north-parking` and `stop-alpine-chalets` (its pin before PR #17).
+- `services/api/tests/routing/test_alternates.py`: `stop-spicy-rental-wadano`'s My Maps pin.
+- `services/api/tests/places/booking_eval.json`: `stop-courtyard-by-marriott-hakuba`'s My Maps pin, rounded (the "operator's pickup pin").
+- `services/api/tests/bus/test_locate_stops.py`: the GSI points of `stop-panorama-hotel` and `stop-cultured` (its point before PR #17), rounded. These fall under the GSI exception.
 
 **Timetables.** The operators' original PDFs and photos are kept out of the repository. Only the transcribed departure times are committed. They may be out of date or contain mistakes, so always check the official timetable before you travel.
