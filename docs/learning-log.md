@@ -2,7 +2,7 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
-## 2026-11-05 · tidy: PR #13 fix(crowd): name every resort prior in reasons
+## 2026-11-05 · tidy: PR #13 fix(crowd): name every non-zero resort prior in reasons
 
 **1. Principle: an explanation with a missing term looks arbitrary.**
 The crowd score is a sum, and its reasons are meant to say what went into it. A resort prior below
@@ -10,14 +10,15 @@ The crowd score is a sum, and its reasons are meant to say what went into it. A 
 25% with the same single reason, "Lunar New Year week", and nothing on screen said why they differ.
 Now Norikura also shows "Less-visited resort", and Jigatake, whose prior is 0, shows nothing more.
 A reason names a factor, not its size: Norikura (0.08) and Sanosaka (0.03) share one label, just as
-every Saturday says "Saturday".
+Happo-One (0.25) and Goryu (0.20) already shared "Large, popular resort".
 *Analogy:* a receipt that leaves one item off; even a small item makes the total look wrong.
 
 **2. Trade-off: why change the code this time, when follow-ups 3, 5 and 11 changed only words.**
-Those were fixed in words because changing behaviour needs data, and there was none. That rule
-protects the numbers. This PR changes no number: every score, level and rank is the same before
-and after, checked for all 10 resorts on two dates. It only names a number the score already used.
-The cost: hand-set judgements are now on screen. "Less-visited resort" for Kashimayari comes from a
+Follow-ups 3 and 11 left the code alone because changing it would change behaviour with no data
+behind it; 5 kept a tested endpoint rather than delete it. That data rule protects the numbers.
+This PR changes no number: every score, level and rank is the same before and after, checked for
+all 10 resorts on two dates. It only names a number the score already used. The cost: hand-set
+judgements are now on screen. "Less-visited resort" for Kashimayari comes from a
 table someone typed, with no visitor data behind it; the SPEC still lists visitor statistics as an
 open question.
 *Analogy:* a price tag on the shelf. The price was already being charged; now shoppers can see it

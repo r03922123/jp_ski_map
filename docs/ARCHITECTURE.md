@@ -62,7 +62,7 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
   [PR #13](https://github.com/r03922123/jp_ski_map/pull/13): the SPEC now says where 3-day
   weekends come from, ranks a holiday equal to a Saturday, says the web gets crowd through
   `/api/rank`, gives the real example, powder window and season edges, and says where
-  peak-period weights live; the code now names every resort prior). `GET /api/crowd`
+  peak-period weights live; the code now names every non-zero resort prior). `GET /api/crowd`
   exists, but the web app never calls it. Crowd reaches the screen inside `/api/rank`
   (section 4). The SPEC ranked a public holiday above a Saturday, but both weigh 0.30 in
   `CrowdConfig`. February 3-day weekends come from the day-type rule (any run of 3 or more weekend
