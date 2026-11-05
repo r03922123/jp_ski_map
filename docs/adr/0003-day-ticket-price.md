@@ -34,14 +34,17 @@ The owner approved doing all of the takeover work, including the owner decisions
 
 ## Decision
 
-### `dayTicketJpy` is one adult 1-day lift ticket for the 2026–27 main season, bought at the ticket window, in yen, without any refundable IC-card deposit
+### `dayTicketJpy` is one adult 1-day lift ticket for the current season's main period (2026–27 when decided), bought at the ticket window, in yen, without any refundable IC-card deposit
 
-- **Main season** is the resort's regular or peak period, not its early-season or spring rate. The
+- **Main period** is the resort's regular or peak period, not its early-season or spring rate. The
   value is the standard price, not a weekday, resident or other discount (Jigatake ¥5,500, not its
   ¥4,900 weekday price; Kashimayari ¥6,200, not its ¥4,700 Nagano-resident price).
 - **Adult** is the resort's own adult band (Goryu 23–64, Happo-One 18–64).
-- **Window:** a price list that says neither "window" nor "online" counts as the window price,
-  because these pages label their online prices (WEB, オンライン) as such.
+- **Window:** a price that says neither "window" nor "online" counts as the window price,
+  because these pages label their online prices (WEB, オンライン) as such. That includes an
+  unlabelled standard (通常) price for the current season on the resort's own page, such as a news
+  post, until its rates page is updated for that season (Iwatake: the 通常 ¥7,500 in its 2026–27
+  early-bird news, while its rates page still shows 2025–26).
 - **Deposit:** when the page's price includes the deposit, the value leaves it out, and
   `statsSource` says so (Goryu and Hakuba47: ¥10,000 including ¥500, so `9500`).
 - **Online only:** when a resort publishes only an online price for that ticket, use it and write
@@ -91,15 +94,19 @@ a day of skiing costs.
 - The cards show a price for those 9 and "—" for Cortina. The price sort stays hidden, and
   follow-up 2 stays open.
 - Iwatake's rates page still shows 2025–26. Its value comes from its own 2026–27 early-bird news,
-  which calls ¥7,500 the 通常 (regular) price; the page doesn't say "window".
+  which calls ¥7,500 the 通常 (regular) price; the page doesn't say "window", so the Window rule
+  above is what counts it.
 - Prices change every season, so each autumn the values need a re-check against the new season's
-  pages, with the season updated in this ADR's definition.
+  pages; the `checked <date>` in each `statsSource` entry shows when a value was last read. The
+  definition says "the current season", so this ADR needs no yearly edit.
 
 ## Next steps
 
 1. When Cortina's site is back, read its 2026–27 adult 1-day window price and its night skiing.
-   With a price for all 10, put `price` back into `SORT_KEYS` (`apps/web/src/lib/url-state.ts`),
-   set `apps/web/e2e/journeys/destination-route.spec.ts` back to 7 options, and change the
+   With a price for all 10, put `price` back into `SORT_KEYS` (`apps/web/src/lib/url-state.ts`)
+   and rewrite the doc comment above it (`:35-41`), which says why `price` is hidden; add price
+   back to the Drive sort list in `README.md` (`:8`); set
+   `apps/web/e2e/journeys/destination-route.spec.ts` back to 7 options; and change the
    `?sort=price` test in `apps/web/tests/url-state.test.ts` to expect `price`.
 2. In December, re-check Iwatake's rates page and the 5 resorts whose `nightSkiing` is still
    `null` (follow-up 2).

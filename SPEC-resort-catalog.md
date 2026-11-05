@@ -49,7 +49,7 @@ No summit coordinate: snow-conditions queries Open-Meteo at the primary access p
 - [ ] Every stop name that appears in any Hakuba Valley shuttle timetable is an alias of exactly one `BusStop`.
 - [ ] Goryu has two access points (Escal Plaza, Iimori) and Happo-One has its main base areas. Multi-base resorts are modeled as multiple access points, not as multiple resorts.
 - [ ] `python -m hakuba_api.data.validate` fails on: duplicate ids, missing EN or JA name, coordinates outside the Hakuba bounding box (lat 36.55–36.90, lng 137.75–137.95), terrain % not summing to 100.
-- [ ] Every stat has a `statsSource`. Unknown stats are `null`, not guessed. A value needs the resort's or its operator's own page that states it; for `dayTicketJpy`, that page and its basis go in `statsSource` as ADR-0003 says.
+- [ ] Every stat has a `statsSource`. Unknown stats are `null`, not guessed. For `nightSkiing` and `dayTicketJpy`, a value needs the resort's or its operator's own page that states it; for `dayTicketJpy`, that page and its basis go in `statsSource` as ADR-0003 says.
 
 ## Boundaries
 - Ask first: adding resorts outside Hakuba Valley.
