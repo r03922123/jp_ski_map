@@ -1,4 +1,5 @@
-"""Explainable crowd estimate. Every weight lives in CONFIG; every contribution is a reason."""
+"""Explainable crowd estimate. Weights live in CONFIG, except each peak period's own weight in
+data/crowd_periods.json; every contribution is a reason."""
 
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -39,6 +40,7 @@ class CrowdConfig:
     )
     default_prior: float = 0.10
     popular_prior_at_least: float = 0.20
+    moderate_prior_at_least: float = 0.10
 
 
 CONFIG = CrowdConfig()
@@ -135,6 +137,10 @@ class HeuristicCrowdSource:
         score += prior
         if prior >= CONFIG.popular_prior_at_least:
             reasons.append("Large, popular resort")
+        elif prior >= CONFIG.moderate_prior_at_least:
+            reasons.append("Moderately popular resort")
+        elif prior > 0:
+            reasons.append("Less-visited resort")
 
         if _is_season_edge(day):
             score += CONFIG.season_edge

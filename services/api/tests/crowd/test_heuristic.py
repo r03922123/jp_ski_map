@@ -105,6 +105,26 @@ def test_missing_snow_values_do_not_count_as_powder() -> None:
     assert not any(r.startswith("Powder") for r in estimate.reasons)
 
 
+DRAW_REASONS = {"Large, popular resort", "Moderately popular resort", "Less-visited resort"}
+
+
+@pytest.mark.parametrize(
+    ("resort_id", "draw"),
+    [
+        ("happo-one", "Large, popular resort"),
+        ("hakuba47", "Moderately popular resort"),
+        ("norikura", "Less-visited resort"),
+        ("jigatake", None),  # prior 0 adds nothing, so there is nothing to explain
+    ],
+)
+def test_every_nonzero_resort_prior_is_a_reason(resort_id: str, draw: str | None) -> None:
+    day = date(2026, 2, 16)  # Monday in Lunar New Year week
+
+    estimate = source.estimate(resort(resort_id), day, None)
+
+    assert [r for r in estimate.reasons if r in DRAW_REASONS] == ([draw] if draw else [])
+
+
 def test_is_deterministic() -> None:
     args = (resort("tsugaike"), date(2026, 2, 21), snow("tsugaike", date(2026, 2, 21), 22))
 
