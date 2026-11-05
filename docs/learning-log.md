@@ -2,6 +2,34 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #18 fix(data): re-locate 3 more bus stops from OpenStreetMap
+
+**1. Principle: accept a weaker match only with a second fact behind it, and record how weak it is.**
+PR #17 left 6 stops whose OSM candidate matched only indirectly. Three have a second fact that
+backs the match. The 日向山高原 bus stop's `old_name` is the hotel's former name, and it is 60 m
+from the pin. Pension "Meteor Garden" is a translation of 流星花園, 26 m away. 薬師の湯 has two
+buildings with that name, 26 m apart, so the stop takes the nearer one and is marked
+`(approximate)`. That mark stays with the coordinate, so a later reader knows it is close, not
+exact.
+*Analogy:* a letter addressed to someone's maiden name is delivered when the street number matches
+too, and a note says so.
+
+**2. Trade-off: a little position risk for less licence risk, and only where a mistake is small.**
+For these 3, a wrong pick costs a few tens of metres of walking, because every candidate sits
+within 90 m of the old pin. Keeping the Google pin keeps a licence that is still unresolved. The
+other 3 ambiguous stops stay. Two parking stops would both land on one lot that OSM gives no
+number. The third is a camp site whose name isn't the stop's. There, a wrong pick could put a
+stop in the wrong place.
+*Analogy:* you guess between two doors of the same building, but not between two buildings.
+
+**3. What could go wrong: copies outside the data files.**
+The end-to-end tests use a saved API answer, `apps/web/e2e/fixtures/bus-options-2026-03-20.json`.
+It still holds 4 My Maps pins, including Snowlines Lodge's old pin that PR #17 took out of
+`bus_stops.json`. The licence test counts only `bus_stops.json`, so it can't see them, and
+DATA-LICENSES.md didn't mention them. Now it names the fixture. The pins go away only when someone
+regenerates the fixture with the API running.
+*Analogy:* a shop recalls a product from its shelves; the boxes in the stockroom still need a label.
+
 ## 2026-11-06 · tidy: PR #17 fix(data): re-locate 7 bus stops from OpenStreetMap
 
 **1. Principle: move a stop only when the match is clear; a named gap beats a wrong pin.**
