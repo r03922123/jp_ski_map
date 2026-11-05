@@ -2,6 +2,34 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #20 docs: settle ADR-0003's open day-ticket cases
+
+**1. Principle: settle the edge cases once, next to the definition, and say which ones you hit.**
+ADR-0003 said "main period" but not what to do when a page has several. Happo-One's note named its
+high season; Tsugaike's, Goryu's, Hakuba47's and Norikura's didn't, though each also picked the
+main price over a cheaper early or spring one. So "no note" meant two things: no choice, or a
+choice nobody wrote down. Now the SPEC lists five cases, and each note that made a choice says so
+("joint with Cortina; main period 12/19–3/14"). No price changed.
+*Analogy:* a recipe that says "a cup of flour" needs to say once whether it's packed or sifted;
+after that, every cook gets the same cake.
+
+**2. Trade-off: add the rulings to the SPEC, and leave the accepted ADR as it was.**
+An ADR records what was decided and why on that day. Rewriting it would hide what was known then.
+The SPEC is the living description of the data, so the five cases go there, and the ADR's Status
+gets one dated line pointing to them, as ADR-0002 does. The cost is that a reader looks in two
+places; the pointer keeps that to one hop.
+*Analogy:* a court doesn't rewrite a law after a ruling; the law book gets a note "see the ruling
+of 6 November".
+
+**3. What could go wrong: two pages for one ticket, and notes that go stale.**
+Goryu and Hakuba47 sell the same joint ticket, but their pages give different early and spring
+dates (Goryu: early to 12/15, spring from 3/15; Hakuba47: before 15 Dec, after 10 Mar). The price
+is the same, so the value is safe, but a note copied from one page to the other would be wrong.
+So each note gives its own page's dates. A "plain" price is also a claim: if a resort adds a
+holiday rate next season, the autumn re-check has to apply rule 1, not just copy the number.
+*Analogy:* two companies print the timetable for one bus line, a few minutes apart; quote the one
+you read, and say which.
+
 ## 2026-11-06 · tidy: PR #19 fix(data): define the day-ticket price and fill it for 9 resorts
 
 **1. Principle: define a number before you collect it.**
