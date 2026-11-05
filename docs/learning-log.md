@@ -2,13 +2,37 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · tidy: PR #9 docs: close follow-ups 4, 6 and 10
+
+**1. Principle: keep one status record.**
+The SPECs have 89 unticked Acceptance Criteria boxes, while `tasks/todo.md` ticks each task as it
+lands. Two places for the same fact drift apart, which is how follow-up 10 came about. So SPEC.md
+now says once that `tasks/todo.md` is the status record, and the boxes stay as the bar to meet.
+Ticking them all would only start a second copy that drifts again.
+*Analogy:* a house with two clocks always has one that's wrong; keep one and trust it.
+
+**2. Trade-off: label the empty slot instead of removing it.**
+`snow/models.py` allows `source: "reported"`, but nothing sets it yet (`snow/compute.py` always
+writes `"model"`). Dropping the value now would change the API types, and the planned
+resort-report adapter would add it back in December. Keeping it costs nothing; the risk is that a
+reader thinks it works, so SPEC-snow-conditions now says "not built yet" and points to the plan.
+*Analogy:* a parking space signed "reserved from December" instead of painting it over and
+repainting it later.
+
+**3. What could go wrong: writing what the SPEC should say without reading the code.**
+Follow-up 4 was checked in two places: `data/crowd_periods.json` has no February entries, and
+`crowd/heuristic.py` (`_off_run`, `_day_type`) gives the "3-day weekend" weight to any run of 3 or
+more weekend and holiday days. That second read showed the rule covers every month, not only
+February, so the SPEC now says that too.
+*Analogy:* check a map against the road, not against another map.
+
 ## 2026-11-05 · PR #8: docs: fix three stale lines
 
 **1. Principle: words about safety must be exact.**
-PR #6's entry said "the public API runs on port 8011". It isn't public. In the public setup the
-API listens only on this computer, and Tailscale Funnel publishes only the web app on `:3000`,
-which forwards `/api/*` to it. Calling the API "public" would teach the opposite of the project's
-rule, so the entry now says where it listens and what is public.
+PR #6's entry said "the public API runs on port 8011". Its port isn't public. In the public setup
+the API listens only on this computer, and Tailscale Funnel publishes only the web app on `:3000`,
+which forwards `/api/*` to it. Calling the API's port "public" would teach the opposite of the
+project's rule, so the entry now says where it listens and what is public.
 *Analogy:* calling the kitchen door "the entrance" sends guests through the kitchen; only the
 front door is for guests.
 
@@ -24,8 +48,9 @@ the list instead of tearing out the line.
 **3. What could go wrong: fixing a doc by guessing.**
 Each change was checked against the file it describes before it was written: the compose file's
 port line, `scripts/serve-public.sh` for the API port, and PR #6's diff for follow-ups 7 to 9.
-The other follow-ups (bus-stop licensing, the "reported" snow source, crowd weights and more) are
-the owner's decisions, so they are left exactly as they were.
+The other follow-ups were left exactly as they were: bus-stop licensing, the "reported" snow
+source, crowd weights and more were the owner's decisions, and follow-ups 4 and 10 were simply
+outside that task.
 *Analogy:* a proofreader checks a phone number by calling it, not by guessing which digit looks
 wrong.
 
