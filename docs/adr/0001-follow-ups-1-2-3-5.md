@@ -14,9 +14,10 @@ Accepted (2026-11-05)
 Six needed no owner decision: 7–9 were closed in
 [PR #6](https://github.com/r03922123/jp_ski_map/pull/6), and 4, 6 and 10 in
 [PR #9](https://github.com/r03922123/jp_ski_map/pull/9). The remaining four needed the owner's
-choice, so PR #9 ended with a decision brief: for each one, what the code does now, the options, and
-a recommendation. The owner took the recommendation on all four. This ADR records them and the
-brief's reasons, re-checked against `main` at `ddb6aca`.
+choice, so the work session that produced PR #9 ended with a decision brief, given in chat rather
+than in the PR: for each one, what the code does now, the options, and a recommendation. The owner
+took the recommendation on all four. This ADR records them and the brief's reasons, re-checked
+against `main` at `ddb6aca`.
 
 Code paths are relative to `services/api/src/hakuba_api/` (api) and `apps/web/src/` (web), as in
 ARCHITECTURE.md, and to `services/api/` for the api tests.

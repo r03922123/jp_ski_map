@@ -2,21 +2,22 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
-## 2026-11-05 · tidy: PR #11 docs(adr): land the review fixes to ADR-0001
+## 2026-11-05 · tidy: PR #11 docs: land the review fixes to ADR-0001
 
-**1. Principle: a PR merges one exact commit, not "the branch".**
-PR #10 was merged at `26ba803`, the commit CI and the reviewer had approved. The review fixes were
-pushed 11 minutes later, so they missed it. GitHub had already deleted the merged branch, and the
-push said `* [new branch]`: the sign that it was starting over, not updating PR #10. Check the PR's
-state before pushing a fix to it.
+**1. Principle: a PR merges the exact version that was checked, not whatever its branch holds later.**
+PR #10 was merged at the version that CI and the fresh review had checked. The review fixes were
+pushed 11 minutes later, so they missed it. GitHub had already deleted the merged branch, so the
+push made a new branch instead of updating PR #10, and its output said so. Check that a PR is still
+open before pushing a fix to it.
 *Analogy:* the train leaves with the luggage that was on board; a bag thrown on afterwards needs the
 next train.
 
-**2. Trade-off: reuse the branch instead of copying the commit.**
-A new branch with a cherry-picked copy would give the fixes a new commit ID. Git then can't tell the
-work reached main, so the safe `git branch -d` refuses and only the forced `-D` deletes the branch.
-Reusing `docs/adr-001-follow-ups` lands the original commit, so `-d` still works. The cost is a branch
-name that says "follow-ups" for a fix-up.
+**2. Trade-off: send the original fix, not a copy.**
+The fixes could have been copied onto a fresh branch. But git gives a copied change a new ID, so it
+can't tell that the original reached main. The old branch could then only be removed with a forced
+delete, the kind that can throw away work nobody merged. Reusing the old branch for this PR lands the
+original fix, so git's safe delete, which removes a branch only when all its work is on main, works
+after a normal merge. The cost: the branch's name says "follow-ups" for a fix-up.
 *Analogy:* forward the original letter rather than a photocopy, so the post office can match it to
 the receipt.
 
