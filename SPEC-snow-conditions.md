@@ -7,7 +7,7 @@ Give each resort a snow picture that can be compared across resorts: current dep
 
 ## Sources
 1. **Open-Meteo forecast** (primary, always available): `https://api.open-meteo.com/v1/forecast` at each resort's summit and base, with `hourly=snow_depth`, `daily=snowfall_sum,temperature_2m_max,temperature_2m_min`, `past_days=3`, `forecast_days=3`, `timezone=Asia/Tokyo`, and `elevation=<m>` set explicitly so the result isn't taken from the grid cell's average height.
-2. **Resort-reported** (optional, best effort): the hakubavalley.com *Weather & Snow* page. This is used only if a spike shows it can be parsed reliably. If present, reported depth takes precedence over modeled depth and is marked `source: "reported"`.
+2. **Resort-reported** (optional, best effort; **not built yet**, planned for after the season opens, see the Recommendation under "Spike result" below): the hakubavalley.com *Weather & Snow* page. This is used only if a spike shows it can be parsed reliably. If present, reported depth takes precedence over modeled depth and is marked `source: "reported"`. Until it is built, every depth is `source: "model"`; the `"reported"` value stays in `snow/models.py` for that adapter.
 
 ## Interface
 - `GET /api/snow` → `SnowReport[]` (all resorts)

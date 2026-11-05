@@ -59,16 +59,20 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 - **crowd-level.** `GET /api/crowd` exists, but the web app never calls it. Crowd reaches the
   screen inside `/api/rank` (section 4). The SPEC ranks a public holiday above a Saturday, but
   both weigh 0.30 in `CrowdConfig`. February 3-day weekends come from the holiday calendar, not
-  from `data/crowd_periods.json` as the SPEC says.
-- **snow-conditions.** `source: "reported"` exists only as a type value. Nothing parses the
-  resort-reported snow page, so every depth is modelled.
-- **place-search.** The "Decision" at the top of the SPEC (Photon first, no lodging list) was
-  replaced by the v1.2 local index and the v1.3 Overture lodging snapshot lower in the same file.
-- **deploy.** The SPEC-deploy diagram and its "one public port" bullet put the API on `:8010`;
-  `scripts/serve-public.sh` uses `:8011`, and so does the spec's own later bullet.
-- **SPEC.md.** Its layout says `infra/docker-compose.yml` also runs `api` and `web`; it runs only
-  `valhalla`. The package list misses `pois/` and `common/`. The "hosting target" open question
-  was answered by SPEC-deploy.
+  from `data/crowd_periods.json` as the SPEC said (fixed in
+  [PR #9](https://github.com/r03922123/jp_ski_map/pull/9)).
+- **snow-conditions** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): the
+  SPEC now marks it not built). `source: "reported"` exists only as a type value. Nothing parses
+  the resort-reported snow page, so every depth is modelled.
+- **place-search** (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6)). The
+  "Decision" at the top of the SPEC (Photon first, no lodging list) was replaced by the v1.2 local
+  index and the v1.3 Overture lodging snapshot lower in the same file.
+- **deploy** (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6)). The SPEC-deploy
+  diagram and its "one public port" bullet put the API on `:8010`; `scripts/serve-public.sh` uses
+  `:8011`, and so does the spec's own later bullet.
+- **SPEC.md** (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6)). Its layout says
+  `infra/docker-compose.yml` also runs `api` and `web`; it runs only `valhalla`. The package list
+  misses `pois/` and `common/`. The "hosting target" open question was answered by SPEC-deploy.
 
 ## 3. System diagram
 
@@ -206,10 +210,12 @@ Each item is small enough for its own PR. None is fixed by this page.
 3. **Crowd: holiday vs Saturday.** Make the code match SPEC-crowd-level (holiday > Saturday), or
    change the SPEC.
 4. **Crowd: February 3-day weekends.** Say in the SPEC that they come from the holiday calendar,
-   not `crowd_periods.json`.
+   not `crowd_periods.json`. ✅ Done in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9).
 5. **Crowd: `/api/crowd`.** Note in the SPEC that the web app gets crowd through `/api/rank`, or
    remove the unused endpoint.
 6. **Snow: "reported" source.** Mark it as not built in SPEC-snow-conditions, or drop it from the model.
+   ✅ Done in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): marked not built; the model
+   keeps `"reported"` for the planned adapter.
 7. **Place-search SPEC.** Mark the 2026-10-28 decision as replaced by v1.2/v1.3. ✅ Done in
    [PR #6](https://github.com/r03922123/jp_ski_map/pull/6).
 8. **Deploy port.** Fix SPEC-deploy's diagram and "one public port" bullet to `:8011`. ✅ Done in
@@ -217,4 +223,6 @@ Each item is small enough for its own PR. None is fixed by this page.
 9. **SPEC.md layout.** Fix the compose line, add `pois/` and `common/`, and close the hosting
    open question. ✅ Done in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6).
 10. **SPEC checkboxes.** Tick the acceptance criteria that `tasks/todo.md` shows are done, or say
-    in SPEC.md that `tasks/todo.md` is the status record.
+    in SPEC.md that `tasks/todo.md` is the status record. ✅ Done in
+    [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): SPEC.md now says `tasks/todo.md` is
+    the status record; the boxes are left as they are.
