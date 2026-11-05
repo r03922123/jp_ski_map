@@ -195,7 +195,7 @@ source of truth.
 | Map tiles | fetched at runtime | OpenFreeMap / OpenMapTiles | ODbL (OSM data) |
 | Place search fallback | queried at runtime | Photon (komoot) | ODbL (OSM data) |
 | Snow and weather | queried at runtime | Open-Meteo | CC BY 4.0 |
-| Resorts, stops, stop evidence | `data/resorts.json`, `data/bus_stops.json`, `data/bus/stop_evidence.json` | compiled for this project; coordinates from OpenStreetMap, except 50 My Maps pins and 1 GSI stop | ODbL 1.0, whole file ([ADR-0002](adr/0002-data-files-odbl.md)) |
+| Resorts, stops, stop evidence | `data/resorts.json`, `data/bus_stops.json`, `data/bus/stop_evidence.json` | compiled for this project; coordinates from OpenStreetMap, except 47 My Maps pins and 1 GSI stop | ODbL 1.0, whole file ([ADR-0002](adr/0002-data-files-odbl.md)) |
 | Crowd periods | `data/crowd_periods.json` | compiled by hand | facts for trip planning |
 | Timetables (42 files, 2025–26) | `data/bus/timetables/` | transcribed from the operators' published timetables (`data/bus/sources.json`) | facts; originals not committed |
 
@@ -206,7 +206,7 @@ source of truth.
 > ([ODbL](https://opendatacommons.org/licenses/odbl/1-0/) §4.4.a, §4.4.b); `resorts.json`, whose
 > coordinates are all from OpenStreetMap, gets the same label by choice. Two groups of stops are
 > named but not covered, and they are the risk that remains in this public repository:
-> - **The operator's Google My Maps pins** (50 stops, `bus/import_mymaps.py`): coordinates copied
+> - **The operator's Google My Maps pins** (47 stops, `bus/import_mymaps.py`): coordinates copied
 >   out of Google Maps content. Whether Google's terms allow that is unresolved
 >   ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md) Decision 1).
 > - **GSI address search** (1 stop, `bus/locate_stops.py`, Japan's Geospatial Information
@@ -215,7 +215,8 @@ source of truth.
 >   [terms](https://geocode.csis.u-tokyo.ac.jp/home/simple-geocoding/simple-geocoding-tems-of-use/)
 >   ask for a credit on maps and in apps (第4条(1), (4)).
 >
-> [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) re-located 7 stops from OpenStreetMap;
+> [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) and
+> [PR #18](https://github.com/r03922123/jp_ski_map/pull/18) re-located 10 stops from OpenStreetMap;
 > the rest had no clear OSM feature and need another source (follow-up 1).
 
 Timetables can be wrong or out of date. The app labels every estimate, and the README tells users
@@ -230,9 +231,10 @@ Each item is small enough for its own PR. None is fixed by this page.
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): credit OSM and GSI now, and replace the 56 Google
    My Maps pins in a later PR. Revised in [ADR-0002](adr/0002-data-files-odbl.md): the three
    files are ODbL as whole files, and the 2 GSI stops are re-located too. Credit ✅ done in
-   [PR #14](https://github.com/r03922123/jp_ski_map/pull/14); 7 re-located from OSM in
-   [PR #17](https://github.com/r03922123/jp_ski_map/pull/17); 50 My Maps stops and 1 GSI stop have
-   no clear OSM feature and need another source (ADR-0002 next step 1).
+   [PR #14](https://github.com/r03922123/jp_ski_map/pull/14); 10 re-located from OSM in PRs
+   [#17](https://github.com/r03922123/jp_ski_map/pull/17) and
+   [#18](https://github.com/r03922123/jp_ski_map/pull/18); 47 My Maps stops and 1 GSI stop remain,
+   with no clear OSM feature, and need another source (ADR-0002 next step 1).
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the
