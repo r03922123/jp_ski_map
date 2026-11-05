@@ -21,12 +21,14 @@ The static reference data that every other module joins on: the resorts, the acc
   "stats": { "baseElevationM": 760, "topElevationM": 1831, "verticalM": 1071,
              "gondolas": 1, "chairLifts": 22, "runs": 16, "longestRunM": 8000, "totalRunsM": 23300, "areaHa": 220,
              "terrainPct": { "beginner": 30, "intermediate": 50, "advanced": 20 },
-             "nightSkiing": null, "dayTicketJpy": null },
+             "nightSkiing": null, "dayTicketJpy": 9800 },
   "hakubaValleyPass": true,
   "statsSource": "https://… (URL + date checked)"
 }
 ```
 No summit coordinate: snow-conditions queries Open-Meteo at the primary access point with `elevation` = base / top elevation (decided 2026-10-29).
+
+`dayTicketJpy` is the adult 1-day lift ticket for the current season's main period, bought at the ticket window, in yen, without any refundable IC-card deposit ([ADR-0003](docs/adr/0003-day-ticket-price.md), decided 2026-11-06).
 
 `bus_stops.json`: list of
 ```jsonc
@@ -47,7 +49,7 @@ No summit coordinate: snow-conditions queries Open-Meteo at the primary access p
 - [ ] Every stop name that appears in any Hakuba Valley shuttle timetable is an alias of exactly one `BusStop`.
 - [ ] Goryu has two access points (Escal Plaza, Iimori) and Happo-One has its main base areas. Multi-base resorts are modeled as multiple access points, not as multiple resorts.
 - [ ] `python -m hakuba_api.data.validate` fails on: duplicate ids, missing EN or JA name, coordinates outside the Hakuba bounding box (lat 36.55–36.90, lng 137.75–137.95), terrain % not summing to 100.
-- [ ] Every stat has a `statsSource`. Unknown stats are `null`, not guessed.
+- [ ] Every stat has a `statsSource`. Unknown stats are `null`, not guessed. A value needs the resort's or its operator's own page that states it; for `dayTicketJpy`, that page and its basis go in `statsSource` as ADR-0003 says.
 
 ## Boundaries
 - Ask first: adding resorts outside Hakuba Valley.
@@ -55,5 +57,5 @@ No summit coordinate: snow-conditions queries Open-Meteo at the primary access p
 
 ## Open Questions
 - Which stats can be found reliably for the small resorts (Jigatake, Sanosaka)? Missing values are left `null`. The ranking module must handle `null`.
-- Do Hakuba47, Happo-One, Iwatake, Norikura and Cortina run night skiing in 2026–27? Their own pages don't say yet, so `nightSkiing` stays `null` and the night-skiing filter leaves them out. Re-check in December ([follow-up 2](docs/ARCHITECTURE.md#follow-ups)).
-- What does `dayTicketJpy` mean? The 2026–27 prices the resorts publish use different bases: some include a refundable card deposit, some charge it on top, and some change by season. Until one meaning is agreed (deposit in or out, which season), it stays `null` for all 10 and the web hides the price sort. [PR #15](https://github.com/r03922123/jp_ski_map/pull/15) lists the 9 prices found.
+- Do Hakuba47, Happo-One, Iwatake, Norikura and Cortina run night skiing in 2026–27? Their own pages still don't say (re-checked 2026-11-06), so `nightSkiing` stays `null` and the night-skiing filter leaves them out. Re-check in December ([follow-up 2](docs/ARCHITECTURE.md#follow-ups)).
+- What is Cortina's 2026–27 day-ticket price? What `dayTicketJpy` means is settled in [ADR-0003](docs/adr/0003-day-ticket-price.md), and the other 9 resorts have a value. Cortina's own site shows a maintenance page (checked 2026-11-06), so its `dayTicketJpy` stays `null`, and the web keeps the price sort hidden until it has one. Re-check in December.

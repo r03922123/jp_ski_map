@@ -42,7 +42,7 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 | [snow-conditions](../SPEC-snow-conditions.md) | Snow depth and new snow per resort | shown in `components/ResortList.tsx` | `snow/` (Open-Meteo, 1 h cache), `GET /api/snow` | Partly built: model only, the "reported" source isn't built |
 | [crowd-level](../SPEC-crowd-level.md) | "Crowd: high (est.)" with reasons | shown in `components/ResortList.tsx` | `crowd/heuristic.py`, `GET /api/crowd` (unused by the web) | Shipped (heuristic v1) |
 | [bus-schedules](../SPEC-bus-schedules.md) | Next shuttle from the nearest stop, night bus | `components/BusPanel.tsx`, `StopList.tsx` | `bus/` (`query.py`, `season.py`, `check_sources.py`), `/api/bus/options`, `/night` | Shipped |
-| [resort-ranking](../SPEC-resort-ranking.md) | Resorts sorted by one chosen factor | `components/DrivePanel.tsx`, `SortControls.tsx`, `ResortList.tsx` | `ranking/`, `GET /api/rank` | Partly built: no prices, so the web hides the price sort; night skiing known for 5 of 10 resorts |
+| [resort-ranking](../SPEC-resort-ranking.md) | Resorts sorted by one chosen factor | `components/DrivePanel.tsx`, `SortControls.tsx`, `ResortList.tsx` | `ranking/`, `GET /api/rank` | Partly built: prices known for 9 of 10 resorts, so the web still hides the price sort; night skiing known for 5 of 10 |
 | [poi-destinations](../SPEC-poi-destinations.md) | Restaurants and konbini as destinations | `components/PoiList.tsx`, `DestinationPicker.tsx` | `pois/`, `GET /api/pois/nearby` | Shipped |
 | [saved-places](../SPEC-saved-places.md) | Star places, lists, "My hotel", share link | `components/SavedPanel.tsx`, `SaveButton.tsx`, `lib/saved-places.ts`, `lib/saved-share.ts` | — (browser only) | Shipped |
 | [pilot](../SPEC-pilot.md) | Turn-by-turn navigation from GPS, bus guidance | `components/PilotView.tsx`, `BusPilotView.tsx`, `lib/nav/` | uses `/api/route/path` for reroutes | Shipped; the real-phone walk test is still open |
@@ -53,13 +53,14 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 
 **Where the SPECs and the code disagree** (each one is a [follow-up](#follow-ups)):
 
-- **resort-ranking** (partly fixed in [PR #15](https://github.com/r03922123/jp_ski_map/pull/15):
-  `nightSkiing` is filled for 5 resorts from their own pages, and the web hides the price sort).
+- **resort-ranking** (partly fixed in [PR #15](https://github.com/r03922123/jp_ski_map/pull/15)
+  and [PR #19](https://github.com/r03922123/jp_ski_map/pull/19): `nightSkiing` is filled for 5
+  resorts and `dayTicketJpy` for 9, from their own pages, and the web hides the price sort).
   The `price` sort and the `nightSkiing` filter existed, but `dayTicketJpy` and `nightSkiing` were
   `null` for all 10 resorts. Sorting by price quietly fell back to drive time (unknown values sort
   last), and turning on the night-skiing filter emptied the list. `dayTicketJpy` is still `null`
-  for all 10 (the API still accepts `sort=price`), and `nightSkiing` is still `null` for Hakuba47,
-  Happo-One, Iwatake, Norikura and Cortina, so the filter leaves them out.
+  for Cortina (the API still accepts `sort=price` and puts Cortina last), and `nightSkiing` is
+  still `null` for Hakuba47, Happo-One, Iwatake, Norikura and Cortina, so the filter leaves them out.
 - **crowd-level** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9),
   [PR #10](https://github.com/r03922123/jp_ski_map/pull/10),
   [PR #12](https://github.com/r03922123/jp_ski_map/pull/12) and
@@ -240,11 +241,14 @@ Each item is small enough for its own PR. None is fixed by this page.
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the
    price sort only if 2026–27 day-ticket prices aren't published. Night skiing for 5 resorts and
    hiding the price sort ✅ done in [PR #15](https://github.com/r03922123/jp_ski_map/pull/15): only
-   9 resorts publish a 2026–27 price on their own site, and on different bases. `nightSkiing` for
-   Hakuba47, Happo-One, Iwatake, Norikura and Cortina is still open: their own pages don't say yet.
-   Re-check them in December, with Kashimayari, whose `false` is read from its lift hours. The
-   price sort comes back once `dayTicketJpy` has one agreed meaning (deposit in or out, which
-   season) and all 10 resorts have a 2026–27 value; PR #15 lists the 9 prices found. The four
+   9 resorts publish a 2026–27 price on their own site, and on different bases. The meaning of
+   `dayTicketJpy` ✅ decided in [ADR-0003](adr/0003-day-ticket-price.md) (the adult 1-day window
+   price for the main season, without the card deposit), and 9 resorts filled ✅ in
+   [PR #19](https://github.com/r03922123/jp_ski_map/pull/19). Still open: Cortina's price, because
+   its own site shows a maintenance page, and the price sort comes back once it has one; and
+   `nightSkiing` for Hakuba47, Happo-One, Iwatake, Norikura and Cortina, whose own pages still don't
+   say (re-checked 2026-11-06). Re-check them in December, with Kashimayari, whose `false` is read
+   from its lift hours, and Iwatake's price, which comes from its early-bird news. The four
    leftovers outside PR #15's files ✅ done in
    [PR #16](https://github.com/r03922123/jp_ski_map/pull/16): the Drive panel's empty-list note
    says the night-skiing filter shows only resorts confirmed to run it, `README.md` no longer lists
