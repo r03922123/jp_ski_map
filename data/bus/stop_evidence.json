@@ -1,5 +1,5 @@
 {
- "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has an address (geocoded via GSI, lot number required) or an OSM point, plus the source it came from.",
+ "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has an address (geocoded via GSI, lot number required) or an OSM point, plus the source it came from. Licence: ODbL 1.0 for the whole file, © OpenStreetMap contributors. Entries whose ref starts with 'operator My Maps pin', or that hold only an address, are named exceptions; see DATA-LICENSES.md.",
  "stops": {
   "stop-airmail": {
    "osm": {
@@ -11,11 +11,11 @@
   },
   "stop-alpine-chalets": {
    "osm": {
-    "lat": 36.6916477,
-    "lng": 137.8495495,
-    "ref": "operator My Maps pin (Alpine Chalet Hakuba / アルパイン シャレー 白馬)"
+    "lat": 36.69121,
+    "lng": 137.84947,
+    "ref": "osm:way/509704935 (Alpine Chalets Hakuba)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+   "source": "OpenStreetMap"
   },
   "stop-alpine-route-hotel-kanouya": {
    "osm": {
@@ -35,11 +35,11 @@
   },
   "stop-central-snowsports-happo": {
    "osm": {
-    "lat": 36.7012524,
-    "lng": 137.8383036,
-    "ref": "operator My Maps pin (Central SnowSports Happo / セントラルスノースポーツ八方前)"
+    "lat": 36.7017,
+    "lng": 137.8379,
+    "ref": "osm:node/5846809371 (Central Snowsports)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+   "source": "OpenStreetMap"
   },
   "stop-cook": {
    "osm": {
@@ -58,16 +58,20 @@
    "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-cultured": {
-   "address": "長野県北安曇郡白馬村北城828-11",
-   "source": "https://jcation.com/hotel/detail-7583/"
+   "osm": {
+    "lat": 36.68413,
+    "lng": 137.8474,
+    "ref": "osm:node/2701936141 (Hotel Cultured)"
+   },
+   "source": "OpenStreetMap"
   },
   "stop-double-black-hotel": {
    "osm": {
-    "lat": 36.7052467,
-    "lng": 137.8419023,
-    "ref": "operator My Maps pin (Double Black Hotel/ダブルブラックホテル)"
+    "lat": 36.70542,
+    "lng": 137.8422,
+    "ref": "osm:way/329615167 (Double Black)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+   "source": "OpenStreetMap"
   },
   "stop-echoland-spicy": {
    "osm": {
@@ -143,11 +147,11 @@
   },
   "stop-kai-alps-hotel": {
    "osm": {
-    "lat": 36.531404,
-    "lng": 137.8075675,
-    "ref": "operator My Maps pin (Kai Alps Hotel/界アルプスホテル)"
+    "lat": 36.53155,
+    "lng": 137.80767,
+    "ref": "osm:node/6421073785 (星野リゾート 界 アルプス)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+   "source": "OpenStreetMap"
   },
   "stop-keyakino-ki": {
    "osm": {
@@ -336,11 +340,11 @@
   },
   "stop-snowlines-lodge": {
    "osm": {
-    "lat": 36.6947129,
-    "lng": 137.8458624,
-    "ref": "operator My Maps pin (Snowlines Lodge / スノーラインズ ロッジ)"
+    "lat": 36.69489,
+    "lng": 137.84578,
+    "ref": "osm:node/2192075165 (Snow line lodge)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+   "source": "OpenStreetMap"
   },
   "stop-tateyama-prince": {
    "osm": {
@@ -441,11 +445,11 @@
   },
   "stop-jr-kamishiro-station": {
    "osm": {
-    "lat": 36.6578805,
-    "lng": 137.8467729,
-    "ref": "operator My Maps pin (JR Kamishiro Sta. / JR神城駅)"
+    "lat": 36.65788,
+    "lng": 137.84653,
+    "ref": "osm:node/10942947058 (神城 station)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "OpenStreetMap"
   },
   "stop-kanemaru": {
    "osm": {

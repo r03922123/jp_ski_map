@@ -5,6 +5,10 @@
 Accepted (2026-11-06). Replaces the labelling part of [ADR-0001](0001-follow-ups-1-2-3-5.md)
 Decision 1.
 
+2026-11-06: next step 1 partly done in [PR #17](https://github.com/r03922123/jp_ski_map/pull/17)
+(7 stops re-located from OpenStreetMap); [DATA-LICENSES.md](../../DATA-LICENSES.md) holds the
+current exception list.
+
 ## Date
 
 2026-11-06
