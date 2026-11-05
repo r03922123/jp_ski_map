@@ -5,8 +5,8 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 ## 2026-11-05 · tidy: PR #9 docs: close follow-ups 4, 6 and 10
 
 **1. Principle: keep one status record.**
-The SPECs have 89 unticked Acceptance Criteria boxes, while `tasks/todo.md` ticks each task as it
-lands. Two places for the same fact drift apart, which is how follow-up 10 came about. So SPEC.md
+The SPECs have 89 unticked checkboxes and 39 ticked ones, with no rule for when to tick, while
+`tasks/todo.md` ticks each task as it lands. Two places for the same fact drift apart, which is how follow-up 10 came about. So SPEC.md
 now says once that `tasks/todo.md` is the status record, and the boxes stay as the bar to meet.
 Ticking them all would only start a second copy that drifts again.
 *Analogy:* a house with two clocks always has one that's wrong; keep one and trust it.
