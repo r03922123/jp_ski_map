@@ -138,10 +138,10 @@ the observation is ours, but it needs someone at each stop in season; it is kept
 
 1. **PR 2:** move the other 26 Overture (Meta) stops, after PR #21 merges.
 2. **The lodging label:** build `data/lodging_overture.meta.json`'s licence from every record's
-   sources, and fix `ATTRIBUTION` and the docstring in
-   `services/api/src/hakuba_api/places/refresh_overture.py`, which write the old label. In the same
-   PR, link the licence texts from the app and the API docs (CDLA-P §2.1; Foursquare's NOTICE
-   recommends API docs).
+   sources, and fix the code that writes the old label: `ATTRIBUTION`, the `license` field and the
+   docstring in `services/api/src/hakuba_api/places/refresh_overture.py`. In the same PR, link the
+   licence texts from the app and the API docs (CDLA-P §2.1; Foursquare's NOTICE recommends API
+   docs).
 3. **The owner's permission requests for the 15:**
    - To the Hakuba Valley Promotion Board, for the 13 with no clean source: `stop-airmail`,
      `stop-courtyard-by-marriott-hakuba`, `stop-echoland-main-st`, `stop-goryu-hon-dorinishi`,
