@@ -2,6 +2,31 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · tidy: PR #11 docs: land the review fixes to ADR-0001
+
+**1. Principle: a PR merges the exact version that was checked, not whatever its branch holds later.**
+PR #10 was merged at the version that CI and the fresh review had checked. The review fixes were
+pushed 11 minutes later, so they missed it. PR #10 was already merged and closed, so nothing pushed
+afterwards could join it. GitHub had also deleted its branch, so the push created a new branch with
+the same name, and its output said so. Check that a PR is still open before pushing a fix to it.
+*Analogy:* the train leaves with the luggage that was on board; a bag thrown on afterwards needs the
+next train.
+
+**2. Trade-off: send the original fix, not a copy.**
+The fixes could have been copied onto a fresh branch. But git gives a copied change a new ID, so it
+can't tell that the original reached main. The old branch could then only be removed with a forced
+delete, the kind that can throw away work nobody merged. Reusing the old branch for this PR lands the
+original fix, so git's safe delete, which removes a branch only when all its work is on main, works
+after a normal merge. The cost: the branch's name says "follow-ups" for a fix-up.
+*Analogy:* forward the original letter rather than a photocopy, so the post office can match it to
+the receipt.
+
+**3. What could go wrong: copying a line number without counting.**
+The first review cited line 417 for the test that expects 7 sort options, and the owner and the
+author repeated it. The assertion is on 418; 417 is the line above it. Only the second review printed
+the line and counted. A line number is a fact like any other: print the line and look.
+*Analogy:* three people quoting the same wrong page number doesn't make it the right page.
+
 ## 2026-11-05 · tidy: PR #10 docs: record the decisions on follow-ups 1, 2, 3 and 5
 
 **1. Principle: a decision made in chat is lost; write it down next to the code.**
