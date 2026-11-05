@@ -181,7 +181,7 @@
       "dayTicketJpy": 9500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (checked 2026-11-06); dayTicketJpy: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (window ¥10,000 incl. ¥500 IC deposit; checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (checked 2026-11-06); dayTicketJpy: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (joint with Hakuba47; main period 12/16–3/14; window ¥10,000 incl. ¥500 IC deposit; checked 2026-11-06)"
   },
   {
     "id": "hakuba47",
@@ -224,7 +224,7 @@
       "dayTicketJpy": 9500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://hakuba47.co.jp/en/lift-tickets/ (window ¥10,000 incl. ¥500 IC deposit; checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://hakuba47.co.jp/en/lift-tickets/ (joint with Goryu; main period 12/15–3/10; window ¥10,000 incl. ¥500 IC deposit; checked 2026-11-06)"
   },
   {
     "id": "happo-one",
@@ -365,7 +365,7 @@
       "dayTicketJpy": 9800
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.tsugaike.gr.jp/snow/price (checked 2026-11-06); dayTicketJpy: https://www.tsugaike.gr.jp/snow/price (checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.tsugaike.gr.jp/snow/price (checked 2026-11-06); dayTicketJpy: https://www.tsugaike.gr.jp/snow/price (main period 12/12–3/22; checked 2026-11-06)"
   },
   {
     "id": "norikura",
@@ -408,7 +408,7 @@
       "dayTicketJpy": 6500
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://www.hakunori.com/ticket/?id=lift (joint Norikura and Cortina ticket; checked 2026-11-06)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://www.hakunori.com/ticket/?id=lift (joint with Cortina; main period 12/19–3/14; checked 2026-11-06)"
   },
   {
     "id": "cortina",
