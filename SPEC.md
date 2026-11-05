@@ -2,6 +2,8 @@
 
 > Root spec. Holds the approved capability map and everything shared across modules.
 > Each module has its own spec: `SPEC-<module-id>.md`. The map below is the index.
+> Build status lives in [tasks/todo.md](tasks/todo.md). The Acceptance Criteria boxes in the SPECs
+> are not ticked as work lands, so read them as the bar to meet, not as progress.
 
 ## Objective
 
