@@ -415,7 +415,9 @@ test.describe("ranked list · laptop 1440x900", () => {
     const sorts = await page
       .locator("#sort-by option")
       .evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value));
-    expect(sorts.length).toBe(7);
+    // ADR-0001 decision 2: price stays hidden until every resort has a 2026–27 price
+    expect(sorts).not.toContain("price");
+    expect(sorts.length).toBe(6);
     for (const sort of sorts) {
       if (sort !== "drive_time") {
         const fresh = page.waitForResponse(
