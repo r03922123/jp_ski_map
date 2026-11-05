@@ -36,8 +36,9 @@ nothing about the alarm.
 
 **1. Principle: a spec that disagrees with the code is worse than no spec.**
 `docs/ARCHITECTURE.md` listed places where the SPECs and the code disagree. Five of them had
-only one right answer, already fixed in the code: the public API runs on port 8011 (see
-`scripts/serve-public.sh`), `infra/docker-compose.yml` runs only Valhalla, `pois/` and `common/`
+only one right answer, already fixed in the code: in the public setup the API listens only on
+this computer, on port 8011 (see `scripts/serve-public.sh`; only the web app on `:3000` is
+public), `infra/docker-compose.yml` runs only Valhalla, `pois/` and `common/`
 exist, SPEC-deploy answered the hosting question, and place-search's first "Decision" was replaced
 by its own v1.2 and v1.3 sections. This PR writes those facts into the SPECs.
 *Analogy:* a map that shows a bridge that was torn down sends travellers into the river; a map with
