@@ -21,14 +21,16 @@ places; the pointer keeps that to one hop.
 *Analogy:* a court doesn't rewrite a law after a ruling; the law book gets a note "see the ruling
 of 6 November".
 
-**3. What could go wrong: two pages for one ticket, and notes that go stale.**
-Goryu and Hakuba47 sell the same joint ticket, but their pages give different early and spring
-dates (Goryu: early to 12/15, spring from 3/15; Hakuba47: before 15 Dec, after 10 Mar). The price
-is the same, so the value is safe, but a note copied from one page to the other would be wrong.
-So each note gives its own page's dates. A "plain" price is also a claim: if a resort adds a
-holiday rate next season, the autumn re-check has to apply rule 1, not just copy the number.
-*Analogy:* two companies print the timetable for one bus line, a few minutes apart; quote the one
-you read, and say which.
+**3. What could go wrong: a translated page, and a label that misleads.**
+Hakuba47's English page puts the window ticket's spring rate "after Mar 10", but its Japanese page
+says 3/15から, the same as Goryu's page for the same joint ticket (Mar 10 is the online ticket's
+date). The price is the same, so the value was safe, but the note worked out from the English
+named the wrong period. So the notes use the Japanese page. Labels can mislead the same way: a
+page may call a short year-end rate ハイシーズン, so rule 1 counts days instead of trusting the
+label. If a resort adds a holiday rate next season, the autumn re-check has to count, not just
+copy the number.
+*Analogy:* a restaurant's translated menu can drift from the kitchen's own; when they disagree,
+read the original.
 
 ## 2026-11-06 · tidy: PR #19 fix(data): define the day-ticket price and fill it for 9 resorts
 
