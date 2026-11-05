@@ -2,6 +2,32 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · tidy: PR #12 docs: make three crowd SPEC lines match the code
+
+**1. Principle: an example is a claim too, so make it by running the code, not by typing it.**
+SPEC-crowd-level's example said Happo-One on a Lunar New Year Saturday with 25 cm of powder scores
+0.78. That is "high" by the SPEC's own levels, yet its own acceptance test says such a day must be
+"very high". Three of the four reasons were words the code never prints ("Weekend", not
+"Saturday"). Running the code for the same day gives 0.95, very high, and the SPEC now shows that
+output, checked by comparing the two, not by eye. PR #10's reviewers found it.
+*Analogy:* the photo on a recipe should be of the dish the recipe makes, not a sketch from memory.
+
+**2. Trade-off: exact dates over a vague phrase.**
+The SPEC said "early December and late March" lower the score. That hid all of April, and nobody
+can test "late". "Mar 16–31" can be tested with two dates: the 15th isn't an edge and the 16th is.
+The cost: the dates now live in two places, the SPEC and `_is_season_edge` in the code, and the
+two can drift apart.
+*Analogy:* "open late" can never be wrong; "open until 9 pm" can, and that's what makes it useful.
+
+**3. What could go wrong: the SPEC and the code drift apart, and nothing notices.**
+These three lines were written 41 minutes before the code, and the code came out different. No
+test reads the SPEC, so they stayed wrong from that day until PR #10's reviewers read both side by
+side. The same could happen again if someone changes a date in `_is_season_edge`. The SPEC now
+names the two functions behind these lines (`_new_snow_for`, `_is_season_edge`), so a reader knows
+where the truth lives, and whoever edits those functions can search for their names and find the
+line to update.
+*Analogy:* a trail map that says "conditions change; ask at the hut" still tells you who to ask.
+
 ## 2026-11-05 · tidy: PR #11 docs: land the review fixes to ADR-0001
 
 **1. Principle: a PR merges the exact version that was checked, not whatever its branch holds later.**
