@@ -2,6 +2,38 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #18 fix(data): re-locate 3 more bus stops from OpenStreetMap
+
+**1. Principle: accept a weaker match only with a second fact behind it, and record how weak it is.**
+PR #17 left 6 stops whose OSM candidate matched only indirectly. Three have a second fact that
+backs the match. The 日向山高原 bus stop used to be named after the hotel (`old_name:en`
+"Holiday Inn Resort Kuroyon"), and it is 60 m from the pin. Pension "Meteor Garden" is a
+translation of 流星花園, 26 m away. The Yakushi-no-yu stop takes the nearer of two 薬師の湯
+buildings, and is marked `(approximate)` because the stop also serves くろべ路, which OSM lacks.
+That mark stays with the coordinate, so a later reader knows it is close, not exact.
+*Analogy:* a letter addressed to someone's maiden name is delivered when the street number matches
+too, and a note says so.
+
+**2. Trade-off: a little position risk for less licence risk, and only where a mistake is small.**
+For these 3, a wrong pick costs a few tens of metres of walking, because every candidate sits
+within 90 m of the old pin. Keeping the Google pin keeps a licence that is still unresolved. The
+other 3 ambiguous stops stay. Two parking stops would both land on one lot that OSM gives no
+number. The third is a camp site whose name isn't the stop's. There, a wrong pick could put a
+stop in the wrong place.
+*Analogy:* you guess between two doors of the same building, but not between two buildings.
+
+**3. What could go wrong: copies outside the data files.**
+Coordinates get copied into tests. The end-to-end tests use a saved API answer,
+`apps/web/e2e/fixtures/bus-options-2026-03-20.json`, that still holds 4 My Maps pins, including
+Snowlines Lodge's old pin that PR #17 took out of `bus_stops.json`. The first pass checked only
+that file, and the review found 3 more test files with exact copies. So a scan then compared every
+tracked file with every My Maps or GSI point any version of the data has held, allowing for
+rounding: 7 test files hold copies, all within 6 m of the original. The licence test counts only
+`bus_stops.json`, so it can't see them. DATA-LICENSES.md now names all 7 under the same
+exceptions. The copies go away only when someone swaps in made-up points, or regenerates the
+fixture with the API running. The lesson: search every file, not just the one you expect.
+*Analogy:* a shop recalls a product from its shelves; the boxes in the stockroom still need a label.
+
 ## 2026-11-06 · tidy: PR #17 fix(data): re-locate 7 bus stops from OpenStreetMap
 
 **1. Principle: move a stop only when the match is clear; a named gap beats a wrong pin.**
@@ -9,7 +41,9 @@ Of the 58 stops on borrowed coordinates, OpenStreetMap has 7 under a name that c
 and only those moved. Six others have a candidate that might be right, such as the parking lot
 `八方Ｐ` for "Happo Parking No. 3": OSM gives the lot no number, and a second stop 48 m away would
 match the same lot. Moving them would swap a pin whose licence is unclear for one whose place is
-unclear. They stay as they are, listed by name in DATA-LICENSES.md, for the owner to decide.
+unclear. They stay as they are, for the owner to decide. PR #17's description lists them by name;
+DATA-LICENSES.md covers them in the My Maps group, which it names by `coordSource` prefix, not
+stop by stop.
 *Analogy:* in a lost-and-found you return a wallet only when the name inside matches; "looks like
 yours" stays on the shelf with a label.
 
