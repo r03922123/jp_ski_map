@@ -16,9 +16,8 @@ the Hakuba Valley Promotion Board's Google My Maps, and 1 GSI address-search res
 CSIS, which wants a credit in the app). The board's site has a copyright line but no reuse terms.
 The owner will ask for permission only for the stops that no licence-clean source covers.
 
-On 2026-11-06 five searches looked for another source for each stop: a deeper OpenStreetMap
-search, open transit data, government address registries, Overture/Wikidata/GeoNames/Commons,
-and a licence review. Two independent reviews then re-checked the coordinates and the licences.
+On 2026-11-06 five searches looked for other sources (OpenStreetMap again, open transit data,
+address registries, Overture/Wikidata/GeoNames, licences), and two reviews re-checked them.
 
 **What the licences allow.** A source is clean when its terms let us put its points into an ODbL
 1.0 file with credit. This is a reading of licence text, not legal advice.
@@ -58,16 +57,14 @@ because the pin's licence is the problem being removed. The pin is then only a s
 
 `data/bus_stops.json` and `data/bus/stop_evidence.json` may take points from Overture Maps Places
 records that come from Meta or Microsoft (CDLA-Permissive-2.0) or from Foursquare (Apache-2.0).
-The files stay ODbL 1.0 as whole files ([ADR-0002](0002-data-files-odbl.md)). Each Overture row
-also keeps its own licence:
+The files stay ODbL 1.0 as whole files ([ADR-0002](0002-data-files-odbl.md)), and each Overture
+row also keeps its own licence: its `coordSource` starts with `overture:` and names the record id,
+release and licence; DATA-LICENSES.md credits Overture, repeats Overture's notice for Foursquare
+data and says how we changed the records; `LICENSES/` holds the licence texts and Foursquare's
+NOTICE.txt.
 
-- its `coordSource` starts with `overture:` and names the record id, the release and the licence;
-- DATA-LICENSES.md credits Overture, repeats Overture's notice for Foursquare data and says how we
-  changed the records;
-- `LICENSES/` holds the CDLA-Permissive-2.0 and Apache-2.0 texts and Foursquare's NOTICE.txt.
-
-`services/api/tests/test_data_licenses.py` fails if a stop names a source outside this list, or if
-DATA-LICENSES.md's counts drift from the data.
+`services/api/tests/test_data_licenses.py` fails if a stop's `coordSource` names a source no
+licence decision covers, or if DATA-LICENSES.md's counts drift from the data.
 
 ### 2. How a point is chosen
 
@@ -76,8 +73,8 @@ DATA-LICENSES.md's counts drift from the data.
 - **A stop that serves two hotels** takes the first-named hotel.
 - **The pin:** see the pin rule. A clean point more than 150 m from the old pin is rejected, and
   when two clean points disagree by more than 100 m, the record says so.
-- **Approximate:** a point that marks a lot, slope base, roundabout or hotel rather than the
-  boarding point gets `(approximate)` in `coordSource` and `"approx": true` in the evidence.
+- **Approximate:** a point that marks an area (a lot, a slope base, a roundabout) or a hotel whose
+  stop is elsewhere gets `(approximate)` in `coordSource` and `"approx": true` in the evidence.
 - **Address-registry points** may confirm an address but are never a value.
 
 ### 3. 33 stops move, in two PRs; 15 wait for permission
@@ -112,16 +109,9 @@ a needed source proves incompatible with ODbL, for example permission on non-ope
 These would add Airmail (20 m), Kanemaru (19 m) and Hakuba Inn Bloom's car park (121 m). Rejected
 while the MOJ terms keep their discretionary clause.
 
-### Ask Hakuba Valley about all 48 stops, or survey them with our own GPS
-
-Asking about all 48 is rejected, because 33 have a clean source. A survey is licence-clean, since
-the observation is ours, but it needs someone at each stop in season; it is kept as a next step.
-
 ## Consequences
 
 - **Fewer pins.** 33 stops stop depending on the My Maps pins; 15 remain, all named.
-- **More credits.** DATA-LICENSES.md credits Overture with each provider's licence, and the
-  repository gains `LICENSES/`.
 - **An old gap closes, partly.** `data/lodging_overture.json` already held Foursquare records (42
   of the 578 checked) under a CDLA-Permissive-2.0 label alone. DATA-LICENSES.md now names
   Apache-2.0 for them, but `data/lodging_overture.meta.json` still carries the old label.
@@ -130,7 +120,7 @@ the observation is ours, but it needs someone at each stop in season; it is kept
 - **Reusers' obligations.** ODbL for each file, plus the CDLA-P text for Meta rows and Apache-2.0
   with the NOTICE for Foursquare rows.
 - **Versions.** Overture publishes monthly, so each row names release 2026-10-21.0 and the record's
-  id, which stays the same across releases.
+  GERS id, which Overture aims to keep stable across releases, so a re-check can find it again.
 - **Status.** Follow-up 1 stays open until the 15 are settled, and the takeover phase doesn't
   change.
 
@@ -152,5 +142,6 @@ the observation is ours, but it needs someone at each stop in season; it is kept
      permission on ODbL-compatible terms.
    - To Hakuba Village, the feeds' publisher, for `stop-suisha-goya` and `stop-shirouma-pal-house`:
      a waiver of CC BY §2(a)(5)(B) like the OSMF's form, and how the pick-up points were placed.
-4. **If refused:** survey those stops on site, or set their `coord` to `null`.
+4. **If refused:** survey those stops on site with our own GPS (licence-clean, but it needs
+   someone at each stop in season), or set their `coord` to `null`.
 5. **Each Overture release:** re-check the moved rows and the 15.
