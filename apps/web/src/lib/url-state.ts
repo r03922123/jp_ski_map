@@ -32,6 +32,11 @@ export type ViewState = {
   stops: Coord[];
 };
 
+/**
+ * The sorts the web offers. `price` is hidden until every resort has a
+ * 2026–27 day-ticket price (ADR-0001 decision 2): with gaps, unknown prices
+ * sort last and the list would rank them wrongly. The API still accepts it.
+ */
 export const SORT_KEYS: readonly SortKey[] = [
   "drive_time",
   "fresh_snow",
@@ -39,7 +44,6 @@ export const SORT_KEYS: readonly SortKey[] = [
   "crowd",
   "terrain_size",
   "vertical",
-  "price",
 ];
 
 export const DEFAULT_RANK: RankOptions = {
