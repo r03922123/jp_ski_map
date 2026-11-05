@@ -2,6 +2,34 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #19 fix(data): define the day-ticket price and fill it for 9 resorts
+
+**1. Principle: define a number before you collect it.**
+PR #15 found 9 prices but couldn't use them, because each resort means something different by
+"1-day ticket". Goryu shows ¥10,000, which includes a ¥500 card deposit you get back; Happo-One
+shows ¥9,800 with no deposit. Sorted as printed, Goryu looks dearer, but a day there costs ¥9,500.
+ADR-0003 now fixes one meaning (adult, main season, ticket window, no deposit), and every value in
+`data/resorts.json` says in `statsSource` where it came from and how it was read.
+*Analogy:* comparing drink prices when one shop's label includes the bottle deposit and the next
+one's doesn't: you have to take the deposit off first.
+
+**2. Trade-off: the price everyone posts, not the price most people pay.**
+Many skiers buy online, and online is often cheaper (Sanosaka ¥5,300 against ¥5,700 at the
+window). But not every resort posts an online price, and some post two (new card and recharge).
+The window price is on every resort's page, so it is the one that compares all 10. The cost: the
+card shows a little more than an online buyer pays.
+*Analogy:* a train's full fare: few people pay exactly that, but every line posts one, so you can
+compare lines with it.
+
+**3. What could go wrong: a ranking with a gap, and numbers that go stale.**
+Cortina's own site is down, so its price stays `null`. The cards can show 9 prices and a "—",
+because a card describes one resort. A sort is different: it compares all 10, and `rank.py:106`
+puts unknowns last, so Cortina would look like the dearest. That is why the price sort stays
+hidden. Prices also change every season, so each value carries "checked 2026-11-06", and Iwatake's
+comes from its early-bird news, because its price page still shows last season.
+*Analogy:* a league table with one team's score missing: putting them at the bottom says they
+lost, when the truth is that nobody knows yet.
+
 ## 2026-11-06 · tidy: PR #18 fix(data): re-locate 3 more bus stops from OpenStreetMap
 
 **1. Principle: accept a weaker match only with a second fact behind it, and record how weak it is.**
