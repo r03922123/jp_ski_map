@@ -38,8 +38,8 @@
    "ja": "アルパインシャレー白馬"
   },
   "coord": {
-   "lat": 36.6916477,
-   "lng": 137.8495495
+   "lat": 36.69121,
+   "lng": 137.84947
   },
   "servesResortId": null,
   "aliases": [
@@ -48,7 +48,7 @@
    "Alpine Chalets",
    "Alpine Chalets Hakuba"
   ],
-  "coordSource": "operator My Maps pin (Alpine Chalet Hakuba / アルパイン シャレー 白馬) — https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  "coordSource": "osm:way/509704935 (Alpine Chalets Hakuba) — OpenStreetMap"
  },
  {
   "id": "stop-alpine-route-hotel-kanouya",
@@ -106,14 +106,14 @@
    "ja": null
   },
   "coord": {
-   "lat": 36.7012524,
-   "lng": 137.8383036
+   "lat": 36.7017,
+   "lng": 137.8379
   },
   "servesResortId": null,
   "aliases": [
    "Central Snowsports Happo"
   ],
-  "coordSource": "operator My Maps pin (Central SnowSports Happo / セントラルスノースポーツ八方前) — https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+  "coordSource": "osm:node/5846809371 (Central Snowsports) — OpenStreetMap"
  },
  {
   "id": "stop-cook",
@@ -172,14 +172,14 @@
    "ja": "カルチャード"
   },
   "coord": {
-   "lat": 36.684853,
-   "lng": 137.849426
+   "lat": 36.68413,
+   "lng": 137.8474
   },
   "servesResortId": null,
   "aliases": [
    "Cultured"
   ],
-  "coordSource": "gsi:長野県北安曇郡白馬村北城828-11 (lot-level, approximate) — https://jcation.com/hotel/detail-7583/"
+  "coordSource": "osm:node/2701936141 (Hotel Cultured) — OpenStreetMap"
  },
  {
   "id": "stop-double-black-hotel",
@@ -188,14 +188,14 @@
    "ja": null
   },
   "coord": {
-   "lat": 36.7052467,
-   "lng": 137.8419023
+   "lat": 36.70542,
+   "lng": 137.8422
   },
   "servesResortId": null,
   "aliases": [
    "Double Black Hotel"
   ],
-  "coordSource": "operator My Maps pin (Double Black Hotel/ダブルブラックホテル) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+  "coordSource": "osm:way/329615167 (Double Black) — OpenStreetMap"
  },
  {
   "id": "stop-echoland-main-st",
@@ -660,14 +660,14 @@
    "ja": "JR神城駅"
   },
   "coord": {
-   "lat": 36.6578805,
-   "lng": 137.8467729
+   "lat": 36.65788,
+   "lng": 137.84653
   },
   "servesResortId": null,
   "aliases": [
    "JR Kamishiro Station"
   ],
-  "coordSource": "operator My Maps pin (JR Kamishiro Sta. / JR神城駅) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "osm:node/10942947058 (神城 station) — OpenStreetMap"
  },
  {
   "id": "stop-jr-minami-otari",
@@ -721,14 +721,14 @@
    "ja": "界アルプスホテル"
   },
   "coord": {
-   "lat": 36.531404,
-   "lng": 137.8075675
+   "lat": 36.53155,
+   "lng": 137.80767
   },
   "servesResortId": null,
   "aliases": [
    "Kai Alps Hotel"
   ],
-  "coordSource": "operator My Maps pin (Kai Alps Hotel/界アルプスホテル) — https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  "coordSource": "osm:node/6421073785 (星野リゾート 界 アルプス) — OpenStreetMap"
  },
  {
   "id": "stop-kamishiro-hakubanomori-ent",
@@ -1418,14 +1418,14 @@
    "ja": "スノーラインズロッジ"
   },
   "coord": {
-   "lat": 36.6947129,
-   "lng": 137.8458624
+   "lat": 36.69489,
+   "lng": 137.84578
   },
   "servesResortId": null,
   "aliases": [
    "Snowlines Lodge"
   ],
-  "coordSource": "operator My Maps pin (Snowlines Lodge / スノーラインズ ロッジ) — https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  "coordSource": "osm:node/2192075165 (Snow line lodge) — OpenStreetMap"
  },
  {
   "id": "stop-spicy-rental-wadano",
