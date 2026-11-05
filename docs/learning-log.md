@@ -8,26 +8,29 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 ADR-0001 counted 27 OpenStreetMap stops by reading each stop's `coordSource` label. 13 more said
 "access-point", which looked like our own data, but their coordinates were copied from
 `data/resorts.json`, and that file says `osm:way` for every one. Following the copies gave 40, not
-27. The same happened with "GSI": the endpoint was GSI's, but GSI's own FAQ says its address answers
-come from CSIS Simple Geocoding, a third party with its own terms.
+27. The same happened with "GSI": the endpoint was GSI's, but GSI's own 2015 answer on its tracker
+says its address answers come from CSIS Simple Geocoding, a third party with its own terms.
 *Analogy:* a jar labelled "homemade jam" that was refilled from a shop jar; the label says who
 filled it, not who made it.
 
 **2. Trade-off: label the whole file, not the rows.**
-The OSMF's test for keeping OSM data separate looks at columns, not rows: OSM and other data count
-as independent only if each kind of data is all OSM or all non-OSM. Our `coord` column mixes them,
-so labelling 27 rows is too little if the OSM part is "substantial", and two OSMF guidelines
-disagree on whether it is. A whole-file label holds under both readings. The cost: it also covers
-our hand-compiled facts, such as resort stats and stop names, so anyone reusing those must share
-alike too; and the label is only true because it names two exceptions.
+The OSMF's safe harbour for keeping OSM data apart from other data looks at each kind of data
+across a whole region: it applies when that kind is all OSM or all non-OSM. The `coord` field in
+`bus_stops.json` mixes the two, so the safe harbour doesn't apply, and if the OSM part is
+"substantial", share-alike reaches the whole file. Whether it is depends on which OSMF guideline
+covers our hand-picked points, and that's unclear. A whole-file label is safe either way.
+`resorts.json`, whose coordinates are all OSM, gets the same label by choice, so one rule covers all
+three files. The cost: our hand-compiled facts, such as resort stats and stop names, are now
+share-alike for anyone who reuses them.
 *Analogy:* one share-alike ingredient in a sauce; you can't label the spoonfuls, so you label the pot.
 
-**3. What could go wrong: exceptions that never end.**
-The label is true today only because it says 56 My Maps pins and 2 GSI stops are not covered. If
-step 2 stalls, those exceptions become permanent, and the Google-terms risk stays in a public
-repository. No test checks this. The guard is the process: follow-up 1 stays open, so the takeover
-can't leave "tidy" until step 2 removes both exceptions.
-*Analogy:* a "temporary" detour sign; it stays honest only while someone is building the road.
+**3. What could go wrong: a named gap is still a gap.**
+ODbL has no way to except rows from a file it covers: content that is incompatible with it must
+leave the file (§4.4.a, §4.4.d). So naming the 56 My Maps pins and 2 GSI stops tells readers where
+the gap is; it doesn't close it. If step 2 stalls, the gap stays in a public repository, and no
+test notices. The guard is the process: follow-up 1 stays open, so the takeover can't leave "tidy"
+until step 2 removes both groups.
+*Analogy:* a "bridge out" sign warns drivers, but only rebuilding the bridge reopens the road.
 
 ## 2026-11-05 · tidy: PR #13 fix(crowd): name every non-zero resort prior in reasons
 

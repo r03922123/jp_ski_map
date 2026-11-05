@@ -197,14 +197,19 @@ source of truth.
 
 > **Open licensing risk: bus-stop coordinates.** [ADR-0002](adr/0002-data-files-odbl.md) labels
 > `data/bus_stops.json`, `data/resorts.json` and `data/bus/stop_evidence.json` ODbL as whole
-> files, because one coordinate field mixes OpenStreetMap values with values from elsewhere. Two
-> groups of stops are named exceptions, and they are the risk that remains in this public
-> repository:
+> files. In the stops and the stop evidence, one coordinate field mixes OpenStreetMap values with
+> values from elsewhere, so share-alike can reach the whole file
+> ([ODbL](https://opendatacommons.org/licenses/odbl/1-0/) §4.4.a, §4.4.b); `resorts.json`, whose
+> coordinates are all from OpenStreetMap, gets the same label by choice. Two groups of stops are
+> named but not covered, and they are the risk that remains in this public repository:
 > - **The operator's Google My Maps pins** (56 stops, `bus/import_mymaps.py`): coordinates copied
->   out of Google Maps content may not be allowed under Google's terms.
+>   out of Google Maps content. Whether Google's terms allow that is unresolved
+>   ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md) Decision 1).
 > - **GSI address search** (2 stops, `bus/locate_stops.py`, Japan's Geospatial Information
->   Authority): GSI answers address queries with CSIS Simple Geocoding, whose terms ask for a
->   credit in the app.
+>   Authority): GSI answers address queries with CSIS Simple Geocoding
+>   ([gsimaps#29](https://github.com/gsi-cyberjapan/gsimaps/issues/29), 2015), whose
+>   [terms](https://geocode.csis.u-tokyo.ac.jp/home/simple-geocoding/simple-geocoding-tems-of-use/)
+>   ask for a credit on maps and in apps (第4条(1), (4)).
 >
 > ADR-0001 step 2 re-locates both groups from OpenStreetMap (follow-up 1).
 
