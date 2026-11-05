@@ -2,6 +2,38 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #17 fix(data): re-locate 7 bus stops from OpenStreetMap
+
+**1. Principle: move a stop only when the match is clear; a named gap beats a wrong pin.**
+Of the 58 stops on borrowed coordinates, OpenStreetMap has 7 under a name that clearly matches,
+and only those moved. Six others have a candidate that might be right, such as the parking lot
+`八方Ｐ` for "Happo Parking No. 3": OSM gives the lot no number, and a second stop 48 m away would
+match the same lot. Moving them would swap a pin whose licence is unclear for one whose place is
+unclear. They stay as they are, listed by name in DATA-LICENSES.md, for the owner to decide.
+*Analogy:* in a lost-and-found you return a wallet only when the name inside matches; "looks like
+yours" stays on the shelf with a label.
+
+**2. Trade-off: a 200 m distance check instead of the stop locator's drive-time check.**
+`locate_stops` normally checks each new point against the timetable by asking the router how long
+a car takes between stops (`bus/locate_stops.py:117-127`). The router isn't running in this
+session, and starting it isn't allowed, so this PR checks something simpler: each stop moved 200 m
+or less from where it was. Six moved 62 m or less. Cultured moved 198 m, because its old point was
+an approximate street-address lookup and OSM has the hotel itself. The cost: a mistake under 200 m
+isn't caught. The drive-time check, which allows 1.5× the bus time plus 3 minutes, would rarely
+catch one that small anyway.
+*Analogy:* without a scale, you check that the parcel still fits in the same box. That catches a
+wrong parcel, not a few grams.
+
+**3. What could go wrong: the licence page and the data drift apart.**
+DATA-LICENSES.md says how many stops are not covered by the licence. Before this PR nothing
+checked that number, so moving 7 stops could have left "56" on the page. The new
+`tests/test_data_licenses.py` counts the two kinds of borrowed coordinate in `bus_stops.json` and
+fails when the page's two bullets say something else. It failed on this branch (56 vs 50, 2 vs 1)
+until the docs were updated. It checks only those two numbers; the OSM counts in the same paragraph
+and in ARCHITECTURE.md are still kept by hand.
+*Analogy:* smoke alarms in two rooms of a house: those rooms are watched, and the others still
+need someone to look.
+
 ## 2026-11-06 · tidy: PR #16 fix(web): reword the night-skiing note, test the hidden price sort
 
 **1. Principle: a message should state the rule, not today's data.**
