@@ -17,7 +17,7 @@ Estimate how crowded each resort will be on a given date. v1 is an **explainable
 ## Heuristic v1 (pure function, every weight in one config dict)
 score = clamp(0..1) of the weighted sum of:
 - **Day type:** Japanese public holiday or holiday-bridge day (`holidays` package, JP) > Saturday > Sunday > weekday.
-- **Peak periods** (a configurable date-range table in `data/crowd_periods.json`): New Year (Dec 28–Jan 4), Australian summer school holidays (≈ mid-Dec → late Jan), Lunar New Year week. February 3-day weekends are not in this table: they come from the `holidays` calendar, which turns any run of 3 or more weekend and holiday days, in any month, into a "3-day weekend" day type (`crowd/heuristic.py` `_off_run`, `_day_type`).
+- **Peak periods** (a configurable date-range table in `data/crowd_periods.json`): New Year (Dec 28–Jan 4), Australian summer school holidays (≈ mid-Dec → late Jan), Lunar New Year week. February 3-day weekends are not in this table: they come from the day-type rule in `crowd/heuristic.py` (`_off_run`, `_day_type`), which treats any run of 3 or more weekend and `holidays`-calendar days, in any month, as a "3-day weekend".
 - **Powder effect:** new snow in the past 24 h ≥ 20 cm raises the score (from snow-conditions).
 - **Resort draw:** a size/popularity prior (lifts, Happo/Tsugaike/47 high, Jigatake/Sanosaka low), plus proximity to Echoland/Happo lodging.
 - **Season edges:** early December and late March lower the score.

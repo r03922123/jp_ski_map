@@ -61,18 +61,18 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
   both weigh 0.30 in `CrowdConfig`. February 3-day weekends come from the holiday calendar, not
   from `data/crowd_periods.json` as the SPEC said (fixed in
   [PR #9](https://github.com/r03922123/jp_ski_map/pull/9)).
-- **snow-conditions.** `source: "reported"` exists only as a type value. Nothing parses the
-  resort-reported snow page, so every depth is modelled. (The SPEC now marks it not built:
-  [PR #9](https://github.com/r03922123/jp_ski_map/pull/9).)
-- **place-search.** The "Decision" at the top of the SPEC (Photon first, no lodging list) was
-  replaced by the v1.2 local index and the v1.3 Overture lodging snapshot lower in the same file.
-  (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6))
-- **deploy.** The SPEC-deploy diagram and its "one public port" bullet put the API on `:8010`;
-  `scripts/serve-public.sh` uses `:8011`, and so does the spec's own later bullet. (fixed in
-  [PR #6](https://github.com/r03922123/jp_ski_map/pull/6))
-- **SPEC.md.** Its layout says `infra/docker-compose.yml` also runs `api` and `web`; it runs only
-  `valhalla`. The package list misses `pois/` and `common/`. The "hosting target" open question
-  was answered by SPEC-deploy. (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6))
+- **snow-conditions** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): the
+  SPEC now marks it not built). `source: "reported"` exists only as a type value. Nothing parses
+  the resort-reported snow page, so every depth is modelled.
+- **place-search** (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6)). The
+  "Decision" at the top of the SPEC (Photon first, no lodging list) was replaced by the v1.2 local
+  index and the v1.3 Overture lodging snapshot lower in the same file.
+- **deploy** (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6)). The SPEC-deploy
+  diagram and its "one public port" bullet put the API on `:8010`; `scripts/serve-public.sh` uses
+  `:8011`, and so does the spec's own later bullet.
+- **SPEC.md** (fixed in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6)). Its layout says
+  `infra/docker-compose.yml` also runs `api` and `web`; it runs only `valhalla`. The package list
+  misses `pois/` and `common/`. The "hosting target" open question was answered by SPEC-deploy.
 
 ## 3. System diagram
 

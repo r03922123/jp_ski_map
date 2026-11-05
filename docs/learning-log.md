@@ -6,9 +6,10 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 
 **1. Principle: keep one status record.**
 The SPECs have 89 unticked checkboxes and 39 ticked ones, with no rule for when to tick, while
-`tasks/todo.md` ticks each task as it lands. Two places for the same fact drift apart, which is how follow-up 10 came about. So SPEC.md
-now says once that `tasks/todo.md` is the status record, and the boxes stay as the bar to meet.
-Ticking them all would only start a second copy that drifts again.
+`tasks/todo.md` ticks each task as it lands. Two places for the same fact drift apart, which is
+how follow-up 10 came about. So SPEC.md now says once that `tasks/todo.md` is the status record,
+and the boxes stay as the bar to meet. Ticking them all would only start a second copy that
+drifts again.
 *Analogy:* a house with two clocks always has one that's wrong; keep one and trust it.
 
 **2. Trade-off: label the empty slot instead of removing it.**
@@ -20,10 +21,12 @@ reader thinks it works, so SPEC-snow-conditions now says "not built yet" and poi
 repainting it later.
 
 **3. What could go wrong: writing what the SPEC should say without reading the code.**
-Follow-up 4 was checked in two places: `data/crowd_periods.json` has no February entries, and
-`crowd/heuristic.py` (`_off_run`, `_day_type`) gives the "3-day weekend" weight to any run of 3 or
-more weekend and holiday days. That second read showed the rule covers every month, not only
-February, so the SPEC now says that too.
+Follow-up 4 was checked in two places: `data/crowd_periods.json` has no 3-day-weekend entries
+(its only February rows are the Lunar New Year weeks), and `crowd/heuristic.py` (`_off_run`,
+`_day_type`) gives the "3-day weekend" weight to any run of 3 or more weekend and holiday days.
+That second read showed the rule covers every month, not only February, so the SPEC now says that
+too. Even so, the first draft of this entry said the file had "no February entries", which is
+false; the fresh reviewer caught it. Checking once isn't enough when the sentence is rewritten.
 *Analogy:* check a map against the road, not against another map.
 
 ## 2026-11-05 · PR #8: docs: fix three stale lines
