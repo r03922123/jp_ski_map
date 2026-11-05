@@ -55,3 +55,5 @@ No summit coordinate: snow-conditions queries Open-Meteo at the primary access p
 
 ## Open Questions
 - Which stats can be found reliably for the small resorts (Jigatake, Sanosaka)? Missing values are left `null`. The ranking module must handle `null`.
+- Do Hakuba47, Happo-One, Iwatake, Norikura and Cortina run night skiing in 2026–27? Their own pages don't say yet, so `nightSkiing` stays `null` and the night-skiing filter leaves them out. Re-check in December ([follow-up 2](docs/ARCHITECTURE.md#follow-ups)).
+- What does `dayTicketJpy` mean? The 2026–27 prices the resorts publish use different bases: some include a refundable card deposit, some charge it on top, and some change by season. Until one meaning is agreed (deposit in or out, which season), it stays `null` for all 10 and the web hides the price sort. [PR #15](https://github.com/r03922123/jp_ski_map/pull/15) lists the 9 prices found.
