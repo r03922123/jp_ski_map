@@ -2,6 +2,35 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · PR #4: fix(places): check the Photon response at the door
+
+**1. Principle: the same door check, now for place search.**
+Photon is the free geocoder behind the search box. Its answer used to go straight into
+`to_place`, so a page of HTML, a missing `"features"` key or a point with one coordinate crashed
+`/api/places/search` with a 500. Now `places/photon.py` checks the answer with small Pydantic
+models where it arrives. A bad answer becomes an `UpstreamError`, like an outage: search says
+"upstream unavailable" (502), and the suggest box keeps showing its own local hits.
+*Analogy:* the second restaurant in the chain gets the same back-door checklist as the first.
+
+**2. Trade-off: build the places from the checked models, not the original dicts.**
+PR #3 checked the answer but passed the original dicts on, so its check had to be strict to be
+safe. Here the places are built from the checked models, so what was checked is exactly what is
+used. The models are still strict: the text `"137.86"`, `true` or `Infinity` as a coordinate is
+refused, not converted, because a geocoder that sends those is broken and a guess would put a
+hotel in the wrong place. Whole numbers like `138` still pass. The cost is a little more code:
+four small models instead of reading keys straight from the dict.
+*Analogy:* the clerk repacks the delivery into the kitchen's own labelled boxes, so the cook never
+touches the supplier's crate.
+
+**3. What could go wrong: a check stricter than the service, or a failure that sticks.**
+If a model demanded a field Photon sometimes leaves out, normal searches would turn into 502s. So
+only `properties` and `geometry` are required, and every property we read is optional, as before.
+The recorded Photon answers in the tests guard this. The other trap is the cache: answers are kept
+for 24 hours, so a cached failure would break that search for a day. The check runs before
+anything is stored, and a test asks the same question twice to prove the second try reaches Photon.
+*Analogy:* if one bad delivery is refused, the next morning's delivery should still be let in;
+nobody writes "never buy fish again" on the door.
+
 ## 2026-11-05 · fix(snow): check the Open-Meteo response at the door
 
 **1. Principle: check what a stranger hands you at the door, not deep inside the house.**
