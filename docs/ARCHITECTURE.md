@@ -238,6 +238,13 @@ Each item is small enough for its own PR. None is fixed by this page.
    hiding the price sort ✅ done in [PR #15](https://github.com/r03922123/jp_ski_map/pull/15): only
    9 resorts publish a 2026–27 price on their own site, and on different bases. `nightSkiing` for
    Hakuba47, Happo-One, Iwatake, Norikura and Cortina is still open: their own pages don't say yet.
+   Re-check them in December, with Kashimayari, whose `false` is read from its lift hours. The
+   price sort comes back once `dayTicketJpy` has one agreed meaning (deposit in or out, which
+   season) and all 10 resorts have a 2026–27 value; PR #15 lists the 9 prices found. Also open,
+   outside PR #15's files: `apps/web/src/components/DrivePanel.tsx:42` still says the night-skiing
+   filter matches nothing (it now matches 3), `README.md:8` still lists price as a Drive sort,
+   `SPEC-resort-catalog.md` doesn't list the 5 unknowns under Open Questions, and no unit test in
+   `apps/web/tests/url-state.test.ts` checks that `?sort=price` falls back to drive time.
 3. **Crowd: holiday vs Saturday.** Make the code match SPEC-crowd-level (holiday > Saturday), or
    change the SPEC. ✅ Done in [PR #10](https://github.com/r03922123/jp_ski_map/pull/10): the SPEC
    now says holiday = Saturday ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md)); no code change.

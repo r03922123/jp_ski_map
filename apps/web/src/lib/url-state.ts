@@ -33,9 +33,11 @@ export type ViewState = {
 };
 
 /**
- * The sorts the web offers. `price` is hidden until every resort has a
- * 2026–27 day-ticket price (ADR-0001 decision 2): with gaps, unknown prices
- * sort last and the list would rank them wrongly. The API still accepts it.
+ * The sorts the web offers. `price` is hidden: ADR-0001 decision 2 hides it
+ * while 2026–27 prices aren't published, and PR #15 applies that to the
+ * partial case, so it stays hidden until every resort has a comparable
+ * 2026–27 day-ticket price. With gaps, unknown prices sort last and the list
+ * would rank them wrongly. The API still accepts it.
  */
 export const SORT_KEYS: readonly SortKey[] = [
   "drive_time",
