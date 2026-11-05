@@ -2,6 +2,30 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · tidy: PR #11 docs(adr): land the review fixes to ADR-0001
+
+**1. Principle: a PR merges one exact commit, not "the branch".**
+PR #10 was merged at `26ba803`, the commit CI and the reviewer had approved. The review fixes were
+pushed 11 minutes later, so they missed it. GitHub had already deleted the merged branch, and the
+push said `* [new branch]`: the sign that it was starting over, not updating PR #10. Check the PR's
+state before pushing a fix to it.
+*Analogy:* the train leaves with the luggage that was on board; a bag thrown on afterwards needs the
+next train.
+
+**2. Trade-off: reuse the branch instead of copying the commit.**
+A new branch with a cherry-picked copy would give the fixes a new commit ID. Git then can't tell the
+work reached main, so the safe `git branch -d` refuses and only the forced `-D` deletes the branch.
+Reusing `docs/adr-001-follow-ups` lands the original commit, so `-d` still works. The cost is a branch
+name that says "follow-ups" for a fix-up.
+*Analogy:* forward the original letter rather than a photocopy, so the post office can match it to
+the receipt.
+
+**3. What could go wrong: copying a line number without counting.**
+The first review cited line 417 for the test that expects 7 sort options, and the owner and the
+author repeated it. The assertion is on 418; 417 is the line above it. Only the second review printed
+the line and counted. A line number is a fact like any other: print the line and look.
+*Analogy:* three people quoting the same wrong page number doesn't make it the right page.
+
 ## 2026-11-05 · tidy: PR #10 docs: record the decisions on follow-ups 1, 2, 3 and 5
 
 **1. Principle: a decision made in chat is lost; write it down next to the code.**

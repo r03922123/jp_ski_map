@@ -80,7 +80,7 @@ ARCHITECTURE.md, and to `services/api/` for the api tests.
 ### 2. Hide both controls until there's data
 
 - A web change in `SortControls.tsx` and `lib/url-state.ts`, plus the tests that count or set the
-  two controls, such as `apps/web/e2e/journeys/destination-route.spec.ts:417` (7 sort options). It
+  two controls, such as `apps/web/e2e/journeys/destination-route.spec.ts:418` (7 sort options). It
   also hides night skiing, which is cheap to fill.
 
 ### 3. Raise the holiday weight above Saturday
@@ -112,5 +112,5 @@ Each is its own PR.
    `coordSource`.
 3. **Follow-up 2:** fill `nightSkiing` for all 10 resorts, with a source for each. Check whether
    2026–27 day-ticket prices are published: fill `dayTicketJpy` if they are, hide the price sort if not.
-   Hiding it breaks `apps/web/e2e/journeys/destination-route.spec.ts:417`, which expects 7 sort
+   Hiding it breaks `apps/web/e2e/journeys/destination-route.spec.ts:418`, which expects 7 sort
    options, so that PR updates the test too.
