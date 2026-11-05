@@ -2,6 +2,34 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · PR #5: refactor(snow): hand on the checked data, not the original
+
+**1. Principle: what was checked should be exactly what gets used.**
+PR #3 checked Open-Meteo's answer but passed the original dicts on, so the snow math still read
+raw data that only happened to match the check. Now `fetch_hourly` returns `HourlySeries`, the
+typed series `snow/compute.py` already did its math on, built from the checked models by a small
+`parse_hourly` function. Nothing unchecked can reach the math, and the type checker can see it.
+*Analogy:* PR #3's clerk ticked the checklist and passed the supplier's crate on; now the clerk
+unpacks into the kitchen's own labelled boxes, so the cook only ever opens boxes that were checked.
+
+**2. Trade-off: return the kitchen's own type, not the checking models.**
+`fetch_hourly` could have returned the Pydantic models themselves. That would teach the math
+module Open-Meteo's names, like `temperature_2m`, and a renamed field upstream would ripple into
+it. Returning `HourlySeries` keeps all of Open-Meteo's spelling in one file, `snow/openmeteo.py`.
+The cost: the parsing moved out of `compute.py`, so two tests that fed it dicts now go through
+`parse_hourly`, and `openmeteo.py` now imports from `compute.py`.
+*Analogy:* a translator hands the team a document in the team's language, not the original with
+sticky notes; if the supplier changes its wording, only the translator has to learn it.
+
+**3. What could go wrong: a refactor that quietly changes the answers.**
+A change like this should be invisible to users, and "the tests pass" is weaker proof than it
+sounds. So the `/api/snow` answer and the snow that `/api/rank` uses were recorded from the
+same January week before the change and compared after it: identical, byte for byte. The tests
+also moved from swapping out `httpx.get` by hand to `respx`, like the rest of the suite, and a
+new case checks that whole numbers such as `2` still pass the strict check.
+*Analogy:* after renovating the kitchen, cook the same recipe and compare the plate to a photo
+from before, instead of just checking that the oven turns on.
+
 ## 2026-11-05 · PR #4: fix(places): check the Photon response at the door
 
 **1. Principle: the same door check, now for place search.**
@@ -31,7 +59,7 @@ anything is stored, and a test asks the same question twice to prove the second 
 *Analogy:* if one bad delivery is refused, the next morning's delivery should still be let in;
 nobody writes "never buy fish again" on the door.
 
-## 2026-11-05 · fix(snow): check the Open-Meteo response at the door
+## 2026-11-05 · PR #3: fix(snow): check the Open-Meteo response at the door
 
 **1. Principle: check what a stranger hands you at the door, not deep inside the house.**
 Open-Meteo is a free service we don't control. Before, its answer went straight to the snow math,
