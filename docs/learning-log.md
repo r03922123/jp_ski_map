@@ -2,6 +2,36 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #14 docs: ADR-0002, whole-file ODbL for stop and resort data
+
+**1. Principle: follow a value back to where it was first copied from.**
+ADR-0001 counted 27 OpenStreetMap stops by reading each stop's `coordSource` label. 13 more said
+"access-point", which looked like our own data, but their coordinates were copied from
+`data/resorts.json`, and that file says `osm:way` for every one. Following the copies gave 40, not
+27. The same happened with "GSI": the endpoint was GSI's, but GSI's own 2015 answer on its tracker
+says its address answers come from CSIS Simple Geocoding, a third party with its own terms.
+*Analogy:* a jar labelled "homemade jam" that was refilled from a shop jar; the label says who
+filled it, not who made it.
+
+**2. Trade-off: label the whole file, not the rows.**
+The OSMF's safe harbour for keeping OSM data apart from other data looks at each kind of data
+across a whole region: it applies when that kind is all OSM or all non-OSM. The `coord` field in
+`bus_stops.json` mixes the two, so the safe harbour doesn't apply, and if the OSM part is
+"substantial", share-alike reaches the whole file. Whether it is depends on which OSMF guideline
+covers our hand-picked points, and that's unclear. A whole-file label is safe either way.
+`resorts.json`, whose coordinates are all OSM, gets the same label by choice, so one rule covers all
+three files. The cost: our hand-compiled facts, such as resort stats and stop names, are now
+share-alike for anyone who reuses them.
+*Analogy:* one share-alike ingredient in a sauce; you can't label the spoonfuls, so you label the pot.
+
+**3. What could go wrong: a named gap is still a gap.**
+ODbL has no way to except rows from a file it covers: content that is incompatible with it must
+leave the file (§4.4.a, §4.4.d). So naming the 56 My Maps pins and 2 GSI stops tells readers where
+the gap is; it doesn't close it. If step 2 stalls, the gap stays in a public repository, and no
+test notices. The guard is the process: follow-up 1 stays open, so the takeover can't leave "tidy"
+until step 2 removes both groups.
+*Analogy:* a "bridge out" sign warns drivers, but only rebuilding the bridge reopens the road.
+
 ## 2026-11-05 · tidy: PR #13 fix(crowd): name every non-zero resort prior in reasons
 
 **1. Principle: an explanation with a missing term looks arbitrary.**
