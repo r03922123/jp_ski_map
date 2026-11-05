@@ -22,4 +22,6 @@ The code in this repository is MIT-licensed (see [LICENSE](LICENSE)). The data b
 
 The other 2 stops have no coordinates yet (`coord` is `null`).
 
+**Test fixture.** `apps/web/e2e/fixtures/bus-options-2026-03-20.json` is a captured bus-options API response that the end-to-end tests serve in place of the live API, so it holds copies of stop coordinates from `bus_stops.json`. For 4 stops those copies are Google My Maps pins, and they fall under the My Maps exception above: `stop-3-parking`, `stop-cook` and `stop-echoland-spicy`, and the old pin of `stop-snowlines-lodge`, which [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) replaced in `bus_stops.json`. The fixture is left as captured, because regenerating it needs the running API.
+
 **Timetables.** The operators' original PDFs and photos are kept out of the repository. Only the transcribed departure times are committed. They may be out of date or contain mistakes, so always check the official timetable before you travel.

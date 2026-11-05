@@ -9,7 +9,9 @@ Of the 58 stops on borrowed coordinates, OpenStreetMap has 7 under a name that c
 and only those moved. Six others have a candidate that might be right, such as the parking lot
 `八方Ｐ` for "Happo Parking No. 3": OSM gives the lot no number, and a second stop 48 m away would
 match the same lot. Moving them would swap a pin whose licence is unclear for one whose place is
-unclear. They stay as they are, listed by name in DATA-LICENSES.md, for the owner to decide.
+unclear. They stay as they are, for the owner to decide. PR #17's description lists them by name;
+DATA-LICENSES.md covers them in the My Maps group, which it names by `coordSource` prefix, not
+stop by stop.
 *Analogy:* in a lost-and-found you return a wallet only when the name inside matches; "looks like
 yours" stays on the shelf with a label.
 
