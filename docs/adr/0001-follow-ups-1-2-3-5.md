@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (2026-11-05)
+Accepted (2026-11-05). Decision 1 partly superseded by [ADR-0002](0002-data-files-odbl.md).
 
 ## Date
 
