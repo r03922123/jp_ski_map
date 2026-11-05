@@ -84,10 +84,12 @@ def test_photon_results_without_a_shared_distinctive_word_are_dropped(
 
 
 def test_photon_failure_still_returns_local_hits(api: TestClient, mock: respx.MockRouter) -> None:
-    mock.get(PHOTON_URL).mock(side_effect=httpx.ConnectError("down"))
+    # "Pheonix" has one local hit, so suggest asks Photon (a query with 3 local hits never would)
+    call = mock.get(PHOTON_URL).mock(side_effect=httpx.ConnectError("down"))
 
-    response = api.get("/api/places/suggest", params={"q": "kashimayari", "near": "36.70,137.845"})
+    response = api.get("/api/places/suggest", params={"q": "Pheonix", "near": "36.70,137.845"})
 
+    assert call.call_count == 1
     assert response.status_code == 200
     assert response.json()[0]["source"] == "index"
 
@@ -96,7 +98,7 @@ def test_photon_failure_still_returns_local_hits(api: TestClient, mock: respx.Mo
 def test_malformed_photon_answer_still_returns_local_hits(
     api: TestClient, mock: respx.MockRouter, answer: dict[str, Any]
 ) -> None:
-    # "Pheonix" has one local hit, so Photon is asked (unlike "kashimayari" above)
+    # "Pheonix" has one local hit, so Photon is asked
     call = mock.get(PHOTON_URL).respond(**answer)
 
     response = api.get("/api/places/suggest", params={"q": "Pheonix", "near": "36.70,137.845"})
