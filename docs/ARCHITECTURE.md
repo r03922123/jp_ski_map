@@ -56,17 +56,17 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 - **resort-ranking.** The `price` sort and the `nightSkiing` filter exist, but `dayTicketJpy` and
   `nightSkiing` are `null` for all 10 resorts. Sorting by price quietly falls back to drive time
   (unknown values sort last), and turning on the night-skiing filter empties the list.
-- **crowd-level** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9) and
-  [PR #10](https://github.com/r03922123/jp_ski_map/pull/10): the SPEC now says where 3-day
-  weekends come from, ranks a holiday equal to a Saturday, and says the web gets crowd through
-  `/api/rank`). `GET /api/crowd` exists, but the web app never calls it. Crowd reaches the screen
-  inside `/api/rank` (section 4). The SPEC ranked a public holiday above a Saturday, but both
-  weigh 0.30 in `CrowdConfig`. February 3-day weekends come from the day-type rule (any run of 3
-  or more weekend and holiday days), not from `data/crowd_periods.json` as the SPEC said. Three
-  more SPEC lines disagreed with `crowd/heuristic.py`, fixed in
-  [PR #12](https://github.com/r03922123/jp_ski_map/pull/12): the example output, the powder window
-  (the past 24 h counts only for the snow report's own day), and the season edges, which also
-  cover all of April.
+- **crowd-level** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9),
+  [PR #10](https://github.com/r03922123/jp_ski_map/pull/10) and
+  [PR #12](https://github.com/r03922123/jp_ski_map/pull/12): the SPEC now says where 3-day
+  weekends come from, ranks a holiday equal to a Saturday, says the web gets crowd through
+  `/api/rank`, and gives the real example, powder window and season edges). `GET /api/crowd`
+  exists, but the web app never calls it. Crowd reaches the screen inside `/api/rank`
+  (section 4). The SPEC ranked a public holiday above a Saturday, but both weigh 0.30 in
+  `CrowdConfig`. February 3-day weekends come from the day-type rule (any run of 3 or more weekend
+  and holiday days), not from `data/crowd_periods.json` as the SPEC said. Three more SPEC lines
+  disagreed with `crowd/heuristic.py`: the example output, the powder window (the past 24 h counts
+  only for the snow report's own day), and the season edges, which also cover all of April.
 - **snow-conditions** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): the
   SPEC now marks it not built). `source: "reported"` exists only as a type value. Nothing parses
   the resort-reported snow page, so every depth is modelled.
@@ -242,5 +242,6 @@ Each item is small enough for its own PR. None is fixed by this page.
     the status record; the boxes are left as they are.
 11. **Crowd: example, powder and season edges.** Make SPEC-crowd-level's example output, powder
     window and season edges match `crowd/heuristic.py`, or change the code. ✅ Done in
-    [PR #12](https://github.com/r03922123/jp_ski_map/pull/12): the SPEC now shows the real output
-    and names `_new_snow_for` and `_is_season_edge`; no code change.
+    [PR #12](https://github.com/r03922123/jp_ski_map/pull/12): the SPEC now shows the real output,
+    states the powder window and the season-edge dates, and names `_new_snow_for` and
+    `_is_season_edge`; no code change.

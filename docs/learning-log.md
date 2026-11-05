@@ -19,11 +19,13 @@ The cost: the dates now live in two places, the SPEC and `_is_season_edge` in th
 two can drift apart.
 *Analogy:* "open late" can never be wrong; "open until 9 pm" can, and that's what makes it useful.
 
-**3. What could go wrong: the code changes and the SPEC doesn't.**
-If someone moves the season start in `_is_season_edge`, no test reads the SPEC, so it goes stale
-quietly, just as these three lines did. The SPEC names the two functions it describes
-(`_new_snow_for`, `_is_season_edge`), so a reader knows where the truth lives, and whoever edits
-those functions can search for their names and find the line to update.
+**3. What could go wrong: the SPEC and the code drift apart, and nothing notices.**
+These three lines were written 41 minutes before the code, and the code came out different. No
+test reads the SPEC, so they stayed wrong from that day until PR #10's reviewers read both side by
+side. The same could happen again if someone changes a date in `_is_season_edge`. The SPEC now
+names the two functions behind these lines (`_new_snow_for`, `_is_season_edge`), so a reader knows
+where the truth lives, and whoever edits those functions can search for their names and find the
+line to update.
 *Analogy:* a trail map that says "conditions change; ask at the hut" still tells you who to ask.
 
 ## 2026-11-05 · tidy: PR #11 docs: land the review fixes to ADR-0001
