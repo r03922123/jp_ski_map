@@ -56,11 +56,13 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 - **resort-ranking.** The `price` sort and the `nightSkiing` filter exist, but `dayTicketJpy` and
   `nightSkiing` are `null` for all 10 resorts. Sorting by price quietly falls back to drive time
   (unknown values sort last), and turning on the night-skiing filter empties the list.
-- **crowd-level.** `GET /api/crowd` exists, but the web app never calls it. Crowd reaches the
-  screen inside `/api/rank` (section 4). The SPEC ranks a public holiday above a Saturday, but
-  both weigh 0.30 in `CrowdConfig`. February 3-day weekends come from the holiday calendar, not
-  from `data/crowd_periods.json` as the SPEC said (fixed in
-  [PR #9](https://github.com/r03922123/jp_ski_map/pull/9)).
+- **crowd-level** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9) and
+  [PR #10](https://github.com/r03922123/jp_ski_map/pull/10): the SPEC now says where 3-day
+  weekends come from, ranks a holiday equal to a Saturday, and says the web gets crowd through
+  `/api/rank`). `GET /api/crowd` exists, but the web app never calls it. Crowd reaches the screen
+  inside `/api/rank` (section 4). The SPEC ranked a public holiday above a Saturday, but both
+  weigh 0.30 in `CrowdConfig`. February 3-day weekends come from the day-type rule (any run of 3
+  or more weekend and holiday days), not from `data/crowd_periods.json` as the SPEC said.
 - **snow-conditions** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): the
   SPEC now marks it not built). `source: "reported"` exists only as a type value. Nothing parses
   the resort-reported snow page, so every depth is modelled.
@@ -193,8 +195,9 @@ source of truth.
 > - **The operator's Google My Maps pins** (`bus/import_mymaps.py`): coordinates copied out of
 >   Google Maps content may not be allowed under Google's terms.
 >
-> This repository is public, so this needs a decision. It isn't settled here, and this page
-> doesn't change any data.
+> This repository is public, so this needed a decision. [ADR-0001](adr/0001-follow-ups-1-2-3-5.md)
+> made it: credit OSM and GSI, then replace the 56 Google My Maps pins (follow-up 1). Until that
+> lands, the data and DATA-LICENSES.md are unchanged.
 
 Timetables can be wrong or out of date. The app labels every estimate, and the README tells users
 to check the official timetable.
@@ -204,15 +207,22 @@ to check the official timetable.
 Each item is small enough for its own PR. None is fixed by this page.
 
 1. **Bus-stop licensing.** Decide what to do with the Photon, GSI and Google My Maps coordinates
-   (credit, replace, or remove), then update `DATA-LICENSES.md`.
+   (credit, replace, or remove), then update `DATA-LICENSES.md`. Decided in
+   [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): credit OSM and GSI now, and replace the 56 Google
+   My Maps pins in a later PR. Not done yet.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
-   the price sort and night-skiing filter until there's data.
+   the price sort and night-skiing filter until there's data. Decided in
+   [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the
+   price sort only if 2026–27 day-ticket prices aren't published. Not done yet.
 3. **Crowd: holiday vs Saturday.** Make the code match SPEC-crowd-level (holiday > Saturday), or
-   change the SPEC.
+   change the SPEC. ✅ Done in [PR #10](https://github.com/r03922123/jp_ski_map/pull/10): the SPEC
+   now says holiday = Saturday ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md)); no code change.
 4. **Crowd: February 3-day weekends.** Say in the SPEC that they come from the holiday calendar,
    not `crowd_periods.json`. ✅ Done in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9).
 5. **Crowd: `/api/crowd`.** Note in the SPEC that the web app gets crowd through `/api/rank`, or
-   remove the unused endpoint.
+   remove the unused endpoint. ✅ Done in [PR #10](https://github.com/r03922123/jp_ski_map/pull/10):
+   the endpoint stays, and the SPEC notes the web reads crowd through `/api/rank`
+   ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md)).
 6. **Snow: "reported" source.** Mark it as not built in SPEC-snow-conditions, or drop it from the model.
    ✅ Done in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): marked not built; the model
    keeps `"reported"` for the planned adapter.

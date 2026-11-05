@@ -2,6 +2,34 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · tidy: PR #10 docs: record the decisions on follow-ups 1, 2, 3 and 5
+
+**1. Principle: a decision made in chat is lost; write it down next to the code.**
+The four choices were quick because PR #9's brief had the evidence ready. But the brief lived only
+in a chat transcript, and this PR had to dig it out of an export to quote its reasons. An ADR
+(architecture decision record: a short file with the decision, why, and what was dropped) keeps all
+three in the repo, under `docs/adr/` as in bouldering-vis. When someone asks in six months why a
+holiday doesn't outweigh a Saturday, the answer is in `docs/adr/0001-follow-ups-1-2-3-5.md`.
+*Analogy:* meeting minutes. Without them, the next meeting argues the same point again.
+
+**2. Trade-off: when the SPEC and the code disagree and neither has data, change the words.**
+Follow-up 3 could have raised `holiday` above Saturday's 0.30 to match the SPEC. That would be a
+new number with nothing behind it, plus a new test, for the 3 lone holidays between December 2026
+and April 2027 (the brief said 1–2 a season; re-counting from the code gave 3). Rewriting the SPEC
+changes no behaviour and is easy to undo. The cost: the SPEC drops the hunch that holidays are
+busier, so the ADR says to revisit if crowd data ever arrives. Follow-up 5 is the same idea: keep
+the tested `/api/crowd` and describe it, rather than delete working tests for tidiness.
+*Analogy:* the menu says the soup is spicy, the cook says it isn't, and nobody has tasted it. Fix
+the menu before you change the recipe.
+
+**3. What could go wrong: "decided" read as "done".**
+Follow-ups 1 and 2 are decided, but nothing in `data/` has changed. The 56 My Maps pins are still in
+a public repo, and the night-skiing filter still empties the list. A follow-up marked only
+"decided" could look fixed, so each one says "Not done yet", the ADR lists the next steps, and the
+CLAUDE.md phase line stays "tidy" until both land.
+*Analogy:* a signed repair quote isn't a fixed roof; keep the bucket under the leak until the
+roofer has been.
+
 ## 2026-11-05 · tidy: PR #9 docs: close follow-ups 4, 6 and 10
 
 **1. Principle: keep one status record.**
