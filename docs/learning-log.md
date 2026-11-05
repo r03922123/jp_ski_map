@@ -2,6 +2,33 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · PR #8: docs: fix three stale lines
+
+**1. Principle: words about safety must be exact.**
+PR #6's entry said "the public API runs on port 8011". It isn't public. In the public setup the
+API listens only on this computer, and Tailscale Funnel publishes only the web app on `:3000`,
+which forwards `/api/*` to it. Calling the API "public" would teach the opposite of the project's
+rule, so the entry now says where it listens and what is public.
+*Analogy:* calling the kitchen door "the entrance" sends guests through the kitchen; only the
+front door is for guests.
+
+**2. Trade-off: delete a stale warning, keep a stale to-do.**
+SPEC-deploy warned that Valhalla "today listens on every interface". That was true before
+`infra/docker-compose.yml` bound it to this computer only, so the warning is now simply wrong and
+is removed. The ARCHITECTURE follow-ups 7 to 9 are different: they are a to-do list, and PR #6
+did them. They stay, each marked done with a link to PR #6, so a reader can see what was fixed and
+where.
+*Analogy:* take down a "wet floor" sign once the floor is dry, but tick off a finished chore on
+the list instead of tearing out the line.
+
+**3. What could go wrong: fixing a doc by guessing.**
+Each change was checked against the file it describes before it was written: the compose file's
+port line, `scripts/serve-public.sh` for the API port, and PR #6's diff for follow-ups 7 to 9.
+The other follow-ups (bus-stop licensing, the "reported" snow source, crowd weights and more) are
+the owner's decisions, so they are left exactly as they were.
+*Analogy:* a proofreader checks a phone number by calling it, not by guessing which digit looks
+wrong.
+
 ## 2026-11-05 · PR #7: test(places): make the Photon-failure test reach Photon
 
 **1. Principle: a test must reach the code it claims to test.**
@@ -36,8 +63,9 @@ nothing about the alarm.
 
 **1. Principle: a spec that disagrees with the code is worse than no spec.**
 `docs/ARCHITECTURE.md` listed places where the SPECs and the code disagree. Five of them had
-only one right answer, already fixed in the code: the public API runs on port 8011 (see
-`scripts/serve-public.sh`), `infra/docker-compose.yml` runs only Valhalla, `pois/` and `common/`
+only one right answer, already fixed in the code: in the public setup the API listens only on
+this computer, on port 8011 (see `scripts/serve-public.sh`; only the web app on `:3000` is
+public), `infra/docker-compose.yml` runs only Valhalla, `pois/` and `common/`
 exist, SPEC-deploy answered the hosting question, and place-search's first "Decision" was replaced
 by its own v1.2 and v1.3 sections. This PR writes those facts into the SPECs.
 *Analogy:* a map that shows a bridge that was torn down sends travellers into the river; a map with

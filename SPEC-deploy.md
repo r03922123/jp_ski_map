@@ -34,7 +34,7 @@ Map tiles come straight from OpenFreeMap to the browser, so they never touch our
 - **Production build, not the dev server.** `next build && next start`. The dev server is slow,
   shows the dev overlay, and turns on the dev-only `?simulate` path.
 - **One public port.** Funnel publishes only `:3000`. The API binds `127.0.0.1:8011`. Valhalla's
-  docker port is bound to `127.0.0.1:8002`; today it listens on every interface, so the LAN can reach it.
+  docker port is bound to `127.0.0.1:8002` (`infra/docker-compose.yml`).
 - **The machine name is in the URL.** Rename the Mac in Tailscale to `hakuba-map` before turning Funnel
   on, so the URL doesn't include the owner's name.
 - **Kill switch:** `tailscale funnel --https=443 off` takes the site offline at once, with nothing

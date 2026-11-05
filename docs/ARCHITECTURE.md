@@ -210,9 +210,11 @@ Each item is small enough for its own PR. None is fixed by this page.
 5. **Crowd: `/api/crowd`.** Note in the SPEC that the web app gets crowd through `/api/rank`, or
    remove the unused endpoint.
 6. **Snow: "reported" source.** Mark it as not built in SPEC-snow-conditions, or drop it from the model.
-7. **Place-search SPEC.** Mark the 2026-10-28 decision as replaced by v1.2/v1.3.
-8. **Deploy port.** Fix SPEC-deploy's diagram and "one public port" bullet to `:8011`.
+7. **Place-search SPEC.** Mark the 2026-10-28 decision as replaced by v1.2/v1.3. ✅ Done in
+   [PR #6](https://github.com/r03922123/jp_ski_map/pull/6).
+8. **Deploy port.** Fix SPEC-deploy's diagram and "one public port" bullet to `:8011`. ✅ Done in
+   [PR #6](https://github.com/r03922123/jp_ski_map/pull/6).
 9. **SPEC.md layout.** Fix the compose line, add `pois/` and `common/`, and close the hosting
-   open question.
+   open question. ✅ Done in [PR #6](https://github.com/r03922123/jp_ski_map/pull/6).
 10. **SPEC checkboxes.** Tick the acceptance criteria that `tasks/todo.md` shows are done, or say
     in SPEC.md that `tasks/todo.md` is the status record.
