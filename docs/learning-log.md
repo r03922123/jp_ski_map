@@ -2,6 +2,35 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #16 fix(web): reword the night-skiing note, test the hidden price sort
+
+**1. Principle: a message should state the rule, not today's data.**
+The Drive panel's empty-list note said the night-skiing filter "currently matches nothing". That
+was a fact about the data on one day, and PR #15 made it false by filling 3 resorts with `true`,
+without touching the note. The new note says what the filter does: it shows only resorts
+confirmed to run night skiing (`rank.py:85` keeps only `true`), so resorts not known yet are left
+out. That stays right with 3 matches today or 8 after the December re-check, and has no count to
+go stale.
+*Analogy:* a shop sign saying "open 9 to 5" is right all day; one saying "open now" is wrong at 5:01.
+
+**2. Trade-off: test the one list the app reads, and accept that copies of it can drift.**
+The "Sort by" menu (`SortControls.tsx:38`) and a shared link (`url-state.ts:85`) both read
+`SORT_KEYS`, so one line checking that `?sort=price` falls back to drive time guards both. A menu
+test would render the panel to check the same list again. The cost: copies outside the code, such
+as the README's list of Drive sorts, aren't read by any test. That's how the README kept "price"
+after PR #15, and why this PR fixes it by hand.
+*Analogy:* checking the kitchen's recipe card covers every plate, but not the menu in the window
+that still lists a dish taken off.
+
+**3. What could go wrong: a test that passed the moment it was written.**
+Test-first means watching the test fail before the fix. This one couldn't fail on day one: PR #15
+had already removed `price`, and this run leaves the web tests to CI. A test that has never failed
+might be checking nothing. The guard was reading the line that decides it: `parseRank` keeps a
+sort only if `SORT_KEYS` has it (`url-state.ts:85`), so putting `price` back makes the parse
+return `"price"`, and the test's `toBe("drive_time")` fails.
+*Analogy:* a smoke alarm you've never heard beep may have a dead battery; when you can't press the
+test button, you open the lid and check the battery is in.
+
 ## 2026-11-06 · tidy: PR #15 fix(ranking): fill night skiing from resort pages, hide the price sort
 
 **1. Principle: a value needs a page that says it; "probably" stays `null`.**

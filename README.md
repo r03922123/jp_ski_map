@@ -5,7 +5,7 @@ A Google-Maps-style trip planner for skiers staying in **Hakuba Valley** (Nagano
 | Mode | What you get |
 |---|---|
 | 🚌 **Bus** | The nearest shuttle stops, the walk to them, the next departures, and arrival times at each resort, from transcribed 2025–26 timetables |
-| 🚗 **Drive** | All 10 resorts ranked by one factor (drive time, fresh snow, snow depth, crowd level, terrain, vertical, price), with the route and ETA |
+| 🚗 **Drive** | All 10 resorts ranked by one factor (drive time, fresh snow, snow depth, crowd level, terrain, vertical), with the route and ETA |
 | 🚶 **Walk** | A walking route and ETA to a resort, a bus stop, food or a konbini |
 
 It also has stops along the way, saved places (kept in your browser only), turn-by-turn "pilot" guidance for phones, and a light pixel-game layer (stamps and quests for the resorts you visit).

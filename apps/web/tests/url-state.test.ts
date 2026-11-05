@@ -103,6 +103,12 @@ describe("rank options in the URL", () => {
       hvPass: false,
     });
   });
+
+  it("opens an old ?sort=price link on drive time, since price is hidden", () => {
+    // price is left out of SORT_KEYS until every resort has a comparable
+    // 2026–27 price; putting it back makes this parse return "price"
+    expect(parseViewState("?sort=price").rank.sort).toBe("drive_time");
+  });
 });
 
 describe("place destinations", () => {

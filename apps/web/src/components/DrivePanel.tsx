@@ -39,7 +39,7 @@ export function DrivePanel({
           <p className="text-sm text-muted-foreground">
             No resorts match these filters.
             {options.nightSkiing &&
-              " Night-skiing data isn't collected yet, so that filter currently matches nothing."}
+              " The night-skiing filter shows only resorts confirmed to run night skiing; resorts whose night skiing isn't known yet are left out."}
           </p>
         ) : (
           <ResortList
