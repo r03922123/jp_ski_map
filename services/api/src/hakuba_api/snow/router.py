@@ -1,18 +1,18 @@
 from collections.abc import Callable
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
 from hakuba_api.catalog.store import load_resorts
 from hakuba_api.common.cache import TtlCache
-from hakuba_api.snow.compute import JST, build_report, parse_series
+from hakuba_api.snow.compute import JST, HourlySeries, build_report
 from hakuba_api.snow.models import SnowReport
 from hakuba_api.snow.openmeteo import Point, fetch_hourly
 
 router = APIRouter(prefix="/api")
 
-HourlyFetcher = Callable[[list[Point]], list[dict[str, Any]]]
+HourlyFetcher = Callable[[list[Point]], list[HourlySeries]]
 
 _cache = TtlCache[str, list[SnowReport]](ttl_s=3600)
 
@@ -37,14 +37,9 @@ def snow_reports(fetch: HourlyFetcher, now: datetime) -> list[SnowReport]:
         # Unknown elevations fall back to Open-Meteo's own terrain height (0 = "use DEM")
         points.append((coord.lat, coord.lng, r.stats.base_elevation_m or 0))
         points.append((coord.lat, coord.lng, r.stats.top_elevation_m or 0))
-    locations = fetch(points)
+    series = fetch(points)
     return [
-        build_report(
-            r.id,
-            base=parse_series(locations[2 * i]),
-            summit=parse_series(locations[2 * i + 1]),
-            now=now,
-        )
+        build_report(r.id, base=series[2 * i], summit=series[2 * i + 1], now=now)
         for i, r in enumerate(resorts)
     ]
 

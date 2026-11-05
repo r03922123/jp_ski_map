@@ -9,7 +9,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from hakuba_api.main import app
-from hakuba_api.snow.compute import HourlySeries, build_report, parse_series
+from hakuba_api.snow.compute import HourlySeries, build_report
+from hakuba_api.snow.openmeteo import parse_hourly
 from hakuba_api.snow.router import get_hourly_fetcher, get_now
 
 JST = ZoneInfo("Asia/Tokyo")
@@ -102,7 +103,7 @@ def test_summit_temperature_range_over_next_24h() -> None:
 def test_parses_open_meteo_location() -> None:
     raw = json.loads(FIXTURE.read_text())[0]
 
-    parsed = parse_series(raw)
+    [parsed] = parse_hourly(raw)
 
     assert len(parsed.times) == 168
     assert parsed.times[0] == datetime(2026, 1, 9, 0, tzinfo=JST)
@@ -113,9 +114,9 @@ def test_parses_open_meteo_location() -> None:
 
 @pytest.fixture
 def api() -> Any:
-    fixture: list[dict[str, Any]] = json.loads(FIXTURE.read_text())
+    fixture = parse_hourly(json.loads(FIXTURE.read_text()))
 
-    def fetch(_points: list[tuple[float, float, int]]) -> list[dict[str, Any]]:
+    def fetch(_points: list[tuple[float, float, int]]) -> list[HourlySeries]:
         return fixture
 
     app.dependency_overrides[get_hourly_fetcher] = lambda: fetch
