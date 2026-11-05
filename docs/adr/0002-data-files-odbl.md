@@ -14,14 +14,15 @@ Decision 1.
 ADR-0001 Decision 1 said: label the 27 OpenStreetMap-derived stops in `data/bus_stops.json` ODbL
 with the OSM credit, give the 2 GSI stops GSI's credit, and replace the 56 Google My Maps pins
 later. Its Next step 1 asked that PR to check both against the official terms first. The check found
-four things the decision didn't know. This is a reading of licence text, not legal advice.
+four things the decision didn't know, all checked against `main` at `f3c039a`. This is a reading of
+licence text, not legal advice.
 
 1. **40 stops are OSM-derived, not 27.** The 13 "resort access point" stops copy their coordinates
    from `data/resorts.json`, and all 12 access points there have a `coordSource` of `osm:way/…`
    (lift terminals). So `resorts.json` holds OSM coordinates too, yet
-   [DATA-LICENSES.md](../../DATA-LICENSES.md) line 13 calls it "Compiled by hand".
+   [DATA-LICENSES.md](../../DATA-LICENSES.md) line 13 called it "Compiled by hand".
    `data/bus/stop_evidence.json`, the stop locator's input, holds 8 OSM points and the same 56 My
-   Maps pins, and DATA-LICENSES.md doesn't list it.
+   Maps pins, and DATA-LICENSES.md didn't list it.
 2. **One field mixes OSM and non-OSM values, so the file isn't a Collective Database.**
    [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) §1 defines a Collective Database as
    the database in unmodified form beside independent databases. The OSMF's
