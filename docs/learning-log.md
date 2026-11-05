@@ -2,6 +2,35 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · tidy: PR #13 fix(crowd): name every non-zero resort prior in reasons
+
+**1. Principle: an explanation with a missing term looks arbitrary.**
+The crowd score is a sum, and its reasons are meant to say what went into it. A resort prior below
+0.20 was added with no reason. On Mon 2026-02-16, Details showed Norikura at 33% and Jigatake at
+25% with the same single reason, "Lunar New Year week", and nothing on screen said why they differ.
+Now Norikura also shows "Less-visited resort", and Jigatake, whose prior is 0, shows nothing more.
+A reason names a factor, not its size: Norikura (0.08) and Sanosaka (0.03) share one label, just as
+Happo-One (0.25) and Goryu (0.20) already shared "Large, popular resort".
+*Analogy:* a receipt that leaves one item off; even a small item makes the total look wrong.
+
+**2. Trade-off: why change the code this time, when follow-ups 3, 5 and 11 changed only words.**
+Follow-ups 3 and 11 left the code alone because changing it would change behaviour with no data
+behind it; 5 kept a tested endpoint rather than delete it. That data rule protects the numbers.
+This PR changes no number: every score, level and rank is the same before and after, checked for
+all 10 resorts on two dates. It only names a number the score already used. The cost: hand-set
+judgements are now on screen. "Less-visited resort" for Kashimayari comes from a
+table someone typed, with no visitor data behind it; the SPEC still lists visitor statistics as an
+open question.
+*Analogy:* a price tag on the shelf. The price was already being charged; now shoppers can see it
+and argue with it.
+
+**3. What could go wrong: a guess shown as a fact.**
+A resort missing from the prior table gets the default prior of 0.10, so it would now read
+"Moderately popular resort" with nothing behind it. No resort is missing today: `data/resorts.json`
+lists the same 10 ids as the table. But an 11th resort added without a prior would quietly show
+that guess.
+*Analogy:* a form that fills a blank field with a default reads just like one a person filled in.
+
 ## 2026-11-05 · tidy: PR #12 docs: make three crowd SPEC lines match the code
 
 **1. Principle: an example is a claim too, so make it by running the code, not by typing it.**
@@ -21,8 +50,8 @@ two can drift apart.
 
 **3. What could go wrong: the SPEC and the code drift apart, and nothing notices.**
 These three lines were written 41 minutes before the code, and the code came out different. No
-test reads the SPEC, so they stayed wrong from that day until PR #10's reviewers read both side by
-side. The same could happen again if someone changes a date in `_is_season_edge`. The SPEC now
+test reads the SPEC, so they went unnoticed from that day until PR #10's reviewers read both side
+by side. The same could happen again if someone changes a date in `_is_season_edge`. The SPEC now
 names the two functions behind these lines (`_new_snow_for`, `_is_season_edge`), so a reader knows
 where the truth lives, and whoever edits those functions can search for their names and find the
 line to update.
