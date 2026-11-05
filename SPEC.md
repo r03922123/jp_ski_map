@@ -100,7 +100,8 @@ apps/web/                     Next.js app (web-app module)
 services/api/                 FastAPI service
   src/hakuba_api/
     main.py                   app + router registration
-    catalog/ places/ routing/ snow/ crowd/ bus/ ranking/   ← one package per module id
+    catalog/ places/ routing/ snow/ crowd/ bus/ ranking/ pois/   ← one package per module id
+    common/                   shared helpers: cache, geo, models, params, rate limit, upstream errors
     data/                     loaders + validate entrypoint
   tests/                      pytest, mirrors package layout; tests/fixtures/ for recorded HTTP
 data/
@@ -111,7 +112,7 @@ data/
   bus/timetables/<season>/<line>-<period>.json
   bus/raw/<season>/           downloaded source images/PDFs (gitignored, re-fetchable)
 infra/
-  docker-compose.yml          valhalla (+ api, web for prod-like runs)
+  docker-compose.yml          valhalla only (the API and web run as local processes; see SPEC-deploy)
   valhalla/                   custom_files volume (tiles, gitignored)
 SPEC.md, SPEC-<module>.md     specs
 tasks/plan.md, tasks/todo.md  plan + task list (created in the Plan phase)
@@ -215,6 +216,6 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
 
 ## Open Questions
 
-- Hosting target for later (a VPS for Valhalla plus Vercel for web?). Not needed for v1, which runs locally.
+- ~~Hosting target for later~~ Answered by `SPEC-deploy.md`: Phase A this Mac + Tailscale Funnel, Phase B Oracle Always Free.
 - Real crowd data source (see `SPEC-crowd-level.md`).
 - Whether the hakubavalley.com Weather & Snow / Lift Status pages can be parsed reliably (see `SPEC-snow-conditions.md`).
