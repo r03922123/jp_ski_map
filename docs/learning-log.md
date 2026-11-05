@@ -2,6 +2,36 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · PR #7: test(places): make the Photon-failure test reach Photon
+
+**1. Principle: a test must reach the code it claims to test.**
+`test_photon_failure_still_returns_local_hits` fakes a Photon outage and checks that the suggest
+box still shows local hits. But it searched for "kashimayari", which already has 3 local hits, and
+suggest only asks Photon when it has fewer than 3. So Photon was never called, and the test passed
+whether the fallback worked or not. Now it searches "Pheonix" (one local hit) and checks that the
+fake Photon was called once.
+*Analogy:* a smoke-alarm test in a room with no alarm. Nothing beeps, and you write down "no fire",
+when you never tested the alarm at all.
+
+**2. Trade-off: change the test's input, not the code.**
+Suggest's rule ("ask Photon only when local hits are few") is right: it keeps suggestions instant.
+SPEC-place-search wants local hits in about 20 ms, and Photon takes about 300 ms per keystroke.
+So the fix belongs in the test: pick an input that walks down the path we
+want to check, and assert that it did. The cost is that the test now depends on the local index
+having few "Pheonix" matches. If a data refresh adds more, the call-count check fails loudly
+instead of quietly passing, which is the failure we want.
+*Analogy:* to test the spare tyre you have to take a wheel off; checking the car with all four
+wheels on tells you nothing about the spare.
+
+**3. What could go wrong: believing a check proves more than it does.**
+The proof here was a deliberate break, made in a scratch copy. The fallback was changed to crash
+on a Photon failure. The old test still passed; the new one failed. The first attempt at this
+check was itself wrong: the copy was missing the `data/` folder, so every test failed for an
+unrelated reason, which looked like success. Reading why a test failed, not just that it failed,
+caught it.
+*Analogy:* a fire drill where everyone leaves because the building's power is out tells you
+nothing about the alarm.
+
 ## 2026-11-05 · PR #6: docs: make the SPECs state what the code already settles
 
 **1. Principle: a spec that disagrees with the code is worse than no spec.**
