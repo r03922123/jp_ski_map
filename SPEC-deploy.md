@@ -23,7 +23,7 @@ friend's phone ──HTTPS──▶ Tailscale Funnel (https://hakuba-map.<tailne
                      Next.js production server (next start, :3000)
                               │ rewrite /api/* (same origin, no CORS)
                               ▼
-                     FastAPI (uvicorn, 127.0.0.1:8010) ──▶ Photon, Open-Meteo, maps.app.goo.gl (HEAD)
+                     FastAPI (uvicorn, 127.0.0.1:8011) ──▶ Photon, Open-Meteo, maps.app.goo.gl (HEAD)
                               │
                               ▼
                      Valhalla (docker, 127.0.0.1:8002), Hakuba-only tiles (5.7 MB, ~65 MB RAM)
@@ -33,7 +33,7 @@ Map tiles come straight from OpenFreeMap to the browser, so they never touch our
 ### Phase A: this Mac
 - **Production build, not the dev server.** `next build && next start`. The dev server is slow,
   shows the dev overlay, and turns on the dev-only `?simulate` path.
-- **One public port.** Funnel publishes only `:3000`. The API binds `127.0.0.1:8010`. Valhalla's
+- **One public port.** Funnel publishes only `:3000`. The API binds `127.0.0.1:8011`. Valhalla's
   docker port is bound to `127.0.0.1:8002`; today it listens on every interface, so the LAN can reach it.
 - **The machine name is in the URL.** Rename the Mac in Tailscale to `hakuba-map` before turning Funnel
   on, so the URL doesn't include the owner's name.

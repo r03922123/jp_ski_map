@@ -11,6 +11,8 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - 4/10 are missing from OSM (Courtyard by Marriott, Hakuba Springs, Phoenix, Morino Lodge).
 - Both public Overpass instances returned "at capacity" errors, so live Overpass is unreliable.
 
+> **Superseded (2026-10-30)** by [v1.2](#v12--google-style-suggestions-approved-2026-10-30) (a local suggestion index) and [v1.3](#v13--paste-a-hotel-name-from-bookingcom-approved-2026-10-30) (the Overture Maps lodging snapshot) below. Kept for history; rejecting Google Places still holds.
+
 **Decision (2026-10-28):** stay on OSM (free, no ToS conflict with MapLibre). There is **no curated lodging list**; hotels missing from OSM are reached by pasting a Google Maps link or dropping a pin. Google Places is rejected for v1: it needs billing and an API key, its terms require a Google base map, and it limits caching.
 
 ## Input paths

@@ -2,6 +2,33 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-05 · PR #6: docs: make the SPECs state what the code already settles
+
+**1. Principle: a spec that disagrees with the code is worse than no spec.**
+`docs/ARCHITECTURE.md` listed places where the SPECs and the code disagree. Five of them had
+only one right answer, already fixed in the code: the public API runs on port 8011 (see
+`scripts/serve-public.sh`), `infra/docker-compose.yml` runs only Valhalla, `pois/` and `common/`
+exist, SPEC-deploy answered the hosting question, and place-search's first "Decision" was replaced
+by its own v1.2 and v1.3 sections. This PR writes those facts into the SPECs.
+*Analogy:* a map that shows a bridge that was torn down sends travellers into the river; a map with
+a blank spot only makes them ask.
+
+**2. Trade-off: mark the old decision as replaced, don't delete it.**
+The place-search "Decision" now opens with a "Superseded" note that links to v1.2 and v1.3. The
+original text stays, because why the team first chose "no lodging list" explains why the later
+change was needed. The open hosting question is struck through with its answer. The cost is a
+slightly longer file.
+*Analogy:* a recipe card with "we now use butter, see below" written over the old margarine line,
+so the next cook knows the change was on purpose.
+
+**3. What could go wrong: settling a question that is still open.**
+Some disagreements in the list are choices the owner still has to make: the holiday-versus-Saturday
+crowd weight, removing `/api/crowd`, and the price and night-skiing data. Writing either answer into
+a SPEC would quietly decide them. So this PR only changes lines where the code already decides
+the fact, and leaves every crowd weight and open question alone.
+*Analogy:* a secretary updates the address book when someone moves, but doesn't decide who gets
+invited to the party.
+
 ## 2026-11-05 · PR #5: refactor(snow): hand on the checked data, not the original
 
 **1. Principle: what was checked should be exactly what gets used.**
