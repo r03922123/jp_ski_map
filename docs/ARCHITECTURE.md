@@ -57,16 +57,21 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
   `nightSkiing` are `null` for all 10 resorts. Sorting by price quietly falls back to drive time
   (unknown values sort last), and turning on the night-skiing filter empties the list.
 - **crowd-level** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9),
-  [PR #10](https://github.com/r03922123/jp_ski_map/pull/10) and
-  [PR #12](https://github.com/r03922123/jp_ski_map/pull/12): the SPEC now says where 3-day
+  [PR #10](https://github.com/r03922123/jp_ski_map/pull/10),
+  [PR #12](https://github.com/r03922123/jp_ski_map/pull/12) and
+  [PR #13](https://github.com/r03922123/jp_ski_map/pull/13): the SPEC now says where 3-day
   weekends come from, ranks a holiday equal to a Saturday, says the web gets crowd through
-  `/api/rank`, and gives the real example, powder window and season edges). `GET /api/crowd`
+  `/api/rank`, gives the real example, powder window and season edges, and says where
+  peak-period weights live; the code now names every resort prior). `GET /api/crowd`
   exists, but the web app never calls it. Crowd reaches the screen inside `/api/rank`
   (section 4). The SPEC ranked a public holiday above a Saturday, but both weigh 0.30 in
   `CrowdConfig`. February 3-day weekends come from the day-type rule (any run of 3 or more weekend
   and holiday days), not from `data/crowd_periods.json` as the SPEC said. Three more SPEC lines
   disagreed with `crowd/heuristic.py`: the example output, the powder window (the past 24 h counts
-  only for the snow report's own day), and the season edges, which also cover all of April.
+  only for the snow report's own day), and the season edges, which also cover all of April. Two
+  more: the SPEC put every weight in one config dict, but peak-period weights live in
+  `data/crowd_periods.json`; and it said every contributing factor appears in `reasons`, but a
+  resort prior below 0.20 added to the score with no reason.
 - **snow-conditions** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): the
   SPEC now marks it not built). `source: "reported"` exists only as a type value. Nothing parses
   the resort-reported snow page, so every depth is modelled.
@@ -155,7 +160,7 @@ What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the
    package) + the strongest matching peak period in `data/crowd_periods.json` + powder
    (≥ 20 cm new: +0.15) + a fixed resort prior (Happo-One 0.25 … Jigatake 0) − 0.15 at the
    season's edges. It clamps the result to 0–1 and maps it to a level
-   (< 0.3 low, < 0.55 medium, < 0.8 high, else very high). Every term becomes a reason.
+   (< 0.3 low, < 0.55 medium, < 0.8 high, else very high). Every non-zero term becomes a reason.
 9. `ranking/rank.py` `rank` sorts by the crowd score (lower is better; unknowns last; drive
    time breaks ties) and returns `RankedResort` objects, serialised as camelCase JSON.
 
@@ -245,3 +250,9 @@ Each item is small enough for its own PR. None is fixed by this page.
     [PR #12](https://github.com/r03922123/jp_ski_map/pull/12): the SPEC now shows the real output,
     states the powder window and the season-edge dates, and names `_new_snow_for` and
     `_is_season_edge`; no code change.
+12. **Crowd: config dict and silent resort prior.** Make SPEC-crowd-level's "every weight in one
+    config dict" and "every contributing factor appears in `reasons`" match `crowd/heuristic.py`,
+    or change the code. ✅ Done in [PR #13](https://github.com/r03922123/jp_ski_map/pull/13): the
+    SPEC says peak-period weights live in `data/crowd_periods.json`, and the code now gives every
+    non-zero resort prior a reason ("Moderately popular resort", "Less-visited resort"); no score
+    changes.
