@@ -2,6 +2,33 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #15 fix(ranking): fill night skiing from resort pages, hide the price sort
+
+**1. Principle: a value needs a page that says it; "probably" stays `null`.**
+Five resorts' own pages state their 2026–27 night skiing: Jigatake, Sanosaka and Goryu sell night
+tickets, Tsugaike says its night skiing is cancelled for 2026–27, and Kashimayari lists lift hours
+of 8:30–16:00 on every day. The other five don't say. Happo-One ran night skiing in 2016 (its own
+old news), but its 2026–27 price list has no night ticket and no page says yes or no, so it stays
+`null`. Cortina's own site is down for maintenance, and a partner resort's page doesn't count.
+*Analogy:* a witness who saw it, not one who heard about it.
+
+**2. Trade-off: hide the price sort rather than fill 9 of 10 prices.**
+Nine resorts publish a 2026–27 day price, but not on one basis. Goryu and Hakuba47 list ¥10,000
+including a ¥500 card deposit you get back; Kashimayari lists ¥6,200 and Iwatake ¥7,500, each
+plus a ¥1,000 deposit charged on top; Happo-One has three seasonal prices. Sorted as listed,
+Happo-One (¥9,800) would rank cheaper than Goryu, which costs ¥9,500 once the deposit comes back.
+And Cortina, with no price, would sort last as if it were the dearest. The cost: no price sort
+for now, and the 9 prices live in the PR, not the data, until someone decides what "day price" means.
+*Analogy:* comparing bottle prices where some tags include the bottle deposit and some don't.
+
+**3. What could go wrong: `null` and `false` look the same to the filter.**
+The night-skiing filter keeps only `true`, so a resort that does run night skiing but whose page
+doesn't say it is dropped from the list, just like one that says no. ADR-0001 also called night
+skiing a fact that rarely changes, yet 2 of these 5 changed this season: Sanosaka starts it and
+Tsugaike stops it. The guard: each value carries the page and the date it was checked in
+`statsSource`, and follow-up 2 stays open for the 5 unknowns.
+*Analogy:* a dark window isn't a "closed" sign; it only tells you nobody has looked inside.
+
 ## 2026-11-06 · tidy: PR #14 docs: ADR-0002, whole-file ODbL for stop and resort data
 
 **1. Principle: follow a value back to where it was first copied from.**

@@ -36,11 +36,11 @@
         "intermediate": 30,
         "advanced": 0
       },
-      "nightSkiing": null,
+      "nightSkiing": true,
       "dayTicketJpy": null
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://jiigatake.com/price/ (checked 2026-11-06)"
   },
   {
     "id": "kashimayari",
@@ -79,11 +79,11 @@
         "intermediate": 50,
         "advanced": 17
       },
-      "nightSkiing": null,
+      "nightSkiing": false,
       "dayTicketJpy": null
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.kashimayari.net/snow/tickets/ (checked 2026-11-06)"
   },
   {
     "id": "sanosaka",
@@ -122,11 +122,11 @@
         "intermediate": 40,
         "advanced": 20
       },
-      "nightSkiing": null,
+      "nightSkiing": true,
       "dayTicketJpy": null
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://sanosaka.jp/nightski/ (checked 2026-11-06)"
   },
   {
     "id": "goryu",
@@ -177,11 +177,11 @@
         "intermediate": 40,
         "advanced": 25
       },
-      "nightSkiing": null,
+      "nightSkiing": true,
       "dayTicketJpy": null
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.hakubagoryu.jp/ski/pricing/lift-tickets/ (checked 2026-11-06)"
   },
   {
     "id": "hakuba47",
@@ -361,11 +361,11 @@
         "intermediate": 30,
         "advanced": 20
       },
-      "nightSkiing": null,
+      "nightSkiing": false,
       "dayTicketJpy": null
     },
     "hakubaValleyPass": true,
-    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29)"
+    "statsSource": "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); nightSkiing: https://www.tsugaike.gr.jp/snow/price (checked 2026-11-06)"
   },
   {
     "id": "norikura",
