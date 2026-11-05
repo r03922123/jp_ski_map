@@ -4,6 +4,11 @@
 
 Accepted (2026-11-06).
 
+2026-11-06: [PR #20](https://github.com/r03922123/jp_ski_map/pull/20) settles five cases this
+definition left open (regular or peak rate, joint tickets, which notes name the period, 通常
+prices, the online fallback) without changing a value;
+[SPEC-resort-catalog.md](../../SPEC-resort-catalog.md), under Data, holds them.
+
 ## Date
 
 2026-11-06
