@@ -8,6 +8,7 @@ import pytest
 import respx
 from fastapi.testclient import TestClient
 
+from hakuba_api.common.upstream import UpstreamError
 from hakuba_api.main import app
 from hakuba_api.places.photon import PHOTON_URL, clear_cache, search_photon, to_place
 
@@ -143,6 +144,69 @@ def test_search_endpoint_rejects_empty_query(q: str) -> None:
 
 def test_search_endpoint_maps_photon_failure_to_502(photon: respx.MockRouter) -> None:
     photon.get(PHOTON_URL).mock(side_effect=httpx.ConnectError("down"))
+
+    response = client.get("/api/places/search", params={"q": "Hotel Hakuba"})
+
+    assert response.status_code == 502
+    assert response.json() == {"error": "upstream_unavailable", "source": "photon"}
+
+
+# --- malformed Photon answers -------------------------------------------------
+
+HOTEL = (
+    '{"type": "Feature", "properties": {"osm_type": "N", "osm_id": 1, "name": "Hotel X"}, '
+    '"geometry": {"type": "Point", "coordinates": %s}}'
+)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "<html>busy</html>",  # not JSON
+        '{"oops": 1}',  # no "features"
+        '{"features": [{"geometry": {"coordinates": [137.86, 36.7]}}]}',  # no properties
+        '{"features": [{"properties": {"name": "Hotel X"}}]}',  # no geometry
+        '{"features": [%s]}' % (HOTEL % "[137.86]"),  # one coordinate
+        '{"features": [%s]}' % (HOTEL % "[137.86, 36.7, 800]"),  # three coordinates
+        '{"features": [%s]}' % (HOTEL % '["137.86", "36.7"]'),  # numbers as text
+        '{"features": [%s]}' % (HOTEL % "[true, 36.7]"),  # a boolean
+        '{"features": [%s]}' % (HOTEL % "[Infinity, 36.7]"),  # not a finite number
+    ],
+)
+def test_malformed_photon_answer_is_an_upstream_error(photon: respx.MockRouter, body: str) -> None:
+    photon.get(PHOTON_URL).respond(text=body)
+
+    with pytest.raises(UpstreamError) as raised:
+        search_photon("Hotel X", 10)
+
+    assert raised.value.source == "photon"
+
+
+def test_whole_number_coordinates_are_accepted(photon: respx.MockRouter) -> None:
+    photon.get(PHOTON_URL).respond(text='{"features": [%s]}' % (HOTEL % "[138, 37]"))
+
+    place = search_photon("Hotel X", 10)[0]
+
+    assert (place.coord.lat, place.coord.lng) == (37, 138)
+
+
+def test_malformed_photon_answer_is_not_cached(photon: respx.MockRouter) -> None:
+    route = photon.get(PHOTON_URL)
+    route.side_effect = [
+        httpx.Response(200, text='{"oops": 1}'),
+        httpx.Response(200, json=fixture("hotel_hakuba.json")),
+    ]
+
+    with pytest.raises(UpstreamError):
+        search_photon("Hotel Hakuba", 10)
+    names = [p.name for p in search_photon("Hotel Hakuba", 10)]
+
+    assert names[0] == "Hotel Hakuba"
+    assert route.call_count == 2
+
+
+def test_search_endpoint_maps_malformed_photon_answer_to_502(photon: respx.MockRouter) -> None:
+    photon.get(PHOTON_URL).respond(json={"oops": 1})
 
     response = client.get("/api/places/search", params={"q": "Hotel Hakuba"})
 
