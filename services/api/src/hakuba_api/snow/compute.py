@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any
 from zoneinfo import ZoneInfo
 
 from hakuba_api.snow.models import NewSnow, SnowDepth, SnowReport, SummitTemps
@@ -18,16 +17,6 @@ class HourlySeries:
     snowfall_cm: list[float | None]
     snow_depth_m: list[float | None]
     temperature_c: list[float | None]
-
-
-def parse_series(location: dict[str, Any]) -> HourlySeries:
-    hourly = location["hourly"]
-    return HourlySeries(
-        times=[datetime.fromisoformat(t).replace(tzinfo=JST) for t in hourly["time"]],
-        snowfall_cm=hourly["snowfall"],
-        snow_depth_m=hourly["snow_depth"],
-        temperature_c=hourly["temperature_2m"],
-    )
 
 
 def _window(series: HourlySeries, start: datetime, end: datetime) -> list[int] | None:

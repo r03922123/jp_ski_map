@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Self, cast
+from typing import Any, Self
 
 import httpx
 from pydantic import (
@@ -13,14 +13,15 @@ from pydantic import (
 
 from hakuba_api.common.ratelimit import spend_upstream
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
+from hakuba_api.snow.compute import JST, HourlySeries
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
 # (lat, lng, elevation_m)
 Point = tuple[float, float, int]
 
-# Strict, because the raw dicts are handed on: a value pydantic would only convert (the text
-# "1.5", true, Infinity) must be refused here, or it reaches the math in compute.py as is.
+# Strict: a value pydantic would only convert (the text "1.5", true, Infinity) means the
+# answer is broken, so it is refused here instead of guessed at.
 _STRICT = ConfigDict(strict=True, allow_inf_nan=False)
 
 
@@ -58,7 +59,23 @@ class _Location(BaseModel):
 _LOCATIONS = TypeAdapter(list[_Location])
 
 
-def fetch_hourly(points: list[Point]) -> list[dict[str, Any]]:
+def parse_hourly(data: Any) -> list[HourlySeries]:
+    """Open-Meteo's decoded JSON → one HourlySeries per location, built from the checked
+    models, so compute.py never sees the raw dicts; raises ValidationError if malformed."""
+    # a single location comes back as an object, several as a list
+    locations = _LOCATIONS.validate_python(data if isinstance(data, list) else [data])
+    return [
+        HourlySeries(
+            times=[datetime.fromisoformat(t).replace(tzinfo=JST) for t in loc.hourly.time],
+            snowfall_cm=loc.hourly.snowfall,
+            snow_depth_m=loc.hourly.snow_depth,
+            temperature_c=loc.hourly.temperature_2m,
+        )
+        for loc in locations
+    ]
+
+
+def fetch_hourly(points: list[Point]) -> list[HourlySeries]:
     """One batched call for every point; `elevation` is set explicitly so values are
     downscaled to that height instead of the grid cell's average terrain.
 
@@ -84,12 +101,9 @@ def fetch_hourly(points: list[Point]) -> list[dict[str, Any]]:
     except httpx.HTTPError as e:
         raise UpstreamError("open-meteo", str(e)) from e
     try:
-        data: Any = response.json()
-        # a single location comes back as an object, several as a list
-        locations = cast(list[dict[str, Any]], data if isinstance(data, list) else [data])
-        _LOCATIONS.validate_python(locations)
+        series = parse_hourly(response.json())
     except (ValueError, ValidationError) as e:  # not JSON, or not the expected shape
         raise UpstreamError("open-meteo", "malformed response") from e
-    if len(locations) != len(points):
-        raise UpstreamError("open-meteo", f"{len(locations)} locations for {len(points)} points")
-    return locations
+    if len(series) != len(points):
+        raise UpstreamError("open-meteo", f"{len(series)} locations for {len(points)} points")
+    return series
