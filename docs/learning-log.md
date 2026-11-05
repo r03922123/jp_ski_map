@@ -2,6 +2,36 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #20 docs: settle ADR-0003's open day-ticket cases
+
+**1. Principle: settle the edge cases once, next to the definition, and say which ones you hit.**
+ADR-0003 said "main period" but not what to do when a page has several. Happo-One's note named its
+high season; Tsugaike's, Goryu's, Hakuba47's and Norikura's didn't, though each also picked the
+main price over a cheaper early or spring one. So "no note" meant two things: no choice, or a
+choice nobody wrote down. Now the SPEC lists five cases, and each note that made a choice says so
+("joint with Cortina; main period 12/19–3/14"). No price changed.
+*Analogy:* a recipe that says "a cup of flour" needs to say once whether it's packed or sifted;
+after that, every cook gets the same cake.
+
+**2. Trade-off: add the rulings to the SPEC, and leave the accepted ADR as it was.**
+An ADR records what was decided and why on that day. Rewriting it would hide what was known then.
+The SPEC is the living description of the data, so the five cases go there, and the ADR's Status
+gets one dated line pointing to them, as ADR-0002 does. The cost is that a reader looks in two
+places; the pointer keeps that to one hop.
+*Analogy:* a court doesn't rewrite a law after a ruling; the law book gets a note "see the ruling
+of 6 November".
+
+**3. What could go wrong: a translated page, and a label that misleads.**
+Hakuba47's English page puts the window ticket's spring rate "after Mar 10", but its Japanese page
+says 3/15から, the same as Goryu's page for the same joint ticket (Mar 10 is the online ticket's
+date). The price is the same, so the value was safe, but the note worked out from the English
+named the wrong period. So the notes use the Japanese page. Labels can mislead the same way: a
+page may call a short year-end rate ハイシーズン, so rule 1 counts days instead of trusting the
+label. If a resort adds a holiday rate next season, the autumn re-check has to count, not just
+copy the number.
+*Analogy:* a restaurant's translated menu can drift from the kitchen's own; when they disagree,
+read the original.
+
 ## 2026-11-06 · tidy: PR #19 fix(data): define the day-ticket price and fill it for 9 resorts
 
 **1. Principle: define a number before you collect it.**
