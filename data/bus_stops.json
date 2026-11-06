@@ -931,14 +931,14 @@
    "ja": "ライオンカフェ"
   },
   "coord": {
-   "lat": 36.7014006,
-   "lng": 137.8466542
+   "lat": 36.70132,
+   "lng": 137.84664
   },
   "servesResortId": null,
   "aliases": [
    "Lion Café"
   ],
-  "coordSource": "operator My Maps pin (Lion Cafe/ライオンカフェ) — https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+  "coordSource": "overture:5c325ad9-878c-4bc6-ba1c-38a65b5aa023 (ライオンカフェ) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-meteor",
@@ -947,14 +947,14 @@
    "ja": "ミーティア"
   },
   "coord": {
-   "lat": 36.6893481,
-   "lng": 137.8441196
+   "lat": 36.68936,
+   "lng": 137.84353
   },
   "servesResortId": null,
   "aliases": [
    "Meteor"
   ],
-  "coordSource": "operator My Maps pin (Meteor / ミーティア) — https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+  "coordSource": "overture:d818c25d-38de-4cb4-96bf-847aa3988a5f (ミーティア) — Overture Maps Places 2026-10-21.0 (Foursquare, Apache-2.0)"
  },
  {
   "id": "stop-minamiya",
@@ -963,14 +963,14 @@
    "ja": "みなみ家前"
   },
   "coord": {
-   "lat": 36.6947951,
-   "lng": 137.8461742
+   "lat": 36.69521,
+   "lng": 137.8461
   },
   "servesResortId": null,
   "aliases": [
    "Minamiya"
   ],
-  "coordSource": "operator My Maps pin (Minamiya / みなみ家前) — https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+  "coordSource": "overture:772d1396-09c6-417c-8aed-2bbf9ff7b825 (Minamiya) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-misorano-rotary",
@@ -1095,14 +1095,14 @@
    "ja": "ノンネル"
   },
   "coord": {
-   "lat": 36.6597231,
-   "lng": 137.8390798
+   "lat": 36.66,
+   "lng": 137.83927
   },
   "servesResortId": null,
   "aliases": [
    "Nonnel"
   ],
-  "coordSource": "operator My Maps pin (Nonnel /ノンネル) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:29586459-1d1f-4cf3-b945-9d71324392f7 (ペンションノンネル) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-norikura",
@@ -1241,14 +1241,14 @@
    "ja": "ランタンリルン"
   },
   "coord": {
-   "lat": 36.661369,
-   "lng": 137.8424865
+   "lat": 36.6612,
+   "lng": 137.84256
   },
   "servesResortId": null,
   "aliases": [
    "Rantanrirun"
   ],
-  "coordSource": "operator My Maps pin (Rantanrirun / ランタンリルン) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:ed2692a1-09da-4a84-9b94-5df47b3d8718 (Pension Rantanrirun) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-rosenheim-hakuba",
@@ -1257,14 +1257,14 @@
    "ja": "ローゼンハイム白馬"
   },
   "coord": {
-   "lat": 36.6983831,
-   "lng": 137.8421216
+   "lat": 36.69845,
+   "lng": 137.84221
   },
   "servesResortId": null,
   "aliases": [
    "Rosenheim Hakuba"
   ],
-  "coordSource": "operator My Maps pin (Rosenheim Hakuba / ローゼンハイム白馬) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+  "coordSource": "overture:660fa379-62a0-48ac-beef-14ddbcbf985e (ローゼンハイム白馬) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-ryokusuitei-keisui",
@@ -1273,14 +1273,14 @@
    "ja": "緑翠亭・景水"
   },
   "coord": {
-   "lat": 36.5314192,
-   "lng": 137.8089933
+   "lat": 36.5314,
+   "lng": 137.80848
   },
   "servesResortId": null,
   "aliases": [
    "Ryokusuitei Keisui"
   ],
-  "coordSource": "operator My Maps pin (Ryokusuitei Keisui-Kurobe Sunvalley Hotel / 緑翠亭 景水-黒部サンバレーホテル) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:026644bf-debf-450a-9fae-b86c56c43876 (緑翠亭 景水) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-sanosaka",
@@ -1354,14 +1354,14 @@
    "ja": "庄屋丸八"
   },
   "coord": {
-   "lat": 36.7141591,
-   "lng": 137.8702292
+   "lat": 36.71426,
+   "lng": 137.87007
   },
   "servesResortId": null,
   "aliases": [
    "Shoya Maruhachi"
   ],
-  "coordSource": "operator My Maps pin (Shoya-Maruhachi / 庄屋丸八) — https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
+  "coordSource": "overture:609b0af2-cc76-459d-b9f2-b4f0dba8a484 (庄屋丸八) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-sierra-resort-hotel-hakuba",
@@ -1386,14 +1386,14 @@
    "ja": "スカラ イン"
   },
   "coord": {
-   "lat": 36.6907611,
-   "lng": 137.8358084
+   "lat": 36.69106,
+   "lng": 137.83548
   },
   "servesResortId": null,
   "aliases": [
    "Skala Inn"
   ],
-  "coordSource": "operator My Maps pin (Skala Inn/スカラ イン) — https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+  "coordSource": "overture:cc166eb6-23c5-43ee-a275-ac842e59e82f (Hakuba Skala Inn) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-snow-peak-land-station-hakuba",
@@ -1466,8 +1466,8 @@
    "ja": "立山プリンスホテル"
   },
   "coord": {
-   "lat": 36.5297927,
-   "lng": 137.8089768
+   "lat": 36.5301,
+   "lng": 137.80778
   },
   "servesResortId": null,
   "aliases": [
@@ -1475,7 +1475,7 @@
    "Tateyama Prince Hotel",
    "Omachi Onsenkyo (Tateyama Prince Hotel Intersection)"
   ],
-  "coordSource": "operator My Maps pin (Omachi Onsenkyo (Tateyama Prince Hotel) / 大町温泉郷 (立山プリンスホテル）) — https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  "coordSource": "overture:91105e87-ba7b-484d-889b-ede86070ab2c (Tateyama Prince Hotel) (approximate) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-the-gakusui",
@@ -1484,14 +1484,14 @@
    "ja": null
   },
   "coord": {
-   "lat": 36.7131412,
-   "lng": 137.8671616
+   "lat": 36.71319,
+   "lng": 137.86739
   },
   "servesResortId": null,
   "aliases": [
    "The Gakusui"
   ],
-  "coordSource": "operator My Maps pin (Gakusui / 岳水) — https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  "coordSource": "overture:767b5afa-e845-4c53-9d0b-77b2001f267c (フェルゼイン岳水) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-the-happo",
@@ -1516,14 +1516,14 @@
    "ja": "トロイメライ"
   },
   "coord": {
-   "lat": 36.6870988,
-   "lng": 137.8463633
+   "lat": 36.68717,
+   "lng": 137.84661
   },
   "servesResortId": null,
   "aliases": [
    "Traumerai"
   ],
-  "coordSource": "operator My Maps pin (Traumerei /トロイメライ) — https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+  "coordSource": "overture:09b0678c-44c8-4fc0-821c-dff0410d10c4 (トロイメライ) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-tsugaike-ent-uchikawa",
@@ -1593,14 +1593,14 @@
    "ja": "山のホテル"
   },
   "coord": {
-   "lat": 36.6942387,
-   "lng": 137.8378973
+   "lat": 36.69416,
+   "lng": 137.83825
   },
   "servesResortId": null,
   "aliases": [
    "Yamano Hotel"
   ],
-  "coordSource": "operator My Maps pin (Yamano Hotel / 山のホテル) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+  "coordSource": "overture:3e9a9ac3-2b82-431d-b033-a91a3738b09d (Hakuba Yamano Hotel) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-yupuru-kizakiko",
