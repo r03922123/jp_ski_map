@@ -63,9 +63,9 @@ release and licence; DATA-LICENSES.md credits Overture, repeats Overture's notic
 data and says how we changed the records; `LICENSES/` holds the licence texts and Foursquare's
 NOTICE.txt.
 
-`services/api/tests/test_data_licenses.py` fails if a stop's `coordSource` names a source no
-licence decision covers, or if the My Maps or Overture counts in DATA-LICENSES.md drift from
-`bus_stops.json`.
+The first moves (next step 1) extend `services/api/tests/test_data_licenses.py` so it fails if a
+stop's `coordSource` names a source no licence decision covers, or if the My Maps or Overture
+counts in DATA-LICENSES.md drift from `bus_stops.json`.
 
 ### 2. How a point is chosen
 
@@ -78,17 +78,17 @@ licence decision covers, or if the My Maps or Overture counts in DATA-LICENSES.m
   stop is elsewhere gets `(approximate)` in `coordSource` and `"approx": true` in the evidence.
 - **Address-registry points** may confirm an address but are never a value.
 
-### 3. 33 stops move, in two PRs; 15 wait for permission
+### 3. 33 stops move, in later PRs; 15 wait for permission
 
-| Source | Stops | PR |
+| Source | Stops | When |
 |---|---|---|
-| OpenStreetMap | 3 | #21 |
-| Overture, Meta records | 28 | 2 in #21, 26 in the next PR |
-| Overture, Foursquare records | 2 | #21 |
+| OpenStreetMap | 3 | the next PR |
+| Overture, Meta records | 28 | 2 in the next PR, 26 after it |
+| Overture, Foursquare records | 2 | the next PR |
 | None clean yet | 15 | 13 with no clean source, 2 with only an ODPT point |
 
 The 15 keep their My Maps pin and stay named in DATA-LICENSES.md, as ADR-0002 Decision 2 set out.
-The GSI group ends: `stop-panorama-hotel` moves to Overture.
+The GSI group ends when `stop-panorama-hotel` moves to Overture.
 
 ## Alternatives Considered
 
@@ -112,7 +112,8 @@ while the MOJ terms keep their discretionary clause.
 
 ## Consequences
 
-- **Fewer pins.** 33 stops stop depending on the My Maps pins; 15 remain, all named.
+- **Fewer pins.** Once the moves land, 33 stops no longer depend on the My Maps pins; 15 remain,
+  all named.
 - **An old gap closes, partly.** `data/lodging_overture.json` already held Foursquare records (42
   of the 578 checked) under a CDLA-Permissive-2.0 label alone. DATA-LICENSES.md now names
   Apache-2.0 for them, but `data/lodging_overture.meta.json` still carries the old label.
@@ -127,7 +128,11 @@ while the MOJ terms keep their discretionary clause.
 
 ## Next steps
 
-1. **PR 2:** move the other 26 Overture (Meta) stops, after PR #21 merges.
+1. **The moves, after PR #21 merges.** First the 7 that cover every source type, with the test
+   change in Decision 1: `stop-3-parking`, `stop-happo-kokusai` and `stop-misorano-rotary`
+   (OpenStreetMap), `stop-pension-minamijujisei` and `stop-panorama-hotel` (Meta), and
+   `stop-hotel-ogiya` and `stop-pals-inn-raicho` (Foursquare). Then the other 26 Overture (Meta)
+   stops.
 2. **The lodging label:** build `data/lodging_overture.meta.json`'s licence from every record's
    sources, and fix the code that writes the old label: `ATTRIBUTION`, the `license` field and the
    docstring in `services/api/src/hakuba_api/places/refresh_overture.py`. In the same PR, link the
