@@ -196,7 +196,7 @@ source of truth.
 | Map tiles | fetched at runtime | OpenFreeMap / OpenMapTiles | ODbL (OSM data) |
 | Place search fallback | queried at runtime | Photon (komoot) | ODbL (OSM data) |
 | Snow and weather | queried at runtime | Open-Meteo | CC BY 4.0 |
-| Resorts, stops, stop evidence | `data/resorts.json`, `data/bus_stops.json`, `data/bus/stop_evidence.json` | compiled for this project; coordinates from OpenStreetMap and Overture Maps Places, except 28 My Maps pins | ODbL 1.0, whole file ([ADR-0002](adr/0002-data-files-odbl.md), [ADR-0004](adr/0004-open-coordinate-sources.md)) |
+| Resorts, stops, stop evidence | `data/resorts.json`, `data/bus_stops.json`, `data/bus/stop_evidence.json` | compiled for this project; coordinates from OpenStreetMap and Overture Maps Places, except 15 My Maps pins | ODbL 1.0, whole file ([ADR-0002](adr/0002-data-files-odbl.md), [ADR-0004](adr/0004-open-coordinate-sources.md)) |
 | Crowd periods | `data/crowd_periods.json` | compiled by hand | facts for trip planning |
 | Timetables (42 files, 2025–26) | `data/bus/timetables/` | transcribed from the operators' published timetables (`data/bus/sources.json`) | facts; originals not committed |
 
@@ -209,15 +209,16 @@ source of truth.
 > points keep their own permissive licence inside these files
 > ([ADR-0004](adr/0004-open-coordinate-sources.md)). One group of stops is named but not covered,
 > and it is the risk that remains in this public repository:
-> - **The operator's Google My Maps pins** (28 stops, `bus/import_mymaps.py`): coordinates copied
+> - **The operator's Google My Maps pins** (15 stops, `bus/import_mymaps.py`): coordinates copied
 >   out of Google Maps content. Whether Google's terms allow that is unresolved
 >   ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md) Decision 1).
 >
 > [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) and
 > [PR #18](https://github.com/r03922123/jp_ski_map/pull/18) re-located 10 stops from OpenStreetMap,
 > [PR #22](https://github.com/r03922123/jp_ski_map/pull/22) moved 7 more, including the last GSI
-> stop, to OpenStreetMap and Overture, and [PR #23](https://github.com/r03922123/jp_ski_map/pull/23)
-> moved 13 to Overture; the rest need another source or permission (follow-up 1).
+> stop, to OpenStreetMap and Overture, and PRs [#23](https://github.com/r03922123/jp_ski_map/pull/23)
+> and [#24](https://github.com/r03922123/jp_ski_map/pull/24) moved 26 to Overture; the 15 left need
+> another source or permission (follow-up 1).
 
 Timetables can be wrong or out of date. The app labels every estimate, and the README tells users
 to check the official timetable.
@@ -237,9 +238,10 @@ Each item is small enough for its own PR. None is fixed by this page.
    [PR #22](https://github.com/r03922123/jp_ski_map/pull/22), which ends the GSI group
    ([ADR-0004](adr/0004-open-coordinate-sources.md), accepted in
    [PR #21](https://github.com/r03922123/jp_ski_map/pull/21)); 13 more moved to Overture in
-   [PR #23](https://github.com/r03922123/jp_ski_map/pull/23) (batch A), so 30 have moved so far.
-   28 My Maps stops remain: 13 move to Overture in batch B, the next PR, and 15 wait on the
-   owner's permission requests (ADR-0004 next step 3). Also open (ADR-0004 next step 2):
+   [PR #23](https://github.com/r03922123/jp_ski_map/pull/23) (batch A) and the last 13 in
+   [PR #24](https://github.com/r03922123/jp_ski_map/pull/24) (batch B), which ends the Overture
+   moves: 43 stops have moved in all. The 15 My Maps stops left wait on the owner's permission
+   requests (ADR-0004 next step 3). Also open (ADR-0004 next step 2):
    `data/lodging_overture.meta.json`, and the code that writes it (`places/refresh_overture.py:31`
    and `:216`), still label every Overture record CDLA-Permissive-2.0; build the label from each
    record's sources, and link the licence texts from the app and the API docs.
