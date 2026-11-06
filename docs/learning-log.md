@@ -15,7 +15,9 @@ accept. After the 7 moves it passes. Had it passed on main too, it would have pr
 PR #21 grew to 362 lines, so the moves were taken out with a revert commit and land here by
 reverting that revert. Each PR stays readable, but the restored text said PR #21 had moved the
 stops, so 5 places now name PR #22, and between the two PRs the docs said "later PRs" while the
-data was ready.
+data was ready. The revert also silently undid one sentence main had improved since, the
+Apache-2.0 change notice, because git saw no conflict; review caught it, and the notice now keeps
+both versions' details.
 *Analogy:* moving house in two van trips: each load is lighter, but the boxes marked "trip 1"
 need new labels.
 
