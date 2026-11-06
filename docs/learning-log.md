@@ -2,6 +2,34 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #23 fix(data): move 13 more stops to Overture points (ADR-0004 batch A)
+
+**1. Principle: apply the rule to every pick, including the ones a survey already made.**
+ADR-0004 says the old pin never picks between candidates. For Keyaki no Ki, Overture had 3 Meta
+records within 38 m, and the survey had chosen "Hotel Keyaki no Ki", the one nearest the pin,
+without a reason that didn't use the pin. By the rule, the name decides: one record is named
+けやきの樹, exactly the stop's name, so this PR uses that one, 42 m from the pin. The other 12
+picks already had a reason without the pin: the only record, an exact name, the address on the
+permit list, or the first-named hotel.
+*Analogy:* blind grading: even if the same essay would have won, the grader must not peek at
+the names.
+
+**2. Trade-off: two batches of 13 instead of one PR of 26.**
+26 moves plus their notes and docs would pass the 300-line limit, so they go in two PRs. Each
+one stays readable and each value gets a careful re-check, at the cost of one more review round,
+and of docs that say "batch B next" until it lands.
+*Analogy:* proofreading a book one chapter per sitting: you catch more on each page, but you
+need more sittings.
+
+**3. What could go wrong: a hotel's point is not where the bus stops.**
+3 of the 13 mark an area, not a pole, so they say "approximate": Kashimayari's resort, La
+Naige's two buildings 130 m apart, and La Vigne's north car park, which no searched source maps on its own. La
+Naige's point is 110 m from its old pin, under the 150 m limit but not by much. The flag is in
+the data files; the app doesn't show it yet. An on-site GPS survey, which ADR-0004 next step
+4 keeps for the stops still waiting, would fix these three too.
+*Analogy:* a street address gets a taxi to the hotel, not to the side door where the shuttle
+waits.
+
 ## 2026-11-06 · tidy: PR #22 fix(data): re-land the first 7 stop moves on OpenStreetMap and Overture (ADR-0004)
 
 **1. Principle: a guard proves itself by failing first.**
