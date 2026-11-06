@@ -220,27 +220,30 @@
   },
   "stop-lion-cafe": {
    "osm": {
-    "lat": 36.7014006,
-    "lng": 137.8466542,
-    "ref": "operator My Maps pin (Lion Cafe/ライオンカフェ)"
+    "lat": 36.70132,
+    "lng": 137.84664,
+    "ref": "overture:5c325ad9-878c-4bc6-ba1c-38a65b5aa023 (ライオンカフェ)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Meta has 2 café records at lot 北城5746-3, 3 m apart; this one equals the stop's name.ja ライオンカフェ, the other is named Lion (6f8d3af9). The food permit list has a second LION CAFE, エコーランドベース, at 北城3020-567; Overture's only record there, 白馬ライオンインドア体験センター (313c3b06), is named for an indoor centre, not the café, and is 1.2 km away. Meta's Lion Adventure (d8b3d94c, 5746-3) is 1.6 km away, rejected: 5 unrelated places share its point"
   },
   "stop-meteor": {
    "osm": {
-    "lat": 36.6893481,
-    "lng": 137.8441196,
-    "ref": "operator My Maps pin (Meteor / ミーティア)"
+    "lat": 36.68936,
+    "lng": 137.84353,
+    "ref": "overture:d818c25d-38de-4cb4-96bf-847aa3988a5f (ミーティア)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+   "source": "Overture Maps Places 2026-10-21.0 (Foursquare, Apache-2.0)",
+   "note": "Picked by name and type: this record equals the stop's name.ja ミーティア and is listed as lodging, at lot 北城みそら野2937-730, the permit list's ペンション ミーティア. Meta's Meteor Hakubaミーティア白馬 (f35e3450), a restaurant at the same lot, is 12 m away. Meta's ペンションミーティア (54291d71, same lot) is 220 m away, rejected: 3 unrelated places share its point, so it marks the みそら野 area. Hakuba Valley Pension Meteor Garden (0c0ea809, 917 m) is another property, stop-misorano-ryusei-kaen's"
   },
   "stop-minamiya": {
    "osm": {
-    "lat": 36.6947951,
-    "lng": 137.8461742,
-    "ref": "operator My Maps pin (Minamiya / みなみ家前)"
+    "lat": 36.69521,
+    "lng": 137.8461,
+    "ref": "overture:772d1396-09c6-417c-8aed-2bbf9ff7b825 (Minamiya)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Picked by name and type: an inn at lot 北城3020-26, the permit list's 山とねこと遊ぶ宿 みなみ家. Foursquare's 別邸 ねこ処 みなみ家 (85ef2105), the cat café at the same lot, is 27 m away"
   },
   "stop-misorano-ryusei-kaen": {
    "osm": {
@@ -270,11 +273,11 @@
   },
   "stop-nonnel": {
    "osm": {
-    "lat": 36.6597231,
-    "lng": 137.8390798,
-    "ref": "operator My Maps pin (Nonnel /ノンネル)"
+    "lat": 36.66,
+    "lng": 137.83927,
+    "ref": "overture:29586459-1d1f-4cf3-b945-9d71324392f7 (ペンションノンネル)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-omachi-onsen-yakushinoyu": {
    "osm": {
@@ -311,27 +314,29 @@
   },
   "stop-rantanrirun": {
    "osm": {
-    "lat": 36.661369,
-    "lng": 137.8424865,
-    "ref": "operator My Maps pin (Rantanrirun / ランタンリルン)"
+    "lat": 36.6612,
+    "lng": 137.84256,
+    "ref": "overture:ed2692a1-09da-4a84-9b94-5df47b3d8718 (Pension Rantanrirun)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-rosenheim-hakuba": {
    "osm": {
-    "lat": 36.6983831,
-    "lng": 137.8421216,
-    "ref": "operator My Maps pin (Rosenheim Hakuba / ローゼンハイム白馬)"
+    "lat": 36.69845,
+    "lng": 137.84221,
+    "ref": "overture:660fa379-62a0-48ac-beef-14ddbcbf985e (ローゼンハイム白馬)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Meta has 2 records of this hotel at lot 3750, 23 m apart; this one equals the stop's name.ja, the other is named Rosenheim Hotel (c24539d4)"
   },
   "stop-ryokusuitei-keisui": {
    "osm": {
-    "lat": 36.5314192,
-    "lng": 137.8089933,
-    "ref": "operator My Maps pin (Ryokusuitei Keisui-Kurobe Sunvalley Hotel / 緑翠亭 景水-黒部サンバレーホテル)"
+    "lat": 36.5314,
+    "lng": 137.80848,
+    "ref": "overture:026644bf-debf-450a-9fae-b86c56c43876 (緑翠亭 景水)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Picked by the stop's name; its lot 平2884-13 is the permit list's. Meta's 黒部サンバレーホテル (d2132240, 平2884-7) is 87 m away"
   },
   "stop-shinden-kouminkan": {
    "osm": {
@@ -344,11 +349,12 @@
   },
   "stop-shoya-maruhachi": {
    "osm": {
-    "lat": 36.7141591,
-    "lng": 137.8702292,
-    "ref": "operator My Maps pin (Shoya-Maruhachi / 庄屋丸八)"
+    "lat": 36.71426,
+    "lng": 137.87007,
+    "ref": "overture:609b0af2-cc76-459d-b9f2-b4f0dba8a484 (庄屋丸八)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Picked by its exact name; its lot 北城11032 is the food permit list's. Meta's 白馬村歴史的古民家 庄屋まるはち (ca169d9b, no address) is 8 m away and Foursquare's 庄屋丸八 肴七味屋 le pain Boule CAFE (10355767, 11032) 52 m. The 旅籠丸八 inns (lots 10816 and 10833) are separate businesses"
   },
   "stop-snowlines-lodge": {
    "osm": {
@@ -360,19 +366,22 @@
   },
   "stop-tateyama-prince": {
    "osm": {
-    "lat": 36.5297927,
-    "lng": 137.8089768,
-    "ref": "operator My Maps pin (Omachi Onsenkyo (Tateyama Prince Hotel) / 大町温泉郷 (立山プリンスホテル）)"
+    "lat": 36.5301,
+    "lng": 137.80778,
+    "ref": "overture:91105e87-ba7b-484d-889b-ede86070ab2c (Tateyama Prince Hotel)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Picked by its exact name; its lot 平2884-10 is the permit list's 立山プリンスホテル. The annex's record, 別館立山プリンスホテル (36fb6d37, 平2860-8), is 116 m away. One of the stop's timetable names is Omachi Onsenkyo (Tateyama Prince Hotel Intersection), so boarding is probably at a junction, not at either building",
+   "approx": true
   },
   "stop-traumerai": {
    "osm": {
-    "lat": 36.6870988,
-    "lng": 137.8463633,
-    "ref": "operator My Maps pin (Traumerei /トロイメライ)"
+    "lat": 36.68717,
+    "lng": 137.84661,
+    "ref": "overture:09b0678c-44c8-4fc0-821c-dff0410d10c4 (トロイメライ)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Meta has 2 records at lot 860-13, 17 m apart; this one equals the stop's name.ja and is listed as lodging, the other, Traumerei (77e30228), as a restaurant"
   },
   "stop-tsugaike-kanenonaruoka": {
    "osm": {
@@ -385,11 +394,11 @@
   },
   "stop-yamano-hotel": {
    "osm": {
-    "lat": 36.6942387,
-    "lng": 137.8378973,
-    "ref": "operator My Maps pin (Yamano Hotel / 山のホテル)"
+    "lat": 36.69416,
+    "lng": 137.83825,
+    "ref": "overture:3e9a9ac3-2b82-431d-b033-a91a3738b09d (Hakuba Yamano Hotel)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-3-parking": {
    "osm": {
@@ -505,11 +514,11 @@
   },
   "stop-skala-inn": {
    "osm": {
-    "lat": 36.6907611,
-    "lng": 137.8358084,
-    "ref": "operator My Maps pin (Skala Inn/スカラ イン)"
+    "lat": 36.69106,
+    "lng": 137.83548,
+    "ref": "overture:cc166eb6-23c5-43ee-a275-ac842e59e82f (Hakuba Skala Inn)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-spicy-rental-wadano": {
    "osm": {
@@ -529,11 +538,12 @@
   },
   "stop-the-gakusui": {
    "osm": {
-    "lat": 36.7131412,
-    "lng": 137.8671616,
-    "ref": "operator My Maps pin (Gakusui / 岳水)"
+    "lat": 36.71319,
+    "lng": 137.86739,
+    "ref": "overture:767b5afa-e845-4c53-9d0b-77b2001f267c (フェルゼイン岳水)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "The only record. Its name differs from the stop's, but its lot 北城新田10899 is where the permit list names THE GAKUSUI"
   },
   "stop-hakuba-47-ent": {
    "osm": {
