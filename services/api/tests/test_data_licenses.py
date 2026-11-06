@@ -15,13 +15,14 @@ COUNTED = [
     ("overture:", r"Overture Maps Places points?"),
 ]
 
-# The coordSource prefixes whose licence DATA-LICENSES.md covers (ADR-0004). A source outside this
-# list, such as GSI's address search or ODPT, needs a licence decision before its rows can come in.
+# The coordSource prefixes that DATA-LICENSES.md names, as covered or as a named exception
+# (ADR-0004). A source outside this list, such as GSI's address search or ODPT, needs a licence
+# decision before its rows can come in. Only OpenStreetMap snapshots pass as lodging-snapshot.
 KNOWN_SOURCES = (
     "osm:",
     "photon:",
     "access-point:",
-    "lodging-snapshot:",
+    "lodging-snapshot:osm:",
     "resort access point ",
     "overture:",
     "operator My Maps pin",
@@ -41,4 +42,4 @@ def test_source_bullet_states_the_data_count(prefix: str, label: str) -> None:
 def test_every_stop_names_a_known_coordinate_source() -> None:
     unknown = [s.id for s in load_stops() if not s.coord_source.startswith(KNOWN_SOURCES)]
 
-    assert unknown == [], f"no licence decision covers the coordSource of {unknown}"
+    assert unknown == [], f"DATA-LICENSES.md names no source for the coordSource of {unknown}"

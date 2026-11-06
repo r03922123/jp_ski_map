@@ -64,7 +64,8 @@ data and says how we changed the records; `LICENSES/` holds the licence texts an
 NOTICE.txt.
 
 `services/api/tests/test_data_licenses.py` fails if a stop's `coordSource` names a source no
-licence decision covers, or if DATA-LICENSES.md's counts drift from the data.
+licence decision covers, or if the My Maps or Overture counts in DATA-LICENSES.md drift from
+`bus_stops.json`.
 
 ### 2. How a point is chosen
 

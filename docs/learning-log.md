@@ -6,7 +6,7 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 
 **1. Principle: the old pin may steer the search, but never pick the answer.**
 The pin's licence is the problem being removed, so it can't be the reason a value is chosen.
-Happo Kokusai had two OpenStreetMap candidates 110 m apart: the lift base and Evergreen's
+Happo Kokusai had two OpenStreetMap candidates 111 m apart: the lift base and Evergreen's
 building. The lift base wins because the stop is named for the Kokusai slope, not because it is
 nearer the pin. Hotel Ogiya had two 扇屋 records; the permit list's address (北城6680) picks one.
 *Analogy:* a friend's hint about which shelf to search is fine, but the book you cite must be the

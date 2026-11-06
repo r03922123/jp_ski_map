@@ -1,5 +1,5 @@
 {
- "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has a point under the key `osm`, or an address for GSI to geocode, plus the source it came from. The `osm` key holds a point from any source; its ref prefix (osm:, overture:, resort access point, operator My Maps pin) names the source. No address entries are left: ADR-0004 accepts no GSI result. Licence: ODbL 1.0 for the whole file, © OpenStreetMap contributors; Overture points also keep their own licence. Entries whose ref starts with 'operator My Maps pin' are named exceptions. See DATA-LICENSES.md.",
+ "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has a point under the key `osm`, or an address for GSI to geocode, plus the source it came from. The `osm` key holds a point from any source; its ref prefix (osm:, overture:, resort access point, operator My Maps pin) names the source. No address entries are left: ADR-0004 accepts no GSI result. Licence: ODbL 1.0 for the whole file, © OpenStreetMap contributors; Overture points also keep their own licence; this project modified them (reshaped into this schema, rounded to 5 decimal places). Entries whose ref starts with 'operator My Maps pin' are named exceptions. See DATA-LICENSES.md.",
  "stops": {
   "stop-airmail": {
    "osm": {
@@ -440,7 +440,7 @@
     "ref": "osm:node/3152413749 (国際第１ペア valley station)"
    },
    "source": "OpenStreetMap",
-   "note": "Named for the Kokusai slope: this lift's valley station is the slope's base. The other OSM candidate, Evergreen's building way/1299443766 (八方4377), is 110 m away (144 m from the old pin)",
+   "note": "The name 八方国際ゲレンデ・エバーグリーン fits both OSM candidates. The stop serves the Happo-one resort (servesResortId), so the slope base riders are going to wins: the valley station of 国際第１ペア, the Kokusai slope's lift. The other candidate, Evergreen's building way/1299443766 (八方4377), is 111 m away in the same base area (144 m from the old pin)",
    "approx": true
   },
   "stop-happo-no-3-parking-b": {
