@@ -354,7 +354,7 @@
     "ref": "overture:609b0af2-cc76-459d-b9f2-b4f0dba8a484 (庄屋丸八)"
    },
    "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
-   "note": "Picked by its exact name; its lot 北城11032 is the food permit list's. Meta's 白馬村歴史的古民家 庄屋まるはち (ca169d9b, no address) is 8 m away and Foursquare's 庄屋丸八 肴七味屋 le pain Boule CAFE (10355767, 11032) 52 m. The 旅籠丸八 inns (lots 10816 and 10833) are separate businesses"
+   "note": "Picked by its exact name; its lot 北城11032-1 matches the food permit list's 北城11032. Meta's 白馬村歴史的古民家 庄屋まるはち (ca169d9b, no address) is 8 m away and Foursquare's 庄屋丸八 肴七味屋 le pain Boule CAFE (10355767, 11032) 52 m. Meta's 旅籠丸八 (ecb0cdf4, lot 10816) and 白馬旅籠丸八弐番館 (7a5cd2f1, lot 10833) are inns on the lodging permit list, not the restaurant"
   },
   "stop-snowlines-lodge": {
    "osm": {
