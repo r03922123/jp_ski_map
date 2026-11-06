@@ -21,7 +21,7 @@ Coordinates from another open source keep their own licence as well ([ADR-0004](
 
 - **4 Overture Maps Places points:** the stops whose `coordSource` starts with `overture:`, and the same 4 entries in `stop_evidence.json`. From release 2026-10-21.0: `stop-pension-minamijujisei` and `stop-panorama-hotel` are Meta records, and `stop-hotel-ogiya` and `stop-pals-inn-raicho` are Foursquare records (see "Overture Maps Places" below).
 
-One group is named but not covered. These pins had no licence-clean source when checked on 2026-11-06, and follow-up 1 stays open until they are settled:
+One group is named but not covered, and follow-up 1 stays open until it is settled. When checked on 2026-11-06, 26 of these pins had a licence-clean Overture point, which replaces them in the next PR; the other 15 had none and wait on the owner's permission requests ([ADR-0004](docs/adr/0004-open-coordinate-sources.md) next step 3):
 
 - **41 Google My Maps pins:** the stops whose `coordSource` starts with `operator My Maps pin`, and the same 41 entries in `stop_evidence.json`. Copied from the bus operator's Google My Maps; their licence is unresolved. In `stop_evidence.json` these pins sit under a key named `osm`, but they are not OpenStreetMap data: their `ref` starts with `operator My Maps pin`.
 
