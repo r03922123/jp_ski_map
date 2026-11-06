@@ -215,7 +215,7 @@ source of truth.
 >
 > [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) and
 > [PR #18](https://github.com/r03922123/jp_ski_map/pull/18) re-located 10 stops from OpenStreetMap,
-> and [PR #21](https://github.com/r03922123/jp_ski_map/pull/21) moved 7 more, including the last
+> and [PR #22](https://github.com/r03922123/jp_ski_map/pull/22) moved 7 more, including the last
 > GSI stop, to OpenStreetMap and Overture; the rest need another source or permission (follow-up 1).
 
 Timetables can be wrong or out of date. The app labels every estimate, and the README tells users
@@ -233,8 +233,9 @@ Each item is small enough for its own PR. None is fixed by this page.
    [PR #14](https://github.com/r03922123/jp_ski_map/pull/14); 10 re-located from OSM in PRs
    [#17](https://github.com/r03922123/jp_ski_map/pull/17) and
    [#18](https://github.com/r03922123/jp_ski_map/pull/18); 7 more moved to OSM and Overture in
-   [PR #21](https://github.com/r03922123/jp_ski_map/pull/21)
-   ([ADR-0004](adr/0004-open-coordinate-sources.md)), which ends the GSI group. 41 My Maps stops
+   [PR #22](https://github.com/r03922123/jp_ski_map/pull/22), which ends the GSI group
+   ([ADR-0004](adr/0004-open-coordinate-sources.md), accepted in
+   [PR #21](https://github.com/r03922123/jp_ski_map/pull/21)). 41 My Maps stops
    remain: 26 move to Overture in the next PR, and 15 wait on the owner's permission requests
    (ADR-0004 next step 3). Also open (ADR-0004 next step 2): `data/lodging_overture.meta.json`,
    and the code that writes it (`places/refresh_overture.py:31` and `:216`), still label every
