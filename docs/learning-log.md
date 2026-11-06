@@ -5,30 +5,32 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 ## 2026-11-06 · tidy: PR #24 fix(data): move the last 13 stops to Overture points (ADR-0004 batch B)
 
 **1. Principle: a rule applies the same way even when its answer surprises you.**
-For Meteor, Overture has two records at the same lot, 12 m apart: Meta's "Meteor
-Hakubaミーティア白馬", listed as a restaurant (the survey's pick), and Foursquare's ミーティア,
-listed as lodging. PR #23's rule, the stop's own name.ja wins, and the feature type (the stop
-is a pension) both pick Foursquare's. It is 53 m from the old pin against 44 m for the other,
-so the pin plainly didn't choose it. The cost is one more row under Apache-2.0, whose notice
-DATA-LICENSES.md already carries.
+For Meteor, Overture has three records at the same lot; two of them, 12 m apart, are Meta's
+"Meteor Hakubaミーティア白馬", listed as a restaurant (the survey's pick), and Foursquare's
+ミーティア, listed as lodging. PR #23's rule, the stop's own name.ja wins, and the feature type
+(the stop is a pension) both pick Foursquare's. It is 53 m from the old pin against 44 m for
+the other, so the pin plainly didn't choose it. The cost is one more row under Apache-2.0,
+whose notice DATA-LICENSES.md already carries.
 *Analogy:* a referee calls offside the same way for both teams, even when the call goes
 against the favourite.
 
 **2. Trade-off: longer notes, so every pick can be checked later.**
 ADR-0004 says that when two clean records of one place are more than 100 m apart, the record
-says so. This batch has such records for three stops: Tateyama Prince's annex (116 m),
-Meteor's ペンションミーティア (220 m, a point shared with 3 unrelated places), and Lion Café's
-far records. Writing them down, and why each lost, lets a reviewer or the next Overture
-re-check confirm the pick without redoing the search. The price: 9 of the 13 rows now carry a
-note, and the evidence file grows.
+says so. This batch has such records for two stops: Tateyama Prince's annex (116 m) and
+Meteor's ペンションミーティア (220 m, a point shared with 3 unrelated places). Lion Café's note
+also names the far records at its two lots, which are other businesses. Writing them down, and
+why each lost, lets a reviewer or the next Overture re-check confirm the pick without redoing
+the search. The price: 10 of the 13 rows now carry a note, and the evidence file grows.
 *Analogy:* a lab notebook that records the failed runs too: longer, but nobody repeats them.
 
 **3. What could go wrong: one name, two places.**
-Nagano's food permit list has two LION CAFE shops in Hakuba, about 1.2 km apart: one at
-北城5746-3 and one named LION CAFE エコーランドベース at 北城3020-567. The stop's plain name
-matches the first, and Overture's only record at the second lot is named for an indoor centre,
-so the pick holds. Had the stop been at the second shop, a name match alone would have put it
-1.2 km off; the 150 m check against the old pin is the backstop that would catch it.
+Nagano's food permit list has two LION CAFE shops in Hakuba: one at 北城5746-3 and one named
+LION CAFE エコーランドベース at 北城3020-567. The stop's plain name matches the first. Overture has
+3 records giving the second lot, none named LION CAFE: an indoor centre and a rental shop 1.2 km
+away, and Meta's café Japow Center & Cafe Hakuba, whose point is 37 m from the pick. So the pick
+holds. The first note named only the indoor centre, because it was found by name; the review
+found the other two by searching the lot. Had the stop been at the second shop, a name match
+alone would have picked the wrong one; the 150 m check against the old pin is the backstop.
 *Analogy:* two bakeries with the same name in one town: the address on the order decides
 which one gets it.
 

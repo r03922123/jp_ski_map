@@ -240,7 +240,9 @@ Each item is small enough for its own PR. None is fixed by this page.
    [PR #21](https://github.com/r03922123/jp_ski_map/pull/21)); 13 more moved to Overture in
    [PR #23](https://github.com/r03922123/jp_ski_map/pull/23) (batch A) and the last 13 in
    [PR #24](https://github.com/r03922123/jp_ski_map/pull/24) (batch B), which ends the Overture
-   moves: 43 stops have moved in all. The 15 My Maps stops left wait on the owner's permission
+   moves: 43 stops have moved in all. PR #24 moved Meteor to a Foursquare record, so the 30
+   Overture stops are 27 Meta and 3 Foursquare, not the 28 and 2 that ADR-0004 Decision 3
+   planned. The 15 My Maps stops left wait on the owner's permission
    requests (ADR-0004 next step 3). Also open (ADR-0004 next step 2):
    `data/lodging_overture.meta.json`, and the code that writes it (`places/refresh_overture.py:31`
    and `:216`), still label every Overture record CDLA-Permissive-2.0; build the label from each

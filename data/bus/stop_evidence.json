@@ -225,7 +225,7 @@
     "ref": "overture:5c325ad9-878c-4bc6-ba1c-38a65b5aa023 (ライオンカフェ)"
    },
    "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
-   "note": "Meta has 2 café records at lot 北城5746-3, 3 m apart; this one equals the stop's name.ja ライオンカフェ, the other is named Lion (6f8d3af9). The food permit list has a second LION CAFE, エコーランドベース, at 北城3020-567; Overture's only record there, 白馬ライオンインドア体験センター (313c3b06), is named for an indoor centre, not the café, and is 1.2 km away. Meta's Lion Adventure (d8b3d94c, 5746-3) is 1.6 km away, rejected: 5 unrelated places share its point"
+   "note": "Meta has 2 café records at lot 北城5746-3, 3 m apart; this one equals the stop's name.ja ライオンカフェ, the other is named Lion (6f8d3af9). The food permit list has a second LION CAFE, エコーランドベース, at 北城3020-567. Overture has 3 records giving that lot, none named LION CAFE: 白馬ライオンインドア体験センター (313c3b06) and Rainbow Rental (aa101e8f), both 1.2 km away, and Meta's café Japow Center & Cafe Hakuba (53e6d3a9), whose point is 37 m from this one. Meta's Lion Adventure (d8b3d94c, 5746-3) is 1.6 km away, rejected: 5 unrelated places share its point"
   },
   "stop-meteor": {
    "osm": {
@@ -398,7 +398,8 @@
     "lng": 137.83825,
     "ref": "overture:3e9a9ac3-2b82-431d-b033-a91a3738b09d (Hakuba Yamano Hotel)"
    },
-   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "The only record of this hotel; its lot 北城3477 is the food permit list's 白馬山のホテル (2026-08-31). The National Tax Agency's corporate number registry shows the operating company, 白馬山のホテル株式会社 at the same lot, closed on 2023-05-24, but the permit list still lists the hotel"
   },
   "stop-3-parking": {
    "osm": {
