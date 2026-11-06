@@ -1,5 +1,5 @@
 {
- "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has a point under the key `osm`, or an address for GSI to geocode, plus the source it came from. The `osm` key holds a point from any source; its ref prefix (osm:, overture:, resort access point, operator My Maps pin) names the source. No address entries are left: ADR-0004 accepts no GSI result. Licence: ODbL 1.0 for the whole file, © OpenStreetMap contributors; Overture points also keep their own licence; this project modified them (reshaped into this schema, rounded to 5 decimal places). Entries whose ref starts with 'operator My Maps pin' are named exceptions. See DATA-LICENSES.md.",
+ "_doc": "Hand-researched evidence for bus stop coordinates; consumed by `python -m hakuba_api.bus.locate_stops`. Each entry has an address (geocoded via GSI, lot number required) or an OSM point, plus the source it came from. Licence: ODbL 1.0 for the whole file, © OpenStreetMap contributors. Entries whose ref starts with 'operator My Maps pin', or that hold only an address, are named exceptions; see DATA-LICENSES.md.",
  "stops": {
   "stop-airmail": {
    "osm": {
@@ -123,11 +123,11 @@
   },
   "stop-hotel-ogiya": {
    "osm": {
-    "lat": 36.70365,
-    "lng": 137.84467,
-    "ref": "overture:6705166d-f6b1-485f-b627-ae286d55a374 (白馬ホテル扇屋)"
+    "lat": 36.7034589,
+    "lng": 137.8447178,
+    "ref": "operator My Maps pin (Hotel Ogiya / ホテル扇屋)"
    },
-   "source": "Overture Maps Places 2026-10-21.0 (Foursquare, Apache-2.0)"
+   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
   },
   "stop-hotel-st-malte": {
    "osm": {
@@ -279,27 +279,24 @@
   },
   "stop-pals-inn-raicho": {
    "osm": {
-    "lat": 36.66154,
-    "lng": 137.84416,
-    "ref": "overture:42162f67-cb1e-40cb-9fe2-37c57c95d4fb (パルズイン雷鳥)"
+    "lat": 36.6611531,
+    "lng": 137.8443183,
+    "ref": "operator My Maps pin (Pals Inn Raicho / パルズイン雷鳥)"
    },
-   "source": "Overture Maps Places 2026-10-21.0 (Foursquare, Apache-2.0)"
+   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
   },
   "stop-panorama-hotel": {
-   "osm": {
-    "lat": 36.69904,
-    "lng": 137.84534,
-    "ref": "overture:a5056304-acd9-43cb-9dac-4340f8b5573f (白馬パノラマホテル)"
-   },
-   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
+   "address": "長野県北安曇郡白馬村北城3322-1",
+   "source": "https://tour.l-tike.com/hotels/domestic/hotel/245746/",
+   "note": "single source"
   },
   "stop-pension-minamijujisei": {
    "osm": {
-    "lat": 36.68585,
-    "lng": 137.84237,
-    "ref": "overture:a2f32d90-18b0-4dfd-9385-e06a653c50df (ペンション南十字星)"
+    "lat": 36.6857055,
+    "lng": 137.842165,
+    "ref": "operator My Maps pin (Pension Minamijujisei / ペンション南十字星)"
    },
-   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
+   "source": "https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
   },
   "stop-rantanrirun": {
    "osm": {
@@ -386,12 +383,10 @@
   "stop-3-parking": {
    "osm": {
     "lat": 36.69998,
-    "lng": 137.8436,
-    "ref": "osm:way/630138001 (八方Ｐ / 八方第3駐車場)"
+    "lng": 137.8431327,
+    "ref": "operator My Maps pin (Happo Parking No. 3 / 八方第3駐車場)"
    },
-   "source": "OpenStreetMap",
-   "note": "Lot No. 3: the Overture/Meta point 白馬八方尾根スキー場第三駐車場 lies inside this lot; the point is the lot centre",
-   "approx": true
+   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
   },
   "stop-bosco": {
    "osm": {
@@ -435,13 +430,11 @@
   },
   "stop-happo-kokusai": {
    "osm": {
-    "lat": 36.70653,
-    "lng": 137.83428,
-    "ref": "osm:node/3152413749 (国際第１ペア valley station)"
+    "lat": 36.7066349,
+    "lng": 137.8346576,
+    "ref": "operator My Maps pin (Happo-One(Kokusai Slope) / 八方尾根(国際ゲレンデ))"
    },
-   "source": "OpenStreetMap",
-   "note": "The name 八方国際ゲレンデ・エバーグリーン fits both OSM candidates. The stop serves the Happo-one resort (servesResortId), so the slope base riders are going to wins: the valley station of 国際第１ペア, the Kokusai slope's lift. The other candidate, Evergreen's building way/1299443766 (八方4377), is 111 m away in the same base area (144 m from the old pin)",
-   "approx": true
+   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
   },
   "stop-happo-no-3-parking-b": {
    "osm": {
@@ -477,13 +470,11 @@
   },
   "stop-misorano-rotary": {
    "osm": {
-    "lat": 36.69027,
-    "lng": 137.83875,
-    "ref": "osm:way/1174341396 (roundabout)"
+    "lat": 36.6905445,
+    "lng": 137.8391264,
+    "ref": "operator My Maps pin (Misorano Rotary / みそら野ロータリー)"
    },
-   "source": "OpenStreetMap",
-   "note": "The only roundabout in OSM in the Hakuba search box; the point is its centre, and boarding is on the ring or an approach",
-   "approx": true
+   "source": "https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
   },
   "stop-shirouma-pal-house": {
    "osm": {

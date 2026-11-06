@@ -7,13 +7,13 @@
   },
   "coord": {
    "lat": 36.69998,
-   "lng": 137.8436
+   "lng": 137.8431327
   },
   "servesResortId": null,
   "aliases": [
    "#3 Parking"
   ],
-  "coordSource": "osm:way/630138001 (八方Ｐ / 八方第3駐車場) (approximate) — OpenStreetMap"
+  "coordSource": "operator My Maps pin (Happo Parking No. 3 / 八方第3駐車場) — https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
  },
  {
   "id": "stop-airmail",
@@ -480,14 +480,14 @@
    "ja": "八方国際ゲレンデ・エバーグリーン"
   },
   "coord": {
-   "lat": 36.70653,
-   "lng": 137.83428
+   "lat": 36.7066349,
+   "lng": 137.8346576
   },
   "servesResortId": "happo-one",
   "aliases": [
    "Happo Kokusai Slope Evergreen"
   ],
-  "coordSource": "osm:node/3152413749 (国際第１ペア valley station) (approximate) — OpenStreetMap"
+  "coordSource": "operator My Maps pin (Happo-One(Kokusai Slope) / 八方尾根(国際ゲレンデ)) — https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
  },
  {
   "id": "stop-happo-nakiyama",
@@ -578,14 +578,14 @@
    "ja": "ホテル扇屋"
   },
   "coord": {
-   "lat": 36.70365,
-   "lng": 137.84467
+   "lat": 36.7034589,
+   "lng": 137.8447178
   },
   "servesResortId": null,
   "aliases": [
    "Hotel Ogiya"
   ],
-  "coordSource": "overture:6705166d-f6b1-485f-b627-ae286d55a374 (白馬ホテル扇屋) — Overture Maps Places 2026-10-21.0 (Foursquare, Apache-2.0)"
+  "coordSource": "operator My Maps pin (Hotel Ogiya / ホテル扇屋) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
  },
  {
   "id": "stop-hotel-st-malte",
@@ -979,14 +979,14 @@
    "ja": "みそら野ロータリー"
   },
   "coord": {
-   "lat": 36.69027,
-   "lng": 137.83875
+   "lat": 36.6905445,
+   "lng": 137.8391264
   },
   "servesResortId": null,
   "aliases": [
    "Misorano Rotary"
   ],
-  "coordSource": "osm:way/1174341396 (roundabout) (approximate) — OpenStreetMap"
+  "coordSource": "operator My Maps pin (Misorano Rotary / みそら野ロータリー) — https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
  },
  {
   "id": "stop-misorano-ryusei-kaen",
@@ -1193,14 +1193,14 @@
    "ja": "パルズイン雷鳥"
   },
   "coord": {
-   "lat": 36.66154,
-   "lng": 137.84416
+   "lat": 36.6611531,
+   "lng": 137.8443183
   },
   "servesResortId": null,
   "aliases": [
    "Pals Inn Raicho"
   ],
-  "coordSource": "overture:42162f67-cb1e-40cb-9fe2-37c57c95d4fb (パルズイン雷鳥) — Overture Maps Places 2026-10-21.0 (Foursquare, Apache-2.0)"
+  "coordSource": "operator My Maps pin (Pals Inn Raicho / パルズイン雷鳥) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
  },
  {
   "id": "stop-panorama-hotel",
@@ -1209,14 +1209,14 @@
    "ja": "パノラマホテル"
   },
   "coord": {
-   "lat": 36.69904,
-   "lng": 137.84534
+   "lat": 36.699223,
+   "lng": 137.845001
   },
   "servesResortId": null,
   "aliases": [
    "Panorama Hotel"
   ],
-  "coordSource": "overture:a5056304-acd9-43cb-9dac-4340f8b5573f (白馬パノラマホテル) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
+  "coordSource": "gsi:長野県北安曇郡白馬村北城3322-1 (lot-level, approximate) — https://tour.l-tike.com/hotels/domestic/hotel/245746/"
  },
  {
   "id": "stop-pension-minamijujisei",
@@ -1225,14 +1225,14 @@
    "ja": "ペンション南十字星"
   },
   "coord": {
-   "lat": 36.68585,
-   "lng": 137.84237
+   "lat": 36.6857055,
+   "lng": 137.842165
   },
   "servesResortId": null,
   "aliases": [
    "Pension Minamijujisei"
   ],
-  "coordSource": "overture:a2f32d90-18b0-4dfd-9385-e06a653c50df (ペンション南十字星) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
+  "coordSource": "operator My Maps pin (Pension Minamijujisei / ペンション南十字星) — https://www.google.com/maps/d/viewer?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc"
  },
  {
   "id": "stop-rantanrirun",
