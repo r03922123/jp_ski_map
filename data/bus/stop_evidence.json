@@ -19,11 +19,12 @@
   },
   "stop-alpine-route-hotel-kanouya": {
    "osm": {
-    "lat": 36.5291748,
-    "lng": 137.8069605,
-    "ref": "operator My Maps pin (Alpine Route Hotel-Kanouya / アルペンルートホテル-叶屋)"
+    "lat": 36.52911,
+    "lng": 137.80694,
+    "ref": "overture:ee602538-cfb2-4af6-8506-b85e43442818 (アルペンルートホテル)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "The stop serves two hotels, so the first-named one is used (ADR-0004): アルペンルートホテル, 平2861 on the permit list. The other, Meta's 旅館叶家 (平2870-4), is 101 m away"
   },
   "stop-ana-kuroyon": {
    "osm": {
@@ -43,11 +44,11 @@
   },
   "stop-cook": {
    "osm": {
-    "lat": 36.6617148,
-    "lng": 137.840432,
-    "ref": "operator My Maps pin (Cook / クック)"
+    "lat": 36.66146,
+    "lng": 137.84047,
+    "ref": "overture:e41e885d-b8f6-4bf9-bcb5-78e8cf4b09f1 (ペンション クック)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-courtyard-by-marriott-hakuba": {
    "osm": {
@@ -75,19 +76,19 @@
   },
   "stop-echoland-spicy": {
    "osm": {
-    "lat": 36.6920952,
-    "lng": 137.8449603,
-    "ref": "operator My Maps pin (Echoland (In front of Spicy) / エコーランド (Spicy前))"
+    "lat": 36.69214,
+    "lng": 137.84506,
+    "ref": "overture:8c380645-9559-4476-8925-70ef0553c7f0 (Spicy Rentals Echoland スパイシーレンタルサービス エコランド店)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-gakuto-villas": {
    "osm": {
-    "lat": 36.7084625,
-    "lng": 137.8375768,
-    "ref": "operator My Maps pin (Gakuto Villas / ガクトヴィラ)"
+    "lat": 36.70867,
+    "lng": 137.83766,
+    "ref": "overture:c40a4f25-aacd-4115-861b-7d9d58328592 (Gakuto Villas)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-hakuba-goryu-bus-stop": {
    "osm": {
@@ -107,11 +108,12 @@
   },
   "stop-hakuba-sunvalley-hotel": {
    "osm": {
-    "lat": 36.6691103,
-    "lng": 137.8400214,
-    "ref": "operator My Maps pin (Hakuba Sunvalley Hotel / 白馬サンバレーホテル)"
+    "lat": 36.66907,
+    "lng": 137.8392,
+    "ref": "overture:042276bb-fb3e-43f0-b24e-6036cb89554c (白馬サンバレーホテル)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Picked by its exact name; the annex's record, 白馬サンバレーホテルアネックス (26031), is 32 m away"
   },
   "stop-happo-sakka": {
    "osm": {
@@ -131,11 +133,11 @@
   },
   "stop-hotel-st-malte": {
    "osm": {
-    "lat": 36.6595484,
-    "lng": 137.840644,
-    "ref": "operator My Maps pin (Hotel St.Malte / ホテルサンマルテ)"
+    "lat": 36.65954,
+    "lng": 137.84063,
+    "ref": "overture:99a830a9-d016-42a2-b2c1-1a907247b57d (ホテルサンマルテ)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-jr-shinano-omachi-station": {
    "osm": {
@@ -155,11 +157,12 @@
   },
   "stop-keyakino-ki": {
    "osm": {
-    "lat": 36.7092927,
-    "lng": 137.839413,
-    "ref": "operator My Maps pin (Keyaki-no-ki / けやきの樹)"
+    "lat": 36.70907,
+    "lng": 137.83903,
+    "ref": "overture:5718301b-6742-4e72-b87c-055d6fbe040d (けやきの樹)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Meta has 3 records for this hotel within 38 m; this one's name equals the stop's, and it gives the lot 北城4721. The others are Hotel Keyaki no Ki (also 4721) and モアリゾートホテルけやきの樹 (no address)"
   },
   "stop-kirikubo-ent": {
    "osm": {
@@ -180,35 +183,39 @@
   },
   "stop-kurobe-kanko-hotel": {
    "osm": {
-    "lat": 36.5282657,
-    "lng": 137.8115409,
-    "ref": "operator My Maps pin (Kurobe Kanko Hotel / 黒部観光ホテル)"
+    "lat": 36.52804,
+    "lng": 137.81125,
+    "ref": "overture:cfbb748e-1ee3-41b0-97f2-8af3b5cdfdba (黒部観光ホテル)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-kurobe-view-hotel": {
    "osm": {
-    "lat": 36.5305004,
-    "lng": 137.8058879,
-    "ref": "operator My Maps pin (Omachi Onsenkyo (Kurobe View Hotel) / 大町温泉郷(黒部ビューホテル))"
+    "lat": 36.53045,
+    "lng": 137.80595,
+    "ref": "overture:6b4f07f0-6e21-4281-9b3d-2005efa0f9f4 (大町温泉郷黒部ビューホテル)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-la-naige": {
    "osm": {
-    "lat": 36.7101345,
-    "lng": 137.8347985,
-    "ref": "operator My Maps pin (La Naige / ラ・ネージュ)"
+    "lat": 36.71112,
+    "lng": 137.83471,
+    "ref": "overture:536cb629-3c7e-4cc8-b765-34b440090cdb (白馬リゾートホテルラネージュ)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "The hotel has two buildings about 130 m apart, and the boarding point is probably on the road between them. This record is named for the whole hotel and gives 和田野4744, the permit list's lot (4744-1); the main building's Meta and Foursquare records (本館, 4748) are 132-134 m away",
+   "approx": true
   },
   "stop-la-vigne-hakuba-north-parking": {
    "osm": {
-    "lat": 36.6930345,
-    "lng": 137.8447202,
-    "ref": "operator My Maps pin (La Vignu/ラヴィーニュ白馬)"
+    "lat": 36.69251,
+    "lng": 137.84503,
+    "ref": "overture:865d2690-8307-4a0b-8455-780ed044134e (HOTEL LA VIGNE HAKUBA by Onko Chishin)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "The north car park is not mapped separately, so the point is the hotel's (lot 3020-1116, as on the permit list). A second clean record, Microsoft's ホテル ラ ヴィーニュ 白馬 by 温故知新 (4ca48801), is 505 m away; rejected: its category is automotive_service and its address gives only the district (北城3)",
+   "approx": true
   },
   "stop-lion-cafe": {
    "osm": {
@@ -395,11 +402,11 @@
   },
   "stop-bosco": {
    "osm": {
-    "lat": 36.663456,
-    "lng": 137.842465,
-    "ref": "operator My Maps pin (BOSCO / ボスコ)"
+    "lat": 36.66339,
+    "lng": 137.84222,
+    "ref": "overture:cb87d32c-f2db-484e-9d72-1920dfc7a991 (Il Bosco)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
   },
   "stop-echoland-main-st": {
    "osm": {
@@ -469,11 +476,13 @@
   },
   "stop-kashimayari-central": {
    "osm": {
-    "lat": 36.5969431,
-    "lng": 137.8254561,
-    "ref": "operator My Maps pin (Kashimayari Snow Resort Family Park (Central Slope) / 鹿島槍スキー場 ファミリーパーク (中央ゲレンデ）)"
+    "lat": 36.5971,
+    "lng": 137.82533,
+    "ref": "overture:e4b20f79-ba7f-48af-88cf-bbcf5dc36cb6 (鹿島槍スキー場 ファミリーパーク)"
    },
-   "source": "https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "Named for the Family Park, as the stop is; the point marks the resort area. OpenStreetMap's node/14286755272, 25 m away, is a camp site (tourism=camp_site) named 鹿島槍スポーツヴィレッジ, added in one 2026 changeset of 18 camp sites spread over 340 km (source: local knowledge)",
+   "approx": true
   },
   "stop-misorano-rotary": {
    "osm": {
