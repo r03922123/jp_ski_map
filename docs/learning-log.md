@@ -2,6 +2,30 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #22 fix(data): re-land the first 7 stop moves on OpenStreetMap and Overture (ADR-0004)
+
+**1. Principle: a guard proves itself by failing first.**
+The licence test now lists every stop source a licence decision covers, and fails on any other.
+It went in alone, before the data, and failed twice on main's data: DATA-LICENSES.md had no
+Overture bullet, and `stop-panorama-hotel` still had a `gsi:` source, which ADR-0004 doesn't
+accept. After the 7 moves it passes. Had it passed on main too, it would have proved nothing.
+*Analogy:* you test a smoke alarm by pressing its button, not by waiting for a fire.
+
+**2. Trade-off: two small PRs instead of one big one, at the cost of fixing the labels.**
+PR #21 grew to 362 lines, so the moves were taken out with a revert commit and land here by
+reverting that revert. Each PR stays readable, but the restored text said PR #21 had moved the
+stops, so 5 places now name PR #22, and between the two PRs the docs said "later PRs" while the
+data was ready.
+*Analogy:* moving house in two van trips: each load is lighter, but the boxes marked "trip 1"
+need new labels.
+
+**3. What could go wrong: the source changes between the review and the landing.**
+OpenStreetMap can change any day, and Overture publishes a new release each month, so the 7
+values were read again at their source before they landed. All 7 were unchanged (Overture's
+latest release is still 2026-10-21.0), and each lies within 46 m of its old pin, under
+ADR-0004's 150 m limit. A value that had moved would have needed a fresh pick, not a copy.
+*Analogy:* check the price tag at the till, not the one in last week's flyer.
+
 ## 2026-11-06 · tidy: PR #21 docs(adr): accept Overture as a second coordinate source and add its licence texts (ADR-0004)
 
 **1. Principle: the old pin may steer the search, but never pick the answer.**
