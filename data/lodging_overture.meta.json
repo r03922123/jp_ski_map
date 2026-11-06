@@ -1,9 +1,41 @@
 {
  "release": "2026-10-21.0",
  "fetchedAt": "2026-10-30T11:39:34+00:00",
- "license": "CDLA-Permissive-2.0",
- "licenseUrl": "https://cdla.dev/permissive-2-0/",
- "attribution": "Overture Maps Foundation (CDLA-Permissive-2.0)",
+ "license": "Apache-2.0 AND CC0-1.0 AND CDLA-Permissive-2.0",
+ "licenses": [
+  {
+   "dataset": "AllThePlaces",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "dataset": "Foursquare",
+   "license": "Apache-2.0",
+   "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+   "licenseText": "LICENSES/Apache-2.0.txt",
+   "notice": "LICENSES/Foursquare-NOTICE.txt"
+  },
+  {
+   "dataset": "meta",
+   "license": "CDLA-Permissive-2.0",
+   "licenseUrl": "https://cdla.dev/permissive-2-0/",
+   "licenseText": "LICENSES/CDLA-Permissive-2.0.txt"
+  },
+  {
+   "dataset": "Microsoft",
+   "license": "CDLA-Permissive-2.0",
+   "licenseUrl": "https://cdla.dev/permissive-2-0/",
+   "licenseText": "LICENSES/CDLA-Permissive-2.0.txt"
+  },
+  {
+   "dataset": "Overture",
+   "license": "CDLA-Permissive-2.0",
+   "licenseUrl": "https://cdla.dev/permissive-2-0/",
+   "licenseText": "LICENSES/CDLA-Permissive-2.0.txt"
+  }
+ ],
+ "licensesNote": "Written by hand on 2026-11-06 (ADR-0004 next step 2), not by the refresh, so it has no counts. It lists every licence Overture's attribution page gives for Places data; its other providers are all CDLA-Permissive-2.0. The split is known for 578 of the 755 places, from an extract of this release: meta 529, Foursquare 42, Microsoft 7, and Overture's own confidence score on all 578. The other 177 weren't checked. The next refresh writes each dataset with its count for all places.",
+ "attribution": "Overture Maps Foundation (Apache-2.0: Foursquare; CC0-1.0: AllThePlaces; CDLA-Permissive-2.0: meta, Microsoft, Overture); © Foursquare Labs, Inc.",
  "rows": 886,
  "places": 755
 }

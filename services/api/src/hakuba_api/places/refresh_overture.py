@@ -2,17 +2,19 @@
 
 Usage: `uv run --with duckdb python -m hakuba_api.places.refresh_overture`
 
-Overture (CDLA-Permissive-2.0; Meta, Microsoft, AWS and TomTom data) knows ~880 Hakuba
-lodgings where OpenStreetMap knows ~150, including most hotels people find on booking
-sites. DuckDB reads only the Hakuba bbox from the public GeoParquet release; it is a
+Overture knows ~880 Hakuba lodgings where OpenStreetMap knows ~150, including most hotels
+people find on booking sites. Each record keeps its providers' licences, named in its `sources`
+(Meta and Microsoft: CDLA-Permissive-2.0; Foursquare: Apache-2.0), so .meta.json is built from
+them. DuckDB reads only the Hakuba bbox from the public GeoParquet release; it is a
 refresh-time tool, not a project dependency. Requests read the snapshot, never Overture.
 """
 
 import json
 import re
 import sys
+from collections import Counter
 from datetime import UTC, datetime
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 import httpx
 
@@ -28,7 +30,23 @@ from hakuba_api.places.models import Place, PlaceKind
 BUCKET_URL = "https://overturemaps-us-west-2.s3.us-west-2.amazonaws.com"
 MIN_CONFIDENCE = 0.5
 SAME_PLACE_M = 80
-ATTRIBUTION = "Overture Maps Foundation (CDLA-Permissive-2.0)"
+
+# Each licence Overture's attribution page gives for Places data, by the SPDX id a record's
+# `sources` names: its URL, and the copy in LICENSES/ when the licence asks for its text
+KNOWN_LICENSES: dict[str, tuple[str, str | None]] = {
+    "CDLA-Permissive-2.0": ("https://cdla.dev/permissive-2-0/", "LICENSES/CDLA-Permissive-2.0.txt"),
+    "Apache-2.0": ("https://www.apache.org/licenses/LICENSE-2.0", "LICENSES/Apache-2.0.txt"),
+    "CC0-1.0": ("https://creativecommons.org/publicdomain/zero/1.0/", None),
+}
+# A provider's own NOTICE and credit, which go with its records (Apache-2.0 §4(d))
+NOTICES: dict[str, tuple[str, str]] = {
+    "Foursquare": ("LICENSES/Foursquare-NOTICE.txt", "© Foursquare Labs, Inc."),
+}
+
+
+class OvertureSource(TypedDict):
+    dataset: str | None  # both optional in Overture's SourceItem schema
+    license: str | None
 
 
 class OvertureRow(TypedDict):
@@ -39,6 +57,16 @@ class OvertureRow(TypedDict):
     lat: float
     lng: float
     addr: str | None
+    sources: NotRequired[list[OvertureSource] | None]  # optional in Overture's schema
+
+
+class DatasetLicense(TypedDict):
+    dataset: str
+    license: str
+    licenseUrl: str
+    places: int
+    licenseText: NotRequired[str]
+    notice: NotRequired[str]
 
 
 _KIND: dict[str, PlaceKind] = {
@@ -170,6 +198,44 @@ def latest_release(listing_xml: str) -> str:
     return max(releases, key=lambda r: (r.split(".")[0], int(r.split(".")[1])))
 
 
+def build_meta(
+    release: str, fetched_at: str, rows: list[OvertureRow], places: list[Place]
+) -> dict[str, object]:
+    """The .meta.json: one licence entry per dataset in the kept places' `sources`, with how
+    many places use it. A missing licence, or one not in KNOWN_LICENSES, stops the refresh,
+    because a label that leaves a licence out breaks that licence."""
+    sources = {f"overture:{r['id']}": r.get("sources") or [] for r in rows}
+    counts: Counter[tuple[str, str]] = Counter()
+    for p in places:
+        if not sources[p.id]:
+            raise ValueError(f"{p.id} names no source, so its licence is unknown")
+        for dataset, lic in {(s["dataset"] or "unnamed", s["license"]) for s in sources[p.id]}:
+            if lic is None or lic not in KNOWN_LICENSES:
+                raise ValueError(f"{p.id}: {dataset} data under {lic!r} needs KNOWN_LICENSES")
+            counts[dataset, lic] += 1
+    licenses: list[DatasetLicense] = []
+    by_licence: dict[str, list[str]] = {}
+    for (dataset, lic), n in sorted(counts.items(), key=lambda c: (c[0][0].casefold(), c[0][1])):
+        url, text = KNOWN_LICENSES[lic]
+        licenses.append(DatasetLicense(dataset=dataset, license=lic, licenseUrl=url, places=n))
+        if text:
+            licenses[-1]["licenseText"] = text
+        if dataset in NOTICES:
+            licenses[-1]["notice"] = NOTICES[dataset][0]
+        by_licence.setdefault(lic, []).append(dataset)
+    terms = "; ".join(f"{lic}: {', '.join(names)}" for lic, names in sorted(by_licence.items()))
+    credits = sorted({NOTICES[d][1] for d, _ in counts if d in NOTICES})
+    return {
+        "release": release,
+        "fetchedAt": fetched_at,
+        "license": " AND ".join(sorted(by_licence)),  # an SPDX expression
+        "licenses": licenses,
+        "attribution": "; ".join([f"Overture Maps Foundation ({terms})", *credits]),
+        "rows": len(rows),
+        "places": len(places),
+    }
+
+
 def fetch_rows(release: str) -> list[OvertureRow]:  # pragma: no cover - network
     import duckdb  # pyright: ignore[reportMissingImports]  # `uv run --with duckdb`
 
@@ -180,7 +246,7 @@ def fetch_rows(release: str) -> list[OvertureRow]:  # pragma: no cover - network
         f"""
         SELECT id, names."primary", taxonomy."primary", confidence,
                (bbox.ymin + bbox.ymax) / 2, (bbox.xmin + bbox.xmax) / 2,
-               addresses[1].freeform
+               addresses[1].freeform, sources
         FROM read_parquet(
           's3://overturemaps-us-west-2/release/{release}/theme=places/type=place/*',
           hive_partitioning=1)
@@ -190,7 +256,7 @@ def fetch_rows(release: str) -> list[OvertureRow]:  # pragma: no cover - network
           AND NOT list_contains(taxonomy.hierarchy, 'ski_resort')
         """
     ).fetchall()
-    keys = ("id", "name", "tax", "conf", "lat", "lng", "addr")
+    keys = ("id", "name", "tax", "conf", "lat", "lng", "addr", "sources")
     return [OvertureRow(**dict(zip(keys, r, strict=True))) for r in rows]  # type: ignore[typeddict-item]
 
 
@@ -205,21 +271,16 @@ def main() -> int:  # pragma: no cover - network
     rows = fetch_rows(release)
     places = dedupe_against(rows_to_places(rows), load_osm_lodging())
     places.sort(key=lambda p: p.id)
+    # built before either file is written, so an unknown licence leaves both as they were
+    meta = build_meta(release, datetime.now(UTC).isoformat(timespec="seconds"), rows, places)
     out = data_dir() / "lodging_overture.json"
     out.write_text(
         json.dumps([p.model_dump(by_alias=True) for p in places], ensure_ascii=False, indent=1)
         + "\n"
     )
-    meta = {
-        "release": release,
-        "fetchedAt": datetime.now(UTC).isoformat(timespec="seconds"),
-        "license": "CDLA-Permissive-2.0",
-        "licenseUrl": "https://cdla.dev/permissive-2-0/",  # the licence asks for text or link
-        "attribution": ATTRIBUTION,
-        "rows": len(rows),
-        "places": len(places),
-    }
-    (data_dir() / "lodging_overture.meta.json").write_text(json.dumps(meta, indent=1) + "\n")
+    (data_dir() / "lodging_overture.meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=1) + "\n"
+    )
     print(f"release {release}: {len(rows)} rows → {len(places)} lodgings (after OSM dedupe)")
     return 0
 
