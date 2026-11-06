@@ -19,7 +19,7 @@ ADR-0004 says that when two clean records of one place are more than 100 m apart
 says so. This batch has such records for three stops: Tateyama Prince's annex (116 m),
 Meteor's ペンションミーティア (220 m, a point shared with 3 unrelated places), and Lion Café's
 far records. Writing them down, and why each lost, lets a reviewer or the next Overture
-re-check confirm the pick without redoing the search. The price: 10 of the 13 rows now carry a
+re-check confirm the pick without redoing the search. The price: 9 of the 13 rows now carry a
 note, and the evidence file grows.
 *Analogy:* a lab notebook that records the failed runs too: longer, but nobody repeats them.
 
