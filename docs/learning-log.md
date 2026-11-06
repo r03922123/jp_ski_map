@@ -24,11 +24,11 @@ note, and the evidence file grows.
 *Analogy:* a lab notebook that records the failed runs too: longer, but nobody repeats them.
 
 **3. What could go wrong: one name, two places.**
-Nagano's food permit list has two LION CAFE shops 1.2 km apart: the main shop at 北城5746-3 and
-a branch, エコーランドベース, at 北城3020-567. The stop's plain name matches the main shop, and
-Overture's only record at the branch's lot is named for an indoor centre, so the pick holds.
-Had the stop been at the branch, a name match alone would have put it 1.2 km off; the 150 m
-check against the old pin is the backstop that would catch it.
+Nagano's food permit list has two LION CAFE shops in Hakuba, about 1.2 km apart: one at
+北城5746-3 and one named LION CAFE エコーランドベース at 北城3020-567. The stop's plain name
+matches the first, and Overture's only record at the second lot is named for an indoor centre,
+so the pick holds. Had the stop been at the second shop, a name match alone would have put it
+1.2 km off; the 150 m check against the old pin is the backstop that would catch it.
 *Analogy:* two bakeries with the same name in one town: the address on the order decides
 which one gets it.
 
