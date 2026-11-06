@@ -57,14 +57,14 @@
    "ja": "アルペンルートホテル／叶家"
   },
   "coord": {
-   "lat": 36.5291748,
-   "lng": 137.8069605
+   "lat": 36.52911,
+   "lng": 137.80694
   },
   "servesResortId": null,
   "aliases": [
    "Alpine Route Hotel / Kanouya"
   ],
-  "coordSource": "operator My Maps pin (Alpine Route Hotel-Kanouya / アルペンルートホテル-叶屋) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:ee602538-cfb2-4af6-8506-b85e43442818 (アルペンルートホテル) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-ana-kuroyon",
@@ -90,14 +90,14 @@
    "ja": "ボスコ"
   },
   "coord": {
-   "lat": 36.663456,
-   "lng": 137.842465
+   "lat": 36.66339,
+   "lng": 137.84222
   },
   "servesResortId": null,
   "aliases": [
    "Bosco"
   ],
-  "coordSource": "operator My Maps pin (BOSCO / ボスコ) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:cb87d32c-f2db-484e-9d72-1920dfc7a991 (Il Bosco) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-central-snowsports-happo",
@@ -122,15 +122,15 @@
    "ja": "ペンションクック"
   },
   "coord": {
-   "lat": 36.6617148,
-   "lng": 137.840432
+   "lat": 36.66146,
+   "lng": 137.84047
   },
   "servesResortId": null,
   "aliases": [
    "Cook",
    "Pension Cook"
   ],
-  "coordSource": "operator My Maps pin (Cook / クック) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:e41e885d-b8f6-4bf9-bcb5-78e8cf4b09f1 (ペンション クック) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-cortina",
@@ -221,15 +221,15 @@
    "ja": "エコーランド（スパイシー）"
   },
   "coord": {
-   "lat": 36.6920952,
-   "lng": 137.8449603
+   "lat": 36.69214,
+   "lng": 137.84506
   },
   "servesResortId": null,
   "aliases": [
    "Echoland (Spicy)",
    "Echoland(Spicy)"
   ],
-  "coordSource": "operator My Maps pin (Echoland (In front of Spicy) / エコーランド (Spicy前)) — https://www.google.com/maps/d/viewer?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ"
+  "coordSource": "overture:8c380645-9559-4476-8925-70ef0553c7f0 (Spicy Rentals Echoland スパイシーレンタルサービス エコランド店) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-gakuto-villas",
@@ -238,14 +238,14 @@
    "ja": "ガクトヴィラ"
   },
   "coord": {
-   "lat": 36.7084625,
-   "lng": 137.8375768
+   "lat": 36.70867,
+   "lng": 137.83766
   },
   "servesResortId": null,
   "aliases": [
    "Gakuto Villas"
   ],
-  "coordSource": "operator My Maps pin (Gakuto Villas / ガクトヴィラ) — https://www.google.com/maps/d/viewer?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc"
+  "coordSource": "overture:c40a4f25-aacd-4115-861b-7d9d58328592 (Gakuto Villas) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-goryu-escal-plaza",
@@ -400,14 +400,14 @@
    "ja": "白馬サンバレーホテル"
   },
   "coord": {
-   "lat": 36.6691103,
-   "lng": 137.8400214
+   "lat": 36.66907,
+   "lng": 137.8392
   },
   "servesResortId": null,
   "aliases": [
    "Hakuba Sunvalley Hotel"
   ],
-  "coordSource": "operator My Maps pin (Hakuba Sunvalley Hotel / 白馬サンバレーホテル) — https://www.google.com/maps/d/viewer?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg"
+  "coordSource": "overture:042276bb-fb3e-43f0-b24e-6036cb89554c (白馬サンバレーホテル) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-hakuba-tokyu-hotel",
@@ -594,14 +594,14 @@
    "ja": "サンマルテ"
   },
   "coord": {
-   "lat": 36.6595484,
-   "lng": 137.840644
+   "lat": 36.65954,
+   "lng": 137.84063
   },
   "servesResortId": null,
   "aliases": [
    "Hotel St. Malte"
   ],
-  "coordSource": "operator My Maps pin (Hotel St.Malte / ホテルサンマルテ) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:99a830a9-d016-42a2-b2c1-1a907247b57d (ホテルサンマルテ) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-iwatake",
@@ -769,14 +769,14 @@
    "ja": "鹿島槍スキー場ファミリーパーク（中央ゲレンデ）"
   },
   "coord": {
-   "lat": 36.5969431,
-   "lng": 137.8254561
+   "lat": 36.5971,
+   "lng": 137.82533
   },
   "servesResortId": "kashimayari",
   "aliases": [
    "Kashimayari Ski Resort Family Park(Central Slope)"
   ],
-  "coordSource": "operator My Maps pin (Kashimayari Snow Resort Family Park (Central Slope) / 鹿島槍スキー場 ファミリーパーク (中央ゲレンデ）) — https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  "coordSource": "overture:e4b20f79-ba7f-48af-88cf-bbcf5dc36cb6 (鹿島槍スキー場 ファミリーパーク) (approximate) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-kashimayari-nakatsuna",
@@ -802,15 +802,15 @@
    "ja": "けやきの樹"
   },
   "coord": {
-   "lat": 36.7092927,
-   "lng": 137.839413
+   "lat": 36.70907,
+   "lng": 137.83903
   },
   "servesResortId": null,
   "aliases": [
    "Hotel Keyakino-ki",
    "Keyakino-ki"
   ],
-  "coordSource": "operator My Maps pin (Keyaki-no-ki / けやきの樹) — https://www.google.com/maps/d/viewer?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc"
+  "coordSource": "overture:5718301b-6742-4e72-b87c-055d6fbe040d (けやきの樹) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-kirikubo-ent",
@@ -867,14 +867,14 @@
    "ja": "黒部観光ホテル"
   },
   "coord": {
-   "lat": 36.5282657,
-   "lng": 137.8115409
+   "lat": 36.52804,
+   "lng": 137.81125
   },
   "servesResortId": null,
   "aliases": [
    "Kurobe Kanko Hotel"
   ],
-  "coordSource": "operator My Maps pin (Kurobe Kanko Hotel / 黒部観光ホテル) — https://www.google.com/maps/d/viewer?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84"
+  "coordSource": "overture:cfbb748e-1ee3-41b0-97f2-8af3b5cdfdba (黒部観光ホテル) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-kurobe-view-hotel",
@@ -883,14 +883,14 @@
    "ja": "黒部ビューホテル"
   },
   "coord": {
-   "lat": 36.5305004,
-   "lng": 137.8058879
+   "lat": 36.53045,
+   "lng": 137.80595
   },
   "servesResortId": null,
   "aliases": [
    "Kurobe View Hotel"
   ],
-  "coordSource": "operator My Maps pin (Omachi Onsenkyo (Kurobe View Hotel) / 大町温泉郷(黒部ビューホテル)) — https://www.google.com/maps/d/viewer?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA"
+  "coordSource": "overture:6b4f07f0-6e21-4281-9b3d-2005efa0f9f4 (大町温泉郷黒部ビューホテル) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-la-naige",
@@ -899,14 +899,14 @@
    "ja": "ラ・ネージュ"
   },
   "coord": {
-   "lat": 36.7101345,
-   "lng": 137.8347985
+   "lat": 36.71112,
+   "lng": 137.83471
   },
   "servesResortId": null,
   "aliases": [
    "La Naige"
   ],
-  "coordSource": "operator My Maps pin (La Naige / ラ・ネージュ) — https://www.google.com/maps/d/viewer?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU"
+  "coordSource": "overture:536cb629-3c7e-4cc8-b765-34b440090cdb (白馬リゾートホテルラネージュ) (approximate) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-la-vigne-hakuba-north-parking",
@@ -915,14 +915,14 @@
    "ja": "ラ ヴィーニュ白馬 北駐車場"
   },
   "coord": {
-   "lat": 36.6930345,
-   "lng": 137.8447202
+   "lat": 36.69251,
+   "lng": 137.84503
   },
   "servesResortId": null,
   "aliases": [
    "La Vigne Hakuba North Parking"
   ],
-  "coordSource": "operator My Maps pin (La Vignu/ラヴィーニュ白馬) — https://www.google.com/maps/d/viewer?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk"
+  "coordSource": "overture:865d2690-8307-4a0b-8455-780ed044134e (HOTEL LA VIGNE HAKUBA by Onko Chishin) (approximate) — Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
  },
  {
   "id": "stop-lion-cafe",
