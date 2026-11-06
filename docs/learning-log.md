@@ -2,13 +2,13 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
-## 2026-11-06 · tidy: PR #21 fix(data): move 7 bus stops to OpenStreetMap and Overture points (ADR-0004)
+## 2026-11-06 · tidy: PR #21 docs(adr): accept Overture as a second coordinate source and add its licence texts (ADR-0004)
 
 **1. Principle: the old pin may steer the search, but never pick the answer.**
-The pin's licence is the problem being removed, so it can't be the reason a value is chosen.
-Happo Kokusai had two OpenStreetMap candidates 111 m apart: the lift base and Evergreen's
-building. The lift base wins because the stop is named for the Kokusai slope, not because it is
-nearer the pin. Hotel Ogiya had two 扇屋 records; the permit list's address (北城6680) picks one.
+The pin's licence is the problem being removed, so ADR-0004 bars it from choosing a value. In the
+survey behind the ADR, Hotel Ogiya had two 扇屋 records 53 m apart. The hotel's name (ホテル扇屋,
+not 扇屋旅館) and its address on the permit list (北城6680-1) pick one, not nearness to the pin.
+The pin only checks the answer afterwards (within 150 m).
 *Analogy:* a friend's hint about which shelf to search is fine, but the book you cite must be the
 one whose title matches.
 
@@ -16,15 +16,15 @@ one whose title matches.
 Permissive rows (CDLA-P, Apache-2.0) can sit inside an ODbL file if their text travels with them,
 so the stops stay one table, not two files the app must merge. CC BY 4.0 doesn't fit: its ban on
 technical measures clashes with ODbL. So the 3 official ODPT taxi points wait for the village's
-waiver, and Pension Minamijujisei uses its Overture point instead.
+waiver, and Pension Minamijujisei will use its Overture point instead.
 *Analogy:* a potluck whose rule is "anyone may take leftovers home": a dish whose cook forbids
 takeaway boxes can't go on the shared table, however good it is.
 
-**3. What could go wrong: a point in the wrong spot, or a licence read wrong.**
-A hotel point marks the building, not the bus pole, and a roundabout's centre isn't where you
-board, so those rows say `(approximate)`. A licence read wrong spreads to every copy: the lodging
-snapshot said CDLA-P only, yet 42 checked records are Foursquare's Apache-2.0. So each row now
-names its record, release and licence, and a test fails on any source nobody has reviewed.
+**3. What could go wrong: a licence read wrong spreads to every copy.**
+The lodging snapshot said CDLA-P only, yet 42 checked records are Foursquare's, under Apache-2.0.
+That licence asks for its text, Foursquare's NOTICE and a note of what we changed, so this PR
+ships all three before any stop takes a Foursquare point. The stop moves come next, in their own
+PR, with a test that fails on any source nobody has reviewed.
 *Analogy:* a mislabelled spice jar: every dish made from it inherits the mistake, so the label
 must say where the spice came from.
 
