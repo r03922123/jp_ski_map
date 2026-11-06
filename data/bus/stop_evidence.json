@@ -24,7 +24,7 @@
     "ref": "overture:ee602538-cfb2-4af6-8506-b85e43442818 (アルペンルートホテル)"
    },
    "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
-   "note": "The stop serves two hotels, so the first-named one is used (ADR-0004): アルペンルートホテル, 平2861 on the permit list. The other, Meta's 旅館叶家 (平2870-4), is 101 m away"
+   "note": "The stop serves two hotels, so the first-named one is used (ADR-0004): アルペンルートホテル, whose lot 平2861 matches the permit list's 平2861-4. The other, Meta's 旅館叶家 (平2870-4), is 101 m away"
   },
   "stop-ana-kuroyon": {
    "osm": {
@@ -137,7 +137,8 @@
     "lng": 137.84063,
     "ref": "overture:99a830a9-d016-42a2-b2c1-1a907247b57d (ホテルサンマルテ)"
    },
-   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)"
+   "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
+   "note": "The only record; its lot 22201-33 is the permit list's. Meta's point is 1.6 m from the old pin, so a shared origin can't be ruled out; the Address Base Registry point for lot 22201-33 is 25 m away and confirms the address only (ADR-0004)"
   },
   "stop-jr-shinano-omachi-station": {
    "osm": {
@@ -162,7 +163,7 @@
     "ref": "overture:5718301b-6742-4e72-b87c-055d6fbe040d (けやきの樹)"
    },
    "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
-   "note": "Meta has 3 records for this hotel within 38 m; this one's name equals the stop's, and it gives the lot 北城4721. The others are Hotel Keyaki no Ki (also 4721) and モアリゾートホテルけやきの樹 (no address)"
+   "note": "Meta has 3 records for this hotel within 38 m. Two match by name and both give the lot 北城4721: this one equals the stop's name.ja けやきの樹, and Hotel Keyaki no Ki matches the timetable alias Hotel Keyakino-ki. The tie-break rule: the stop's own name.ja beats an alias. The third, モアリゾートホテルけやきの樹, has no address"
   },
   "stop-kirikubo-ent": {
    "osm": {
@@ -204,7 +205,7 @@
     "ref": "overture:536cb629-3c7e-4cc8-b765-34b440090cdb (白馬リゾートホテルラネージュ)"
    },
    "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
-   "note": "The hotel has two buildings about 130 m apart, and the boarding point is probably on the road between them. This record is named for the whole hotel and gives 和田野4744, the permit list's lot (4744-1); the main building's Meta and Foursquare records (本館, 4748) are 132-134 m away",
+   "note": "The hotel has two buildings about 130 m apart, and the boarding point is probably on the road between them. This record is named for the whole hotel and gives 和田野4744, the permit list's lot (4744-1); Meta's east-building record, Hotel La Neige Higashikan (0db10da3, 4744), is 6 m away. The main building's records are 132-134 m away: Meta's Hotel La Neige Honkan (4b97ec54, lot 4748) and Foursquare's ラ・ネージュ本館 (bcb0e324, no lot, only 和田野). Foursquare's ラ・ネージュ東館 (aac113a6, 4744) is 1.2 km away, rejected: 12 unrelated places share its point, so it marks the area, not the hotel",
    "approx": true
   },
   "stop-la-vigne-hakuba-north-parking": {
@@ -481,7 +482,7 @@
     "ref": "overture:e4b20f79-ba7f-48af-88cf-bbcf5dc36cb6 (鹿島槍スキー場 ファミリーパーク)"
    },
    "source": "Overture Maps Places 2026-10-21.0 (Meta, CDLA-Permissive-2.0)",
-   "note": "Named for the Family Park, as the stop is; the point marks the resort area. OpenStreetMap's node/14286755272, 25 m away, is a camp site (tourism=camp_site) named 鹿島槍スポーツヴィレッジ, added in one 2026 changeset of 18 camp sites spread over 340 km (source: local knowledge)",
+   "note": "Named for the Family Park, as the stop is; the point marks the resort area. OpenStreetMap's node/14286755272, 25 m away, is a camp site (tourism=camp_site) named 鹿島槍スポーツヴィレッジ, added in one 2026 changeset of 18 camp sites spread over 340 km (source: local knowledge). Meta's 鹿島槍運動渡假中心 - 滑雪場 ('Kashimayari Sports Resort - Ski Area', 13377e6c, lot 20490-1) is 8 km away, rejected: 6 unrelated places, 扇沢駅 among them, share its point",
    "approx": true
   },
   "stop-misorano-rotary": {

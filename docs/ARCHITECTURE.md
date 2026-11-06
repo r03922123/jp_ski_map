@@ -239,10 +239,10 @@ Each item is small enough for its own PR. None is fixed by this page.
    [PR #21](https://github.com/r03922123/jp_ski_map/pull/21)); 13 more moved to Overture in
    [PR #23](https://github.com/r03922123/jp_ski_map/pull/23) (batch A), so 30 have moved so far.
    28 My Maps stops remain: 13 move to Overture in batch B, the next PR, and 15 wait on the
-   owner's permission requests (ADR-0004 next step 3). Also open (ADR-0004 next step 2): `data/lodging_overture.meta.json`,
-   and the code that writes it (`places/refresh_overture.py:31` and `:216`), still label every
-   Overture record CDLA-Permissive-2.0; build the label from each record's sources, and link the
-   licence texts from the app and the API docs.
+   owner's permission requests (ADR-0004 next step 3). Also open (ADR-0004 next step 2):
+   `data/lodging_overture.meta.json`, and the code that writes it (`places/refresh_overture.py:31`
+   and `:216`), still label every Overture record CDLA-Permissive-2.0; build the label from each
+   record's sources, and link the licence texts from the app and the API docs.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the

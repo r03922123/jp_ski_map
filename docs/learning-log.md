@@ -6,11 +6,12 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 
 **1. Principle: apply the rule to every pick, including the ones a survey already made.**
 ADR-0004 says the old pin never picks between candidates. For Keyaki no Ki, Overture had 3 Meta
-records within 38 m, and the survey had chosen "Hotel Keyaki no Ki", the one nearest the pin,
-without a reason that didn't use the pin. By the rule, the name decides: one record is named
-けやきの樹, exactly the stop's name, so this PR uses that one, 42 m from the pin. The other 12
-picks already had a reason without the pin: the only record, an exact name, the address on the
-permit list, or the first-named hotel.
+records within 38 m. Two match by name and give the same lot, 4721: "Hotel Keyaki no Ki", the
+survey's pick and the one nearest the pin, matches the timetable alias Hotel Keyakino-ki, and
+けやきの樹 equals the stop's own Japanese name. The pin may not break that tie, so this PR
+writes down the rule that does: the stop's own name beats an alias. It uses けやきの樹, 42 m
+from the pin. The other 12 picks already had a reason without the pin: the only record, an
+exact name, the address on the permit list, or the first-named hotel.
 *Analogy:* blind grading: even if the same essay would have won, the grader must not peek at
 the names.
 
@@ -23,10 +24,10 @@ need more sittings.
 
 **3. What could go wrong: a hotel's point is not where the bus stops.**
 3 of the 13 mark an area, not a pole, so they say "approximate": Kashimayari's resort, La
-Naige's two buildings 130 m apart, and La Vigne's north car park, which no searched source maps on its own. La
-Naige's point is 110 m from its old pin, under the 150 m limit but not by much. The flag is in
-the data files; the app doesn't show it yet. An on-site GPS survey, which ADR-0004 next step
-4 keeps for the stops still waiting, would fix these three too.
+Naige's two buildings 130 m apart, and La Vigne's north car park, which no searched source maps
+on its own. La Naige's point is 110 m from its old pin, under the 150 m limit but not by much.
+The flag is in the data files; the app doesn't show it yet. An on-site GPS survey, which
+ADR-0004 next step 4 keeps for the stops still waiting, would fix these three too.
 *Analogy:* a street address gets a taxi to the hotel, not to the side door where the shuttle
 waits.
 
