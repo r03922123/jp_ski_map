@@ -191,7 +191,7 @@ source of truth.
 | Data | File | Source | Licence |
 |---|---|---|---|
 | Lodging (146) and POIs (87) | `data/lodging_osm.json`, `data/poi_osm.json` | OpenStreetMap via Overpass (snapshot) | ODbL 1.0 |
-| Lodging (755) | `data/lodging_overture.json` | Overture Maps Places (snapshot) | CDLA-Permissive-2.0 |
+| Lodging (755) | `data/lodging_overture.json` | Overture Maps Places (snapshot) | CDLA-Permissive-2.0; Apache-2.0 for Foursquare records |
 | Road network | Valhalla tiles, built at setup, not committed | OpenStreetMap via Geofabrik | ODbL 1.0 |
 | Map tiles | fetched at runtime | OpenFreeMap / OpenMapTiles | ODbL (OSM data) |
 | Place search fallback | queried at runtime | Photon (komoot) | ODbL (OSM data) |
@@ -217,8 +217,9 @@ source of truth.
 >   ask for a credit on maps and in apps (第4条(1), (4)).
 >
 > [PR #17](https://github.com/r03922123/jp_ski_map/pull/17) and
-> [PR #18](https://github.com/r03922123/jp_ski_map/pull/18) re-located 10 stops from OpenStreetMap;
-> the rest had no clear OSM feature and need another source (follow-up 1).
+> [PR #18](https://github.com/r03922123/jp_ski_map/pull/18) re-located 10 stops from OpenStreetMap.
+> For the rest, [ADR-0004](adr/0004-open-coordinate-sources.md) accepts Overture Maps Places as a
+> second source: later PRs move 33 of them, and 15 wait for permission (follow-up 1).
 
 Timetables can be wrong or out of date. The app labels every estimate, and the README tells users
 to check the official timetable.
@@ -235,7 +236,13 @@ Each item is small enough for its own PR. None is fixed by this page.
    [PR #14](https://github.com/r03922123/jp_ski_map/pull/14); 10 re-located from OSM in PRs
    [#17](https://github.com/r03922123/jp_ski_map/pull/17) and
    [#18](https://github.com/r03922123/jp_ski_map/pull/18); 47 My Maps stops and 1 GSI stop remain,
-   with no clear OSM feature, and need another source (ADR-0002 next step 1).
+   with no clear OSM feature. [ADR-0004](adr/0004-open-coordinate-sources.md)
+   ([PR #21](https://github.com/r03922123/jp_ski_map/pull/21)) accepts Overture Maps Places as a
+   second source: 33 of the 48 move to OSM or Overture points in later PRs (ADR-0004 next step 1),
+   and 15 wait on the owner's permission requests (next step 3). Also open (ADR-0004 next step 2):
+   `data/lodging_overture.meta.json`, and the code that writes it (`places/refresh_overture.py:31`
+   and `:216`), still label every Overture record CDLA-Permissive-2.0; build the label from each
+   record's sources, and link the licence texts from the app and the API docs.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the

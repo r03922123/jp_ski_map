@@ -2,6 +2,32 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-06 · tidy: PR #21 docs(adr): accept Overture as a second coordinate source and add its licence texts (ADR-0004)
+
+**1. Principle: the old pin may steer the search, but never pick the answer.**
+The pin's licence is the problem being removed, so ADR-0004 bars it from choosing a value. In the
+survey behind the ADR, Hotel Ogiya had two 扇屋 records 53 m apart. The hotel's name (ホテル扇屋,
+not 扇屋旅館) and its address on the permit list (北城6680-1) pick one, not nearness to the pin.
+The pin only checks the answer afterwards (within 150 m).
+*Analogy:* a friend's hint about which shelf to search is fine, but the book you cite must be the
+one whose title matches.
+
+**2. Trade-off: one file and one rule, but only for licences that fit inside it.**
+Permissive rows (CDLA-P, Apache-2.0) can sit inside an ODbL file if their text travels with them,
+so the stops stay one table, not two files the app must merge. CC BY 4.0 doesn't fit: its ban on
+technical measures clashes with ODbL. So the 3 official ODPT taxi points wait for the village's
+waiver, and Pension Minamijujisei will use its Overture point instead.
+*Analogy:* a potluck whose rule is "anyone may take leftovers home": a dish whose cook forbids
+takeaway boxes can't go on the shared table, however good it is.
+
+**3. What could go wrong: a licence read wrong spreads to every copy.**
+The lodging snapshot said CDLA-P only, yet 42 checked records are Foursquare's, under Apache-2.0.
+That licence asks for its text, Foursquare's NOTICE and a note of what we changed, so this PR
+ships all three before any stop takes a Foursquare point. The stop moves come next, in their own
+PR, with a test that fails on any source nobody has reviewed.
+*Analogy:* a mislabelled spice jar: every dish made from it inherits the mistake, so the label
+must say where the spice came from.
+
 ## 2026-11-06 · tidy: PR #20 docs: settle ADR-0003's open day-ticket cases
 
 **1. Principle: settle the edge cases once, next to the definition, and say which ones you hit.**
