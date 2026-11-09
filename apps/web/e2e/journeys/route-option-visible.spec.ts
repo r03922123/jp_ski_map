@@ -115,16 +115,36 @@ for (const device of PHONES) {
     test("changing the mode from the expanded sheet shows the whole route", async ({
       page,
     }) => {
-      const seen = await openTrip(page);
+      await openTrip(page);
       await page.getByRole("button", { name: "Expand directions" }).click();
       await expect(sheet(page)).toHaveAttribute("data-state", "expanded");
 
       const walked = page.waitForResponse(/\/api\/routes\?mode=walk/);
       await page.getByRole("tab", { name: /walk/i }).click();
-      await walked;
+      const body = await (await walked).json();
 
       await expect(sheet(page)).toHaveAttribute("data-state", "collapsed");
-      await expect.poll(() => coveredPoints(page, seen.routes[0])).toBe(0);
+      await expect
+        .poll(() => coveredPoints(page, body.primary.geometry.coordinates))
+        .toBe(0);
+    });
+
+    test("tapping Bus leaves the sheet open: its list is the answer", async ({
+      page,
+    }) => {
+      await openTrip(page);
+      await page.getByRole("button", { name: "Expand directions" }).click();
+      await expect(sheet(page)).toHaveAttribute("data-state", "expanded");
+
+      await page.getByRole("tab", { name: /bus/i }).click();
+
+      await expect(page.getByRole("tab", { name: /bus/i })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      // give a wrong collapse the time to happen (the sheet's transition is 200 ms)
+      await page.waitForTimeout(500);
+      await expect(sheet(page)).toHaveAttribute("data-state", "expanded");
     });
   });
 }

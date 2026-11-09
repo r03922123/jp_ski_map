@@ -919,7 +919,6 @@ export function MapShell() {
     origin && target
       ? `${routeMode}|${origin.lat},${origin.lng}|${target.lat},${target.lng}|${stopsKey}|${activeRoute}`
       : "";
-  const collapseKey = `${destinationKey}|${routeKey}`;
 
   const canAddStop =
     mode !== "bus" &&
@@ -1090,7 +1089,8 @@ export function MapShell() {
               )}
             </div>
           }
-          collapseKey={collapseKey}
+          collapseKey={destinationKey}
+          revealKey={routeKey}
         >
           {/* the game HUD: first in the side card; on a phone it shows once the sheet is
               swiped up, so the resting sheet holds only the answer (v1.9, BC-L1) */}

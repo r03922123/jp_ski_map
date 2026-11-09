@@ -47,6 +47,27 @@ describe("BottomSheet", () => {
     expect(sheet()).toHaveAttribute("data-state", "collapsed");
   });
 
+  it("a new route collapses an expanded sheet; losing the route leaves it", () => {
+    const view = render(
+      <BottomSheet label="Directions" revealKey="drive|a">
+        <p>list</p>
+      </BottomSheet>,
+    );
+    fireEvent.click(handle());
+    view.rerender(
+      <BottomSheet label="Directions" revealKey="">
+        <p>list</p>
+      </BottomSheet>,
+    );
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+    view.rerender(
+      <BottomSheet label="Directions" revealKey="walk|a">
+        <p>list</p>
+      </BottomSheet>,
+    );
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
   it("expands for a box inside the list too (a trip stop needs room for suggestions)", () => {
     renderSheet();
     fireEvent.focus(screen.getByRole("textbox", { name: "Stop 1" }));
