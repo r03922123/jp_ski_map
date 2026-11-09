@@ -7,8 +7,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from hakuba_api.bus.models import Timetable
-from hakuba_api.bus.query import bus_options, night_departures
-from hakuba_api.bus.router import get_bus_data, get_walks
+from hakuba_api.bus.query import bus_options, bus_options_to_place, night_departures
+from hakuba_api.bus.router import get_bus_data, get_walks, get_walks_to
 from hakuba_api.bus.store import load_stops
 from hakuba_api.data.paths import data_dir
 from hakuba_api.main import app
@@ -240,5 +240,223 @@ def test_matching_hotel_stop_is_walk_zero_even_without_coordinates(
             return [MatrixCell(id=t, duration_s=3600, distance_m=5000) for t, _ in targets]
 
     walks = bus_router.get_walks("36.7,137.84", FarValhalla(), name="Double Black Hotel")  # type: ignore[arg-type]
+
+    assert walks == {"stop-double-black-hotel": 0}
+
+
+# --- direct shuttles to a place (SPEC-bus-schedules v1.2) --------------------------
+
+AFTERNOON = datetime(2026, 3, 20, 14, 30, tzinfo=JST)
+ESCAL = "stop-goryu-escal-plaza"
+TERMINAL = "stop-happo-bus-terminal"
+JR_HAKUBA = "stop-jr-hakuba"
+ECHOLAND = ALIAS["Echoland (Spicy)"]
+CULTURED = ALIAS["Cultured"]
+
+
+def to_place(
+    from_walks: dict[str, int],
+    place_walks: dict[str, int],
+    tables: list[Timetable],
+    at: datetime = AFTERNOON,
+) -> Any:
+    return bus_options_to_place(from_walks, place_walks, at, tables, STOPS, ALIAS)
+
+
+def hhmm(moment: datetime | None) -> str | None:
+    return moment.strftime("%H:%M") if moment else None
+
+
+def test_spec_example_lists_the_next_shuttles_back_by_departure() -> None:
+    result = to_place({ESCAL: 120}, {TERMINAL: 300}, [table("line-v-v2"), table("line-g-g4")])
+
+    assert result.status == "ok"
+    assert [
+        (o.route_id, hhmm(o.departs_at), hhmm(o.arrives_at), hhmm(o.door_arrives_at), o.timed)
+        for o in result.options
+    ] == [
+        ("v2", "14:37", "15:10", "15:15", True),
+        ("g4", "15:00", None, None, False),
+        ("g4", "16:00", None, None, False),
+        ("v2", "16:07", "16:40", "16:45", True),
+        ("g4", "17:10", None, None, False),
+    ]
+
+
+def test_option_says_where_to_get_off_and_how_far_the_walk_is() -> None:
+    first = to_place({ESCAL: 120}, {TERMINAL: 300}, [table("line-v-v2")]).options[0]
+
+    assert first.resort_id is None
+    assert first.board_stop_id == ESCAL
+    assert first.alight_stop_id == TERMINAL
+    assert first.walk_s == 120
+    assert first.walk_to_place_s == 300
+    assert first.ride_s == 33 * 60
+    assert first.wait_s == 5 * 60  # ready at 14:32, the bus leaves at 14:37
+    assert (first.ride_stops[0].stop_id, first.ride_stops[-1].stop_id) == (ESCAL, TERMINAL)
+
+
+def test_walk_time_rules_out_a_bus_you_cannot_reach() -> None:
+    result = to_place({ESCAL: 15 * 60}, {TERMINAL: 300}, [table("line-v-v2"), table("line-g-g4")])
+
+    assert hhmm(result.options[0].departs_at) == "15:00"
+
+
+def test_timed_trip_never_stops_where_its_time_is_blank() -> None:
+    # V2 north trip 7 prints no time at JR Hakuba: it skips it. Trip 8 stops there.
+    result = to_place({ESCAL: 120}, {JR_HAKUBA: 60}, [table("line-v-v2")])
+
+    assert [o.trip for o in result.options] == [8]
+    assert hhmm(result.options[0].arrives_at) == "16:46"
+
+
+def test_first_stop_only_trip_cannot_be_boarded_further_along() -> None:
+    # G4 publishes only its first stop, so nobody can say when it reaches Cultured
+    result = to_place({CULTURED: 60}, {TERMINAL: 60}, [table("line-g-g4")])
+
+    assert result.status == "ok"
+    assert result.options == []
+
+
+def test_timed_trip_gets_off_where_you_reach_the_door_soonest() -> None:
+    # Echoland 14:57 + 20 min = 15:17; the Terminal 15:10 + 1 min = 15:11
+    later_but_closer = to_place(
+        {ESCAL: 120}, {ECHOLAND: 20 * 60, TERMINAL: 60}, [table("line-v-v2")]
+    )
+    assert later_but_closer.options[0].alight_stop_id == TERMINAL
+
+    # the same walk from both: the earlier stop wins
+    same_walk = to_place({ESCAL: 120}, {ECHOLAND: 60, TERMINAL: 60}, [table("line-v-v2")])
+    assert same_walk.options[0].alight_stop_id == ECHOLAND
+
+
+def test_first_stop_only_trip_gets_off_at_the_shortest_walk() -> None:
+    result = to_place({ESCAL: 120}, {CULTURED: 600, TERMINAL: 120}, [table("line-g-g4")])
+
+    first = result.options[0]
+    assert first.alight_stop_id == TERMINAL
+    assert first.walk_to_place_s == 120
+    assert first.door_arrives_at is None
+
+
+def test_a_stop_is_never_both_boarding_and_getting_off() -> None:
+    h1 = table("line-h-h1")
+    start = ALIAS[h1.directions[0].stops[0]]
+    assert ALIAS[h1.directions[0].stops[-1]] == start  # a loop comes back to where it began
+
+    assert to_place({start: 0}, {start: 0}, [h1]).options == []
+
+
+def test_loop_line_reaches_a_stop_further_round() -> None:
+    h1 = table("line-h-h1")
+    start, middle = (ALIAS[h1.directions[0].stops[k]] for k in (0, 5))
+
+    result = to_place({start: 0}, {middle: 60}, [h1])
+
+    assert result.options
+    assert {o.alight_stop_id for o in result.options} == {middle}
+
+
+def test_one_row_per_trip_from_the_closer_boarding_stop() -> None:
+    result = to_place({ESCAL: 120, ECHOLAND: 60}, {TERMINAL: 60}, [table("line-v-v2")])
+
+    trips = [(o.route_id, o.trip) for o in result.options]
+    assert len(trips) == len(set(trips))
+    assert result.options[0].board_stop_id == ECHOLAND  # same bus, same door time, less walk
+
+
+def test_at_most_five_rows_in_departure_order() -> None:
+    result = to_place(
+        {ESCAL: 0},
+        {TERMINAL: 60},
+        [table("line-v-v2"), table("line-g-g4")],
+        at=datetime(2026, 3, 20, 8, 0, tzinfo=JST),
+    )
+
+    departures = [o.departs_at for o in result.options]
+    assert len(departures) == 5
+    assert departures == sorted(departures)
+
+
+def test_to_place_out_of_season_reports_next_service_date() -> None:
+    result = to_place(
+        {ESCAL: 0},
+        {TERMINAL: 60},
+        [table("line-v-v2")],
+        at=datetime(2026, 1, 10, 8, 0, tzinfo=JST),
+    )
+
+    assert result.status == "no_service"
+    assert result.next_service_date == date(2026, 3, 16)
+    assert result.options == []
+
+
+def test_to_place_never_uses_unreviewed_timetables() -> None:
+    result = to_place({ESCAL: 0}, {TERMINAL: 60}, [table("line-v-v2", reviewed=False)])
+
+    assert result.status == "awaiting_review"
+    assert result.options == []
+
+
+def test_to_place_keeps_the_night_bus_out() -> None:
+    vn = table("line-vn")
+    ids = [ALIAS[s] for s in vn.directions[0].stops]
+
+    result = to_place({ids[0]: 0}, {ids[-1]: 60}, [vn], at=datetime(2026, 1, 20, 17, 0, tzinfo=JST))
+
+    assert result.options == []
+
+
+@pytest.fixture
+def place_api() -> Any:
+    app.dependency_overrides[get_walks] = lambda: {ESCAL: 120}
+    app.dependency_overrides[get_walks_to] = lambda: {TERMINAL: 300}
+    app.dependency_overrides[get_bus_data] = lambda: [table("line-v-v2")]
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+
+
+def test_to_place_endpoint(place_api: TestClient) -> None:
+    response = place_api.get(
+        "/api/bus/to-place",
+        params={"from": "36.65,137.84", "to": "36.70,137.85", "at": "2026-03-20T14:30:00+09:00"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    first = body["options"][0]
+    assert first["departsAt"] == "2026-03-20T14:37:00+09:00"
+    assert first["doorArrivesAt"] == "2026-03-20T15:15:00+09:00"
+    assert first["walkToPlaceS"] == 300
+    assert first["resortId"] is None
+
+
+def test_to_place_endpoint_needs_a_destination() -> None:
+    app.dependency_overrides[get_walks] = lambda: {ESCAL: 120}
+    try:
+        response = TestClient(app).get("/api/bus/to-place", params={"from": "36.65,137.84"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 422
+
+
+def test_lodging_that_is_a_stop_is_walk_zero_at_the_far_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from hakuba_api.bus import router as bus_router
+    from hakuba_api.common.geo import Coord
+    from hakuba_api.routing.models import MatrixCell, Mode
+
+    monkeypatch.setattr(bus_router, "load_stops", lambda: [STOPS["stop-double-black-hotel"]])
+
+    class FarValhalla:
+        def matrix(
+            self, mode: Mode, origin: Coord, targets: list[tuple[str, Coord]]
+        ) -> list[MatrixCell]:
+            return [MatrixCell(id=t, duration_s=3600, distance_m=5000) for t, _ in targets]
+
+    walks = bus_router.get_walks_to("36.7,137.84", FarValhalla(), to_name="Double Black Hotel")  # type: ignore[arg-type]
 
     assert walks == {"stop-double-black-hotel": 0}

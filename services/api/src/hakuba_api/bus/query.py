@@ -1,14 +1,17 @@
-"""Pure bus queries: no I/O. See SPEC-bus-schedules.md (Query, Untimed routes)."""
+"""Pure bus queries: no I/O. See SPEC-bus-schedules.md (Query, Untimed routes, v1.2)."""
 
 from datetime import date, datetime, timedelta
 from typing import Any, Literal
 
-from hakuba_api.bus.models import BusStop, Timetable
+from hakuba_api.bus.models import BusStop, Timetable, Trip
 from hakuba_api.bus.season import Basis, effective_timetables, next_service_date
 from hakuba_api.common.geo import Coord
 from hakuba_api.common.models import ApiModel
 
 MAX_OPTIONS_PER_RESORT = 3
+MAX_OPTIONS_TO_PLACE = 5
+
+ServiceStatus = Literal["ok", "no_service", "awaiting_review"]
 
 
 class RideStop(ApiModel):
@@ -19,7 +22,7 @@ class RideStop(ApiModel):
 
 
 class BusOption(ApiModel):
-    resort_id: str
+    resort_id: str | None  # None on a trip to a place (/to-place)
     line_id: str
     route_id: str
     route_name: str
@@ -37,6 +40,8 @@ class BusOption(ApiModel):
     first_stop_name: str
     source_file: str
     ride_stops: list[RideStop] = []  # board → … → alight, in trip order
+    walk_to_place_s: int | None = None  # from the alighting stop (/to-place only)
+    door_arrives_at: datetime | None = None  # alighting time + that walk; None when untimed
 
 
 class ResortBusOptions(ApiModel):
@@ -45,12 +50,21 @@ class ResortBusOptions(ApiModel):
 
 
 class BusResult(ApiModel):
-    status: Literal["ok", "no_service", "awaiting_review"]
+    status: ServiceStatus
     next_service_date: date | None
     resorts: list[ResortBusOptions]
     basis: Basis = "published"  # "expected": projected from last season's timetable
     based_on_season: str | None = None  # for the source link / tooltip only, never headline text
     newer_source_pending: bool = False  # the operator published a timetable not transcribed yet
+
+
+class PlaceBusResult(ApiModel):
+    status: ServiceStatus
+    next_service_date: date | None
+    options: list[BusOption]
+    basis: Basis = "published"
+    based_on_season: str | None = None
+    newer_source_pending: bool = False
 
 
 class NightDeparture(ApiModel):
@@ -78,6 +92,44 @@ def _active(t: Timetable, day: date, kind: str) -> bool:
     return t.kind == kind and t.valid_from <= day <= t.valid_to
 
 
+def _ride_stops(
+    ids: list[str], trip: Trip, stops: dict[str, BusStop], board: int, alight: int
+) -> list[RideStop]:
+    return [
+        RideStop(
+            stop_id=ids[k],
+            name=stops[ids[k]].name.en,
+            coord=stops[ids[k]].coord,
+            time=trip.times[k],
+        )
+        for k in range(board, alight + 1)
+    ]
+
+
+def _service_on(
+    day: date, day_tables: list[Timetable], newer_source_pending: bool
+) -> tuple[list[Timetable], ServiceStatus, date | None, dict[str, Any]]:
+    """The timetables running on `day`, and the status both day-bus queries answer with."""
+    active, basis, season = effective_timetables(day, day_tables)
+    status: ServiceStatus = "ok"
+    next_date: date | None = None
+    if not active:
+        upcoming = next_service_date(day, day_tables)
+        basis = upcoming[1] if upcoming else "expected"
+        if any(_active(t, day, "day") and not t.reviewed for t in day_tables):
+            status = "awaiting_review"
+        else:
+            status = "no_service"
+            next_date = upcoming[0] if upcoming else None
+    meta: dict[str, Any] = {
+        "basis": basis,
+        "based_on_season": season,
+        # a newer timetable only matters while we are projecting from an old one
+        "newer_source_pending": newer_source_pending and basis == "expected",
+    }
+    return active, status, next_date, meta
+
+
 def bus_options(
     walks: dict[str, int],
     at: datetime,
@@ -88,29 +140,9 @@ def bus_options(
 ) -> BusResult:
     day = at.date()
     day_tables = [t for t in timetables if t.kind == "day"]
-    active, basis, season = effective_timetables(day, day_tables)
-    if not active:
-        upcoming = next_service_date(day, day_tables)
-        basis = upcoming[1] if upcoming else "expected"
-        meta: dict[str, Any] = {
-            "basis": basis,
-            "based_on_season": season,
-            # a newer timetable only matters while we are projecting from an old one
-            "newer_source_pending": newer_source_pending and basis == "expected",
-        }
-        if any(_active(t, day, "day") and not t.reviewed for t in day_tables):
-            return BusResult(status="awaiting_review", next_service_date=None, resorts=[], **meta)
-        return BusResult(
-            status="no_service",
-            next_service_date=upcoming[0] if upcoming else None,
-            resorts=[],
-            **meta,
-        )
-    meta = {
-        "basis": basis,
-        "based_on_season": season,
-        "newer_source_pending": newer_source_pending and basis == "expected",
-    }
+    active, status, next_date, meta = _service_on(day, day_tables, newer_source_pending)
+    if status != "ok":
+        return BusResult(status=status, next_service_date=next_date, resorts=[], **meta)
 
     best: dict[tuple[str, str, int, str], BusOption] = {}  # one entry per trip and resort
     for t in active:
@@ -154,15 +186,7 @@ def bus_options(
                             timed=timed,
                             first_stop_name=d.stops[ref],
                             source_file=t.source.file,
-                            ride_stops=[
-                                RideStop(
-                                    stop_id=ids[k],
-                                    name=stops[ids[k]].name.en,
-                                    coord=stops[ids[k]].coord,
-                                    time=trip.times[k],
-                                )
-                                for k in range(i, j + 1)
-                            ],
+                            ride_stops=_ride_stops(ids, trip, stops, i, j),
                         )
                         key = (t.route_id, d.id, trip.n, resort)
                         current = best.get(key)
@@ -170,8 +194,8 @@ def bus_options(
                             best[key] = option
 
     by_resort: dict[str, list[BusOption]] = {}
-    for option in best.values():
-        by_resort.setdefault(option.resort_id, []).append(option)
+    for (_, _, _, resort), option in best.items():
+        by_resort.setdefault(resort, []).append(option)
     ranked = {
         resort: sorted(opts, key=_rank)[:MAX_OPTIONS_PER_RESORT]
         for resort, opts in by_resort.items()
@@ -188,6 +212,92 @@ def bus_options(
 def _rank(o: BusOption) -> tuple[bool, datetime, int]:
     """Timed before untimed, then earliest arrival (or departure), then shortest walk."""
     return (not o.timed, o.arrives_at or o.departs_at, o.walk_s)
+
+
+def bus_options_to_place(
+    walks_from: dict[str, int],
+    walks_to: dict[str, int],
+    at: datetime,
+    timetables: list[Timetable],
+    stops: dict[str, BusStop],
+    alias: dict[str, str],
+    newer_source_pending: bool = False,
+) -> PlaceBusResult:
+    """The next direct shuttles to a place, such as back to the lodging (spec v1.2)."""
+    day = at.date()
+    day_tables = [t for t in timetables if t.kind == "day"]
+    active, status, next_date, meta = _service_on(day, day_tables, newer_source_pending)
+    if status != "ok":
+        return PlaceBusResult(status=status, next_service_date=next_date, options=[], **meta)
+
+    best: dict[tuple[str, str, int], BusOption] = {}  # one row per trip
+    for t in active:
+        for d in t.directions:
+            ids = [alias[s] for s in d.stops]
+            for trip in d.trips:
+                # one printed time: the blanks are "not published". With more, a blank
+                # means this trip doesn't go there (V2 north trip 7 skips JR Hakuba).
+                first_stop_only = sum(time is not None for time in trip.times) == 1
+                for i, board in enumerate(ids):
+                    printed = trip.times[i]
+                    if board not in walks_from or printed is None:
+                        continue
+                    departs = _at(day, printed, at)
+                    ready = at + timedelta(seconds=walks_from[board])
+                    if departs < ready:
+                        continue
+                    for j in range(i + 1, len(ids)):
+                        alight = ids[j]
+                        arr_time = trip.times[j]
+                        if alight not in walks_to or alight == board:
+                            continue
+                        if arr_time is None and not first_stop_only:
+                            continue
+                        arrives = _at(day, arr_time, at) if arr_time else None
+                        walk_to = walks_to[alight]
+                        option = BusOption(
+                            resort_id=None,
+                            line_id=t.line_id,
+                            route_id=t.route_id,
+                            route_name=t.name.en,
+                            trip=trip.n,
+                            board_stop_id=board,
+                            board_stop_name=stops[board].name.en,
+                            board_stop_coord=stops[board].coord,
+                            alight_stop_id=alight,
+                            walk_s=walks_from[board],
+                            departs_at=departs,
+                            arrives_at=arrives,
+                            ride_s=int((arrives - departs).total_seconds()) if arrives else None,
+                            wait_s=int((departs - ready).total_seconds()),
+                            timed=arrives is not None,
+                            first_stop_name=d.stops[i],
+                            source_file=t.source.file,
+                            ride_stops=_ride_stops(ids, trip, stops, i, j),
+                            walk_to_place_s=walk_to,
+                            door_arrives_at=(
+                                arrives + timedelta(seconds=walk_to) if arrives else None
+                            ),
+                        )
+                        key = (t.route_id, d.id, trip.n)
+                        current = best.get(key)
+                        if current is None or _stop_rank(option) < _stop_rank(current):
+                            best[key] = option
+
+    options = sorted(best.values(), key=_place_rank)[:MAX_OPTIONS_TO_PLACE]
+    return PlaceBusResult(status="ok", next_service_date=None, options=options, **meta)
+
+
+def _stop_rank(o: BusOption) -> tuple[datetime, int, int]:
+    """Within one trip: soonest at the door, then the shorter walks. Untimed trips have a
+    single boarding stop and no door time, so only the walk from the stop tells them apart."""
+    return (o.door_arrives_at or o.departs_at, o.walk_to_place_s or 0, o.walk_s)
+
+
+def _place_rank(o: BusOption) -> tuple[datetime, bool, datetime, int]:
+    """Across trips: next to leave (the one time every trip has), timed first on a tie."""
+    door = o.door_arrives_at
+    return (o.departs_at, door is None, door or o.departs_at, o.walk_s + (o.walk_to_place_s or 0))
 
 
 def night_departures(

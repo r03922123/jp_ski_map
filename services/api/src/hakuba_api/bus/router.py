@@ -6,7 +6,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 
 from hakuba_api.bus.models import BusStop, Timetable
-from hakuba_api.bus.query import BusResult, NightResult, bus_options, night_departures
+from hakuba_api.bus.query import (
+    BusResult,
+    NightResult,
+    PlaceBusResult,
+    bus_options,
+    bus_options_to_place,
+    night_departures,
+)
 from hakuba_api.bus.store import load_manifest_season, load_stops, load_timetables
 from hakuba_api.common.params import PlausibleDateTime, parse_lat_lng
 from hakuba_api.routing.client import ValhallaClient
@@ -68,18 +75,16 @@ def stops_named(name: str, stops: list[BusStop]) -> set[str]:
     }
 
 
-def get_walks(
-    origin: Annotated[str, Query(alias="from")],
-    valhalla: Annotated[ValhallaClient, Depends(get_valhalla)],
-    name: str | None = None,
+def _walks_near(
+    place: str, param: str, valhalla: ValhallaClient, name: str | None
 ) -> dict[str, int]:
     """Walking seconds to stops within 20 min, else to the 3 nearest (located stops only).
 
-    When the origin is a place whose name matches a pickup stop (the user's hotel), that
-    stop is walk 0 — exact even if the stop itself has no coordinates yet.
+    When the place's name matches a pickup stop (the user's hotel), that stop is walk 0 —
+    exact even if the stop itself has no coordinates yet.
     """
     located = [(s.id, s.coord) for s in load_stops() if s.coord]
-    cells = valhalla.matrix("walk", parse_lat_lng(origin, "from"), located)
+    cells = valhalla.matrix("walk", parse_lat_lng(place, param), located)
     reachable = sorted(
         (c for c in cells if c.duration_s is not None), key=lambda c: c.duration_s or 0
     )
@@ -89,6 +94,22 @@ def get_walks(
         for stop_id in stops_named(name, load_stops()):
             walks[stop_id] = 0
     return walks
+
+
+def get_walks(
+    origin: Annotated[str, Query(alias="from")],
+    valhalla: Annotated[ValhallaClient, Depends(get_valhalla)],
+    name: str | None = None,
+) -> dict[str, int]:
+    return _walks_near(origin, "from", valhalla, name)
+
+
+def get_walks_to(
+    to: str,
+    valhalla: Annotated[ValhallaClient, Depends(get_valhalla)],
+    to_name: Annotated[str | None, Query(alias="toName")] = None,
+) -> dict[str, int]:
+    return _walks_near(to, "to", valhalla, to_name)
 
 
 def get_bus_data() -> list[Timetable]:
@@ -120,6 +141,22 @@ def get_bus_options(
     alias = {a: s.id for s in stops.values() for a in s.aliases}
     newer = _newer_source(manifest_season, timetables)
     return bus_options(walks, _when(at), timetables, stops, alias, newer_source_pending=newer)
+
+
+@router.get("/to-place", response_model=PlaceBusResult, response_model_by_alias=True)
+def get_bus_to_place(
+    walks_from: Annotated[dict[str, int], Depends(get_walks)],
+    walks_to: Annotated[dict[str, int], Depends(get_walks_to)],
+    timetables: Annotated[list[Timetable], Depends(get_bus_data)],
+    manifest_season: Annotated[str | None, Depends(get_manifest_season)],
+    at: PlausibleDateTime | None = None,
+) -> PlaceBusResult:
+    stops = {s.id: s for s in load_stops()}
+    alias = {a: s.id for s in stops.values() for a in s.aliases}
+    newer = _newer_source(manifest_season, timetables)
+    return bus_options_to_place(
+        walks_from, walks_to, _when(at), timetables, stops, alias, newer_source_pending=newer
+    )
 
 
 @router.get("/night", response_model=NightResult, response_model_by_alias=True)
