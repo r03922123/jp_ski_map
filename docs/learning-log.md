@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: docs(adr): friends only, and the repo stays public for now (ADR-0005)
+
+**1. Principle: separate who can read the code from who can use the service.**
+Almost every launch item depends on who uses the app: indexing, a privacy note, uptime alerts, a VM. Asking "should the repo be private?" mixed that with who can read the code.
+*Analogy:* file permissions on the source tree and the access rules on the running server are separate settings, and changing one doesn't touch the other.
+
+**2. Trade-off: a benefit only counts if the data is really out of reach.**
+The first draft recommended going private to keep the 15 unlicensed pins from strangers. But the app has no login and serves those coordinates to anyone with the link, so the repo was only one of two doors. Going private would close that door and give up GitHub's enforced PRs and CI.
+
+**3. What could go wrong: a client-side check standing in for a server-side rule.**
+The draft said a local pre-push hook could replace branch protection. A hook runs only on the machine that has it, never on a merge made on GitHub, and `--no-verify` skips it. The fresh review caught this by reading what `main`'s protection actually enforces, which is why a reviewer who never saw the conversation is worth the cost.
+
 ## 2026-11-09 · build new features: fix(web): picking a route option shows the whole route
 
 **1. Principle: an effect's key says which changes it reacts to.**
