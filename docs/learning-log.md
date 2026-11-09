@@ -2,7 +2,27 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
-## 2026-11-09 · tidy: fix(data): build the Overture licence label from the records
+## 2026-11-09 · tidy: chore: ignore Claude Code worktrees and note their setup
+
+**1. Principle: isolating the files doesn't isolate what the files talk to.**
+A worktree gives a session its own copy of the code, but ports and running services stay shared.
+Playwright reuses whatever already answers on :3000, and that is the production server. A test run
+from a worktree would check the wrong build and still pass.
+*Analogy:* two cooks with separate cutting boards who still share one oven.
+
+**2. Trade-off: a few lines every session reads, to avoid a mistake that is rare but costly.**
+`CLAUDE.md` is loaded into every session, so each line has a price. These stay because the code
+doesn't warn about them: a new worktree has no dependencies, and running `docker compose` from one
+would point the live routing container at an empty tile folder.
+*Analogy:* a "this door is alarmed" sign: small, and only worth it where the door gives no hint.
+
+**3. What could go wrong: a note can be true and still not be enough.**
+The first version said only "run dev servers on another port". Every word was accurate, yet a
+session following it could still hit production through e2e or Docker. The review caught this by
+following the note through to what it would actually run.
+*Analogy:* directions that are correct but skip the one road that is closed.
+
+## 2026-11-09 · tidy: PR #25 fix(data): build the Overture licence label from the records
 
 **1. Principle: a label should be computed from the data it describes.**
 The old label was one fixed string, and the first fix was a hand-written list of every licence
