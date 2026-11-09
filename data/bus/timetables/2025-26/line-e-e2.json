@@ -22,6 +22,16 @@
  "directions": [
   {
    "id": "outward",
+   "restricted": [
+    {
+     "stop": 0,
+     "onlyWith": 10
+    },
+    {
+     "stop": 1,
+     "onlyWith": 10
+    }
+   ],
    "stops": [
     "Courtyard By Marriott Hakuba",
     "Hotel Oak Forest",
@@ -88,6 +98,16 @@
   },
   {
    "id": "return",
+   "restricted": [
+    {
+     "stop": 9,
+     "onlyWith": 0
+    },
+    {
+     "stop": 10,
+     "onlyWith": 0
+    }
+   ],
    "stops": [
     "Hakuba Iwatake Snow Field",
     "Happo Nakiyama Slope",

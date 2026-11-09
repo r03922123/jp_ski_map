@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 import pytest
 from fastapi.testclient import TestClient
 
-from hakuba_api.bus.models import Timetable
+from hakuba_api.bus.models import BusStop, Timetable
 from hakuba_api.bus.query import bus_options, bus_options_to_place, night_departures
 from hakuba_api.bus.router import get_bus_data, get_walks, get_walks_to
 from hakuba_api.bus.store import load_stops
@@ -252,6 +252,16 @@ TERMINAL = "stop-happo-bus-terminal"
 JR_HAKUBA = "stop-jr-hakuba"
 ECHOLAND = ALIAS["Echoland (Spicy)"]
 CULTURED = ALIAS["Cultured"]
+HAKUBA47 = ALIAS["Hakuba 47 Winter Sports Park"]
+IWATAKE = ALIAS["Hakuba Iwatake Snow Field"]
+NAKIYAMA = ALIAS["Happo Nakiyama Slope"]
+COURTYARD = ALIAS["Courtyard By Marriott Hakuba"]
+MOUNT = ALIAS["Mount"]
+
+
+def serving_a_resort(stop_id: str) -> dict[str, BusStop]:
+    """The real stops, with one counted as a resort stop to test another rule on its own."""
+    return {**STOPS, stop_id: STOPS[stop_id].model_copy(update={"serves_resort_id": "goryu"})}
 
 
 def to_place(
@@ -259,8 +269,9 @@ def to_place(
     place_walks: dict[str, int],
     tables: list[Timetable],
     at: datetime = AFTERNOON,
+    stops: dict[str, BusStop] = STOPS,
 ) -> Any:
-    return bus_options_to_place(from_walks, place_walks, at, tables, STOPS, ALIAS)
+    return bus_options_to_place(from_walks, place_walks, at, tables, stops, ALIAS)
 
 
 def hhmm(moment: datetime | None) -> str | None:
@@ -329,7 +340,9 @@ def test_ride_keeps_the_unpublished_stops_of_a_first_stop_only_trip() -> None:
 
 def test_first_stop_only_trip_cannot_be_boarded_further_along() -> None:
     # G4 publishes only its first stop, so nobody can say when it reaches Cultured
-    result = to_place({CULTURED: 60}, {TERMINAL: 60}, [table("line-g-g4")])
+    result = to_place(
+        {CULTURED: 60}, {TERMINAL: 60}, [table("line-g-g4")], stops=serving_a_resort(CULTURED)
+    )
 
     assert result.status == "ok"
     assert result.options == []
@@ -357,29 +370,34 @@ def test_first_stop_only_trip_gets_off_at_the_shortest_walk() -> None:
 
 
 def test_a_stop_is_never_both_boarding_and_getting_off() -> None:
-    h1 = table("line-h-h1")
-    start = ALIAS[h1.directions[0].stops[0]]
-    assert ALIAS[h1.directions[0].stops[-1]] == start  # a loop comes back to where it began
+    e4 = table("line-e-e4")  # the return loop starts and ends at Iwatake
+    gondola = ALIAS["Happo Gondola Lift"]
 
-    assert to_place({start: 0}, {start: 0}, [h1]).options == []
+    assert to_place({IWATAKE: 0}, {IWATAKE: 0}, [e4]).options == []
+    assert to_place({IWATAKE: 0}, {gondola: 0}, [e4]).options
 
 
 def test_loop_line_reaches_a_stop_further_round() -> None:
     h1 = table("line-h-h1")
-    start, middle = (ALIAS[h1.directions[0].stops[k]] for k in (0, 5))
+    start, further = (ALIAS[h1.directions[0].stops[k]] for k in (3, 13))  # 13: back at the start
 
-    result = to_place({start: 0}, {middle: 60}, [h1])
+    result = to_place({start: 0}, {further: 60}, [h1])
 
     assert result.options
-    assert {o.alight_stop_id for o in result.options} == {middle}
+    assert {o.alight_stop_id for o in result.options} == {further}
 
 
 def test_one_row_per_trip_from_the_closer_boarding_stop() -> None:
-    result = to_place({ESCAL: 120, ECHOLAND: 60}, {TERMINAL: 60}, [table("line-v-v2")])
+    result = to_place(
+        {ESCAL: 120, HAKUBA47: 60},
+        {TERMINAL: 60},
+        [table("line-v-v2")],
+        at=datetime(2026, 3, 20, 14, 0, tzinfo=JST),
+    )
 
     trips = [(o.route_id, o.trip) for o in result.options]
     assert len(trips) == len(set(trips))
-    assert result.options[0].board_stop_id == ECHOLAND  # same bus, same door time, less walk
+    assert result.options[0].board_stop_id == HAKUBA47  # same bus, same door time, less walk
 
 
 def test_at_most_five_rows_in_departure_order() -> None:
@@ -416,12 +434,125 @@ def test_to_place_never_uses_unreviewed_timetables() -> None:
 
 
 def test_to_place_keeps_the_night_bus_out() -> None:
-    vn = table("line-vn")
-    ids = [ALIAS[s] for s in vn.directions[0].stops]
+    konayuki = table("line-konayuki")
+    ids = [ALIAS[s] for s in konayuki.directions[0].stops]
+    assert STOPS[ids[3]].serves_resort_id  # so only its kind keeps this ride out
 
-    result = to_place({ids[0]: 0}, {ids[-1]: 60}, [vn], at=datetime(2026, 1, 20, 17, 0, tzinfo=JST))
+    result = to_place(
+        {ids[3]: 0}, {ids[-1]: 60}, [konayuki], at=datetime(2026, 1, 20, 17, 0, tzinfo=JST)
+    )
 
     assert result.options == []
+
+
+def test_free_shuttles_only_board_at_a_stop_that_serves_a_resort() -> None:
+    h1 = [table("line-h-h1")]
+
+    assert to_place({TERMINAL: 0}, {NAKIYAMA: 60}, h1).options == []
+    assert to_place({NAKIYAMA: 0}, {ALIAS["Happo Gondola Lift"]: 60}, h1).options
+
+
+def test_paid_line_v_can_be_boarded_anywhere() -> None:
+    # the poster prints the resort-only limit under the free shuttles, not over line V
+    assert to_place({TERMINAL: 0}, {IWATAKE: 60}, [table("line-v-v2")]).options
+
+
+def test_starred_stop_is_only_for_riders_of_its_paired_stop() -> None:
+    e2 = [table("line-e-e2")]
+
+    assert to_place({IWATAKE: 60}, {COURTYARD: 60}, e2).options
+    assert to_place({NAKIYAMA: 60}, {COURTYARD: 60}, e2).options == []
+
+
+def test_starred_stop_cannot_be_boarded_for_any_other_ride() -> None:
+    e2 = [table("line-e-e2")]
+    morning = datetime(2026, 3, 20, 7, 0, tzinfo=JST)
+    resort_at_courtyard = serving_a_resort(COURTYARD)
+
+    assert to_place({COURTYARD: 60}, {IWATAKE: 60}, e2, morning, resort_at_courtyard).options
+    assert to_place({COURTYARD: 60}, {NAKIYAMA: 60}, e2, morning, resort_at_courtyard).options == []
+
+
+@pytest.mark.parametrize(
+    ("file", "direction", "field", "expected"),
+    [
+        ("line-h-h1", 0, "alight_only", [(12, "Mount"), (13, "Hakuba Happo Bus Terminal")]),
+        (
+            "line-h-h2",
+            0,
+            "alight_only",
+            [(11, "#3 Parking"), (12, "Mount"), (13, "Hakuba Happo Bus Terminal")],
+        ),
+        (
+            "line-gurutto",
+            0,
+            "alight_only",
+            [
+                (3, "White Resort Hakuba Sanosaka"),
+                (4, "Able Hakuba Goryu Escal Plaza"),
+                (5, "Happo-One (Nakiyama Slope)"),
+                (6, "Hakuba Iwatake Snow Field"),
+            ],
+        ),
+        (
+            "line-gurutto",
+            1,
+            "board_only",
+            [
+                (0, "Hakuba Iwatake Snow Field"),
+                (1, "Happo-One (Nakiyama Slope)"),
+                (2, "Able Hakuba Goryu Escal Plaza"),
+                (3, "White Resort Hakuba Sanosaka"),
+            ],
+        ),
+    ],
+)
+def test_boarding_rules_point_at_the_stops_the_timetable_marks(
+    file: str, direction: int, field: str, expected: list[tuple[int, str]]
+) -> None:
+    d = table(file).directions[direction]
+
+    assert [(i, d.stops[i]) for i in getattr(d, field)] == expected
+
+
+def test_alight_only_stop_cannot_be_boarded_but_can_be_left() -> None:
+    h1 = [table("line-h-h1")]
+    early = datetime(2026, 3, 20, 8, 0, tzinfo=JST)
+
+    # Mount comes twice on the loop: 08:01 can be boarded, the final 08:25 can't
+    boarding = to_place(
+        {MOUNT: 0},
+        {TERMINAL: 60},
+        h1,
+        at=datetime(2026, 3, 20, 8, 20, tzinfo=JST),
+        stops=serving_a_resort(MOUNT),
+    )
+    assert hhmm(boarding.options[0].departs_at) == "09:01"
+
+    leaving = to_place({NAKIYAMA: 0}, {MOUNT: 60}, h1, at=early)
+    assert hhmm(leaving.options[0].arrives_at) == "08:25"
+
+
+def test_board_only_stop_cannot_be_left() -> None:
+    gurutto = [table("line-gurutto")]
+    afternoon = datetime(2026, 1, 20, 16, 0, tzinfo=JST)
+    omachi = ALIAS["Omachi Onsenkyo Ent."]
+
+    assert to_place({IWATAKE: 60}, {omachi: 60}, gurutto, at=afternoon).options
+    assert to_place({IWATAKE: 60}, {ESCAL: 60}, gurutto, at=afternoon).options == []
+
+
+def test_first_stop_only_trip_never_stops_where_it_prints_a_dash() -> None:
+    f6 = [table("line-f-f6")]
+    jr_serving = serving_a_resort(JR_HAKUBA)
+    keyakino = ALIAS["Hotel Keyakino-ki"]
+    late_morning = datetime(2026, 1, 20, 11, 30, tzinfo=JST)
+
+    assert to_place({JR_HAKUBA: 60}, {keyakino: 60}, f6, late_morning, jr_serving).options == []
+
+    to_47 = to_place({JR_HAKUBA: 60}, {HAKUBA47: 60}, f6, late_morning, jr_serving).options[0]
+    assert to_47.trip == 3
+    assert keyakino not in [r.stop_id for r in to_47.ride_stops]
 
 
 @pytest.fixture
