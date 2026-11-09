@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 import respx
 from fastapi.testclient import TestClient
-from valhalla import ValhallaError
+from valhalla import ValhallaError  # pyright: ignore[reportMissingTypeStubs]
 
 from hakuba_api.common.geo import Coord
 from hakuba_api.main import app
@@ -33,7 +33,7 @@ def fixture(name: str) -> Any:
 
 
 def valhalla_error(http_code: int, message: str = "no path") -> ValhallaError:
-    error = ValhallaError(message)
+    error: Any = ValhallaError(message)  # the binding sets these two; Python callers can't
     error.http_code = http_code
     error.message = message
     return error

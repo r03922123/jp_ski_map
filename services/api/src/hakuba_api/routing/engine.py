@@ -1,5 +1,6 @@
 """Valhalla inside this process, for hosts with no Valhalla server (SPEC-deploy.md Phase B)."""
 
+import importlib
 import threading
 from typing import Any, Protocol
 
@@ -17,7 +18,9 @@ class Actor(Protocol):
 class InProcessEngine:
     """One Actor, one call at a time: the binding drops the GIL, and concurrent calls crash."""
 
-    def __init__(self, actor: Actor, binding_error: type[Any], wait_s: float = LOCK_WAIT_S) -> None:
+    def __init__(
+        self, actor: Actor, binding_error: type[Exception], wait_s: float = LOCK_WAIT_S
+    ) -> None:
         self._call = {"/route": actor.route, "/sources_to_targets": actor.matrix}
         self._binding_error = binding_error
         self._wait_s = wait_s
@@ -28,11 +31,9 @@ class InProcessEngine:
             raise RoutingUnavailableError("routing busy")
         try:
             return self._call[path](body)
-        except self._binding_error as e:
-            if e.http_code == 400:
-                raise NoRouteError(e.message) from e
-            raise RoutingUnavailableError(str(e)) from e
-        except Exception as e:  # the binding can raise other C++ errors
+        except Exception as e:  # not only ValhallaError: the binding can raise other C++ errors
+            if isinstance(e, self._binding_error) and getattr(e, "http_code", None) == 400:
+                raise NoRouteError(getattr(e, "message", str(e))) from e
             raise RoutingUnavailableError(str(e)) from e
         finally:
             self._lock.release()
@@ -49,12 +50,10 @@ def get_engine(tiles: str) -> InProcessEngine:
     with _build_lock:
         if _engine is None:
             try:
-                # Imported here so the HTTP backend never loads the binding
-                from valhalla import Actor as ValhallaActor
-                from valhalla import ValhallaError, get_config
-
-                actor = ValhallaActor(get_config(tile_extract=tiles, tile_dir="", verbose=False))
+                # Loaded here so the HTTP backend never needs it; it ships without type stubs
+                binding: Any = importlib.import_module("valhalla")
+                config = binding.get_config(tile_extract=tiles, tile_dir="", verbose=False)
+                _engine = InProcessEngine(binding.Actor(config), binding.ValhallaError)
             except Exception as e:
                 raise RoutingUnavailableError(f"could not start routing: {e}") from e
-            _engine = InProcessEngine(actor, ValhallaError)
         return _engine
