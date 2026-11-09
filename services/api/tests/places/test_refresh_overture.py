@@ -142,7 +142,7 @@ def test_a_name_that_says_hotel_beats_a_guest_house_category(
 
 # Each Places record names its providers in `sources`, each with its licence
 # (docs.overturemaps.org/attribution); every record also has Overture's own: its confidence.
-type Source = tuple[str, str | None]  # (dataset, licence)
+type Source = tuple[str | None, str | None]  # (dataset, licence)
 META = ("meta", "CDLA-Permissive-2.0")
 MICROSOFT = ("Microsoft", "CDLA-Permissive-2.0")
 FOURSQUARE = ("Foursquare", "Apache-2.0")
@@ -213,7 +213,16 @@ def test_the_label_is_built_from_the_records_sources(sources: list[Source], labe
     assert all(lic in str(meta["attribution"]) for lic in label.split(" AND "))
 
 
-@pytest.mark.parametrize("sources", [(OVERTURE, ("meta", None)), (OVERTURE, ("X", "ODbL-1.0")), ()])
+@pytest.mark.parametrize(
+    "sources",
+    [
+        (OVERTURE, ("meta", None)),
+        (OVERTURE, ("X", "ODbL-1.0")),
+        (),
+        ((None, "CDLA-Permissive-2.0"),),  # a credit can't name a provider we weren't told
+        (("foursquare", "Apache-2.0"),),  # another spelling must not lose the NOTICE
+    ],
+)
 def test_an_unknown_or_missing_licence_stops_the_refresh(sources: tuple[Source, ...]) -> None:
     with pytest.raises(ValueError, match="overture:a"):
         _meta(_row("a", *sources))
@@ -225,15 +234,28 @@ def test_the_licence_files_exist_and_the_api_docs_link_them() -> None:
     for entry in committed["licenses"]:
         assert entry["license"] in KNOWN_LICENSES
         files |= {entry[k] for k in ("licenseText", "notice") if k in entry}
+    files.add("DATA-LICENSES.md")
     assert sorted(f for f in files if not (REPO / f).is_file()) == []
-    assert sorted(f for f in files if f not in (app.description or "")) == []
+    blob = "https://github.com/r03922123/jp_ski_map/blob/main"
+    assert sorted(f for f in files if f"{blob}/{f}" not in (app.description or "")) == []
 
 
 # A hand-written list can name licences no record uses, or miss one that a record does
 def test_the_committed_label_was_counted_from_every_place() -> None:
     meta = json.loads((REPO / "data" / "lodging_overture.meta.json").read_text())
     places = json.loads((REPO / "data" / "lodging_overture.json").read_text())
-    assert "licensesNote" not in meta
+    by_dataset = {entry["dataset"]: entry["places"] for entry in meta["licenses"]}
     assert meta["places"] == len(places)
-    assert all(entry["places"] > 0 for entry in meta["licenses"])
-    assert max(entry["places"] for entry in meta["licenses"]) <= len(places)
+    assert by_dataset["Overture"] == len(places)  # its confidence score is on every record
+    assert sum(n for dataset, n in by_dataset.items() if dataset != "Overture") >= len(places)
+    assert by_dataset["Foursquare"] > 0
+    assert meta["license"] == " AND ".join(sorted({e["license"] for e in meta["licenses"]}))
+
+
+# A refresh that changes these counts should make someone re-read the licence notes
+def test_data_licenses_states_the_counted_providers() -> None:
+    meta = json.loads((REPO / "data" / "lodging_overture.meta.json").read_text())
+    by_dataset = {entry["dataset"]: entry["places"] for entry in meta["licenses"]}
+    text = (REPO / "DATA-LICENSES.md").read_text()
+    assert f"{by_dataset['Foursquare']} of the {meta['places']} records" in text
+    assert f"{by_dataset['AllThePlaces']} of the {meta['places']} places" in text

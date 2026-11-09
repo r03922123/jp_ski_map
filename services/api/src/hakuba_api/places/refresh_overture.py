@@ -4,8 +4,8 @@ Usage: `uv run --with duckdb python -m hakuba_api.places.refresh_overture`
 
 Overture knows ~880 Hakuba lodgings where OpenStreetMap knows ~150, including most hotels
 people find on booking sites. Each record keeps its providers' licences, named in its `sources`
-(Meta and Microsoft: CDLA-Permissive-2.0; Foursquare: Apache-2.0), so .meta.json is built from
-them. DuckDB reads only the Hakuba bbox from the public GeoParquet release; it is a
+(Meta and Microsoft: CDLA-Permissive-2.0; Foursquare: Apache-2.0; AllThePlaces: CC0-1.0), so
+.meta.json is built from them. DuckDB reads only the Hakuba bbox from the public GeoParquet release; it is a
 refresh-time tool, not a project dependency. Requests read the snapshot, never Overture.
 """
 
@@ -202,16 +202,21 @@ def build_meta(
     release: str, fetched_at: str, rows: list[OvertureRow], places: list[Place]
 ) -> dict[str, object]:
     """The .meta.json: one licence entry per dataset in the kept places' `sources`, with how
-    many places use it. A missing licence, or one not in KNOWN_LICENSES, stops the refresh,
-    because a label that leaves a licence out breaks that licence."""
+    many places use it. A missing provider or licence, one not in KNOWN_LICENSES, or Apache-2.0
+    data with no NOTICES entry stops the refresh, because a label that leaves any of these out
+    breaks that licence."""
     sources = {f"overture:{r['id']}": r.get("sources") or [] for r in rows}
     counts: Counter[tuple[str, str]] = Counter()
     for p in places:
         if not sources[p.id]:
             raise ValueError(f"{p.id} names no source, so its licence is unknown")
-        for dataset, lic in {(s["dataset"] or "unnamed", s["license"]) for s in sources[p.id]}:
+        for dataset, lic in {(s["dataset"], s["license"]) for s in sources[p.id]}:
+            if not dataset:
+                raise ValueError(f"{p.id}: a source names no dataset, so it can't be credited")
             if lic is None or lic not in KNOWN_LICENSES:
                 raise ValueError(f"{p.id}: {dataset} data under {lic!r} needs KNOWN_LICENSES")
+            if lic == "Apache-2.0" and dataset not in NOTICES:
+                raise ValueError(f"{p.id}: Apache-2.0 data from {dataset} needs NOTICES")
             counts[dataset, lic] += 1
     licenses: list[DatasetLicense] = []
     by_licence: dict[str, list[str]] = {}
