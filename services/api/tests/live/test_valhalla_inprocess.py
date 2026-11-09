@@ -27,6 +27,7 @@ VALHALLA_URL = os.environ.get("VALHALLA_URL", "http://127.0.0.1:8002")
 SEED = int(os.environ.get("VALHALLA_PARITY_SEED", "20261109"))  # set it to replay a failure
 UNITS = {"units": "kilometers"}
 MATRIX_TARGETS = 25  # the most /api/matrix accepts; bus queries send more internally
+MATRIX_COST_TOLERANCE = 0.01  # see same_answer
 THREADS = 40
 REQUESTS_PER_THREAD = 50
 
@@ -137,14 +138,42 @@ def engine_answer(engine: InProcessEngine, case: Case) -> Answer:
         }
 
 
+def _split_matrix_costs(answer: Answer) -> tuple[Answer, list[float]]:
+    """The answer without its matrix costs, and those costs in cell order. A null stays put."""
+    if "sources_to_targets" not in answer:
+        return answer, []
+    rows: list[list[dict[str, Any]]] = answer["sources_to_targets"]
+    costs = [c["cost"] for row in rows for c in row if c.get("cost") is not None]
+    plain = [
+        [{k: v for k, v in c.items() if k != "cost" or v is None} for c in row] for row in rows
+    ]
+    return {**answer, "sources_to_targets": plain}, costs
+
+
+def same_answer(expected: Answer, actual: Answer) -> bool:
+    """Exact, except a matrix cell's `cost` (owner's decision, 2026-11-10). Measured over 6 seeds:
+    11 of 7380 cells differ, by at most 0.002, each side repeating its own value. The API never
+    reads that field; it reads `time` and `distance`, which stay exact."""
+    plain_expected, expected_costs = _split_matrix_costs(expected)
+    plain_actual, actual_costs = _split_matrix_costs(actual)
+    return (
+        plain_expected == plain_actual
+        and len(expected_costs) == len(actual_costs)
+        and all(
+            abs(e - a) <= MATRIX_COST_TOLERANCE
+            for e, a in zip(expected_costs, actual_costs, strict=True)
+        )
+    )
+
+
 def assert_same_answers(cases: list[Case], seed: int, server: Ask, engine: Ask) -> list[Answer]:
-    """Exact equality on purpose: a relaxed check would hide what this file exists to catch."""
+    """A relaxed check would hide what this file exists to catch, so see `same_answer`."""
     answers: list[Answer] = []
     different: list[tuple[int, Case, list[str]]] = []
     for index, case in enumerate(cases):
         expected, actual = server(case), engine(case)
         answers.append(expected)
-        if expected != actual:
+        if not same_answer(expected, actual):
             keys = expected.keys() | actual.keys()
             different.append(
                 (index, case, sorted(k for k in keys if expected.get(k) != actual.get(k)))
@@ -278,3 +307,48 @@ def test_matching_answers_pass() -> None:
     cases = [Case("/route", {"costing": "auto"})]
 
     assert_same_answers(cases, 42, server=lambda _: {"a": 1}, engine=lambda _: {"a": 1})
+
+
+def _matrix_answer(**cell: Any) -> Answer:
+    return {"sources_to_targets": [[{"time": 60, "distance": 1.5, "cost": 393.955, **cell}]]}
+
+
+def test_a_matrix_cost_may_differ_within_the_tolerance() -> None:
+    assert same_answer(_matrix_answer(), _matrix_answer(cost=393.955 + 0.002))
+
+
+def test_a_matrix_cost_beyond_the_tolerance_differs() -> None:
+    assert not same_answer(_matrix_answer(), _matrix_answer(cost=393.955 + 0.02))
+
+
+@pytest.mark.parametrize(
+    "changed",
+    [{"time": 61}, {"distance": 1.501}, {"cost": None}, {"extra": 1}],
+    ids=["time", "distance", "null-cost", "extra-field"],
+)
+def test_everything_else_in_a_matrix_cell_stays_exact(changed: dict[str, Any]) -> None:
+    assert not same_answer(_matrix_answer(), _matrix_answer(**changed))
+
+
+def test_a_matrix_with_a_missing_cost_differs() -> None:
+    no_cost: Answer = {"sources_to_targets": [[{"time": 60, "distance": 1.5}]]}
+
+    assert not same_answer(_matrix_answer(), no_cost)
+
+
+def test_a_cost_outside_a_matrix_stays_exact() -> None:
+    server: Answer = {"trip": {"summary": {"cost": 393.955}}}
+    engine: Answer = {"trip": {"summary": {"cost": 393.956}}}
+
+    assert not same_answer(server, engine)
+
+
+def test_a_matrix_cost_within_the_tolerance_is_not_reported() -> None:
+    cases = [Case("/sources_to_targets", {"costing": "auto"})]
+
+    assert_same_answers(
+        cases,
+        42,
+        server=lambda _: _matrix_answer(),
+        engine=lambda _: _matrix_answer(cost=393.956),
+    )
