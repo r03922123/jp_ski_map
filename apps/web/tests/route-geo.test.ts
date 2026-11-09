@@ -76,4 +76,21 @@ describe("mapPadding", () => {
     expect(p.top).toBeGreaterThanOrEqual(120);
     expect(p.left).toBeLessThan(60);
   });
+
+  it("leaves room on phones for a marker standing above its point", () => {
+    expect(mapPadding({ width: 390, height: 699 }).top).toBeGreaterThanOrEqual(
+      136 + 40,
+    );
+  });
+
+  it("keeps marker room on a landscape phone", () => {
+    expect(mapPadding({ width: 740, height: 360 }).top).toBeGreaterThanOrEqual(
+      160,
+    );
+  });
+
+  it.each([320, 280, 200])("leaves map to fit into at %i px tall", (height) => {
+    const p = mapPadding({ width: 568, height });
+    expect(height - p.top - p.bottom).toBeGreaterThan(0);
+  });
 });
