@@ -9,8 +9,10 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 const CREDITS = ".maplibregl-ctrl-attrib";
 const INFO_BUTTON = `${CREDITS} summary.maplibregl-ctrl-attrib-button`;
 
-async function openMap(page: Page) {
-  await page.goto("/");
+const TRIP = "/?from=36.69711,137.85393&mode=drive&resort=tsugaike";
+
+async function openMap(page: Page, url = "/") {
+  await page.goto(url);
   await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
     timeout: 15_000,
   });
@@ -102,8 +104,36 @@ test.describe("phone, compact credits", () => {
   });
 });
 
+// the route's fit keeps a strip above the sheet for its end markers: the open credits
+// would sit on it, so a trip folds them and the ⓘ brings them back
+for (const [name, viewport] of [
+  ["phone 390x844", { width: 390, height: 844 }],
+  ["landscape phone 740x360", { width: 740, height: 360 }],
+] as const) {
+  test.describe(`${name}, with a trip`, () => {
+    test.use({ viewport, isMobile: true, hasTouch: true });
+
+    test("the credits fold and the info button reopens them", async ({
+      page,
+    }) => {
+      await openMap(page, TRIP);
+      await expect(osmLink(page)).toBeHidden();
+      const button = page.locator(INFO_BUTTON);
+      await expectOnTop(button);
+
+      await button.tap();
+      await expectOnTop(osmLink(page));
+    });
+  });
+}
+
 test.describe("desktop", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
+
+  test("the credits stay open with a trip", async ({ page }) => {
+    await openMap(page, TRIP);
+    await expectOnTop(osmLink(page));
+  });
 
   test("the credits stay in the corner of the map", async ({ page }) => {
     await openMap(page);

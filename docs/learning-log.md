@@ -9,11 +9,11 @@ The old e2e check found the OpenStreetMap text in the DOM, so it passed while th
 *Analogy:* a unit test that checks a row exists in the table says nothing about whether the API's filter ever returns it.
 
 **2. Trade-off: move one control, and hard-code the sheet's height.**
-Only the credits move. The zoom buttons share that corner, but raising the whole corner would have added a new control to the phone screen. The cost is that the CSS repeats the sheet's `40dvh`, because a CSS rule can't read another element's height. If the sheet changes size, the hit-test fails and points at the mismatch.
+Only the credits move. The zoom buttons share that corner, but raising the whole corner would have added a new control to the phone screen. The cost is that the CSS repeats the sheet's `40dvh`, because a CSS rule can't read another element's height. If the sheet grows, the hit-test fails and points at the mismatch; if it shrinks, the credits just float a little higher and nothing fails.
 *Analogy:* a denormalized column is quicker to read, and needs a check that catches it when the source changes.
 
 **3. What could go wrong: the fix is only as real as the CSS the browser received.**
-After the edit, the dev server kept serving the old stylesheet, even after a restart, because of Turbopack's cache. The test stayed red for a reason unrelated to the code. Fetching the served CSS and searching for the new rule showed that in one step. Also, the credits now open over the map's labels until the first drag, a side effect of being visible at all.
+After the edit, the dev server kept serving the old stylesheet, even after a restart, because of Turbopack's cache. The test stayed red for a reason unrelated to the code. Fetching the served CSS and searching for the new rule showed that in one step. The fresh-eyes review caught the second risk: once raised, the open credits landed on the strip the route's fit reserves for its end markers and hid the start marker, though every test passed. A trip now folds them.
 *Analogy:* a model evaluation that loads last week's checkpoint measures the wrong thing however good the new weights are, so confirm which artifact is running first.
 
 ## 2026-11-09 · build new features: feat(web): only the trip's resort stays on the map

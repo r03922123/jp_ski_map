@@ -824,7 +824,8 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - [x] The API docs (local only: the deployment proxies only `/api/*`) and the map credits link the licences
 - Decision (owner, 2026-11-09): the 2 AllThePlaces lodging records stay, named in DATA-LICENSES.md. A test now fails if a refresh changes that count.
 - [x] On phones (below `md`) the credits, OSM's included, rise above the collapsed sheet; `e2e/map-credits.spec.ts` hit-tests them, because the older checks read the DOM only
-- Known limits: with the sheet expanded the credits stay covered until it collapses. The credits open wide on load, over the map's labels, until the first drag or a tap on ⓘ (MapLibre's compact behaviour). On landscape phones below `md` the pill overlaps the top 6 px of the `+` button, which the sheet already half covers. The zoom buttons stay behind the sheet on portrait phones, as before.
+- [x] Below `md` the credits are compact, and a trip folds them, because open they cover the strip the route's fit keeps for its end markers
+- Known limits: with the sheet expanded the credits stay covered until it collapses. With no trip they open over the map's labels until the first drag or a tap on ⓘ. On short landscape phones the credits overlap the `+` button, which the sheet already partly covers: at 568x320 and 640x300 the ⓘ takes a tap on `+`, and pinch zoom still works. The zoom buttons stay behind the sheet on portrait phones, as before. Not checked: navigation mode, where a bottom bar replaces the sheet, and real iPhones or WebKit.
 - Follow-up 1 stays open for the 15 My Maps stops, follow-up 2 for the December re-check; the takeover phase is unchanged.
 
 ## Task J11: Search answers for hotels (SPEC-place-search items 6 and 7)
