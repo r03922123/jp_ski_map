@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · tidy: fix(web): the map credits are reachable on phones
+
+**1. Principle: test what the user can reach, not what the DOM contains.**
+The old e2e check found the OpenStreetMap text in the DOM, so it passed while the bottom sheet covered the credit. The new spec asks `elementFromPoint` what a tap at that spot would land on, and fails if it isn't the link.
+*Analogy:* a unit test that checks a row exists in the table says nothing about whether the API's filter ever returns it.
+
+**2. Trade-off: move one control, and hard-code the sheet's height.**
+Only the credits move. The zoom buttons share that corner, but raising the whole corner would have added a new control to the phone screen. The cost is that the CSS repeats the sheet's `40dvh`, because a CSS rule can't read another element's height. If the sheet changes size, the hit-test fails and points at the mismatch.
+*Analogy:* a denormalized column is quicker to read, and needs a check that catches it when the source changes.
+
+**3. What could go wrong: the fix is only as real as the CSS the browser received.**
+After the edit, the dev server kept serving the old stylesheet, even after a restart, because of Turbopack's cache. The test stayed red for a reason unrelated to the code. Fetching the served CSS and searching for the new rule showed that in one step. Also, the credits now open over the map's labels until the first drag, a side effect of being visible at all.
+*Analogy:* a model evaluation that loads last week's checkpoint measures the wrong thing however good the new weights are, so confirm which artifact is running first.
+
 ## 2026-11-09 · build new features: feat(web): only the trip's resort stays on the map
 
 **1. Principle: separate what is drawn from what is counted.**
