@@ -30,7 +30,9 @@ describe("map attribution", () => {
     links().find((a) => a.textContent === text)?.href;
 
   it("links the licences of the Overture places (ADR-0004)", () => {
-    expect(hrefOf("Overture Maps Foundation")).toBe("https://overturemaps.org/");
+    expect(hrefOf("Overture Maps Foundation")).toBe(
+      "https://overturemaps.org/",
+    );
     expect(hrefOf("licences")).toBe(
       "https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md",
     );
