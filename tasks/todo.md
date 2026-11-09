@@ -842,11 +842,11 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 - [ ] PR 2: in-process routing (`routing/engine.py`, one engine, the lock, error mapping, `/api/matrix` capped at 25, `pyvalhalla==3.9.1`). Failing tests first: 8 threads max overlap 1; concurrent first calls build one engine; lock timeout and both error types; 26 targets → 422
 - [ ] PR 3: live equivalence, with a seeded request generator in the repo. `uv run pytest -m live`: 100 + 20 + 5 identical; 40 threads, 2000 requests, 0 errors, no crash
 - [ ] PR 4: deploy packaging (lazy `paths.py`, `vercel.json`, `scripts/deploy-vercel.sh`, `infra/valhalla/hakuba-tiles.sha256`, shell test in CI). A missing data file or wrong hash stops it; without `--prod` the command carries `--environment preview`
+- [ ] Before the real project's first deploy, which PR 5 needs: the owner links the project and sets the variables in SPEC-deploy.md Changes item 9; tell the owner before deploying, then read `environment` in the deploy output
 - [ ] PR 5: production smoke suite, `apps/web/e2e-prod/`, about 5 tests, green against a preview (headers, search, bus, drive, walk)
 - [x] PR 6: phone map credits, done in PR #38 and hit-tested at phone sizes in Chromium
-- [ ] Before the real project's first deploy: tell the owner, then read `environment` in the deploy output
-- [ ] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start. Also an iPhone screenshot showing the credits, since PR #38 ran no WebKit or real iPhone
-- [ ] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md`, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
+- [ ] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start and the iPhone credits screenshot
+- [ ] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md` including its open phone-credits note, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
 - [ ] Cutover, asking the owner at each step: production deploy, new link to friends, Funnel off. Done when SPEC-deploy.md Phase B success criteria 1 to 5 hold
 
 ## State at handoff (2026-11-01, after Phase 18)

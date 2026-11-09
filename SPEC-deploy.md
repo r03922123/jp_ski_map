@@ -1,8 +1,8 @@
 # Spec: deploy
 
 > Module of [SPEC.md](SPEC.md). Depends on: every server module (it hosts them). Consumed by: friends' browsers.
-> Added 2026-10-31 (v1.5); Phase B replaced 2026-11-09 (v1.6). Decisions: zero cost; **Phase A** = this Mac
-> + Tailscale Funnel now, **Phase B** = Vercel Hobby, with Valhalla inside the API, when it must stay up
+> Added 2026-10-31 (v1.5); Phase B replaced 2026-11-09 (v1.6). Decisions: zero cost; **Phase A** =
+> this Mac + Tailscale Funnel now, **Phase B** = Vercel Hobby, with Valhalla inside the API, when it must stay up
 > while the Mac is off. Oracle is now a fallback, under "If Vercel is a no-go".
 > Research: 5 agents + 1 reviewer checked official pricing pages on 2026-10-31 (summary under "Evidence";
 > Phase B has its own Evidence, checked 2026-11-09).
@@ -134,12 +134,15 @@ on the Mac keeps serving until cutover.
 8. **`scripts/deploy-vercel.sh [--prod]`** is the only way to deploy:
    - `git archive HEAD` into a temp folder, so only committed files are uploaded. `.ux-evidence`,
      `infra/valhalla/custom_files`, `.run` and `.env` can't leave the machine.
-   - Copy the local `valhalla_tiles.tar` in after checking it against
+   - Copy the local `infra/valhalla/custom_files/hakuba/valhalla_tiles.tar` in after checking it against
      `infra/valhalla/hakuba-tiles.sha256`, which this work commits (it doesn't exist yet). A missing file or wrong hash stops the deploy.
    - Copy the runtime data next to the API and fail if any is missing: `resorts.json`,
      `bus_stops.json`, `bus/timetables/**`, `bus/sources.json`, `lodging_osm.json`,
      `lodging_overture.json`, `poi_osm.json`, `crowd_periods.json`. `data/bus/raw` and
      `stop_evidence.json` aren't needed at runtime and stay out.
+   - Bind the temp folder to the linked project, by copying `.vercel/project.json` or setting
+     `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. A `git archive` holds no link, and an unlinked folder is
+     how Probe P created a new project. Stop if the link is missing; never let the CLI create a project.
    - Print the commit it deploys, then run `vercel deploy --environment preview`, or
      `vercel deploy --prod` only when asked. Without the flag, a new project's first deploy goes to
      production, as it did at Probe P.
@@ -150,7 +153,7 @@ on the Mac keeps serving until cutover.
    the client address), `VALHALLA_TILES`, `HAKUBA_DATA_DIR`. Set for Preview and Production.
 10. **Production smoke suite**, `apps/web/e2e-prod/` with its own Playwright config: no local servers,
     `PROD_URL` and a protection-bypass header from the environment, about 5 tests (headers, search,
-    bus, drive, walk). The existing suite assumes `127.0.0.1:8010` and dev-only hooks, and about 199
+    bus, drive, walk). The existing suite assumes `127.0.0.1:8010` and dev-only hooks, and hundreds of
     tests from one IP would hit the per-client limit.
 11. **Phone map credits, before cutover.** Done in PR #38 (`tasks/todo.md` J10): phones are this
     spec's audience, and the credits now clear the collapsed sheet. J10 lists the known limits.
@@ -210,7 +213,7 @@ vercel billing usage --since 30d --group-by project
 | Matrix bound | unit, CI: 26 targets → 422 |
 | Same answers as the server | `live`: a seeded request generator in the repo, 100 mixed + 20 `/route/path` (through points and `stop_at_points`) + 5 error cases, using the tar-only config |
 | Real threads | `live`: real Actor, 40 threads, 2000 requests, 0 wrong, no crash |
-| Deploy script | shell test: a missing data file or wrong hash stops it; without `--prod` the command carries `--environment preview` |
+| Deploy script | shell test: a missing data file, wrong hash or missing project link stops it; without `--prod` the command carries `--environment preview` |
 
 #### Probe P and Checkpoint S
 A **config mistake** (a path, a preset, a missing variable) is fixed and retried. A **platform no-go**
@@ -232,6 +235,7 @@ is marked below; it stops the work and returns to the owner. Use a protection-by
 | S | Upstreams from Vercel | Photon, Open-Meteo and a Google short link answer | no |
 | S | Abuse bound | a Vercel firewall rate rule on `/api/*` exists, if Hobby allows it; otherwise record that | no |
 | S | Kill switch | tried once: deployment protection on all deployments makes the site unreachable, or another named method | no |
+| S | Phone map credits | a screenshot at iPhone size shows the credits above the collapsed sheet (PR #38 ran no WebKit or real iPhone) | no |
 | S | Mac standby rehearsed | after the code change, `serve-public.sh` serves routes over HTTP | no |
 
 #### Success criteria
@@ -280,15 +284,16 @@ kept below, then AWS Lightsail at $7 a month, which needs the owner's OK to brea
 | `X-Forwarded-For` overwritten by Vercel | vercel.com/docs/headers/request-headers |
 | Rollback: previous deployment only; undo with `vercel promote` | vercel.com/docs/instant-rollback |
 | Probe P: route equals the Mac's (0 s, 0 m); function in `hnd1`; cold start median of 5 is 3.62 s (3.52 to 3.93) | Vercel preview, 2026-11-09 |
-| Almost all of that cold start is outside our code: import 66 ms, Actor 20 ms (medians of 5). The real API loads more data and has 1.4 s of room | Same run |
-| The Linux bundle is 272 MB, not the 81 MB measured on macOS; the limit is 500 MB | Probe P build |
+| Of that cold start, `import valhalla` is 66 ms and the Actor build 20 ms (medians of 5). The other 3.5 s wasn't broken down. The real API adds dependencies and data, with 1.4 s of room | Same run |
+| The whole Linux bundle is 272 MB (`pyvalhalla` alone was 81 MB on macOS). That is above the Python builder's 225 MB threshold, so packages may install at cold start, into 500 MB of ephemeral storage. That cost wasn't measured | Probe P build log; `@vercel/python` source |
 | A new project's first `vercel deploy` went to production | Probe P; removed with the owner's OK |
 | S0: `/` and `/api/health` 200; `/api` in `hnd1` with top-level `regions`; service-level headers applied; preset left at FastAPI | Vercel preview, 2026-11-09 |
 | `hakuba_api.main:app` fails to deploy ("has entrypoint \"hakuba_api/main.py\" but that path does not exist"); `src.hakuba_api.main:app` deploys, and `from hakuba_api...` imports inside the package work | S0 deploy output |
 
 Not verified: the real app on Vercel (S0 was a minimal app) and files outside a service root, both
-covered by rows above; where the `web` service runs (S0 measured only `/api`); and whether a real
-project's first deploy honours `--environment preview` (Changes item 8).
+covered by rows above; how the tiles and data reach the function under `services` (Probe P used
+`functions.includeFiles`, and S0 shipped neither); where the `web` service runs (S0 measured only
+`/api`); and whether a real project's first deploy honours `--environment preview` (Changes item 8).
 
 #### Open questions
 1. The `*.vercel.app` name is first-come. The owner picks it when linking the project.
@@ -296,7 +301,7 @@ project's first deploy honours `--environment preview` (Changes item 8).
 ## Changes to the repo (both phases)
 1. **Hakuba-only Valhalla tiles, reproducible.** `infra/valhalla/build-hakuba.sh`: download Geofabrik
    chubu → `osmium extract` to the box in `infra/valhalla/hakuba.bbox` (`--strategy smart`) → `valhalla_build_admins`
-   + `valhalla_build_tiles` with `default_speeds.json` → `tiles.tar`. Without the speeds file, drive
+   + `valhalla_build_tiles` with `default_speeds.json` → `valhalla_tiles.tar`. Without the speeds file, drive
    times came out up to 37% too fast. The bbox covers every resort, bus stop and lodging in `data/`;
    a test checks this with a 5 km margin (the first box, 137.70,36.45,138.00,36.90, left Otari lodgings 1 km from its edge).
 2. **Rate limits on the API (no new dependency).**
@@ -321,7 +326,7 @@ project's first deploy honours `--environment preview` (Changes item 8).
 
 ## Commands
 ```bash
-infra/valhalla/build-hakuba.sh            # → infra/valhalla/custom_files/hakuba/tiles.tar (gitignored)
+infra/valhalla/build-hakuba.sh            # → infra/valhalla/custom_files/hakuba/valhalla_tiles.tar (gitignored)
 scripts/serve-public.sh                   # valhalla + api (:8011) + production web (:3000), health check
 scripts/serve-public.sh --funnel          # ... then publish :3000 on https://<machine>.<tailnet>.ts.net (ask first)
 scripts/serve-public.sh --stop            # Funnel off first, then stop api + web (dev servers keep running)
@@ -359,7 +364,7 @@ tailscale down && tailscale up --hostname=hakuba-map   # rebuilds every path; th
 - **Ask first:** turning Funnel on (each time it goes public after a change to what it exposes);
   creating the Oracle account or VM; changing the GitHub repo's visibility; adding any hosting service not listed here.
 - **Never:** upgrade any account to paid; add a card to Render/Vercel; open inbound ports on the home router;
-  serve the API anywhere but `/api` on the site's origin, or expose Valhalla as a network service
+  publicly serve the API anywhere but `/api` on the site's origin, or expose Valhalla as a network service
   (Phase A binds it to `127.0.0.1`; Phase B has no such service); serve the dev server publicly.
 
 ## Evidence (checked 2026-10-31)

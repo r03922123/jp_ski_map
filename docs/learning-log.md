@@ -13,7 +13,7 @@ A docs-only PR is cheap to review and can't break the running site, and the buil
 *Analogy:* keeping the baseline model's config when you switch architectures, so a failed launch has somewhere to go back to.
 
 **3. What could go wrong: a probe proves less than it seems to.**
-S0 deployed to a project that already had deployments, so it doesn't show that the real project's first deploy stays in preview. Probe P's first deploy went to production. Its 3.62 s cold start came from a one-file API, and the real API loads more data with only 1.4 s of room. So the spec has the owner told before that first deploy, and Checkpoint S gets a row for the real cold start.
+S0 deployed to a project that already had deployments, so it doesn't show that the real project's first deploy stays in preview. Probe P's first deploy went to production. Its 3.62 s cold start came from a one-file API, and only 86 ms of it was ever broken down, so the real API has 1.4 s of room for an unknown cost. So the spec has the owner told before that first deploy, and Checkpoint S gets a row for the real cold start.
 *Analogy:* a passing smoke test on a toy dataset says the pipeline runs, not that the full job fits in memory.
 
 ## 2026-11-09 · tidy: fix(web): the map credits are reachable on phones
