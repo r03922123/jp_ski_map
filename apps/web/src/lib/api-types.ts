@@ -241,6 +241,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/bus/to-place": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Bus To Place */
+        get: operations["get_bus_to_place_api_bus_to_place_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/bus/night": {
         parameters: {
             query?: never;
@@ -294,7 +311,7 @@ export interface components {
         /** BusOption */
         BusOption: {
             /** Resortid */
-            resortId: string;
+            resortId: string | null;
             /** Lineid */
             lineId: string;
             /** Routeid */
@@ -334,6 +351,10 @@ export interface components {
              * @default []
              */
             rideStops: components["schemas"]["RideStop"][];
+            /** Walktoplaces */
+            walkToPlaceS?: number | null;
+            /** Doorarrivesat */
+            doorArrivesAt?: string | null;
         };
         /** BusResult */
         BusResult: {
@@ -572,6 +593,31 @@ export interface components {
              * @enum {string}
              */
             source: "photon" | "osm-snapshot" | "overture-snapshot" | "gmaps-link";
+        };
+        /** PlaceBusResult */
+        PlaceBusResult: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "no_service" | "awaiting_review";
+            /** Nextservicedate */
+            nextServiceDate: string | null;
+            /** Options */
+            options: components["schemas"]["BusOption"][];
+            /**
+             * Basis
+             * @default published
+             * @enum {string}
+             */
+            basis: "published" | "expected";
+            /** Basedonseason */
+            basedOnSeason?: string | null;
+            /**
+             * Newersourcepending
+             * @default false
+             */
+            newerSourcePending: boolean;
         };
         /** RankedResort */
         RankedResort: {
@@ -1192,6 +1238,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BusResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bus_to_place_api_bus_to_place_get: {
+        parameters: {
+            query: {
+                at?: string | null;
+                from: string;
+                name?: string | null;
+                to: string;
+                toName?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaceBusResult"];
                 };
             };
             /** @description Validation Error */

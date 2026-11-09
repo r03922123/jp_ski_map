@@ -1,0 +1,427 @@
+{
+  "status": "ok",
+  "nextServiceDate": null,
+  "options": [
+    {
+      "resortId": null,
+      "lineId": "line-v",
+      "routeId": "v2",
+      "routeName": "Cortina ↔ Hakuba GORYU",
+      "trip": 7,
+      "boardStopId": "stop-goryu-escal-plaza",
+      "boardStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "boardStopCoord": {
+        "lat": 36.66293,
+        "lng": 137.83667
+      },
+      "alightStopId": "stop-happo-bus-terminal",
+      "walkS": 120,
+      "departsAt": "2026-03-20T14:37:00+09:00",
+      "arrivesAt": "2026-03-20T15:10:00+09:00",
+      "rideS": 1980,
+      "waitS": 300,
+      "timed": true,
+      "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "sourceFile": "TimetableV2.jpg",
+      "rideStops": [
+        {
+          "stopId": "stop-goryu-escal-plaza",
+          "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+          "coord": {
+            "lat": 36.66293,
+            "lng": 137.83667
+          },
+          "time": "14:37"
+        },
+        {
+          "stopId": "stop-echoland-spicy",
+          "name": "Echoland (Spicy)",
+          "coord": {
+            "lat": 36.69214,
+            "lng": 137.84506
+          },
+          "time": "14:57"
+        },
+        {
+          "stopId": "stop-happo-nakiyama",
+          "name": "Happo Nakiyama Slope",
+          "coord": {
+            "lat": 36.69824,
+            "lng": 137.83881
+          },
+          "time": "15:05"
+        },
+        {
+          "stopId": "stop-happo-bus-terminal",
+          "name": "Hakuba Happo Bus Terminal",
+          "coord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "time": "15:10"
+        }
+      ],
+      "walkToPlaceS": 300,
+      "doorArrivesAt": "2026-03-20T15:15:00+09:00"
+    },
+    {
+      "resortId": null,
+      "lineId": "line-g",
+      "routeId": "g4",
+      "routeName": "From Happo via Wadano·Mizuho·Misorano",
+      "trip": 2,
+      "boardStopId": "stop-goryu-escal-plaza",
+      "boardStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "boardStopCoord": {
+        "lat": 36.66293,
+        "lng": 137.83667
+      },
+      "alightStopId": "stop-happo-bus-terminal",
+      "walkS": 120,
+      "departsAt": "2026-03-20T15:00:00+09:00",
+      "arrivesAt": null,
+      "rideS": null,
+      "waitS": 1680,
+      "timed": false,
+      "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "sourceFile": "G1-6.jpg",
+      "rideStops": [
+        {
+          "stopId": "stop-goryu-escal-plaza",
+          "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+          "coord": {
+            "lat": 36.66293,
+            "lng": 137.83667
+          },
+          "time": "15:00"
+        },
+        {
+          "stopId": "stop-cultured",
+          "name": "Cultured",
+          "coord": {
+            "lat": 36.68413,
+            "lng": 137.8474
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-traumerai",
+          "name": "Traumerai",
+          "coord": {
+            "lat": 36.68717,
+            "lng": 137.84661
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-la-vigne-hakuba-north-parking",
+          "name": "La Vigne Hakuba North Parking",
+          "coord": {
+            "lat": 36.69251,
+            "lng": 137.84503
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-minamiya",
+          "name": "Minamiya",
+          "coord": {
+            "lat": 36.69521,
+            "lng": 137.8461
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-hakuba-tokyu-hotel",
+          "name": "Hakuba Tokyu Hotel",
+          "coord": {
+            "lat": 36.7060573,
+            "lng": 137.8392606
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-mominoki",
+          "name": "Hakuba Mominoki Hotel",
+          "coord": {
+            "lat": 36.7070112,
+            "lng": 137.8366547
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-happo-bus-terminal",
+          "name": "Hakuba Happo Bus Terminal",
+          "coord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "time": null
+        }
+      ],
+      "walkToPlaceS": 300,
+      "doorArrivesAt": null
+    },
+    {
+      "resortId": null,
+      "lineId": "line-g",
+      "routeId": "g4",
+      "routeName": "From Happo via Wadano·Mizuho·Misorano",
+      "trip": 3,
+      "boardStopId": "stop-goryu-escal-plaza",
+      "boardStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "boardStopCoord": {
+        "lat": 36.66293,
+        "lng": 137.83667
+      },
+      "alightStopId": "stop-happo-bus-terminal",
+      "walkS": 120,
+      "departsAt": "2026-03-20T16:00:00+09:00",
+      "arrivesAt": null,
+      "rideS": null,
+      "waitS": 5280,
+      "timed": false,
+      "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "sourceFile": "G1-6.jpg",
+      "rideStops": [
+        {
+          "stopId": "stop-goryu-escal-plaza",
+          "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+          "coord": {
+            "lat": 36.66293,
+            "lng": 137.83667
+          },
+          "time": "16:00"
+        },
+        {
+          "stopId": "stop-cultured",
+          "name": "Cultured",
+          "coord": {
+            "lat": 36.68413,
+            "lng": 137.8474
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-traumerai",
+          "name": "Traumerai",
+          "coord": {
+            "lat": 36.68717,
+            "lng": 137.84661
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-la-vigne-hakuba-north-parking",
+          "name": "La Vigne Hakuba North Parking",
+          "coord": {
+            "lat": 36.69251,
+            "lng": 137.84503
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-minamiya",
+          "name": "Minamiya",
+          "coord": {
+            "lat": 36.69521,
+            "lng": 137.8461
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-hakuba-tokyu-hotel",
+          "name": "Hakuba Tokyu Hotel",
+          "coord": {
+            "lat": 36.7060573,
+            "lng": 137.8392606
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-mominoki",
+          "name": "Hakuba Mominoki Hotel",
+          "coord": {
+            "lat": 36.7070112,
+            "lng": 137.8366547
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-happo-bus-terminal",
+          "name": "Hakuba Happo Bus Terminal",
+          "coord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "time": null
+        }
+      ],
+      "walkToPlaceS": 300,
+      "doorArrivesAt": null
+    },
+    {
+      "resortId": null,
+      "lineId": "line-v",
+      "routeId": "v2",
+      "routeName": "Cortina ↔ Hakuba GORYU",
+      "trip": 8,
+      "boardStopId": "stop-goryu-escal-plaza",
+      "boardStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "boardStopCoord": {
+        "lat": 36.66293,
+        "lng": 137.83667
+      },
+      "alightStopId": "stop-happo-bus-terminal",
+      "walkS": 120,
+      "departsAt": "2026-03-20T16:07:00+09:00",
+      "arrivesAt": "2026-03-20T16:40:00+09:00",
+      "rideS": 1980,
+      "waitS": 5700,
+      "timed": true,
+      "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "sourceFile": "TimetableV2.jpg",
+      "rideStops": [
+        {
+          "stopId": "stop-goryu-escal-plaza",
+          "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+          "coord": {
+            "lat": 36.66293,
+            "lng": 137.83667
+          },
+          "time": "16:07"
+        },
+        {
+          "stopId": "stop-echoland-spicy",
+          "name": "Echoland (Spicy)",
+          "coord": {
+            "lat": 36.69214,
+            "lng": 137.84506
+          },
+          "time": "16:27"
+        },
+        {
+          "stopId": "stop-happo-nakiyama",
+          "name": "Happo Nakiyama Slope",
+          "coord": {
+            "lat": 36.69824,
+            "lng": 137.83881
+          },
+          "time": "16:35"
+        },
+        {
+          "stopId": "stop-happo-bus-terminal",
+          "name": "Hakuba Happo Bus Terminal",
+          "coord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "time": "16:40"
+        }
+      ],
+      "walkToPlaceS": 300,
+      "doorArrivesAt": "2026-03-20T16:45:00+09:00"
+    },
+    {
+      "resortId": null,
+      "lineId": "line-g",
+      "routeId": "g4",
+      "routeName": "From Happo via Wadano·Mizuho·Misorano",
+      "trip": 4,
+      "boardStopId": "stop-goryu-escal-plaza",
+      "boardStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "boardStopCoord": {
+        "lat": 36.66293,
+        "lng": 137.83667
+      },
+      "alightStopId": "stop-happo-bus-terminal",
+      "walkS": 120,
+      "departsAt": "2026-03-20T17:10:00+09:00",
+      "arrivesAt": null,
+      "rideS": null,
+      "waitS": 9480,
+      "timed": false,
+      "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
+      "sourceFile": "G1-6.jpg",
+      "rideStops": [
+        {
+          "stopId": "stop-goryu-escal-plaza",
+          "name": "ABLE Hakuba GORYU ESCAL PLAZA",
+          "coord": {
+            "lat": 36.66293,
+            "lng": 137.83667
+          },
+          "time": "17:10"
+        },
+        {
+          "stopId": "stop-cultured",
+          "name": "Cultured",
+          "coord": {
+            "lat": 36.68413,
+            "lng": 137.8474
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-traumerai",
+          "name": "Traumerai",
+          "coord": {
+            "lat": 36.68717,
+            "lng": 137.84661
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-la-vigne-hakuba-north-parking",
+          "name": "La Vigne Hakuba North Parking",
+          "coord": {
+            "lat": 36.69251,
+            "lng": 137.84503
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-minamiya",
+          "name": "Minamiya",
+          "coord": {
+            "lat": 36.69521,
+            "lng": 137.8461
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-hakuba-tokyu-hotel",
+          "name": "Hakuba Tokyu Hotel",
+          "coord": {
+            "lat": 36.7060573,
+            "lng": 137.8392606
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-mominoki",
+          "name": "Hakuba Mominoki Hotel",
+          "coord": {
+            "lat": 36.7070112,
+            "lng": 137.8366547
+          },
+          "time": null
+        },
+        {
+          "stopId": "stop-happo-bus-terminal",
+          "name": "Hakuba Happo Bus Terminal",
+          "coord": {
+            "lat": 36.7015349,
+            "lng": 137.8456096
+          },
+          "time": null
+        }
+      ],
+      "walkToPlaceS": 300,
+      "doorArrivesAt": null
+    }
+  ],
+  "basis": "published",
+  "basedOnSeason": "2025-26",
+  "newerSourcePending": false
+}

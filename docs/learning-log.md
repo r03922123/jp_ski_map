@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: feat(web): list the shuttles back to the lodging in Bus mode
+
+**1. Principle: one name shouldn't mean two things across modes.**
+In Bus mode, `toPlace` meant "the stop you walk to", not "where you're going". Reusing it for the swap would have started the trip home from a bus stop. The swap now asks a separate question, `swapTo`: the lodging, else the chosen bus's resort, else the selected resort.
+*Analogy:* a variable reused for two jobs works until a new caller trusts the wrong one.
+
+**2. Trade-off: a test fixture produced by the real code.**
+The e2e fixture is the JSON that `bus_options_to_place` really returned, not one written by hand, so the panel is tested against the true shape. It can still go stale if the API changes, and a mock can't prove the live path, so I also ran the real API and real timetables at phone size.
+*Analogy:* testing a model's output layer on tensors from the real encoder rather than hand-made ones.
+
+**3. What could go wrong: a true list can still be a poor list.**
+From Goryu at 14:30, five G buses leaving at 15:00 filled all five rows, each to a different hotel, and pushed later timed buses off the list. Every row is correct, and the rule is the one in the spec, but a skier sees five near-identical choices. Correctness tests can't catch that; looking at the real screen did.
+*Analogy:* top-k results that are all near-duplicates: each is relevant, and together they add little.
+
 ## 2026-11-09 · build new features: fix(web): keep the start and destination markers clear of the panels
 
 **1. Principle: test the thing the user sees, not a proxy for it.**
