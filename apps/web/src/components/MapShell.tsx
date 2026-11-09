@@ -836,6 +836,23 @@ export function MapShell() {
     !piloting &&
     !savedOpen &&
     stops.some((st) => st.place === null);
+  // With both ends set only the trip's resort keeps its label (SPEC-web-app v1.12). An
+  // open stop box is choosing again, and a resort can be tapped as the stop.
+  const tripSet =
+    origin !== null &&
+    (mode === "bus"
+      ? busChoice !== null || busPlace !== null
+      : Boolean(target));
+  const tripResortId =
+    mode === "bus"
+      ? busPlace
+        ? null
+        : (busChoice?.resortId ?? null)
+      : point || poiCategory
+        ? null
+        : selectedResortId;
+  const shownResortIds =
+    tripSet && !placingStop ? (tripResortId ? [tripResortId] : []) : undefined;
   const fillOpenStop = (place: PlaceInput) => {
     const open = stops.find((st) => st.place === null);
     if (open) fillStop(open.key, place);
@@ -1249,6 +1266,7 @@ export function MapShell() {
           ~20 markers and links (T78); it paints below everything (z-index 0) */}
       <MapView
         resorts={resorts.data ?? []}
+        shownResortIds={shownResortIds}
         selectedResortId={selectedResortId}
         origin={origin}
         destination={

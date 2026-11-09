@@ -261,7 +261,7 @@ test("a swap drops the chosen bus, whose stop belonged to the old start", async 
   await expect(journey).toHaveCount(0);
 });
 
-test("a chosen way-back shuttle goes when a resort marker takes over", async ({
+test("a chosen way-back shuttle goes when the destination is cleared", async ({
   page,
 }) => {
   await mockBuses(page);
@@ -274,22 +274,8 @@ test("a chosen way-back shuttle goes when a resort marker takes over", async ({
   const journey = page.locator('[aria-label="Journey"]');
   await expect(journey).toBeVisible();
 
-  const findMarker = () =>
-    page.evaluate(() => {
-      for (const b of document.querySelectorAll<HTMLButtonElement>(
-        "[data-resort-marker]",
-      )) {
-        const r = b.getBoundingClientRect();
-        const x = r.left + r.width / 2;
-        const y = r.top + r.height / 2;
-        if (b.contains(document.elementFromPoint(x, y))) return { x, y };
-      }
-      return null;
-    });
-  await expect.poll(findMarker, { timeout: 15_000 }).not.toBeNull();
-  const marker = await findMarker();
-  if (!marker) throw new Error("no resort marker on screen");
-  await page.mouse.click(marker.x, marker.y);
+  // the trip's labels are hidden (SPEC-web-app v1.12), so this link is the way out
+  await page.getByText("Shuttles to resorts").click();
 
   await expect.poll(() => param(page, "dest")).toBeNull();
   await expect(journey).toHaveCount(0);

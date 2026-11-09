@@ -45,6 +45,8 @@ setWorkerUrl(MAPLIBRE_WORKER_URL);
 
 export type MapViewProps = {
   resorts: Resort[];
+  /** Which resorts keep a label; every one when absent. Numbers still count them all. */
+  shownResortIds?: string[];
   selectedResortId: string | null;
   origin: Coord | null;
   destination: Coord | null;
@@ -171,6 +173,7 @@ const prefersReducedMotion = () =>
 
 export default function MapView({
   resorts,
+  shownResortIds,
   selectedResortId,
   origin,
   destination,
@@ -797,48 +800,50 @@ export default function MapView({
           }}
         />
       </Source>
-      {resorts.map((r) => {
-        const point = r.accessPoints[0];
-        const selected = r.id === selectedResortId;
-        return (
-          <Marker
-            key={r.id}
-            latitude={point.coord.lat}
-            longitude={point.coord.lng}
-            anchor="bottom"
-            // labels stay readable above the idle hero (z auto), and the chosen world's
-            // chip stays above the destination flag on the same spot
-            style={{ zIndex: selected ? 2 : 1 }}
-            onClick={(e) => {
-              e.originalEvent.stopPropagation();
-              if (!piloting) onSelectResort(r.id); // navigating: the trip stays
-            }}
-          >
-            <button
-              type="button"
-              aria-label={r.name.en}
-              aria-pressed={selected}
-              data-resort-marker={r.id}
-              className={`flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] ${
-                selected
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-card text-card-foreground"
-              }`}
+      {resorts
+        .filter((r) => !shownResortIds || shownResortIds.includes(r.id))
+        .map((r) => {
+          const point = r.accessPoints[0];
+          const selected = r.id === selectedResortId;
+          return (
+            <Marker
+              key={r.id}
+              latitude={point.coord.lat}
+              longitude={point.coord.lng}
+              anchor="bottom"
+              // labels stay readable above the idle hero (z auto), and the chosen world's
+              // chip stays above the destination flag on the same spot
+              style={{ zIndex: selected ? 2 : 1 }}
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                if (!piloting) onSelectResort(r.id); // navigating: the trip stays
+              }}
             >
-              <PixelSprite
-                id={`world-${worlds.get(r.id)}`}
-                sprite={worldBadge(worlds.get(r.id) ?? 0)}
-                scale={1.5}
-                alt=""
-              />
-              {r.name.en.replace(
-                / (Snow Resort|Snow Field|Mountain Resort|Ski Resort.*)$/,
-                "",
-              )}
-            </button>
-          </Marker>
-        );
-      })}
+              <button
+                type="button"
+                aria-label={r.name.en}
+                aria-pressed={selected}
+                data-resort-marker={r.id}
+                className={`flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] ${
+                  selected
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card text-card-foreground"
+                }`}
+              >
+                <PixelSprite
+                  id={`world-${worlds.get(r.id)}`}
+                  sprite={worldBadge(worlds.get(r.id) ?? 0)}
+                  scale={1.5}
+                  alt=""
+                />
+                {r.name.en.replace(
+                  / (Snow Resort|Snow Field|Mountain Resort|Ski Resort.*)$/,
+                  "",
+                )}
+              </button>
+            </Marker>
+          );
+        })}
       {pilot?.puck && (
         <Marker
           longitude={pilot.puck[0]}
