@@ -14,6 +14,18 @@ The first draft recommended going private to keep the 15 unlicensed pins from st
 **3. What could go wrong: a client-side check standing in for a server-side rule.**
 The draft said a local pre-push hook could replace branch protection. A hook runs only on the machine that has it, never on a merge made on GitHub, and `--no-verify` skips it. The fresh review caught this by reading what `main`'s protection actually enforces, which is why a reviewer who never saw the conversation is worth the cost.
 
+## 2026-11-09 · build new features: fix(web): picking a route option shows the whole route
+
+**1. Principle: an effect's key says which changes it reacts to.**
+`MapView` re-fits the camera only when its `fitKey` changes, and the sheet collapses only when its `collapseKey` changes. Neither key included the chosen route, so tapping an option redrew the line and left the camera and the sheet alone. Adding the option to both keys is the core of the fix. The review caught that a key also changes when the route goes away, so tapping Bus shrank the sheet over the list the user came for. Now only a route appearing collapses it.
+*Analogy:* a memoised function returns the old result when an input is missing from its cache key.
+
+**2. Trade-off: the answer gets the screen, the option list gets out of the way.**
+On a phone an expanded sheet leaves about 150 px of map, so no camera move can show the route there. Collapsing it does, but the option list drops below the fold. Switching again takes the ETA label on the map, or a swipe up. Moving the options into the resting sheet would avoid that, at the cost of a layout change this fix didn't need.
+
+**3. What could go wrong: re-fitting at the wrong moment.**
+A re-fit that fires after every render would snap the map back each time the user pans. So `fitKey` stays a string of what is drawn plus the chosen index, never an object's identity. The test pans away first, and then requires all of the chosen route's points to be in the uncovered area.
+
 ## 2026-11-09 · build new features: feat(web): swap start and destination to get back to the lodging
 
 **1. Principle: a reversal has to move every piece of state tied to the trip, not just the two ends.**
