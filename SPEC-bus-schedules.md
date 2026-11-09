@@ -132,3 +132,36 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
   - the resort marker.
 - The panel timeline: `🚶 4 min → 🚏 Happo Bus Terminal 08:11 → 🚌 Line V · 5 stops · 28 min → ⛷ Hakuba47 08:39`.
 - The ride-leg geometry is approximate: buses take the roads Valhalla picks between the stops, so the map label says "approximate bus path".
+
+## v1.2: Direct shuttles to a place (way back to the lodging, approved 2026-11-09)
+**Objective.** From a resort: "which shuttle takes me back to my lodging, and how far do I walk from the stop?" Measured on the real timetables (752 pairs of a resort and a non-resort stop more than 1.4 km from it, 20 Jan, 15:30, walks estimated in a straight line): 552 have only timed trips, 104 a mix of timed and first-stop-only trips, 4 only first-stop-only trips, 92 no direct trip left.
+
+**API.** `GET /api/bus/to-place?from=lat,lng&to=lat,lng&at=&name=&toName=` → `PlaceBusResult`: `status`, `nextServiceDate`, `basis`, `basedOnSeason`, `newerSourcePending` (same meaning and same season rules as `/options`) and `options: BusOption[]`. `BusOption.resortId` becomes nullable (null here), and it gains `walkToPlaceS` and `doorArrivesAt` (null when untimed).
+
+**Walks.** Both ends use the `/options` rule: stops within 20 min on foot, else the 3 nearest. `toName` makes a stop that *is* the lodging walk 0, like `name` does for the start.
+
+**A `null` time means two things.** A trip is *first-stop-only* when exactly one of its times is published (F, G, N's return): there, `null` means "not published". On every other trip (V2, O, I3, L), `null` means the bus does not go there: V2 north trip 7 skips JR Hakuba.
+- **Board** only at a stop with a published time, and only if you can walk there before it leaves.
+- **Get off** at a later stop on the same trip, other than the boarding stop. On a timed trip that stop must have a published time; on a first-stop-only trip any later stop counts.
+- Direct trips only, `kind: day` only.
+- `rideStops` leaves out the stops a timed trip skips, so the map and the stop count match the bus. A first-stop-only trip keeps all its stops.
+
+**Choosing the stop (one row per trip).** Timed trip: the stop that gets you to the door soonest (alighting time + walk), then the shorter walk to the place, then the shorter walk to the boarding stop. First-stop-only trip: the shortest walk from the stop.
+
+**Order.** Up to 5 rows, by departure from the boarding stop, then door arrival (timed before first-stop-only), then total walk. Departure is the one time both kinds of trip have; the outbound rule (timed first, three rows) would push an earlier F/G bus off the list in 71 of the 104 mixed pairs above.
+
+**First-stop-only rows.** "Departs <first stop> HH:MM · stop times not published", with `arrivesAt` and `doorArrivesAt` null. We never estimate an arrival. The operator also says the order of stops may vary, so the row names the stop and the walk and says so.
+
+**Known gaps.**
+- N's outward trip publishes no arrival at Norikura, so it is not offered as a way to reach a lodging there; V2 covers that area.
+- H3 outward trip 1 prints 9:53 at Sakka Slope, out of sequence, so the file stores `null` and that bus isn't offered to Sakka; the next one is.
+- **Boarding rules are not modelled yet, and must be before any screen uses this endpoint.** The timetables mark some stops as boarding-only or alighting-only, and the JSON keeps that only as free text or not at all: E2's starred stops (Courtyard, Oak Forest) are only for Iwatake travellers, H1/H2's ▲ stops, Gurutto's ●/▲ stops. F6 outward trip 3 also prints "—" at Keyakino-ki, which a first-stop-only trip can't express. Until then `/to-place` can offer a ride the operator doesn't allow, such as Happo Nakiyama → Courtyard on E2.
+
+**Acceptance** (pure function, V2 Mar 16–29 + G4, 2026-03-20 14:30, walk 2 min to `stop-goryu-escal-plaza`, 5 min from `stop-happo-bus-terminal`):
+- [ ] Five rows in order: V2 14:37 → 15:10 (door 15:15); G4 15:00, untimed, door null; G4 16:00, untimed; V2 16:07 → 16:40 (door 16:45); G4 17:10, untimed.
+- [ ] With only `stop-jr-hakuba` near the place, V2 north trip 7 is not offered and trip 8 is.
+- [ ] A first-stop-only trip can't be boarded at a later stop.
+- [ ] A stop can't be both boarding and alighting; a loop line works; one row per trip; at most 5.
+- [ ] Out of season and unreviewed answers match `/options`.
+
+**Out of scope:** transfers, and changing the `/options` query, which still treats every `null` as "not published".
