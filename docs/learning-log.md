@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: fix(api): one row for buses leaving a stop together
+
+**1. Principle: rank for the decision, not just for correctness.**
+Five G buses at 15:00 were all true answers, but they gave a skier one decision five times and hid the V2 at 15:07, the only one with a published arrival. Collapsing them made room for it.
+*Analogy:* diversifying top-k results, so near-duplicates don't crowd out a different kind of answer.
+
+**2. Trade-off: keep only the shortest walk from the stop.**
+The other G buses at that minute go to other hotels, and they no longer appear. For a given lodging the closest drop-off is usually the one you'd want. The cost is that a rider can't see the others, including a bus with a slightly longer walk but fewer stops on the way. These buses publish no arrival times, so we can't rank them on ride length.
+*Analogy:* keeping one representative per cluster loses the rest of the cluster.
+
+**3. What could go wrong: over-thinning.**
+Timed buses leaving together stay separate, because their arrivals can differ, and so do buses from different stops, because the walk to reach them differs. Two tests pin that, so a later change can't collapse real choices.
+*Analogy:* a dedupe key that's too coarse silently merges records that were actually different.
+
 ## 2026-11-09 · build new features: feat(web): list the shuttles back to the lodging in Bus mode
 
 **1. Principle: one name shouldn't mean two things across modes.**

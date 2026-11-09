@@ -1,5 +1,6 @@
 """Pure bus queries: no I/O. See SPEC-bus-schedules.md (Query, Untimed routes, v1.2)."""
 
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from typing import Any, Literal
 
@@ -294,8 +295,24 @@ def bus_options_to_place(
                         if current is None or _stop_rank(option) < _stop_rank(current):
                             best[key] = option
 
-    options = sorted(best.values(), key=_place_rank)[:MAX_OPTIONS_TO_PLACE]
+    options = sorted(_thinned(best.values()), key=_place_rank)[:MAX_OPTIONS_TO_PLACE]
     return PlaceBusResult(status="ok", next_service_date=None, options=options, **meta)
+
+
+def _thinned(options: Iterable[BusOption]) -> list[BusOption]:
+    """One row for first-stop-only buses leaving a stop together: the shortest walk at the
+    far end. They'd otherwise fill the list with near-identical rows (spec v1.2)."""
+    timed: list[BusOption] = []
+    untimed: dict[tuple[str, datetime], BusOption] = {}
+    for o in options:
+        if o.timed:
+            timed.append(o)
+            continue
+        key = (o.board_stop_id, o.departs_at)
+        current = untimed.get(key)
+        if current is None or _stop_rank(o) < _stop_rank(current):
+            untimed[key] = o
+    return timed + list(untimed.values())
 
 
 def _may_pair(d: Direction, board: int, alight: int) -> bool:
@@ -307,8 +324,8 @@ def _may_pair(d: Direction, board: int, alight: int) -> bool:
 
 
 def _stop_rank(o: BusOption) -> tuple[datetime, int, int]:
-    """Within one trip: soonest at the door, then the shorter walks. Untimed trips have a
-    single boarding stop and no door time, so only the walk from the stop tells them apart."""
+    """Which stops to use: soonest at the door, then the shorter walks. Untimed trips have
+    a single boarding stop and no door time, so only the walk from the stop separates them."""
     return (o.door_arrives_at or o.departs_at, o.walk_to_place_s or 0, o.walk_s)
 
 

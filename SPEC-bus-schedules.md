@@ -150,6 +150,8 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 
 **Order.** Up to 5 rows, by departure from the boarding stop, then door arrival (timed before first-stop-only), then total walk. Departure is the one time both kinds of trip have; the outbound rule (timed first, three rows) would push an earlier F/G bus off the list in 71 of the 104 mixed pairs above.
 
+**One row per departure of first-stop-only buses.** Several G routes leave the same stop at the same minute, each to different hotels, and could fill every row and hide later timed buses (from Goryu Escal to JR Hakuba at 14:30, all five rows left at 15:00). So first-stop-only trips keep one row per boarding stop and departure minute: the shortest walk from the stop. Timed trips are never thinned, because their different arrivals are a real choice.
+
 **First-stop-only rows.** "Departs <first stop> HH:MM · stop times not published", with `arrivesAt` and `doorArrivesAt` null. We never estimate an arrival. The operator also says the order of stops may vary, so the row names the stop and the walk and says so.
 
 **Known gaps.**
@@ -179,6 +181,7 @@ The poster's legend says ● is alighting and ▲ boarding. Read that way nobody
 - [ ] With only `stop-jr-hakuba` near the place, V2 north trip 7 is not offered and trip 8 is.
 - [ ] A first-stop-only trip can't be boarded at a later stop.
 - [ ] A stop can't be both boarding and alighting; a loop line works; one row per trip; at most 5.
+- [ ] First-stop-only buses leaving one stop at the same minute share one row, the shortest walk from the stop, chosen before the cut to five; timed buses and other boarding stops keep their rows.
 - [ ] Out of season and unreviewed answers match `/options`.
 
 **Out of scope:** transfers, and changing the `/options` query, which still treats every `null` as "not published" and ignores the boarding rules.

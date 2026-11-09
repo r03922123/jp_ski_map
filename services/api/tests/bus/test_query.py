@@ -400,6 +400,42 @@ def test_one_row_per_trip_from_the_closer_boarding_stop() -> None:
     assert result.options[0].board_stop_id == HAKUBA47  # same bus, same door time, less walk
 
 
+@pytest.mark.parametrize("names", [("g1", "g4", "g5"), ("g5", "g4", "g1")])
+def test_first_stop_only_buses_leaving_together_share_one_row(names: tuple[str, ...]) -> None:
+    result = to_place(
+        {ESCAL: 120},
+        {TERMINAL: 600, "stop-lion-cafe": 120, "stop-hotel-hakuba": 300},
+        [table(f"line-g-{name}") for name in names],
+    )
+
+    at_three = [o for o in result.options if hhmm(o.departs_at) == "15:00"]
+    assert [o.alight_stop_id for o in at_three] == ["stop-lion-cafe"]  # the shortest walk
+    # thinning comes before the five-row cut, so the later buses keep their rows
+    assert [hhmm(o.departs_at) for o in result.options] == ["15:00", "16:00", "17:10"]
+
+
+def test_first_stop_only_buses_from_different_stops_keep_their_rows() -> None:
+    iimori = ALIAS["ABLE Hakuba GORYU IIMORI"]
+
+    result = to_place(
+        {ESCAL: 60, iimori: 60},
+        {TERMINAL: 60, "stop-hotel-hakuba": 60},
+        [table("line-g-g4"), table("line-g-g7")],
+    )
+
+    at_three = [o for o in result.options if hhmm(o.departs_at) == "15:00"]
+    assert {o.board_stop_id for o in at_three} == {ESCAL, iimori}
+
+
+def test_timed_buses_leaving_together_are_never_thinned() -> None:
+    v2 = table("line-v-v2")
+    twin = v2.model_copy(update={"route_id": "v2-twin"})
+
+    result = to_place({ESCAL: 120}, {TERMINAL: 300}, [v2, twin])
+
+    assert [hhmm(o.departs_at) for o in result.options] == ["14:37", "14:37", "16:07", "16:07"]
+
+
 def test_at_most_five_rows_in_departure_order() -> None:
     result = to_place(
         {ESCAL: 0},
