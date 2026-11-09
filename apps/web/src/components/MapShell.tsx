@@ -841,16 +841,22 @@ export function MapShell() {
   const tripSet =
     origin !== null &&
     (mode === "bus"
-      ? busChoice !== null || busPlace !== null
+      ? busPlace !== null || (busChoice !== null && !showNight)
       : Boolean(target));
+  // a saved resort comes back as a point, but it is still that resort
+  const pointResortId =
+    pointPlace?.kind === "resort" &&
+    resorts.data?.some((r) => r.id === pointPlace.id)
+      ? pointPlace.id
+      : null;
   const tripResortId =
     mode === "bus"
-      ? busPlace
-        ? null
-        : (busChoice?.resortId ?? null)
-      : point || poiCategory
-        ? null
-        : selectedResortId;
+      ? (busChoice?.resortId ?? null)
+      : point
+        ? pointResortId
+        : poiCategory
+          ? null
+          : selectedResortId;
   const shownResortIds =
     tripSet && !placingStop ? (tripResortId ? [tripResortId] : []) : undefined;
   const fillOpenStop = (place: PlaceInput) => {

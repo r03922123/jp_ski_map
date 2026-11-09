@@ -275,7 +275,7 @@ test("a chosen way-back shuttle goes when the destination is cleared", async ({
   await expect(journey).toBeVisible();
 
   // the trip's labels are hidden (SPEC-web-app v1.12), so this link is the way out
-  await page.getByText("Shuttles to resorts").click();
+  await page.getByRole("button", { name: "Shuttles to resorts" }).click();
 
   await expect.poll(() => param(page, "dest")).toBeNull();
   await expect(journey).toHaveCount(0);

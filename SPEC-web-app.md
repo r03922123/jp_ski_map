@@ -261,7 +261,7 @@ Success means:
 
 **Rules.**
 1. With a start and a destination set, the only resort label on the map is the destination resort's. A destination that isn't a resort (a lodging, a food or konbini row, a dropped pin) leaves none.
-2. Bus: with no bus chosen and no lodging as the destination, every label stays, because no destination is set yet. A chosen bus keeps its resort's label. A lodging as the destination leaves none.
+2. Bus: with no bus chosen and no lodging as the destination, every label stays, because no destination is set yet. A chosen bus keeps its resort's label. A lodging as the destination leaves none. Night bus draws no trip, so every label returns.
 3. While a stop box is open, every label shows again, so a resort can be tapped as the stop.
 4. Resort numbers don't change when others are hidden.
 5. Clearing the start or the destination brings every label back.
