@@ -29,3 +29,6 @@ data/bus/raw/
 
 # UX benchmark evidence (third-party screenshots/recordings; never commit)
 .ux-evidence/
+
+# Claude Code worktrees
+.claude/worktrees/
