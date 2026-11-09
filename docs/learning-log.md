@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: feat(web): only the trip's resort stays on the map
+
+**1. Principle: separate what is drawn from what is counted.**
+Resort numbers come from the full list. Filtering that list would have renumbered the one label left, so the map gets a separate "which to show" list and the numbering keeps the whole one.
+*Analogy:* a SQL `WHERE` over a view whose `ROW_NUMBER()` was already computed keeps the original numbers.
+
+**2. Trade-off: a calmer map for one less way to change the destination.**
+With a trip set, other resorts can't be tapped on the map. The resort list and the To box still can, and an open stop box shows every label again, because there the labels are what you're choosing from.
+
+**3. What could go wrong: `null` and `undefined` are different "nothing".**
+The first version tested `target !== null`, but with no destination `target` is `undefined`, so every label vanished before a trip existed. The test counting all 10 labels with no trip caught it at once. `Boolean(target)` says what was meant.
+
 ## 2026-11-09 · build new features: fix(api): one row for buses leaving a stop together
 
 **1. Principle: rank for the decision, not just for correctness.**

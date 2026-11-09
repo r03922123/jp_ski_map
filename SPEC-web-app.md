@@ -255,3 +255,17 @@ Success means:
 **Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: a swap in Bus mode requests `/to-place` with the old start as `to`, rows show the walk from the stop, a second tap restores the resort list, the link clears the destination, the button is disabled with no destination, and the old hint is gone.
 
 **Boundaries.** *Out of scope:* transfers, a To box in Bus mode, and drawing or guiding the final walk: Start guides you to the stop where you get off.
+
+## v1.12: Only the trip's resort stays on the map (2026-11-09, approved)
+**Objective.** Once a trip's start and destination are set, the other resorts' labels only crowd the route.
+
+**Rules.**
+1. With a start and a destination set, the only resort label on the map is the destination resort's. A destination that isn't a resort (a lodging, a food or konbini row, a dropped pin) leaves none.
+2. Bus: with no bus chosen and no lodging as the destination, every label stays, because no destination is set yet. A chosen bus keeps its resort's label. A lodging as the destination leaves none. Night bus draws no trip, so every label returns.
+3. While a stop box is open, every label shows again, so a resort can be tapped as the stop.
+4. Resort numbers don't change when others are hidden.
+5. Clearing the start or the destination brings every label back.
+
+**Success criteria.** `e2e/journeys/resort-labels.spec.ts` passes.
+
+**Boundaries.** The destination can still be changed from the resort list or the To box. Tapping another resort on the map needs the trip cleared first (decided 2026-11-09).
