@@ -214,7 +214,7 @@ vercel billing usage --since 30d --group-by project
 | One engine | unit, CI: concurrent first calls build exactly one engine |
 | Lock timeout and error mapping | unit, CI: fake Actor blocks or raises; assert the two error types |
 | Matrix bound | unit, CI: 26 targets → 422 |
-| Same answers as the server | `live`: a seeded request generator in the repo, 100 mixed + 20 `/route/path` (through points and `stop_at_points`) + 5 error cases, using the tar-only config |
+| Same answers as the server | `live`: a seeded request generator in the repo, 100 mixed + 20 `/route/path` (through points and `stop_at_points`) + 5 error cases, using the tar-only config. Every field exact, except a matrix cell's `cost` within 0.01 (measured differences reach 0.002; the API never reads it) |
 | Real threads | `live`: real Actor, 40 threads, 2000 requests, 0 wrong, no crash |
 | Deploy script | shell test: a missing data file, wrong hash or missing project link stops it; without `--prod` the command carries `--environment preview` |
 
