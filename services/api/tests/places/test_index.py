@@ -66,6 +66,24 @@ def test_a_place_carrying_the_querys_own_lodging_word_stays() -> None:
     assert names(rank(TYPED, "Kanemaru Hotel", HAPPO, 5)) == ["Kanemaru"]
 
 
+def test_a_kana_lodging_word_matches_the_same_word_in_any_script() -> None:
+    panorama = [entry("Panorama Hotel", "stop", ja="パノラマホテル")]
+    assert names(rank(panorama, "パノラマ ホテル", HAPPO, 5)) == ["Panorama Hotel"]
+    momi = [entry("Mominoki", "stop", ja="白馬樅の木ホテル")]
+    assert names(rank(momi, "白馬樅の木 ホテル", HAPPO, 5)) == ["Mominoki"]
+
+
+def test_a_lodging_word_joined_by_an_ampersand_still_counts() -> None:
+    heyza = [entry("HEYZA food&guesthouse", "food")]
+    assert names(rank(heyza, "HEYZA guesthouse", HAPPO, 5)) == ["HEYZA food&guesthouse"]
+
+
+def test_a_stop_named_only_for_the_hotel_stays() -> None:
+    gakusui = [entry("The Gakusui", "stop"), entry("Ryokusuitei Keisui", "stop")]
+    assert names(rank(gakusui, "The Gakusui Hotel", HAPPO, 5)) == ["The Gakusui"]
+    assert names(rank(gakusui, "Ryokusuitei Keisui Ryokan", HAPPO, 5)) == ["Ryokusuitei Keisui"]
+
+
 def test_a_query_with_no_lodging_word_is_not_filtered() -> None:
     assert "Hakuba Inn Bloom Parking" in names(rank(TYPED, "Parking", HAPPO, 5))
     assert "Hakuba 47 Winter Sports Park" in names(rank(TYPED, "47 Park", HAPPO, 5))

@@ -15,6 +15,7 @@ from hakuba_api.places.kana import sound_key, to_romaji
         ("ほてるしろうま", "hotel shiroma"),  # hiragana too; long vowels folded
         ("ペンション・ミーティア", "pension mitia"),
         ("ロッヂ幸", "lodge"),  # the older spelling of ロッジ
+        ("白馬パークホテル", "hakuba park hotel"),
     ],
 )
 def test_to_romaji(ja: str, romaji: str) -> None:

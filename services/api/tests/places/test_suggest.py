@@ -112,6 +112,16 @@ def test_a_chinese_word_for_hotel_finds_the_japanese_name(
     assert call.calls.last.request.url.params["q"] == "東急ホテル"
 
 
+def test_photon_keeps_the_original_words_when_the_retry_finds_nothing(
+    api: TestClient, mock: respx.MockRouter
+) -> None:
+    call = mock.get(PHOTON_URL).respond(json={"features": []})
+
+    api.get("/api/places/suggest", params={"q": "北京飯店", "near": "36.70,137.845"})
+
+    assert call.calls.last.request.url.params["q"] == "北京飯店"
+
+
 def test_a_place_really_named_hanten_is_still_found(
     api: TestClient, mock: respx.MockRouter
 ) -> None:

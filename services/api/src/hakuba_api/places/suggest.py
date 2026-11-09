@@ -93,8 +93,9 @@ def suggest(
     index = entries if entries is not None else load_index()
     hits = rank(index, query, near, limit)
     if not hits and _CHINESE_HOTEL.search(query):
-        query = _CHINESE_HOTEL.sub("ホテル", query)
-        hits = rank(index, query, near, limit)
+        retry = _CHINESE_HOTEL.sub("ホテル", query)
+        if retry_hits := rank(index, retry, near, limit):
+            query, hits = retry, retry_hits
     local = [_from_hit(h) for h in hits]
     if not use_photon or len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
         return local

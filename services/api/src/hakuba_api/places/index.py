@@ -60,9 +60,11 @@ LODGING_WORDS = frozenset(
     {
         "hotel", "hotels", "inn", "lodge", "lodges", "chalet", "chalets", "apartment",
         "apartments", "pension", "ryokan", "villa", "villas", "cottage", "cottages", "hostel",
-        "guesthouse", "ほてる", "ぺんしょん",
+        "guesthouse",
     }
 )  # fmt: skip
+# Written in kana these sit inside unspaced names (パノラマホテル), so they match by substring.
+KANA_LODGING_WORDS = {"ほてる": "hotel", "ぺんしょん": "pension"}
 
 
 @dataclass(frozen=True)
@@ -161,11 +163,21 @@ def shares_distinctive_word(query: str, name: str) -> bool:
 
 def fits_lodging_words(query: str, kind: str, names: list[str]) -> bool:
     """False for a place that isn't lodging when the query names a type of lodging the place
-    doesn't carry: "Hakuba Park Hotel" must not answer with the "… Parking" bus stop."""
-    wanted = LODGING_WORDS.intersection(_tokens(normalize(query)))
+    doesn't carry: "Hakuba Park Hotel" must not answer with the "… Parking" bus stop. A place
+    named only for what the query names stays: "The Gakusui Hotel" keeps the "The Gakusui" stop."""
+    q_tokens = _tokens(normalize(query))
+    wanted = {KANA_LODGING_WORDS.get(t, t) for t in q_tokens} & LODGING_WORDS
     if kind == "lodging" or not wanted:
         return True
-    return any(wanted.intersection(_tokens(normalize(n))) for n in names)
+    q_distinctive = set(distinctive(q_tokens))
+    for name in map(normalize, names):
+        tokens = _tokens(name.replace("&", " "))
+        named_only_for_it = q_distinctive and q_distinctive == set(distinctive(tokens))
+        if wanted.intersection(tokens) or named_only_for_it:
+            return True
+        if any(word in wanted and kana in name for kana, word in KANA_LODGING_WORDS.items()):
+            return True
+    return False
 
 
 def _score_name(q: str, name: str, by_sound: bool = False) -> float | None:

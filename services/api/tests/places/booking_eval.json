@@ -1,5 +1,5 @@
 {
-  "about": "Hotel names as Booking.com and other travel sites list them (2026-10-30). `expect`: acceptable coordinates (any within `toleranceM`) checked by hand against OSM, Overture and the operator's bus-stop pins; `absent`: not in any of our sources, so no lodging may be returned as the top hit; `skip`: ambiguous, not scored. See SPEC-place-search v1.3.",
+  "about": "Hotel names as Booking.com and other travel sites list them (2026-10-30). `expect`: acceptable coordinates (any within `toleranceM`) checked by hand against OSM, Overture and the operator's bus-stop pins; `absent`: not in any of our sources, so nothing may be returned as the top hit; `skip`: ambiguous, not scored. See SPEC-place-search v1.3.",
   "toleranceM": 150,
   "cases": [
     {"q": "Hakuba Tokyu Hotel", "expect": [[36.70625, 137.83965]]},
@@ -25,7 +25,7 @@
     {"q": "Restaurant & Hotel Traumerei", "expect": [[36.68719, 137.8467]]},
     {"q": "Hakuba Märchen House", "expect": [[36.70537, 137.83433], [36.70598, 137.83437]]},
     {"q": "Le Bocage - Hakuba Echoland Chalets", "expect": [[36.6919, 137.84388]]},
-    {"q": "Hakuba Park Hotel", "absent": true},
+    {"q": "Hakuba Park Hotel", "expect": [[36.65788, 137.83956]]},
     {"q": "Sierra Resort Hakuba", "expect": [[36.7345, 137.8621]]},
     {"q": "Hakuba Alpine Hotel", "expect": [[36.69981, 137.84603]]},
     {"q": "Wadano Onsen Hotel", "absent": true},
