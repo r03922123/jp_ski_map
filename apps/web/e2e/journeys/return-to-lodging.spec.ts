@@ -227,6 +227,236 @@ for (const device of DEVICES) {
       await expect.poll(() => param(page, "dest")).toBeNull();
       await expect(page.getByText("14:37 → 15:10")).toHaveCount(0);
     });
+
+    // SPEC-web-app v1.13 rule 5: Bus has the same To box as Drive and Walk
+    const toBox = (page: Page) => page.getByRole("combobox", { name: "To" });
+    const pickTo = async (page: Page, text: string, option: RegExp) => {
+      await toBox(page).fill(text);
+      await page.getByRole("option", { name: option }).first().click();
+    };
+    const region = (page: Page, name: string) =>
+      page.getByRole("region", { name });
+    const HAKUBA47 = "Hakuba47 Mountain Resort";
+    const sections = (page: Page) => page.getByRole("heading", { level: 3 });
+    const everyResortListed = (page: Page) =>
+      expect.poll(() => sections(page).count()).toBeGreaterThan(1);
+    // only the resort: the real index also has stops named after it
+    const onlySuggestHakuba47 = (page: Page) =>
+      page.route("**/api/places/suggest?*", (route) =>
+        route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "hakuba47",
+              kind: "resort",
+              name: HAKUBA47,
+              nameJa: null,
+              coord: { lat: 36.68, lng: 137.82 },
+              detail: null,
+              match: null,
+              source: "index",
+            },
+          ]),
+        }),
+      );
+    const allResorts = async (page: Page) => {
+      await page.goto(`/?from=${STATION}&mode=bus`);
+      await page.getByLabel("Leave after").fill("2026-03-20T08:00");
+      await expect(region(page, HAKUBA47)).toBeVisible({ timeout: 15_000 });
+    };
+
+    test("bus: the To box names the lodging, and ✕ goes back to every resort", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await page.goto(`/?from=${RESORT_END}&mode=bus&dest=pt:${STATION}`);
+      await page.getByLabel("Leave after").fill("2026-03-20T14:30");
+      await expect(page.getByText("14:37 → 15:10")).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(toBox(page)).toHaveValue("Chosen place"); // a link has no name
+      // the box is the destination: no second, read-only To row under it
+      await expect(page.getByRole("list", { name: "Trip" })).not.toContainText(
+        "To:",
+      );
+
+      await page.getByRole("button", { name: "Remove destination" }).click();
+
+      await expect.poll(() => param(page, "dest")).toBeNull();
+      await expect(page.getByText("14:37 → 15:10")).toHaveCount(0);
+      await expect(toBox(page)).toHaveValue("");
+    });
+
+    test("bus: the link clears a resort left selected on another tab too", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await page.goto(
+        `/?from=${RESORT_END}&mode=bus&resort=happo-one&dest=pt:${STATION}`,
+      );
+      await page.getByLabel("Leave after").fill("2026-03-20T14:30");
+
+      await page
+        .getByRole("button", { name: "Shuttles to resorts" })
+        .click({ timeout: 15_000 });
+
+      await expect(toBox(page)).toHaveValue("");
+      await everyResortListed(page);
+    });
+
+    test("bus: a resort sent there from Saved is the destination", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await page.goto(`/?from=${STATION}&mode=drive&resort=iwatake`);
+      await routeReady(page);
+      await page.getByRole("button", { name: /^Save Hakuba Iwatake/ }).click();
+      await page.getByRole("checkbox", { name: /Starred/ }).check();
+      await page.getByRole("button", { name: "Done" }).click();
+      await expect
+        .poll(() => page.evaluate(() => history.state?.overlay === true))
+        .toBe(false);
+
+      await page.goto(`/?from=${STATION}&mode=bus&dest=pt:36.71705,137.85862`);
+
+      await expect(toBox(page)).toHaveValue(/Iwatake/, { timeout: 15_000 });
+      await expect(sections(page)).toHaveCount(1, { timeout: 15_000 });
+    });
+
+    test("bus: an unknown resort in the link still lists every resort", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await page.goto(`/?from=${STATION}&mode=bus&resort=not-a-resort`);
+      await page.getByLabel("Leave after").fill("2026-03-20T08:00");
+
+      await expect(region(page, HAKUBA47)).toBeVisible({ timeout: 15_000 });
+      await everyResortListed(page);
+    });
+
+    test("bus: a place typed in To asks for the shuttles to it", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await page.goto(`/?from=${RESORT_END}&mode=bus`);
+      await page.getByLabel("Leave after").fill("2026-03-20T14:30");
+
+      const back = page.waitForRequest(isToPlace);
+      await pickTo(page, "Hakuba Station", /Station/);
+
+      expect(coordOf(await back, "from")).toBe(RESORT_END);
+      await expect(page.getByText("14:37 → 15:10")).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(toBox(page)).toHaveValue(/Station/);
+    });
+
+    test("bus: a resort typed in To narrows the list, and ✕ widens it", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await onlySuggestHakuba47(page);
+      await allResorts(page);
+      await everyResortListed(page);
+
+      await pickTo(page, "Hakuba47", /Hakuba47/);
+
+      await expect(sections(page)).toHaveCount(1);
+      await expect(region(page, HAKUBA47)).toBeVisible();
+      await expect(toBox(page)).toHaveValue(/Hakuba47/);
+
+      await page.getByRole("button", { name: "Remove destination" }).click();
+
+      await everyResortListed(page);
+    });
+
+    test("bus: a tapped bus names its resort without narrowing the list", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await allResorts(page);
+
+      await region(page, HAKUBA47).getByText("08:11 → 08:39").click();
+
+      await expect(toBox(page)).toHaveValue(/Hakuba47/);
+      await everyResortListed(page);
+    });
+
+    test("bus: ✕ after tapping a bus empties the box and drops the bus", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await allResorts(page);
+      await region(page, HAKUBA47).getByText("08:11 → 08:39").click();
+      const journey = page.locator('[aria-label="Journey"]');
+      await expect(journey).toBeVisible();
+
+      await page.getByRole("button", { name: "Remove destination" }).click();
+
+      await expect(toBox(page)).toHaveValue("");
+      await expect(journey).toHaveCount(0);
+      await everyResortListed(page);
+    });
+
+    test("bus: picking the chosen bus's own resort in To still drops the bus", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await onlySuggestHakuba47(page);
+      await allResorts(page);
+      await region(page, HAKUBA47).getByText("08:11 → 08:39").click();
+      const journey = page.locator('[aria-label="Journey"]');
+      await expect(journey).toBeVisible();
+
+      await pickTo(page, "Hakuba47", /Hakuba47/);
+
+      await expect(sections(page)).toHaveCount(1);
+      await expect(journey).toHaveCount(0);
+    });
+
+    test("bus: another resort chosen on Drive drops the bus to the old one", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await allResorts(page);
+      await region(page, HAKUBA47).getByText("08:11 → 08:39").click();
+      const journey = page.locator('[aria-label="Journey"]');
+      await expect(journey).toBeVisible();
+
+      await page.getByRole("tab", { name: /drive/i }).click();
+      await page
+        .getByRole("list", { name: "Ranked resorts" })
+        .getByRole("button", { name: /Happo-One/ })
+        .click({ timeout: 15_000 });
+      await page.getByRole("tab", { name: /bus/i }).click();
+
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
+      await expect(journey).toHaveCount(0);
+    });
+
+    test("bus: a new pick in To drops the chosen bus", async ({ page }) => {
+      await mockBuses(page);
+      await allResorts(page);
+      await region(page, HAKUBA47).getByText("08:11 → 08:39").click();
+      const journey = page.locator('[aria-label="Journey"]');
+      await expect(journey).toBeVisible();
+
+      await pickTo(page, "Happo-One", /Happo-One/);
+
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
+      await expect(journey).toHaveCount(0);
+    });
+
+    test("bus: no start and no destination leaves no To box", async ({
+      page,
+    }) => {
+      await page.goto("/?mode=bus");
+      await expect(page.getByRole("tab", { name: /bus/i })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      await expect(toBox(page)).toHaveCount(0);
+    });
   });
 }
 

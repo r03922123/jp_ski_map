@@ -33,6 +33,8 @@ export type BusPlace = {
 export type BusPanelProps = {
   resorts: Resort[];
   result: Loadable<BusResult>;
+  /** a resort in the To box: list only its buses (SPEC-web-app v1.13 rule 5) */
+  onlyResortId?: string | null;
   place?: BusPlace | null;
   night: Loadable<NightResult>;
   showNight: boolean;
@@ -318,11 +320,12 @@ function serviceNotice(
 function Results({
   resorts,
   result,
+  onlyResortId,
   selected,
   onSelect,
   onStart,
   startNote,
-}: RowProps & Pick<BusPanelProps, "resorts" | "result">) {
+}: RowProps & Pick<BusPanelProps, "resorts" | "result" | "onlyResortId">) {
   const notice = serviceNotice(result);
   if (notice !== undefined || result.status !== "success") return notice;
   const data = result.data;
@@ -337,10 +340,18 @@ function Results({
     );
   }
   const names = new Map(resorts.map((r) => [r.id, r.name.en]));
+  const listed = onlyResortId
+    ? data.resorts.filter((r) => r.resortId === onlyResortId)
+    : data.resorts;
   return (
     <div className="flex flex-col gap-3">
       <SeasonNotice data={data} />
-      {data.resorts.map((r) => {
+      {listed.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          No more shuttles to this resort after this time.
+        </p>
+      )}
+      {listed.map((r) => {
         const name = names.get(r.resortId) ?? r.resortId;
         return (
           <section

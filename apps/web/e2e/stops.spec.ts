@@ -271,10 +271,10 @@ test("the bus tab offers no stops and no ✕ on the bus's stop", async ({
     .first()
     .click({ timeout: 15_000 });
 
-  await expect(trip(page).getByRole("listitem")).toHaveCount(2);
-  await expect(trip(page)).toContainText("Hakuba Happo Bus Terminal");
+  // only the start: the To box above is the destination (SPEC-web-app v1.13 rule 7)
+  await expect(trip(page).getByRole("listitem")).toHaveCount(1);
+  await expect(page.getByRole("combobox", { name: "To" })).toHaveValue(
+    /Hakuba47/,
+  );
   await expect(page.getByRole("button", { name: "Add stop" })).toHaveCount(0);
-  await expect(
-    page.getByRole("button", { name: "Remove destination" }),
-  ).toHaveCount(0);
 });
