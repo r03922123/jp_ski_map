@@ -133,7 +133,10 @@ while the MOJ terms keep their discretionary clause.
    (OpenStreetMap), `stop-pension-minamijujisei` and `stop-panorama-hotel` (Meta), and
    `stop-hotel-ogiya` and `stop-pals-inn-raicho` (Foursquare). Then the other 26 Overture (Meta)
    stops.
-2. **The lodging label:** build `data/lodging_overture.meta.json`'s licence from every record's
+2. ✅ Done 2026-11-09. Counted from all 755 places of release 2026-10-21.0: Meta 684, Foursquare
+   62, Microsoft 7, AllThePlaces 2. The two AllThePlaces records stay in the lodging file and are
+   named in DATA-LICENSES.md; the "not used" verdict above is about the bus stops. Original step:
+   **The lodging label:** build `data/lodging_overture.meta.json`'s licence from every record's
    sources, and fix the code that writes the old label: `ATTRIBUTION`, the `license` field and the
    docstring in `services/api/src/hakuba_api/places/refresh_overture.py`. In the same PR, link the
    licence texts from the app and the API docs (CDLA-P §2.1; Foursquare's NOTICE recommends API

@@ -243,10 +243,9 @@ Each item is small enough for its own PR. None is fixed by this page.
    moves: 43 stops have moved in all. PR #24 moved Meteor to a Foursquare record, so the 30
    Overture stops are 27 Meta and 3 Foursquare, not the 28 and 2 that ADR-0004 Decision 3
    planned. The 15 My Maps stops left wait on the owner's permission
-   requests (ADR-0004 next step 3). Also open (ADR-0004 next step 2):
-   `data/lodging_overture.meta.json`, and the code that writes it (`places/refresh_overture.py:31`
-   and `:216`), still label every Overture record CDLA-Permissive-2.0; build the label from each
-   record's sources, and link the licence texts from the app and the API docs.
+   requests (ADR-0004 next step 3). The lodging label
+   (ADR-0004 next step 2) ✅ done: `places/refresh_overture.py` builds it from each record's
+   sources, and the app and the API docs link the licence texts.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the
