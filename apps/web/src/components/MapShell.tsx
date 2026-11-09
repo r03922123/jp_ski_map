@@ -1006,6 +1006,8 @@ export function MapShell() {
                   <SearchBox
                     // remounted (emptied) when the trip panel's ✕ clears the start
                     key={searchKey}
+                    // the swap button narrows this box once there is a start (T78)
+                    placeholder={fromPlace ? "Search a start" : undefined}
                     // the top card reads From → To (BC-L1): never blank while there is a start
                     label={searchLabel ?? fromPlace?.name ?? null}
                     onSelect={(place) => {
