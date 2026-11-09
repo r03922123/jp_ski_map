@@ -9,10 +9,10 @@ PR #28's test checked every point of the route line and passed. But the start an
 *Analogy:* a bounding-box test on an object's centre says nothing about whether its edges are clipped.
 
 **2. Trade-off: a constant for the marker's height rather than measuring it.**
-`mapPadding` adds 40 px on phones. Measuring the DOM would adapt by itself, but it needs the markers to exist before the fit runs, and they don't. The test catches the constant going stale. On a short landscape phone the extra room shrinks, because a padding larger than the map makes the fit do nothing.
+`mapPadding` adds 40 px on phones. Measuring the DOM would adapt by itself, but it needs the markers to exist before the fit runs, and they don't. The test catches the constant going stale when it's run locally; CI doesn't run e2e. A landscape phone needs its own numbers, because a padding larger than the map makes the fit do nothing.
 
-**3. What could go wrong: re-fitting on every resize.**
-A resized window moves the panels, so the fit now reacts to width. It ignores height on purpose: iOS Safari changes the height whenever its toolbar hides, and re-fitting then would pull the map out from under a finger.
+**3. What could go wrong: state the camera keeps between moves.**
+MapLibre remembers the padding of the last move and adds a new fit's padding on top. Navigation leaves 40 % of the screen there, so after Exit the two together exceeded the map and the fit silently did nothing: the destination ended 406 px off-screen. `absolutePadding` replaces the old value instead. A resized window also re-fits now, but never while a finger is on the map.
 
 ## 2026-11-09 · build new features: feat(api): honour the operator's boarding rules in to-place
 

@@ -152,6 +152,19 @@ export function keepRouteLayerOrder(map: MapLibreMap): void {
   for (const id of present) map.moveLayer(id); // each to the top, bottom one first
 }
 
+type HasCanvas = Pick<MapLibreMap, "getCanvas">;
+const paddingOf = (map: HasCanvas) => {
+  const canvas = map.getCanvas();
+  return mapPadding({
+    width: canvas.clientWidth,
+    height: canvas.clientHeight,
+  });
+};
+const sizeOf = (map: HasCanvas) => {
+  const canvas = map.getCanvas();
+  return `${canvas.clientWidth}x${canvas.clientHeight}`;
+};
+
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -256,18 +269,27 @@ export default function MapView({
 
   useEffect(() => {
     if (flyTo) {
-      mapRef.current?.flyTo({ center: [flyTo.lng, flyTo.lat], zoom: 14 });
+      const map = mapRef.current;
+      if (map)
+        map.flyTo({
+          center: [flyTo.lng, flyTo.lat],
+          zoom: 14,
+          padding: paddingOf(map),
+        });
     }
   }, [flyTo]);
 
   // Fit the whole route set once per new search or picked option, clear of the directions
   // panel. Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after
-  // this map reports a pan) must never re-fit, or the user can't pan at all. The width
-  // counts because a resized window or a rotated phone moves the panels; the height
-  // doesn't, because iOS Safari changes it whenever its toolbar hides.
-  const [canvasWidth, setCanvasWidth] = useState<number | null>(null);
+  // this map reports a pan) must never re-fit, or the user can't pan at all. The size
+  // counts because a resized window or a rotated phone moves the panels.
+  const [canvasSize, setCanvasSize] = useState("");
+  // the markers stand at the true points, which the route only reaches at the nearest road
+  const ends = [origin, destination, busStop].flatMap((p) =>
+    p ? [[p.lng, p.lat] as LngLat] : [],
+  );
   const drawn = [...routes, ...(ride ? [ride.route] : [])];
-  const fitKey = `${canvasWidth}/${activeRoute}/${drawn
+  const fitKey = `${canvasSize}/${activeRoute}/${ends.join(";")}/${drawn
     .map(
       (r) =>
         `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,
@@ -279,20 +301,36 @@ export default function MapView({
     const map = mapRef.current;
     // while navigating the follow camera owns the view (a reroute must not zoom out)
     if (!mapReady || !map || drawn.length === 0 || piloting) return;
-    const all = drawn.flatMap((r) => r.geometry.coordinates as LngLat[]);
+    const all = [
+      ...drawn.flatMap((r) => r.geometry.coordinates as LngLat[]),
+      ...ends,
+    ];
     if (all.length < 2) return;
-    const canvas = map.getCanvas();
     map.fitBounds(routeBounds(all), {
-      padding: mapPadding({
-        width: canvas.clientWidth,
-        height: canvas.clientHeight,
-      }),
+      padding: paddingOf(map),
+      // replaces what navigation or a dropped pin left on the map: added to that, the
+      // padding can exceed the map, and the fit silently does nothing
+      absolutePadding: true,
       maxZoom: 16,
       pitch: 0,
       bearing: 0,
       duration: prefersReducedMotion() ? 0 : 700,
     });
   }, [fitKey, mapReady, piloting]);
+
+  // A destination with no start yet has no route to fit: bring it into the clear part.
+  const loneTarget =
+    !origin && destination ? `${destination.lng},${destination.lat}` : "";
+  // biome-ignore lint/correctness/useExhaustiveDependencies: loneTarget stands for destination
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map || !destination || !loneTarget) return;
+    map.easeTo({
+      center: [destination.lng, destination.lat],
+      padding: paddingOf(map),
+      duration: prefersReducedMotion() ? 0 : 600,
+    });
+  }, [loneTarget, mapReady]);
 
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
@@ -479,11 +517,14 @@ export default function MapView({
           Object.assign(window, { __hakubaMap: e.target });
         }
         reportView(e.target);
-        setCanvasWidth(e.target.getCanvas().clientWidth);
+        setCanvasSize(sizeOf(e.target));
         setMapReady(true);
         onLoad?.();
       }}
-      onResize={(e) => setCanvasWidth(e.target.getCanvas().clientWidth)}
+      // not under a finger: a re-fit must never pull the map away mid-gesture
+      onResize={(e) => {
+        if (!pressed.current) setCanvasSize(sizeOf(e.target));
+      }}
       onMoveEnd={(e: ViewStateChangeEvent) => reportView(e.target)}
       onStyleData={(e) => keepRouteLayerOrder(e.target)}
       onDragStart={() => pilot?.onUserMove()}

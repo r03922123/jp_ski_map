@@ -83,8 +83,14 @@ describe("mapPadding", () => {
     );
   });
 
-  it("still leaves map to fit into on a short landscape phone", () => {
-    const p = mapPadding({ width: 568, height: 320 });
-    expect(320 - p.top - p.bottom).toBeGreaterThan(0);
+  it("keeps marker room on a landscape phone", () => {
+    expect(mapPadding({ width: 740, height: 360 }).top).toBeGreaterThanOrEqual(
+      160,
+    );
+  });
+
+  it.each([320, 280, 200])("leaves map to fit into at %i px tall", (height) => {
+    const p = mapPadding({ width: 568, height });
+    expect(height - p.top - p.bottom).toBeGreaterThan(0);
   });
 });
