@@ -19,7 +19,7 @@
   "file": "2025-2026-Shuttle-Bus-Timetable.pdf"
  },
  "reviewed": true,
- "notes": "Transcribed 2026-10-30 from the season PDF (not shown as an image on the page). Listed under the free resort shuttles; no fare printed, recorded as free. ● = boarding stops, ▲ = alighting stops on the poster.",
+ "notes": "Transcribed 2026-10-30 from the season PDF (not shown as an image on the page). Listed under the free resort shuttles; no fare printed, recorded as free. ● = boarding stops, ▲ = alighting stops: inferred from this timetable, since the poster's legend prints them the other way round (SPEC-bus-schedules v1.2).",
  "directions": [
   {
    "id": "to-hakuba",

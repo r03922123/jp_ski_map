@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: feat(api): honour the operator's boarding rules in to-place
+
+**1. Principle: a rule that matters to the code has to be data, not a comment.**
+"For Iwatake travelers only" lived in a free-text `notes` field, and H's ▲ marks weren't recorded at all. Code can't enforce a sentence. They are now fields with indexes into a direction's stops, and the validator rejects an index that points at nothing.
+*Analogy:* a column's meaning written only in the README can't stop a bad query. A constraint in the schema can.
+
+**2. Trade-off: indexes rather than stop names.**
+Loops list a stop twice: on H1 you can board at the first Mount but only get off at the last. A rule by name couldn't tell them apart. The cost is that indexes are easy to get wrong by one and hard to read, so the validator checks their range and the PR lists each one beside its printed stop.
+*Analogy:* addressing an array element by position instead of by value, because the values repeat.
+
+**3. What could go wrong: a printed legend can be wrong too.**
+The poster says ● is alighting and ▲ boarding. Followed literally, nobody could board Gurutto at its first stops. We trusted what the timetable's own layout proves, and wrote the reason in the spec so the next reader can check it. If the operator's real meaning differed, those two directions would be wrong, and the phone number is on the timetable.
+*Analogy:* when a dataset's documentation contradicts its values and only one reading is physically possible, go with that reading and record why.
+
 ## 2026-11-09 · build new features: feat(api): direct shuttles to a place
 
 **1. Principle: one value with two meanings needs a rule that tells them apart.**

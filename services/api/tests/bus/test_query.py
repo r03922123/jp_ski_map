@@ -379,7 +379,7 @@ def test_a_stop_is_never_both_boarding_and_getting_off() -> None:
 
 def test_loop_line_reaches_a_stop_further_round() -> None:
     h1 = table("line-h-h1")
-    start, further = (ALIAS[h1.directions[0].stops[k]] for k in (3, 8))
+    start, further = (ALIAS[h1.directions[0].stops[k]] for k in (3, 13))  # 13: back at the start
 
     result = to_place({start: 0}, {further: 60}, [h1])
 
@@ -445,11 +445,16 @@ def test_to_place_keeps_the_night_bus_out() -> None:
     assert result.options == []
 
 
-def test_rows_only_board_at_a_stop_that_serves_a_resort() -> None:
-    v2 = [table("line-v-v2")]
+def test_free_shuttles_only_board_at_a_stop_that_serves_a_resort() -> None:
+    h1 = [table("line-h-h1")]
 
-    assert to_place({TERMINAL: 0}, {IWATAKE: 60}, v2).options == []
-    assert to_place({ESCAL: 0}, {IWATAKE: 60}, v2).options
+    assert to_place({TERMINAL: 0}, {NAKIYAMA: 60}, h1).options == []
+    assert to_place({NAKIYAMA: 0}, {ALIAS["Happo Gondola Lift"]: 60}, h1).options
+
+
+def test_paid_line_v_can_be_boarded_anywhere() -> None:
+    # the poster prints the resort-only limit under the free shuttles, not over line V
+    assert to_place({TERMINAL: 0}, {IWATAKE: 60}, [table("line-v-v2")]).options
 
 
 def test_starred_stop_is_only_for_riders_of_its_paired_stop() -> None:
@@ -457,6 +462,57 @@ def test_starred_stop_is_only_for_riders_of_its_paired_stop() -> None:
 
     assert to_place({IWATAKE: 60}, {COURTYARD: 60}, e2).options
     assert to_place({NAKIYAMA: 60}, {COURTYARD: 60}, e2).options == []
+
+
+def test_starred_stop_cannot_be_boarded_for_any_other_ride() -> None:
+    e2 = [table("line-e-e2")]
+    morning = datetime(2026, 3, 20, 7, 0, tzinfo=JST)
+    resort_at_courtyard = serving_a_resort(COURTYARD)
+
+    assert to_place({COURTYARD: 60}, {IWATAKE: 60}, e2, morning, resort_at_courtyard).options
+    assert to_place({COURTYARD: 60}, {NAKIYAMA: 60}, e2, morning, resort_at_courtyard).options == []
+
+
+@pytest.mark.parametrize(
+    ("file", "direction", "field", "expected"),
+    [
+        ("line-h-h1", 0, "alight_only", [(12, "Mount"), (13, "Hakuba Happo Bus Terminal")]),
+        (
+            "line-h-h2",
+            0,
+            "alight_only",
+            [(11, "#3 Parking"), (12, "Mount"), (13, "Hakuba Happo Bus Terminal")],
+        ),
+        (
+            "line-gurutto",
+            0,
+            "alight_only",
+            [
+                (3, "White Resort Hakuba Sanosaka"),
+                (4, "Able Hakuba Goryu Escal Plaza"),
+                (5, "Happo-One (Nakiyama Slope)"),
+                (6, "Hakuba Iwatake Snow Field"),
+            ],
+        ),
+        (
+            "line-gurutto",
+            1,
+            "board_only",
+            [
+                (0, "Hakuba Iwatake Snow Field"),
+                (1, "Happo-One (Nakiyama Slope)"),
+                (2, "Able Hakuba Goryu Escal Plaza"),
+                (3, "White Resort Hakuba Sanosaka"),
+            ],
+        ),
+    ],
+)
+def test_boarding_rules_point_at_the_stops_the_timetable_marks(
+    file: str, direction: int, field: str, expected: list[tuple[int, str]]
+) -> None:
+    d = table(file).directions[direction]
+
+    assert [(i, d.stops[i]) for i in getattr(d, field)] == expected
 
 
 def test_alight_only_stop_cannot_be_boarded_but_can_be_left() -> None:

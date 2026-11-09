@@ -142,9 +142,9 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 
 **A `null` time means two things.** A trip is *first-stop-only* when exactly one of its times is published (F, G, N's return): there, `null` means "not published". On every other trip (V2, O, I3, L), `null` means the bus does not go there: V2 north trip 7 skips JR Hakuba.
 - **Board** only at a stop with a published time, and only if you can walk there before it leaves.
-- **Get off** at a later stop on the same trip, other than the boarding stop. On a timed trip that stop must have a published time; on a first-stop-only trip any later stop counts.
+- **Get off** at a later stop on the same trip, other than the boarding stop. On a timed trip that stop must have a published time; on a first-stop-only trip any later stop counts, unless the trip's `skips` lists it.
 - Direct trips only, `kind: day` only.
-- `rideStops` leaves out the stops a timed trip skips, so the map and the stop count match the bus. A first-stop-only trip keeps all its stops.
+- `rideStops` leaves out the stops a timed trip skips, so the map and the stop count match the bus. A first-stop-only trip keeps all its stops except those in `skips`.
 
 **Choosing the stop (one row per trip).** Timed trip: the stop that gets you to the door soonest (alighting time + walk), then the shorter walk to the place, then the shorter walk to the boarding stop. First-stop-only trip: the shortest walk from the stop.
 
@@ -162,7 +162,7 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 
 A trip may carry `skips`: indexes where it prints "—" although it is first-stop-only (F6 outward trip 3).
 
-`/to-place` also boards only at a stop that serves a resort, because the operator limits these shuttles to trips between a resort and your lodging ("basically", season poster). So a row can't start at the Happo Bus Terminal, which serves no resort; Happo-One's four resort stops still work.
+On the free shuttles, `/to-place` boards only at a stop that serves a resort, because the poster limits them to trips between a resort and your lodging ("basically", printed under "Free shuttle bus to the ski resort"). Paid line V has no such limit, so V1's 17:30 from the Happo Bus Terminal, which serves no resort, is offered.
 
 The poster's legend says ● is alighting and ▲ boarding. Read that way nobody could board Gurutto at its first stops or leave at its last, and H's ▲ marks sit only at the ends of the loops, so we treat ● as boarding and ▲ as alighting.
 
@@ -171,7 +171,7 @@ The poster's legend says ● is alighting and ▲ boarding. Read that way nobody
 - [ ] H1: boarding at the final Mount (08:25) is not offered; getting off there is.
 - [ ] Gurutto: Iwatake → Omachi Onsenkyo Ent. is offered; Iwatake → Escal Plaza is not.
 - [ ] F6: a ride to Keyakino-ki on outward trip 3 is not offered, and the stop isn't in the ride.
-- [ ] A row can't board at a stop that serves no resort.
+- [ ] A free-shuttle row can't board at a stop that serves no resort; a line V row can.
 - [ ] The validator rejects an out-of-range index, and a stop that is both `boardOnly` and `alightOnly`.
 
 **Acceptance** (pure function, V2 Mar 16–29 + G4, 2026-03-20 14:30, walk 2 min to `stop-goryu-escal-plaza`, 5 min from `stop-happo-bus-terminal`):

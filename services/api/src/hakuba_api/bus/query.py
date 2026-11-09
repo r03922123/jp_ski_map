@@ -10,6 +10,7 @@ from hakuba_api.common.models import ApiModel
 
 MAX_OPTIONS_PER_RESORT = 3
 MAX_OPTIONS_TO_PLACE = 5
+PAID_DAY_LINE = "line-v"  # named here because `fare` in the data says ¥800 on free lines too
 
 ServiceStatus = Literal["ok", "no_service", "awaiting_review"]
 
@@ -242,8 +243,8 @@ def bus_options_to_place(
                     printed = trip.times[i]
                     if board not in walks_from or printed is None or i in d.alight_only:
                         continue
-                    if stops[board].serves_resort_id is None:
-                        continue  # the operator's rule: between a resort and your lodging
+                    if t.line_id != PAID_DAY_LINE and stops[board].serves_resort_id is None:
+                        continue  # free shuttles run between a resort and your lodging
                     departs = _at(day, printed, at)
                     ready = at + timedelta(seconds=walks_from[board])
                     if departs < ready:
