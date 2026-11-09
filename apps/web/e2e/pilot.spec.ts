@@ -178,7 +178,7 @@ test.describe("cues", () => {
       Object.defineProperty(window, "speechSynthesis", {
         value: {
           speak: (u: { text: string }) => {
-            if (u.text) cues.push(`say: ${u.text}`);
+            cues.push(`say: ${u.text}`);
           },
           cancel: () => {},
         },

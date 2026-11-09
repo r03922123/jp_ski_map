@@ -5,7 +5,7 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 ## 2026-11-09 · build new features: feat(web): remove voice guidance, the mute button and vibration
 
 **1. Principle: remove a feature along its whole path, not just its button.**
-Voice ran from the Start tap (`primeSpeech`) through three effects in `MapShell` to two buttons, a `localStorage` key, two SPEC sections and its tests. Hiding the button alone would leave those effects still reading a mute state nobody can change. Deleting them also orphaned `riding`, `said` and `cueKey`, which existed only to time the cues.
+Voice ran from the Start tap (`primeSpeech`) through three cue effects in `MapShell` to two buttons, a `localStorage` key, two SPEC sections and its tests. Hiding the button alone would leave those effects still reading a mute state nobody can change. Deleting them also orphaned `riding`, `said` and `cueKey`, which existed only to time the cues.
 *Analogy:* dropping a database column also means dropping its indexes and the queries that read it.
 
 **2. Trade-off: less to maintain, and no cue when the phone is in a pocket.**

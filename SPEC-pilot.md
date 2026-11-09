@@ -38,7 +38,7 @@ interface. A dev-only `SimulatedSource` replays the route at a chosen speed (`?s
 **UI (pilot screen, full-screen over the map):**
 - Top banner: maneuver icon, distance to it, instruction or street, and a "Then ↱" chip.
 - Map: puck (arrow, snapped while on the route), the route ahead in blue and the part already covered in grey, camera following with heading-up. If the user pans, following pauses and **Re-centre** appears.
-- Bottom bar: arrival `HH:mm`, `N min`, `x.x km`, then "Live traffic unavailable", 🔇 mute, and ✕ Exit.
+- Bottom bar: arrival `HH:mm`, `N min`, `x.x km`, then "Live traffic unavailable", and ✕ Exit.
 - Screen Wake Lock while piloting (re-requested on `visibilitychange`). Guidance is on screen only: no voice and no vibration.
 - Reroute: when the counter trips, call `/api/routes` from the current fix to the same destination; at most one reroute every 10 s; if it fails, keep the old route and show "Can't reroute — continue to the blue line".
 
