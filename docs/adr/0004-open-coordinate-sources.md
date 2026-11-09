@@ -116,7 +116,7 @@ while the MOJ terms keep their discretionary clause.
   all named.
 - **An old gap closes, partly.** `data/lodging_overture.json` already held Foursquare records (42
   of the 578 checked) under a CDLA-Permissive-2.0 label alone. DATA-LICENSES.md now names
-  Apache-2.0 for them, but `data/lodging_overture.meta.json` still carries the old label.
+  Apache-2.0 for them; `data/lodging_overture.meta.json` followed on 2026-11-09 (next step 2).
 - **Coarser positions.** A hotel point marks the building, not the bus pole. 7 of the 33 rows are
   approximate.
 - **Reusers' obligations.** ODbL for each file, plus the CDLA-P text for Meta rows and Apache-2.0
@@ -133,10 +133,14 @@ while the MOJ terms keep their discretionary clause.
    (OpenStreetMap), `stop-pension-minamijujisei` and `stop-panorama-hotel` (Meta), and
    `stop-hotel-ogiya` and `stop-pals-inn-raicho` (Foursquare). Then the other 26 Overture (Meta)
    stops.
-2. ✅ Done 2026-11-09. Counted from all 755 places of release 2026-10-21.0: Meta 684, Foursquare
-   62, Microsoft 7, AllThePlaces 2. The two AllThePlaces records stay in the lodging file and are
-   named in DATA-LICENSES.md; the "not used" verdict above is about the bus stops. Original step:
-   **The lodging label:** build `data/lodging_overture.meta.json`'s licence from every record's
+2. ✅ Done 2026-11-09, with two limits. Counted from all 755 places of release 2026-10-21.0 by a
+   one-off read through `fetch_rows` and `build_meta`: Meta 684, Foursquare 62, Microsoft 7,
+   AllThePlaces 2. **Limits:** the map credits link the licences, but on phones they sit behind
+   the bottom sheet (`tasks/todo.md` J10); and the API docs that link the texts are local only,
+   because the deployment proxies only `/api/*`. **Decision (owner, 2026-11-09):** the 2
+   AllThePlaces lodging records stay and are named in DATA-LICENSES.md, accepting the risk that
+   their points are scraped from brands' own sites. The bus stops stay free of this source.
+   Original step: **The lodging label:** build `data/lodging_overture.meta.json`'s licence from every record's
    sources, and fix the code that writes the old label: `ATTRIBUTION`, the `license` field and the
    docstring in `services/api/src/hakuba_api/places/refresh_overture.py`. In the same PR, link the
    licence texts from the app and the API docs (CDLA-P §2.1; Foursquare's NOTICE recommends API

@@ -821,7 +821,8 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 ## Task J10: Overture licence label (ADR-0004 next step 2)
 - [x] `build_meta` writes the label from each kept place's `sources`; an unknown licence stops the refresh
 - [x] `lodging_overture.meta.json` counted from all 755 places of release 2026-10-21.0, `lodging_overture.json` unchanged
-- [x] The API docs and the map credits link the licences
+- [x] The API docs (local only: the deployment proxies only `/api/*`) and the map credits link the licences
+- Decision (owner, 2026-11-09): the 2 AllThePlaces lodging records stay, named in DATA-LICENSES.md. A test now fails if a refresh changes that count.
 - Open: on phones (below `md`) the map credits, OSM's included, sit behind the bottom sheet at every height, and the e2e checks read the DOM only. Found 2026-11-09; needs its own PR.
 - Follow-up 1 stays open for the 15 My Maps stops, follow-up 2 for the December re-check; the takeover phase is unchanged.
 
