@@ -9,7 +9,7 @@ Five G buses at 15:00 were all true answers, but they gave a skier one decision 
 *Analogy:* diversifying top-k results, so near-duplicates don't crowd out a different kind of answer.
 
 **2. Trade-off: keep only the shortest walk from the stop.**
-The other G buses at that minute go to other hotels, and they no longer appear. For a given lodging the closest drop-off is the one you'd want, so little is lost. The cost is that a rider who'd rather get off elsewhere can't see that option.
+The other G buses at that minute go to other hotels, and they no longer appear. For a given lodging the closest drop-off is usually the one you'd want. The cost is that a rider can't see the others, including a bus with a slightly longer walk but fewer stops on the way. These buses publish no arrival times, so we can't rank them on ride length.
 *Analogy:* keeping one representative per cluster loses the rest of the cluster.
 
 **3. What could go wrong: over-thinning.**

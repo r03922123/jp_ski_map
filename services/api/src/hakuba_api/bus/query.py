@@ -324,8 +324,8 @@ def _may_pair(d: Direction, board: int, alight: int) -> bool:
 
 
 def _stop_rank(o: BusOption) -> tuple[datetime, int, int]:
-    """Within one trip: soonest at the door, then the shorter walks. Untimed trips have a
-    single boarding stop and no door time, so only the walk from the stop tells them apart."""
+    """Which stops to use: soonest at the door, then the shorter walks. Untimed trips have
+    a single boarding stop and no door time, so only the walk from the stop separates them."""
     return (o.door_arrives_at or o.departs_at, o.walk_to_place_s or 0, o.walk_s)
 
 

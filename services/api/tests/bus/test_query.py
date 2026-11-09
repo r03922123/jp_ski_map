@@ -400,17 +400,18 @@ def test_one_row_per_trip_from_the_closer_boarding_stop() -> None:
     assert result.options[0].board_stop_id == HAKUBA47  # same bus, same door time, less walk
 
 
-def test_first_stop_only_buses_leaving_together_share_one_row() -> None:
+@pytest.mark.parametrize("names", [("g1", "g4", "g5"), ("g5", "g4", "g1")])
+def test_first_stop_only_buses_leaving_together_share_one_row(names: tuple[str, ...]) -> None:
     result = to_place(
         {ESCAL: 120},
         {TERMINAL: 600, "stop-lion-cafe": 120, "stop-hotel-hakuba": 300},
-        [table("line-g-g1"), table("line-g-g4"), table("line-g-g5")],
+        [table(f"line-g-{name}") for name in names],
     )
 
     at_three = [o for o in result.options if hhmm(o.departs_at) == "15:00"]
     assert [o.alight_stop_id for o in at_three] == ["stop-lion-cafe"]  # the shortest walk
-    departures = [hhmm(o.departs_at) for o in result.options]
-    assert len(departures) == len(set(departures))  # the later buses keep their rows
+    # thinning comes before the five-row cut, so the later buses keep their rows
+    assert [hhmm(o.departs_at) for o in result.options] == ["15:00", "16:00", "17:10"]
 
 
 def test_first_stop_only_buses_from_different_stops_keep_their_rows() -> None:

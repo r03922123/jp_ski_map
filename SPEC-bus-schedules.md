@@ -181,6 +181,7 @@ The poster's legend says ● is alighting and ▲ boarding. Read that way nobody
 - [ ] With only `stop-jr-hakuba` near the place, V2 north trip 7 is not offered and trip 8 is.
 - [ ] A first-stop-only trip can't be boarded at a later stop.
 - [ ] A stop can't be both boarding and alighting; a loop line works; one row per trip; at most 5.
+- [ ] First-stop-only buses leaving one stop at the same minute share one row, the shortest walk from the stop, chosen before the cut to five; timed buses and other boarding stops keep their rows.
 - [ ] Out of season and unreviewed answers match `/options`.
 
 **Out of scope:** transfers, and changing the `/options` query, which still treats every `null` as "not published" and ignores the boarding rules.
