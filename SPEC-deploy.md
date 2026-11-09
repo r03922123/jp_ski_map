@@ -54,7 +54,7 @@ Map tiles come straight from OpenFreeMap to the browser, so they never touch our
   stays far under the 2 OCPU / 12 GB free limit, so the trial-end rule (A1 over the limit → disabled)
   can't apply.
 - Never upgrade to Pay As You Go. A free-tier account is never upgraded automatically.
-- To be detailed in v1.5.1 once Phase A has run for a while (image build path depends on repo visibility; see Open questions).
+- To be detailed in v1.5.1 once Phase A has run for a while (image build path depends on repo visibility; see [ADR-0005](docs/adr/0005-repo-visibility.md)).
 
 ## Changes to the repo (both phases)
 1. **Hakuba-only Valhalla tiles, reproducible.** `infra/valhalla/build-hakuba.sh`: download Geofabrik
@@ -135,6 +135,6 @@ tailscale down && tailscale up --hostname=hakuba-map   # rebuilds every path; th
 | OpenFreeMap: no request limits, attribution in the style | openfreemap.org FAQ |
 
 ## Open questions
-1. **GitHub repo visibility.** Settled by [ADR-0005](docs/adr/0005-repo-visibility.md): friends only
-   this season, and the repo goes private once the licence links have moved off GitHub.
+1. **GitHub repo visibility.** See [ADR-0005](docs/adr/0005-repo-visibility.md): friends only this
+   season, and the repo stays public for now.
 2. **Branch name.** Local is `master`, but `ci.yml` triggers on `main`, so CI would never run. Rename to `main` before the first push.

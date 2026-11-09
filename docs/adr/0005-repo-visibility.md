@@ -1,9 +1,9 @@
-# ADR-0005: Friends only this season, and a private repo once the licence links move
+# ADR-0005: Friends only this season, and the repo stays public for now
 
 ## Status
 
-Accepted by the owner on 2026-11-09. Changing the repository's visibility still needs the owner's
-separate OK, after next steps 1 and 2.
+Decision 1 was accepted by the owner on 2026-11-09. Decision 2 is proposed: it replaces an earlier
+recommendation to go private, which a fresh review disproved, and the owner confirms it at merge.
 
 ## Date
 
@@ -14,40 +14,38 @@ separate OK, after next steps 1 and 2.
 The owner asked whether a private repo would make a public launch easier, and then what changes if
 only the owner and friends use the app. Measured on 2026-11-09:
 
-- The repo is public, with 0 forks and 0 stars, and `main` is protected.
-- Tailscale Funnel is on, with no password: anyone who has the link can open the app. `robots.ts`
-  and `layout.tsx` only keep search engines away.
+- The repo is public, with 0 forks and 0 stars.
+- GitHub enforces `main`: a PR with the checks `api` and `web` is required, force pushes are off,
+  and admins are included. Merges made on GitHub obey this too.
+- Tailscale Funnel is on, and the app has no login. Anyone with the link can open it, and the
+  link's hostname appears in [public certificate logs](https://tailscale.com/kb/1153/enabling-https/).
+  `robots.ts` and `layout.tsx` only keep search engines away.
+- 15 of the 100 stops in `data/bus_stops.json` still use My Maps pins with an unresolved licence,
+  and the bus API returns stop coordinates through the same public link.
 - `SPEC-deploy.md` already says the audience is the owner's friends.
-- CI used 87 runs and 134 wall-clock minutes since 2026-10-31. Billing counts each job separately,
-  so the billed figure would be somewhat higher.
 
-Two questions look like one: who can read the **repo**, and who can use the **app**. Most launch
-work depends on the second.
+Who can read the **repo** and who can use the **app** are separate questions, and most launch work
+depends on the second.
 
 | Launch item | Public repo, public launch | Public repo, friends only | Private repo, friends only |
 |---|---|---|---|
 | Search indexing, privacy note, downtime alert, Oracle VM | needed | not yet | not yet |
 | Photon fallback (public instance is for demos) | replace | low volume, keep | low volume, keep |
 | 2026-27 bus timetables | needed | needed | needed |
-| 15 My Maps stops, licence unresolved | needs permission | still published on GitHub | strangers can't download them; still unresolved |
-| ODbL offer of the data | the repo does it | the repo does it | needs another way |
-| Branch protection on `main` | yes | yes | no |
-| CI on standard runners | free | free | $12 of usage a month (about 2,000 Linux minutes) |
+| 15 My Maps stops, licence unresolved | needs permission | in the repo and the app | out of the repo, still in the app |
+| ODbL offer of the data | the repo does it | the repo does it | must be built |
+| Licence links in the app and API | work | work | break until moved |
+| GitHub enforcing PRs and CI on `main` | yes | yes | no |
 
 What the sources say (a reading of the text, not legal advice):
 
-- **Friends count as "Publicly".** [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) §1
-  covers anyone other than you or people you control. So §4.3 (attribution) and §4.6 (offer the
-  data to recipients) still apply to friends, but the offer is owed only to those recipients. Only
-  a tool the owner alone uses is outside both.
+- **Friends are still "Publicly".** [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) §1
+  covers anyone other than you or people you control, so §4.3 (attribution) and §4.6 (offer the
+  data to recipients) apply. §4.6 asks for the entire Derivative Database or all alterations, so an
+  offer can't simply leave out the pins while they stay in those files.
 - **GitHub Free has no branch protection on private repos.** The
   [REST docs](https://docs.github.com/en/rest/branches/branch-protection) list it for public
   repositories on Free, and for private ones only on paid plans. Paying would break the $0 rule.
-- **Actions can't bill by surprise.** On [GitHub Free](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
-  private repos get $12 of usage a month, and an account with no payment method is blocked at
-  the limit instead of charged.
-- **Going private is cheap here.** [GitHub erases stars and watchers and detaches forks](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility),
-  and this repo has none of those.
 - **Tailscale.** [The free plan](https://tailscale.com/pricing) allows 6 users.
   [Sharing a machine](https://tailscale.com/kb/1084/sharing) needs each friend to have a Tailscale
   account, and the docs don't say whether they count toward the 6.
@@ -58,28 +56,36 @@ What the sources say (a reading of the text, not legal advice):
 ### 1. This season the app is for the owner and friends
 
 No public-launch work until the owner reopens it. The bus timetables aren't ready for strangers,
-and friends-only removes most of the remaining work.
+and friends-only removes most of the remaining work. Friends keep using the Funnel link, because it
+needs nothing installed on their phones. The limit is accepted: anyone who gets the link can open
+the app.
 
-### 2. The repo goes private, after the licence links move
+### 2. The repo stays public for now
 
-Friends-only is what removes the work. Going private adds one real benefit: strangers can no longer
-download the 15 My Maps pins or the rest of the data files. That is worth losing GitHub's branch
-protection, because this is a one-person repo and a local hook can stop the main accident it guards
-against. The move is also easy to undo.
+A private repo doesn't deliver the benefit it seemed to, and its costs are concrete:
 
-### 3. Friends keep using the Funnel link
-
-It needs nothing installed on their phones, and that matters more than a stronger lock for a small
-trusted group. The limit is accepted: a forwarded link lets anyone in. An invite code would need its
-own spec.
+- **The pins stay reachable.** The app has no login and serves the stop coordinates, and an ODbL
+  offer to friends would have to include those files.
+- **GitHub stops enforcing PRs and CI on `main`.** A local pre-push hook can't replace this: it
+  never runs on a merge made on GitHub, isn't in a fresh clone, and `--no-verify` skips it.
+- **It costs process.** A protected `main` is part of the owner's global "Stop the bleeding" check,
+  so going private moves the project back to that phase unless the global rule changes. The
+  unattended-run profile also relies on that protection.
+- **It needs new work.** The data offer, the road-network build method, four licence links, two
+  tests that pin those URLs, and the map credits that phones can't see yet (`tasks/todo.md` J10).
 
 ## Alternatives Considered
 
-### Stay public and friends-only
+### Private repo, friends only
 
-Keeps branch protection and meets the ODbL offer for free. Rejected for now because the data files,
-including the 15 unlicensed pins, stay downloadable by anyone. It is the fallback if the local hook
-proves too weak.
+Rejected for the reasons in Decision 2. It becomes worth reconsidering if the app gets a login,
+since the data would then really be limited to invited people.
+
+### Stay public and remove the 15 pins until permission arrives
+
+The only option that actually stops distributing them, as far as new versions go; git history would
+still hold them. It costs those 15 stops their locations in the app, which hurts friends who use
+them. Left as a separate decision, tied to the permission requests in ADR-0004.
 
 ### Public repo and a public launch
 
@@ -87,38 +93,29 @@ Rejected for this season: timetables, the 15 pins and the Photon fallback aren't
 
 ### Private code with a public data repo
 
-Keeps the ODbL offer simple, but it would publish the same 15 pins, the code repo still loses
-branch protection, and there would be two repos to keep in step.
+Publishes the same pins, loses the same protection on the code repo, and adds a second repo to keep
+in step.
 
-### Keep the private repo protected on a paid plan
+### A paid GitHub plan for a protected private repo
 
 Rejected by the $0 rule (`SPEC-deploy.md`).
 
 ### Tailscale sharing instead of Funnel
 
-Only invited people get in, but every friend needs an account and an app on their phone.
+Only invited people get in, but every friend needs an account and an app on their phone. Worth
+reconsidering if the link spreads further than intended.
 
 ## Consequences
 
-- If a public launch comes back, the items in the table return, and the repo should go public
-  again first, so that the ODbL offer and branch protection return with it.
-- Nothing already published can be recalled. Copies made while the repo was public keep their MIT
-  licence, and the licence status of the 15 pins doesn't change.
-- Pushes to `main` are no longer blocked by GitHub, which is an exception to the project baseline
-  of a protected `main`.
-- Friends still see the 15 pins in the app, so the permission requests in ADR-0004 stay open.
+- The 15 pins stay published in the repo and the app until the permission requests in ADR-0004
+  resolve. Friends-only lowers how many people see them, not their licence status.
+- If a public launch comes back, the first column of the table applies again.
+- GitHub [disables scheduled workflows](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows)
+  in public repos after 60 days without activity, so `timetable-watch.yml` can stop during a quiet
+  summer. Check it before each season.
 
 ## Next steps
 
-Before the switch:
-
-1. **Move the licence links off GitHub.** `apps/web/src/lib/map-config.ts:6` and
-   `services/api/src/hakuba_api/main.py:63` point at `DATA-LICENSES.md` on GitHub, and they would
-   404 once the repo is private. Serve the licence notes from the app, and link the ODbL data files
-   there as the §4.6 offer to friends.
-2. **Add a local pre-push hook** that refuses pushes to `main`.
-
-The switch and after:
-
-3. The owner makes the repo private, then confirms CI still runs.
-4. Update the project's `CLAUDE.md` with the baseline exception and the current visibility.
+1. Continue the permission requests in ADR-0004 next step 3. They, not the repo's visibility, settle
+   the 15 pins.
+2. If the owner still wants a private repo, write a new ADR first, covering the costs in Decision 2.
