@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: feat(web): swap start and destination to get back to the lodging
+
+**1. Principle: a reversal has to move every piece of state tied to the trip, not just the two ends.**
+The trip lives in about ten separate `useState` values. Swapping only the two coordinates left three things stale, and the pre-merge review found them: the From box's text, a bus chosen for the old start, and a placeholder name sent to the bus API. Each now has its own line and, where it could be tested, a test.
+*Analogy:* moving a row between database tables without its foreign keys leaves rows pointing at the old parent.
+
+**2. Trade-off: drive and walk now, the bus later.**
+The app could already route the way back by car or on foot, so ⇅ is about 40 lines of app code. Bus return is a new query, because `bus_options` only offers stops that serve a resort, although the timetables hold return trips. Shipping the small part first means the bus tab has to say plainly that it can't do the way back yet.
+
+**3. What could go wrong: a hint only some devices can show.**
+The first version explained the disabled button in a `title`, and the test passed by checking that attribute. Touch browsers never display `title`, so phone users saw a dead icon. The hint is now on-screen text and the test asserts it is visible: test what the user perceives, not the attribute that implements it.
+
 ## 2026-11-09 · tidy: chore: ignore Claude Code worktrees and note their setup
 
 **1. Principle: isolating the files doesn't isolate what the files talk to.**

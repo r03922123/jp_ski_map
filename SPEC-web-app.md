@@ -234,8 +234,9 @@ Success means:
 1. A ⇅ button sits in the trip card's From row, beside ★ Saved, once there is a start.
 2. Tapping it makes the old destination the start and the old start the destination, and reverses any stops. The route, the URL and both boxes follow, and the sheet collapses to show the route (v1.9 rule 4).
 3. A resort that becomes the destination is selected again as a resort, so a second tap restores the trip.
-4. Bus: the button is disabled with the hint "Switch to Drive or Walk", because the bus query only answers trips to a resort.
+4. Bus: the button is disabled and the trip card says "Way back from a resort: use Drive or Walk.", because the bus query only answers trips to a resort. It is on-screen text since touch browsers don't show tooltips.
+5. A swap clears any chosen bus: its stop was picked for the old start.
 
-**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: the `/api/routes` request is reversed, both boxes and the link follow, a second tap restores the resort, stops reverse, and the bus button is disabled.
+**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: the `/api/routes` request is reversed, both boxes and the link follow, a second tap restores the resort, stops reverse, the From box follows after being retyped, the bus button is disabled with its reason on screen, and a chosen bus is cleared.
 
 **Boundaries.** *Out of scope:* bus trips back from a resort (a later spec: the timetables already hold return directions, but `bus_options` only offers resort stops), and a separate "back to My hotel" shortcut.

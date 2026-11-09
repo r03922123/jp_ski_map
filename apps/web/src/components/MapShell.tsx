@@ -928,10 +928,13 @@ export function MapShell() {
     if (!canSwap) return;
     sfx().play("select");
     setOrigin(toPlace.coord);
-    setOriginName(toPlace.name);
+    setOriginName(toPlace.kind === "pin" ? null : toPlace.name);
     setOriginSource(toPlace);
     setSearchLabel(toPlace.name);
+    // remounted: a label equal to the last one the app set wouldn't replace a typed start
+    setSearchKey((k) => k + 1);
     setPoiId(null);
+    setBusChoice(null); // its stop was picked for the old start
     // a resort goes back to being selected, so a second tap restores the trip
     if (
       fromPlace.kind === "resort" &&
@@ -1087,11 +1090,6 @@ export function MapShell() {
                   <button
                     type="button"
                     aria-label="Swap start and destination"
-                    title={
-                      mode === "bus"
-                        ? "Switch to Drive or Walk"
-                        : "Swap start and destination"
-                    }
                     disabled={!canSwap}
                     className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-40"
                     onClick={swapTrip}
@@ -1122,6 +1120,12 @@ export function MapShell() {
                   onChoose={chooseTo}
                   onClear={clearTo}
                 />
+              )}
+              {mode === "bus" && fromPlace && (
+                // on screen, not a tooltip: touch browsers never show a `title`
+                <p className="px-2 text-xs text-muted-foreground">
+                  Way back from a resort: use Drive or Walk.
+                </p>
               )}
             </div>
           }

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, type Page, type Request, test } from "@playwright/test";
 
 /**
@@ -10,6 +11,11 @@ test.describe.configure({ retries: 1, timeout: 60_000 });
 const STATION = "36.69877,137.86197"; // JR Hakuba Station stands in for the lodging
 const TRIP = `/?from=${STATION}&mode=drive&resort=happo-one`;
 const SWAP = "Swap start and destination";
+const BUS_HINT = "Way back from a resort: use Drive or Walk.";
+const MARCH_20 = readFileSync(
+  "e2e/fixtures/bus-options-2026-03-20.json",
+  "utf8",
+);
 
 const DEVICES = [
   {
@@ -42,12 +48,13 @@ for (const device of DEVICES) {
       await page.goto(TRIP);
       await routeReady(page);
 
-      const reversed = page.waitForRequest(isRoutes);
+      // only the reversed request: a late ranking can re-send the forward trip
+      const reversed = page.waitForRequest(
+        (r) => isRoutes(r) && coordOf(r, "to") === STATION,
+      );
       await swapButton(page).click();
       const request = await reversed;
 
-      // the road network snaps nothing here: the old start is sent as it was
-      expect(coordOf(request, "to")).toBe(STATION);
       expect(coordOf(request, "from")).not.toBe(STATION);
       await routeReady(page);
 
@@ -86,25 +93,84 @@ for (const device of DEVICES) {
       await page.goto(`${TRIP}&stops=${near};${far}`);
       await routeReady(page);
 
-      const reversed = page.waitForRequest(/\/api\/route\/path/);
+      const middleOf = (r: Request) =>
+        (r.postDataJSON().points as { lat: number; lng: number }[])
+          .slice(1, -1)
+          .map((p) => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`);
+      const reversed = page.waitForRequest(
+        (r) => /\/api\/route\/path/.test(r.url()) && middleOf(r)[0] === far,
+      );
       await swapButton(page).click();
-      const points: { lat: number; lng: number }[] = (
-        await reversed
-      ).postDataJSON().points;
 
-      const middle = points
-        .slice(1, -1)
-        .map((p) => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`);
-      expect(middle).toEqual([far, near]);
+      expect(middleOf(await reversed)).toEqual([far, near]);
     });
 
-    test("bus: the button is disabled and says why", async ({ page }) => {
+    test("the start box follows a swap after it was retyped", async ({
+      page,
+    }) => {
+      const from = page.getByRole("combobox", {
+        name: "Search hotel or place",
+      });
+      const to = page.getByRole("combobox", { name: "To" });
+      await page.goto(TRIP);
+      await routeReady(page);
+      await swapButton(page).click();
+      await expect.poll(() => param(page, "dest")).toBe(`pt:${STATION}`);
+
+      await from.fill("Hakuba Station");
+      await page
+        .getByRole("option", { name: /Station/ })
+        .first()
+        .click();
+      await to.fill("Happo-One");
+      await page
+        .getByRole("option", { name: /Happo-One/ })
+        .first()
+        .click();
+      await expect.poll(() => param(page, "resort")).toBe("happo-one");
+      await routeReady(page);
+      await swapButton(page).click();
+
+      await expect(from).toHaveValue(/Happo-One/);
+    });
+
+    test("bus: the button is disabled and the reason is on screen", async ({
+      page,
+    }) => {
       await page.goto(`/?from=${STATION}&mode=bus`);
       await expect(swapButton(page)).toBeDisabled();
-      await expect(swapButton(page)).toHaveAttribute(
-        "title",
-        "Switch to Drive or Walk",
-      );
+      await expect(page.getByText(BUS_HINT)).toBeVisible();
     });
   });
 }
+
+test("a swap drops the chosen bus, whose stop belonged to the old start", async ({
+  page,
+}) => {
+  await page.route("**/api/bus/options**", (route) =>
+    route.fulfill({ contentType: "application/json", body: MARCH_20 }),
+  );
+  await page.goto("/?from=36.69711,137.85393&mode=bus");
+  await page.getByLabel("Leave after").fill("2026-03-20T08:00");
+  await page
+    .getByRole("region", { name: "Hakuba47 Mountain Resort" })
+    .getByText("08:11 → 08:39")
+    .click({ timeout: 15_000 });
+  const journey = page.locator('[aria-label="Journey"]');
+  await expect(journey).toBeVisible();
+
+  await page.getByRole("tab", { name: /drive/i }).click();
+  await page
+    .getByRole("list", { name: "Ranked resorts" })
+    .getByRole("button", { name: /Happo-One/ })
+    .click({ timeout: 15_000 });
+  await routeReady(page);
+  await swapButton(page).click();
+  await page.getByRole("tab", { name: /bus/i }).click();
+
+  await expect(page.getByRole("tab", { name: /bus/i })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(journey).toHaveCount(0);
+});
