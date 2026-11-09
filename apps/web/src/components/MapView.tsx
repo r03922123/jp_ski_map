@@ -26,6 +26,7 @@ import { useGameStyle } from "@/lib/game/use-game-style";
 import { worldNumbers } from "@/lib/game/worlds";
 import {
   HAKUBA_VIEW,
+  MAP_ATTRIBUTION,
   MAP_STYLE_URL,
   MAPLIBRE_WORKER_URL,
 } from "@/lib/map-config";
@@ -467,10 +468,7 @@ export default function MapView({
       initialViewState={HAKUBA_VIEW}
       mapStyle={mapStyle}
       style={{ position: "absolute", inset: 0, zIndex: 0 }}
-      attributionControl={{
-        customAttribution:
-          'Snow: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> | Shuttle: <a href="https://www.hakubavalley.com/en/access_en/shuttlebus_en/" target="_blank" rel="noopener">Hakuba Valley</a> | Places: <a href="https://overturemaps.org/" target="_blank" rel="noopener">Overture Maps Foundation</a>',
-      }}
+      attributionControl={{ customAttribution: MAP_ATTRIBUTION }}
       interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER]}
       onLoad={(e) => {
         // e2e checks what is actually drawn (layer order, rendered stop dots)

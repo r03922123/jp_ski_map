@@ -818,6 +818,14 @@ The collapsed sheet is a fixed 40dvh. On phones its fixed rows (search, Saved/HU
 ## Task 88: Intermittent: the To box reads empty after "Clear starting point" (open)
 Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear the start (trip ✕ and box ✕) … the destination stays" failed 6/16 in one repeat run, with the To box at `""` while the destination (resort) still exists. Then 16/16 in Playwright and 8/8 in a step-by-step reproduction logging the box after every step passed. Reasoning ruled out the destination vanishing (the resort and its fallback access point don't depend on the start). Next: `trace: "retain-on-failure"` is now on, so read the first failing trace before changing code.
 
+## Task J10: Overture licence label (ADR-0004 next step 2)
+- [x] `build_meta` writes the label from each kept place's `sources`; an unknown licence stops the refresh
+- [x] `lodging_overture.meta.json` counted from all 755 places of release 2026-10-21.0, `lodging_overture.json` unchanged
+- [x] The API docs (local only: the deployment proxies only `/api/*`) and the map credits link the licences
+- Decision (owner, 2026-11-09): the 2 AllThePlaces lodging records stay, named in DATA-LICENSES.md. A test now fails if a refresh changes that count.
+- Open: on phones (below `md`) the map credits, OSM's included, sit behind the bottom sheet at every height, and the e2e checks read the DOM only. Found 2026-11-09; needs its own PR.
+- Follow-up 1 stays open for the 15 My Maps stops, follow-up 2 for the December re-check; the takeover phase is unchanged.
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).

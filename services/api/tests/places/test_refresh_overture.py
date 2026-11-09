@@ -4,9 +4,14 @@ from pathlib import Path
 import pytest
 
 from hakuba_api.common.geo import Coord
+from hakuba_api.main import app
 from hakuba_api.places.models import Place
 from hakuba_api.places.refresh_overture import (
+    KNOWN_LICENSES,
+    NOTICES,
     OvertureRow,
+    OvertureSource,
+    build_meta,
     dedupe_against,
     latest_release,
     rows_to_places,
@@ -14,6 +19,7 @@ from hakuba_api.places.refresh_overture import (
     strip_room_type,
 )
 
+REPO = Path(__file__).resolve().parents[4]
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "overture"
 ROWS: list[OvertureRow] = json.loads((FIXTURES / "rows.json").read_text())
 
@@ -132,3 +138,124 @@ def test_a_name_that_says_hotel_beats_a_guest_house_category(
 ) -> None:
     row = OvertureRow(id="x", name=name, tax=tax, conf=0.9, lat=36.7, lng=137.84, addr=None)
     assert rows_to_places([row], min_confidence=0.5)[0].kind == kind
+
+
+# Each Places record names its providers in `sources`, each with its licence
+# (docs.overturemaps.org/attribution); every record also has Overture's own: its confidence.
+type Source = tuple[str | None, str | None]  # (dataset, licence)
+META = ("meta", "CDLA-Permissive-2.0")
+MICROSOFT = ("Microsoft", "CDLA-Permissive-2.0")
+FOURSQUARE = ("Foursquare", "Apache-2.0")
+ALLTHEPLACES = ("AllThePlaces", "CC0-1.0")
+OVERTURE = ("Overture", "CDLA-Permissive-2.0")
+CDLA = {
+    "license": "CDLA-Permissive-2.0",
+    "licenseUrl": "https://cdla.dev/permissive-2-0/",
+    "licenseText": "LICENSES/CDLA-Permissive-2.0.txt",
+}
+FOURSQUARE_ENTRY = {
+    "dataset": "Foursquare",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "licenseText": "LICENSES/Apache-2.0.txt",
+    "notice": "LICENSES/Foursquare-NOTICE.txt",
+    "places": 1,
+}
+
+
+def _row(gid: str, *sources: Source, conf: float = 0.9) -> OvertureRow:
+    src = [OvertureSource(dataset=d, license=lic) for d, lic in sources]
+    return OvertureRow(
+        id=gid, name=gid, tax="hotel", conf=conf, lat=36.7, lng=137.8, addr=None, sources=src
+    )
+
+
+def _meta(*rows: OvertureRow) -> dict[str, object]:
+    return build_meta("2026-10-21.0", "2026-11-06T00:00:00+00:00", [*rows], rows_to_places([*rows]))
+
+
+def test_the_meta_lists_each_dataset_of_the_kept_places_with_its_licence() -> None:
+    meta = _meta(
+        _row("a", META, OVERTURE),
+        _row("b", FOURSQUARE, OVERTURE),
+        _row("c", MICROSOFT, OVERTURE),
+        _row("d", ALLTHEPLACES, OVERTURE, conf=0.2),  # dropped, so its licence isn't listed
+    )
+    assert meta["licenses"] == [
+        FOURSQUARE_ENTRY,
+        {"dataset": "meta", **CDLA, "places": 1},
+        {"dataset": "Microsoft", **CDLA, "places": 1},
+        {"dataset": "Overture", **CDLA, "places": 3},
+    ]
+    assert (meta["release"], meta["rows"], meta["places"]) == ("2026-10-21.0", 4, 3)
+
+
+def test_a_foursquare_record_brings_apache_2_and_foursquares_notice() -> None:
+    meta = _meta(_row("a", FOURSQUARE))
+    assert (meta["licenses"], meta["license"]) == ([FOURSQUARE_ENTRY], "Apache-2.0")
+    assert meta["attribution"] == (
+        "Overture Maps Foundation (Apache-2.0: Foursquare); © Foursquare Labs, Inc."
+    )
+
+
+# The label used to be one fixed string, "CDLA-Permissive-2.0", whatever the records said
+@pytest.mark.parametrize(
+    ("sources", "label"),
+    [
+        ([META, OVERTURE], "CDLA-Permissive-2.0"),
+        ([ALLTHEPLACES], "CC0-1.0"),
+        ([FOURSQUARE, OVERTURE], "Apache-2.0 AND CDLA-Permissive-2.0"),
+    ],
+)
+def test_the_label_is_built_from_the_records_sources(sources: list[Source], label: str) -> None:
+    meta = _meta(_row("a", *sources))
+    assert meta["license"] == label
+    assert all(lic in str(meta["attribution"]) for lic in label.split(" AND "))
+
+
+@pytest.mark.parametrize(
+    "sources",
+    [
+        (OVERTURE, ("meta", None)),
+        (OVERTURE, ("X", "ODbL-1.0")),
+        (),
+        ((None, "CDLA-Permissive-2.0"),),  # a credit can't name a provider we weren't told
+        (("foursquare", "Apache-2.0"),),  # another spelling must not lose the NOTICE
+    ],
+)
+def test_an_unknown_or_missing_licence_stops_the_refresh(sources: tuple[Source, ...]) -> None:
+    with pytest.raises(ValueError, match="overture:a"):
+        _meta(_row("a", *sources))
+
+
+def test_the_licence_files_exist_and_the_api_docs_link_them() -> None:
+    committed = json.loads((REPO / "data" / "lodging_overture.meta.json").read_text())
+    files = {t for _, t in KNOWN_LICENSES.values() if t} | {n for n, _ in NOTICES.values()}
+    for entry in committed["licenses"]:
+        assert entry["license"] in KNOWN_LICENSES
+        files |= {entry[k] for k in ("licenseText", "notice") if k in entry}
+    files.add("DATA-LICENSES.md")
+    assert sorted(f for f in files if not (REPO / f).is_file()) == []
+    blob = "https://github.com/r03922123/jp_ski_map/blob/main"
+    assert sorted(f for f in files if f"{blob}/{f}" not in (app.description or "")) == []
+
+
+# A hand-written list can name licences no record uses, or miss one that a record does
+def test_the_committed_label_was_counted_from_every_place() -> None:
+    meta = json.loads((REPO / "data" / "lodging_overture.meta.json").read_text())
+    places = json.loads((REPO / "data" / "lodging_overture.json").read_text())
+    by_dataset = {entry["dataset"]: entry["places"] for entry in meta["licenses"]}
+    assert meta["places"] == len(places)
+    assert by_dataset["Overture"] == len(places)  # its confidence score is on every record
+    assert sum(n for dataset, n in by_dataset.items() if dataset != "Overture") >= len(places)
+    assert by_dataset["Foursquare"] > 0
+    assert meta["license"] == " AND ".join(sorted({e["license"] for e in meta["licenses"]}))
+
+
+# A refresh that changes these counts should make someone re-read the licence notes
+def test_data_licenses_states_the_counted_providers() -> None:
+    meta = json.loads((REPO / "data" / "lodging_overture.meta.json").read_text())
+    by_dataset = {entry["dataset"]: entry["places"] for entry in meta["licenses"]}
+    text = (REPO / "DATA-LICENSES.md").read_text()
+    assert f"{by_dataset['Foursquare']} of the {meta['places']} records" in text
+    assert f"{by_dataset['AllThePlaces']} of the {meta['places']} places" in text

@@ -191,7 +191,7 @@ source of truth.
 | Data | File | Source | Licence |
 |---|---|---|---|
 | Lodging (146) and POIs (87) | `data/lodging_osm.json`, `data/poi_osm.json` | OpenStreetMap via Overpass (snapshot) | ODbL 1.0 |
-| Lodging (755) | `data/lodging_overture.json` | Overture Maps Places (snapshot) | CDLA-Permissive-2.0; Apache-2.0 for Foursquare records |
+| Lodging (755) | `data/lodging_overture.json` | Overture Maps Places (snapshot) | CDLA-Permissive-2.0; CC0 1.0 for AllThePlaces records; Apache-2.0 for Foursquare records |
 | Road network | Valhalla tiles, built at setup, not committed | OpenStreetMap via Geofabrik | ODbL 1.0 |
 | Map tiles | fetched at runtime | OpenFreeMap / OpenMapTiles | ODbL (OSM data) |
 | Place search fallback | queried at runtime | Photon (komoot) | ODbL (OSM data) |
@@ -243,10 +243,11 @@ Each item is small enough for its own PR. None is fixed by this page.
    moves: 43 stops have moved in all. PR #24 moved Meteor to a Foursquare record, so the 30
    Overture stops are 27 Meta and 3 Foursquare, not the 28 and 2 that ADR-0004 Decision 3
    planned. The 15 My Maps stops left wait on the owner's permission
-   requests (ADR-0004 next step 3). Also open (ADR-0004 next step 2):
-   `data/lodging_overture.meta.json`, and the code that writes it (`places/refresh_overture.py:31`
-   and `:216`), still label every Overture record CDLA-Permissive-2.0; build the label from each
-   record's sources, and link the licence texts from the app and the API docs.
+   requests (ADR-0004 next step 3). The lodging label
+   (ADR-0004 next step 2) ✅ done: `places/refresh_overture.py` builds it from each record's
+   sources, and the committed file was counted by a one-off read of the same release. Still open
+   (`tasks/todo.md` J10): on phones the map credits sit behind the bottom sheet, and the API docs
+   that link the licence texts are local only.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the

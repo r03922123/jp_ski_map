@@ -1,9 +1,45 @@
 {
  "release": "2026-10-21.0",
  "fetchedAt": "2026-10-30T11:39:34+00:00",
- "license": "CDLA-Permissive-2.0",
- "licenseUrl": "https://cdla.dev/permissive-2-0/",
- "attribution": "Overture Maps Foundation (CDLA-Permissive-2.0)",
+ "license": "Apache-2.0 AND CC0-1.0 AND CDLA-Permissive-2.0",
+ "licenses": [
+  {
+   "dataset": "AllThePlaces",
+   "license": "CC0-1.0",
+   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "places": 2
+  },
+  {
+   "dataset": "Foursquare",
+   "license": "Apache-2.0",
+   "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+   "places": 62,
+   "licenseText": "LICENSES/Apache-2.0.txt",
+   "notice": "LICENSES/Foursquare-NOTICE.txt"
+  },
+  {
+   "dataset": "meta",
+   "license": "CDLA-Permissive-2.0",
+   "licenseUrl": "https://cdla.dev/permissive-2-0/",
+   "places": 684,
+   "licenseText": "LICENSES/CDLA-Permissive-2.0.txt"
+  },
+  {
+   "dataset": "Microsoft",
+   "license": "CDLA-Permissive-2.0",
+   "licenseUrl": "https://cdla.dev/permissive-2-0/",
+   "places": 7,
+   "licenseText": "LICENSES/CDLA-Permissive-2.0.txt"
+  },
+  {
+   "dataset": "Overture",
+   "license": "CDLA-Permissive-2.0",
+   "licenseUrl": "https://cdla.dev/permissive-2-0/",
+   "places": 755,
+   "licenseText": "LICENSES/CDLA-Permissive-2.0.txt"
+  }
+ ],
+ "attribution": "Overture Maps Foundation (Apache-2.0: Foursquare; CC0-1.0: AllThePlaces; CDLA-Permissive-2.0: meta, Microsoft, Overture); © Foursquare Labs, Inc.",
  "rows": 886,
  "places": 755
 }

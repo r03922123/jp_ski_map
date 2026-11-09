@@ -2,6 +2,26 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · tidy: fix(data): build the Overture licence label from the records
+
+**1. Principle: a label should be computed from the data it describes.**
+The old label was one fixed string, and the first fix was a hand-written list of every licence
+Overture might use. Counting all 755 places from their `sources` found 62 Foursquare records and
+2 AllThePlaces records, which the earlier partial check (578 places, 42 Foursquare) had not shown.
+*Analogy:* a nutrition label measured from the batch, not copied from the recipe.
+
+**2. Trade-off: read the old release again instead of running a full refresh.**
+A refresh takes the newest release and rewrites all 755 places, so a licence fix would arrive
+mixed with data changes nobody could review. Reading the sources of release 2026-10-21.0 changes
+only the label, and `lodging_overture.json` has no diff. The price: a one-off script that isn't in
+the repo. The next refresh writes the same label through `build_meta`.
+*Analogy:* correcting one line in a printed report without reprinting it with newer numbers.
+
+**3. What could go wrong: text can be in the page and still out of sight.**
+The new licence link passes its unit test and is in the page, but at phone width it sits behind
+the bottom sheet, as every map credit does today. The e2e tests only read the DOM. A credit check has to ask whether a person can reach it, and that fix is still open.
+*Analogy:* a fire exit that exists on the floor plan but is blocked by a cabinet.
+
 ## 2026-11-06 · tidy: PR #24 fix(data): move the last 13 stops to Overture points (ADR-0004 batch B)
 
 **1. Principle: a rule applies the same way even when its answer surprises you.**
