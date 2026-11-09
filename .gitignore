@@ -22,6 +22,9 @@ data/bus/raw/
 .env
 .env.*
 
+# Vercel project link (holds the org and project IDs)
+.vercel/
+
 .DS_Store
 
 # scripts/serve-public.sh logs and PIDs

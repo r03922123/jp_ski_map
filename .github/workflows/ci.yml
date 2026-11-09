@@ -52,3 +52,10 @@ jobs:
       - name: Build
         run: pnpm build
       # E2E needs Valhalla (≈10 min tile build) and live upstreams; run locally with `pnpm e2e`.
+
+  deploy-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy script stops on bad input (stubbed vercel; nothing can deploy)
+        run: scripts/test-deploy-vercel.sh
