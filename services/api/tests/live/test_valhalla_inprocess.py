@@ -17,6 +17,7 @@ from typing import Any, NamedTuple
 
 import httpx
 import pytest
+import respx
 
 from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
 from hakuba_api.routing.engine import InProcessEngine, get_engine
@@ -28,6 +29,7 @@ SEED = int(os.environ.get("VALHALLA_PARITY_SEED", "20261109"))  # set it to repl
 UNITS = {"units": "kilometers"}
 MATRIX_TARGETS = 25  # the most /api/matrix accepts; bus queries send more internally
 MATRIX_COST_TOLERANCE = 0.01  # see same_answer
+ERROR_FIELDS = ("status_code", "error_code", "error")
 THREADS = 40
 REQUESTS_PER_THREAD = 50
 
@@ -71,6 +73,11 @@ def _matrix(sources: list[Point], targets: list[Point], costing: str) -> Case:
     return Case("/sources_to_targets", body)
 
 
+def _near(rng: random.Random, point: Point) -> Point:
+    """Up to about 100 m away: real origins are hotels and map taps, so snapping is compared."""
+    return {axis: round(value + rng.uniform(-0.001, 0.001), 5) for axis, value in point.items()}
+
+
 def _mixed(rng: random.Random, everywhere: list[Point], stops: list[Point]) -> list[Case]:
     """The bodies routing/client.py sends, including the biggest matrix: a bus query's walk
     to every stop, which holds the engine's lock longest."""
@@ -78,10 +85,11 @@ def _mixed(rng: random.Random, everywhere: list[Point], stops: list[Point]) -> l
     for costing in ("auto", "pedestrian"):
         for i in range(40):
             alternates = {"alternates": i % 3} if i % 3 else {}  # the API takes 0, 1 or 2
-            cases.append(_route(rng.sample(everywhere, 2), costing, **alternates))
+            start, end = rng.sample(everywhere, 2)
+            cases.append(_route([_near(rng, start), end], costing, **alternates))
         for _ in range(10):
             targets = rng.sample(everywhere, MATRIX_TARGETS) if costing == "auto" else stops
-            cases.append(_matrix([rng.choice(everywhere)], targets, costing))
+            cases.append(_matrix([_near(rng, rng.choice(everywhere))], targets, costing))
     return cases
 
 
@@ -119,19 +127,23 @@ def generate_requests(seed: int) -> Requests:
 
 
 def server_answer(case: Case) -> Answer:
-    answer: Answer = httpx.post(f"{VALHALLA_URL}{case.path}", json=case.body, timeout=30).json()
+    response = httpx.post(f"{VALHALLA_URL}{case.path}", json=case.body, timeout=30)
+    answer: Answer = response.json()
     if "error_code" not in answer:
         return answer
-    return {k: answer[k] for k in ("status_code", "error_code", "error")}
+    kind = NoRouteError if response.status_code == 400 else RoutingUnavailableError  # client.py
+    return {"kind": kind.__name__, **{k: answer[k] for k in ERROR_FIELDS}}
 
 
 def engine_answer(engine: InProcessEngine, case: Case) -> Answer:
-    """Errors in the server's shape, so a wrong code or message counts as a difference."""
+    """Errors in the server's shape, so a wrong type, code or message counts as a difference.
+    The type decides the API's 404 or 503, and only here does the real binding raise it."""
     try:
         return engine.post(case.path, case.body)
     except (NoRouteError, RoutingUnavailableError) as e:
         cause = e.__cause__  # the binding's error; "routing busy" has none, and so differs
         return {
+            "kind": type(e).__name__,
             "status_code": getattr(cause, "http_code", None),
             "error_code": getattr(cause, "code", None),
             "error": str(e),
@@ -152,7 +164,7 @@ def _split_matrix_costs(answer: Answer) -> tuple[Answer, list[float]]:
 
 def same_answer(expected: Answer, actual: Answer) -> bool:
     """Exact, except a matrix cell's `cost` (owner's decision, 2026-11-10). Measured over 6 seeds:
-    11 of 7380 cells differ, by at most 0.002, each side repeating its own value. The API never
+    10 of 7380 cells differ, by at most 0.002, each side repeating its own value. The API never
     reads that field; it reads `time` and `distance`, which stay exact."""
     plain_expected, expected_costs = _split_matrix_costs(expected)
     plain_actual, actual_costs = _split_matrix_costs(actual)
@@ -236,15 +248,16 @@ def test_40_threads_share_the_real_actor_with_no_wrong_answer(engine: InProcessE
     assert len(schedule) == THREADS * REQUESTS_PER_THREAD == 2000
     start = threading.Barrier(THREADS)  # every thread exists before the first request
 
-    def worker(thread: int) -> list[int]:
+    def worker(thread: int) -> list[tuple[int, Any]]:
         start.wait()
         share = schedule[thread * REQUESTS_PER_THREAD : (thread + 1) * REQUESTS_PER_THREAD]
-        return [i for i in share if engine_answer(engine, cases[i]) != expected[i]]
+        answers = ((i, engine_answer(engine, cases[i])) for i in share)
+        return [(i, answer.get("error")) for i, answer in answers if answer != expected[i]]
 
     with ThreadPoolExecutor(THREADS) as pool:
         wrong = [i for result in pool.map(worker, range(THREADS)) for i in result]
 
-    assert wrong == [], f"seed {SEED}: wrong answers for request indexes {wrong[:20]}"
+    assert wrong == [], f"seed {SEED}: {len(wrong)} wrong; first (index, error): {wrong[:20]}"
 
 
 def test_one_seed_always_gives_the_same_requests() -> None:
@@ -303,22 +316,48 @@ def test_a_difference_names_its_seed_index_and_request() -> None:
     assert "['trip']" in message
 
 
-def test_matching_answers_pass() -> None:
-    cases = [Case("/route", {"costing": "auto"})]
+@pytest.mark.parametrize(
+    ("http_status", "kind"), [(400, "NoRouteError"), (500, "RoutingUnavailableError")]
+)
+def test_a_server_error_is_named_as_client_py_would_raise_it(http_status: int, kind: str) -> None:
+    refusal = {"status_code": http_status, "error_code": 171, "error": "no"}
 
-    assert_same_answers(cases, 42, server=lambda _: {"a": 1}, engine=lambda _: {"a": 1})
+    with respx.mock(assert_all_called=False) as mock:
+        mock.post(f"{VALHALLA_URL}/route").respond(http_status, json=refusal)
+
+        assert server_answer(Case("/route", {}))["kind"] == kind
+
+
+def test_an_engine_error_is_named_by_its_type() -> None:
+    class BrokenActor:
+        def route(self, req: dict[str, Any]) -> Any:
+            raise RuntimeError("c++ said no")
+
+        def matrix(self, req: dict[str, Any]) -> Any:
+            raise RuntimeError("c++ said no")
+
+    engine = InProcessEngine(BrokenActor(), ValueError)
+
+    assert engine_answer(engine, Case("/route", {}))["kind"] == "RoutingUnavailableError"
+
+
+def test_a_jittered_point_stays_nearby_and_is_reproducible() -> None:
+    point = {"lat": 36.7, "lon": 137.8}
+
+    near = _near(random.Random(3), point)
+
+    assert near == _near(random.Random(3), point)
+    assert near != point
+    assert abs(near["lat"] - 36.7) <= 0.001 and abs(near["lon"] - 137.8) <= 0.001
 
 
 def _matrix_answer(**cell: Any) -> Answer:
     return {"sources_to_targets": [[{"time": 60, "distance": 1.5, "cost": 393.955, **cell}]]}
 
 
-def test_a_matrix_cost_may_differ_within_the_tolerance() -> None:
-    assert same_answer(_matrix_answer(), _matrix_answer(cost=393.955 + 0.002))
-
-
-def test_a_matrix_cost_beyond_the_tolerance_differs() -> None:
-    assert not same_answer(_matrix_answer(), _matrix_answer(cost=393.955 + 0.02))
+@pytest.mark.parametrize(("difference", "same"), [(0.002, True), (0.02, False)])
+def test_a_matrix_cost_is_held_to_the_tolerance(difference: float, same: bool) -> None:
+    assert same_answer(_matrix_answer(), _matrix_answer(cost=393.955 + difference)) is same
 
 
 @pytest.mark.parametrize(

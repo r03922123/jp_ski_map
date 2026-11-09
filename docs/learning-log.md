@@ -9,11 +9,11 @@ The first draft passed on its first run, which proves little. So we broke things
 *Analogy:* feeding an eval pipeline shuffled labels: if the score doesn't collapse, the metric wasn't measuring anything.
 
 **2. Trade-off: one named exception, not a general "close enough".**
-The two engines disagree on a matrix cell's `cost` in 11 of 7,380 cells over 6 seeds, by at most 0.002, and each side repeats its own value exactly. A float difference between the macOS and Linux builds is the likely cause, not a proven one. The API reads only `time` and `distance`, so the owner accepted a 0.01 tolerance on that one field. Everything else stays exact, including a route's own `cost`. A blanket tolerance would have been shorter, and it would also have hidden a wrong travel time.
+The two engines disagree on a matrix cell's `cost` in 10 of 7,380 cells over 6 seeds, by at most 0.002, and each side repeats its own value exactly. A float difference between the macOS and Linux builds is the likely cause, not a proven one. The API reads only `time` and `distance`, so the owner accepted a 0.01 tolerance on that one field. Everything else stays exact, including a route's own `cost`. A blanket tolerance would have been shorter, and it would also have hidden a wrong travel time.
 *Analogy:* allowing floating-point noise on one logged metric, while the labels and predictions must still match exactly.
 
 **3. What could go wrong: testing the requests you imagined, not the ones the app sends.**
-The first draft capped matrices at 25 targets, because `/api/matrix` does, and it passed. But each bus query sends a 98-stop walking matrix from inside the API. Adding that changed the sample and exposed the `cost` difference above, so the first green was luck. The test still has limits: it needs the running server and the gitignored tiles, so CI can't run it, and it proves this Mac's build, not Vercel's Linux one. Checkpoint S covers that.
+The first draft capped matrices at 25 targets, because `/api/matrix` does, and it passed. But each bus query sends a 98-stop walking matrix from inside the API. Adding that changed the sample and exposed the `cost` difference above, so the first green was luck. The test still has limits: it needs the running server and the gitignored tiles, so CI can't run it, and it proves this Mac's build, not Vercel's Linux one. Probe P and Checkpoint S spot-check Linux; full equivalence there stays unproven.
 *Analogy:* a validation set from the wrong distribution: great metrics on data production never sees.
 
 ## 2026-11-09 · tidy: feat(api): Valhalla can run inside the API
