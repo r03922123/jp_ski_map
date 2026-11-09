@@ -267,29 +267,17 @@ export default function MapView({
       endHold();
   };
 
-  useEffect(() => {
-    if (flyTo) {
-      const map = mapRef.current;
-      if (map)
-        map.flyTo({
-          center: [flyTo.lng, flyTo.lat],
-          zoom: 14,
-          padding: paddingOf(map),
-        });
-    }
-  }, [flyTo]);
-
   // Fit the whole route set once per new search or picked option, clear of the directions
   // panel. Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after
   // this map reports a pan) must never re-fit, or the user can't pan at all. The size
   // counts because a resized window or a rotated phone moves the panels.
   const [canvasSize, setCanvasSize] = useState("");
   // the markers stand at the true points, which the route only reaches at the nearest road
-  const ends = [origin, destination, busStop].flatMap((p) =>
+  const endPoints = [origin, destination, busStop].flatMap((p) =>
     p ? [[p.lng, p.lat] as LngLat] : [],
   );
   const drawn = [...routes, ...(ride ? [ride.route] : [])];
-  const fitKey = `${canvasSize}/${activeRoute}/${ends.join(";")}/${drawn
+  const fitKey = `${canvasSize}/${activeRoute}/${endPoints.join(";")}/${drawn
     .map(
       (r) =>
         `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,
@@ -303,7 +291,7 @@ export default function MapView({
     if (!mapReady || !map || drawn.length === 0 || piloting) return;
     const all = [
       ...drawn.flatMap((r) => r.geometry.coordinates as LngLat[]),
-      ...ends,
+      ...endPoints,
     ];
     if (all.length < 2) return;
     map.fitBounds(routeBounds(all), {
@@ -317,20 +305,6 @@ export default function MapView({
       duration: prefersReducedMotion() ? 0 : 700,
     });
   }, [fitKey, mapReady, piloting]);
-
-  // A destination with no start yet has no route to fit: bring it into the clear part.
-  const loneTarget =
-    !origin && destination ? `${destination.lng},${destination.lat}` : "";
-  // biome-ignore lint/correctness/useExhaustiveDependencies: loneTarget stands for destination
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!mapReady || !map || !destination || !loneTarget) return;
-    map.easeTo({
-      center: [destination.lng, destination.lat],
-      padding: paddingOf(map),
-      duration: prefersReducedMotion() ? 0 : 600,
-    });
-  }, [loneTarget, mapReady]);
 
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
@@ -369,6 +343,52 @@ export default function MapView({
     };
   }, []);
 
+  // A resize under a finger waits for the finger to lift (see onResize).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (mapReady && map && !pressing) setCanvasSize(sizeOf(map));
+  }, [pressing, mapReady]);
+
+  // One end and no route yet: nothing to fit, so if a panel has it, bring it into the
+  // clear part, once per place and window size (afterwards the user may pan it away).
+  const lone = origin && !destination ? origin : !origin ? destination : null;
+  const loneKey = lone ? `${lone.lng},${lone.lat}/${canvasSize}` : "";
+  const easedLone = useRef("");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: loneKey stands for lone
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map || !lone || piloting || pressing) return;
+    if (easedLone.current === loneKey) return;
+    easedLone.current = loneKey;
+    const pad = paddingOf(map);
+    const canvas = map.getCanvas();
+    const { x, y } = map.project([lone.lng, lone.lat]);
+    const inClear =
+      x >= pad.left &&
+      x <= canvas.clientWidth - pad.right &&
+      y >= pad.top &&
+      y <= canvas.clientHeight - pad.bottom;
+    if (inClear) return;
+    map.easeTo({
+      center: [lone.lng, lone.lat],
+      padding: pad,
+      duration: prefersReducedMotion() ? 0 : 600,
+    });
+  }, [loneKey, mapReady, piloting, pressing]);
+
+  // After the effect above, whose ease a search's flight must replace.
+  useEffect(() => {
+    if (flyTo) {
+      const map = mapRef.current;
+      if (map)
+        map.flyTo({
+          center: [flyTo.lng, flyTo.lat],
+          zoom: 14,
+          padding: paddingOf(map),
+        });
+    }
+  }, [flyTo]);
+
   // A dropped pin's card must not open under the trip card on top or the sheet (v1.9).
   // Google eases the camera to a dropped pin (BC-A1); ours centres it in the clear part
   // of the map, once per pin, after the finger is up (an ease inside a press cancels
@@ -387,13 +407,9 @@ export default function MapView({
     if (!mapReady || !map || !droppedPin || pressing) return;
     if (easedPin.current === pinKey) return;
     easedPin.current = pinKey;
-    const canvas = map.getCanvas();
     map.easeTo({
       center: [droppedPin.coord.lng, droppedPin.coord.lat],
-      padding: mapPadding({
-        width: canvas.clientWidth,
-        height: canvas.clientHeight,
-      }),
+      padding: paddingOf(map),
       duration: prefersReducedMotion() ? 0 : 600,
     });
   }, [pinKey, pressing, mapReady]);

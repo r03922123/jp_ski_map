@@ -107,7 +107,7 @@ export function mapPadding({
     };
   }
   const short = height < SHORT_SCREEN_PX;
-  const bottom = Math.round(height * SHEET_FRACTION) + (short ? 8 : 32);
+  const bottom = Math.round(height * SHEET_FRACTION) + (short ? 12 : 32);
   const top = short ? SHORT_SCREEN_TOP_PX : TRIP_CARD_PX + MARKER_PX;
   return {
     top: Math.min(top, Math.max(0, height - bottom - MIN_CLEAR_PX)),

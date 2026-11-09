@@ -59,7 +59,7 @@ function hidden(page: Page, coords: Coords, ends = { start: true, end: true }) {
         left: sideCard ? sheet.right : 0,
         right: window.innerWidth,
         top: sideCard ? 0 : header.bottom + FRAME_PX,
-        bottom: sideCard ? window.innerHeight : sheet.top,
+        bottom: sideCard ? window.innerHeight : sheet.top - FRAME_PX,
       };
       const cut = (r: {
         left: number;
@@ -248,6 +248,11 @@ for (const device of [
       await expectClear(page, [], { start: false, end: true });
     });
 
+    test("a start with no destination yet stays clear", async ({ page }) => {
+      await page.goto("/?from=36.60000,137.85000&mode=drive");
+      await expectClear(page, [], { start: true, end: false });
+    });
+
     test("a chosen bus stays clear, its walk and its ride", async ({
       page,
     }) => {
@@ -273,3 +278,41 @@ for (const device of [
     });
   });
 }
+
+test.describe("turning a phone", () => {
+  test.use({
+    viewport: { width: 375, height: 667 },
+    isMobile: true,
+    hasTouch: true,
+  });
+
+  test("a lone destination stays clear", async ({ page }) => {
+    await page.goto("/?mode=drive&resort=jigatake");
+    await expectClear(page, [], { start: false, end: true });
+
+    await page.setViewportSize({ width: 667, height: 375 });
+
+    await expectClear(page, [], { start: false, end: true });
+  });
+
+  test("with a finger on the map, the fit catches up when it lifts", async ({
+    page,
+  }) => {
+    const out = await open(page, NORTH);
+    await expectClear(page, out.primary.geometry.coordinates);
+    const cdp = await page.context().newCDPSession(page);
+
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x: 30, y: 300, id: 1 }],
+    });
+    await page.setViewportSize({ width: 667, height: 375 });
+    await page.waitForTimeout(500);
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+
+    await expectClear(page, out.primary.geometry.coordinates);
+  });
+});
