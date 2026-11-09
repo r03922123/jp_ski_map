@@ -323,6 +323,32 @@ for (const device of DEVICES) {
       await expect(sections(page)).toHaveCount(1, { timeout: 15_000 });
     });
 
+    test("bus: a swap starts from the saved resort, not one left selected", async ({
+      page,
+    }) => {
+      const SAVED_IWATAKE = "36.71705,137.85862";
+      await mockBuses(page);
+      await page.goto(`/?from=${STATION}&mode=drive&resort=iwatake`);
+      await routeReady(page);
+      await page.getByRole("button", { name: /^Save Hakuba Iwatake/ }).click();
+      await page.getByRole("checkbox", { name: /Starred/ }).check();
+      await page.getByRole("button", { name: "Done" }).click();
+      await expect
+        .poll(() => page.evaluate(() => history.state?.overlay === true))
+        .toBe(false);
+      await page.goto(
+        `/?from=${STATION}&mode=bus&resort=happo-one&dest=pt:${SAVED_IWATAKE}`,
+      );
+      await expect(toBox(page)).toHaveValue(/Iwatake/, { timeout: 15_000 });
+
+      const back = page.waitForRequest(
+        (r) => isToPlace(r) && coordOf(r, "to") === STATION,
+      );
+      await swapButton(page).click();
+
+      expect(coordOf(await back, "from")).toBe(SAVED_IWATAKE);
+    });
+
     test("bus: an unknown resort in the link still lists every resort", async ({
       page,
     }) => {

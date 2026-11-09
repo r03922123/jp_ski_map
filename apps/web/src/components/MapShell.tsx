@@ -885,7 +885,9 @@ export function MapShell() {
   );
   const busResortAt = busChoice
     ? busChoice.rideStops[alightIndexOf(busChoice)]?.coord
-    : destination;
+    : pointResortId
+      ? point?.coord
+      : destination;
   const busResortPlace: PlaceInput | null = busResort
     ? {
         id: busResort.id,
