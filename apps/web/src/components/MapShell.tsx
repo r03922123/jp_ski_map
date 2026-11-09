@@ -914,6 +914,12 @@ export function MapShell() {
       ? `${busChoice.routeId}/${busChoice.trip}/${busChoice.boardStopId}`
       : "";
   const destinationKey = `${selectedResortId}|${poiId}|${point ? `${point.coord.lat},${point.coord.lng}` : ""}|${busKey}`;
+  // with both ends set, anything that changes the route on screen reveals it too: a new
+  // start, mode or stop, or another route option, tapped from a swiped-up sheet
+  const routeKey =
+    origin && target
+      ? `${routeMode}|${origin.lat},${origin.lng}|${target.lat},${target.lng}|${stopsKey}|${activeRoute}`
+      : "";
 
   const canAddStop =
     mode !== "bus" &&
@@ -1130,6 +1136,7 @@ export function MapShell() {
             </div>
           }
           collapseKey={destinationKey}
+          revealKey={routeKey}
         >
           {/* the game HUD: first in the side card; on a phone it shows once the sheet is
               swiped up, so the resting sheet holds only the answer (v1.9, BC-L1) */}

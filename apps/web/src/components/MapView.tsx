@@ -260,16 +260,16 @@ export default function MapView({
     }
   }, [flyTo]);
 
-  // Fit the whole route set once per new search, clear of the directions panel.
-  // Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after this
-  // map reports a pan) must never re-fit, or the user can't pan at all.
+  // Fit the whole route set once per new search or picked option, clear of the directions
+  // panel. Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after
+  // this map reports a pan) must never re-fit, or the user can't pan at all.
   const drawn = [...routes, ...(ride ? [ride.route] : [])];
-  const fitKey = drawn
+  const fitKey = `${activeRoute}/${drawn
     .map(
       (r) =>
         `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,
     )
-    .join("|");
+    .join("|")}`;
   const piloting = pilot !== null;
   // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
   useEffect(() => {
