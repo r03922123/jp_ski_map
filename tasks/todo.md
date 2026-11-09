@@ -841,7 +841,7 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 - [x] PR 1: the spec and ADR in the repo, corrected by the probes
 - [x] PR 2: in-process routing (`routing/engine.py`, one engine, the lock, error mapping, `/api/matrix` capped at 25, `pyvalhalla==3.9.1`). Failing tests first: 8 threads max overlap 1; concurrent first calls build one engine; lock timeout and both error types; 26 targets → 422
 - [ ] PR 3: live equivalence, with a seeded request generator in the repo. `uv run pytest -m live`: 100 + 20 + 5 identical; 40 threads, 2000 requests, 0 errors, no crash
-- [ ] PR 4: deploy packaging (lazy `paths.py`, `vercel.json`, `scripts/deploy-vercel.sh`, `infra/valhalla/hakuba-tiles.sha256`, shell test in CI). A missing data file or wrong hash stops it; without `--prod` the command carries `--environment preview`
+- [x] PR 4: deploy packaging (lazy `paths.py`, `vercel.json`, `scripts/deploy-vercel.sh`, `infra/valhalla/hakuba-tiles.sha256`, shell test in CI). A missing data file or wrong hash stops it; without `--prod` the command carries `--environment preview`
 - [ ] Before the real project's first deploy, which PR 5 needs: the owner links the project and sets the variables in SPEC-deploy.md Changes item 9; tell the owner before deploying, then read `environment` in the deploy output
 - [ ] PR 5: production smoke suite, `apps/web/e2e-prod/`, about 5 tests, green against a preview (headers, search, bus, drive, walk)
 - [x] PR 6: phone map credits, done in PR #38 and hit-tested at phone sizes in Chromium

@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · tidy: feat(deploy): package the app for Vercel, with guards before the upload
+
+**1. Principle: check the thing that can't check itself.**
+A truncated tile tar passes Vercel's build and then segfaults the API on the first route, so no later step would catch it. The script hashes the exact copy it will upload and compares that with `infra/valhalla/hakuba-tiles.sha256` before `vercel` runs. The hash is committed because the tar itself can't be: the tiles stay out of the public repo.
+*Analogy:* verifying a model checkpoint's checksum before serving it, because a half-downloaded file may load and only crash on the first batch.
+
+**2. Trade-off: upload a clean copy instead of filtering the working folder.**
+The script builds a temp folder from `git archive HEAD` and adds only the tiles, the runtime data and the project link. An ignore list would have to name every sensitive file forever; a copy of the commit can't contain `.env` at all. The cost is that an uncommitted fix doesn't deploy, and a temp folder has no Vercel link, so the script must copy the link in and stop when it's missing.
+*Analogy:* training from a frozen dataset snapshot rather than from a live folder someone may be editing.
+
+**3. What could go wrong: a test of a deploy script that really deploys.**
+The test puts a stub `vercel` first on a `PATH` holding only system folders, and refuses to run if any other `vercel` is found first. It also checks each stop for its own error message, so a script broken in some unrelated way can't pass. What it can't show is how the real CLI behaves: whether a first deploy honours `--environment preview` is still unverified, so the owner is told before that deploy.
+*Analogy:* testing a pipeline on a mock GPU cluster: it proves your orchestration logic, not the cluster.
+
 ## 2026-11-09 · tidy: feat(api): Valhalla can run inside the API
 
 **1. Principle: a shared object is only as safe as its least safe call.**
