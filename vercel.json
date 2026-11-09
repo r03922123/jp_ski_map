@@ -1,0 +1,21 @@
+{
+  "regions": ["hnd1"],
+  "git": { "deploymentEnabled": false },
+  "services": {
+    "web": { "root": "apps/web/" },
+    "api": {
+      "root": "services/api/",
+      "entrypoint": "src.hakuba_api.main:app",
+      "headers": [
+        {
+          "source": "/(.*)",
+          "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
+        }
+      ]
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ]
+}
