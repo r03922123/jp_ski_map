@@ -255,6 +255,7 @@ def bus_options_to_place(
                             continue
                         arrives = _at(day, arr_time, at) if arr_time else None
                         walk_to = walks_to[alight]
+                        ride = _ride_stops(ids, trip, stops, i, j)
                         option = BusOption(
                             resort_id=None,
                             line_id=t.line_id,
@@ -273,7 +274,7 @@ def bus_options_to_place(
                             timed=arrives is not None,
                             first_stop_name=d.stops[i],
                             source_file=t.source.file,
-                            ride_stops=_ride_stops(ids, trip, stops, i, j),
+                            ride_stops=(ride if first_stop_only else [s for s in ride if s.time]),
                             walk_to_place_s=walk_to,
                             door_arrives_at=(
                                 arrives + timedelta(seconds=walk_to) if arrives else None

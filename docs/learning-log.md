@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: feat(api): direct shuttles to a place
+
+**1. Principle: one value with two meanings needs a rule that tells them apart.**
+A blank time in a timetable means "not published" on Lines F and G, but "this bus doesn't go there" on Line V2. The data stores both as `null`. The rule is to count the printed times on the trip: exactly one means the rest are unpublished, more than one means a blank is a skipped stop. Without it, the app would send someone to wait at JR Hakuba for a bus that never comes.
+*Analogy:* a missing label in a dataset can mean "not measured" or "measured, and absent". A model that treats both the same learns the wrong thing.
+
+**2. Trade-off: sort by the one number every row has.**
+Timed trips have an arrival and F/G trips only a departure. Listing timed trips first looks tidy, but it pushed an earlier F/G bus out of the top three in 71 of 104 mixed cases. Sorting everything by departure answers "what's the next bus?". The cost is that an early slow bus can sit above a later fast one, so each row shows its own times.
+*Analogy:* ranking candidates on a feature only some of them have forces you to invent a value for the rest. Sort on the feature they share.
+
+**3. What could go wrong: an existing query has the same bug.**
+`/api/bus/options` still reads every blank as "not published", so it can list a resort a trip never reaches (14 V2-north trips "to" Cortina on 20 Jan). This PR leaves it alone, because changing what people already see belongs in its own reviewed change. Until that lands, the two queries disagree about what a blank means. The fresh review also found stops that are boarding-only or alighting-only, which the data keeps only as free text. Those need their own change before any screen uses this endpoint.
+*Analogy:* finding a data leak in a second pipeline while fixing the first: log it and fix it separately, so a change in results can be traced to one cause.
+
 ## 2026-11-09 · build new features: docs(adr): friends only, and the repo stays public for now (ADR-0005)
 
 **1. Principle: separate who can read the code from who can use the service.**

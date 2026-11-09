@@ -310,6 +310,23 @@ def test_timed_trip_never_stops_where_its_time_is_blank() -> None:
     assert hhmm(result.options[0].arrives_at) == "16:46"
 
 
+def test_ride_leaves_out_stops_a_timed_trip_skips() -> None:
+    # trip 7 passes JR Hakuba without stopping: the map and the stop count must not show it
+    iwatake = ALIAS["Hakuba Iwatake Snow Field"]
+    first = to_place({ESCAL: 120}, {iwatake: 60}, [table("line-v-v2")]).options[0]
+
+    assert first.trip == 7
+    assert JR_HAKUBA not in [r.stop_id for r in first.ride_stops]
+    assert all(r.time is not None for r in first.ride_stops)
+
+
+def test_ride_keeps_the_unpublished_stops_of_a_first_stop_only_trip() -> None:
+    first = to_place({ESCAL: 120}, {TERMINAL: 60}, [table("line-g-g4")]).options[0]
+
+    assert len(first.ride_stops) == 8
+    assert [r.time for r in first.ride_stops[:2]] == ["15:00", None]
+
+
 def test_first_stop_only_trip_cannot_be_boarded_further_along() -> None:
     # G4 publishes only its first stop, so nobody can say when it reaches Cultured
     result = to_place({CULTURED: 60}, {TERMINAL: 60}, [table("line-g-g4")])
