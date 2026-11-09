@@ -5,8 +5,9 @@ Usage: `uv run --with duckdb python -m hakuba_api.places.refresh_overture`
 Overture knows ~880 Hakuba lodgings where OpenStreetMap knows ~150, including most hotels
 people find on booking sites. Each record keeps its providers' licences, named in its `sources`
 (Meta and Microsoft: CDLA-Permissive-2.0; Foursquare: Apache-2.0; AllThePlaces: CC0-1.0), so
-.meta.json is built from them. DuckDB reads only the Hakuba bbox from the public GeoParquet release; it is a
-refresh-time tool, not a project dependency. Requests read the snapshot, never Overture.
+.meta.json is built from them. DuckDB reads only the Hakuba bbox from the public GeoParquet
+release; it is a refresh-time tool, not a project dependency. Requests read the snapshot, never
+Overture.
 """
 
 import json
