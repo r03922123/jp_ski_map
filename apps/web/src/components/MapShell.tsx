@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { ArrowUpDown } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
@@ -920,6 +921,31 @@ export function MapShell() {
     toPlace !== null &&
     stops.length < MAX_STOPS &&
     stops.every((s) => s.place !== null);
+  // Back to the lodging in one tap (SPEC-web-app v1.10). The bus query only answers trips
+  // to a resort, so bus can't be reversed.
+  const canSwap = mode !== "bus" && fromPlace !== null && toPlace !== null;
+  const swapTrip = () => {
+    if (!canSwap) return;
+    sfx().play("select");
+    setOrigin(toPlace.coord);
+    setOriginName(toPlace.name);
+    setOriginSource(toPlace);
+    setSearchLabel(toPlace.name);
+    setPoiId(null);
+    // a resort goes back to being selected, so a second tap restores the trip
+    if (
+      fromPlace.kind === "resort" &&
+      resorts.data?.some((r) => r.id === fromPlace.id)
+    ) {
+      setCategory("resorts");
+      setSelectedResortId(fromPlace.id);
+      setPoint(null);
+    } else {
+      setSelectedResortId(null);
+      setPoint({ coord: fromPlace.coord, name: fromPlace.name });
+    }
+    setStops((list) => [...list].reverse());
+  };
   const pinPlace = (pin: {
     coord: Coord;
     name: string | null;
@@ -1057,6 +1083,22 @@ export function MapShell() {
                     }
                   />
                 </div>
+                {fromPlace && (
+                  <button
+                    type="button"
+                    aria-label="Swap start and destination"
+                    title={
+                      mode === "bus"
+                        ? "Switch to Drive or Walk"
+                        : "Swap start and destination"
+                    }
+                    disabled={!canSwap}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-40"
+                    onClick={swapTrip}
+                  >
+                    <ArrowUpDown aria-hidden="true" className="size-4" />
+                  </button>
+                )}
                 <button
                   type="button"
                   aria-label="Saved places"
