@@ -1,10 +1,13 @@
 """Valhalla inside this process, for hosts with no Valhalla server (SPEC-deploy.md Phase B)."""
 
 import importlib
+import logging
 import threading
 from typing import Any, Protocol
 
 from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
+
+log = logging.getLogger(__name__)
 
 LOCK_WAIT_S = 10.0
 
@@ -55,5 +58,6 @@ def get_engine(tiles: str) -> InProcessEngine:
                 config = binding.get_config(tile_extract=tiles, tile_dir="", verbose=False)
                 _engine = InProcessEngine(binding.Actor(config), binding.ValhallaError)
             except Exception as e:
+                log.warning("could not start routing: %s", e)  # callers only ever see a 503
                 raise RoutingUnavailableError(f"could not start routing: {e}") from e
         return _engine

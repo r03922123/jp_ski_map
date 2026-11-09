@@ -1,6 +1,6 @@
 """In-process routing with a fake Actor, so these run in CI without tiles (SPEC-deploy.md Phase B).
 
-The real Actor is covered by the `live` tests. `ValhallaError` here is the real class."""
+PR 3 adds `live` tests on the real Actor. `ValhallaError` here is the real class."""
 
 import json
 import threading
@@ -140,7 +140,9 @@ def test_eight_threads_never_run_the_actor_at_the_same_time() -> None:
     actor = FakeActor(answer={"ok": True})
     engine = engine_with(actor)
 
-    answers = run_at_once(8, lambda: engine.post("/route", {}))
+    paths = iter(["/route", "/sources_to_targets"] * 4)  # both Actor calls share the one lock
+
+    answers = run_at_once(8, lambda: engine.post(next(paths), {}))
 
     assert answers == [{"ok": True}] * 8
     assert actor.max_overlap == 1
@@ -189,8 +191,20 @@ def test_valhalla_400_is_no_route() -> None:
         engine.post("/route", {})
 
 
+def foreign_error_with_400() -> Exception:
+    error: Any = RuntimeError("not from Valhalla")
+    error.http_code = 400
+    return error
+
+
 @pytest.mark.parametrize(
-    "error", [valhalla_error(404), valhalla_error(500), RuntimeError("c++ said no")]
+    "error",
+    [
+        valhalla_error(404),
+        valhalla_error(500),
+        RuntimeError("c++ said no"),
+        foreign_error_with_400(),
+    ],
 )
 def test_every_other_error_is_routing_unavailable(error: Exception) -> None:
     with pytest.raises(RoutingUnavailableError):
@@ -233,6 +247,16 @@ def test_a_failed_build_is_routing_unavailable_and_is_retried(binding: FakeBindi
 
     assert isinstance(get_engine(TILES), InProcessEngine)
     assert binding.builds == 2
+
+
+def test_a_failed_build_is_logged(binding: FakeBinding, caplog: pytest.LogCaptureFixture) -> None:
+    """The API hides the reason from callers, and verbose=False silences Valhalla."""
+    binding.build_error = RuntimeError("bad tar")
+
+    with pytest.raises(RoutingUnavailableError):
+        get_engine(TILES)
+
+    assert "bad tar" in caplog.text
 
 
 def test_a_missing_tile_file_is_routing_unavailable() -> None:

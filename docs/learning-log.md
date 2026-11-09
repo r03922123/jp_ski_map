@@ -13,7 +13,7 @@ An Actor per thread needs no queue but costs about 42 MB each. One Actor means a
 *Analogy:* one GPU with a batch-size limit: a queue is fine as long as nobody can submit a batch that hogs it for minutes.
 
 **3. What could go wrong: a fake proves the logic, not the library.**
-The tests use a fake Actor so they run in CI without tiles, and a fake can agree with a wrong idea of the binding. So the tests use the real `ValhallaError` class, and one real run went through the API on the Hakuba tiles with no server: route, matrix, a no-route 404, and 200 requests on 8 threads. PR 3 is the full comparison with the server. One thing is still unmeasured: each bus query sends a 98-stop walking matrix, and that holds the lock too.
+The tests use a fake Actor so they run in CI without tiles, and a fake can agree with a wrong idea of the binding. So the tests use the real `ValhallaError` class, and one real run went through the API on the Hakuba tiles with no server: route, matrix, a no-route 404, and 200 requests on 8 threads. PR 3 is the full comparison with the server. The review also found what no fake could: a truncated tile file builds fine, then segfaults the process on the first route, so the deploy's hash check is the only guard. And each bus query's 98-stop walking matrix holds the lock too, but only for about 12 ms (median on this Mac).
 *Analogy:* a unit test with a mock dataset says the training loop runs; only an eval on real data says the model works.
 
 ## 2026-11-09 · build new features: feat(web): Bus gets the same To box
