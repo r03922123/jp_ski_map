@@ -64,7 +64,8 @@ _REPO = "https://github.com/r03922123/jp_ski_map/blob/main"
 DESCRIPTION = f"""Code: MIT. Data: each source keeps its own licence, see \
 [DATA-LICENSES.md]({_REPO}/DATA-LICENSES.md). Overture Maps Places lodging records are under \
 [CDLA-Permissive-2.0]({_REPO}/LICENSES/CDLA-Permissive-2.0.txt), or for Foursquare's \
-[Apache-2.0]({_REPO}/LICENSES/Apache-2.0.txt) with its [NOTICE]({_REPO}/LICENSES/Foursquare-NOTICE.txt), \
+[Apache-2.0]({_REPO}/LICENSES/Apache-2.0.txt) with its \
+[NOTICE]({_REPO}/LICENSES/Foursquare-NOTICE.txt), \
 or for AllThePlaces' [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/)."""
 
 app = FastAPI(title="Hakuba Ski Map API", description=DESCRIPTION)
