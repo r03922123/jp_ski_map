@@ -14,7 +14,10 @@ router = APIRouter(prefix="/api")
 
 
 def get_valhalla() -> ValhallaClient:
-    return ValhallaClient(os.environ.get("VALHALLA_URL", "http://localhost:8002"))
+    return ValhallaClient(
+        os.environ.get("VALHALLA_URL", "http://localhost:8002"),
+        tiles=os.environ.get("VALHALLA_TILES"),
+    )
 
 
 @router.get("/route", response_model=Route, response_model_by_alias=True)
@@ -66,7 +69,7 @@ class MatrixTarget(ApiModel):
 class MatrixRequest(ApiModel):
     mode: Mode
     origin: Coord
-    targets: list[MatrixTarget]
+    targets: Annotated[list[MatrixTarget], Field(max_length=25)]  # one call holds the routing lock
 
 
 @router.post("/matrix", response_model=list[MatrixCell], response_model_by_alias=True)
