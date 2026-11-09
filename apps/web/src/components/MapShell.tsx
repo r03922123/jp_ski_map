@@ -64,14 +64,6 @@ import { arrivedAt, jstDate } from "@/lib/game/stamps";
 import { addTrip, coveredKm, journeyArrived, tripKm } from "@/lib/game/stats";
 import { worldNumbers } from "@/lib/game/worlds";
 import {
-  buzz,
-  dueAnnouncement,
-  loadMuted,
-  primeSpeech,
-  saveMuted,
-  speak,
-} from "@/lib/nav/announce";
-import {
   alightIndexOf,
   type BusPlan,
   type BusState,
@@ -79,7 +71,6 @@ import {
   initialBus,
   planBus,
   reduceBus,
-  rideView,
 } from "@/lib/nav/bus-journey";
 import { cameraFor } from "@/lib/nav/camera";
 import {
@@ -553,7 +544,6 @@ export function MapShell() {
         poiCategory === "convenience" &&
         selectedPoi !== null) ||
         filledStops.some((st) => isKonbini(st.name)));
-    if (!muted) primeSpeech(); // inside the tap, or iOS won't speak later
     firstFixChecked.current = false;
     setPreview(asPreview ? "chosen" : null);
     setBusNote(null);
@@ -649,29 +639,6 @@ export function MapShell() {
     );
   }, [pilot.fix, busPlan]);
   const now = useNow(busPhase === "wait" ? 15_000 : null);
-  // Voice and vibration (SPEC-pilot): each threshold once per maneuver, per route.
-  const [muted, setMuted] = useState(false);
-  useEffect(() => setMuted(loadMuted()), []); // browser storage: client only
-  const said = useRef(new Set<string>());
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a new (re)route starts fresh
-  useEffect(() => {
-    said.current = new Set();
-  }, [pilotRoute]);
-  const next = pilot.guidance?.next;
-  const cueKey = next ? `${next.stepIndex}:${Math.round(next.distanceM)}` : "";
-  // biome-ignore lint/correctness/useExhaustiveDependencies: cueKey stands for the next maneuver
-  useEffect(() => {
-    if (!pilotRoute || pilot.phase !== "following" || pastWalk) return;
-    const due = dueAnnouncement(pilot.guidance, pilotRoute.mode, said.current);
-    if (!due) return;
-    buzz();
-    if (!muted) speak(due.text);
-  }, [cueKey, pilot.phase]);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: once, on arrival
-  useEffect(() => {
-    if (pilot.phase === "arrived" && !muted && !busPlan)
-      speak("You've arrived.");
-  }, [pilot.phase === "arrived"]);
   // SPEC-progression: a trip that ends at a resort's base earns its stamp (the
   // position is compared and dropped; only the resort and the day are kept)
   // a bus journey arrives with the bus (its pilot route is only the walk to the stop)
@@ -714,25 +681,6 @@ export function MapShell() {
     if (pilot.phase === "offRoute" && !pastWalk && !preview)
       sfx().play("offRoute");
   }, [pilot.phase]);
-  const riding =
-    busPlan && busState.phase === "ride" ? rideView(busPlan, busState) : null;
-  const busCue = busPhase ? `${busPhase}:${riding?.getOffNext ?? false}` : "";
-  // biome-ignore lint/correctness/useExhaustiveDependencies: busCue stands for the bus phase
-  useEffect(() => {
-    if (!busPlan || !busPhase || busPhase === "walk") return;
-    const alight = busPlan.stops[busPlan.alightIndex].name;
-    const text =
-      busPhase === "wait"
-        ? `Wait for ${busPlan.option.routeName}.`
-        : busPhase === "arrived"
-          ? `You've arrived at ${alight}.`
-          : riding?.getOffNext
-            ? `Get off at ${alight} at the next stop.`
-            : null;
-    if (!text) return;
-    buzz();
-    if (!muted) speak(text);
-  }, [busCue]);
   useWakeLock(piloting);
   useHiddenTimeout(piloting, PILOT_HIDDEN_STOP_MS, exitPilot);
   // During a bus journey the map shows the bus line and every stop, in every phase.
@@ -1023,11 +971,6 @@ export function MapShell() {
           basis={bus.data?.basis === "expected" ? "expected" : "published"}
           onBoard={() => setBusState(boardManually)}
           onExit={exitPilot}
-          muted={muted}
-          onToggleMute={() => {
-            saveMuted(!muted);
-            setMuted(!muted);
-          }}
         />
       )}
       {pilotRoute && !pastWalk && (
@@ -1047,11 +990,6 @@ export function MapShell() {
               ? busPlan.stops.slice(0, busPlan.alightIndex + 1)
               : undefined
           }
-          muted={muted}
-          onToggleMute={() => {
-            saveMuted(!muted);
-            setMuted(!muted);
-          }}
           onExit={exitPilot}
           onRecenter={() => setFollowing(true)}
           now={new Date()}

@@ -252,31 +252,6 @@ describe("PilotView rerouting", () => {
   });
 });
 
-describe("PilotView voice toggle", () => {
-  it("shows mute state and toggles it", () => {
-    const m = manualSource();
-    const { result } = renderHook(() => usePilot(walk, m.source));
-    m.fix(coords[0]);
-    const onToggleMute = vi.fn();
-    const props = {
-      mode: "walk" as const,
-      following: true,
-      onExit: vi.fn(),
-      onRecenter: vi.fn(),
-      now: new Date(),
-      status: result.current,
-      onToggleMute,
-    };
-    const { rerender } = render(<PilotView {...props} muted={false} />);
-    fireEvent.click(screen.getByRole("button", { name: "Mute voice" }));
-    expect(onToggleMute).toHaveBeenCalled();
-    rerender(<PilotView {...props} muted />);
-    expect(
-      screen.getByRole("button", { name: "Unmute voice" }),
-    ).toHaveAttribute("aria-pressed", "true");
-  });
-});
-
 describe("PilotView on the walk to a bus stop", () => {
   it("shows the bus's stops under the footnote", () => {
     const m = manualSource();

@@ -39,13 +39,13 @@ interface. A dev-only `SimulatedSource` replays the route at a chosen speed (`?s
 - Top banner: maneuver icon, distance to it, instruction or street, and a "Then ↱" chip.
 - Map: puck (arrow, snapped while on the route), the route ahead in blue and the part already covered in grey, camera following with heading-up. If the user pans, following pauses and **Re-centre** appears.
 - Bottom bar: arrival `HH:mm`, `N min`, `x.x km`, then "Live traffic unavailable", 🔇 mute, and ✕ Exit.
-- Screen Wake Lock while piloting (re-requested on `visibilitychange`). Voice: `speechSynthesis` reads the next instruction at 500 m and 100 m (drive) or 50 m and at the turn (walk); voice is on by default, with a mute toggle that is remembered. Vibration (`navigator.vibrate`) on turns where supported.
+- Screen Wake Lock while piloting (re-requested on `visibilitychange`). Guidance is on screen only: no voice and no vibration.
 - Reroute: when the counter trips, call `/api/routes` from the current fix to the same destination; at most one reroute every 10 s; if it fails, keep the old route and show "Can't reroute — continue to the blue line".
 
 **Bus pilot (one journey: walk → wait → ride → arrive):**
 1. *Walk:* normal walk navigation to the boarding stop.
 2. *Wait* (within 30 m of the stop): "Line V · departs 08:10 · in 6 min", counting down; "Expected" if the time is projected from last season.
-3. *Ride:* starts once the departure time has passed and the user is moving away along the ride line (or taps "I'm on the bus"). Shows a list of upcoming stops with their scheduled times (or "time not published"), "N stops to go", and the puck on the ride line. When the alight stop is next: banner "Get off at Happo Bus Terminal — next stop", voice and vibration. There's no live bus position, so times are labelled *scheduled*.
+3. *Ride:* starts once the departure time has passed and the user is moving away along the ride line (or taps "I'm on the bus"). Shows a list of upcoming stops with their scheduled times (or "time not published"), "N stops to go", and the puck on the ride line. When the alight stop is next: banner "Get off at Happo Bus Terminal — next stop". There's no live bus position, so times are labelled *scheduled*.
 4. *Arrive:* within 30 m of the alight stop (or its resort) → "You've arrived at Happo-One".
 
 **Permissions & failure:** location is requested only when Start is tapped. If it's denied, the app explains how to enable it and stays on the overview. Low accuracy (> 100 m) shows a "Weak GPS" chip and pauses off-route counting. Location doesn't work in an insecure context, so the app shows "Pilot needs https".

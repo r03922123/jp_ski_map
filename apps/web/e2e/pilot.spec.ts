@@ -163,60 +163,56 @@ test.describe("with location allowed", () => {
   });
 });
 
-test.describe("voice", () => {
+test.describe("cues", () => {
   test.use({ permissions: ["geolocation"], geolocation: FROM });
 
-  test("speaks the turn as you walk up to it, and Mute silences it", async ({
+  test("a whole walk is screen-only: no speech, no vibration, no mute button", async ({
     page,
     context,
   }) => {
     test.slow(); // a whole journey: several GPS moves and screens
-    // record what would be spoken instead of using the machine's voice
+    // record any cue instead of using the machine's voice
     await page.addInitScript(() => {
-      const spoken: string[] = [];
-      Object.assign(window, { __spoken: spoken });
+      const cues: string[] = [];
+      Object.assign(window, { __cues: cues });
       Object.defineProperty(window, "speechSynthesis", {
         value: {
           speak: (u: { text: string }) => {
-            if (u.text) spoken.push(u.text);
+            if (u.text) cues.push(`say: ${u.text}`);
           },
           cancel: () => {},
         },
       });
+      Object.defineProperty(navigator, "vibrate", {
+        value: () => {
+          cues.push("vibrate");
+          return true;
+        },
+      });
     });
-    const spoken = () =>
-      page.evaluate(
-        () => (window as unknown as { __spoken: string[] }).__spoken,
-      );
     const line = await walkRoute(page);
     await page.goto(URL);
     await page
       .getByRole("button", { name: "Start navigation" })
       .click({ timeout: 20_000 });
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "following", {
+      timeout: 15_000,
+    });
+    await expect
+      .soft(page.getByRole("button", { name: /mute voice/i }))
+      .toHaveCount(0);
 
-    // walk point by point until the heads-up is heard (browsers may merge quick
-    // position changes, so a fixed number of points could skip the 50 m window)
-    const heard = async () =>
-      (await spoken()).some((t) => t.startsWith("In 50 metres, "));
-    let walked = 0;
     for (const [x, y] of line) {
       await context.setGeolocation({ latitude: y, longitude: x });
       await page.waitForTimeout(120);
-      walked += 1;
-      if (await heard()) break;
     }
-    await expect.poll(heard, { timeout: 10_000 }).toBe(true);
-
-    await page.getByRole("button", { name: "Mute voice" }).click();
-    const before = (await spoken()).length;
-    for (const [x, y] of line.slice(walked, walked + 20)) {
-      await context.setGeolocation({ latitude: y, longitude: x });
-      await page.waitForTimeout(80);
-    }
-    expect((await spoken()).length).toBe(before);
-    expect(
-      await page.evaluate(() => localStorage.getItem("hakuba:pilot-muted")),
-    ).toBe("1");
+    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "arrived", {
+      timeout: 15_000,
+    });
+    const cues = await page.evaluate(
+      () => (window as unknown as { __cues: string[] }).__cues,
+    );
+    expect(cues).toEqual([]);
   });
 });
 

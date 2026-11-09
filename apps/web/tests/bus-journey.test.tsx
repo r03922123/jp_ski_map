@@ -102,9 +102,20 @@ describe("BusPilotView", async () => {
     plan,
     basis: "expected" as const,
     onExit: vi.fn(),
-    muted: false,
-    onToggleMute: vi.fn(),
   };
+
+  it("has no voice control", () => {
+    const state = reduceBus(initialBus(), plan, fix(east(0)), DEPART - 360_000);
+    render(
+      <BusPilotView
+        {...base}
+        state={state}
+        now={new Date(DEPART - 360_000)}
+        onBoard={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /mute voice/i })).toBeNull();
+  });
 
   it("waits with a countdown, an Expected label and a manual board button", () => {
     const onBoard = vi.fn();
@@ -254,8 +265,6 @@ describe("BusPilotView with a long ride", async () => {
     plan,
     basis: "published" as const,
     onExit: vi.fn(),
-    muted: false,
-    onToggleMute: vi.fn(),
     onBoard: vi.fn(),
   };
   const rows = () =>
