@@ -155,7 +155,24 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 **Known gaps.**
 - N's outward trip publishes no arrival at Norikura, so it is not offered as a way to reach a lodging there; V2 covers that area.
 - H3 outward trip 1 prints 9:53 at Sakka Slope, out of sequence, so the file stores `null` and that bus isn't offered to Sakka; the next one is.
-- **Boarding rules are not modelled yet, and must be before any screen uses this endpoint.** The timetables mark some stops as boarding-only or alighting-only, and the JSON keeps that only as free text or not at all: E2's starred stops (Courtyard, Oak Forest) are only for Iwatake travellers, H1/H2's ▲ stops, Gurutto's ●/▲ stops. F6 outward trip 3 also prints "—" at Keyakino-ki, which a first-stop-only trip can't express. Until then `/to-place` can offer a ride the operator doesn't allow, such as Happo Nakiyama → Courtyard on E2.
+
+**Boarding rules.** A direction may carry, as indexes into `stops` (a loop lists some stops twice):
+- `boardOnly`, `alightOnly`: the stop can only be used that way (H1/H2's ▲ stops, Gurutto's ●/▲ stops).
+- `restricted: [{stop, onlyWith}]`: a ride using `stop` must have `onlyWith` at its other end (E2's starred Courtyard and Oak Forest are only for Iwatake travellers).
+
+A trip may carry `skips`: indexes where it prints "—" although it is first-stop-only (F6 outward trip 3).
+
+`/to-place` also boards only at a stop that serves a resort, because the operator limits these shuttles to trips between a resort and your lodging ("basically", season poster). So a row can't start at the Happo Bus Terminal, which serves no resort; Happo-One's four resort stops still work.
+
+The poster's legend says ● is alighting and ▲ boarding. Read that way nobody could board Gurutto at its first stops or leave at its last, and H's ▲ marks sit only at the ends of the loops, so we treat ● as boarding and ▲ as alighting.
+
+**Acceptance** (on the real files):
+- [ ] E2: Iwatake → Courtyard is offered; Happo Nakiyama → Courtyard is not.
+- [ ] H1: boarding at the final Mount (08:25) is not offered; getting off there is.
+- [ ] Gurutto: Iwatake → Omachi Onsenkyo Ent. is offered; Iwatake → Escal Plaza is not.
+- [ ] F6: a ride to Keyakino-ki on outward trip 3 is not offered, and the stop isn't in the ride.
+- [ ] A row can't board at a stop that serves no resort.
+- [ ] The validator rejects an out-of-range index, and a stop that is both `boardOnly` and `alightOnly`.
 
 **Acceptance** (pure function, V2 Mar 16–29 + G4, 2026-03-20 14:30, walk 2 min to `stop-goryu-escal-plaza`, 5 min from `stop-happo-bus-terminal`):
 - [ ] Five rows in order: V2 14:37 → 15:10 (door 15:15); G4 15:00, untimed, door null; G4 16:00, untimed; V2 16:07 → 16:40 (door 16:45); G4 17:10, untimed.
@@ -164,4 +181,4 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 - [ ] A stop can't be both boarding and alighting; a loop line works; one row per trip; at most 5.
 - [ ] Out of season and unreviewed answers match `/options`.
 
-**Out of scope:** transfers, and changing the `/options` query, which still treats every `null` as "not published".
+**Out of scope:** transfers, and changing the `/options` query, which still treats every `null` as "not published" and ignores the boarding rules.

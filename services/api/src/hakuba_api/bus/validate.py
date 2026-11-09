@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from hakuba_api.bus.check_sources import SourcesManifest
-from hakuba_api.bus.models import BusStop, Timetable
+from hakuba_api.bus.models import BusStop, Direction, Timetable
 from hakuba_api.common.geo import Coord
 from hakuba_api.data.paths import data_dir
 
@@ -31,6 +31,24 @@ def _validate_stops(stops: list[BusStop], resort_ids: set[str]) -> list[str]:
     return errors
 
 
+def _validate_boarding_rules(where: str, d: Direction) -> list[str]:
+    in_range = range(len(d.stops))
+    named = [("boardOnly", i) for i in d.board_only] + [("alightOnly", i) for i in d.alight_only]
+    named += [("restricted", i) for r in d.restricted for i in (r.stop, r.only_with)]
+    errors = [f"{where}: {name} index {i} is not a stop" for name, i in named if i not in in_range]
+    errors += [
+        f"{where}: stop {i} is both boardOnly and alightOnly"
+        for i in sorted(set(d.board_only) & set(d.alight_only))
+    ]
+    for trip in d.trips:
+        for i in trip.skips:
+            if i not in range(len(trip.times)):
+                errors.append(f"{where} trip {trip.n}: skips index {i} is not a stop")
+            elif trip.times[i] is not None:
+                errors.append(f"{where} trip {trip.n}: skips stop {i}, which has a printed time")
+    return errors
+
+
 def _validate_timetable(t: Timetable, aliases: set[str], source_files: set[str]) -> list[str]:
     errors: list[str] = []
     if t.valid_from > t.valid_to:
@@ -40,6 +58,7 @@ def _validate_timetable(t: Timetable, aliases: set[str], source_files: set[str])
     for d in t.directions:
         where = f"{t.route_id}/{d.id}"
         errors += [f"{where}: unknown stop '{s}'" for s in d.stops if s not in aliases]
+        errors += _validate_boarding_rules(where, d)
         for trip in d.trips:
             if len(trip.times) != len(d.stops):
                 errors.append(

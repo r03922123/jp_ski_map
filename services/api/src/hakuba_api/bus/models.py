@@ -34,12 +34,22 @@ class TimetableSource(ApiModel):
 class Trip(ApiModel):
     n: int
     times: list[str | None]  # "HH:MM" per stop; None = doesn't stop / not published
+    skips: list[int] = []  # stops a first-stop-only trip prints "—" for: it doesn't go there
+
+
+class StopPairing(ApiModel):
+    stop: int  # index into Direction.stops
+    only_with: int  # a ride using `stop` must have this stop at its other end
 
 
 class Direction(ApiModel):
     id: str
     stops: list[str]  # printed names, resolved via BusStop.aliases
     trips: list[Trip]
+    # indexes into stops, because a loop lists some stops twice (SPEC-bus-schedules v1.2)
+    board_only: list[int] = []
+    alight_only: list[int] = []
+    restricted: list[StopPairing] = []
 
 
 class LocalizedText(ApiModel):

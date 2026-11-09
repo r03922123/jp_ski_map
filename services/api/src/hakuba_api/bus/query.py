@@ -3,7 +3,7 @@
 from datetime import date, datetime, timedelta
 from typing import Any, Literal
 
-from hakuba_api.bus.models import BusStop, Timetable, Trip
+from hakuba_api.bus.models import BusStop, Direction, Timetable, Trip
 from hakuba_api.bus.season import Basis, effective_timetables, next_service_date
 from hakuba_api.common.geo import Coord
 from hakuba_api.common.models import ApiModel
@@ -240,8 +240,10 @@ def bus_options_to_place(
                 first_stop_only = sum(time is not None for time in trip.times) == 1
                 for i, board in enumerate(ids):
                     printed = trip.times[i]
-                    if board not in walks_from or printed is None:
+                    if board not in walks_from or printed is None or i in d.alight_only:
                         continue
+                    if stops[board].serves_resort_id is None:
+                        continue  # the operator's rule: between a resort and your lodging
                     departs = _at(day, printed, at)
                     ready = at + timedelta(seconds=walks_from[board])
                     if departs < ready:
@@ -250,6 +252,8 @@ def bus_options_to_place(
                         alight = ids[j]
                         arr_time = trip.times[j]
                         if alight not in walks_to or alight == board:
+                            continue
+                        if j in d.board_only or j in trip.skips or not _may_pair(d, i, j):
                             continue
                         if arr_time is None and not first_stop_only:
                             continue
@@ -274,7 +278,11 @@ def bus_options_to_place(
                             timed=arrives is not None,
                             first_stop_name=d.stops[i],
                             source_file=t.source.file,
-                            ride_stops=(ride if first_stop_only else [s for s in ride if s.time]),
+                            ride_stops=[
+                                s
+                                for k, s in enumerate(ride, start=i)
+                                if k not in trip.skips and (first_stop_only or s.time)
+                            ],
                             walk_to_place_s=walk_to,
                             door_arrives_at=(
                                 arrives + timedelta(seconds=walk_to) if arrives else None
@@ -287,6 +295,14 @@ def bus_options_to_place(
 
     options = sorted(best.values(), key=_place_rank)[:MAX_OPTIONS_TO_PLACE]
     return PlaceBusResult(status="ok", next_service_date=None, options=options, **meta)
+
+
+def _may_pair(d: Direction, board: int, alight: int) -> bool:
+    """False when either end of the ride is reserved for riders of some other stop."""
+    return all(
+        (r.stop != board or r.only_with == alight) and (r.stop != alight or r.only_with == board)
+        for r in d.restricted
+    )
 
 
 def _stop_rank(o: BusOption) -> tuple[datetime, int, int]:

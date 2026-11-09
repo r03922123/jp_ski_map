@@ -23,6 +23,17 @@
  "directions": [
   {
    "id": "to-hakuba",
+   "boardOnly": [
+    0,
+    1,
+    2
+   ],
+   "alightOnly": [
+    3,
+    4,
+    5,
+    6
+   ],
    "stops": [
     "ANA Holiday Inn Resort Shinano-Omachi Kuroyon",
     "Omachi Onsenkyo (Tateyama Prince Hotel Intersection)",
@@ -49,6 +60,17 @@
   },
   {
    "id": "to-omachi",
+   "boardOnly": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "alightOnly": [
+    4,
+    5,
+    6
+   ],
    "stops": [
     "Hakuba Iwatake Snow Field",
     "Happo-One (Nakiyama Slope)",

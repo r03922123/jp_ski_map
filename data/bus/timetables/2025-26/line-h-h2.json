@@ -22,6 +22,11 @@
  "directions": [
   {
    "id": "loop",
+   "alightOnly": [
+    11,
+    12,
+    13
+   ],
    "stops": [
     "Hakuba Happo Bus Terminal",
     "Mount",

@@ -57,6 +57,35 @@ def test_valid_timetable_passes() -> None:
     assert check(timetable()) == []
 
 
+def with_direction(**fields: Any) -> Timetable:
+    direction = {"id": "out", "stops": ["A", "B"], "trips": [{"n": 1, "times": ["08:00", None]}]}
+    return timetable(directions=[{**direction, **fields}])
+
+
+def test_boarding_rule_index_must_be_one_of_the_stops() -> None:
+    assert check(with_direction(boardOnly=[2])) == ["x1/out: boardOnly index 2 is not a stop"]
+    assert check(with_direction(alightOnly=[-1])) == ["x1/out: alightOnly index -1 is not a stop"]
+    assert check(with_direction(restricted=[{"stop": 0, "onlyWith": 5}])) == [
+        "x1/out: restricted index 5 is not a stop"
+    ]
+
+
+def test_a_stop_cannot_be_both_board_only_and_alight_only() -> None:
+    assert check(with_direction(boardOnly=[0], alightOnly=[0])) == [
+        "x1/out: stop 0 is both boardOnly and alightOnly"
+    ]
+
+
+def test_trip_can_only_skip_a_stop_it_prints_no_time_for() -> None:
+    assert check(with_direction(trips=[{"n": 1, "times": ["08:00", None], "skips": [1]}])) == []
+    assert check(with_direction(trips=[{"n": 1, "times": ["08:00", None], "skips": [0]}])) == [
+        "x1/out trip 1: skips stop 0, which has a printed time"
+    ]
+    assert check(with_direction(trips=[{"n": 1, "times": ["08:00", None], "skips": [4]}])) == [
+        "x1/out trip 1: skips index 4 is not a stop"
+    ]
+
+
 def test_unknown_stop_name_fails() -> None:
     bad = timetable(directions=[{"id": "out", "stops": ["A", "Nowhere"], "trips": []}])
 
