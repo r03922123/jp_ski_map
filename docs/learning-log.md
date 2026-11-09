@@ -2,6 +2,29 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · tidy: fix(search): stop answering hotel queries with bus stops
+
+**1. Principle: a metric can only catch the mistakes it is allowed to see.**
+For a hotel marked missing, the eval only counted another lodging as a wrong answer. So
+`Hakuba Park Hotel` could return a car-park bus stop and still score "ok". Then the review found
+the hotel wasn't missing at all: `白馬パークホテル` was in our data, and its address matches. The
+label had hidden a real miss, so the eval now expects that hotel.
+*Analogy:* a spam filter scored only on spam it missed will never notice the real mail it deletes.
+
+**2. Trade-off: use a fallback for the Chinese word, not a blanket replacement.**
+Treating 飯店 as ホテル everywhere is simpler, but 白馬飯店 is a real restaurant here, and it would
+disappear from search. Retrying only when nothing matched keeps it, at the price of one more search
+for those queries.
+*Analogy:* a nickname you try only after the real name finds nobody.
+
+**3. What could go wrong: a filter written for one bad answer also removes good ones.**
+The first rule kept a place only if it carried the query's exact lodging word. That fixed the
+car-park stop, but `The Gakusui Hotel` lost its only match, the stop named `The Gakusui`, and
+`パノラマ ホテル` lost `パノラマホテル`. Tests built around the bug didn't show it; trying real names
+from the data did. A bus stop is now also kept when it is named for exactly what the query names;
+the first attempt at that let restaurants answer hotel queries too, so it applies to stops only.
+*Analogy:* a guest list so strict it turns away the host for not writing "Mr." on the card.
+
 ## 2026-11-09 · build new features: docs(adr): friends only, and the repo stays public for now (ADR-0005)
 
 **1. Principle: separate who can read the code from who can use the service.**

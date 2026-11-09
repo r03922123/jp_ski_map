@@ -1,12 +1,21 @@
 """Search-as-you-type: the local index first, Photon only when it comes up short."""
 
 import logging
+import re
 from functools import cache
 
 from hakuba_api.common.geo import Coord, in_hakuba
 from hakuba_api.common.models import ApiModel
 from hakuba_api.common.upstream import UpstreamError
-from hakuba_api.places.index import Entry, Hit, Kind, build_index, rank, shares_distinctive_word
+from hakuba_api.places.index import (
+    Entry,
+    Hit,
+    Kind,
+    build_index,
+    fits_lodging_words,
+    rank,
+    shares_distinctive_word,
+)
 from hakuba_api.places.models import Place
 from hakuba_api.places.photon import search_photon
 from hakuba_api.places.query_clean import clean_query
@@ -16,6 +25,8 @@ log = logging.getLogger(__name__)
 MIN_LOCAL_HITS = 3  # fewer than this → ask Photon too
 MIN_PHOTON_QUERY_LEN = 3
 DEDUPE_M = 50
+# Chinese words for a hotel. Only a fallback: 白馬飯店 is a real restaurant here.
+_CHINESE_HOTEL = re.compile("飯店|饭店|酒店|旅馆")
 
 
 class Suggestion(ApiModel):
@@ -79,10 +90,13 @@ def suggest(
     use_photon: bool = True,
 ) -> list[Suggestion]:
     query = clean_query(query)  # pasted hotel-site URLs and page titles → the name
-    local = [
-        _from_hit(h)
-        for h in rank(entries if entries is not None else load_index(), query, near, limit)
-    ]
+    index = entries if entries is not None else load_index()
+    hits = rank(index, query, near, limit)
+    if not hits and _CHINESE_HOTEL.search(query):
+        retry = _CHINESE_HOTEL.sub("ホテル", query)
+        if retry_hits := rank(index, retry, near, limit):
+            query, hits = retry, retry_hits
+    local = [_from_hit(h) for h in hits]
     if not use_photon or len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
         return local
     try:
@@ -91,10 +105,11 @@ def suggest(
         log.warning("photon fallback failed: %s", e)
         return local
     extra = [
-        from_place(p)
-        for p in remote
-        if in_hakuba(p.coord)
-        and shares_distinctive_word(query, p.name)  # no confidently wrong hotels
-        and not any(_close(p.coord, s.coord) for s in local)
+        s
+        for s in map(from_place, remote)
+        if in_hakuba(s.coord)
+        and shares_distinctive_word(query, s.name)  # no confidently wrong hotels
+        and fits_lodging_words(query, s.kind, [s.name])
+        and not any(_close(s.coord, hit.coord) for hit in local)
     ]
     return (local + extra)[:limit]
