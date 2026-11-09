@@ -34,8 +34,8 @@ export function stopsAhead(
 
 /**
  * The server numbers stops 1, 2, … in the order it was given them; after a reroute that
- * is only the stops still ahead. Put the trip's own numbers back, so the banner and voice
- * agree with the numbered circles on the map.
+ * is only the stops still ahead. Put the trip's own numbers back, so the banner agrees
+ * with the numbered circles on the map.
  */
 export function numberStops(route: Route, numbers: number[]): Route {
   return {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Crosshair, Volume2, VolumeX, X } from "lucide-react";
+import { Crosshair, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ManeuverIcon } from "@/components/ManeuverIcon";
 import { StopList, type StopRow } from "@/components/StopList";
@@ -27,8 +27,6 @@ type Props = {
   reroute?: RerouteState;
   /** how many times the route was replaced (shown to tests as data-reroutes) */
   reroutes?: number;
-  muted?: boolean;
-  onToggleMute?: () => void;
   /** a line under the progress, e.g. the bus to catch after this walk */
   footnote?: string;
   /** walking to a bus stop: that bus's stops, listed under the footnote */
@@ -47,8 +45,6 @@ export function PilotView({
   following,
   reroute = "idle",
   reroutes = 0,
-  muted = false,
-  onToggleMute,
   footnote,
   busStops,
   preview = null,
@@ -212,21 +208,6 @@ export function PilotView({
               Live traffic unavailable · typical road speeds
             </p>
           </div>
-          {onToggleMute && (
-            <button
-              type="button"
-              aria-label={muted ? "Unmute voice" : "Mute voice"}
-              aria-pressed={muted}
-              className="flex size-11 items-center justify-center rounded-full border bg-background shadow-sm"
-              onClick={onToggleMute}
-            >
-              {muted ? (
-                <VolumeX aria-hidden="true" className="size-5" />
-              ) : (
-                <Volume2 aria-hidden="true" className="size-5" />
-              )}
-            </button>
-          )}
           <button
             type="button"
             aria-label="Exit navigation"
