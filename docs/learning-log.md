@@ -9,11 +9,11 @@ A truncated tile tar passes Vercel's build and then segfaults the API on the fir
 *Analogy:* verifying a model checkpoint's checksum before serving it, because a half-downloaded file may load and only crash on the first batch.
 
 **2. Trade-off: upload a clean copy instead of filtering the working folder.**
-The script builds a temp folder from `git archive HEAD` and adds only the tiles, the runtime data and the project link. An ignore list would have to name every sensitive file forever; a copy of the commit can't contain `.env` at all. The cost is that an uncommitted fix doesn't deploy, and a temp folder has no Vercel link, so the script must copy the link in and stop when it's missing.
+The script builds a temp folder from `git archive HEAD` and adds only the tiles, the runtime data and the project link. An ignore list would have to name every sensitive file forever; a copy of the commit can't contain `.env` at all. The cost is that an uncommitted fix doesn't deploy, and a temp folder has no Vercel link, so the script passes the project IDs to the CLI and stops when they're missing.
 *Analogy:* training from a frozen dataset snapshot rather than from a live folder someone may be editing.
 
 **3. What could go wrong: a test of a deploy script that really deploys.**
-The test puts a stub `vercel` first on a `PATH` holding only system folders, and refuses to run if any other `vercel` is found first. It also checks each stop for its own error message, so a script broken in some unrelated way can't pass. What it can't show is how the real CLI behaves: whether a first deploy honours `--environment preview` is still unverified, so the owner is told before that deploy.
+The test puts a stub `vercel` first on a `PATH` holding only system folders, and refuses to run if any other `vercel` is found first. It also checks each stop for its own error message, so a script broken in some unrelated way can't pass. What it can't show is how the real CLI behaves. The fresh-eyes reviewer read the CLI's source and found that the first draft's "no stdin, so nobody can confirm" guard did the opposite when an agent runs it, so a dead link could create a project. Whether a first deploy honours `--environment preview`, and whether the function can read the uploaded files, stay unverified until Checkpoint S, so the owner is told before that deploy.
 *Analogy:* testing a pipeline on a mock GPU cluster: it proves your orchestration logic, not the cluster.
 
 ## 2026-11-09 · tidy: feat(api): Valhalla can run inside the API

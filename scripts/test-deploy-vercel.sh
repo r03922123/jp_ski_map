@@ -15,8 +15,13 @@ FAILED=0
 mkdir "$WORK/bin"
 cat >"$WORK/bin/vercel" <<'STUB'
 #!/bin/sh
-# Test double: records the arguments, the folder and the files it would upload.
+# Test double: records the arguments, the project link, the folder and the files it would upload.
+if [ "$1" = --version ]; then
+  echo 0.0.0-stub
+  exit 0
+fi
 printf '%s\n' "$*" >>"$VERCEL_STUB_LOG"
+printf '%s %s\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" >"$VERCEL_STUB_LOG.link"
 pwd >"$VERCEL_STUB_LOG.cwd"
 find . -type f | sort >"$VERCEL_STUB_LOG.files"
 exit "${VERCEL_STUB_EXIT:-0}"
@@ -92,7 +97,8 @@ for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_o
   uploaded "services/api/data/$f" || fail "not uploaded: services/api/data/$f"
 done
 uploaded services/api/tiles/valhalla_tiles.tar || fail "tiles not uploaded"
-uploaded .vercel/project.json || fail "project link not copied"
+[[ $(cat "$VERCEL_STUB_LOG.link") == "team_test prj_test" ]] || fail "link file IDs not passed to vercel"
+if uploaded .vercel/project.json; then fail "link file in the upload"; fi
 for f in .env .ux-evidence/shot .run/api.pid; do
   if uploaded "$f"; then fail "uploaded: $f"; fi
 done
@@ -106,9 +112,9 @@ expect_args "deploy --prod"
 echo "env-var project link needs no link file"
 new_repo
 rm -rf "$REPO/.vercel"
-VERCEL_ORG_ID=team_test VERCEL_PROJECT_ID=prj_test deploy
+VERCEL_ORG_ID=team_env VERCEL_PROJECT_ID=prj_env deploy
 expect_args "deploy --environment preview"
-if uploaded .vercel/project.json; then fail "unexpected link file"; fi
+[[ $(cat "$VERCEL_STUB_LOG.link") == "team_env prj_env" ]] || fail "env IDs not passed to vercel"
 
 echo "a failing vercel fails the script"
 new_repo
@@ -131,6 +137,14 @@ for item in resorts.json bus_stops.json bus/timetables bus/sources.json lodging_
 done
 
 new_repo
+rm -rf "$REPO/data/bus/timetables/2025-26"
+echo 'notes' >"$REPO/data/bus/timetables/README.md"
+echo '[]' >"$REPO/data/bus/timetables/too-shallow.json"
+commit_all
+deploy
+expect_stop "timetables folder without <season>/*.json" "no timetables"
+
+new_repo
 : >"$REPO/data/resorts.json"
 commit_all
 deploy
@@ -139,6 +153,12 @@ expect_stop "empty data file" "data/resorts.json"
 echo "the commit decides, not the working tree"
 new_repo
 rm "$REPO/data/resorts.json"
+deploy
+expect_args "deploy --environment preview"
+
+echo "the committed hash decides, not an uncommitted edit"
+new_repo
+echo 'edited' >"$REPO/infra/valhalla/hakuba-tiles.sha256"
 deploy
 expect_args "deploy --environment preview"
 
@@ -173,6 +193,16 @@ new_repo
 echo '{"orgId":"team_test"}' >"$REPO/.vercel/project.json"
 deploy
 expect_stop "link file without projectId" "project link missing"
+
+new_repo
+echo '{"projectId":"prj_test"}' >"$REPO/.vercel/project.json"
+deploy
+expect_stop "link file without orgId" "project link missing"
+
+new_repo
+echo '{"projectId":"","orgId":"team_test"}' >"$REPO/.vercel/project.json"
+deploy
+expect_stop "link file with an empty projectId" "project link missing"
 
 new_repo
 VERCEL_ORG_ID=team_test deploy
