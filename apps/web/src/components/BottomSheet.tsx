@@ -152,9 +152,12 @@ export function BottomSheet({
       data-state={expanded ? "expanded" : "collapsed"}
       className={cn(
         "pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
-        // expanded: never up under the trip card on top (136 px), even on a short or
-        // landscape phone (code review of v1.9)
-        expanded ? "h-[min(80dvh,calc(100dvh-136px))]" : "h-[40dvh]",
+        // expanded: never up under the trip card on top (184 px, or 136 on a landscape
+        // phone, where its third row sits beside the boxes), so the handle stays
+        // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
+        expanded
+          ? "h-[min(80dvh,calc(100dvh-232px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
+          : "h-[40dvh]",
         "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
       )}
     >

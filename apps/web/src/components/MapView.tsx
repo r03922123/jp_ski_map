@@ -37,6 +37,8 @@ import {
   labelAnchor,
   MD_BREAKPOINT_PX,
   mapPadding,
+  pinCardAnchor,
+  pinEaseOffsetY,
   routeBounds,
   segment,
 } from "@/lib/route-geo";
@@ -425,9 +427,31 @@ export default function MapView({
     map.easeTo({
       center: [droppedPin.coord.lng, droppedPin.coord.lat],
       padding: paddingOf(map),
+      offset: [
+        0,
+        pinEaseOffsetY({
+          width: map.getCanvas().clientWidth,
+          height: map.getCanvas().clientHeight,
+        }),
+      ],
       duration: prefersReducedMotion() ? 0 : 600,
     });
   }, [pinKey, pressing, mapReady]);
+
+  const pinMap = mapRef.current;
+  const pinAt =
+    pinMap && droppedPin
+      ? pinMap.project([droppedPin.coord.lng, droppedPin.coord.lat])
+      : null;
+  const pinAnchor =
+    pinMap && pinAt
+      ? pinCardAnchor({
+          x: pinAt.x,
+          y: pinAt.y,
+          width: pinMap.getCanvas().clientWidth,
+          height: pinMap.getCanvas().clientHeight,
+        })
+      : undefined;
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
   // and an identity-keyed effect would re-ease after each of its own moveend reports.
@@ -621,7 +645,9 @@ export default function MapView({
           longitude={droppedPin.coord.lng}
           latitude={droppedPin.coord.lat}
           // no fixed anchor: MapLibre puts the card on whichever side of the pin keeps
-          // it inside the map, so a pin near an edge never cuts off ✕ or Go here (S6)
+          // it inside the map, so a pin near an edge never cuts off ✕ or Go here (S6).
+          // Except under the trip card on top, which MapLibre doesn't know about
+          anchor={pinAnchor}
           closeButton={false}
           closeOnClick={false}
           maxWidth="280px"

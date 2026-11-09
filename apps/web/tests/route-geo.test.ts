@@ -3,6 +3,8 @@ import {
   type LngLat,
   labelAnchor,
   mapPadding,
+  pinCardAnchor,
+  pinEaseOffsetY,
   pointAlong,
   routeBounds,
   segment,
@@ -79,7 +81,7 @@ describe("mapPadding", () => {
 
   it("leaves room on phones for a marker standing above its point", () => {
     expect(mapPadding({ width: 390, height: 699 }).top).toBeGreaterThanOrEqual(
-      136 + 40,
+      184 + 40,
     );
   });
 
@@ -92,5 +94,70 @@ describe("mapPadding", () => {
   it.each([320, 280, 200])("leaves map to fit into at %i px tall", (height) => {
     const p = mapPadding({ width: 568, height });
     expect(height - p.top - p.bottom).toBeGreaterThan(0);
+  });
+});
+
+// v1.9 rule 7: a dropped pin's card never opens under the trip card on top
+describe("pinCardAnchor", () => {
+  const phone = { width: 393, height: 852 };
+
+  it("opens below a pin whose card would reach under the top card", () => {
+    expect(pinCardAnchor({ x: 200, y: 220, ...phone })).toBe("top");
+    expect(pinCardAnchor({ x: 200, y: 220, width: 390, height: 699 })).toBe(
+      "top",
+    );
+    expect(pinCardAnchor({ x: 180, y: 220, width: 360, height: 740 })).toBe(
+      "top",
+    );
+  });
+
+  it("keeps the card on screen beside either edge", () => {
+    expect(pinCardAnchor({ x: 370, y: 220, ...phone })).toBe("top-right");
+    expect(pinCardAnchor({ x: 20, y: 220, ...phone })).toBe("top-left");
+  });
+
+  it("leaves a pin lower down to MapLibre, where the card fits above it", () => {
+    expect(pinCardAnchor({ x: 200, y: 450, ...phone })).toBeUndefined();
+  });
+
+  it("doesn't open down into the sheet", () => {
+    expect(
+      pinCardAnchor({ x: 200, y: 340, width: 393, height: 699 }),
+    ).toBeUndefined();
+  });
+
+  it("leaves a laptop to MapLibre: its trip card is in a side panel", () => {
+    expect(
+      pinCardAnchor({ x: 900, y: 100, width: 1440, height: 900 }),
+    ).toBeUndefined();
+  });
+});
+
+// the ease brings the pin low enough that its card fits above it, under the top card
+describe("pinEaseOffsetY", () => {
+  it.each([
+    [393, 852],
+    [360, 740],
+    [390, 699],
+  ])("at %ix%i the pin ends where its card fits above it", (width, height) => {
+    const { top, bottom } = mapPadding({ width, height });
+    const centre = top + (height - top - bottom) / 2;
+    const y = centre + pinEaseOffsetY({ width, height });
+
+    expect(y).toBeLessThanOrEqual(height * 0.6);
+    expect(pinCardAnchor({ x: 200, y, width, height })).toBeUndefined();
+    expect(y - 190).toBeGreaterThanOrEqual(184);
+  });
+
+  it("doesn't shift a laptop", () => {
+    expect(pinEaseOffsetY({ width: 1440, height: 900 })).toBe(0);
+  });
+
+  it.each([
+    [667, 375],
+    [740, 360],
+    [375, 553],
+  ])("doesn't push the pin into the sheet at %ix%i", (width, height) => {
+    expect(pinEaseOffsetY({ width, height })).toBe(0);
   });
 });

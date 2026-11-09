@@ -61,7 +61,7 @@ async function expandSheet(page: Page) {
   await expect(sheet).toHaveAttribute("data-state", "expanded");
   await expect
     .poll(async () => (await sheet.boundingBox())?.height ?? 0)
-    .toBeGreaterThan(844 * 0.75);
+    .toBeGreaterThan(844 * 0.7);
 }
 
 test("drive: the resort list, HUD, tabs and map controls are big enough", async ({
@@ -76,7 +76,7 @@ test("drive: the resort list, HUD, tabs and map controls are big enough", async 
   expect(await tooSmall(page)).toEqual([]);
 });
 
-test("walk with a route: start/destination rows and Add stop", async ({
+test("walk with a route: start/destination rows and Add destination", async ({
   page,
 }) => {
   await open(page, "/?from=36.69400,137.86900&mode=walk&resort=happo-one");

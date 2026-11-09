@@ -179,7 +179,7 @@ test.describe("phone: adding stops", () => {
   }) => {
     await page.goto(DRIVE);
     await routed(page);
-    await page.getByRole("button", { name: "Add stop" }).tap();
+    await page.getByRole("button", { name: "Add destination" }).tap();
     const box = page.getByRole("combobox", { name: "Stop 1" });
     await expect(box).toBeFocused();
     await box.fill("7-Eleven");
@@ -210,13 +210,13 @@ test.describe("phone: adding stops", () => {
     await page.goto(DRIVE);
     await routed(page);
     const from = param(page, "from");
-    await page.getByRole("button", { name: "Add stop" }).tap();
+    await page.getByRole("button", { name: "Add destination" }).tap();
     await expect(
       page.getByRole("combobox", { name: "Stop 1" }),
     ).toHaveAttribute("placeholder", /tap the map/i);
     const cdp = await page.context().newCDPSession(page);
     // the focused box expands the sheet: only a strip of map stays above it
-    await touch(cdp, await bareMap(page, 40), 60);
+    await touch(cdp, await bareMap(page, 180), 60);
     await expect(tripRows(page)).toHaveCount(2);
     await expect(page.getByRole("combobox", { name: "Stop 1" })).toHaveCount(0);
     await expect(page).toHaveURL(/stops=36\.\d+%2C137\.\d+/);
@@ -232,7 +232,7 @@ test.describe("phone: adding stops", () => {
     test.fail(); // known: F — focusing the stop box expands the sheet to ~80 %: a 160 px strip of river is left, the route isn't on screen, so "tap the map" is a blind tap
     await page.goto(DRIVE);
     await routed(page);
-    await page.getByRole("button", { name: "Add stop" }).tap();
+    await page.getByRole("button", { name: "Add destination" }).tap();
     await expect(page.getByRole("combobox", { name: "Stop 1" })).toBeFocused();
     await page.waitForTimeout(1000); // the sheet's expand animation
     const mapShare = await page.evaluate(() => {
@@ -251,7 +251,7 @@ test.describe("phone: adding stops", () => {
     test.fail(); // known: E — a typed stop ("Lawson") comes back as "Dropped pin" after reload, and then no longer counts for the konbini quest
     await page.goto(DRIVE);
     await routed(page);
-    await page.getByRole("button", { name: "Add stop" }).tap();
+    await page.getByRole("button", { name: "Add destination" }).tap();
     await page.getByRole("combobox", { name: "Stop 1" }).fill("Lawson");
     await page
       .getByRole("option", { name: /Lawson/ })
@@ -270,7 +270,7 @@ test.describe("phone: adding stops", () => {
       test.fail(); // known: S — the generic word / a missing brand gives no suggestions
       await page.goto(DRIVE);
       await routed(page);
-      await page.getByRole("button", { name: "Add stop" }).tap();
+      await page.getByRole("button", { name: "Add destination" }).tap();
       await page.getByRole("combobox", { name: "Stop 1" }).fill(q);
       await expect(
         page.getByRole("option", { name: /7-Eleven|Lawson|FamilyMart/ }),
@@ -353,7 +353,9 @@ test.describe("phone: adding stops", () => {
     await page.goto(`${DRIVE}&stops=${five.map(ll).join(";")}`);
     await routed(page);
     await expect(tripRows(page)).toHaveCount(6);
-    await expect(page.getByRole("button", { name: "Add stop" })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Add destination" }),
+    ).toHaveCount(0);
     expect(await allSteps(page)).toContain("Arrive at stop 5");
 
     const cdp = await page.context().newCDPSession(page);
@@ -383,7 +385,9 @@ test.describe("phone: adding stops", () => {
     await routed(page);
     await expect(tripRows(page)).toHaveCount(2);
     await page.getByRole("tab", { name: /Bus/ }).tap();
-    await expect(page.getByRole("button", { name: "Add stop" })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Add destination" }),
+    ).toHaveCount(0);
     await page.getByRole("tab", { name: /Drive/ }).tap();
     await routed(page);
     await expect(tripRows(page)).toHaveCount(2);
@@ -411,7 +415,7 @@ test.describe("phone: navigating through a stop", () => {
     await page.goto(WALK);
     await routed(page);
     // the stop is typed, so it carries its konbini name (what the quest checks)
-    await page.getByRole("button", { name: "Add stop" }).tap();
+    await page.getByRole("button", { name: "Add destination" }).tap();
     await page.getByRole("combobox", { name: "Stop 1" }).fill("Lawson");
     await page
       .getByRole("option", { name: /Lawson/ })
@@ -897,7 +901,7 @@ for (const [label, device] of [
     }) => {
       await page.goto(DRIVE);
       await routed(page);
-      await page.getByRole("button", { name: "Add stop" }).click();
+      await page.getByRole("button", { name: "Add destination" }).click();
       await page.getByRole("combobox", { name: "Stop 1" }).fill("7-Eleven");
       await page
         .getByRole("option", { name: /7-Eleven/ })
