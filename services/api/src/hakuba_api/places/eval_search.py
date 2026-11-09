@@ -34,7 +34,7 @@ def judge(case: dict[str, object], top: Suggestion | None, tolerance_m: float) -
     if case.get("skip"):
         return "skip"
     if case.get("absent"):
-        return "wrong" if top is not None and top.kind == "lodging" else "ok-absent"
+        return "wrong" if top is not None else "ok-absent"  # any other place is a wrong answer
     expect = case["expect"]
     assert isinstance(expect, list)
     if top is None:

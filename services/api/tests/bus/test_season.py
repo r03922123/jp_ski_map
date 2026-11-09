@@ -74,7 +74,7 @@ def test_unreviewed_timetables_are_never_projected() -> None:
 
 def _times(result: BusResult) -> list[tuple[str, str]]:
     return [
-        (o.resort_id, o.departs_at.strftime("%H:%M")) for r in result.resorts for o in r.options
+        (r.resort_id, o.departs_at.strftime("%H:%M")) for r in result.resorts for o in r.options
     ]
 
 

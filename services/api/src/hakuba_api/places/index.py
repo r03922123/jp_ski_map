@@ -54,6 +54,18 @@ GENERIC = frozenset(
     }
 )  # fmt: skip
 
+# Generic words that say a query wants somewhere to stay. "resort", "house" and "onsen" are
+# left out because ski resorts and baths use them too.
+LODGING_WORDS = frozenset(
+    {
+        "hotel", "hotels", "inn", "lodge", "lodges", "chalet", "chalets", "apartment",
+        "apartments", "pension", "ryokan", "villa", "villas", "cottage", "cottages", "hostel",
+        "guesthouse",
+    }
+)  # fmt: skip
+# Written in kana these sit inside unspaced names (パノラマホテル), so they match by substring.
+KANA_LODGING_WORDS = {"ほてる": "hotel", "ぺんしょん": "pension"}
+
 
 @dataclass(frozen=True)
 class Entry:
@@ -149,6 +161,27 @@ def shares_distinctive_word(query: str, name: str) -> bool:
     return any(_token_match(t, tokens) is not None for t in wanted)
 
 
+def fits_lodging_words(query: str, kind: str, names: list[str]) -> bool:
+    """False for a place that isn't lodging when the query names a type of lodging the place
+    doesn't carry: "Hakuba Park Hotel" must not answer with the "… Parking" bus stop. A bus stop
+    named only for what the query names stays: "The Gakusui Hotel" keeps the "The Gakusui" stop."""
+    q_tokens = _tokens(normalize(query))
+    wanted = {KANA_LODGING_WORDS.get(t, t) for t in q_tokens} & LODGING_WORDS
+    if kind == "lodging" or not wanted:
+        return True
+    q_distinctive = set(distinctive(q_tokens))
+    for name in map(normalize, names):
+        tokens = _tokens(name.replace("&", " "))
+        named_only_for_it = (
+            kind == "stop" and q_distinctive and q_distinctive == set(distinctive(tokens))
+        )
+        if wanted.intersection(tokens) or named_only_for_it:
+            return True
+        if any(word in wanted and kana in name for kana, word in KANA_LODGING_WORDS.items()):
+            return True
+    return False
+
+
 def _score_name(q: str, name: str, by_sound: bool = False) -> float | None:
     """Score a normalised query against one normalised name, or None. `by_sound` is for
     readings of Japanese names, where "grace" and "guresu" are the same word."""
@@ -217,6 +250,8 @@ def rank(entries: list[Entry], query: str, near: Coord, limit: int) -> list[Hit]
     hits: list[Hit] = []
     for e in entries:
         names = [e.name, *(([e.name_ja]) if e.name_ja else []), *e.aliases]
+        if not fits_lodging_words(q, e.kind, names):
+            continue
         scores = [s for n in names if (s := _score_name(q, normalize(n))) is not None]
         # a reading approximates the name (unknown kanji dropped): never an exact/prefix hit
         scores += [

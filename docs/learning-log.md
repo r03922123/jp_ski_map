@@ -14,6 +14,43 @@ Navigation now needs eyes on the screen, on foot and on the bus as well. The "Ge
 **3. What could go wrong: a test that passes because it can't fail.**
 `PilotView` showed its button only when given a handler, so a unit test rendering it without one passes before and after the removal. The check that counts is the e2e walk, which records every speak and vibrate call. Run against the old code it failed and listed the whole trip's cues, and that proved it can see them before it was used to prove they are gone.
 
+## 2026-11-09 · build new features: feat(api): direct shuttles to a place
+
+**1. Principle: one value with two meanings needs a rule that tells them apart.**
+A blank time in a timetable means "not published" on Lines F and G, but "this bus doesn't go there" on Line V2. The data stores both as `null`. The rule is to count the printed times on the trip: exactly one means the rest are unpublished, more than one means a blank is a skipped stop. Without it, the app would send someone to wait at JR Hakuba for a bus that never comes.
+*Analogy:* a missing label in a dataset can mean "not measured" or "measured, and absent". A model that treats both the same learns the wrong thing.
+
+**2. Trade-off: sort by the one number every row has.**
+Timed trips have an arrival and F/G trips only a departure. Listing timed trips first looks tidy, but it pushed an earlier F/G bus out of the top three in 71 of 104 mixed cases. Sorting everything by departure answers "what's the next bus?". The cost is that an early slow bus can sit above a later fast one, so each row shows its own times.
+*Analogy:* ranking candidates on a feature only some of them have forces you to invent a value for the rest. Sort on the feature they share.
+
+**3. What could go wrong: an existing query has the same bug.**
+`/api/bus/options` still reads every blank as "not published", so it can list a resort a trip never reaches (14 V2-north trips "to" Cortina on 20 Jan). This PR leaves it alone, because changing what people already see belongs in its own reviewed change. Until that lands, the two queries disagree about what a blank means. The fresh review also found stops that are boarding-only or alighting-only, which the data keeps only as free text. Those need their own change before any screen uses this endpoint.
+*Analogy:* finding a data leak in a second pipeline while fixing the first: log it and fix it separately, so a change in results can be traced to one cause.
+
+## 2026-11-09 · tidy: fix(search): stop answering hotel queries with bus stops
+
+**1. Principle: a metric can only catch the mistakes it is allowed to see.**
+For a hotel marked missing, the eval only counted another lodging as a wrong answer. So
+`Hakuba Park Hotel` could return a car-park bus stop and still score "ok". Then the review found
+the hotel wasn't missing at all: `白馬パークホテル` was in our data, and its address matches. The
+label had hidden a real miss, so the eval now expects that hotel.
+*Analogy:* a spam filter scored only on spam it missed will never notice the real mail it deletes.
+
+**2. Trade-off: use a fallback for the Chinese word, not a blanket replacement.**
+Treating 飯店 as ホテル everywhere is simpler, but 白馬飯店 is a real restaurant here, and it would
+disappear from search. Retrying only when nothing matched keeps it, at the price of one more search
+for those queries.
+*Analogy:* a nickname you try only after the real name finds nobody.
+
+**3. What could go wrong: a filter written for one bad answer also removes good ones.**
+The first rule kept a place only if it carried the query's exact lodging word. That fixed the
+car-park stop, but `The Gakusui Hotel` lost its only match, the stop named `The Gakusui`, and
+`パノラマ ホテル` lost `パノラマホテル`. Tests built around the bug didn't show it; trying real names
+from the data did. A bus stop is now also kept when it is named for exactly what the query names;
+the first attempt at that let restaurants answer hotel queries too, so it applies to stops only.
+*Analogy:* a guest list so strict it turns away the host for not writing "Mr." on the card.
+
 ## 2026-11-09 · build new features: docs(adr): friends only, and the repo stays public for now (ADR-0005)
 
 **1. Principle: separate who can read the code from who can use the service.**
