@@ -72,11 +72,17 @@ def _to_route(mode: Mode, trip: dict[str, Any], stops: bool = False) -> Route:
 
 
 class ValhallaClient:
-    def __init__(self, base_url: str, timeout_s: float = 10) -> None:
+    def __init__(self, base_url: str, timeout_s: float = 10, tiles: str | None = None) -> None:
         self._base_url = base_url.rstrip("/")
         self._timeout_s = timeout_s
+        self._tiles = tiles
 
     def _post(self, path: str, body: dict[str, Any]) -> Any:
+        if self._tiles:
+            # Imported here because engine.py needs this module's errors
+            from hakuba_api.routing.engine import get_engine
+
+            return get_engine(self._tiles).post(path, body)
         try:
             response = httpx.post(f"{self._base_url}{path}", json=body, timeout=self._timeout_s)
         except httpx.HTTPError as e:

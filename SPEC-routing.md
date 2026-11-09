@@ -11,7 +11,7 @@ Give driving and walking routes and ETAs, plus a one-to-many time matrix, using 
 
 ## Interface
 - `GET /api/route?mode=drive|walk&from=lat,lng&to=lat,lng` → `Route`
-- `POST /api/matrix {mode, from:{lat,lng}, to:[{id,lat,lng}]}` → `[{id, durationS, distanceM} | {id, error}]`
+- `POST /api/matrix {mode, from:{lat,lng}, to:[{id,lat,lng}]}` → `[{id, durationS, distanceM} | {id, error}]`; at most 25 targets, else 422
 ```jsonc
 // Route
 { "mode": "drive", "durationS": 612, "distanceM": 5400,

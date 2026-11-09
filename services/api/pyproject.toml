@@ -12,6 +12,7 @@ dependencies = [
     "holidays>=0.107",
     "httpx>=0.28.1",
     "pydantic>=2.14.1",
+    "pyvalhalla==3.9.1",
 ]
 
 [build-system]
