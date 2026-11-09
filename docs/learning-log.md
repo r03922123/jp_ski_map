@@ -25,6 +25,42 @@ from the data did. A bus stop is now also kept when it is named for exactly what
 the first attempt at that let restaurants answer hotel queries too, so it applies to stops only.
 *Analogy:* a guest list so strict it turns away the host for not writing "Mr." on the card.
 
+## 2026-11-09 · build new features: docs(adr): friends only, and the repo stays public for now (ADR-0005)
+
+**1. Principle: separate who can read the code from who can use the service.**
+Almost every launch item depends on who uses the app: indexing, a privacy note, uptime alerts, a VM. Asking "should the repo be private?" mixed that with who can read the code.
+*Analogy:* file permissions on the source tree and the access rules on the running server are separate settings, and changing one doesn't touch the other.
+
+**2. Trade-off: a benefit only counts if the data is really out of reach.**
+The first draft recommended going private to keep the 15 unlicensed pins from strangers. But the app has no login and serves those coordinates to anyone with the link, so the repo was only one of two doors. Going private would close that door and give up GitHub's enforced PRs and CI.
+
+**3. What could go wrong: a client-side check standing in for a server-side rule.**
+The draft said a local pre-push hook could replace branch protection. A hook runs only on the machine that has it, never on a merge made on GitHub, and `--no-verify` skips it. The fresh review caught this by reading what `main`'s protection actually enforces, which is why a reviewer who never saw the conversation is worth the cost.
+
+## 2026-11-09 · build new features: fix(web): picking a route option shows the whole route
+
+**1. Principle: an effect's key says which changes it reacts to.**
+`MapView` re-fits the camera only when its `fitKey` changes, and the sheet collapses only when its `collapseKey` changes. Neither key included the chosen route, so tapping an option redrew the line and left the camera and the sheet alone. Adding the option to both keys is the core of the fix. The review caught that a key also changes when the route goes away, so tapping Bus shrank the sheet over the list the user came for. Now only a route appearing collapses it.
+*Analogy:* a memoised function returns the old result when an input is missing from its cache key.
+
+**2. Trade-off: the answer gets the screen, the option list gets out of the way.**
+On a phone an expanded sheet leaves about 150 px of map, so no camera move can show the route there. Collapsing it does, but the option list drops below the fold. Switching again takes the ETA label on the map, or a swipe up. Moving the options into the resting sheet would avoid that, at the cost of a layout change this fix didn't need.
+
+**3. What could go wrong: re-fitting at the wrong moment.**
+A re-fit that fires after every render would snap the map back each time the user pans. So `fitKey` stays a string of what is drawn plus the chosen index, never an object's identity. The test pans away first, and then requires all of the chosen route's points to be in the uncovered area.
+
+## 2026-11-09 · build new features: feat(web): swap start and destination to get back to the lodging
+
+**1. Principle: a reversal has to move every piece of state tied to the trip, not just the two ends.**
+The trip lives in about ten separate `useState` values. Swapping only the two coordinates left three things stale, and the pre-merge review found them: the From box's text, a bus chosen for the old start, and a placeholder name sent to the bus API. Each now has its own line and, where it could be tested, a test.
+*Analogy:* moving a row between database tables without its foreign keys leaves rows pointing at the old parent.
+
+**2. Trade-off: drive and walk now, the bus later.**
+The app could already route the way back by car or on foot, so ⇅ is about 40 lines of app code. Bus return is a new query, because `bus_options` only offers stops that serve a resort, although the timetables hold return trips. Shipping the small part first means the bus tab has to say plainly that it can't do the way back yet.
+
+**3. What could go wrong: a hint only some devices can show.**
+The first version explained the disabled button in a `title`, and the test passed by checking that attribute. Touch browsers never display `title`, so phone users saw a dead icon. The hint is now on-screen text and the test asserts it is visible: test what the user perceives, not the attribute that implements it.
+
 ## 2026-11-09 · tidy: chore: ignore Claude Code worktrees and note their setup
 
 **1. Principle: isolating the files doesn't isolate what the files talk to.**

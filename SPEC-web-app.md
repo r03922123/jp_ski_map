@@ -212,7 +212,7 @@ Success means:
 1. **Trip header on top.** The From box and, in drive and walk, the To box sit stacked in a card fixed to the top of the screen, over the map. The To box carries the destination's Save star. On laptops the same header stays at the top of the side card, like Google desktop.
 2. **The sheet holds the answer.** The HUD row (Rider, Quests, Sound) moves out of the header into the sheet body: hidden while the phone sheet rests, shown at the top once it's swiped up, and first in the laptop card. ★ Saved moves into the top card beside the From box, so it's always one tap away.
 3. **The peek stays at 40 %** (Google ≈44 %). What changes is what fills it: tabs and ETA/Start (T77) first, the HUD row out of it. The map's fit padding leaves room for the top card.
-4. **A choice reveals the result** (F). When the destination changes (a resort, a POI, the To box, Go here, a saved place) the sheet collapses to its peek and the route is fitted between the header and the sheet.
+4. **A choice reveals the result** (F). When the destination changes (a resort, a POI, the To box, Go here, a saved place) the sheet collapses to its peek and the route is fitted between the header and the sheet. The same happens whenever the route on screen changes with both ends set: a new start, mode or stop, or another route option (2026-11-09). Tapping another option re-fits the map, in the list or on the map, on phones and laptops. When the route goes away, as on the Bus tab before a bus is chosen, the sheet stays as it is, because its list is then the answer.
 5. **Focusing the header doesn't expand the sheet.** Its suggestions drop down over the map.
 6. In drive and walk the trip panel no longer lists a To row, because the header's To box is the destination. Bus keeps its read-only To row.
 
@@ -226,3 +226,17 @@ Success means:
 8. **The top card's suggestion lists scroll by finger.** A drag on them scrolls them, except a pull down from their top, which stays away from Safari's pull-to-refresh (T79).
 
 **Boundaries.** *Always:* tests first; keep T77 (ETA/Start in the peek) and T75 (touch targets). *Never:* a second copy of a search box (one instance, positioned per breakpoint).
+
+## v1.10: Back to the lodging: swap start and destination (2026-11-09, approved)
+**Objective.** After skiing, get the route from the resort back to the lodging in one tap. Drive and walk could already route it, but only by retyping both boxes.
+
+**Rules.**
+1. A ⇅ button sits in the trip card's From row, beside ★ Saved, once there is a start.
+2. Tapping it makes the old destination the start and the old start the destination, and reverses any stops. The route, the URL and both boxes follow, and the sheet collapses to show the route (v1.9 rule 4).
+3. A resort that becomes the destination is selected again as a resort, so a second tap restores the trip.
+4. Bus: the button is disabled and the trip card says "Way back from a resort: use Drive or Walk.", because the bus query only answers trips to a resort. It is on-screen text since touch browsers don't show tooltips.
+5. A swap clears any chosen bus: its stop was picked for the old start.
+
+**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: the `/api/routes` request is reversed, both boxes and the link follow, a second tap restores the resort, stops reverse, the From box follows after being retyped, the bus button is disabled with its reason on screen, and a chosen bus is cleared.
+
+**Boundaries.** *Out of scope:* bus trips back from a resort (a later spec: the timetables already hold return directions, but `bus_options` only offers resort stops), and a separate "back to My hotel" shortcut.

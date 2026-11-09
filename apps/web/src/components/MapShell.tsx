@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { ArrowUpDown } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
@@ -913,6 +914,12 @@ export function MapShell() {
       ? `${busChoice.routeId}/${busChoice.trip}/${busChoice.boardStopId}`
       : "";
   const destinationKey = `${selectedResortId}|${poiId}|${point ? `${point.coord.lat},${point.coord.lng}` : ""}|${busKey}`;
+  // with both ends set, anything that changes the route on screen reveals it too: a new
+  // start, mode or stop, or another route option, tapped from a swiped-up sheet
+  const routeKey =
+    origin && target
+      ? `${routeMode}|${origin.lat},${origin.lng}|${target.lat},${target.lng}|${stopsKey}|${activeRoute}`
+      : "";
 
   const canAddStop =
     mode !== "bus" &&
@@ -920,6 +927,34 @@ export function MapShell() {
     toPlace !== null &&
     stops.length < MAX_STOPS &&
     stops.every((s) => s.place !== null);
+  // Back to the lodging in one tap (SPEC-web-app v1.10). The bus query only answers trips
+  // to a resort, so bus can't be reversed.
+  const canSwap = mode !== "bus" && fromPlace !== null && toPlace !== null;
+  const swapTrip = () => {
+    if (!canSwap) return;
+    sfx().play("select");
+    setOrigin(toPlace.coord);
+    setOriginName(toPlace.kind === "pin" ? null : toPlace.name);
+    setOriginSource(toPlace);
+    setSearchLabel(toPlace.name);
+    // remounted: a label equal to the last one the app set wouldn't replace a typed start
+    setSearchKey((k) => k + 1);
+    setPoiId(null);
+    setBusChoice(null); // its stop was picked for the old start
+    // a resort goes back to being selected, so a second tap restores the trip
+    if (
+      fromPlace.kind === "resort" &&
+      resorts.data?.some((r) => r.id === fromPlace.id)
+    ) {
+      setCategory("resorts");
+      setSelectedResortId(fromPlace.id);
+      setPoint(null);
+    } else {
+      setSelectedResortId(null);
+      setPoint({ coord: fromPlace.coord, name: fromPlace.name });
+    }
+    setStops((list) => [...list].reverse());
+  };
   const pinPlace = (pin: {
     coord: Coord;
     name: string | null;
@@ -1057,6 +1092,17 @@ export function MapShell() {
                     }
                   />
                 </div>
+                {fromPlace && (
+                  <button
+                    type="button"
+                    aria-label="Swap start and destination"
+                    disabled={!canSwap}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-40"
+                    onClick={swapTrip}
+                  >
+                    <ArrowUpDown aria-hidden="true" className="size-4" />
+                  </button>
+                )}
                 <button
                   type="button"
                   aria-label="Saved places"
@@ -1081,9 +1127,16 @@ export function MapShell() {
                   onClear={clearTo}
                 />
               )}
+              {mode === "bus" && fromPlace && (
+                // on screen, not a tooltip: touch browsers never show a `title`
+                <p className="px-2 text-xs text-muted-foreground">
+                  Way back from a resort: use Drive or Walk.
+                </p>
+              )}
             </div>
           }
           collapseKey={destinationKey}
+          revealKey={routeKey}
         >
           {/* the game HUD: first in the side card; on a phone it shows once the sheet is
               swiped up, so the resting sheet holds only the answer (v1.9, BC-L1) */}

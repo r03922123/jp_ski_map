@@ -11,6 +11,7 @@ export function BottomSheet({
   label,
   header,
   collapseKey,
+  revealKey,
   children,
 }: {
   label: string;
@@ -22,6 +23,8 @@ export function BottomSheet({
   header?: ReactNode;
   /** A new value collapses the sheet: a new destination shows its route (cluster F). */
   collapseKey?: string;
+  /** The route on screen; "" when there is none. Only a route appearing collapses the sheet. */
+  revealKey?: string;
   children: ReactNode;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -32,6 +35,12 @@ export function BottomSheet({
     lastCollapseKey.current = collapseKey;
     setExpanded(false);
   }, [collapseKey]);
+  const lastRevealKey = useRef(revealKey);
+  useEffect(() => {
+    if (revealKey === lastRevealKey.current) return;
+    lastRevealKey.current = revealKey;
+    if (revealKey) setExpanded(false);
+  }, [revealKey]);
   const dragStartY = useRef<number | null>(null);
   // a mouse drag still sends a click afterwards; it must not undo the swipe. (A moving
   // touch on Android sends none, so the swipe acts on pointerup, not on click.)
