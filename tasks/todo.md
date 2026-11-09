@@ -835,6 +835,20 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - Not covered: simplified 东急饭店 (东 and 马 aren't folded), Traditional 東急旅館, partial stop names ("Keisui Ryokan" for Ryokusuitei Keisui) and spaced kana against an unspaced name (白馬 パーク ホテル). The live-Photon eval wasn't re-run.
 - Open: `sound_key` gives Maruhachi and Marriott the same key (`mrt`), so "Maruhachi Ryokan" answers with Courtyard by Marriott. It predates this task; changing the key affects every Japanese name, so it needs its own eval run.
 
+## Vercel Phase B (SPEC-deploy.md v1.6, ADR-0006)
+Recorded exception to the takeover order, so the project stays in "tidy". Each PR is about 300 lines, opens with `Takeover phase: tidy (recorded exception, ADR-0006)`, gets a fresh-eyes review, and the owner approves each merge.
+- [x] S0: Services probe, outside the repo: `/` and `/api/health` 200, `/api` in `hnd1`
+- [x] PR 1: the spec and ADR in the repo, corrected by the probes
+- [ ] PR 2: in-process routing (`routing/engine.py`, one engine, the lock, error mapping, `/api/matrix` capped at 25, `pyvalhalla==3.9.1`). Failing tests first: 8 threads max overlap 1; concurrent first calls build one engine; lock timeout and both error types; 26 targets → 422
+- [ ] PR 3: live equivalence, with a seeded request generator in the repo. `uv run pytest -m live`: 100 + 20 + 5 identical; 40 threads, 2000 requests, 0 errors, no crash
+- [ ] PR 4: deploy packaging (lazy `paths.py`, `vercel.json`, `scripts/deploy-vercel.sh`, `infra/valhalla/hakuba-tiles.sha256`, shell test in CI). A missing data file or wrong hash stops it; without `--prod` the command carries `--environment preview`
+- [ ] Before the real project's first deploy, which PR 5 needs: the owner links the project and sets the variables in SPEC-deploy.md Changes item 9; tell the owner before deploying, then read `environment` in the deploy output
+- [ ] PR 5: production smoke suite, `apps/web/e2e-prod/`, about 5 tests, green against a preview (headers, search, bus, drive, walk)
+- [x] PR 6: phone map credits, done in PR #38 and hit-tested at phone sizes in Chromium
+- [ ] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start and the iPhone credits screenshot
+- [ ] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md` including its open phone-credits note, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
+- [ ] Cutover, asking the owner at each step: production deploy, new link to friends, Funnel off. Done when SPEC-deploy.md Phase B success criteria 1 to 5 hold
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).
