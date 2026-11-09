@@ -227,3 +227,13 @@ def test_the_licence_files_exist_and_the_api_docs_link_them() -> None:
         files |= {entry[k] for k in ("licenseText", "notice") if k in entry}
     assert sorted(f for f in files if not (REPO / f).is_file()) == []
     assert sorted(f for f in files if f not in (app.description or "")) == []
+
+
+# A hand-written list can name licences no record uses, or miss one that a record does
+def test_the_committed_label_was_counted_from_every_place() -> None:
+    meta = json.loads((REPO / "data" / "lodging_overture.meta.json").read_text())
+    places = json.loads((REPO / "data" / "lodging_overture.json").read_text())
+    assert "licensesNote" not in meta
+    assert meta["places"] == len(places)
+    assert all(entry["places"] > 0 for entry in meta["licenses"])
+    assert max(entry["places"] for entry in meta["licenses"]) <= len(places)
