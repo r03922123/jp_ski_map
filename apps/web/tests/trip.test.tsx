@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   DestinationBox,
@@ -38,7 +38,6 @@ afterEach(() => vi.restoreAllMocks());
 
 function renderTrip(props: Partial<TripPanelProps> = {}) {
   const handlers = {
-    onAddStop: vi.fn(),
     onRemoveStop: vi.fn(),
     onFillStop: vi.fn(),
     onClearFrom: vi.fn(),
@@ -48,7 +47,7 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
       <TripPanel
         from={hotel}
         stops={[]}
-        canAddStop
+        addStopRef={{ current: null }}
         near={null}
         {...handlers}
         {...props}
@@ -112,11 +111,6 @@ describe("TripPanel", () => {
       screen.getByRole("button", { name: "Remove stop 1" }),
     ).toBeInTheDocument();
   });
-
-  it("offers no Add stop when stops aren't possible (bus mode, no destination, at the limit)", () => {
-    renderTrip({ canAddStop: false });
-    expect(screen.queryByRole("button", { name: "Add stop" })).toBeNull();
-  });
 });
 
 describe("TripPanel with its state (add → type → pick)", () => {
@@ -133,32 +127,46 @@ describe("TripPanel with its state (add → type → pick)", () => {
 
   function Harness() {
     const [stops, setStops] = useState<TripStop[]>([]);
+    const addStopRef = useRef<HTMLButtonElement>(null);
     return (
-      <TripPanel
-        from={hotel}
-        stops={stops}
-        canAddStop={stops.every((s) => s.place !== null)}
-        near={null}
-        onAddStop={() =>
-          setStops((l) => [...l, { key: `s${l.length + 1}`, place: null }])
-        }
-        onRemoveStop={(key) => setStops((l) => l.filter((s) => s.key !== key))}
-        onFillStop={(key, place) =>
-          setStops((l) => l.map((s) => (s.key === key ? { ...s, place } : s)))
-        }
-        onClearFrom={() => {}}
-      />
+      <>
+        {/* stands in for the button in the trip card */}
+        {stops.every((s) => s.place !== null) && (
+          <button
+            ref={addStopRef}
+            type="button"
+            onClick={() =>
+              setStops((l) => [...l, { key: `s${l.length + 1}`, place: null }])
+            }
+          >
+            Add destination
+          </button>
+        )}
+        <TripPanel
+          from={hotel}
+          stops={stops}
+          addStopRef={addStopRef}
+          near={null}
+          onRemoveStop={(key) =>
+            setStops((l) => l.filter((s) => s.key !== key))
+          }
+          onFillStop={(key, place) =>
+            setStops((l) => l.map((s) => (s.key === key ? { ...s, place } : s)))
+          }
+          onClearFrom={() => {}}
+        />
+      </>
     );
   }
 
-  it("fills the stop from a suggestion, then hands focus to Add stop (not to the page)", async () => {
+  it("fills the stop from a suggestion, then hands focus to Add destination (not to the page)", async () => {
     vi.spyOn(api, "fetchSuggestions").mockResolvedValue([sevenEleven]);
     render(
       <QueryClientProvider client={new QueryClient()}>
         <Harness />
       </QueryClientProvider>,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Add stop" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add destination" }));
     const box = screen.getByRole("combobox", { name: "Stop 1" });
     expect(box).toHaveFocus();
     fireEvent.change(box, { target: { value: "7-Ele" } });
@@ -170,11 +178,15 @@ describe("TripPanel with its state (add → type → pick)", () => {
       screen.getByRole("list", { name: "Trip" }),
     ).getAllByRole("listitem");
     expect(rows[1]).toHaveTextContent("7-Eleven Happo");
-    expect(screen.getByRole("button", { name: "Add stop" })).toHaveFocus();
+    expect(
+      screen.getByRole("button", { name: "Add destination" }),
+    ).toHaveFocus();
 
     // removing it also keeps focus in the panel
     fireEvent.click(screen.getByRole("button", { name: "Remove stop 1" }));
-    expect(screen.getByRole("button", { name: "Add stop" })).toHaveFocus();
+    expect(
+      screen.getByRole("button", { name: "Add destination" }),
+    ).toHaveFocus();
   });
 });
 
@@ -332,24 +344,18 @@ describe("DestinationBox (the To box)", () => {
     return { onChooseTo, onClearTo, rerender };
   }
 
-  it("is a combobox named To that shows the destination, with its Save star and ✕", () => {
+  it("is a combobox named To that shows the destination, with a ✕", () => {
     const { onClearTo } = renderToBox(resort);
     const box = screen.getByRole("combobox", { name: "To" });
     expect(box).toHaveValue("Happo-One");
     expect(box).toHaveAttribute("placeholder", "Search a destination");
-    expect(
-      screen.getByRole("button", { name: "Save Happo-One" }),
-    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Remove destination" }));
     expect(onClearTo).toHaveBeenCalled();
   });
 
-  it("is an empty box, with no Save star, when there is no destination", () => {
+  it("is an empty box when there is no destination", () => {
     renderToBox(null);
     expect(screen.getByRole("combobox", { name: "To" })).toHaveValue("");
-    expect(
-      screen.queryByRole("button", { name: /^Save (?!Hotel)/ }),
-    ).toBeNull();
   });
 
   it("a pick in the To box goes to onChooseTo", async () => {

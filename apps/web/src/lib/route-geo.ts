@@ -79,8 +79,10 @@ const PANEL_WIDTH_PX = 384; // BottomSheet md:w-96
 const PANEL_INSET_PX = 12; // md:left-3
 const SHEET_FRACTION = 0.4; // collapsed bottom sheet, h-[40dvh]
 export const MD_BREAKPOINT_PX = 768;
-// v1.9 (BC-L1): the From/To card on top of the map on phones, plus a margin
-const TRIP_CARD_PX = 136;
+// v1.13: the From/To card on top of the map on phones, plus a margin: 172 px to its
+// bottom edge with the Add destination row, its 4 px frame and 8 px. BottomSheet's
+// expanded height reserves the same 184 in a Tailwind class: change them together
+const TRIP_CARD_PX = 184;
 // the start and destination markers stand above their point (anchor "bottom")
 const MARKER_PX = 40;
 // a landscape phone: 120 px of card + its 4 px frame + 4 px + a 36 px marker, and the
@@ -89,6 +91,56 @@ const SHORT_SCREEN_PX = 480;
 const SHORT_SCREEN_TOP_PX = 164;
 // a fit with no map left between its paddings does nothing at all
 const MIN_CLEAR_PX = 16;
+
+// a dropped pin's card with its three actions, on a phone
+const PIN_CARD_PX = 190;
+const PIN_CARD_HALF_WIDTH_PX = 140; // its Popup's maxWidth is 280
+
+/**
+ * Where a dropped pin's card hangs from on a phone. Below the pin when above it would
+ * reach under the trip card on top and below it stays clear of the sheet (v1.9 rule 7),
+ * beside an edge keeping it on screen. Otherwise undefined: MapLibre picks the side.
+ */
+export function pinCardAnchor({
+  x,
+  y,
+  width,
+  height,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}): "top" | "top-left" | "top-right" | undefined {
+  if (width >= MD_BREAKPOINT_PX) return undefined;
+  const opensBelow =
+    y - PIN_CARD_PX < TRIP_CARD_PX &&
+    y + PIN_CARD_PX <= height * (1 - SHEET_FRACTION);
+  if (!opensBelow) return undefined;
+  if (x < PIN_CARD_HALF_WIDTH_PX) return "top-left";
+  if (x > width - PIN_CARD_HALF_WIDTH_PX) return "top-right";
+  return "top";
+}
+
+/**
+ * How far below the middle of the clear map to ease a phone's dropped pin, so its card
+ * then fits above it, under the trip card on top.
+ */
+export function pinEaseOffsetY({
+  width,
+  height,
+}: {
+  width: number;
+  height: number;
+}) {
+  const pinY = TRIP_CARD_PX + PIN_CARD_PX;
+  // no room for the pin above the sheet on a short screen: leave it in the middle
+  if (width >= MD_BREAKPOINT_PX || pinY > height * (1 - SHEET_FRACTION))
+    return 0;
+  const { top, bottom } = mapPadding({ width, height });
+  const centre = top + (height - top - bottom) / 2;
+  return Math.max(0, pinY - centre);
+}
 
 /** fitBounds padding that keeps the route and its end markers clear of the panels. */
 export function mapPadding({

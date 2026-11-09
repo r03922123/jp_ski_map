@@ -516,14 +516,10 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
     }) => {
       // fixed: A (v1.9 review) — a map-picked start clears the old label, and the From box
       // shows the start's name (was: box "Hotel Hakuba", trip "Dropped pin")
-      await open(page, "/?mode=drive&resort=happo-one");
+      // no destination: with both ends set a click changes nothing (v1.13 rule 8)
+      await open(page, "/?mode=drive");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
-      await expect(
-        page.locator("main:not([data-route-points='0'])"),
-      ).toBeAttached({
-        timeout: 20_000,
-      });
       const w = dev.use.viewport.width;
       const at = await bareMapPoint(page, {
         x: [w - 300, w - 200, w - 400, w - 500],

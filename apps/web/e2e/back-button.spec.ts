@@ -3,10 +3,10 @@ import { expect, type Page, test } from "@playwright/test";
 // T76: Back with an overlay open closes the overlay; it must not leave the trip.
 const TRIP = "/?from=36.69400,137.86900&mode=walk&resort=happo-one";
 
-async function open(page: Page) {
+async function open(page: Page, url = TRIP) {
   // a page before the app, so a Back too many would visibly leave it
   await page.goto("/robots.txt");
-  await page.goto(TRIP);
+  await page.goto(url);
   await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
     timeout: 15_000,
   });
@@ -54,7 +54,8 @@ test("closing with ✕ leaves no extra Back step behind", async ({ page }) => {
 test("a start picked while the quest log is open survives Back", async ({
   page,
 }) => {
-  await open(page);
+  // no destination: with both ends set a click changes nothing (v1.13 rule 8)
+  await open(page, "/?from=36.69400,137.86900&mode=walk");
   await page.getByRole("button", { name: /^Quests/ }).click();
   const box = await page.locator("canvas.maplibregl-canvas").boundingBox();
   if (!box) throw new Error("no map");

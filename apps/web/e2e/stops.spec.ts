@@ -92,7 +92,7 @@ test("add a stop by typing: the route goes through it, and the link keeps it", a
   await loaded(page);
   expect(await allSteps(page)).not.toContain("Arrive at stop 1");
 
-  await page.getByRole("button", { name: "Add stop" }).click();
+  await page.getByRole("button", { name: "Add destination" }).click();
   const box = page.getByRole("combobox", { name: "Stop 1" });
   await expect(box).toBeFocused();
   await expect(box).toHaveAttribute("placeholder", /tap the map/i);
@@ -107,7 +107,9 @@ test("add a stop by typing: the route goes through it, and the link keeps it", a
     "7-Eleven",
   );
   // focus stays in the panel, on the next thing to do
-  await expect(page.getByRole("button", { name: "Add stop" })).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "Add destination" }),
+  ).toBeFocused();
   await expect
     .poll(() => allSteps(page), { timeout: 15_000 })
     .toMatch(/Arrive at stop 1(, on the (right|left))?\./);
@@ -125,6 +127,27 @@ test("add a stop by typing: the route goes through it, and the link keeps it", a
     .toContain("Arrive at stop 1");
 });
 
+test("with both ends set, a click on an alternate route line still selects it", async ({
+  page,
+}) => {
+  devOnly("finds the route line on screen through the dev map handle");
+  await page.goto(DRIVE);
+  await loaded(page);
+  const main = page.locator("main");
+  await expect(main).toHaveAttribute(
+    "data-route-layers",
+    /^primary,alternate/,
+    {
+      timeout: 15_000,
+    },
+  );
+
+  await tapLayer(page, "route-alts-hit", "farthest-from-active");
+
+  await expect(main).toHaveAttribute("data-route-layers", /alternate,primary$/);
+  await expect(page).toHaveURL(/from=36\.69711%2C137\.85393/);
+});
+
 test("a stop box takes a tap on an alternate route line (a stop on the way), then ✕ removes it", async ({
   page,
 }) => {
@@ -132,7 +155,7 @@ test("a stop box takes a tap on an alternate route line (a stop on the way), the
   await page.goto(DRIVE);
   await loaded(page);
   // the case this rule exists for: without a stop box, this tap would pick that route
-  await page.getByRole("button", { name: "Add stop" }).click();
+  await page.getByRole("button", { name: "Add destination" }).click();
   await tapLayer(page, "route-alts-hit", "farthest-from-active");
 
   const stopRow = trip(page).getByRole("listitem").nth(1);
@@ -151,19 +174,21 @@ test("a stop box takes a tap on an alternate route line (a stop on the way), the
 
   await page.getByRole("button", { name: "Remove stop 1" }).click();
   await expect(trip(page).getByRole("listitem")).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Add stop" })).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "Add destination" }),
+  ).toBeFocused();
   await expect
     .poll(() => allSteps(page), { timeout: 15_000 })
     .not.toContain("Arrive at stop");
   await expect(page).not.toHaveURL(/stops=/);
 });
 
-test("an empty stop box can be dismissed before typing; then taps set the start again", async ({
+test("an empty stop box can be dismissed before typing; then a click leaves the trip alone", async ({
   page,
 }) => {
   await page.goto(DRIVE);
   await loaded(page);
-  await page.getByRole("button", { name: "Add stop" }).click();
+  await page.getByRole("button", { name: "Add destination" }).click();
   await page.getByRole("button", { name: "Remove stop 1" }).click();
   await expect(page.getByRole("combobox", { name: "Stop 1" })).toHaveCount(0);
 
@@ -174,7 +199,9 @@ test("an empty stop box can be dismissed before typing; then taps set the start 
     canvas.x + canvas.width * 0.75,
     canvas.y + canvas.height * 0.5,
   );
-  await expect(page).not.toHaveURL(/from=36\.69711%2C137\.85393/);
+  // longer than the wait that tells a click from a double-click (v1.13 rule 8)
+  await page.waitForTimeout(800);
+  await expect(page).toHaveURL(/from=36\.69711%2C137\.85393/);
   await expect(page).not.toHaveURL(/stops=/);
 });
 
@@ -185,7 +212,7 @@ test("clearing the start keeps the stops listed; the next tap is the new start",
   await loaded(page);
   await expect(trip(page).getByRole("listitem")).toHaveCount(2);
   // an open, empty box too: it must not take the tap meant for the new start
-  await page.getByRole("button", { name: "Add stop" }).click();
+  await page.getByRole("button", { name: "Add destination" }).click();
 
   await page.getByRole("button", { name: "Remove starting point" }).click();
   await expect(
@@ -219,7 +246,7 @@ test("while a stop box is open, a resort marker is the stop, not a new destinati
   devOnly("zooms out through the dev map handle");
   await page.goto(DRIVE);
   await loaded(page);
-  await page.getByRole("button", { name: "Add stop" }).click();
+  await page.getByRole("button", { name: "Add destination" }).click();
 
   // zoom out to the valley, then take a resort marker other than the destination's
   // that is really on screen (not under the panel)
@@ -276,5 +303,7 @@ test("the bus tab offers no stops and no ✕ on the bus's stop", async ({
   await expect(page.getByRole("combobox", { name: "To" })).toHaveValue(
     /Hakuba47/,
   );
-  await expect(page.getByRole("button", { name: "Add stop" })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Add destination" }),
+  ).toHaveCount(0);
 });
