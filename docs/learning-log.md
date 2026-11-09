@@ -16,6 +16,18 @@ Loops list a stop twice: on H1 you can board at the first Mount but only get off
 The poster says ● is alighting and ▲ boarding. Followed literally, nobody could board Gurutto at its first stops. We trusted what the timetable's own layout proves, and wrote the reason in the spec so the next reader can check it. If the operator's real meaning differed, those two directions would be wrong, and the phone number is on the timetable.
 *Analogy:* when a dataset's documentation contradicts its values and only one reading is physically possible, go with that reading and record why.
 
+## 2026-11-09 · build new features: feat(web): remove voice guidance, the mute button and vibration
+
+**1. Principle: remove a feature along its whole path, not just its button.**
+Voice ran from the Start tap (`primeSpeech`) through three cue effects in `MapShell` to two buttons, a `localStorage` key, two SPEC sections and its tests. Hiding the button alone would leave those effects still reading a mute state nobody can change. Deleting them also orphaned `riding`, `said` and `cueKey`, which existed only to time the cues.
+*Analogy:* dropping a database column also means dropping its indexes and the queries that read it.
+
+**2. Trade-off: less to maintain, and no cue when the phone is in a pocket.**
+Navigation now needs eyes on the screen, on foot and on the bus as well. The "Get off at the next stop" moment is only a banner. The game's sound effects stay, and they were always a separate, opt-in system. If voice comes back, git has the old timing logic.
+
+**3. What could go wrong: a test that passes because it can't fail.**
+`PilotView` showed its button only when given a handler, so a unit test rendering it without one passes before and after the removal. The check that counts is the e2e walk, which records every speak and vibrate call. Run against the old code it failed and listed the whole trip's cues, and that proved it can see them before it was used to prove they are gone.
+
 ## 2026-11-09 · build new features: feat(api): direct shuttles to a place
 
 **1. Principle: one value with two meanings needs a rule that tells them apart.**

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bus, MapPin, Volume2, VolumeX, X } from "lucide-react";
+import { Bus, MapPin, X } from "lucide-react";
 import { StopList } from "@/components/StopList";
 import { formatArrival } from "@/lib/format";
 import { type BusPlan, type BusState, rideView } from "@/lib/nav/bus-journey";
@@ -13,8 +13,6 @@ type Props = {
   basis: "published" | "expected";
   onBoard: () => void;
   onExit: () => void;
-  muted: boolean;
-  onToggleMute: () => void;
 };
 
 /** Waiting for and riding the shuttle: countdown, stops to go, when to get off. */
@@ -25,8 +23,6 @@ export function BusPilotView({
   basis,
   onBoard,
   onExit,
-  muted,
-  onToggleMute,
 }: Props) {
   const { option, stops } = plan;
   const board = stops[0];
@@ -107,19 +103,6 @@ export function BusPilotView({
             {timesLabel} · no live bus position
           </p>
         </div>
-        <button
-          type="button"
-          aria-label={muted ? "Unmute voice" : "Mute voice"}
-          aria-pressed={muted}
-          className="flex size-11 items-center justify-center rounded-full border bg-background shadow-sm"
-          onClick={onToggleMute}
-        >
-          {muted ? (
-            <VolumeX aria-hidden="true" className="size-5" />
-          ) : (
-            <Volume2 aria-hidden="true" className="size-5" />
-          )}
-        </button>
         <button
           type="button"
           aria-label="Exit navigation"

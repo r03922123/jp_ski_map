@@ -5,7 +5,6 @@ import type { PreparedRoute, Projection } from "@/lib/nav/project";
 const THEN_WITHIN_M = 300;
 
 export type UpcomingManeuver = {
-  stepIndex: number;
   maneuver: Step["maneuver"];
   instruction: string;
   streetNames: string[];
@@ -56,7 +55,6 @@ export function progress(r: PreparedRoute, p: Projection): Guidance {
   const nextStep = steps[si + 1];
   const next: UpcomingManeuver | null = nextStep
     ? {
-        stepIndex: si + 1,
         maneuver: nextStep.maneuver,
         instruction: nextStep.instruction,
         streetNames: nextStep.streetNames,
