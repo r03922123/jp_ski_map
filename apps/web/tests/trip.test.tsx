@@ -12,6 +12,7 @@ import type { Route, Suggestion } from "@/lib/api";
 import * as api from "@/lib/api";
 import { prepare } from "@/lib/nav/project";
 import { numberStops, STOP_REACHED_M, stopsAhead } from "@/lib/nav/stops";
+import type { PlaceInput } from "@/lib/saved-places";
 import { MAX_STOPS, parseViewState, serializeViewState } from "@/lib/url-state";
 
 const hotel = {
@@ -41,13 +42,11 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
     onRemoveStop: vi.fn(),
     onFillStop: vi.fn(),
     onClearFrom: vi.fn(),
-    onClearTo: vi.fn(),
   };
   render(
     <QueryClientProvider client={new QueryClient()}>
       <TripPanel
         from={hotel}
-        to={resort}
         stops={[]}
         canAddStop
         near={null}
@@ -60,7 +59,7 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
 }
 
 describe("TripPanel", () => {
-  it("lists From, the stops and To, each with a Save star", () => {
+  it("lists From and the stops, each with a Save star", () => {
     renderTrip({ stops: [{ key: "s1", place: konbini }] });
     const rows = within(
       screen.getByRole("list", { name: "Trip" }),
@@ -68,7 +67,6 @@ describe("TripPanel", () => {
     expect(rows.map((r) => r.textContent)).toEqual([
       expect.stringContaining("Hotel Hakuba"),
       expect.stringContaining("7-Eleven Happo"),
-      expect.stringContaining("Happo-One"),
     ]);
     expect(
       screen.getByRole("button", { name: "Save 7-Eleven Happo" }),
@@ -86,7 +84,7 @@ describe("TripPanel", () => {
     expect(h.onRemoveStop).toHaveBeenCalledWith("s1");
   });
 
-  it("✕ on each row: removes a stop, clears the start, clears the destination", () => {
+  it("✕ on each row: removes a stop, clears the start", () => {
     const h = renderTrip({ stops: [{ key: "s1", place: konbini }] });
     fireEvent.click(screen.getByRole("button", { name: "Remove stop 1" }));
     expect(h.onRemoveStop).toHaveBeenCalledWith("s1");
@@ -94,23 +92,22 @@ describe("TripPanel", () => {
       screen.getByRole("button", { name: "Remove starting point" }),
     );
     expect(h.onClearFrom).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Remove destination" }));
-    expect(h.onClearTo).toHaveBeenCalled();
   });
 
-  it("has no ✕ on To when the destination isn't the user's to clear (bus: the chosen option's stop)", () => {
-    renderTrip({ onClearTo: undefined });
-    expect(
-      screen.queryByRole("button", { name: "Remove destination" }),
-    ).toBeNull();
+  // SPEC-web-app v1.13 rule 6: the To box in the trip card is the only To
+  it("has no To row: the box in the trip card is the destination", () => {
+    renderTrip();
+    expect(screen.getByRole("list", { name: "Trip" })).not.toHaveTextContent(
+      "To:",
+    );
   });
 
-  it("shows the stops and the destination while the start is being changed", () => {
+  it("shows the stops while the start is being changed", () => {
     renderTrip({ from: null, stops: [{ key: "s1", place: konbini }] });
     const rows = within(
       screen.getByRole("list", { name: "Trip" }),
     ).getAllByRole("listitem");
-    expect(rows).toHaveLength(2);
+    expect(rows).toHaveLength(1);
     expect(
       screen.getByRole("button", { name: "Remove stop 1" }),
     ).toBeInTheDocument();
@@ -139,7 +136,6 @@ describe("TripPanel with its state (add → type → pick)", () => {
     return (
       <TripPanel
         from={hotel}
-        to={resort}
         stops={stops}
         canAddStop={stops.every((s) => s.place !== null)}
         near={null}
@@ -151,7 +147,6 @@ describe("TripPanel with its state (add → type → pick)", () => {
           setStops((l) => l.map((s) => (s.key === key ? { ...s, place } : s)))
         }
         onClearFrom={() => {}}
-        onClearTo={() => {}}
       />
     );
   }
@@ -318,10 +313,10 @@ describe("DestinationBox (the To box)", () => {
 
   beforeEach(() => localStorage.clear()); // saved places and recents from other tests
 
-  function renderToBox(to: TripPanelProps["to"], onChooseTo = vi.fn()) {
+  function renderToBox(to: PlaceInput | null, onChooseTo = vi.fn()) {
     const onClearTo = vi.fn();
     const client = new QueryClient();
-    const box = (next: TripPanelProps["to"]) => (
+    const box = (next: PlaceInput | null) => (
       <QueryClientProvider client={client}>
         <DestinationBox
           to={next}
@@ -332,8 +327,8 @@ describe("DestinationBox (the To box)", () => {
       </QueryClientProvider>
     );
     const view = render(box(to));
-    const rerender = (next: Partial<TripPanelProps>) =>
-      view.rerender(box(next.to === undefined ? to : next.to));
+    const rerender = (next: { to: PlaceInput | null }) =>
+      view.rerender(box(next.to));
     return { onChooseTo, onClearTo, rerender };
   }
 
@@ -376,13 +371,5 @@ describe("DestinationBox (the To box)", () => {
     expect(box).toHaveValue("Hakuba Cortina");
     rerender({ to: null });
     expect(screen.getByRole("combobox", { name: "To" })).toHaveValue("");
-  });
-
-  it("the trip list's To row (bus: the chosen option's stop) stays read-only", () => {
-    renderTrip({ onClearTo: undefined });
-    expect(screen.queryByRole("combobox", { name: "To" })).toBeNull();
-    expect(screen.getByRole("list", { name: "Trip" })).toHaveTextContent(
-      "To: Happo-One",
-    );
   });
 });

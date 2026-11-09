@@ -11,9 +11,8 @@ import { kindFromSuggestion, type PlaceInput } from "@/lib/saved-places";
 export type TripStop = { key: string; place: PlaceInput | null };
 
 export type TripPanelProps = {
-  /** null while the start is being changed: the stops and destination stay listed */
+  /** null while the start is being changed: the stops stay listed */
   from: PlaceInput | null;
-  to: PlaceInput | null;
   stops: TripStop[];
   /** drive/walk with a start and a destination, under the stop limit */
   canAddStop: boolean;
@@ -23,17 +22,14 @@ export type TripPanelProps = {
   onRemoveStop: (key: string) => void;
   onFillStop: (key: string, place: PlaceInput) => void;
   onClearFrom: () => void;
-  /** absent when the destination isn't the user's to clear (bus: its panel has the link) */
-  onClearTo?: () => void;
 };
 
 /**
- * The trip, Google-style (SPEC-web-app v1.4): From, any stops, To, each with a Save star
- * and ✕. The start can also be retyped in the search box above.
+ * The trip, Google-style (SPEC-web-app v1.4): From and any stops, each with a Save star
+ * and ✕. The start can also be retyped in the search box above, beside the To box.
  */
 export function TripPanel({
   from,
-  to,
   stops,
   canAddStop,
   near,
@@ -41,7 +37,6 @@ export function TripPanel({
   onRemoveStop,
   onFillStop,
   onClearFrom,
-  onClearTo,
 }: TripPanelProps) {
   const addRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -58,7 +53,7 @@ export function TripPanel({
     onRemoveStop(key);
   };
 
-  if (!from && !to && stops.length === 0) return null;
+  if (!from && stops.length === 0) return null;
   return (
     <div className="flex flex-col gap-1">
       <ul
@@ -116,17 +111,6 @@ export function TripPanel({
             </li>
           ),
         )}
-        {to && (
-          // bus: the lodging, or the chosen option's stop, read-only. Drive and walk pass no `to`: their
-          // destination is the To box in the trip card on top (v1.9)
-          <Row
-            marker="📍"
-            label="To"
-            place={to}
-            removeLabel={onClearTo ? "Remove destination" : undefined}
-            onRemove={onClearTo}
-          />
-        )}
       </ul>
       {canAddStop && (
         <button
@@ -164,8 +148,8 @@ function Row({
   marker: string;
   label: string;
   place: PlaceInput;
-  removeLabel?: string;
-  onRemove?: () => void;
+  removeLabel: string;
+  onRemove: () => void;
 }) {
   return (
     <li className="flex items-center gap-2 px-2 py-1 not-last:border-b">
@@ -181,16 +165,14 @@ function Row({
         {place.name}
       </span>
       <SaveButton place={place} />
-      {onRemove && removeLabel && (
-        <button
-          type="button"
-          aria-label={removeLabel}
-          className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
-          onClick={onRemove}
-        >
-          <X aria-hidden="true" className="size-4" />
-        </button>
-      )}
+      <button
+        type="button"
+        aria-label={removeLabel}
+        className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+        onClick={onRemove}
+      >
+        <X aria-hidden="true" className="size-4" />
+      </button>
     </li>
   );
 }

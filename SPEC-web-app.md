@@ -162,7 +162,7 @@ Success means:
    - It shows the current destination's name; it is empty when there is none, which includes after ✕.
    - Suggestions come from the same index as the start search, biased to the map centre.
    - A resort suggestion selects that resort, as the list does. Any other place becomes a free destination point **with its name** ("To: Lawson …", not "Chosen place").
-   - The Save star and ✕ stay. In 🚌 Bus the To row stays read-only (it is the chosen option's stop).
+   - The Save star and ✕ stay. *Amended by v1.13: 🚌 Bus has the same To box.*
    - Typing is a draft (BC-T1): the current destination and its route stay until a suggestion is chosen. Leaving the box (blur or Escape) without choosing puts the current name back. After a choice, the list closes and focus stays in the box.
 2. **From box with a start already set:** choosing a result replaces the start, as today; the destination and stops stay. *Amended 2026-11-04, approved:* the first draft opened the pin card here, but BC-T1 showed Google's fields are field-scoped, and with a To box the From box only means "start".
 3. **From box with no start:** a result sets the start, as today.
@@ -214,7 +214,7 @@ Success means:
 3. **The peek stays at 40 %** (Google ≈44 %). What changes is what fills it: tabs and ETA/Start (T77) first, the HUD row out of it. The map's fit padding leaves room for the top card.
 4. **A choice reveals the result** (F). When the destination changes (a resort, a POI, the To box, Go here, a saved place) the sheet collapses to its peek and the route is fitted between the header and the sheet. The same happens whenever the route on screen changes with both ends set: a new start, mode or stop, or another route option (2026-11-09). Tapping another option re-fits the map, in the list or on the map, on phones and laptops. When the route goes away, as on the Bus tab before a bus is chosen, the sheet stays as it is, because its list is then the answer. "Clear" covers the route and the start and destination markers, which stand above their point, on phones and laptops, and the map re-fits when the window's size changes, waiting for any finger on the map to lift. A start or destination with no route yet is brought into the clear part too.
 5. **Focusing the header doesn't expand the sheet.** Its suggestions drop down over the map.
-6. In drive and walk the trip panel no longer lists a To row, because the header's To box is the destination. Bus keeps its read-only To row.
+6. In drive and walk the trip panel no longer lists a To row, because the header's To box is the destination. Bus too since v1.13.
 
 **Success criteria.**
 - The To box is fully in view on 393×659, 375×667, 393×852 and 360×740 (the known T-fold fail flips).
@@ -248,13 +248,13 @@ Success means:
 1. In Bus mode, a lodging or place set as the destination (the swap's, or one set on Drive or Walk; not a resort, and not a food or konbini row) asks `/api/bus/to-place`. With none, the resort list works as before. A chosen bus only counts while the list it came from is showing.
 2. The list has no resort headings. Each row shows the times, the board stop and the walk there, then "Get off <stop> · walk N min". The chosen trip's timeline ends with the walk to the lodging. When a row's stop times aren't published, the list says the stop order may vary.
 3. Swap works in Bus mode. The destination is the lodging, else the chosen bus's resort, else the selected resort. With none of these the button is disabled, as in Drive. A swap still clears any chosen bus (v1.10 rule 5).
-4. A "Shuttles to resorts" link clears the destination and returns to the resort list, since Bus mode has no To box.
+4. A "Shuttles to resorts" link clears the destination and returns to the resort list. Since v1.13 the To box's ✕ does the same.
 5. No hint about Drive or Walk. An empty list says "No direct shuttle to this place after this time."
 6. The lodging shows as the destination marker.
 
 **Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: a swap in Bus mode requests `/to-place` with the old start as `to`, rows show the walk from the stop, a second tap restores the resort list, the link clears the destination, the button is disabled with no destination, and the old hint is gone.
 
-**Boundaries.** *Out of scope:* transfers, a To box in Bus mode, and drawing or guiding the final walk: Start guides you to the stop where you get off.
+**Boundaries.** *Out of scope:* transfers and drawing or guiding the final walk: Start guides you to the stop where you get off.
 
 ## v1.12: Only the trip's resort stays on the map (2026-11-09, approved)
 **Objective.** Once a trip's start and destination are set, the other resorts' labels only crowd the route.
@@ -269,3 +269,25 @@ Success means:
 **Success criteria.** `e2e/journeys/resort-labels.spec.ts` passes.
 
 **Boundaries.** The destination can still be changed from the resort list or the To box. Tapping another resort on the map needs the trip cleared first (decided 2026-11-09).
+
+## v1.13: One bar, then two, like Google Maps (2026-11-09, approved)
+**Objective.** The top card opens as one search bar. A search adds a card of next steps under it, and Directions turns it into two equal boxes with ⇅ beside them. It keeps that shape in Drive, Walk and Bus. The owner's words: "show one bar with routing options and star below when search a place" and "make two bar with same length if select Directions". Only the pattern is taken from Google Maps.
+
+**Rules.**
+1. **One bar** while there is no destination: one rounded box with a search icon, ✕ while typing, and ★ Saved beside it.
+2. **Place card** under the bar whenever there is a start and no destination: Directions (primary), Ski, Food, Konbini, Save. A search still sets the start at once, so the rider, the resort ETAs and the link behave as before. Ski, Food and Konbini pick the destination list in the sheet. Save is the star for that place. In Bus the card has only Directions and Save, because Bus has no food or konbini list and already lists resorts.
+3. **Directions** moves the place to To and empties From. A resort becomes the selected resort; anything else a named destination.
+4. **Two bars** once there is a destination, in every mode. From and To have equal width. A rail on the left: the rider at From (the same icon the map draws at the start), dots, and the map's flag at To. ⇅ stands on the right, disabled until both ends exist; v1.10 and v1.11 otherwise stand. ✕ on To with a start set returns to one bar and the card.
+5. **Under the boxes**, a row with ⊕ "Add destination" (Drive and Walk; it replaces "Add stop" in the sheet and opens the same empty stop box), the destination's Save star, and ★ Saved.
+6. **Bus's To box** shows the lodging or place, else the chosen bus's resort, else the resort that is selected or was sent there from Saved.
+   - A place chosen there asks `/api/bus/to-place`, as a swap does.
+   - A resort chosen there narrows the list to that resort. A bus tapped in the full list names its resort in the box but doesn't narrow the list.
+   - Any new pick drops the chosen bus, because it was chosen for the old destination.
+   - ✕ and the "Shuttles to resorts" link both clear the destination and the chosen bus, and show every resort.
+7. Bus's read-only To row in the trip list goes, because it would contradict the box.
+8. **A mouse click with both ends set and no open stop box does nothing.** Clicking a route line still selects it. With no trip a click still sets the start, and an open stop box still takes a click. The touch long-press pin card stays.
+9. Each box is one instance. Going from one bar to two moves it and never remounts it, so typing and focus survive (v1.9's "never a second copy").
+
+**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` (rules 6 and 7) and `e2e/journeys/trip-card.spec.ts` (the rest) pass on a phone and a laptop, and the To box is fully in view at 360×740. Until PR 3 of this version lands, a To box still shows once there is a start.
+
+**Boundaries.** *Out of scope:* stops inside the stack, a "close directions" ✕, photos or reviews on the card, Nearby, Share, Send to phone. *Never:* Google's assets, branding or copy.

@@ -241,6 +241,28 @@ describe("BusPanel", () => {
 
     expect(props.onShowNightChange).toHaveBeenCalledWith(true);
   });
+
+  // SPEC-web-app v1.13 rule 5: a resort in the To box narrows the list
+  it("lists only the resort in the To box", () => {
+    renderPanel({ onlyResortId: "hakuba47" });
+
+    expect(
+      screen.getByRole("region", { name: "Hakuba47 Mountain Resort" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", {
+        name: "Kashimayari Ski Resort Family Park",
+      }),
+    ).toBeNull();
+  });
+
+  it("says so when the resort in the To box has no bus left", () => {
+    renderPanel({ onlyResortId: "a-resort-with-no-bus" });
+
+    expect(
+      screen.getByText("No more shuttles to this resort after this time."),
+    ).toBeInTheDocument();
+  });
 });
 
 describe("BusPanel season copy", () => {

@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: feat(web): Bus gets the same To box
+
+**1. Principle: one name, one meaning, then one code path.**
+In Bus mode `toPlace` meant "the stop you walk to", so the swap needed its own `swapTo`. Now `toPlace` means "where you're going" on every tab, and the box and the swap read the same value, so they can't disagree.
+*Analogy:* a column that means different things depending on another column; every query has to remember the `CASE`.
+
+**2. Trade-off: the list narrows on the destination, not on the chosen bus.**
+The box names a tapped bus's resort, but the list only narrows for a resort chosen as the destination. Narrowing on the tapped bus too would be one rule instead of two, but tapping a bus would hide every other bus you were comparing.
+
+**3. What could go wrong: two ways to do "clear" drift apart.**
+✕ cleared the destination, the selected resort and the bus. The older "Shuttles to resorts" link cleared only the point, so a resort left over from Drive came back in the box. An independent review caught it. Both now call `clearTo`.
+
 ## 2026-11-09 · tidy: docs: the Vercel Phase B spec and ADR, corrected by the probes
 
 **1. Principle: a spec must say what was measured, because the next session believes it.**
