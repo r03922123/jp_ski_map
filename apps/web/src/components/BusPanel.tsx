@@ -2,7 +2,13 @@
 
 import { type ReactNode, useEffect, useRef } from "react";
 import { StopList } from "@/components/StopList";
-import type { BusOption, BusResult, NightResult, Resort } from "@/lib/api";
+import type {
+  BusOption,
+  BusResult,
+  NightResult,
+  PlaceBusResult,
+  Resort,
+} from "@/lib/api";
 import { clampDepart, departRange } from "@/lib/depart-at";
 import { formatDuration } from "@/lib/format";
 import { alightIndexOf } from "@/lib/nav/bus-journey";
@@ -17,9 +23,17 @@ type Loadable<T> =
   | { status: "error" }
   | { status: "success"; data: T };
 
+/** A destination that isn't a resort: the panel lists the shuttles to it (SPEC-web-app v1.11). */
+export type BusPlace = {
+  name: string;
+  result: Loadable<PlaceBusResult>;
+  onClear: () => void;
+};
+
 export type BusPanelProps = {
   resorts: Resort[];
   result: Loadable<BusResult>;
+  place?: BusPlace | null;
   night: Loadable<NightResult>;
   showNight: boolean;
   onShowNightChange: (show: boolean) => void;
@@ -49,6 +63,9 @@ const monthDay = (ymd: string) =>
     day: "numeric",
   }).format(new Date(`${ymd}T00:00:00+09:00`));
 const walk = (s: number) => (s < 60 ? "<1 min" : formatDuration(s));
+
+const alightName = (option: BusOption) =>
+  option.rideStops[alightIndexOf(option)]?.name ?? "";
 
 /** The stops this option rides through, boarding to getting off. */
 export function rideStopRows(
@@ -84,7 +101,13 @@ function ChosenTrip({
 }
 
 /** Google-transit-style timeline for the chosen option: walk → board → ride → arrive. */
-function Journey({ option }: { option: BusOption }) {
+function Journey({
+  option,
+  placeName,
+}: {
+  option: BusOption;
+  placeName?: string;
+}) {
   const line = option.lineId.replace("line-", "").toUpperCase();
   const stops = Math.max(option.rideStops.length - 1, 0);
   const ride = option.timed
@@ -110,7 +133,22 @@ function Journey({ option }: { option: BusOption }) {
         🚌 Line {line} · {ride}
         <StopList stops={rideStopRows(option)} className="mt-0.5 mb-1" />
       </li>
-      <li>⛷ Arrive{option.arrivesAt ? ` ${hhmm(option.arrivesAt)}` : ""}</li>
+      {placeName && option.walkToPlaceS != null ? (
+        <>
+          <li>
+            🚏 Get off {alightName(option)}
+            {option.arrivesAt ? ` ${hhmm(option.arrivesAt)}` : ""}
+          </li>
+          <li>
+            🚶 Walk {walk(option.walkToPlaceS)} to {placeName}
+            {option.doorArrivesAt
+              ? ` · arrive ${hhmm(option.doorArrivesAt)}`
+              : ""}
+          </li>
+        </>
+      ) : (
+        <li>⛷ Arrive{option.arrivesAt ? ` ${hhmm(option.arrivesAt)}` : ""}</li>
+      )}
       <li className="text-muted-foreground">
         Bus path on the map is approximate.
       </li>
@@ -167,22 +205,78 @@ function OptionButton({
           Board {option.boardStopName} · walk {walk(option.walkS)} · wait{" "}
           {walk(option.waitS)}
         </span>
+        {option.walkToPlaceS != null && (
+          <span className="text-xs text-muted-foreground">
+            {`Get off ${alightName(option)} · walk ${walk(option.walkToPlaceS)}`}
+          </span>
+        )}
       </span>
     </button>
   );
 }
 
-function Results({
-  resorts,
-  result,
+/** Trip numbers repeat across directions, so the boarding stop and time matter too. */
+const sameOption = (a: BusOption | null, b: BusOption) =>
+  a?.routeId === b.routeId &&
+  a.trip === b.trip &&
+  a.resortId === b.resortId &&
+  a.boardStopId === b.boardStopId &&
+  a.departsAt === b.departsAt;
+
+type RowProps = Pick<
+  BusPanelProps,
+  "selected" | "onSelect" | "onStart" | "startNote"
+>;
+
+/** One option, and its journey and Start when it is the chosen one. */
+function OptionRow({
+  option,
+  placeName,
   selected,
   onSelect,
   onStart,
   startNote,
-}: Pick<
-  BusPanelProps,
-  "resorts" | "result" | "selected" | "onSelect" | "onStart" | "startNote"
->) {
+}: RowProps & { option: BusOption; placeName?: string }) {
+  const isSelected = sameOption(selected, option);
+  return (
+    <div>
+      <OptionButton option={option} selected={isSelected} onSelect={onSelect} />
+      {isSelected && (
+        <ChosenTrip revealKey={onStart ? "start" : "journey"}>
+          <Journey option={option} placeName={placeName} />
+          {onStart && (
+            <button
+              type="button"
+              aria-label="Start bus journey"
+              className="mt-1 ml-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+              onClick={onStart}
+            >
+              ▶ Start
+            </button>
+          )}
+          {startNote && (
+            <output className="mt-1 ml-1 block text-xs text-amber-800">
+              {startNote}
+            </output>
+          )}
+        </ChosenTrip>
+      )}
+    </div>
+  );
+}
+
+const optionKey = (o: BusOption) =>
+  `${o.routeId}-${o.trip}-${o.boardStopId}-${o.departsAt}`;
+
+/** What to show instead of a list, or undefined once there are answers to list. */
+function serviceNotice(
+  result: Loadable<
+    Pick<
+      BusResult,
+      "status" | "nextServiceDate" | "basis" | "newerSourcePending"
+    >
+  >,
+): ReactNode | undefined {
   if (result.status === "idle") return null;
   if (result.status === "loading") {
     return <p className="text-sm text-muted-foreground">Finding buses…</p>;
@@ -218,6 +312,20 @@ function Results({
       </p>
     );
   }
+  return undefined;
+}
+
+function Results({
+  resorts,
+  result,
+  selected,
+  onSelect,
+  onStart,
+  startNote,
+}: RowProps & Pick<BusPanelProps, "resorts" | "result">) {
+  const notice = serviceNotice(result);
+  if (notice !== undefined || result.status !== "success") return notice;
+  const data = result.data;
   if (data.resorts.length === 0) {
     return (
       <div className="flex flex-col gap-2">
@@ -241,44 +349,70 @@ function Results({
             className="flex flex-col gap-1"
           >
             <h3 className="text-sm font-semibold">{name}</h3>
-            {r.options.map((o) => {
-              const isSelected =
-                selected?.routeId === o.routeId &&
-                selected.trip === o.trip &&
-                selected.resortId === o.resortId;
-              return (
-                <div key={`${o.routeId}-${o.trip}-${o.boardStopId}`}>
-                  <OptionButton
-                    option={o}
-                    selected={isSelected}
-                    onSelect={onSelect}
-                  />
-                  {isSelected && (
-                    <ChosenTrip revealKey={onStart ? "start" : "journey"}>
-                      <Journey option={o} />
-                      {onStart && (
-                        <button
-                          type="button"
-                          aria-label="Start bus journey"
-                          className="mt-1 ml-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
-                          onClick={onStart}
-                        >
-                          ▶ Start
-                        </button>
-                      )}
-                      {startNote && (
-                        <output className="mt-1 ml-1 block text-xs text-amber-800">
-                          {startNote}
-                        </output>
-                      )}
-                    </ChosenTrip>
-                  )}
-                </div>
-              );
-            })}
+            {r.options.map((o) => (
+              <OptionRow
+                key={optionKey(o)}
+                option={o}
+                selected={selected}
+                onSelect={onSelect}
+                onStart={onStart}
+                startNote={startNote}
+              />
+            ))}
           </section>
         );
       })}
+    </div>
+  );
+}
+
+/** The next direct shuttles to a place, such as back to the lodging (v1.11). */
+function PlaceResults({ place, ...rowProps }: RowProps & { place: BusPlace }) {
+  const toResorts = (
+    <button
+      type="button"
+      className="inline-flex min-h-11 items-center self-start text-xs underline"
+      onClick={place.onClear}
+    >
+      Shuttles to resorts
+    </button>
+  );
+  const { result } = place;
+  const notice = serviceNotice(result);
+  if (notice !== undefined || result.status !== "success") {
+    return (
+      <div className="flex flex-col gap-2">
+        {toResorts}
+        {notice}
+      </div>
+    );
+  }
+  const data = result.data;
+  return (
+    <div className="flex flex-col gap-2">
+      {toResorts}
+      <SeasonNotice data={data} />
+      {data.options.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No direct shuttle to this place after this time.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-1">
+          {data.options.map((o) => (
+            <OptionRow
+              key={optionKey(o)}
+              option={o}
+              placeName={place.name}
+              {...rowProps}
+            />
+          ))}
+        </div>
+      )}
+      {data.options.some((o) => !o.timed) && (
+        <p className="text-xs text-muted-foreground">
+          Where stop times aren't published, the stop order may vary.
+        </p>
+      )}
     </div>
   );
 }
@@ -366,6 +500,14 @@ export function BusPanel(props: BusPanelProps) {
               : "No night bus from nearby stops at this time."}
           </p>
         )
+      ) : props.place ? (
+        <PlaceResults
+          place={props.place}
+          selected={props.selected}
+          onSelect={props.onSelect}
+          onStart={props.onStart}
+          startNote={props.startNote}
+        />
       ) : (
         <Results {...props} />
       )}

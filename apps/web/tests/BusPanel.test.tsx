@@ -5,8 +5,9 @@ import {
   type BusPanelProps,
   rideStopRows,
 } from "@/components/BusPanel";
-import type { BusResult, Resort } from "@/lib/api";
+import type { BusOption, BusResult, PlaceBusResult, Resort } from "@/lib/api";
 import fixture from "../e2e/fixtures/bus-options-2026-03-20.json";
+import placeFixture from "../e2e/fixtures/bus-to-place-2026-03-20.json";
 
 const resorts = [
   { id: "hakuba47", name: { en: "Hakuba47 Mountain Resort", ja: "" } },
@@ -446,6 +447,143 @@ describe("Journey stop list (long rides, loops)", () => {
       "B 08:15",
       "Iwatake 08:25",
     ]);
+  });
+});
+
+describe("BusPanel shuttles to a place (v1.11)", () => {
+  const placeData = placeFixture as PlaceBusResult;
+  const [timedRow, untimedRow] = placeData.options as [BusOption, BusOption];
+
+  function renderPlace(
+    data: PlaceBusResult = placeData,
+    overrides: Partial<BusPanelProps> = {},
+  ) {
+    const onClear = vi.fn();
+    const props = renderPanel({
+      place: {
+        name: "JR Hakuba Station",
+        result: { status: "success", data },
+        onClear,
+      },
+      ...overrides,
+    });
+    return { props, onClear };
+  }
+
+  it("lists the rows without resort headings", () => {
+    renderPlace();
+
+    expect(screen.getByText("14:37 → 15:10")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: /resort/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: "Hakuba47 Mountain Resort" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("says where to get off and how far the walk is", () => {
+    renderPlace();
+
+    expect(
+      screen.getAllByText("Get off Hakuba Happo Bus Terminal · walk 5 min")
+        .length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("shows a first-stop-only row by its departure, with a warning", () => {
+    renderPlace();
+
+    expect(
+      screen.getAllByText(/Departs ABLE Hakuba GORYU ESCAL PLAZA 15:00/).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getByText(/stop order may vary/i)).toBeInTheDocument();
+  });
+
+  it("ends the chosen trip's timeline with the walk to the place", () => {
+    renderPlace(placeData, { selected: timedRow });
+
+    const journey = screen.getByRole("list", { name: "Journey" });
+    expect(journey).toHaveTextContent(
+      /Get off Hakuba Happo Bus Terminal 15:10/,
+    );
+    expect(journey).toHaveTextContent(
+      /Walk 5 min to JR Hakuba Station · arrive 15:15/,
+    );
+    expect(journey).not.toHaveTextContent("⛷");
+  });
+
+  it("gives no arrival for a trip whose times aren't published", () => {
+    renderPlace(placeData, { selected: untimedRow });
+
+    const journey = screen.getByRole("list", { name: "Journey" });
+    expect(journey).toHaveTextContent(/Walk 5 min to JR Hakuba Station/);
+    expect(journey).not.toHaveTextContent(/arrive/i);
+  });
+
+  it("marks only the chosen row when trip numbers repeat", () => {
+    const twin = {
+      ...timedRow,
+      boardStopId: "stop-other",
+      trip: timedRow.trip,
+    };
+    renderPlace(
+      { ...placeData, options: [timedRow, twin] },
+      { selected: timedRow },
+    );
+
+    const pressed = screen
+      .getAllByRole("button", { name: /14:37 → 15:10/ })
+      .filter((b) => b.getAttribute("aria-pressed") === "true");
+    expect(pressed).toHaveLength(1);
+  });
+
+  it("selects a row", () => {
+    const { props } = renderPlace();
+
+    fireEvent.click(screen.getByRole("button", { name: /14:37 → 15:10/ }));
+
+    expect(props.onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ trip: timedRow.trip, resortId: null }),
+    );
+  });
+
+  it("goes back to the resort list from the link", () => {
+    const { onClear } = renderPlace();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Shuttles to resorts" }),
+    );
+
+    expect(onClear).toHaveBeenCalled();
+  });
+
+  it("says when no direct shuttle is left", () => {
+    renderPlace({ ...placeData, options: [] });
+
+    expect(
+      screen.getByText("No direct shuttle to this place after this time."),
+    ).toBeInTheDocument();
+  });
+
+  it("explains out-of-season dates here too, and keeps the link", () => {
+    renderPlace({
+      ...placeData,
+      status: "no_service",
+      nextServiceDate: "2026-12-13",
+      options: [],
+    });
+
+    expect(screen.getByText(/next from Dec 13/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Shuttles to resorts" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the night bus instead while that box is ticked", () => {
+    renderPlace(placeData, { showNight: true });
+
+    expect(screen.queryByText("14:37 → 15:10")).not.toBeInTheDocument();
   });
 });
 

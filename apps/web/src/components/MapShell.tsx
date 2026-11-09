@@ -41,6 +41,7 @@ import {
   type BusOption,
   type Coord,
   fetchBusOptions,
+  fetchBusToPlace,
   fetchLodging,
   fetchNearbyPois,
   fetchNightBus,
@@ -319,11 +320,43 @@ export function MapShell() {
       ? { status: "error" }
       : { status: "success", data: ranking.data };
 
+  const savedState = useSaved();
+  const pointPlace: PlaceInput | null = point
+    ? (placeAt(savedState, point.coord) ?? {
+        id: pinId(point.coord),
+        name: point.name ?? "Chosen place",
+        coord: point.coord,
+        kind: "pin",
+      })
+    : null;
+  // Bus mode with a destination that isn't a resort: the way back (SPEC-web-app v1.11)
+  const busPlace =
+    mode === "bus" && pointPlace?.kind !== "resort" ? pointPlace : null;
   const busEnabled = mode === "bus" && origin !== null && departAt !== "";
   const bus = useQuery({
     queryKey: ["bus", origin, departAt, originName],
     queryFn: () => fetchBusOptions(origin!, departAt, originName),
-    enabled: busEnabled && !showNight,
+    enabled: busEnabled && !showNight && busPlace === null,
+    retry: false,
+  });
+  const busToPlace = useQuery({
+    queryKey: [
+      "bus-to-place",
+      origin,
+      busPlace?.coord,
+      departAt,
+      originName,
+      point?.name,
+    ],
+    queryFn: () =>
+      fetchBusToPlace(
+        origin!,
+        busPlace!.coord,
+        departAt,
+        originName,
+        point?.name ?? null,
+      ),
+    enabled: busEnabled && !showNight && busPlace !== null,
     retry: false,
   });
   const night = useQuery({
@@ -777,7 +810,6 @@ export function MapShell() {
         lng: (view.bbox.west + view.bbox.east) / 2,
       }
     : null;
-  const savedState = useSaved();
   // Map-tapped and linked stops are pins: name them as the start is named (a saved
   // place's name, else "Dropped pin") when drawn, so renumbering never strands a "Stop 2".
   const tripStops = stops.map((st) =>
@@ -815,26 +847,19 @@ export function MapShell() {
         kind: "pin",
       })
     : null;
-  const pointPlace: PlaceInput | null = point
-    ? (placeAt(savedState, point.coord) ?? {
-        id: pinId(point.coord),
-        name: point.name ?? "Chosen place",
-        coord: point.coord,
-        kind: "pin",
-      })
-    : null;
   const toPlace: PlaceInput | null =
     mode !== "bus" && pointPlace
       ? pointPlace
       : mode === "bus"
-        ? busChoice?.boardStopCoord
-          ? {
-              id: busChoice.boardStopId,
-              name: busChoice.boardStopName,
-              coord: busChoice.boardStopCoord,
-              kind: "stop",
-            }
-          : null
+        ? (busPlace ??
+          (busChoice?.boardStopCoord
+            ? {
+                id: busChoice.boardStopId,
+                name: busChoice.boardStopName,
+                coord: busChoice.boardStopCoord,
+                kind: "stop",
+              }
+            : null))
         : poiCategory
           ? selectedPoi
             ? {
@@ -875,16 +900,32 @@ export function MapShell() {
     toPlace !== null &&
     stops.length < MAX_STOPS &&
     stops.every((s) => s.place !== null);
-  // Back to the lodging in one tap (SPEC-web-app v1.10). The bus query only answers trips
-  // to a resort, so bus can't be reversed.
-  const canSwap = mode !== "bus" && fromPlace !== null && toPlace !== null;
+  // Bus has no To box: the swap's other end is the chosen bus's resort, where it drops you,
+  // or the resort selected on another tab (SPEC-web-app v1.11)
+  const busResort = resorts.data?.find(
+    (r) => r.id === (busChoice?.resortId ?? selectedResortId),
+  );
+  const busResortAt = busChoice
+    ? busChoice.rideStops[alightIndexOf(busChoice)]?.coord
+    : destination;
+  const busResortPlace: PlaceInput | null = busResort
+    ? {
+        id: busResort.id,
+        name: busResort.name.en,
+        coord: busResortAt ?? busResort.accessPoints[0].coord,
+        kind: "resort",
+      }
+    : null;
+  const swapTo = mode === "bus" ? (busPlace ?? busResortPlace) : toPlace;
+  // Back to the lodging in one tap (SPEC-web-app v1.10)
+  const canSwap = fromPlace !== null && swapTo !== null;
   const swapTrip = () => {
-    if (!canSwap) return;
+    if (!fromPlace || !swapTo) return;
     sfx().play("select");
-    setOrigin(toPlace.coord);
-    setOriginName(toPlace.kind === "pin" ? null : toPlace.name);
-    setOriginSource(toPlace);
-    setSearchLabel(toPlace.name);
+    setOrigin(swapTo.coord);
+    setOriginName(swapTo.kind === "pin" ? null : swapTo.name);
+    setOriginSource(swapTo);
+    setSearchLabel(swapTo.name);
     // remounted: a label equal to the last one the app set wouldn't replace a typed start
     setSearchKey((k) => k + 1);
     setPoiId(null);
@@ -968,7 +1009,11 @@ export function MapShell() {
           plan={busPlan}
           state={busState}
           now={now}
-          basis={bus.data?.basis === "expected" ? "expected" : "published"}
+          basis={
+            (busPlace ? busToPlace.data : bus.data)?.basis === "expected"
+              ? "expected"
+              : "published"
+          }
           onBoard={() => setBusState(boardManually)}
           onExit={exitPilot}
         />
@@ -1065,12 +1110,6 @@ export function MapShell() {
                   onClear={clearTo}
                 />
               )}
-              {mode === "bus" && fromPlace && (
-                // on screen, not a tooltip: touch browsers never show a `title`
-                <p className="px-2 text-xs text-muted-foreground">
-                  Way back from a resort: use Drive or Walk.
-                </p>
-              )}
             </div>
           }
           collapseKey={destinationKey}
@@ -1097,6 +1136,8 @@ export function MapShell() {
               onModeChange={(m) => {
                 sfx().play("select");
                 setMode(m);
+                // a bus chosen earlier was for the resort list, not this destination
+                if (m === "bus" && point) setBusChoice(null);
               }}
               resorts={resorts.data ?? []}
               selectedResortId={selectedResortId}
@@ -1139,6 +1180,16 @@ export function MapShell() {
                 <BusPanel
                   resorts={resorts.data ?? []}
                   result={loadable(bus)}
+                  place={
+                    busPlace && {
+                      name: busPlace.name,
+                      result: loadable(busToPlace),
+                      onClear: () => {
+                        setPoint(null);
+                        setBusChoice(null);
+                      },
+                    }
+                  }
                   night={loadable(night)}
                   showNight={showNight}
                   onShowNightChange={setShowNight}
@@ -1195,7 +1246,9 @@ export function MapShell() {
         resorts={resorts.data ?? []}
         selectedResortId={selectedResortId}
         origin={origin}
-        destination={mode === "bus" ? null : (target ?? null)}
+        destination={
+          mode === "bus" ? (busPlace?.coord ?? null) : (target ?? null)
+        }
         routes={
           pastWalk
             ? [] // at the stop or on the bus: the bus line is the route now

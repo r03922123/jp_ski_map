@@ -234,9 +234,24 @@ Success means:
 1. A ⇅ button sits in the trip card's From row, beside ★ Saved, once there is a start.
 2. Tapping it makes the old destination the start and the old start the destination, and reverses any stops. The route, the URL and both boxes follow, and the sheet collapses to show the route (v1.9 rule 4).
 3. A resort that becomes the destination is selected again as a resort, so a second tap restores the trip.
-4. Bus: the button is disabled and the trip card says "Way back from a resort: use Drive or Walk.", because the bus query only answers trips to a resort. It is on-screen text since touch browsers don't show tooltips.
+4. Bus: replaced by v1.11.
 5. A swap clears any chosen bus: its stop was picked for the old start.
 
-**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: the `/api/routes` request is reversed, both boxes and the link follow, a second tap restores the resort, stops reverse, the From box follows after being retyped, the bus button is disabled with its reason on screen, and a chosen bus is cleared.
+**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: the `/api/routes` request is reversed, both boxes and the link follow, a second tap restores the resort, stops reverse, the From box follows after being retyped, and a chosen bus is cleared.
 
-**Boundaries.** *Out of scope:* bus trips back from a resort (a later spec: the timetables already hold return directions, but `bus_options` only offers resort stops), and a separate "back to My hotel" shortcut.
+**Boundaries.** *Out of scope:* a separate "back to My hotel" shortcut.
+
+## v1.11: The shuttle back to the lodging (2026-11-09, approved)
+**Objective.** From a resort, Bus mode lists the next shuttles back to the lodging with the walk from the stop where you get off. The rules for which trips count live in SPEC-bus-schedules v1.2.
+
+**Rules.**
+1. In Bus mode, a destination that isn't a resort (the swap's lodging, or one set on Drive or Walk) asks `/api/bus/to-place`. With none, the resort list works as before.
+2. The list has no resort headings. Each row shows the times, the board stop and the walk there, then "Get off <stop> · walk N min". The chosen trip's timeline ends with the walk to the lodging. When a row's stop times aren't published, the list says the stop order may vary.
+3. Swap works in Bus mode. The destination is the lodging, else the chosen bus's resort, else the selected resort. With none of these the button is disabled, as in Drive. A swap still clears any chosen bus (v1.10 rule 5).
+4. A "Shuttles to resorts" link clears the destination and returns to the resort list, since Bus mode has no To box.
+5. No hint about Drive or Walk. An empty list says "No direct shuttle to this place after this time."
+6. The lodging shows as the destination marker.
+
+**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` passes on a phone and a laptop: a swap in Bus mode requests `/to-place` with the old start as `to`, rows show the walk from the stop, a second tap restores the resort list, the link clears the destination, the button is disabled with no destination, and the old hint is gone.
+
+**Boundaries.** *Out of scope:* transfers, a To box in Bus mode, and drawing or guiding the final walk: Start guides you to the stop where you get off.

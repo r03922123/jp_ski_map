@@ -11,6 +11,7 @@ export type Place = components["schemas"]["Place"];
 export type RankedResort = components["schemas"]["RankedResort"];
 export type SnowReport = components["schemas"]["SnowReport"];
 export type BusResult = components["schemas"]["BusResult"];
+export type PlaceBusResult = components["schemas"]["PlaceBusResult"];
 export type BusOption = components["schemas"]["BusOption"];
 export type NightDeparture = components["schemas"]["NightDeparture"];
 export type NightResult = components["schemas"]["NightResult"];
@@ -139,6 +140,22 @@ export function fetchBusOptions(
   const name = placeName ? `&name=${encodeURIComponent(placeName)}` : "";
   return getJson<BusResult>(
     `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}${name}`,
+  );
+}
+
+/** The next direct shuttles to a place. Each name lets that end's own stop count as walk 0. */
+export function fetchBusToPlace(
+  from: Coord,
+  to: Coord,
+  departAt: string,
+  placeName: string | null = null,
+  toName: string | null = null,
+) {
+  const names = `${placeName ? `&name=${encodeURIComponent(placeName)}` : ""}${
+    toName ? `&toName=${encodeURIComponent(toName)}` : ""
+  }`;
+  return getJson<PlaceBusResult>(
+    `/api/bus/to-place?from=${latLng(from)}&to=${latLng(to)}&at=${jst(departAt)}${names}`,
   );
 }
 

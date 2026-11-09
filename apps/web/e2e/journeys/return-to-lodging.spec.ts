@@ -2,20 +2,35 @@ import { readFileSync } from "node:fs";
 import { expect, type Page, type Request, test } from "@playwright/test";
 
 /**
- * Journey: BACK TO THE LODGING (SPEC-web-app v1.10). After skiing, one tap turns
+ * Journey: BACK TO THE LODGING (SPEC-web-app v1.10, v1.11). After skiing, one tap turns
  * "lodging → resort" into "resort → lodging". Needs the API and Valhalla running.
  */
 
 test.describe.configure({ retries: 1, timeout: 60_000 });
 
 const STATION = "36.69877,137.86197"; // JR Hakuba Station stands in for the lodging
+const RESORT_END = "36.65,137.84"; // near Goryu: a start that isn't the lodging
 const TRIP = `/?from=${STATION}&mode=drive&resort=happo-one`;
 const SWAP = "Swap start and destination";
-const BUS_HINT = "Way back from a resort: use Drive or Walk.";
+const OLD_BUS_HINT = "Way back from a resort: use Drive or Walk.";
 const MARCH_20 = readFileSync(
   "e2e/fixtures/bus-options-2026-03-20.json",
   "utf8",
 );
+const BACK_MARCH_20 = readFileSync(
+  "e2e/fixtures/bus-to-place-2026-03-20.json",
+  "utf8",
+);
+const isToPlace = (r: Request) => /\/api\/bus\/to-place\?/.test(r.url());
+const isBusOptions = (r: Request) => /\/api\/bus\/options\?/.test(r.url());
+const mockBuses = async (page: Page) => {
+  await page.route("**/api/bus/to-place**", (route) =>
+    route.fulfill({ contentType: "application/json", body: BACK_MARCH_20 }),
+  );
+  await page.route("**/api/bus/options**", (route) =>
+    route.fulfill({ contentType: "application/json", body: MARCH_20 }),
+  );
+};
 
 const DEVICES = [
   {
@@ -134,12 +149,79 @@ for (const device of DEVICES) {
       await expect(from).toHaveValue(/Happo-One/);
     });
 
-    test("bus: the button is disabled and the reason is on screen", async ({
+    test("bus: with no destination the button is disabled, and the old hint is gone", async ({
       page,
     }) => {
+      await mockBuses(page);
       await page.goto(`/?from=${STATION}&mode=bus`);
       await expect(swapButton(page)).toBeDisabled();
-      await expect(page.getByText(BUS_HINT)).toBeVisible();
+      await expect(page.getByText(OLD_BUS_HINT)).toHaveCount(0);
+    });
+
+    test("bus: a swap lists the shuttles back, a second tap restores the resorts", async ({
+      page,
+    }) => {
+      await mockBuses(page);
+      await page.goto(`/?from=${STATION}&mode=bus&resort=happo-one`);
+      await page.getByLabel("Leave after").fill("2026-03-20T14:30");
+      await expect(swapButton(page)).toBeEnabled();
+
+      const back = page.waitForRequest(
+        (r) => isToPlace(r) && coordOf(r, "to") === STATION,
+      );
+      await swapButton(page).click();
+      expect(coordOf(await back, "from")).not.toBe(STATION);
+
+      await expect(page.getByText("14:37 → 15:10")).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(
+        page
+          .getByText("Get off Hakuba Happo Bus Terminal · walk 5 min")
+          .first(),
+      ).toBeVisible();
+      await expect(page.getByText(OLD_BUS_HINT)).toHaveCount(0);
+      expect(param(page, "dest")).toBe(`pt:${STATION}`);
+
+      const resortsAgain = page.waitForRequest(
+        (r) => isBusOptions(r) && coordOf(r, "from") === STATION,
+      );
+      await swapButton(page).click();
+      await resortsAgain;
+      await expect.poll(() => param(page, "resort")).toBe("happo-one");
+      expect(param(page, "dest")).toBeNull();
+    });
+
+    test("bus: a chosen shuttle swaps to its resort", async ({ page }) => {
+      await mockBuses(page);
+      await page.goto(`/?from=${STATION}&mode=bus`);
+      await page.getByLabel("Leave after").fill("2026-03-20T08:00");
+      await page
+        .getByRole("region", { name: "Hakuba47 Mountain Resort" })
+        .getByText("08:11 → 08:39")
+        .click({ timeout: 15_000 });
+
+      const back = page.waitForRequest(
+        (r) => isToPlace(r) && coordOf(r, "to") === STATION,
+      );
+      await swapButton(page).click();
+      await back;
+
+      await expect(page.locator('[aria-label="Journey"]')).toHaveCount(0);
+    });
+
+    test("bus: the link goes back to the resort list", async ({ page }) => {
+      await mockBuses(page);
+      await page.goto(`/?from=${RESORT_END}&mode=bus&dest=pt:${STATION}`);
+      await page.getByLabel("Leave after").fill("2026-03-20T14:30");
+      await expect(page.getByText("14:37 → 15:10")).toBeVisible({
+        timeout: 15_000,
+      });
+
+      await page.getByRole("button", { name: "Shuttles to resorts" }).click();
+
+      await expect.poll(() => param(page, "dest")).toBeNull();
+      await expect(page.getByText("14:37 → 15:10")).toHaveCount(0);
     });
   });
 }
