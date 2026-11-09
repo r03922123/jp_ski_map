@@ -826,6 +826,11 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - Open: on phones (below `md`) the map credits, OSM's included, sit behind the bottom sheet at every height, and the e2e checks read the DOM only. Found 2026-11-09; needs its own PR.
 - Follow-up 1 stays open for the 15 My Maps stops, follow-up 2 for the December re-check; the takeover phase is unchanged.
 
+## Task J11: Search answers for hotels (SPEC-place-search items 6 and 7)
+- [x] The eval counts any result for an `absent` name as wrong (`Hakuba Park Hotel` had scored "ok" with a bus stop)
+- [x] A query naming a lodging type keeps lodging, and other places only if they carry that word; Photon's results too
+- [x] 飯店, 饭店, 酒店 and 旅馆 retry as ホテル when nothing matches; 白馬飯店 still finds the restaurant
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).

@@ -2,6 +2,26 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · tidy: fix(search): stop answering hotel queries with bus stops
+
+**1. Principle: a metric can only catch the mistakes it is allowed to see.**
+For a hotel missing from our data, the eval only counted another lodging as a wrong answer. So
+`Hakuba Park Hotel` could return a car-park bus stop and still score "ok". Making the eval strict
+came first, and that gave the bug a failing test before any search code changed.
+*Analogy:* a spam filter scored only on spam it missed will never notice the real mail it deletes.
+
+**2. Trade-off: use a fallback for the Chinese word, not a blanket replacement.**
+Treating 飯店 as ホテル everywhere is simpler, but 白馬飯店 is a real restaurant here, and it would
+disappear from search. Retrying only when nothing matched keeps it, at the price of one more search
+for those queries.
+*Analogy:* a nickname you try only after the real name finds nobody.
+
+**3. What could go wrong: the rule reads the word, not the meaning.**
+A place is kept only if it carries the query's own lodging word, so a bus stop named `Kanemaru`
+disappears for `Kanemaru Hotel` unless it has that alias. The lodging entry still appears, which
+is why this is acceptable, but the rule can drop a stop that is really at the hotel.
+*Analogy:* a guest list that checks the exact name on the invitation.
+
 ## 2026-11-09 · tidy: chore: ignore Claude Code worktrees and note their setup
 
 **1. Principle: isolating the files doesn't isolate what the files talk to.**
