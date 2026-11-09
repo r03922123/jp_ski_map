@@ -16,6 +16,20 @@ The script builds a temp folder from `git archive HEAD` and adds only the tiles,
 The test puts a stub `vercel` first on a `PATH` holding only system folders, and refuses to run if any other `vercel` is found first. It also checks each stop for its own error message, so a script broken in some unrelated way can't pass. What it can't show is how the real CLI behaves. The fresh-eyes reviewer read the CLI's source and found that the first draft's "no stdin, so nobody can confirm" guard did the opposite when an agent runs it, so a dead link could create a project. Whether a first deploy honours `--environment preview`, and whether the function can read the uploaded files, stay unverified until Checkpoint S, so the owner is told before that deploy.
 *Analogy:* testing a pipeline on a mock GPU cluster: it proves your orchestration logic, not the cluster.
 
+## 2026-11-10 · tidy: test(api): the in-process Valhalla answers like the server
+
+**1. Principle: a green test only counts once you've seen it go red.**
+The first draft passed on its first run, which proves little. So we broke things on purpose, outside the repo: 1 extra second on one route, 1 extra second in a matrix cell, and 0.02 extra matrix cost each failed the comparison with a seed and index, and removing the lock killed the process with a `Fatal Python error`. We also counted what was compared: 100 of 100 and 20 of 20 got real answers, and the test now fails if any is refused, because two identical refusals compare nothing.
+*Analogy:* feeding an eval pipeline shuffled labels: if the score doesn't collapse, the metric wasn't measuring anything.
+
+**2. Trade-off: one named exception, not a general "close enough".**
+The two engines disagree on a matrix cell's `cost` in 10 of 7,380 cells over 6 seeds, by at most 0.002, and each side repeats its own value exactly. A float difference between the macOS and Linux builds is the likely cause, not a proven one. The API reads only `time` and `distance`, so the owner accepted a 0.01 tolerance on that one field. Everything else stays exact, including a route's own `cost`. A blanket tolerance would have been shorter, and it would also have hidden a wrong travel time.
+*Analogy:* allowing floating-point noise on one logged metric, while the labels and predictions must still match exactly.
+
+**3. What could go wrong: testing the requests you imagined, not the ones the app sends.**
+The first draft capped matrices at 25 targets, because `/api/matrix` does, and it passed. But each bus query sends a 98-stop walking matrix from inside the API. Adding that changed the sample and exposed the `cost` difference above, so the first green was luck. The test still has limits: it needs the running server and the gitignored tiles, so CI can't run it, and it proves this Mac's build, not Vercel's Linux one. Probe P and Checkpoint S spot-check Linux; full equivalence there stays unproven.
+*Analogy:* a validation set from the wrong distribution: great metrics on data production never sees.
+
 ## 2026-11-09 · tidy: feat(api): Valhalla can run inside the API
 
 **1. Principle: a shared object is only as safe as its least safe call.**
