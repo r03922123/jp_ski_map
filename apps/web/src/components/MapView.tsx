@@ -262,9 +262,12 @@ export default function MapView({
 
   // Fit the whole route set once per new search or picked option, clear of the directions
   // panel. Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after
-  // this map reports a pan) must never re-fit, or the user can't pan at all.
+  // this map reports a pan) must never re-fit, or the user can't pan at all. The width
+  // counts because a resized window or a rotated phone moves the panels; the height
+  // doesn't, because iOS Safari changes it whenever its toolbar hides.
+  const [canvasWidth, setCanvasWidth] = useState<number | null>(null);
   const drawn = [...routes, ...(ride ? [ride.route] : [])];
-  const fitKey = `${activeRoute}/${drawn
+  const fitKey = `${canvasWidth}/${activeRoute}/${drawn
     .map(
       (r) =>
         `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,
@@ -476,9 +479,11 @@ export default function MapView({
           Object.assign(window, { __hakubaMap: e.target });
         }
         reportView(e.target);
+        setCanvasWidth(e.target.getCanvas().clientWidth);
         setMapReady(true);
         onLoad?.();
       }}
+      onResize={(e) => setCanvasWidth(e.target.getCanvas().clientWidth)}
       onMoveEnd={(e: ViewStateChangeEvent) => reportView(e.target)}
       onStyleData={(e) => keepRouteLayerOrder(e.target)}
       onDragStart={() => pilot?.onUserMove()}

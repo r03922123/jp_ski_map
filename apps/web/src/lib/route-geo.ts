@@ -81,8 +81,12 @@ const SHEET_FRACTION = 0.4; // collapsed bottom sheet, h-[40dvh]
 const MD_BREAKPOINT_PX = 768;
 // v1.9 (BC-L1): the From/To card on top of the map on phones, plus a margin
 const TRIP_CARD_PX = 136;
+// the start and destination markers stand above their point (anchor "bottom")
+const MARKER_PX = 40;
+// a short landscape phone can't spare the marker's room: a fit needs some map left
+const MIN_CLEAR_PX = 80;
 
-/** fitBounds padding that keeps the route clear of the directions panel. */
+/** fitBounds padding that keeps the route and its end markers clear of the panels. */
 export function mapPadding({
   width,
   height,
@@ -98,10 +102,12 @@ export function mapPadding({
       left: PANEL_WIDTH_PX + PANEL_INSET_PX + 48,
     };
   }
+  const bottom = Math.round(height * SHEET_FRACTION) + 32;
+  const spare = Math.max(0, height - TRIP_CARD_PX - bottom - MIN_CLEAR_PX);
   return {
-    top: TRIP_CARD_PX,
+    top: TRIP_CARD_PX + Math.min(MARKER_PX, spare),
     right: 32,
-    bottom: Math.round(height * SHEET_FRACTION) + 32,
+    bottom,
     left: 32,
   };
 }

@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · build new features: fix(web): keep the start and destination markers clear of the panels
+
+**1. Principle: test the thing the user sees, not a proxy for it.**
+PR #28's test checked every point of the route line and passed. But the start and destination markers stand above their point, so a marker at the top of the route sat 14–19 px under the trip card. The new test measures each marker's real rectangle against the live panels, on three phones, a tablet and two laptops.
+*Analogy:* a bounding-box test on an object's centre says nothing about whether its edges are clipped.
+
+**2. Trade-off: a constant for the marker's height rather than measuring it.**
+`mapPadding` adds 40 px on phones. Measuring the DOM would adapt by itself, but it needs the markers to exist before the fit runs, and they don't. The test catches the constant going stale. On a short landscape phone the extra room shrinks, because a padding larger than the map makes the fit do nothing.
+
+**3. What could go wrong: re-fitting on every resize.**
+A resized window moves the panels, so the fit now reacts to width. It ignores height on purpose: iOS Safari changes the height whenever its toolbar hides, and re-fitting then would pull the map out from under a finger.
+
 ## 2026-11-09 · build new features: feat(api): honour the operator's boarding rules in to-place
 
 **1. Principle: a rule that matters to the code has to be data, not a comment.**
