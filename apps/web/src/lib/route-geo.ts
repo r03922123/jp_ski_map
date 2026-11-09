@@ -78,7 +78,7 @@ export function segment(coords: LngLat[], [begin, end]: [number, number]) {
 const PANEL_WIDTH_PX = 384; // BottomSheet md:w-96
 const PANEL_INSET_PX = 12; // md:left-3
 const SHEET_FRACTION = 0.4; // collapsed bottom sheet, h-[40dvh]
-const MD_BREAKPOINT_PX = 768;
+export const MD_BREAKPOINT_PX = 768;
 // v1.9 (BC-L1): the From/To card on top of the map on phones, plus a margin
 const TRIP_CARD_PX = 136;
 // the start and destination markers stand above their point (anchor "bottom")

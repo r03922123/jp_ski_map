@@ -35,6 +35,7 @@ import { type RideStopMark, rideStopFeatures } from "@/lib/ride-stops";
 import {
   type LngLat,
   labelAnchor,
+  MD_BREAKPOINT_PX,
   mapPadding,
   routeBounds,
   segment,
@@ -309,6 +310,17 @@ export default function MapView({
     });
   }, [fitKey, mapReady, piloting]);
 
+  // Phones: the open credits sit on the strip above the sheet that the fit keeps for the
+  // end markers, so a trip folds them, as MapLibre's first drag does. The ⓘ reopens them.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for the trip
+  useEffect(() => {
+    if (!mapReady || endPoints.length + drawn.length === 0) return;
+    mapRef.current
+      ?.getContainer()
+      .querySelector(".maplibregl-compact-show")
+      ?.classList.remove("maplibregl-compact-show");
+  }, [fitKey, mapReady]);
+
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
   // the swipe. The follow camera waits for the release, then catches up, unless the press
@@ -528,7 +540,11 @@ export default function MapView({
       initialViewState={HAKUBA_VIEW}
       mapStyle={mapStyle}
       style={{ position: "absolute", inset: 0, zIndex: 0 }}
-      attributionControl={{ customAttribution: MAP_ATTRIBUTION }}
+      attributionControl={{
+        customAttribution: MAP_ATTRIBUTION,
+        // MapLibre's own cut-off is 640 px, but the sheet covers the corner up to `md`
+        compact: window.innerWidth < MD_BREAKPOINT_PX || undefined,
+      }}
       interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER]}
       onLoad={(e) => {
         // e2e checks what is actually drawn (layer order, rendered stop dots)

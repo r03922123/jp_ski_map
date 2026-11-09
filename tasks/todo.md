@@ -823,7 +823,9 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - [x] `lodging_overture.meta.json` counted from all 755 places of release 2026-10-21.0, `lodging_overture.json` unchanged
 - [x] The API docs (local only: the deployment proxies only `/api/*`) and the map credits link the licences
 - Decision (owner, 2026-11-09): the 2 AllThePlaces lodging records stay, named in DATA-LICENSES.md. A test now fails if a refresh changes that count.
-- Open: on phones (below `md`) the map credits, OSM's included, sit behind the bottom sheet at every height, and the e2e checks read the DOM only. Found 2026-11-09; needs its own PR.
+- [x] On phones (below `md`) the credits, OSM's included, rise above the collapsed sheet; `e2e/map-credits.spec.ts` hit-tests them, because the older checks read the DOM only
+- [x] Below `md` the credits are compact, and a trip folds them, because open they cover the strip the route's fit keeps for its end markers
+- Known limits: with the sheet expanded the credits stay covered until it collapses. With no trip they open over the map's labels and a resort marker until the first drag or a tap on ⓘ. On landscape phones about 320 px tall or less, the ⓘ takes a tap on `+`, which worked before this change; pinch zoom still works. At those sizes, credits reopened during a trip sit partly under the trip card. The zoom buttons stay behind the sheet on portrait phones, as before. Not checked: navigation mode, where a bottom bar replaces the sheet, and real iPhones or WebKit.
 - Follow-up 1 stays open for the 15 My Maps stops, follow-up 2 for the December re-check; the takeover phase is unchanged.
 
 ## Task J11: Search answers for hotels (SPEC-place-search items 6 and 7)

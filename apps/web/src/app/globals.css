@@ -199,6 +199,16 @@
   }
 }
 
+/* Phones: the collapsed sheet (BottomSheet, 40dvh + 4px) covers the map's corner, so the
+   credits rise above it. 32px clears the handle's hit area, 22px above the sheet, and the
+   ⓘ's own 10px below the pill. Only the credits move: the zoom buttons share this corner
+   and stay put. Expanded, the sheet leaves no room; collapsing it brings them back. */
+@media (width < 48rem) {
+  :has(> [data-sheet][data-state="collapsed"]) .maplibregl-ctrl-attrib {
+    transform: translateY(calc(-40dvh - 32px));
+  }
+}
+
 /* SPEC-game-theme: a stepped pixel border drawn with box-shadows (no images). The four
    outer shadows leave the corners notched, like a sprite's frame. */
 .pixel-frame {
