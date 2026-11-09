@@ -828,9 +828,10 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 
 ## Task J11: Search answers for hotels (SPEC-place-search items 6 and 7)
 - [x] The eval counts any result for an `absent` name as wrong; `Hakuba Park Hotel` is relabelled, because 白馬パークホテル at the same address is in our data
-- [x] A query naming a lodging type keeps lodging, and other places only if they carry that word or are named only for what the query names; Photon's results too
+- [x] A query naming a lodging type keeps lodging, and other places only if they carry that word or are bus stops named only for what the query names; Photon's results too
 - [x] 飯店, 饭店, 酒店 and 旅馆 retry as ホテル when nothing matches; 白馬飯店 still finds the restaurant
-- Not covered: simplified 东急饭店 (东 and 马 aren't folded) and Traditional 東急旅館. The live-Photon eval wasn't re-run.
+- Not covered: simplified 东急饭店 (东 and 马 aren't folded), Traditional 東急旅館, partial stop names ("Keisui Ryokan" for Ryokusuitei Keisui) and spaced kana against an unspaced name (白馬 パーク ホテル). The live-Photon eval wasn't re-run.
+- Open: `sound_key` gives Maruhachi and Marriott the same key (`mrt`), so "Maruhachi Ryokan" answers with Courtyard by Marriott. It predates this task; changing the key affects every Japanese name, so it needs its own eval run.
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).

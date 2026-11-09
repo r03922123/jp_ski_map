@@ -84,6 +84,12 @@ def test_a_stop_named_only_for_the_hotel_stays() -> None:
     assert names(rank(gakusui, "Ryokusuitei Keisui Ryokan", HAPPO, 5)) == ["Ryokusuitei Keisui"]
 
 
+def test_only_a_bus_stop_can_be_named_for_a_hotel() -> None:
+    places = [entry("Zen", "food"), entry("Tsugaike Mountain Resort", "resort")]
+    assert names(rank(places, "Zen Hotel", HAPPO, 5)) == []
+    assert names(rank(places, "Tsugaike Mountain Hotel", HAPPO, 5)) == []
+
+
 def test_a_query_with_no_lodging_word_is_not_filtered() -> None:
     assert "Hakuba Inn Bloom Parking" in names(rank(TYPED, "Parking", HAPPO, 5))
     assert "Hakuba 47 Winter Sports Park" in names(rank(TYPED, "47 Park", HAPPO, 5))

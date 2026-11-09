@@ -21,7 +21,8 @@ for those queries.
 The first rule kept a place only if it carried the query's exact lodging word. That fixed the
 car-park stop, but `The Gakusui Hotel` lost its only match, the stop named `The Gakusui`, and
 `パノラマ ホテル` lost `パノラマホテル`. Tests built around the bug didn't show it; trying real names
-from the data did. A place is now also kept when it is named for exactly what the query names.
+from the data did. A bus stop is now also kept when it is named for exactly what the query names;
+the first attempt at that let restaurants answer hotel queries too, so it applies to stops only.
 *Analogy:* a guest list so strict it turns away the host for not writing "Mr." on the card.
 
 ## 2026-11-09 · tidy: chore: ignore Claude Code worktrees and note their setup

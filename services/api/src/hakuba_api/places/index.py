@@ -163,7 +163,7 @@ def shares_distinctive_word(query: str, name: str) -> bool:
 
 def fits_lodging_words(query: str, kind: str, names: list[str]) -> bool:
     """False for a place that isn't lodging when the query names a type of lodging the place
-    doesn't carry: "Hakuba Park Hotel" must not answer with the "… Parking" bus stop. A place
+    doesn't carry: "Hakuba Park Hotel" must not answer with the "… Parking" bus stop. A bus stop
     named only for what the query names stays: "The Gakusui Hotel" keeps the "The Gakusui" stop."""
     q_tokens = _tokens(normalize(query))
     wanted = {KANA_LODGING_WORDS.get(t, t) for t in q_tokens} & LODGING_WORDS
@@ -172,7 +172,9 @@ def fits_lodging_words(query: str, kind: str, names: list[str]) -> bool:
     q_distinctive = set(distinctive(q_tokens))
     for name in map(normalize, names):
         tokens = _tokens(name.replace("&", " "))
-        named_only_for_it = q_distinctive and q_distinctive == set(distinctive(tokens))
+        named_only_for_it = (
+            kind == "stop" and q_distinctive and q_distinctive == set(distinctive(tokens))
+        )
         if wanted.intersection(tokens) or named_only_for_it:
             return True
         if any(word in wanted and kana in name for kana, word in KANA_LODGING_WORDS.items()):
