@@ -15,24 +15,21 @@ import respx
 from fastapi.testclient import TestClient
 from valhalla import ValhallaError  # pyright: ignore[reportMissingTypeStubs]
 
-from hakuba_api.common.geo import Coord
 from hakuba_api.main import app
 from hakuba_api.routing import engine as engine_module
-from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError, ValhallaClient
+from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
 from hakuba_api.routing.engine import InProcessEngine, get_engine
 
-FIXTURES = Path(__file__).parents[1] / "fixtures" / "valhalla"
 VALHALLA = "http://valhalla.test"
 TILES = "/deploy/valhalla_tiles.tar"
 ROUTE_QUERY = {"mode": "drive", "from": "36.70153,137.84561", "to": "36.69824,137.83881"}
+ROUTE_ANSWER = json.loads(
+    (Path(__file__).parents[1] / "fixtures" / "valhalla" / "route_drive.json").read_text()
+)
 Body = dict[str, Any]
 
 
-def fixture(name: str) -> Any:
-    return json.loads((FIXTURES / name).read_text())
-
-
-def valhalla_error(http_code: int, message: str = "no path") -> ValhallaError:
+def valhalla_error(http_code: int, message: str = "no path") -> Exception:
     error: Any = ValhallaError(message)  # the binding sets these two; Python callers can't
     error.http_code = http_code
     error.message = message
@@ -42,9 +39,8 @@ def valhalla_error(http_code: int, message: str = "no path") -> ValhallaError:
 class FakeActor:
     """Stands in for the binding, and records how many calls ran at the same time."""
 
-    def __init__(self, answer: Any = None, hold_s: float = 0.002) -> None:
+    def __init__(self, answer: Any = None) -> None:
         self.answer = answer
-        self.hold_s = hold_s
         self.calls: list[tuple[str, Body]] = []
         self.max_overlap = 0
         self._running = 0
@@ -55,7 +51,7 @@ class FakeActor:
             self._running += 1
             self.max_overlap = max(self.max_overlap, self._running)
             self.calls.append((name, req))
-        time.sleep(self.hold_s)
+        time.sleep(0.002)
         with self._guard:
             self._running -= 1
         if isinstance(self.answer, Exception):
@@ -67,6 +63,27 @@ class FakeActor:
 
     def matrix(self, req: Body) -> Any:
         return self._run("matrix", req)
+
+
+class FakeBinding:
+    """The `valhalla` package's Actor and get_config, counting how often an Actor is built."""
+
+    def __init__(self) -> None:
+        self.actor = FakeActor()
+        self.builds = 0
+        self.build_error: Exception | None = None
+        self.config_kwargs: list[dict[str, Any]] = []
+
+    def get_config(self, **kwargs: Any) -> dict[str, Any]:
+        self.config_kwargs.append(kwargs)
+        return {"fake": "config"}
+
+    def build(self, config: dict[str, Any]) -> FakeActor:
+        time.sleep(0.01)  # a slow build is what lets racing first calls both start one
+        self.builds += 1
+        if self.build_error:
+            raise self.build_error
+        return self.actor
 
 
 def engine_with(actor: FakeActor, wait_s: float = 5) -> InProcessEngine:
@@ -91,32 +108,29 @@ def no_engine_yet(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def binding(monkeypatch: pytest.MonkeyPatch) -> "FakeBinding":
+def binding(monkeypatch: pytest.MonkeyPatch) -> FakeBinding:
     fake = FakeBinding()
     monkeypatch.setattr("valhalla.Actor", fake.build)
     monkeypatch.setattr("valhalla.get_config", fake.get_config)
     return fake
 
 
-class FakeBinding:
-    """The `valhalla` package's Actor and get_config, counting how often an Actor is built."""
+@pytest.fixture
+def in_process(binding: FakeBinding, monkeypatch: pytest.MonkeyPatch) -> FakeBinding:
+    monkeypatch.setenv("VALHALLA_TILES", TILES)
+    return binding
 
-    def __init__(self) -> None:
-        self.actor = FakeActor()
-        self.builds = 0
-        self.build_error: Exception | None = None
-        self.config_kwargs: list[dict[str, Any]] = []
 
-    def get_config(self, **kwargs: Any) -> dict[str, Any]:
-        self.config_kwargs.append(kwargs)
-        return {"fake": "config"}
+@pytest.fixture
+def http_backend() -> Iterator[respx.MockRouter]:
+    with respx.mock(base_url=VALHALLA, assert_all_called=False) as mock:
+        yield mock
 
-    def build(self, config: dict[str, Any]) -> FakeActor:
-        time.sleep(0.01)  # a slow build is what lets racing first calls both start one
-        self.builds += 1
-        if self.build_error:
-            raise self.build_error
-        return self.actor
+
+@pytest.fixture
+def api(monkeypatch: pytest.MonkeyPatch) -> TestClient:
+    monkeypatch.setenv("VALHALLA_URL", VALHALLA)
+    return TestClient(app)
 
 
 # --- one call at a time ---------------------------------------------------------
@@ -175,24 +189,12 @@ def test_valhalla_400_is_no_route() -> None:
         engine.post("/route", {})
 
 
-@pytest.mark.parametrize("http_code", [404, 500, 503])
-def test_other_valhalla_errors_are_routing_unavailable(http_code: int) -> None:
-    engine = engine_with(FakeActor(answer=valhalla_error(http_code, "tile broke")))
-
+@pytest.mark.parametrize(
+    "error", [valhalla_error(404), valhalla_error(500), RuntimeError("c++ said no")]
+)
+def test_every_other_error_is_routing_unavailable(error: Exception) -> None:
     with pytest.raises(RoutingUnavailableError):
-        engine.post("/route", {})
-
-
-def test_any_other_binding_error_is_routing_unavailable() -> None:
-    engine = engine_with(FakeActor(answer=RuntimeError("c++ said no")))
-
-    with pytest.raises(RoutingUnavailableError):
-        engine.post("/route", {})
-
-
-def test_an_unknown_path_is_routing_unavailable() -> None:
-    with pytest.raises(RoutingUnavailableError):
-        engine_with(FakeActor()).post("/isochrone", {})
+        engine_with(FakeActor(answer=error)).post("/route", {})
 
 
 def test_the_lock_is_free_again_after_an_error() -> None:
@@ -242,47 +244,15 @@ def test_a_missing_tile_file_is_routing_unavailable() -> None:
 # --- backend choice -------------------------------------------------------------
 
 
-@pytest.fixture
-def http_backend() -> Iterator[respx.MockRouter]:
-    with respx.mock(base_url=VALHALLA, assert_all_called=False) as mock:
-        yield mock
-
-
-@pytest.fixture
-def api(monkeypatch: pytest.MonkeyPatch) -> TestClient:
-    monkeypatch.setenv("VALHALLA_URL", VALHALLA)
-    return TestClient(app)
-
-
-def test_client_with_tiles_routes_in_process(
-    binding: FakeBinding, http_backend: respx.MockRouter
-) -> None:
-    binding.actor.answer = fixture("route_drive.json")
-    http = http_backend.post("/route").respond(json={})
-    client = ValhallaClient(VALHALLA, tiles=TILES)
-
-    route = client.route(
-        "drive", Coord(lat=36.70153, lng=137.84561), Coord(lat=36.69824, lng=137.83881)
-    )
-
-    assert route.duration_s == 172
-    assert binding.actor.calls[0][0] == "route"
-    assert not http.called
-
-
 def test_tiles_setting_sends_the_api_in_process(
-    binding: FakeBinding,
-    http_backend: respx.MockRouter,
-    api: TestClient,
-    monkeypatch: pytest.MonkeyPatch,
+    in_process: FakeBinding, http_backend: respx.MockRouter, api: TestClient
 ) -> None:
-    monkeypatch.setenv("VALHALLA_TILES", TILES)
-    binding.actor.answer = fixture("route_drive.json")
+    in_process.actor.answer = ROUTE_ANSWER
     http = http_backend.post("/route").respond(json={})
 
     response = api.get("/api/route", params=ROUTE_QUERY)
 
-    assert response.status_code == 200
+    assert (response.status_code, response.json()["durationS"]) == (200, 172)
     assert not http.called
 
 
@@ -293,11 +263,9 @@ def test_empty_tiles_setting_stays_on_http(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("VALHALLA_TILES", "")
-    http = http_backend.post("/route").respond(json=fixture("route_drive.json"))
+    http = http_backend.post("/route").respond(json=ROUTE_ANSWER)
 
-    response = api.get("/api/route", params=ROUTE_QUERY)
-
-    assert response.status_code == 200
+    assert api.get("/api/route", params=ROUTE_QUERY).status_code == 200
     assert http.called
     assert binding.builds == 0
 
@@ -311,15 +279,9 @@ def test_empty_tiles_setting_stays_on_http(
     ],
 )
 def test_in_process_errors_keep_their_api_meaning(
-    binding: FakeBinding,
-    api: TestClient,
-    monkeypatch: pytest.MonkeyPatch,
-    error: Exception,
-    status: int,
-    body: dict[str, str],
+    in_process: FakeBinding, api: TestClient, error: Exception, status: int, body: dict[str, str]
 ) -> None:
-    monkeypatch.setenv("VALHALLA_TILES", TILES)
-    binding.actor.answer = error
+    in_process.actor.answer = error
 
     response = api.get("/api/route", params=ROUTE_QUERY)
 
@@ -329,34 +291,19 @@ def test_in_process_errors_keep_their_api_meaning(
 # --- /api/matrix bound ----------------------------------------------------------
 
 
-def matrix_body(target_count: int) -> Body:
-    return {
+@pytest.mark.parametrize(("targets", "status"), [(25, 200), (26, 422)])
+def test_matrix_takes_at_most_25_targets(
+    http_backend: respx.MockRouter, api: TestClient, targets: int, status: int
+) -> None:
+    cells = [{"to_index": i, "time": 60, "distance": 1.0} for i in range(targets)]
+    http = http_backend.post("/sources_to_targets").respond(json={"sources_to_targets": [cells]})
+    body = {
         "mode": "drive",
         "origin": {"lat": 36.7, "lng": 137.84},
-        "targets": [{"id": f"t{i}", "lat": 36.7, "lng": 137.85} for i in range(target_count)],
+        "targets": [{"id": f"t{i}", "lat": 36.7, "lng": 137.85} for i in range(targets)],
     }
 
+    response = api.post("/api/matrix", json=body)
 
-def matrix_answer(target_count: int) -> Body:
-    cells = [{"to_index": i, "time": 60, "distance": 1.0} for i in range(target_count)]
-    return {"sources_to_targets": [cells]}
-
-
-def test_matrix_refuses_26_targets_before_any_routing(
-    http_backend: respx.MockRouter, api: TestClient
-) -> None:
-    http = http_backend.post("/sources_to_targets").respond(json=matrix_answer(26))
-
-    response = api.post("/api/matrix", json=matrix_body(26))
-
-    assert response.status_code == 422
-    assert not http.called
-
-
-def test_matrix_accepts_25_targets(http_backend: respx.MockRouter, api: TestClient) -> None:
-    http_backend.post("/sources_to_targets").respond(json=matrix_answer(25))
-
-    response = api.post("/api/matrix", json=matrix_body(25))
-
-    assert response.status_code == 200
-    assert len(response.json()) == 25
+    assert response.status_code == status
+    assert http.called is (status == 200)

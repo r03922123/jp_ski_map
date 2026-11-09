@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-09 · tidy: feat(api): Valhalla can run inside the API
+
+**1. Principle: a shared object is only as safe as its least safe call.**
+FastAPI runs our sync endpoints on a thread pool, and the binding lets go of Python's global lock during each call. So two requests really can be inside one `Actor` at once, and that crashed the whole process in 4 of 4 runs. With one `threading.Lock` around every call, 2,000 threaded requests ran with 0 wrong, at the cost of a queue. A single-thread test would never have shown this, so a fake Actor records the most calls it ever saw running together, and the test requires 1.
+*Analogy:* a model object that isn't safe to share across dataloader workers: it works in the notebook and dies in the real run.
+
+**2. Trade-off: one queue, bounded, instead of one Actor per thread.**
+An Actor per thread needs no queue but costs about 42 MB each. One Actor means a busy request waits, so the wait stops at 10 s and returns 503. A C++ call can't be interrupted once it starts, so the only control over how long the lock is held is how big a request can be: that's why `/api/matrix` now takes at most 25 targets.
+*Analogy:* one GPU with a batch-size limit: a queue is fine as long as nobody can submit a batch that hogs it for minutes.
+
+**3. What could go wrong: a fake proves the logic, not the library.**
+The tests use a fake Actor so they run in CI without tiles, and a fake can agree with a wrong idea of the binding. So the tests use the real `ValhallaError` class, and one real run went through the API on the Hakuba tiles with no server: route, matrix, a no-route 404, and 200 requests on 8 threads. PR 3 is the full comparison with the server. One thing is still unmeasured: each bus query sends a 98-stop walking matrix, and that holds the lock too.
+*Analogy:* a unit test with a mock dataset says the training loop runs; only an eval on real data says the model works.
+
 ## 2026-11-09 · build new features: feat(web): Bus gets the same To box
 
 **1. Principle: one name, one meaning, then one code path.**
