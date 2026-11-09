@@ -205,8 +205,12 @@ for (const device of DEVICES) {
         (r) => isToPlace(r) && coordOf(r, "to") === STATION,
       );
       await swapButton(page).click();
-      await back;
 
+      // from where that bus drops you, not from the resort's first access point
+      const { lat, lng } = JSON.parse(MARCH_20)
+        .resorts.find((r: { resortId: string }) => r.resortId === "hakuba47")
+        .options[0].rideStops.at(-1).coord;
+      expect(coordOf(await back, "from")).toBe(`${lat},${lng}`);
       await expect(page.locator('[aria-label="Journey"]')).toHaveCount(0);
     });
 
@@ -255,4 +259,42 @@ test("a swap drops the chosen bus, whose stop belonged to the old start", async 
     "true",
   );
   await expect(journey).toHaveCount(0);
+});
+
+test("a chosen way-back shuttle goes when a resort marker takes over", async ({
+  page,
+}) => {
+  await mockBuses(page);
+  await page.goto(`/?from=${RESORT_END}&mode=bus&dest=pt:${STATION}`);
+  await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+    timeout: 30_000,
+  });
+  await page.getByLabel("Leave after").fill("2026-03-20T14:30");
+  await page.getByText("14:37 → 15:10").click({ timeout: 15_000 });
+  const journey = page.locator('[aria-label="Journey"]');
+  await expect(journey).toBeVisible();
+
+  const findMarker = () =>
+    page.evaluate(() => {
+      for (const b of document.querySelectorAll<HTMLButtonElement>(
+        "[data-resort-marker]",
+      )) {
+        const r = b.getBoundingClientRect();
+        const x = r.left + r.width / 2;
+        const y = r.top + r.height / 2;
+        if (b.contains(document.elementFromPoint(x, y))) return { x, y };
+      }
+      return null;
+    });
+  await expect.poll(findMarker, { timeout: 15_000 }).not.toBeNull();
+  const marker = await findMarker();
+  if (!marker) throw new Error("no resort marker on screen");
+  await page.mouse.click(marker.x, marker.y);
+
+  await expect.poll(() => param(page, "dest")).toBeNull();
+  await expect(journey).toHaveCount(0);
+  await expect(page.locator("main")).toHaveAttribute(
+    "data-map-ride-stops",
+    "0",
+  );
 });

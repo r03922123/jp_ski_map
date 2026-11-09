@@ -245,7 +245,7 @@ Success means:
 **Objective.** From a resort, Bus mode lists the next shuttles back to the lodging with the walk from the stop where you get off. The rules for which trips count live in SPEC-bus-schedules v1.2.
 
 **Rules.**
-1. In Bus mode, a destination that isn't a resort (the swap's lodging, or one set on Drive or Walk) asks `/api/bus/to-place`. With none, the resort list works as before.
+1. In Bus mode, a lodging or place set as the destination (the swap's, or one set on Drive or Walk; not a resort, and not a food or konbini row) asks `/api/bus/to-place`. With none, the resort list works as before. A chosen bus only counts while the list it came from is showing.
 2. The list has no resort headings. Each row shows the times, the board stop and the walk there, then "Get off <stop> · walk N min". The chosen trip's timeline ends with the walk to the lodging. When a row's stop times aren't published, the list says the stop order may vary.
 3. Swap works in Bus mode. The destination is the lodging, else the chosen bus's resort, else the selected resort. With none of these the button is disabled, as in Drive. A swap still clears any chosen bus (v1.10 rule 5).
 4. A "Shuttles to resorts" link clears the destination and returns to the resort list, since Bus mode has no To box.

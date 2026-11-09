@@ -23,7 +23,7 @@ export type TripPanelProps = {
   onRemoveStop: (key: string) => void;
   onFillStop: (key: string, place: PlaceInput) => void;
   onClearFrom: () => void;
-  /** absent when the destination isn't the user's to clear (bus: the chosen option's stop) */
+  /** absent when the destination isn't the user's to clear (bus: its panel has the link) */
   onClearTo?: () => void;
 };
 
@@ -117,7 +117,7 @@ export function TripPanel({
           ),
         )}
         {to && (
-          // bus: the chosen option's stop, read-only. Drive and walk pass no `to`: their
+          // bus: the lodging, or the chosen option's stop, read-only. Drive and walk pass no `to`: their
           // destination is the To box in the trip card on top (v1.9)
           <Row
             marker="📍"

@@ -73,6 +73,7 @@ import {
   planBus,
   reduceBus,
 } from "@/lib/nav/bus-journey";
+import { busChoiceFor, stopMatchName } from "@/lib/nav/bus-place";
 import { cameraFor } from "@/lib/nav/camera";
 import {
   geolocationSource,
@@ -190,7 +191,7 @@ export function MapShell() {
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
   const [departAt, setDepartAt] = useState("");
   const [showNight, setShowNight] = useState(false);
-  const [busChoice, setBusChoice] = useState<BusOption | null>(null);
+  const [storedBusChoice, setBusChoice] = useState<BusOption | null>(null);
   useEffect(() => setDepartAt(nowInHakuba()), []); // client clock only, avoids SSR mismatch
 
   // Restore the shared view once, then mirror every change back into the URL.
@@ -332,6 +333,8 @@ export function MapShell() {
   // Bus mode with a destination that isn't a resort: the way back (SPEC-web-app v1.11)
   const busPlace =
     mode === "bus" && pointPlace?.kind !== "resort" ? pointPlace : null;
+  const busChoice = busChoiceFor(storedBusChoice, busPlace !== null);
+  const busPlaceName = stopMatchName(busPlace?.name);
   const busEnabled = mode === "bus" && origin !== null && departAt !== "";
   const bus = useQuery({
     queryKey: ["bus", origin, departAt, originName],
@@ -346,7 +349,7 @@ export function MapShell() {
       busPlace?.coord,
       departAt,
       originName,
-      point?.name,
+      busPlaceName,
     ],
     queryFn: () =>
       fetchBusToPlace(
@@ -354,7 +357,7 @@ export function MapShell() {
         busPlace!.coord,
         departAt,
         originName,
-        point?.name ?? null,
+        busPlaceName,
       ),
     enabled: busEnabled && !showNight && busPlace !== null,
     retry: false,
@@ -923,7 +926,7 @@ export function MapShell() {
     if (!fromPlace || !swapTo) return;
     sfx().play("select");
     setOrigin(swapTo.coord);
-    setOriginName(swapTo.kind === "pin" ? null : swapTo.name);
+    setOriginName(stopMatchName(swapTo.name));
     setOriginSource(swapTo);
     setSearchLabel(swapTo.name);
     // remounted: a label equal to the last one the app set wouldn't replace a typed start
@@ -968,7 +971,7 @@ export function MapShell() {
         setDroppedPin(null);
       }}
       onGo={
-        // Bus: the destination is the chosen option's stop
+        // Bus has no "go here": its destination comes from the swap or another tab
         mode === "bus"
           ? undefined
           : () => {
@@ -1136,7 +1139,7 @@ export function MapShell() {
               onModeChange={(m) => {
                 sfx().play("select");
                 setMode(m);
-                // a bus chosen earlier was for the resort list, not this destination
+                // the destination may have changed on the other tab, and the bus with it
                 if (m === "bus" && point) setBusChoice(null);
               }}
               resorts={resorts.data ?? []}
