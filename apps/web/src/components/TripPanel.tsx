@@ -1,7 +1,7 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { SaveButton } from "@/components/SaveButton";
 import { SearchBox } from "@/components/SearchBox";
 import type { Coord, Suggestion } from "@/lib/api";
@@ -14,11 +14,10 @@ export type TripPanelProps = {
   /** null while the start is being changed: the stops stay listed */
   from: PlaceInput | null;
   stops: TripStop[];
-  /** drive/walk with a start and a destination, under the stop limit */
-  canAddStop: boolean;
+  /** the Add destination button in the trip card, which takes focus after an edit */
+  addStopRef: RefObject<HTMLButtonElement | null>;
   /** search bias for stop boxes (the map centre) */
   near: Coord | null;
-  onAddStop: () => void;
   onRemoveStop: (key: string) => void;
   onFillStop: (key: string, place: PlaceInput) => void;
   onClearFrom: () => void;
@@ -31,23 +30,21 @@ export type TripPanelProps = {
 export function TripPanel({
   from,
   stops,
-  canAddStop,
+  addStopRef,
   near,
-  onAddStop,
   onRemoveStop,
   onFillStop,
   onClearFrom,
 }: TripPanelProps) {
-  const addRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  // Filling or removing a stop unmounts the focused control: hand focus to Add stop (or
-  // the list) instead of letting it drop to the page.
+  // Filling or removing a stop unmounts the focused control: hand focus to Add
+  // destination (or the list) instead of letting it drop to the page.
   const [refocus, setRefocus] = useState(false);
   useEffect(() => {
     if (!refocus) return;
-    (addRef.current ?? listRef.current)?.focus();
+    (addStopRef.current ?? listRef.current)?.focus();
     setRefocus(false);
-  }, [refocus]);
+  }, [refocus, addStopRef]);
   const removeStop = (key: string) => {
     setRefocus(true);
     onRemoveStop(key);
@@ -55,75 +52,62 @@ export function TripPanel({
 
   if (!from && stops.length === 0) return null;
   return (
-    <div className="flex flex-col gap-1">
-      <ul
-        ref={listRef}
-        tabIndex={-1}
-        aria-label="Trip"
-        className="flex flex-col rounded-lg border text-sm outline-none"
-      >
-        {from && (
-          <Row
-            marker="🔵"
-            label="From"
-            place={from}
-            removeLabel="Remove starting point"
-            onRemove={onClearFrom}
-          />
-        )}
-        {stops.map((stop, i) =>
-          stop.place ? (
-            <Row
-              key={stop.key}
-              marker={String(i + 1)}
-              label={`Stop ${i + 1}`}
-              place={stop.place}
-              removeLabel={`Remove stop ${i + 1}`}
-              onRemove={() => removeStop(stop.key)}
-            />
-          ) : (
-            <li
-              key={stop.key}
-              className="flex items-center gap-2 px-2 py-1 not-last:border-b"
-            >
-              <StopBadge n={i + 1} />
-              <div className="min-w-0 flex-1">
-                <SearchBox
-                  ariaLabel={`Stop ${i + 1}`}
-                  // the hint lives here: a line under the box would sit under its dropdown
-                  placeholder="Search, or tap the map"
-                  clearLabel={`Remove stop ${i + 1}`}
-                  alwaysClearable
-                  near={near}
-                  autoFocus
-                  onSelect={(s) => {
-                    setRefocus(true);
-                    onFillStop(stop.key, {
-                      id: s.id,
-                      name: s.name,
-                      coord: s.coord,
-                      kind: kindFromSuggestion(s.kind),
-                    });
-                  }}
-                  onClear={() => removeStop(stop.key)}
-                />
-              </div>
-            </li>
-          ),
-        )}
-      </ul>
-      {canAddStop && (
-        <button
-          ref={addRef}
-          type="button"
-          aria-label="Add stop"
-          className="flex items-center gap-1 self-start rounded-full px-2 py-1 text-sm font-medium text-blue-700 hover:bg-muted"
-          onClick={onAddStop}
-        >
-          <Plus aria-hidden="true" className="size-4" /> Add stop
-        </button>
+    <ul
+      ref={listRef}
+      tabIndex={-1}
+      aria-label="Trip"
+      className="flex flex-col rounded-lg border text-sm outline-none"
+    >
+      {from && (
+        <Row
+          marker="🔵"
+          label="From"
+          place={from}
+          removeLabel="Remove starting point"
+          onRemove={onClearFrom}
+        />
       )}
-    </div>
+      {stops.map((stop, i) =>
+        stop.place ? (
+          <Row
+            key={stop.key}
+            marker={String(i + 1)}
+            label={`Stop ${i + 1}`}
+            place={stop.place}
+            removeLabel={`Remove stop ${i + 1}`}
+            onRemove={() => removeStop(stop.key)}
+          />
+        ) : (
+          <li
+            key={stop.key}
+            className="flex items-center gap-2 px-2 py-1 not-last:border-b"
+          >
+            <StopBadge n={i + 1} />
+            <div className="min-w-0 flex-1">
+              <SearchBox
+                ariaLabel={`Stop ${i + 1}`}
+                // the hint lives here: a line under the box would sit under its dropdown
+                placeholder="Search, or tap the map"
+                clearLabel={`Remove stop ${i + 1}`}
+                alwaysClearable
+                near={near}
+                autoFocus
+                onSelect={(s) => {
+                  setRefocus(true);
+                  onFillStop(stop.key, {
+                    id: s.id,
+                    name: s.name,
+                    coord: s.coord,
+                    kind: kindFromSuggestion(s.kind),
+                  });
+                }}
+                onClear={() => removeStop(stop.key)}
+              />
+            </div>
+          </li>
+        ),
+      )}
+    </ul>
   );
 }
 
@@ -179,8 +163,8 @@ function Row({
 
 /**
  * The To box (SPEC-web-app v1.8 rule 1, BC-T1): a search box showing the destination's
- * name, with its Save star. Typing is a draft; a pick changes only the destination. It
- * lives in the trip card on top, under the From box (v1.9, BC-L1).
+ * name. Typing is a draft; a pick changes only the destination. It lives in the trip
+ * card on top, under the From box (v1.9, BC-L1), with its Save star below (v1.13).
  */
 export function DestinationBox({
   to,
@@ -194,21 +178,16 @@ export function DestinationBox({
   onClear: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="min-w-0 flex-1">
-        <SearchBox
-          ariaLabel="To"
-          placeholder="Search a destination"
-          // typing is a draft: leaving without a pick puts the name back (BC-T1)
-          label={to?.name ?? null}
-          restoreOnBlur
-          clearLabel="Remove destination"
-          near={near}
-          onSelect={onChoose}
-          onClear={onClear}
-        />
-      </div>
-      {to && <SaveButton place={to} />}
-    </div>
+    <SearchBox
+      ariaLabel="To"
+      placeholder="Search a destination"
+      // typing is a draft: leaving without a pick puts the name back (BC-T1)
+      label={to?.name ?? null}
+      restoreOnBlur
+      clearLabel="Remove destination"
+      near={near}
+      onSelect={onChoose}
+      onClear={onClear}
+    />
   );
 }

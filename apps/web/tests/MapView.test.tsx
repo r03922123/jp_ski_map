@@ -18,6 +18,7 @@ const h = vi.hoisted(() => ({
     fitBounds: vi.fn(),
     flyTo: vi.fn(),
     getZoom: () => 14,
+    project: () => ({ x: 200, y: 400 }),
     getCanvas: () => ({ clientHeight: 800, clientWidth: 400 }),
     getBounds: () => ({
       getSouth: () => 36.6,

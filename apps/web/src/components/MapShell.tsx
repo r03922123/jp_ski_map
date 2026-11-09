@@ -25,11 +25,13 @@ import {
   RiderButton,
   SharedRiderCard,
 } from "@/components/RiderCard";
+import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import { SoundToggle } from "@/components/SoundToggle";
 import { StampMoment } from "@/components/StampMoment";
 import { TitleScreen } from "@/components/TitleScreen";
+import { AddDestinationButton, TripCard } from "@/components/TripCard";
 import {
   DestinationBox,
   TripPanel,
@@ -935,6 +937,11 @@ export function MapShell() {
       ? `${routeMode}|${origin.lat},${origin.lng}|${target.lat},${target.lng}|${stopsKey}|${activeRoute}`
       : "";
 
+  const addStopRef = useRef<HTMLButtonElement>(null);
+  const addStop = () => {
+    setSavedOpen(false); // the stop box lives in the trip list, which Saved replaces
+    setStops((list) => [...list, { key: newStopKey(), place: null }]);
+  };
   const canAddStop =
     mode !== "bus" &&
     fromPlace !== null &&
@@ -1069,49 +1076,64 @@ export function MapShell() {
         <BottomSheet
           label="Directions"
           header={
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <div className="min-w-0 flex-1">
-                  <SearchBox
-                    // remounted (emptied) when the trip panel's ✕ clears the start
-                    key={searchKey}
-                    // the swap button narrows this box once there is a start (T78)
-                    placeholder={fromPlace ? "Search a start" : undefined}
-                    // the top card reads From → To (BC-L1): never blank while there is a start
-                    label={searchLabel ?? fromPlace?.name ?? null}
-                    onSelect={(place) => {
-                      setOrigin(place.coord);
-                      setOriginName(place.name);
-                      setOriginSource({
-                        id: place.id,
-                        name: place.name,
-                        coord: place.coord,
-                        kind: kindFromSuggestion(place.kind),
-                      });
-                      setFlyTo(place.coord);
-                    }}
-                    onClear={clearOrigin}
-                    near={
-                      view
-                        ? {
-                            lat: (view.bbox.south + view.bbox.north) / 2,
-                            lng: (view.bbox.west + view.bbox.east) / 2,
-                          }
-                        : null
-                    }
-                  />
-                </div>
-                {fromPlace && (
-                  <button
-                    type="button"
-                    aria-label="Swap start and destination"
-                    disabled={!canSwap}
-                    className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-40"
-                    onClick={swapTrip}
-                  >
-                    <ArrowUpDown aria-hidden="true" className="size-4" />
-                  </button>
-                )}
+            <TripCard
+              twoBars={showToBox}
+              from={
+                <SearchBox
+                  // remounted (emptied) when the trip panel's ✕ clears the start
+                  key={searchKey}
+                  // the rail and ⇅ narrow this box in two bars (T78)
+                  placeholder={showToBox ? "Search a start" : undefined}
+                  // the top card reads From → To (BC-L1): never blank while there is a start
+                  label={searchLabel ?? fromPlace?.name ?? null}
+                  onSelect={(place) => {
+                    setOrigin(place.coord);
+                    setOriginName(place.name);
+                    setOriginSource({
+                      id: place.id,
+                      name: place.name,
+                      coord: place.coord,
+                      kind: kindFromSuggestion(place.kind),
+                    });
+                    setFlyTo(place.coord);
+                  }}
+                  onClear={clearOrigin}
+                  near={
+                    view
+                      ? {
+                          lat: (view.bbox.south + view.bbox.north) / 2,
+                          lng: (view.bbox.west + view.bbox.east) / 2,
+                        }
+                      : null
+                  }
+                />
+              }
+              to={
+                <DestinationBox
+                  to={toPlace}
+                  near={viewCentre}
+                  onChoose={chooseTo}
+                  onClear={clearTo}
+                />
+              }
+              swap={
+                <button
+                  type="button"
+                  aria-label="Swap start and destination"
+                  disabled={!canSwap}
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-40"
+                  onClick={swapTrip}
+                >
+                  <ArrowUpDown aria-hidden="true" className="size-4" />
+                </button>
+              }
+              addDestination={
+                canAddStop && (
+                  <AddDestinationButton ref={addStopRef} onClick={addStop} />
+                )
+              }
+              saveDestination={toPlace && <SaveButton place={toPlace} />}
+              saved={
                 <button
                   type="button"
                   aria-label="Saved places"
@@ -1127,16 +1149,8 @@ export function MapShell() {
                   </span>
                   <span className="max-md:sr-only">Saved</span>
                 </button>
-              </div>
-              {showToBox && (
-                <DestinationBox
-                  to={toPlace}
-                  near={viewCentre}
-                  onChoose={chooseTo}
-                  onClear={clearTo}
-                />
-              )}
-            </div>
+              }
+            />
           }
           collapseKey={destinationKey}
           revealKey={routeKey}
@@ -1173,14 +1187,8 @@ export function MapShell() {
                 <TripPanel
                   from={fromPlace}
                   stops={mode === "bus" ? [] : tripStops}
-                  canAddStop={canAddStop}
+                  addStopRef={addStopRef}
                   near={viewCentre}
-                  onAddStop={() =>
-                    setStops((list) => [
-                      ...list,
-                      { key: newStopKey(), place: null },
-                    ])
-                  }
                   onRemoveStop={(key) =>
                     setStops((list) => list.filter((s) => s.key !== key))
                   }
@@ -1307,6 +1315,9 @@ export function MapShell() {
             });
             return;
           }
+          // both ends set: a stray click must not replace the start (v1.13 rule 8);
+          // Add destination is how to change the trip from here
+          if (origin && toPlace) return;
           setOrigin(coord);
           setOriginName(null);
           setOriginSource(null);

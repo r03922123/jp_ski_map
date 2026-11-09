@@ -30,7 +30,7 @@ async function clippedPlaceholders(page: Page) {
 async function openTripWithStopBox(page: Page) {
   await page.goto("/?from=36.69400,137.86900&mode=walk&resort=happo-one");
   await expect(page.getByText(/^ETA ~/)).toBeVisible({ timeout: 15_000 });
-  await page.getByRole("button", { name: "Add stop" }).click();
+  await page.getByRole("button", { name: "Add destination" }).click();
 }
 
 test.describe("phone", () => {

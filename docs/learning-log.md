@@ -16,6 +16,21 @@ The script builds a temp folder from `git archive HEAD` and adds only the tiles,
 The test puts a stub `vercel` first on a `PATH` holding only system folders, and refuses to run if any other `vercel` is found first. It also checks each stop for its own error message, so a script broken in some unrelated way can't pass. What it can't show is how the real CLI behaves. The fresh-eyes reviewer read the CLI's source and found that the first draft's "no stdin, so nobody can confirm" guard did the opposite when an agent runs it, so a dead link could create a project. Whether a first deploy honours `--environment preview`, and whether the function can read the uploaded files, stay unverified until Checkpoint S, so the owner is told before that deploy.
 *Analogy:* testing a pipeline on a mock GPU cluster: it proves your orchestration logic, not the cluster.
 
+## 2026-11-10 · build new features: feat(web): two equal boxes, Add destination, no drop on click
+
+**1. Principle: React keeps a component alive only while its place in the tree stays the same.**
+Going from one bar to two must not rebuild the From box, or typing and focus are lost. `TripCard` draws the rail and the To row as optional siblings around a fixed From slot, so the box never moves in the tree. A test holds the real DOM node across the change and checks it's still attached.
+*Analogy:* a stable primary key; an update keeps the row, while delete-and-insert loses everything not copied over.
+
+**2. Trade-off: equal boxes and a row of actions cost map.**
+The card is 48 px taller, so at 390×699 the clear map is 35 % of the screen, below the 38 % measured from Google in v1.9. That buys Add destination in the card, as the owner asked. A landscape phone couldn't afford it, so there the row moves beside the boxes.
+
+**3. What could go wrong: one fact stored as two numbers.**
+The card's height lived in `route-geo.ts` and again in the sheet's CSS. Changing only the first left the sheet's handle under the card once it expanded. An independent review caught it. They're still two numbers, because one is a Tailwind class, so the comment names both and a test pins the result.
+
+**Also worth keeping: a fix you can't explain with a measurement is a guess.**
+A pin's card stayed under the top card because the camera move ended within 2 ms of the finger lifting. A touch-event change looked right but measured the same, so it was reverted. Opening the card below the pin doesn't depend on the camera at all.
+
 ## 2026-11-10 · tidy: test(api): the in-process Valhalla answers like the server
 
 **1. Principle: a green test only counts once you've seen it go red.**

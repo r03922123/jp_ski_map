@@ -148,7 +148,7 @@ test.describe("sheet swipe on touch", () => {
     // the handle rides the sheet's 200 ms height animation; swipe once it has settled
     await expect
       .poll(async () => (await sheet.boundingBox())?.height ?? 0)
-      .toBeGreaterThan(915 * 0.75);
+      .toBeGreaterThan(915 * 0.7);
     await swipe(150);
     await expect(sheet).toHaveAttribute("data-state", "collapsed");
   });

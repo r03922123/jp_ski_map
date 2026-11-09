@@ -162,7 +162,7 @@ for (const device of [
       await routeReady(page);
       await expect(labels(page)).toHaveCount(1);
 
-      await page.getByRole("button", { name: "Add stop" }).click();
+      await page.getByRole("button", { name: "Add destination" }).click();
 
       await expect(labels(page)).toHaveCount(ALL);
     });
