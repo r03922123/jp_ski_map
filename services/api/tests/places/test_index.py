@@ -47,6 +47,30 @@ def names(results: list[Hit]) -> list[str]:
     return [r.name for r in results]
 
 
+TYPED = [
+    entry("Hakuba Inn Bloom Parking", "stop"),
+    entry("Hakuba 47 Winter Sports Park", "stop"),
+    entry("Hotel Hakuba", "stop"),
+    entry("Kanemaru", "stop", aliases=["Hotel Kanemaru"]),
+    entry("Park View Lodge", "lodging"),
+]
+
+
+def test_a_hotel_query_drops_places_that_are_not_called_a_hotel() -> None:
+    assert names(rank(TYPED, "Hakuba Park Hotel", HAPPO, 5)) == ["Park View Lodge"]
+
+
+def test_a_place_carrying_the_querys_own_lodging_word_stays() -> None:
+    assert names(rank(TYPED, "Bloom Inn", HAPPO, 5)) == ["Hakuba Inn Bloom Parking"]
+    assert "Hotel Hakuba" in names(rank(TYPED, "Hotel Hakuba", HAPPO, 5))
+    assert names(rank(TYPED, "Kanemaru Hotel", HAPPO, 5)) == ["Kanemaru"]
+
+
+def test_a_query_with_no_lodging_word_is_not_filtered() -> None:
+    assert "Hakuba Inn Bloom Parking" in names(rank(TYPED, "Parking", HAPPO, 5))
+    assert "Hakuba 47 Winter Sports Park" in names(rank(TYPED, "47 Park", HAPPO, 5))
+
+
 def test_normalises_width_case_and_katakana() -> None:
     assert normalize("Ｈｏｔｅｌ  HAKUBA") == "hotel hakuba"
     assert normalize("ホテル") == normalize("ほてる")

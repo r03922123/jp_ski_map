@@ -54,6 +54,16 @@ GENERIC = frozenset(
     }
 )  # fmt: skip
 
+# Generic words that say a query wants somewhere to stay. "resort", "house" and "onsen" are
+# left out because ski resorts and baths use them too.
+LODGING_WORDS = frozenset(
+    {
+        "hotel", "hotels", "inn", "lodge", "lodges", "chalet", "chalets", "apartment",
+        "apartments", "pension", "ryokan", "villa", "villas", "cottage", "cottages", "hostel",
+        "guesthouse", "ほてる", "ぺんしょん",
+    }
+)  # fmt: skip
+
 
 @dataclass(frozen=True)
 class Entry:
@@ -149,6 +159,15 @@ def shares_distinctive_word(query: str, name: str) -> bool:
     return any(_token_match(t, tokens) is not None for t in wanted)
 
 
+def fits_lodging_words(query: str, kind: str, names: list[str]) -> bool:
+    """False for a place that isn't lodging when the query names a type of lodging the place
+    doesn't carry: "Hakuba Park Hotel" must not answer with the "… Parking" bus stop."""
+    wanted = LODGING_WORDS.intersection(_tokens(normalize(query)))
+    if kind == "lodging" or not wanted:
+        return True
+    return any(wanted.intersection(_tokens(normalize(n))) for n in names)
+
+
 def _score_name(q: str, name: str, by_sound: bool = False) -> float | None:
     """Score a normalised query against one normalised name, or None. `by_sound` is for
     readings of Japanese names, where "grace" and "guresu" are the same word."""
@@ -217,6 +236,8 @@ def rank(entries: list[Entry], query: str, near: Coord, limit: int) -> list[Hit]
     hits: list[Hit] = []
     for e in entries:
         names = [e.name, *(([e.name_ja]) if e.name_ja else []), *e.aliases]
+        if not fits_lodging_words(q, e.kind, names):
+            continue
         scores = [s for n in names if (s := _score_name(q, normalize(n))) is not None]
         # a reading approximates the name (unknown kanji dropped): never an exact/prefix hit
         scores += [
