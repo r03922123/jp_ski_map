@@ -41,6 +41,7 @@ LOANWORDS = {
     "ホステル": "hostel",
     "シャレー": "chalet",
     "ヒュッテ": "hutte",
+    "パーク": "park",
     "ホテル": "hotel",
     "ロッジ": "lodge",
     "ロッヂ": "lodge",  # older spelling

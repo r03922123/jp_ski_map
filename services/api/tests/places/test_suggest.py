@@ -83,6 +83,57 @@ def test_photon_results_without_a_shared_distinctive_word_are_dropped(
     assert [b for b in body if b["source"] == "photon"] == []
 
 
+def test_a_photon_result_must_carry_the_querys_lodging_word(
+    api: TestClient, mock: respx.MockRouter
+) -> None:
+    feature = json.loads((FIXTURES / "hotel_hakuba.json").read_text())["features"][0]
+    feature["geometry"]["coordinates"] = [137.85, 36.70]
+    feature["properties"] |= {"name": "Snow Parking", "osm_key": "amenity", "osm_value": "parking"}
+    mock.get(PHOTON_URL).respond(json={"features": [feature]})
+
+    body: Any = api.get(
+        "/api/places/suggest", params={"q": "Snow Park Hotel", "near": "36.70,137.845"}
+    ).json()
+
+    assert [b for b in body if b["source"] == "photon"] == []
+
+
+def test_a_chinese_word_for_hotel_finds_the_japanese_name(
+    api: TestClient, mock: respx.MockRouter
+) -> None:
+    call = mock.get(PHOTON_URL).respond(json={"features": []})
+
+    body: Any = api.get(
+        "/api/places/suggest", params={"q": "東急飯店", "near": "36.70,137.845"}
+    ).json()
+
+    # the lodging and its bus stop tie, and either one is the right place
+    assert "白馬東急ホテル" in (body[0]["name"], body[0]["nameJa"])
+    assert call.calls.last.request.url.params["q"] == "東急ホテル"
+
+
+def test_photon_keeps_the_original_words_when_the_retry_finds_nothing(
+    api: TestClient, mock: respx.MockRouter
+) -> None:
+    call = mock.get(PHOTON_URL).respond(json={"features": []})
+
+    api.get("/api/places/suggest", params={"q": "北京飯店", "near": "36.70,137.845"})
+
+    assert call.calls.last.request.url.params["q"] == "北京飯店"
+
+
+def test_a_place_really_named_hanten_is_still_found(
+    api: TestClient, mock: respx.MockRouter
+) -> None:
+    mock.get(PHOTON_URL).respond(json={"features": []})
+
+    body: Any = api.get(
+        "/api/places/suggest", params={"q": "白馬飯店", "near": "36.70,137.845"}
+    ).json()
+
+    assert body[0]["name"] == "Hakuba Hanten"
+
+
 def test_photon_failure_still_returns_local_hits(api: TestClient, mock: respx.MockRouter) -> None:
     # "Pheonix" has one local hit, so suggest asks Photon (a query with 3 local hits never would)
     call = mock.get(PHOTON_URL).mock(side_effect=httpx.ConnectError("down"))
