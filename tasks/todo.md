@@ -842,6 +842,7 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - [x] `shadcn` moves to devDependencies: only its `tailwind.css` is imported, at build time, so the alerts are dev-only now. deepmerge has no fixed version yet
 - [x] `AGENTS.md` is a link to `CLAUDE.md`, so Codex and Claude read one file
 - [x] `docs/ARCHITECTURE.md` follow-up 1: the phone credits note marked done (PR #38)
+- [x] Full e2e against the production build (`E2E_PROD=1`, 2026-11-11): 438 passed, 55 dev-only skipped. Left: `setting-the-start`'s hotel-pin tests read the dev map handle without `devOnly` (now guarded in `hotelPin`), the off-season known-fail H passed again (server clock, see Checkpoint P), and `stops.spec.ts` "add a stop by typing" failed once at load ~11 and passed 3/3 alone
 
 ## Vercel Phase B (SPEC-deploy.md v1.6, ADR-0006)
 Recorded exception to the takeover order, so the project stays in "tidy". Each PR is about 300 lines, opens with `Takeover phase: tidy (recorded exception, ADR-0006)`, gets a fresh-eyes review, and the owner approves each merge.

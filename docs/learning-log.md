@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-11 · tidy: test(e2e): hotel-pin tests skip on a production build
+
+**1. Principle: put the guard where the dependency is.**
+Six tests find a hotel pin through `window.__hakubaMap`, a handle that only the dev server exposes. The guard now sits in `hotelPin`, the one helper that reads it, so a new caller can't forget it.
+*Analogy:* a null check inside the accessor beats one at every call site.
+
+**2. Trade-off: skip, don't rewrite.**
+These tests could find pins through the DOM and run everywhere, but MapLibre draws pins on a canvas, so that means a different way to hit-test. Skipping on production keeps their dev coverage and makes the production run honest: 438 passed, 55 skipped, nothing failing for the wrong reason.
+
+**3. What could go wrong: a run that ignores the switch.**
+Running against `next start` without `E2E_PROD=1` turns every dev-only test into a failure (64 on the first run here). The flag is read in one place, `e2e/dev-only.ts`; the risk is a person, not the code.
+
 ## 2026-11-10 · tidy: chore: shadcn is a dev tool, AGENTS.md follows CLAUDE.md
 
 **1. Principle: a dependency's section says when it runs.**
