@@ -14,6 +14,7 @@ from hakuba_api.places.index import (
     Kind,
     build_index,
     fits_lodging_words,
+    names_a_place,
     rank,
     shares_distinctive_word,
 )
@@ -106,7 +107,15 @@ def suggest(
     if meaning:
         known = {e.id: e for e in index}
         by_id = {s.id: s for s in local}
-        merged = rrf_merge([s.id for s in local], [i for i in meaning if i in known])
+        # the same guard as Photon below: a look-alike hotel is a confidently wrong answer
+        trusted = [
+            i
+            for i in meaning
+            if (e := known.get(i))
+            and fits_lodging_words(query, e.kind, names := [e.name, *filter(None, [e.name_ja])])
+            and (e.kind != "lodging" or names_a_place(query, " ".join(names)))
+        ]
+        merged = rrf_merge([s.id for s in local], trusted)
         local = [by_id.get(i) or _from_entry(known[i]) for i in merged[:limit]]
     if not use_photon or len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
         return local

@@ -83,3 +83,20 @@ def test_suggest_keeps_an_exact_lexical_hit_first(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [other.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     top = suggest("Hakuba Happo Bus Terminal", NEAR, 5, use_photon=False)[0]
     assert top.name == "Hakuba Happo Bus Terminal"
+
+
+def test_suggest_drops_a_semantic_lodging_that_shares_no_word(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # booking_eval "absent" hotels: a look-alike hotel would be a confidently wrong answer
+    tokyu = next(e for e in load_index() if e.kind == "lodging" and e.name == "Hakuba Tokyu Hotel")
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [tokyu.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    assert suggest("Wadano Onsen Hotel", NEAR, 5, use_photon=False) == []
+
+
+def test_suggest_drops_a_semantic_non_lodging_for_a_hotel_query(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ramen = next(e for e in load_index() if "ramen" in e.detail)
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [ramen.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    assert suggest("Wadano Onsen Hotel", NEAR, 5, use_photon=False) == []

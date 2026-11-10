@@ -165,6 +165,12 @@ def shares_distinctive_word(query: str, name: str) -> bool:
     return any(_token_match(t, tokens) is not None for t in wanted)
 
 
+def names_a_place(query: str, name: str) -> bool:
+    """Stricter than `shares_distinctive_word`: a query of only area and generic words
+    ("Wadano Onsen Hotel") names no particular place, so nothing matches it."""
+    return bool(distinctive(_tokens(normalize(query)))) and shares_distinctive_word(query, name)
+
+
 def fits_lodging_words(query: str, kind: str, names: list[str]) -> bool:
     """False for a place that isn't lodging when the query names a type of lodging the place
     doesn't carry: "Hakuba Park Hotel" must not answer with the "… Parking" bus stop. A bus stop
