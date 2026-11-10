@@ -2,6 +2,17 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · tidy: fix(web): pixel sprites at whole-number scales only
+
+**1. Principle: one sprite pixel must cover a whole number of screen pixels.**
+At 1.5× on a 3× phone, each sprite pixel is 4.5 device pixels. The browser can't draw half a pixel, so it alternates 4 and 5: some pixels come out wider than others and the pixel look wobbles. 1× (3 device px) and 2× (6) are always even.
+
+**2. Trade-off: the sizes jump instead of sliding.**
+1.5 was a middle size. Now the world badges shrink to 16 px (the height of the label text, same as the resort list) and the starting-point hero grows to 48 px (same as the pilot puck). There is no crisp size in between.
+
+**3. What could go wrong: a default value changes every caller that leaves it out.**
+`Hero`'s default went from 1.5 to 2, so both callers without `scale` (the map's starting point and the rider card header) grew. Callers that pass a scale are untouched.
+
 ## 2026-11-10 · build new features: feat(web): one bar with a place card, two bars after Directions
 
 **1. Principle: derive the screen from the data, don't store it twice.**
