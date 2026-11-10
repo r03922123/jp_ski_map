@@ -7,6 +7,7 @@ from functools import cache
 from hakuba_api.common.geo import Coord, in_hakuba
 from hakuba_api.common.models import ApiModel
 from hakuba_api.common.upstream import UpstreamError
+from hakuba_api.places import semantic
 from hakuba_api.places.index import (
     Entry,
     Hit,
@@ -19,6 +20,7 @@ from hakuba_api.places.index import (
 from hakuba_api.places.models import Place
 from hakuba_api.places.photon import search_photon
 from hakuba_api.places.query_clean import clean_query
+from hakuba_api.places.semantic import rrf_merge
 
 log = logging.getLogger(__name__)
 
@@ -50,8 +52,7 @@ def load_index() -> list[Entry]:
     return build_index(load_stops(), load_resorts(), load_lodging(), load_pois())
 
 
-def _from_hit(h: Hit) -> Suggestion:
-    e = h.entry
+def _from_entry(e: Entry, match: tuple[int, int] | None = None) -> Suggestion:
     return Suggestion(
         id=e.id,
         kind=e.kind,
@@ -59,9 +60,13 @@ def _from_hit(h: Hit) -> Suggestion:
         name_ja=e.name_ja,
         coord=e.coord,
         detail=e.detail,
-        match=h.match,
+        match=match,
         source="index",
     )
+
+
+def _from_hit(h: Hit) -> Suggestion:
+    return _from_entry(h.entry, h.match)
 
 
 def from_place(p: Place) -> Suggestion:
@@ -92,11 +97,17 @@ def suggest(
     query = clean_query(query)  # pasted hotel-site URLs and page titles → the name
     index = entries if entries is not None else load_index()
     hits = rank(index, query, near, limit)
+    meaning = semantic.semantic_ids(query, limit)
     if not hits and _CHINESE_HOTEL.search(query):
         retry = _CHINESE_HOTEL.sub("ホテル", query)
         if retry_hits := rank(index, retry, near, limit):
             query, hits = retry, retry_hits
     local = [_from_hit(h) for h in hits]
+    if meaning:
+        known = {e.id: e for e in index}
+        by_id = {s.id: s for s in local}
+        merged = rrf_merge([s.id for s in local], [i for i in meaning if i in known])
+        local = [by_id.get(i) or _from_entry(known[i]) for i in merged[:limit]]
     if not use_photon or len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
         return local
     try:

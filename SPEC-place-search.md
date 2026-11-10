@@ -100,3 +100,26 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - *Prominence:* a query with only area or generic words ("iwatake", "goryu", "hakuba") boosts resorts by 15, so the ski area leads, not the nearest lodge or stop.
 
 **Not doing:** fetching Booking.com/Agoda pages (their terms; also no coordinates in the URL); Rakuten (terms); a paid geocoder.
+
+## v1.4 — Semantic retrieval beside the lexical index (experiment, 2026-11-11)
+
+**Why:** the lexical index scores 26/26 on `booking_eval.json`, so that set can only catch regressions. It cannot match what isn't spelled in a name: Chinese resort names (八方尾根滑雪場), food and shop categories (ramen, 拉麵, コンビニ), translated hotel names (白馬高地飯店). A multilingual embedding model can.
+
+**Design**
+- A separate local embedding server (`ml/search`, `python -m hakuba_search.server`) loads a sentence-embedding model (default `intfloat/multilingual-e5-small`, or a fine-tuned copy under `ml/search/models/`), embeds the same 1,100 index entries (`name | name_ja | aliases | detail`), and answers `GET /search?q=&k=` with `[{id, score}]` above a cosine threshold. ~1,100 vectors fit in one matrix, so search is an exact dot product (no vector database).
+- The API calls it only when `HAKUBA_SEMANTIC_URL` is set, with a 300 ms timeout; any error or timeout falls back to lexical results (logged). Production stays unchanged until that variable is set.
+- `suggest()` merges the lexical and semantic id lists with reciprocal rank fusion (RRF, k=60), lexical first on ties; Photon still fills in only when fewer than 3 results remain.
+- Fine-tuning (`ml/search`): synthetic (query, entry) pairs generated from the index (typos, dropped words, romaji readings, Chinese/variant characters, cuisine and shop words), contrastive training with in-batch negatives (MultipleNegativesRankingLoss) on the Mac's GPU (MPS). Entries are split 80/20 so the synthetic dev set has names the model never trained on.
+- Tracking: every eval run logs params and metrics to a local MLflow store (`ml/search/mlruns`, gitignored).
+
+**Evaluation**
+- `ml/search/evals/hard_queries.json`: 40 hand-written queries in 4 groups, never used for training or tuning. Metric: hit@1 and hit@5 per mode (lexical, semantic, hybrid) and model (base, fine-tuned).
+- `booking_eval.json` stays the regression check: hybrid must keep 26/26 present and 4/4 absent empty.
+- Latency: p50/p95 of `suggest()` per mode.
+
+**Acceptance**
+- [ ] Hybrid beats lexical on the hard set at hit@5, with no regression on `booking_eval.json`.
+- [ ] The fine-tuned model is reported against the base model on the hard set and the synthetic dev set, whichever way it comes out.
+- [ ] The API falls back to lexical when the server is down or slow (unit tests); API gates green.
+
+**Boundaries:** local models only ($0); the model and MLflow files are never committed; no query text is logged.
