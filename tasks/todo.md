@@ -842,6 +842,7 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - [x] `shadcn` moves to devDependencies: only its `tailwind.css` is imported, at build time, so the alerts are dev-only now. deepmerge has no fixed version yet
 - [x] `AGENTS.md` is a link to `CLAUDE.md`, so Codex and Claude read one file
 - [x] `docs/ARCHITECTURE.md` follow-up 1: the phone credits note marked done (PR #38)
+- [x] Full e2e against the production build (`E2E_PROD=1`, 2026-11-11): 502 tests: 438 passed, 58 skipped (55 dev-only), 6 failed: `setting-the-start`'s hotel-pin tests read the dev map handle without `devOnly` (now guarded in `hotelPin`), the off-season known-fail H passed again (server clock, see Checkpoint P), and `stops.spec.ts` "add a stop by typing" failed once at load ~11 and passed 3/3 alone
 
 ## Vercel Phase B (SPEC-deploy.md v1.6, ADR-0006)
 Recorded exception to the takeover order, so the project stays in "tidy". Each PR is about 300 lines, opens with `Takeover phase: tidy (recorded exception, ADR-0006)`, gets a fresh-eyes review, and the owner approves each merge.
@@ -850,12 +851,12 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 - [x] PR 2: in-process routing (`routing/engine.py`, one engine, the lock, error mapping, `/api/matrix` capped at 25, `pyvalhalla==3.9.1`). Failing tests first: 8 threads max overlap 1; concurrent first calls build one engine; lock timeout and both error types; 26 targets → 422
 - [x] PR 3: live equivalence, with a seeded request generator in the repo. `uv run pytest -m live`: 100 + 20 + 5 identical (a matrix cell's `cost` within 0.01, the owner's decision); 40 threads, 2000 requests, 0 wrong, no crash
 - [x] PR 4: deploy packaging (lazy `paths.py`, `vercel.json`, `scripts/deploy-vercel.sh`, `infra/valhalla/hakuba-tiles.sha256`, shell test in CI). A missing data file or wrong hash stops it; without `--prod` the command carries `--environment preview`
-- [ ] Before the real project's first deploy, which PR 5 needs: the owner links the project and sets the variables in SPEC-deploy.md Changes item 9; tell the owner before deploying, then read `environment` in the deploy output
-- [ ] PR 5: production smoke suite, `apps/web/e2e-prod/`, about 5 tests, green against a preview (headers, search, bus, drive, walk)
+- [x] Before the real project's first deploy, which PR 5 needs: the owner links the project and sets the variables in SPEC-deploy.md Changes item 9; tell the owner before deploying, then read `environment` in the deploy output. Done 2026-11-10: Vercel refused a Preview as the first deployment, so the first went to Production with the owner's prior OK; `PYTHONPATH=/var/task/src` was added (PR 7 records why)
+- [x] PR 5: production smoke suite, `apps/web/e2e-prod/`, about 5 tests, green against a preview (headers, search, bus, drive, walk). 5/5 on production and on the protected preview
 - [x] PR 6: phone map credits, done in PR #38 and hit-tested at phone sizes in Chromium
-- [ ] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start and the iPhone credits screenshot
-- [ ] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md` including its open phone-credits note, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
-- [ ] Cutover, asking the owner at each step: production deploy, new link to friends, Funnel off. Done when SPEC-deploy.md Phase B success criteria 1 to 5 hold
+- [x] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start and the iPhone credits screenshot. Every no-go row passed 2026-11-11 (cold start median 4.75 s); results table in SPEC-deploy.md. Partly met: warm latency measured from home Wi-Fi, Mac standby only partly rehearsed
+- [x] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md` including its open phone-credits note, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
+- [ ] Cutover: production deploy and smoke (owner pre-approved 2026-11-10), new link to friends (the owner sends it), Funnel off (the owner, after friends move their saved lists). Done when SPEC-deploy.md Phase B success criteria 1 to 5 hold; 2 (phone on mobile data, Mac lid closed) is the owner's check
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
