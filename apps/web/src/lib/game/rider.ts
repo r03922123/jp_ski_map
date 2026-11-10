@@ -106,10 +106,13 @@ export function parseRider(
 ): RiderState | null {
   if (!isRecord(input) || !Number.isInteger(input.version)) return null;
   let raw = input;
+  // count with our own `v`, not raw.version, so a step that forgets to bump can't loop
   for (let v = input.version as number; v < RIDER_VERSION; v++) {
     const step = steps[v];
     if (!step) return null; // too old to read: the store keeps the raw value aside
-    raw = step(raw);
+    const next: unknown = step(raw);
+    if (!isRecord(next)) return null;
+    raw = next;
   }
   if (raw.version !== RIDER_VERSION || typeof raw.name !== "string")
     return null;

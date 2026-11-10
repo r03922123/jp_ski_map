@@ -27,6 +27,7 @@ type RiderState = {
 - **Every shape change bumps `version` and ships a migration with a test.** `MIGRATIONS[n]` in `rider.ts`
   turns a version-n save into version n+1 as a pure function; reads run every step up to the current
   version before validating. Stamps live only on each friend's phone, so a missing step would erase them.
+  Never roll production back past a version bump (older code would set newer saves aside); fix forward.
 - Tabs stay in sync with the `storage` event. React reads the store with `useSyncExternalStore`.
 - **No positions, routes or timestamps finer than the day are stored.**
 

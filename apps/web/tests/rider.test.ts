@@ -66,6 +66,7 @@ describe("rider state (SPEC-progression)", () => {
     };
     expect(parseRider(ok)).toEqual(ok);
     expect(parseRider({ ...ok, version: 2 })).toBeNull();
+    expect(parseRider({ ...ok, version: "1" })).toBeNull();
     expect(parseRider({ ...ok, name: 3 })).toBeNull();
     expect(
       parseRider({
@@ -125,7 +126,6 @@ describe("rider state (SPEC-progression)", () => {
       expect(
         parseRider(old, { [old.version]: () => ({ version: 99 }) }),
       ).toBeNull();
-      expect(parseRider({ ...emptyRider(), version: "1" }, steps)).toBeNull();
     });
   });
 });
@@ -150,6 +150,13 @@ describe("riderStore", () => {
     localStorage.setItem(RIDER_KEY, "{not json");
     expect(riderStore.getSnapshot()).toEqual(emptyRider());
     expect(localStorage.getItem(RIDER_CORRUPT_KEY)).toBe("{not json");
+  });
+
+  it("a save too old to migrate → empty progress, raw value kept aside", () => {
+    const raw = JSON.stringify({ ...emptyRider(), version: 0 });
+    localStorage.setItem(RIDER_KEY, raw);
+    expect(riderStore.getSnapshot()).toEqual(emptyRider());
+    expect(localStorage.getItem(RIDER_CORRUPT_KEY)).toBe(raw);
   });
 
   it("storage that throws (private mode) still works for the session", () => {
