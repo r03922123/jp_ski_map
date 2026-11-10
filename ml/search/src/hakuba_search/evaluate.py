@@ -1,6 +1,6 @@
 """Compare lexical, semantic and hybrid search on the hard set and the booking regression set.
 
-Run: `uv run python -m hakuba_search.evaluate [--model models/e5-hakuba] [--min-score 0.84]`
+Run: `uv run python -m hakuba_search.evaluate [--model models/e5-hakuba] --min-score <calibrated>`
 Every run is logged to the local MLflow store (`mlflow ui --backend-store-uri sqlite:///mlflow.db`).
 """
 
@@ -93,7 +93,8 @@ def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=BASE_MODEL)
-    parser.add_argument("--min-score", type=float, default=0.84)
+    # each model's own value from hakuba_search.calibrate: a shared one silently filters all
+    parser.add_argument("--min-score", type=float, required=True)
     parser.add_argument("--modes", default="lexical,semantic,hybrid")
     args = parser.parse_args()
     emb = Embedder(load_index(), args.model)

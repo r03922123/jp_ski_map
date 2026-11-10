@@ -13,8 +13,9 @@ from hakuba_api.places.suggest import load_index
 
 from hakuba_search.embed import Embedder
 
-# below this cosine a "nearest" entry is usually unrelated; tuned on the synthetic dev set
-MIN_SCORE = float(os.environ.get("HAKUBA_SEMANTIC_MIN_SCORE", "0.84"))
+# Below this cosine a "nearest" entry is usually unrelated. Each model has its own scale, so
+# take the value from `python -m hakuba_search.calibrate --model ...` (0.9127 for the base model).
+MIN_SCORE = float(os.environ.get("HAKUBA_SEMANTIC_MIN_SCORE", "0.9127"))
 
 app = FastAPI(title="hakuba-search")
 _embedder: Embedder | None = None
@@ -44,8 +45,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8032)
     parser.add_argument("--model")
+    parser.add_argument("--min-score", type=float, help="from hakuba_search.calibrate")
     args = parser.parse_args()
     if args.model:
         os.environ["HAKUBA_EMBED_MODEL"] = args.model
+    if args.min_score is not None:
+        MIN_SCORE = args.min_score
     embedder()  # load before serving, so the first request is not slow
     uvicorn.run(app, host="127.0.0.1", port=args.port)

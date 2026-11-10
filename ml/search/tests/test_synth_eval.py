@@ -60,6 +60,15 @@ def test_case_predicates() -> None:
     assert not matches({"name_any": ["東急"]}, place(name="Tokyo"))  # type: ignore[arg-type]
 
 
+def test_threshold_is_the_lowest_score_that_keeps_the_precision() -> None:
+    from hakuba_search.calibrate import threshold_for
+
+    scores = [0.95, 0.9, 0.85, 0.8, 0.7]
+    correct = [True, True, True, False, False]
+    assert threshold_for(scores, correct, 1.0) == 0.85
+    assert threshold_for(scores, correct, 0.75) == 0.8
+
+
 def test_hit_at_k_looks_only_at_the_top_k() -> None:
     results = [place(kind="food"), place(kind="convenience")]
     assert not hit_at({"kind": "convenience"}, results, 1)  # type: ignore[arg-type]

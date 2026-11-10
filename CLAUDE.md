@@ -5,4 +5,5 @@
 - SPEC.md is the module map; each module has its own SPEC-*.md.
 - The API binds 127.0.0.1 only; Tailscale Funnel exposes the web app.
 - A new worktree has no dependencies: run `uv sync` in services/api and `pnpm install` in apps/web.
+- ML experiments (2026-11-11, owner-approved exception to the tidy phase): `ml/search` (embedding server on :8032, fine-tune, evals → local MLflow), `ml/timetable_vlm` (local VLM drafts, never served), `services/mcp` (agent tools). Each is its own uv project; use `uvx --from 'uv==0.9.30' uv sync`. Semantic search is off unless the API has `HAKUBA_SEMANTIC_URL`. Only one model trains at a time: two at once swap the 16 GB Mac to a halt.
 - The main checkout serves production (:3000, :8011) and the shared Valhalla (:8002). In a worktree: use free ports, set `API_URL` for the web server and `E2E_BASE_URL=http://127.0.0.1:<port>` for e2e, and don't run `docker compose` or `serve-public.sh`. In the main checkout, only `serve-public.sh` runs `pnpm build`.
