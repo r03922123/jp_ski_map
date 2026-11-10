@@ -43,6 +43,8 @@ A visit counts when you are **at** a resort:
   pose. Screen readers hear it through an `aria-live` announcement.
 
 ## Rider titles (from distinct stamps; 10 worlds today)
+> **Removed in web-app v1.14 (2026-11-10):** nothing shows a name or title any more.
+
 | Stamps | Title |
 |---|---|
 | 0 | Rookie |
@@ -53,6 +55,8 @@ A visit counts when you are **at** a resort:
 | every world in the catalog (10) | Hakuba Legend |
 
 ## Quests (made on the device each day, JST)
+> **Removed in web-app v1.14 (2026-11-10):** no quests are made or completed. Stored rider data keeps its `quests` field.
+
 `questsFor(date, rider, resorts, snow)` is a pure function: the same inputs always give the same quests. At most 3 a day:
 | Quest | Offered when | Done when |
 |---|---|---|
@@ -69,6 +73,8 @@ A visit counts when you are **at** a resort:
 - **Trips:** pilot trips that reached `arrived`.
 
 ## Rider card and share
+> **Removed in web-app v1.14 (2026-11-10):** no rider card, share link or reset. A `#rider=` link opens the app with no dialog.
+
 - **The card:** the rider's name and title, a stamp grid with one slot per world (W1–W10 today, stamped or empty), the
   stats, and today's quests.
 - **Share:** a link `#rider=<code>` (compressed JSON: name, stamp ids and first dates, stats). Like
@@ -78,11 +84,11 @@ A visit counts when you are **at** a resort:
 ## Acceptance criteria
 - [ ] Arrival within 150 m earns the stamp; at 200 m it doesn't. A second arrival on the same day adds no visit; the next day adds one.
 - [ ] Check in: within 300 m with accuracy ≤ 100 m counts; too far and poor accuracy each show their message; nothing is stored about the fix.
-- [ ] The titles follow the table at every threshold.
-- [ ] `questsFor` is deterministic. Powder day needs ≥ 10 cm and picks the biggest; it isn't offered without snow data; there are never more than 3 quests; quests expire at midnight JST.
+- [ ] ~~The titles follow the table at every threshold.~~ Replaced by web-app v1.14.
+- [ ] ~~`questsFor` is deterministic. Powder day needs ≥ 10 cm and picks the biggest; it isn't offered without snow data; there are never more than 3 quests; quests expire at midnight JST.~~ Replaced by web-app v1.14.
 - [ ] Stats count only pilot trips, by mode, with the distance covered.
 - [ ] Corrupt storage → empty progress with the raw value kept; private mode (storage throws) → the app still works, and progress lasts only for the session.
-- [ ] Share links round-trip name, stamps and stats; a tampered or oversized code is rejected with a message.
+- [ ] ~~Share links round-trip name, stamps and stats; a tampered or oversized code is rejected with a message.~~ Replaced by web-app v1.14.
 
 ## Boundaries
 - **Always:** validate storage; keep it on the device; ask for GPS only on a user tap or during navigation the user started.

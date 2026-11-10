@@ -15,7 +15,7 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
 
 ## The hero
 - **An original snowboarder:** beanie with a pom, goggles, orange jacket, teal board. The default name
-  is "Rider", and players can rename it in `progression`.
+  is "Rider". (Renaming was on the rider card, removed in web-app v1.14.)
 - **A 24×24 pixel sprite, defined in code** as a palette plus rows of palette indices (`lib/game/sprites.ts`).
   It's drawn to a canvas at 1× (`lib/game/render.ts`), and the browser scales it up with CSS
   `image-rendering: pixelated` (`PixelSprite.tsx`).
@@ -69,6 +69,8 @@ The order comes from `resorts.json` by northernmost access point. A test checks 
   night-skiing palette comes with one (not part of v1.6).
 
 ## Sound
+> **Removed in web-app v1.14 (2026-11-10):** the app has no sound. The rest of this section is history.
+
 - **Chiptune effects synthesised with the Web Audio API** (square and triangle oscillators, short envelopes)
   in `lib/game/sfx.ts`. There are no audio files.
   | Effect | Played when |
@@ -97,7 +99,7 @@ The order comes from `resorts.json` by northernmost access point. A test checks 
 - [ ] `gameStyle` keeps every layer id, source and layout property of the base style and changes only paint; the snapshot of changed properties is reviewed.
 - [ ] W1–W10 are assigned north to south, every resort has exactly one, and the order is stable.
 - [ ] Theme tokens meet 4.5:1 text contrast and 3:1 for focus rings (light theme; there is no dark mode yet).
-- [ ] Sound is off on first load; turning it on plays `select`; the choice survives a reload; no AudioContext exists before a gesture.
+- [ ] ~~Sound is off on first load…~~ Replaced by web-app v1.14: no sound, no AudioContext.
 - [ ] Reduced motion: no animation frames advance, and no snow particles appear.
 - [ ] Every e2e test that finds controls by role and name passes unchanged (the theme changes look, not semantics).
 

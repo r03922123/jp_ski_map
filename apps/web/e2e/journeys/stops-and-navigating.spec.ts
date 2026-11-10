@@ -248,7 +248,7 @@ test.describe("phone: adding stops", () => {
   });
 
   test("a stop's name survives a reload or a shared link", async ({ page }) => {
-    test.fail(); // known: E — a typed stop ("Lawson") comes back as "Dropped pin" after reload, and then no longer counts for the konbini quest
+    test.fail(); // known: E — a typed stop ("Lawson") comes back as "Dropped pin" after reload
     await page.goto(DRIVE);
     await routed(page);
     await page.getByRole("button", { name: "Add destination" }).tap();
@@ -407,14 +407,13 @@ test.describe("phone: navigating through a stop", () => {
     geolocation: { latitude: HOTEL.lat, longitude: HOTEL.lng },
   });
 
-  test("Start from Walk: the banner announces the stop, then you arrive and the konbini quest is done", async ({
+  test("Start from Walk: the banner announces the stop, then you arrive", async ({
     page,
     context,
   }) => {
     test.slow();
     await page.goto(WALK);
     await routed(page);
-    // the stop is typed, so it carries its konbini name (what the quest checks)
     await page.getByRole("button", { name: "Add destination" }).tap();
     await page.getByRole("combobox", { name: "Stop 1" }).fill("Lawson");
     await page
@@ -451,69 +450,11 @@ test.describe("phone: navigating through a stop", () => {
     });
     await expect(progress(page)).toContainText("You've arrived");
 
-    await expect
-      .poll(() =>
-        page.evaluate(
-          () =>
-            JSON.parse(localStorage.getItem("hakuba:rider") ?? "{}").quests ??
-            [],
-        ),
-      )
-      .toContainEqual(
-        expect.objectContaining({
-          id: expect.stringMatching(/^konbini\|/),
-          status: "done",
-        }),
-      );
-
     // Exit returns to the same trip, stop included
     await page.getByRole("button", { name: "Exit navigation" }).tap();
     await expect(pilot(page)).toHaveCount(0);
     await expect(tripRows(page)).toHaveCount(2);
     await expect(startButton(page)).toBeVisible();
-  });
-
-  test("a konbini stop from a shared link (or a long-press) also counts for the konbini quest", async ({
-    page,
-    context,
-  }) => {
-    test.slow();
-    test.fail(); // known: N3 — the quest matches the stop's *name*; a linked or long-pressed stop at a Lawson is "Dropped pin", so arriving doesn't finish "Stop at a konbini on the way"
-    const line = await walkLine(page, [HOTEL, LAWSON, STATION]);
-    await page.goto(WALK_VIA_LAWSON);
-    await routed(page);
-    await startNav(page);
-    await following(page);
-    const ended = async () =>
-      (await pilot(page).getAttribute("data-nav-phase")) === "arrived";
-    await walk(
-      page,
-      context,
-      line.filter((_, i) => i % 2 === 0),
-      ended,
-      80,
-    );
-    const [endLng, endLat] = line[line.length - 1];
-    await context.setGeolocation({ latitude: endLat, longitude: endLng });
-    await expect(pilot(page)).toHaveAttribute("data-nav-phase", "arrived", {
-      timeout: 15_000,
-    });
-    await expect
-      .poll(
-        () =>
-          page.evaluate(
-            () =>
-              JSON.parse(localStorage.getItem("hakuba:rider") ?? "{}").quests ??
-              [],
-          ),
-        { timeout: 5_000 },
-      )
-      .toContainEqual(
-        expect.objectContaining({
-          id: expect.stringMatching(/^konbini\|/),
-          status: "done",
-        }),
-      );
   });
 
   test("Start from Drive with a stop: navigation starts on the route through it", async ({
