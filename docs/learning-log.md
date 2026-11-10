@@ -9,10 +9,33 @@ Hiding the buttons with CSS would have left the sound engine, daily quest genera
 *Analogy:* dropping an unused database column instead of leaving it nullable forever.
 
 **2. Trade-off: the code goes, the stored data keeps its shape.**
-`hakuba:rider` still has `quests` (now always unchanged) and trip stats that nothing shows. `parseRider` rejects a save without `quests`, so removing the field would have wiped every friend's stamps on their next visit. The cost is two small dead pieces of data. Dropping them is a separate change, shaped like a data migration. The code that only the screens used went now: `rename`, `titleFor` and `fetchSnow`, all found by the fresh-eyes review.
+`hakuba:rider` still has `quests` (now always unchanged) and trip stats that nothing shows. `parseRider` rejects a save without `quests`, so removing the field would have wiped every friend's stamps on their next visit. The cost is two small dead pieces of data. Dropping them is a separate change: a version bump with its own `MIGRATIONS` step (added in PR #46). The code that only the screens used went now: `rename`, `titleFor` and `fetchSnow`, all found by the fresh-eyes review.
 
 **3. What could go wrong: deleting a test can delete coverage of something still alive.**
 The Back-button tests opened the rider card and quest log, but what they guarded (`useBackToClose`) still runs in the Save to list and Import dialogs. So they were moved onto Save to list, not deleted. Two cases were dropped on purpose: stacked overlays and a map click under an open popover. Both remaining dialogs are modal, so neither case can happen now. The new check also loads a browser with `hakuba:sound=on` saved, the state an old user really has, and confirms no AudioContext appears.
+
+## 2026-11-10 · tidy: feat(web): migrate older rider saves instead of dropping them
+
+**1. Principle: data you can't re-fetch needs an upgrade path, not just a validator.**
+Stamps live only in each friend's browser. The old reader rejected anything that wasn't version 1, so the first shape change would have quietly emptied every rider card. Reads now run `MIGRATIONS[n]` (version n → n+1) up to the current version, then validate as before.
+*Analogy:* database schema migrations, run in order on the client at read time.
+
+**2. Trade-off: add the hook now, bump the version later.**
+`quests` was suspected dead, but `quests.ts`, `use-quests.ts` and `stamp-moment.ts` still read it, so the shape stays v1 and the step table is empty. The test injects a fake step to prove the loop and the fallback work before a real step exists.
+
+**3. What could go wrong: a migration that's wrong is worse than none.**
+A missing step still sends the raw save to `hakuba:rider-corrupt` (recoverable), but a step that drops a field writes the loss back on the next save. So the SPEC rule is: every shape change bumps `version` and ships its step with a test that a real old save keeps its stamps.
+
+## 2026-11-10 · tidy: fix(web): pixel sprites at whole-number scales only
+
+**1. Principle: one sprite pixel must cover a whole number of screen pixels.**
+At 1.5× on a 3× phone, each sprite pixel is 4.5 device pixels. The browser can't draw half a pixel, so it alternates 4 and 5: some pixels come out wider than others and the pixel look wobbles. On 2× and 3× screens (most phones), 1× and 2× give whole device pixels (3 and 6 on a 3× phone). Screens with an odd ratio, such as 2.625× Android phones, can still be slightly uneven.
+
+**2. Trade-off: the sizes jump instead of sliding.**
+1.5 was a middle size. Now the world badges shrink to 16 px (the height of the label text, same as the resort list) and the starting-point hero grows to 48 px (same as the pilot puck). There is no crisp size in between.
+
+**3. What could go wrong: a default value changes every caller that leaves it out.**
+`Hero`'s default went from 1.5 to 2, so both callers without `scale` (the map's starting point and the rider card header) grew. Callers that pass a scale are untouched.
 
 ## 2026-11-10 · build new features: feat(web): one bar with a place card, two bars after Directions
 

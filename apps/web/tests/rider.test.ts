@@ -39,6 +39,7 @@ describe("rider state (SPEC-progression)", () => {
     };
     expect(parseRider(ok)).toEqual(ok);
     expect(parseRider({ ...ok, version: 2 })).toBeNull();
+    expect(parseRider({ ...ok, version: "1" })).toBeNull();
     expect(parseRider({ ...ok, name: 3 })).toBeNull();
     expect(
       parseRider({
@@ -58,6 +59,47 @@ describe("rider state (SPEC-progression)", () => {
         quests: [{ id: "q", date: "2026-01-02", status: "won" }],
       }),
     ).toBeNull();
+  });
+
+  describe("migration: older saves are converted, never dropped", () => {
+    const stamp = {
+      resortId: "happo-one",
+      firstAt: "2026-01-02",
+      visits: ["2026-01-02", "2026-01-03"],
+    };
+    // An older shape, one version behind the current one, with one field the
+    // current shape no longer has and one it lacks.
+    const old = {
+      version: emptyRider().version - 1,
+      name: "Yuki",
+      stamps: { "happo-one": stamp },
+      legacy: "gone in the current shape",
+      stats: { km: { bus: 3, drive: 0, walk: 1 }, trips: 2 },
+    };
+    const steps = {
+      [old.version]: ({ legacy: _, ...s }: Record<string, unknown>) => ({
+        ...s,
+        version: emptyRider().version,
+        quests: [],
+      }),
+    };
+
+    it("an older save loads as the current version with stamps intact", () => {
+      expect(parseRider(old, steps)).toEqual({
+        version: emptyRider().version,
+        name: "Yuki",
+        stamps: { "happo-one": stamp },
+        quests: [],
+        stats: { km: { bus: 3, drive: 0, walk: 1 }, trips: 2 },
+      });
+    });
+
+    it("a version with no migration step, or a step whose output is invalid, is rejected", () => {
+      expect(parseRider(old, {})).toBeNull();
+      expect(
+        parseRider(old, { [old.version]: () => ({ version: 99 }) }),
+      ).toBeNull();
+    });
   });
 });
 
@@ -81,6 +123,13 @@ describe("riderStore", () => {
     localStorage.setItem(RIDER_KEY, "{not json");
     expect(riderStore.getSnapshot()).toEqual(emptyRider());
     expect(localStorage.getItem(RIDER_CORRUPT_KEY)).toBe("{not json");
+  });
+
+  it("a save too old to migrate → empty progress, raw value kept aside", () => {
+    const raw = JSON.stringify({ ...emptyRider(), version: 0 });
+    localStorage.setItem(RIDER_KEY, raw);
+    expect(riderStore.getSnapshot()).toEqual(emptyRider());
+    expect(localStorage.getItem(RIDER_CORRUPT_KEY)).toBe(raw);
   });
 
   it("storage that throws (private mode) still works for the session", () => {
