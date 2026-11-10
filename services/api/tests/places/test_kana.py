@@ -29,6 +29,9 @@ def test_to_romaji(ja: str, romaji: str) -> None:
         ("granjam", "guranjamu"),
         ("traumerei", "toroimerai"),
         ("raicho", "raicho"),
+        ("hotel", "hoteru"),  # an h before a vowel stays on both sides
+        ("white", "howaito"),
+        ("hilton", "hiruton"),
     ],
 )
 def test_english_and_its_katakana_reading_sound_alike(english: str, reading: str) -> None:

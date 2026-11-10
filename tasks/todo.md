@@ -833,8 +833,8 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - [x] A query naming a lodging type keeps lodging, and other places only if they carry that word or are bus stops named only for what the query names; Photon's results too
 - [x] 飯店, 饭店, 酒店 and 旅馆 retry as ホテル when nothing matches; 白馬飯店 still finds the restaurant
 - Not covered: simplified 东急饭店 (东 and 马 aren't folded), Traditional 東急旅館, partial stop names ("Keisui Ryokan" for Ryokusuitei Keisui) and spaced kana against an unspaced name (白馬 パーク ホテル). The live-Photon eval wasn't re-run.
-- [x] `sound_key` keeps an `h` before a vowel, so Maruhachi (`mrht`) no longer matches Marriott (`mrt`). Index-wide: 13 wrong pairs gone, 5 new (2 right, 3 wrong but outranked by spelled matches); the booking eval is unchanged (26 hit, 4 ok-absent)
-- Open: "Maruhachi Ryokan" now answers まるしち (2 typos away). 白馬旅籠丸八弐番館 and 庄屋丸八 need a Latin reading of 丸八 to be found
+- [x] `sound_key` keeps an `h` before a vowel, so Maruhachi (`mrht`) no longer matches Marriott (`mrt`). Index-wide: 13 wrong pairs gone, 5 new (1 right). A one-word query's sound match loses the coverage bonus, so "haven" answers Hakuba Haven Lodge, not Herb no Yado ("habuno"). The booking eval is unchanged (26 hit, 4 ok-absent)
+- Open: "Maruhachi Ryokan" now answers まるしち (2 typos away). 旅籠丸八, 丸八館 and 白馬旅籠丸八弐番館 need a Latin reading of 丸八; the stop Shoya Maruhachi is dropped by the lodging-word rule
 
 ## Vercel Phase B (SPEC-deploy.md v1.6, ADR-0006)
 Recorded exception to the takeover order, so the project stays in "tidy". Each PR is about 300 lines, opens with `Takeover phase: tidy (recorded exception, ADR-0006)`, gets a fresh-eyes review, and the owner approves each merge.

@@ -263,6 +263,25 @@ def test_short_sound_keys_never_match() -> None:
     assert "ときわ亭" not in names(rank(entries, "tokyu", HAPPO, 5))
 
 
+def test_a_spelled_word_in_a_long_name_beats_a_one_word_sound_match() -> None:
+    # "habuno" (ハーブの宿) sounds like "haven" and is one token, so it covers the whole
+    # reading; the spelled match covers a third of "Hakuba Haven Lodge" and must still win
+    entries = [
+        Entry("lodging:a", "lodging", "Hakuba Haven Lodge", None, [], HAPPO, "Lodge"),
+        Entry(
+            "lodging:b",
+            "lodging",
+            "ハーブの宿",
+            "ハーブの宿",
+            [],
+            HAPPO,
+            "Inn",
+            readings=("habuno",),
+        ),
+    ]
+    assert names(rank(entries, "haven", HAPPO, 5))[0] == "Hakuba Haven Lodge"
+
+
 def test_a_spelling_match_beats_a_sound_match() -> None:
     entries = [
         Entry("lodging:a", "lodging", "Grace Lodge", None, [], HAPPO, "Lodge"),
