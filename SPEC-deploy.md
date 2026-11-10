@@ -6,6 +6,8 @@
 > while the Mac is off. Oracle is now a fallback, under "If Vercel is a no-go".
 > Research: 5 agents + 1 reviewer checked official pricing pages on 2026-10-31 (summary under "Evidence";
 > Phase B has its own Evidence, checked 2026-11-09).
+> **Status 2026-11-11:** Phase B is live on Vercel and passed Checkpoint S (results under "Probe P and
+> Checkpoint S"). Funnel stays on until friends have moved their saved lists; the owner turns it off.
 
 ## Objective
 Let the author's friends open the planner from their own phones, over HTTPS (needed for GPS),
@@ -75,8 +77,8 @@ links are still called only from the API. Valhalla is no longer a network servic
 
 ```jsonc
 // vercel.json. Shape from the Services docs, with the project's Root Directory at the repo root.
-// `services` needs no manual Framework Preset change: S0 ran this shape on a minimal app with the
-// preset left at FastAPI. Checkpoint S confirms it on the real app.
+// `services` needs no manual Framework Preset change: S0 ran this shape on a minimal app, and
+// Checkpoint S on the real app (the linked project's preset reads "Services").
 {
   "regions": ["hnd1"],
   "git": { "deploymentEnabled": false },   // deploys are explicit: see scripts/deploy-vercel.sh
@@ -149,11 +151,19 @@ on the Mac keeps serving until cutover.
    - Print the commit it deploys, then run `vercel deploy --environment preview`, or
      `vercel deploy --prod` only when asked. Without the flag, a new project's first deploy goes to
      production, as it did at Probe P.
-   - **The real project's first deploy is unverified.** S0 reused a project that already had
-     deployments, so nothing yet shows the server honours the flag on a first deploy. Tell the owner
-     before that deploy, and read `environment` in its output straight after.
-9. **Environment:** `PUBLIC_URL`, `TRUSTED_PROXY_HOPS=1` (Vercel overwrites `X-Forwarded-For` with
-   the client address), `VALHALLA_TILES`, `HAKUBA_DATA_DIR`. Set for Preview and Production.
+   - **A new project's first deploy can't be a preview.** On 2026-11-10 Vercel refused
+     `--environment preview` with `first_deployment_production` ("a project's first deployment is
+     assigned to Production"), so the script stopped and nothing deployed. The first deploy went to
+     Production with `--prod`, with the owner's prior OK. Later previews work as written.
+9. **Environment**, set for Preview and Production. The `api` service root is `/var/task` in the
+   Function, so the script's `services/api/data` and `services/api/tiles` land there.
+   - `PUBLIC_URL`: the production URL, used in the upstream User-Agent.
+   - `TRUSTED_PROXY_HOPS=1`: Vercel overwrites `X-Forwarded-For` with the client address.
+   - `VALHALLA_TILES=/var/task/tiles/valhalla_tiles.tar`, `HAKUBA_DATA_DIR=/var/task/data`.
+   - `PYTHONPATH=/var/task/src`. The bundle is about 324 MB, over the Python builder's standard
+     size, so Vercel installs the dependencies at cold start and doesn't install the project
+     itself. Without this, `from hakuba_api...` fails with `ModuleNotFoundError` and every `/api`
+     call returns 500 (`FUNCTION_INVOCATION_FAILED`).
 10. **Production smoke suite**, `apps/web/e2e-prod/` with its own Playwright config: no local servers,
     `PROD_URL` and a protection-bypass header from the environment, about 5 tests (headers, search,
     bus, drive, walk). The existing suite assumes `127.0.0.1:8010` and dev-only hooks, and hundreds of
@@ -196,6 +206,9 @@ class InProcessEngine:
   origin's data.
 - **Rollback reaches only the previous deployment**, and it stops domains auto-assigning until
   `vercel promote <deployment>` is run. Every later fix needs that step.
+- **Kill switch:** publish a firewall rule that denies path prefix `/` (`vercel firewall rules add`,
+  then `vercel firewall publish`); the site answers 403 within seconds. Remove the rule and publish
+  again to undo. `vercel project pause` also works, but only typed by a person in a terminal.
 
 #### Commands
 ```bash
@@ -240,6 +253,24 @@ is marked below; it stops the work and returns to the owner. Use a protection-by
 | S | Kill switch | tried once: deployment protection on all deployments makes the site unreachable, or another named method | no |
 | S | Phone map credits | a screenshot at iPhone size shows the credits above the collapsed sheet (PR #38 ran no WebKit or real iPhone) | no |
 | S | Mac standby rehearsed | after the code change, `serve-public.sh` serves routes over HTTP | no |
+
+**Checkpoint S results, 2026-11-10/11**, on a protected preview of `6119204` (main after PR #47)
+plus a temporary `x-boot-id` and `x-client-key` header that never reached `main`:
+
+| Check | Result |
+|---|---|
+| Services serve one origin | Pass: `/` 200, `/api/health` 200, `x-vercel-id` `hkg1::hnd1::…` |
+| Entrypoint and `src/` layout | Pass with `PYTHONPATH=/var/task/src` (Changes item 9). Without it, 500 on every `/api` call |
+| Data reached the Function | Pass: `/api/resorts` (10), a bus query at a fixed time, and lodging in one bbox (746) equal the local API byte for byte |
+| Real API cold start | Pass, with little room: 5 new instances after 10 idle minutes each, 4.75 / 4.85 / 4.63 / 4.62 / 5.19 s, median 4.75 s |
+| Warm latency | Pass from the owner's home network on the Mac (not a phone network): median 161 ms of 20, max 224 ms |
+| Concurrency | Pass: 40 parallel routes, 40 OK, 11 instances each with one `x-boot-id` |
+| Client IP | Pass: with `X-Forwarded-For: 6.6.6.6` the limiter's key stayed the real client address, on one instance |
+| Upstreams from Vercel | Pass: Photon 4 results, Open-Meteo 10, a Google short link 1 |
+| Abuse bound | Pass: Hobby allows a firewall rate rule. Live: `/api/` prefix, 300 requests per 60 s per IP (above the app's own 120 burst) |
+| Kill switch | Pass with a firewall rule: a deny rule on path prefix `/`, published, made `/` and `/api` answer 403 within about 8 s; removing it restored 200. `vercel project pause` needs a person to type the project name in a terminal |
+| Phone map credits | Pass in WebKit with iPhone 15 emulation: the credits box sits at y 289–353 of 659 px, above the collapsed sheet, and nothing covers it. Not checked on a real iPhone |
+| Mac standby rehearsed | Partly: the new API with `VALHALLA_URL=http://127.0.0.1:8002` served `/api/route` 200 from a worktree. `serve-public.sh` itself wasn't run, because the main checkout was in use by another session and serves friends |
 
 #### Success criteria
 1. Probe P and Checkpoint S pass.
@@ -292,14 +323,17 @@ kept below, then AWS Lightsail at $7 a month, which needs the owner's OK to brea
 | A new project's first `vercel deploy` went to production | Probe P; removed with the owner's OK |
 | S0: `/` and `/api/health` 200; `/api` in `hnd1` with top-level `regions`; service-level headers applied; preset left at FastAPI | Vercel preview, 2026-11-09 |
 | `hakuba_api.main:app` fails to deploy ("has entrypoint \"hakuba_api/main.py\" but that path does not exist"); `src.hakuba_api.main:app` deploys, and `from hakuba_api...` imports inside the package work | S0 deploy output |
+| A new project's first deploy refused `--environment preview` (`first_deployment_production`) | Real project, 2026-11-10 |
+| Real bundle 323.62 MB: "exceeds the standard size; optimizing dependencies". Packages install at cold start ("Runtime dependencies installed in 2.08s"), and the project package isn't installed | Build and runtime logs, 2026-11-10 |
+| The `api` service root is `/var/task`; files the script puts under `services/api/` are there | Probe on `probe-p`, 2026-11-10 |
+| Checkpoint S: every row in the results table above | Protected preview, 2026-11-10/11 |
 
-Not verified: the real app on Vercel (S0 was a minimal app) and files outside a service root, both
-covered by rows above; how the tiles and data reach the function under `services` (Probe P used
-`functions.includeFiles`, and S0 shipped neither); where the `web` service runs (S0 measured only
-`/api`); and whether a real project's first deploy honours `--environment preview` (Changes item 8).
+Not verified: the live check from a phone on mobile data with the Mac's lid closed (Success
+criterion 2, the owner's step); `serve-public.sh` on the new code; a real iPhone.
 
 #### Open questions
-1. The `*.vercel.app` name is first-come. The owner picks it when linking the project.
+1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL
+   isn't written in this public repo; friends get it from the owner.
 
 ## Changes to the repo (both phases)
 1. **Hakuba-only Valhalla tiles, reproducible.** `infra/valhalla/build-hakuba.sh`: download Geofabrik

@@ -853,9 +853,9 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 - [x] Before the real project's first deploy, which PR 5 needs: the owner links the project and sets the variables in SPEC-deploy.md Changes item 9; tell the owner before deploying, then read `environment` in the deploy output. Done 2026-11-10: Vercel refused a Preview as the first deployment, so the first went to Production with the owner's prior OK; `PYTHONPATH=/var/task/src` was added (PR 7 records why)
 - [x] PR 5: production smoke suite, `apps/web/e2e-prod/`, about 5 tests, green against a preview (headers, search, bus, drive, walk). 5/5 on production and on the protected preview
 - [x] PR 6: phone map credits, done in PR #38 and hit-tested at phone sizes in Chromium
-- [ ] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start and the iPhone credits screenshot
-- [ ] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md` including its open phone-credits note, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
-- [ ] Cutover, asking the owner at each step: production deploy, new link to friends, Funnel off. Done when SPEC-deploy.md Phase B success criteria 1 to 5 hold
+- [x] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start and the iPhone credits screenshot. Passed 2026-11-11 (cold start median 4.75 s); results table in SPEC-deploy.md. Mac standby only partly rehearsed
+- [x] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md` including its open phone-credits note, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
+- [ ] Cutover: production deploy and smoke (owner pre-approved 2026-11-10), new link to friends (the owner sends it), Funnel off (the owner, after friends move their saved lists). Done when SPEC-deploy.md Phase B success criteria 1 to 5 hold; 2 (phone on mobile data, Mac lid closed) is the owner's check
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).

@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed. The owner decides at merge. Replaces the Oracle choice for Phase B in `SPEC-deploy.md`,
+Accepted (merged by the owner 2026-11-09; live on Vercel 2026-11-10). Replaces the Oracle choice for Phase B in `SPEC-deploy.md`,
 the "Oracle VM: not yet" row of [ADR-0005](0005-repo-visibility.md) for friends-only use, and, after
 cutover, ADR-0005 Decision 1's "friends keep using the Funnel link".
 
