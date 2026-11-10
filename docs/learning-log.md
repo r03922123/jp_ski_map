@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-11 · tidy: test(e2e): hotel-pin tests skip on a production build
+
+**1. Principle: put the guard where the dependency is.**
+Six tests find a hotel pin through `window.__hakubaMap`, a handle that only the dev server exposes. The guard now sits in `hotelPin`, the one helper that needs it, so a new caller can't forget it.
+*Analogy:* a null check inside the accessor beats one at every call site.
+
+**2. Trade-off: skip, don't rewrite.**
+These tests could find pins through the DOM and run everywhere, but MapLibre draws pins on a canvas, so that means a different way to hit-test. Skipping on production keeps their dev coverage. The production run had 4 hotel-pin failures for the wrong reason; with the guard all 6 hotel-pin tests skip there.
+
+**3. What could go wrong: a run that ignores the switch.**
+Running against `next start` without `E2E_PROD=1` turns every dev-only test into a failure (64 on the first run here). The flag is read in one place, `e2e/dev-only.ts`; the risk is a person, not the code.
+
 ## 2026-11-11 · tidy: docs: Phase B is live on Vercel, with the Checkpoint S results
 
 **1. Principle: write down what the platform really did, not what the plan expected.**

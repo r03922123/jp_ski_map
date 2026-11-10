@@ -6,6 +6,7 @@ import {
   type Page,
   test,
 } from "@playwright/test";
+import { devOnly } from "../dev-only";
 
 // Journey group S, SETTING THE START: "where am I staying / where do I leave from".
 // Goals, not screens: every way a skier can set, change, clear, reload and share the start,
@@ -161,6 +162,7 @@ async function touch(
 
 /** Zoom in over the village so hotel pins load, then find one clear of the sheet/panel. */
 async function hotelPin(page: Page, region: { minX: number; maxY: number }) {
+  devOnly("finds a hotel pin with the dev map handle");
   await page.evaluate(() =>
     (window as unknown as { __hakubaMap: any }).__hakubaMap.jumpTo({
       center: [137.853, 36.6985],
