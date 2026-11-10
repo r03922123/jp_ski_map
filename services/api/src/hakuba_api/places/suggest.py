@@ -97,12 +97,14 @@ def suggest(
     query = clean_query(query)  # pasted hotel-site URLs and page titles → the name
     index = entries if entries is not None else load_index()
     hits = rank(index, query, near, limit)
-    meaning = semantic.semantic_ids(query, limit)
+    # appended after lexical hits, so a full page of them leaves no room: skip the call
+    meaning = semantic.semantic_ids(query, limit) if len(hits) < limit else []
     if not hits and _CHINESE_HOTEL.search(query):
         retry = _CHINESE_HOTEL.sub("ホテル", query)
         if retry_hits := rank(index, retry, near, limit):
             query, hits = retry, retry_hits
     local = [_from_hit(h) for h in hits]
+    lexical_n = len(local)
     if meaning:
         # Lexical order stays and meaning only fills in after it: RRF fusion put a look-alike
         # above an exact name ("Hotel Grace Hakuba" → Hakuba Grace Inn) in the v1.4 eval.
@@ -117,8 +119,10 @@ def suggest(
             named = e.kind not in ("lodging", "stop") or names_a_place(query, " ".join(names))
             if named and fits_lodging_words(query, e.kind, names):
                 local.append(_from_entry(e))
+                seen.add(i)
         local = local[:limit]
-    if not use_photon or len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
+    # semantic food/shop hits carry no name check, so only lexical hits can stand in for Photon
+    if not use_photon or lexical_n >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
         return local
     try:
         remote = search_photon(query, limit)

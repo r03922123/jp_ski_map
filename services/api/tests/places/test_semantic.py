@@ -5,7 +5,8 @@ import pytest
 import respx
 
 from hakuba_api.common.geo import Coord
-from hakuba_api.places import semantic
+from hakuba_api.places import photon, semantic
+from hakuba_api.places.photon import PHOTON_URL
 from hakuba_api.places.semantic import semantic_ids
 from hakuba_api.places.suggest import load_index, suggest
 
@@ -107,3 +108,29 @@ def test_suggest_keeps_the_lexical_order_and_appends_meaning(
     monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: meaning)  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     ids = [s.id for s in suggest("Hotel Grace Hakuba", NEAR, 10, use_photon=False)]
     assert ids[: len(lexical)] == lexical
+
+
+def test_a_repeated_semantic_id_is_added_once(monkeypatch: pytest.MonkeyPatch) -> None:
+    ramen = next(e for e in load_index() if "ramen" in e.detail)
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [ramen.id, ramen.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    ids = [s.id for s in suggest("拉麵", NEAR, 5, use_photon=False)]
+    assert ids.count(ramen.id) == 1
+
+
+def test_semantic_hits_do_not_switch_off_photon(
+    mock: respx.MockRouter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Photon fills in on too few *lexical* hits; unchecked food hits must not stand in for them
+    food = [e.id for e in load_index() if e.kind == "food"][:5]
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: food)  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    photon.clear_cache()
+    call = mock.get(PHOTON_URL).respond(json={"features": []})
+    suggest("Shiroumaso", NEAR, 8)
+    assert call.call_count == 1
+
+
+def test_a_full_lexical_page_skips_the_semantic_call(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: calls.append(q) or [])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType, reportUnknownMemberType]
+    assert len(suggest("hakuba", NEAR, 3, use_photon=False)) == 3
+    assert calls == []
