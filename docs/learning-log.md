@@ -2,6 +2,19 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · tidy: chore: shadcn is a dev tool, AGENTS.md follows CLAUDE.md
+
+**1. Principle: a dependency's section says when it runs.**
+`shadcn` is a CLI that copies component code into the repo; the app only imports its `tailwind.css` while building. Listing it under `dependencies` told every tool it ships with the app, so Dependabot filed its two transitive alerts (minimatch, deepmerge) as runtime risks. Under `devDependencies` they are what they really are: risks to the build machine, not to visitors.
+*Analogy:* the scaffolding goes on the builder's invoice, not into the house's inventory.
+
+**2. Trade-off: a link, not a copy.**
+Codex reads `AGENTS.md`, Claude Code reads `CLAUDE.md`. The old `AGENTS.md` was a hand copy that had already fallen two lines behind. A symlink keeps one source; Git stores the link and Codex reads through it. The cost: a tool that doesn't follow links sees a 9-byte path, and an editor that saves by writing a new file and renaming it turns the link back into a drifting copy.
+*Analogy:* one calendar shared by two people instead of two paper copies that drift.
+
+**3. What could go wrong: an untracked file in the way of the pull.**
+The main checkout already had an untracked `AGENTS.md`, so the first pull after this merge would stop with "untracked working tree files would be overwritten", and production would keep building the old commit. It was moved to the Trash first; its content was the first lines of `CLAUDE.md`. A prod-only install (`pnpm install --prod`) adds no new risk: it already couldn't build without `tailwindcss` and `typescript`.
+
 ## 2026-11-10 · tidy: fix(places): Maruhachi no longer sounds like Marriott
 
 **1. Principle: a matching key must keep the sounds both spellings share.**
