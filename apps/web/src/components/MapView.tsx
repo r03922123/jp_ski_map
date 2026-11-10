@@ -875,7 +875,7 @@ export default function MapView({
                 <PixelSprite
                   id={`world-${worlds.get(r.id)}`}
                   sprite={worldBadge(worlds.get(r.id) ?? 0)}
-                  scale={1.5}
+                  scale={1}
                   alt=""
                 />
                 {r.name.en.replace(

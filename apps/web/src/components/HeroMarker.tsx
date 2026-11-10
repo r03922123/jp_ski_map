@@ -60,7 +60,7 @@ export function Hero({
   pose,
   left = false,
   alt,
-  scale = 1.5,
+  scale = 2,
 }: {
   pose: Pose;
   left?: boolean;
