@@ -2,6 +2,27 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · tidy: test(web): a five-test smoke suite for a deployed site
+
+**1. Principle: test the deployment with the user's own clicks, nothing else.**
+The main suite starts local servers and uses dev-only hooks such as `window.__hakubaMap`. A
+deployment has neither, so `e2e-prod/` drives only what a friend can do: search, bus, drive, walk,
+plus the headers and robots rules. Passing there means the real site works, not a dev build.
+*Analogy:* a restaurant's health inspection happens in the dining room, not in the test kitchen.
+
+**2. Trade-off: five tests, not five hundred.**
+The API allows 120 quick requests per visitor. Hundreds of tests from one IP would trip that limit
+and fail for the wrong reason, and every run costs the free Vercel allowance. Five flows cover each
+part once (the search API, timetables, Valhalla), and the big suite keeps covering the details locally.
+*Analogy:* a pilot's walk-around checks each system once before take-off; the full inspection
+happens in the hangar.
+
+**3. What could go wrong: the bypass secret leaks to a third party.**
+A protected preview needs a secret header. Playwright's `extraHTTPHeaders` adds it to every
+request, map tiles from `tiles.openfreemap.org` included. The suite adds it only to requests for
+the deployment's own origin, and the secret comes from the environment, never from a file in git.
+*Analogy:* show your building pass at your own front door, not to every shop on the street.
+
 ## 2026-11-10 · tidy: chore: shadcn is a dev tool, AGENTS.md follows CLAUDE.md
 
 **1. Principle: a dependency's section says when it runs.**
