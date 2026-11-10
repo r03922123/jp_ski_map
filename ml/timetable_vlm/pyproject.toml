@@ -1,0 +1,30 @@
+[project]
+name = "timetable-vlm"
+version = "0.1.0"
+description = "Experiment: draft bus-timetable JSON with a local LoRA-tuned VLM (never served)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "hakuba-api",
+    "mlx-vlm",
+    "pillow",
+]
+
+[tool.uv.sources]
+hakuba-api = { path = "../../services/api", editable = true }
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

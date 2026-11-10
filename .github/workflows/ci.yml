@@ -27,6 +27,24 @@ jobs:
       - name: Validate data/
         run: uv run python -m hakuba_api.data.validate
 
+  mcp:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Lint
+        run: uv run ruff check && uv run ruff format --check
+      - name: Type check
+        run: uv run pyright
+      - name: Tests (respx, no network)
+        run: uv run pytest -q
+
   web:
     runs-on: ubuntu-latest
     defaults:

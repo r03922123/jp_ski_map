@@ -35,3 +35,7 @@ data/bus/raw/
 
 # Claude Code worktrees
 .claude/worktrees/
+
+# MLflow stores when a run starts outside ml/search
+mlruns/
+mlflow.db

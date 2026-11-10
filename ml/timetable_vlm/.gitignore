@@ -1,0 +1,9 @@
+# third-party images, renders and weights must never be committed (public repo)
+out/
+data/
+adapters/
+*.png
+*.jpg
+*.jpeg
+*.safetensors
+.venv/

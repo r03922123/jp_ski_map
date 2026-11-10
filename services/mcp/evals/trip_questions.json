@@ -1,0 +1,74 @@
+[
+  {
+    "id": "fresh-snow-from-hotel",
+    "lang": "en",
+    "question": "I'm staying at Hotel Hakuba. Which resort has the most fresh snow right now, and how long is the drive there?",
+    "required": ["search_place", "rank_resorts"],
+    "optional": ["crowd_and_snow", "route"],
+    "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake)",
+    "check": "names a resort"
+  },
+  {
+    "id": "bus-to-happo",
+    "lang": "zh",
+    "question": "我住在白馬駅附近，2026-12-26 早上 8 點想搭接駁巴士去八方尾根，有哪些班次？",
+    "required": ["search_place", "next_buses"],
+    "optional": ["rank_resorts"],
+    "answer_regex": "0?8[:：]\\d\\d",
+    "check": "gives an 08:xx departure time"
+  },
+  {
+    "id": "drive-to-goryu",
+    "lang": "ja",
+    "question": "白馬駅から白馬五竜まで車で何分かかりますか？",
+    "required": ["search_place", "route"],
+    "optional": ["rank_resorts"],
+    "answer_regex": "\\d+(\\.\\d+)?\\s*(分|min)",
+    "check": "gives minutes"
+  },
+  {
+    "id": "crowd-and-depth",
+    "lang": "en",
+    "question": "Is Happo-One going to be crowded on 2026-12-27, and how deep is the snow there?",
+    "required": ["crowd_and_snow"],
+    "optional": [],
+    "answer_regex": "(?is)(low|medium|high|very.high).*\\d+\\s*cm|\\d+\\s*cm.*(low|medium|high|very.high)",
+    "check": "gives a crowd level and a depth in cm"
+  },
+  {
+    "id": "quietest-resort",
+    "lang": "zh",
+    "question": "從 Hakuba Tokyu Hotel 出發，2026-12-31 哪個雪場人最少？開車多久？",
+    "required": ["search_place", "rank_resorts"],
+    "optional": ["crowd_and_snow", "route"],
+    "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake|八方|五竜|岩岳|栂池|乘鞍|乗鞍|科爾蒂納|コルチナ|鹿島槍|爺ガ岳|佐野坂)",
+    "check": "names a resort"
+  },
+  {
+    "id": "konbini-near-station",
+    "lang": "ja",
+    "question": "白馬駅の近くにコンビニはありますか？歩いて何分ですか？",
+    "required": ["search_place", "nearby_pois"],
+    "optional": [],
+    "answer_regex": "(?i)(ローソン|セブン|ファミリーマート|ファミマ|lawson|7-eleven|seven|familymart)",
+    "check": "names a convenience store chain"
+  },
+  {
+    "id": "plan-day-by-bus",
+    "lang": "en",
+    "question": "Plan my ski day on 2026-12-26 starting from JR Hakuba Station: pick a resort with good snow that isn't too crowded, and tell me which shuttle bus to take around 8am.",
+    "required": ["search_place", "rank_resorts", "next_buses"],
+    "optional": ["crowd_and_snow", "route"],
+    "answer_regex": "(?is)0?8:\\d\\d.*(estimat|timetable)|(estimat|timetable).*0?8:\\d\\d",
+    "check": "gives a bus time and says it is an estimate"
+  },
+  {
+    "id": "coord-no-search",
+    "lang": "en",
+    "question": "From 36.6983,137.8619, rank the resorts by vertical drop and give me the top 3.",
+    "required": ["rank_resorts"],
+    "optional": [],
+    "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake)",
+    "check": "names resorts, without a needless place search"
+  }
+]

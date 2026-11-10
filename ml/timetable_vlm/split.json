@@ -1,0 +1,56 @@
+{
+ "test_lines": [
+  "line-e",
+  "line-n",
+  "line-r",
+  "line-t"
+ ],
+ "train": [
+  "line-f-f1.json",
+  "line-f-f2.json",
+  "line-f-f3.json",
+  "line-f-f4.json",
+  "line-f-f5.json",
+  "line-f-f6.json",
+  "line-g-g1.json",
+  "line-g-g2.json",
+  "line-g-g3.json",
+  "line-g-g4.json",
+  "line-g-g5.json",
+  "line-g-g6.json",
+  "line-g-g7.json",
+  "line-g-g8.json",
+  "line-g-g9.json",
+  "line-g-g10.json",
+  "line-l-l1.json",
+  "line-o-o1.json",
+  "line-v-v2.json",
+  "line-v-v1.json",
+  "line-vn.json"
+ ],
+ "test": [
+  "line-e-e1.json",
+  "line-e-e2.json",
+  "line-e-e3.json",
+  "line-e-e4.json",
+  "line-n-n1.json",
+  "line-r-r1.json",
+  "line-r-r2.json",
+  "line-t-t1.json",
+  "line-t-t2.json",
+  "line-t-t3.json"
+ ],
+ "skipped": {
+  "line-gurutto.json": "2025-2026-Shuttle-Bus-Timetable.pdf: PDF page not rendered",
+  "line-konayuki.json": "2025-2026-Shuttle-Bus-Timetable.pdf: PDF page not rendered",
+  "line-v-v2-p1.json": "2025-2026-Shuttle-Bus-Timetable.pdf: PDF page not rendered",
+  "line-v-v2-p2.json": "2025-2026-Shuttle-Bus-Timetable.pdf: PDF page not rendered",
+  "line-v-v2-p3.json": "2025-2026-Shuttle-Bus-Timetable.pdf: PDF page not rendered",
+  "line-h-h1.json": "H.jpg: route headers not found",
+  "line-h-h2.json": "H.jpg: route headers not found",
+  "line-h-h3.json": "H.jpg: route headers not found",
+  "line-i-i1.json": "I.jpg: route headers not found",
+  "line-i-i2.json": "I.jpg: route headers not found",
+  "line-i-i3.json": "I.jpg: route headers not found"
+ }
+}

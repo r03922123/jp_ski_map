@@ -38,6 +38,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `progression` | Rider profile on the device: resort stamps from real visits, daily powder quests, ride stats, rider card share link *(added v1.6, 2026-10-31)* | `resort-catalog`, `snow-conditions`, `pilot` |
 | `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels; from v1.6 presented as the adventure | all of the above (via HTTP API only) |
 | `deploy` | Zero-cost hosting: Phase A this Mac + Tailscale Funnel, Phase B Vercel Hobby with Valhalla in the API (live 2026-11-10, ADR-0006) *(added v1.5, 2026-10-31)* | hosts every server module |
+| `agent-tools` | Read-only MCP server so an LLM agent can plan a ski day with the API's tools (`services/mcp`) *(added 2026-11-11)* | all server modules (via HTTP API only) |
 
 **Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
 **v1.6 build order:** `game-theme` → `progression` → `web-app` wiring

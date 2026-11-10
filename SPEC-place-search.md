@@ -100,3 +100,45 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - *Prominence:* a query with only area or generic words ("iwatake", "goryu", "hakuba") boosts resorts by 15, so the ski area leads, not the nearest lodge or stop.
 
 **Not doing:** fetching Booking.com/Agoda pages (their terms; also no coordinates in the URL); Rakuten (terms); a paid geocoder.
+
+## v1.4 — Semantic retrieval beside the lexical index (experiment, 2026-11-11)
+
+**Why:** the lexical index scores 26/26 on `booking_eval.json`, so that set can only catch regressions. It cannot match what isn't spelled in a name: Chinese resort names (八方尾根滑雪場), food and shop categories (ramen, 拉麵, コンビニ), translated hotel names (白馬高地飯店). A multilingual embedding model can, but the look-alike guard below deliberately gives up translated hotel names: a hotel needs a shared distinctive word, so 白馬高地飯店 and 樅之木飯店 stay unmatched.
+
+**Design**
+- A separate local embedding server (`ml/search`, `python -m hakuba_search.server`) loads a sentence-embedding model (default `intfloat/multilingual-e5-small`, or a fine-tuned copy under `ml/search/models/`), embeds the same 1,100 index entries (`name | name_ja | aliases | detail`), and answers `GET /search?q=&k=` with `[{id, score}]` above a cosine threshold. ~1,100 vectors fit in one matrix, so search is an exact dot product (no vector database).
+- The API calls it only when `HAKUBA_SEMANTIC_URL` is set, with a 300 ms timeout (httpx applies it per phase, so a slow server can hold a request a little longer); any error or timeout falls back to lexical results (logged). It skips the call when lexical already fills the page, and Photon still decides on the lexical count alone, since semantic food and shop hits carry no name check. Production stays unchanged until that variable is set.
+- `suggest()` builds the page as lexical hits, then Photon (still only when fewer than 3 lexical hits), then semantic hits, and cuts to the limit once, so semantic hits never push a name-checked Photon hit off the page. A semantic lodging or bus-stop hit must share a distinctive word with the query, and a query of only area and generic words names no place (`names_a_place`), because a look-alike hotel is a confidently wrong answer.
+- *Tried and dropped:* reciprocal rank fusion (RRF, k=60). It rewards items both lists rank high, which put Hakuba Grace Inn above the exact "Hotel Grace Hakuba" on `booking_eval.json` (26 → 25 hits). With only the kind filter, hybrid also turned all 4 absent hotels into wrong answers (4 → 0).
+- Fine-tuning (`ml/search`): synthetic (query, entry) pairs generated from the index (typos, dropped words, romaji readings, Chinese/variant characters, cuisine and shop words), contrastive training with in-batch negatives (MultipleNegativesRankingLoss) on the Mac's GPU (MPS). Entries are split 80/20 so the synthetic dev set has names the model never trained on.
+- Tracking: every eval run logs params and metrics to a local MLflow store (`ml/search/mlruns`, gitignored).
+
+**Evaluation**
+- `ml/search/evals/hard_queries.json`: 40 hand-written queries in 4 groups. `synth.make_pairs` drops any training or dev query equal to one of them (a test checks it): the first fine-tune had 13 of the 40 word for word in its training pairs. Metric: hit@1 and hit@5 per mode (lexical, semantic, hybrid) and model (base, fine-tuned).
+- `booking_eval.json` stays the regression check: hybrid must keep 26/26 present and 4/4 absent empty.
+- Latency: p50/p95 of `suggest()` per mode.
+
+**Acceptance**
+- [x] Hybrid beats lexical on the hard set at hit@5, with no regression on `booking_eval.json`. *Fine-tuned without any hard-set query in training, calibrated: 0.55 vs 0.15; booking 26/26 present, 4/4 absent empty, 0 wrong.*
+- [x] The fine-tuned model is reported against the base model on the hard set and the synthetic dev set, whichever way it comes out. *See the results below.*
+- [x] The API falls back to lexical when the server is down or slow (unit tests); API gates green. *Also seen live: `ReadTimeout` → lexical results.*
+
+**Results (2026-11-11, hard set n=40, hit@5)**
+
+| Setup | Threshold | Hard hit@5 | category | hotel | resort-en | resort-zh | booking hit / absent / wrong |
+|---|---|---|---|---|---|---|---|
+| Lexical only | – | 0.15 | 0.10 | 0.50 | 0.00 | 0.00 | 26 / 4 / 0 |
+| Base e5-small, hybrid | 0.84 (guessed) | 0.65 | 0.75 | 0.625 | 0.20 | 0.714 | 26 / 4 / 0 |
+| Base e5-small, hybrid | 0.9127 (calibrated) | 0.15 | 0.10 | 0.50 | 0.00 | 0.00 | 26 / 4 / 0 |
+| Fine-tuned, 13/40 hard queries leaked into training (first run) | 0.5366 (calibrated) | 0.475 | 0.35 | 0.50 | 0.60 | 0.714 | 26 / 4 / 0 |
+| Fine-tuned, hard queries excluded | 0.5387 (calibrated) | **0.55** | 0.45 | 0.625 | 0.60 | 0.714 | 26 / 4 / 0 |
+| (same, semantic only) | 0.5387 | 0.60 | 0.45 | 0.75 | 0.80 | 0.714 | – |
+
+- Synthetic dev split (unseen entries, whole index as distractors): recall@1 0.717 → 0.860, MRR@10 0.765 → 0.895 after one epoch (3,604 pairs, ~4 min on MPS, train loss 0.430). The first run, with the leak, gave 0.714 → 0.851.
+- Removing the 13 exact copies did not lower the hard-set score (0.475 → 0.55, a 3-query difference, within noise for n=40), so those exact strings didn't carry the gain. 9 of the 40 still have near-duplicates in training (the query plus an area word, e.g. `curry hakuba`, `tsugaike kogen lodge`), so some of the gain may still be overlap.
+- Calibrated on dev, the base model keeps almost nothing (its top-1 is rarely 90% right), so the 0.65 row relied on an untested threshold. Fine-tuning made the model usable at a calibrated threshold, and lifted English resort names, but scored lower on food and shop categories than the guessed-threshold base model (0.75 → 0.45): 82% of the training pairs are lodging names.
+- The eval patches `semantic_ids` in process, so its hit and latency numbers skip the HTTP hop and the 300 ms timeout; live, a loaded Mac falls back to lexical more often (seen: two `ReadTimeout`s on a cold server).
+- Latency on the loaded Mac (load average 25–40): embedding server 30–56 ms warm; `suggest()` hybrid p50 49 ms, p95 81 ms, against lexical p50 33 ms, p95 78 ms.
+- **Next:** rebalance the synthetic pairs by kind and judge it on a *new* held-out query set, since this hard set has now been seen. Semantic search stays off in production until then.
+
+**Boundaries:** local models only ($0); the model and MLflow files are never committed; the app logger and the embedding server (access log off) never log query text. The production API's uvicorn access log already records `/api/places/suggest?q=…`, as before this change.
