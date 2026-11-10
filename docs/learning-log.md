@@ -9,7 +9,7 @@ Hiding the buttons with CSS would have left the sound engine, daily quest genera
 *Analogy:* dropping an unused database column instead of leaving it nullable forever.
 
 **2. Trade-off: the code goes, the stored data keeps its shape.**
-`hakuba:rider` still has `quests` (now always unchanged) and trip stats that nothing shows. `parseRider` rejects a save without `quests`, so removing the field would have wiped every friend's stamps on their next visit. The cost: two small dead pieces of data, plus `rename` and `titleFor`, which only tests use now. Dropping them is a separate, data-migration-shaped change.
+`hakuba:rider` still has `quests` (now always unchanged) and trip stats that nothing shows. `parseRider` rejects a save without `quests`, so removing the field would have wiped every friend's stamps on their next visit. The cost is two small dead pieces of data. Dropping them is a separate change, shaped like a data migration. The code that only the screens used went now: `rename`, `titleFor` and `fetchSnow`, all found by the fresh-eyes review.
 
 **3. What could go wrong: deleting a test can delete coverage of something still alive.**
 The Back-button tests opened the rider card and quest log, but what they guarded (`useBackToClose`) still runs in the Save to list and Import dialogs. So they were moved onto Save to list, not deleted. Two cases were dropped on purpose: stacked overlays and a map click under an open popover. Both remaining dialogs are modal, so neither case can happen now. The new check also loads a browser with `hakuba:sound=on` saved, the state an old user really has, and confirms no AudioContext appears.
