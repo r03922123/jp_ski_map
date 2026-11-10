@@ -77,7 +77,9 @@ def score(text: str, gold: Timetable) -> dict:
             ptimes = ptrip.get("times") if isinstance(ptrip, dict) else None
             for si, g in enumerate(gt.times):
                 cells += 1
-                cell_ok += _norm(_at(ptimes, si)) == g if ptimes is not None else 0
+                # a cell the model never wrote is wrong, even where gold is empty (null)
+                written = isinstance(ptimes, list) and si < len(ptimes)
+                cell_ok += written and _norm(ptimes[si]) == g
     out["cell_acc"] = cell_ok / cells if cells else 0.0
     out["stop_acc"] = stop_ok / stops_n if stops_n else 0.0
     return out

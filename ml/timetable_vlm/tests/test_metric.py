@@ -70,3 +70,19 @@ def test_wrong_number_of_times_is_schema_valid_but_validator_error():
     t["directions"][0]["trips"][0]["times"].append("23:59")
     s = score(_text(t), GOLD)
     assert s["schema_valid"] and s["validator_errors"] >= 1
+
+
+def test_a_missing_cell_is_wrong_even_where_gold_is_empty():
+    # a short `times` list must not score its missing tail against gold nulls
+    gold = next(
+        g
+        for p in sorted(GOLD_DIR.glob("*.json"))
+        if (g := Timetable.model_validate_json(p.read_text()))
+        and any(tr.times and tr.times[-1] is None for d in g.directions for tr in d.trips)
+    )
+    t = to_target(gold)
+    for d in t["directions"]:
+        for tr in d["trips"]:
+            if tr["times"] and tr["times"][-1] is None:
+                tr["times"] = tr["times"][:-1]
+    assert score(_text(t), gold)["cell_acc"] < 1.0

@@ -25,6 +25,7 @@ Gitignored (third-party posters, public repo): `out/` (crops, renders, predictio
 ```sh
 cd ml/timetable_vlm
 uvx --from 'uv==0.9.30' uv sync --python 3.12      # the Mac's uv 0.5.9 is too old
+export TIMETABLE_RAW_DIR=<main checkout>/data/bus/raw/2025-26   # only in a worktree (raw posters are gitignored)
 uvx --from 'uv==0.9.30' uv run pytest -q             # metric, target, synth tests
 uvx --from 'uv==0.9.30' uv run ruff check .
 uvx --from 'uv==0.9.30' uv run python -m timetable_vlm.dataset          # pairing table + split.json + crops
@@ -101,3 +102,6 @@ before the first loss report. No training loss and no fine-tuned numbers exist.
 - Positional matching: a dropped stop shifts every later cell, so cell accuracy is harsh.
 - `cell_acc` normalises "8:05" to "08:05"; the validator count does not.
 - The prompt gives the direction ids (e.g. "outward, return"), which a human would also decide.
+- `cell_acc` is recall over gold cells: extra trips or stops the model invents are not penalised
+  (the validator count catches some of them). A cell the model never wrote is wrong, even where
+  gold is empty; re-scoring the saved baseline outputs with that rule left 0.771 / 0.719 unchanged.
