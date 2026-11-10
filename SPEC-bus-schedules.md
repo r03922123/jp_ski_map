@@ -185,3 +185,12 @@ The poster's legend says ● is alighting and ▲ boarding. Read that way nobody
 - [ ] Out of season and unreviewed answers match `/options`.
 
 **Out of scope:** transfers, and changing the `/options` query, which still treats every `null` as "not published" and ignores the boarding rules.
+
+## v1.x Draft transcription with a local VLM (experiment, approved 2026-11-11)
+
+The owner approved a local vision-language model as a draft generator, replacing the "ask first" above for this experiment only. Code and results: `ml/timetable_vlm/README.md`.
+
+- **Goal:** draft a route's `directions` (stops, trips, times) from one poster crop, so a human reviews a draft instead of typing from scratch. Fare, dates and boarding rules stay manual.
+- **Data split:** by line, not by image. Test lines E, N, R, T are never seen in training (no real crop, no synthetic render). Train uses the other reviewed routes' real crops plus synthetic renders of their JSON. The split is `ml/timetable_vlm/split.json` (file names only).
+- **Metric:** per test route: parsed JSON, schema-valid against `Timetable`, `validate_bus` error count, cell accuracy of departure times (direction × trip × stop, by position, over all gold cells), and stop-name accuracy. Malformed output scores 0 and is counted.
+- **Boundaries:** draft only, written to a gitignored folder, never served and never `reviewed: true`. Local models only (MLX on the Mac); never the Claude API or paid OCR. Raw posters, crops, renders and weights stay gitignored because the posters are third-party.
