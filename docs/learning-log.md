@@ -5,14 +5,58 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 ## 2026-11-11 · tidy: test(e2e): hotel-pin tests skip on a production build
 
 **1. Principle: put the guard where the dependency is.**
-Six tests find a hotel pin through `window.__hakubaMap`, a handle that only the dev server exposes. The guard now sits in `hotelPin`, the one helper that reads it, so a new caller can't forget it.
+Six tests find a hotel pin through `window.__hakubaMap`, a handle that only the dev server exposes. The guard now sits in `hotelPin`, the one helper that needs it, so a new caller can't forget it.
 *Analogy:* a null check inside the accessor beats one at every call site.
 
 **2. Trade-off: skip, don't rewrite.**
-These tests could find pins through the DOM and run everywhere, but MapLibre draws pins on a canvas, so that means a different way to hit-test. Skipping on production keeps their dev coverage and makes the production run honest: 438 passed, 55 skipped, nothing failing for the wrong reason.
+These tests could find pins through the DOM and run everywhere, but MapLibre draws pins on a canvas, so that means a different way to hit-test. Skipping on production keeps their dev coverage. The production run had 4 hotel-pin failures for the wrong reason; with the guard all 6 hotel-pin tests skip there.
 
 **3. What could go wrong: a run that ignores the switch.**
 Running against `next start` without `E2E_PROD=1` turns every dev-only test into a failure (64 on the first run here). The flag is read in one place, `e2e/dev-only.ts`; the risk is a person, not the code.
+
+## 2026-11-11 · tidy: docs: Phase B is live on Vercel, with the Checkpoint S results
+
+**1. Principle: write down what the platform really did, not what the plan expected.**
+Three things went differently on the real project. Vercel refused a preview as the first deploy.
+The 324 MB bundle made Vercel install packages at cold start and skip the project itself, so every
+`/api` call failed until `PYTHONPATH=/var/task/src` was set. And `vercel project pause` needs a
+person at a terminal, so the kill switch is a firewall rule. Each is now in SPEC-deploy with its
+evidence, so the next deploy doesn't rediscover them.
+*Analogy:* a recipe card that says "the oven runs hot, use 170 °C" saves the next cook a burnt cake.
+
+**2. Trade-off: the cold start passed, with a quarter second to spare.**
+The median of 5 cold starts is 4.75 s against a 5 s limit, and one sample took 5.19 s. Making it
+faster means a smaller bundle (dropping `fastapi[standard]`'s dev tools, for example), which is a
+code change with its own risk. The spec says to report and leave the limit alone, so it stays, and
+the number is on record for when it gets worse.
+*Analogy:* a train that arrives 15 seconds early is on time; you note it and watch the trend.
+
+**3. What could go wrong: the production URL in a public repo.**
+The site is for friends and asks search engines to stay away, but a URL written in a public repo
+can still be found and used by strangers, and their traffic spends the free allowances. The docs
+say where the URL lives (the owner's message to friends, the Vercel project), not what it is.
+*Analogy:* you tell friends the door code in person, not on the noticeboard outside.
+
+## 2026-11-10 · tidy: test(web): a five-test smoke suite for a deployed site
+
+**1. Principle: test the deployment with the user's own clicks, nothing else.**
+The main suite starts local servers and uses dev-only hooks such as `window.__hakubaMap`. A
+deployment has neither, so `e2e-prod/` drives only what a friend can do: search, bus, drive, walk,
+plus the headers and robots rules. Passing there means the real site works, not a dev build.
+*Analogy:* a restaurant's health inspection happens in the dining room, not in the test kitchen.
+
+**2. Trade-off: five tests, not five hundred.**
+The API allows 120 quick requests per visitor. Hundreds of tests from one IP would trip that limit
+and fail for the wrong reason, and every run costs the free Vercel allowance. Five flows cover each
+part once (the search API, timetables, Valhalla), and the big suite keeps covering the details locally.
+*Analogy:* a pilot's walk-around checks each system once before take-off; the full inspection
+happens in the hangar.
+
+**3. What could go wrong: the bypass secret leaks to a third party.**
+A protected preview needs a secret header. Playwright's `extraHTTPHeaders` adds it to every
+request, map tiles from `tiles.openfreemap.org` included. The suite adds it only to requests for
+the deployment's own origin, and the secret comes from the environment, never from a file in git.
+*Analogy:* show your building pass at your own front door, not to every shop on the street.
 
 ## 2026-11-10 · tidy: chore: shadcn is a dev tool, AGENTS.md follows CLAUDE.md
 

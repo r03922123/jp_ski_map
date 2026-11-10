@@ -49,7 +49,7 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 | [game-theme](../SPEC-game-theme.md) | Pixel snowboarder, game-styled map (no sound since web-app v1.14) | `lib/game/` (`sprites.ts`, `map-style.ts`), `components/HeroMarker.tsx`, `TitleScreen.tsx` | — (browser only) | Shipped |
 | [progression](../SPEC-progression.md) | Resort stamps and trip stats (quests and the rider card removed in web-app v1.14) | `lib/game/` (`rider.ts`, `stamps.ts`, `stamp-moment.ts`), `components/StampMoment.tsx`, `CheckInButton.tsx` | — (browser only) | Shipped |
 | [web-app](../SPEC-web-app.md) | The map page that ties it all together; state in the URL | `app/page.tsx`, `components/MapShell.tsx`, `BottomSheet.tsx`, `TripPanel.tsx`, `lib/url-state.ts` | — | Shipped; phone layout fixes ongoing (Tasks 86–88) |
-| [deploy](../SPEC-deploy.md) | Friends open it on their phones over HTTPS for $0 | `next.config.ts` (rewrite, headers) | `scripts/serve-public.sh`, `infra/` | Phase A shipped; Phase B (Oracle VM) is an idea only |
+| [deploy](../SPEC-deploy.md) | Friends open it on their phones over HTTPS for $0 | `next.config.ts` (rewrite, headers) | `scripts/serve-public.sh`, `scripts/deploy-vercel.sh`, `vercel.json`, `infra/` | Phase A shipped; Phase B on Vercel live 2026-11-10 (ADR-0006), Funnel kept on as the standby |
 
 **Where the SPECs and the code disagree** (each one is a [follow-up](#follow-ups)):
 
@@ -135,6 +135,14 @@ flowchart TB
   (`.github/workflows/timetable-watch.yml`, which opens an issue when the operator's page changes).
 - **Types cross the boundary once:** FastAPI's OpenAPI schema → `pnpm gen:api` →
   `apps/web/src/lib/api-types.ts`. The web app never writes API types by hand.
+
+**Production since 2026-11-10 is Vercel, not the Mac** ([ADR-0006](adr/0006-vercel-phase-b.md),
+SPEC-deploy Phase B). The diagram above is still the Mac standby. On Vercel, one project in `hnd1`
+runs two services from `vercel.json`: `web` (Next.js) and `api` (FastAPI as one Python Function).
+Vercel's rewrite, not `next.config.ts`, sends `/api/*` to the API. Valhalla isn't a network
+service there: `ValhallaClient` sees `VALHALLA_TILES` and runs `pyvalhalla` in process behind one
+lock (`routing/engine.py`). Deploys go only through `scripts/deploy-vercel.sh`, which uploads the
+committed files plus the local tiles after a hash check.
 
 ## 4. One request end to end: the crowd level
 
@@ -247,7 +255,8 @@ Each item is small enough for its own PR. None is fixed by this page.
    (ADR-0004 next step 2) ✅ done: `places/refresh_overture.py` builds it from each record's
    sources, and the committed file was counted by a one-off read of the same release. On phones
    the map credits rise above the collapsed bottom sheet ✅ done in
-   [PR #38](https://github.com/r03922123/jp_ski_map/pull/38). The API docs that link the licence
+   [PR #38](https://github.com/r03922123/jp_ski_map/pull/38), and checked on the Vercel deployment
+   in WebKit at iPhone size (SPEC-deploy Checkpoint S). The API docs that link the licence
    texts stay local only, because the deployment proxies only `/api/*`.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
