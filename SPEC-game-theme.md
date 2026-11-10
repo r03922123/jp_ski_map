@@ -17,7 +17,10 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
 - **An original snowboarder:** beanie with a pom, goggles, orange jacket, teal board. The default name
   is "Rider", and players can rename it in `progression`.
 - **A 24×24 pixel sprite, defined in code** as a palette plus rows of palette indices (`lib/game/sprites.ts`).
-  It's drawn to a canvas at 2× or 3× with `imageSmoothingEnabled = false`.
+  It's drawn to a canvas at 1× (`lib/game/render.ts`), and the browser scales it up with CSS
+  `image-rendering: pixelated` (`PixelSprite.tsx`).
+- **Sprites use whole-number scales only** (1×, 2×, …). A fractional scale such as 1.5× gives 4.5
+  device pixels per sprite pixel on a 3× phone, so some sprite pixels come out wider than others.
 - **Poses, chosen from the trip's mode and state:**
   | Pose | Frames | When |
   |---|---|---|
