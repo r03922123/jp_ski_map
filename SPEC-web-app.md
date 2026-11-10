@@ -291,3 +291,17 @@ Success means:
 **Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` (rules 6 and 7) and `e2e/journeys/trip-card.spec.ts` (the rest) pass on a phone and a laptop, and the To box is fully in view at 360×740.
 
 **Boundaries.** *Out of scope:* stops inside the stack, a "close directions" ✕, photos or reviews on the card, Nearby, Share, Send to phone. *Never:* Google's assets, branding or copy.
+
+## v1.14: No Rider, Quests or Sound buttons (2026-11-10, approved)
+**Objective.** The sheet shows only the trip. The owner asked to "remove all of buttoms" in the HUD row and chose to remove the buttons and their screens. The game look stays.
+
+**Rules.**
+1. **No HUD row.** Rider card, Quests and Sound effects are gone, along with the rider card dialog and the quest log. This replaces v1.6's HUD and v1.9 rule 2's HUD row; ★ Saved stays in the top card.
+2. **No sound.** The app makes no sound and never creates an AudioContext. A stored `hakuba:sound` is ignored.
+3. **No quests.** No daily quests are made or completed. A stored rider keeps its `quests` field so old saves still load.
+4. **A `#rider=` link** opens the app with no dialog. Like other shared links, it still skips the title screen.
+5. **Kept:** the pixel look, the title screen, stamps (the ★ in the resort list and the stamp moment), check-in, and the trip stats in storage.
+
+**Success criteria.** `e2e/hud-removed.spec.ts` passes on a phone (sheet expanded) and a laptop: none of the three buttons exists, taps create no AudioContext, and a `#rider=` link shows no dialog.
+
+**Boundaries.** *Out of scope:* the stored trip stats (nothing shows them now; a later change can drop them), the stamp moment's look.

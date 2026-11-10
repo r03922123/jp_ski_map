@@ -49,6 +49,8 @@ A visit counts when you are **at** a resort:
 | every world in the catalog (10) | Hakuba Legend |
 
 ## Quests (made on the device each day, JST)
+> **Removed in web-app v1.14 (2026-11-10):** no quests are made or completed. Stored rider data keeps its `quests` field.
+
 `questsFor(date, rider, resorts, snow)` is a pure function: the same inputs always give the same quests. At most 3 a day:
 | Quest | Offered when | Done when |
 |---|---|---|
@@ -65,6 +67,8 @@ A visit counts when you are **at** a resort:
 - **Trips:** pilot trips that reached `arrived`.
 
 ## Rider card and share
+> **Removed in web-app v1.14 (2026-11-10):** no rider card, share link or reset. A `#rider=` link opens the app with no dialog.
+
 - **The card:** the rider's name and title, a stamp grid with one slot per world (W1–W10 today, stamped or empty), the
   stats, and today's quests.
 - **Share:** a link `#rider=<code>` (compressed JSON: name, stamp ids and first dates, stats). Like
