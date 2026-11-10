@@ -46,8 +46,8 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 | [poi-destinations](../SPEC-poi-destinations.md) | Restaurants and konbini as destinations | `components/PoiList.tsx`, `DestinationPicker.tsx` | `pois/`, `GET /api/pois/nearby` | Shipped |
 | [saved-places](../SPEC-saved-places.md) | Star places, lists, "My hotel", share link | `components/SavedPanel.tsx`, `SaveButton.tsx`, `lib/saved-places.ts`, `lib/saved-share.ts` | — (browser only) | Shipped |
 | [pilot](../SPEC-pilot.md) | Turn-by-turn navigation from GPS, bus guidance | `components/PilotView.tsx`, `BusPilotView.tsx`, `lib/nav/` | uses `/api/route/path` for reroutes | Shipped; the real-phone walk test is still open |
-| [game-theme](../SPEC-game-theme.md) | Pixel snowboarder, game-styled map, chiptune sounds | `lib/game/` (`sprites.ts`, `map-style.ts`, `sfx.ts`), `components/HeroMarker.tsx`, `TitleScreen.tsx` | — (browser only) | Shipped |
-| [progression](../SPEC-progression.md) | Resort stamps, daily powder quests, rider card | `lib/game/` (`rider.ts`, `stamps.ts`, `quests.ts`), `components/QuestLog.tsx`, `RiderCard.tsx`, `CheckInButton.tsx` | — (browser only) | Shipped |
+| [game-theme](../SPEC-game-theme.md) | Pixel snowboarder, game-styled map (no sound since web-app v1.14) | `lib/game/` (`sprites.ts`, `map-style.ts`), `components/HeroMarker.tsx`, `TitleScreen.tsx` | — (browser only) | Shipped |
+| [progression](../SPEC-progression.md) | Resort stamps and trip stats (quests and the rider card removed in web-app v1.14) | `lib/game/` (`rider.ts`, `stamps.ts`, `stamp-moment.ts`), `components/StampMoment.tsx`, `CheckInButton.tsx` | — (browser only) | Shipped |
 | [web-app](../SPEC-web-app.md) | The map page that ties it all together; state in the URL | `app/page.tsx`, `components/MapShell.tsx`, `BottomSheet.tsx`, `TripPanel.tsx`, `lib/url-state.ts` | — | Shipped; phone layout fixes ongoing (Tasks 86–88) |
 | [deploy](../SPEC-deploy.md) | Friends open it on their phones over HTTPS for $0 | `next.config.ts` (rewrite, headers) | `scripts/serve-public.sh`, `infra/` | Phase A shipped; Phase B (Oracle VM) is an idea only |
 

@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · build new features: feat(web): remove the Rider, Quests and Sound buttons
+
+**1. Principle: delete a feature, don't just hide it.**
+Hiding the buttons with CSS would have left the sound engine, daily quest generation and the `#rider=` reader in the bundle, still running or waiting for input nobody can give. Quests were only made while the Quests button was mounted, so after hiding they'd silently stop anyway. Deleting them removed about 1,700 lines and made "the app makes no sound" true by construction: there is no code left that can create an AudioContext.
+*Analogy:* dropping an unused database column instead of leaving it nullable forever.
+
+**2. Trade-off: the code goes, the stored data keeps its shape.**
+`hakuba:rider` still has `quests` (now always unchanged) and trip stats that nothing shows. `parseRider` rejects a save without `quests`, so removing the field would have wiped every friend's stamps on their next visit. The cost is two small dead pieces of data. Dropping them is a separate change: a version bump with its own `MIGRATIONS` step (added in PR #46). The code that only the screens used went now: `rename`, `titleFor` and `fetchSnow`, all found by the fresh-eyes review.
+
+**3. What could go wrong: deleting a test can delete coverage of something still alive.**
+The Back-button tests opened the rider card and quest log, but what they guarded (`useBackToClose`) still runs in the Save to list and Import dialogs. So they were moved onto Save to list, not deleted. Two cases were dropped on purpose: stacked overlays and a map click under an open popover. Both remaining dialogs are modal, so neither case can happen now. The new check also loads a browser with `hakuba:sound=on` saved, the state an old user really has, and confirms no AudioContext appears.
+
 ## 2026-11-10 · tidy: feat(web): migrate older rider saves instead of dropping them
 
 **1. Principle: data you can't re-fetch needs an upgrade path, not just a validator.**

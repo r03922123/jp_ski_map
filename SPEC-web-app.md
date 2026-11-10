@@ -93,16 +93,16 @@ Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats:
 
 **Screens**
 - **Title screen**, first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: press start" (a tap, click or Enter; on a touch screen focus then lands on the sheet, not the search box, so no keyboard rises; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
-- **HUD** (top bar): rider name and title, stamps n/10, a quest-log button with a badge for active quests, and the sound toggle.
+- ~~**HUD** (top bar): rider name and title, stamps n/10, a quest-log button with a badge for active quests, and the sound toggle.~~ Removed in v1.14.
 - **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow, crowd...). The sort controls and the order work as today.
 - **Directions and navigation:** steps in dialog boxes. The hero sprite replaces the position puck; pose by mode, facing the direction of travel. Navigation keeps high-contrast banners.
-- **Stamp moment and quest log:** dialog boxes (SPEC-progression).
+- **Stamp moment:** a dialog box (SPEC-progression). The quest log was removed in v1.14.
 - **Every existing panel** (bus, trip, saved, POIs) gets the frames and font, with no change in behaviour.
 
 **Acceptance**
 - [ ] The existing e2e suite passes unchanged: roles, names and behaviour are untouched.
 - [ ] Title screen once per session; skipped for shared links and with `?skip-title`; keyboard-operable.
-- [ ] HUD shows the title and stamps n/10 from the rider store, and updates when a stamp is earned (e2e with mocked geolocation at a resort base).
+- [ ] ~~HUD shows the title and stamps n/10 from the rider store, and updates when a stamp is earned.~~ Replaced by v1.14: the level card shows ★ stamped.
 - [ ] Level cards show the fixed world number and stamp state in any sort order.
 - [ ] While navigating, the hero sprite shows the right pose per mode and faces the direction of travel.
 
@@ -291,3 +291,17 @@ Success means:
 **Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` (rules 6 and 7) and `e2e/journeys/trip-card.spec.ts` (the rest) pass on a phone and a laptop, and the To box is fully in view at 360×740.
 
 **Boundaries.** *Out of scope:* stops inside the stack, a "close directions" ✕, photos or reviews on the card, Nearby, Share, Send to phone. *Never:* Google's assets, branding or copy.
+
+## v1.14: No Rider, Quests or Sound buttons (2026-11-10, approved)
+**Objective.** The sheet shows only the trip. The owner asked to "remove all of buttoms" in the HUD row and chose to remove the buttons and their screens. The game look stays.
+
+**Rules.**
+1. **No HUD row.** Rider card, Quests and Sound effects are gone, along with the rider card dialog and the quest log. This replaces v1.6's HUD and v1.9 rule 2's HUD row; ★ Saved stays in the top card.
+2. **No sound.** The app makes no sound and never creates an AudioContext. A stored `hakuba:sound` is ignored.
+3. **No quests.** No daily quests are made or completed. A stored rider keeps its `quests` field so old saves still load.
+4. **A `#rider=` link** opens the app with no dialog. Like other shared links, it still skips the title screen.
+5. **Kept:** the pixel look, the title screen, stamps (the ★ in the resort list and the stamp moment), check-in, and the trip stats in storage.
+
+**Success criteria.** `e2e/hud-removed.spec.ts` passes: none of the three buttons exists on a phone (sheet expanded) or a laptop; on a laptop, taps create no AudioContext even with `hakuba:sound` saved as on, and a `#rider=` link shows no dialog. The code that made sound or opened the card is deleted, so screen size can't bring either back.
+
+**Boundaries.** *Out of scope:* the stored trip stats (nothing shows them now; a later change can drop them), the stamp moment's look.

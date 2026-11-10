@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// SPEC-web-app v1.6: the adventure's title screen, HUD and level select.
+// SPEC-web-app v1.6: the adventure's title screen and level select (v1.14: no HUD).
 
 test.describe("the title screen", () => {
   test.use({ storageState: { cookies: [], origins: [] } }); // a fresh browser session
@@ -43,22 +43,18 @@ test.describe("the title screen", () => {
   });
 });
 
-test.describe("HUD and level select", () => {
+test.describe("level select", () => {
   test.use({
     permissions: ["geolocation"],
     geolocation: { latitude: 36.70179, longitude: 137.83683 }, // Happo-One's base
   });
 
-  test("the HUD counts a new stamp; worlds keep their numbers in any order", async ({
+  test("a level card shows a new stamp; worlds keep their numbers in any order", async ({
     page,
   }) => {
     await page.goto("/?from=36.69711,137.85393&mode=drive");
-    const hud = page.getByRole("button", {
-      name: /^Rider card: Rider, Rookie, 0 of 10 stamps/,
-    });
-    await expect(hud).toBeVisible({ timeout: 15_000 });
-
     const list = page.getByRole("list", { name: "Ranked resorts" });
+    await expect(list).toBeVisible({ timeout: 15_000 });
     const happo = list
       .getByRole("listitem")
       .filter({ hasText: "Hakuba Happo-One" });
@@ -73,11 +69,6 @@ test.describe("HUD and level select", () => {
     await page
       .getByRole("button", { name: "OK", exact: true })
       .click({ timeout: 15_000 });
-    await expect(
-      page.getByRole("button", {
-        name: /^Rider card: Rider, First Tracks, 1 of 10 stamps/,
-      }),
-    ).toBeVisible();
     await expect(happo).toContainText("★ stamped");
 
     // another sort: a different order, the same world numbers

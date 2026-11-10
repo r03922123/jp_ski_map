@@ -9,7 +9,6 @@ export type Maneuver = Step["maneuver"];
 export type Coord = components["schemas"]["Coord"];
 export type Place = components["schemas"]["Place"];
 export type RankedResort = components["schemas"]["RankedResort"];
-export type SnowReport = components["schemas"]["SnowReport"];
 export type BusResult = components["schemas"]["BusResult"];
 export type PlaceBusResult = components["schemas"]["PlaceBusResult"];
 export type BusOption = components["schemas"]["BusOption"];
@@ -53,14 +52,13 @@ export const fetchResorts = () => getJson<Resort[]>("/api/resorts");
 
 /**
  * The catalogue changes with a deploy, not during a visit: fetched once, then shared
- * by every reader (map, ranked list, quests, rider card), whenever it mounts (T78).
+ * by every reader (map, ranked list, To box), whenever it mounts (T78).
  */
 export const resortsQuery = queryOptions({
   queryKey: ["resorts"],
   queryFn: fetchResorts,
   staleTime: Number.POSITIVE_INFINITY,
 });
-export const fetchSnow = () => getJson<SnowReport[]>("/api/snow");
 
 export const fetchRoute = (mode: Mode, from: Coord, to: Coord) =>
   getJson<Route>(

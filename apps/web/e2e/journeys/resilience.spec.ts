@@ -182,7 +182,7 @@ const ROWS: Row[] = [
   { endpoint: "rank", kind: "wrongShape", device: "laptop", known: "R10" },
   // known: R16 — an empty list says "No resorts match these filters" with no filters set
   { endpoint: "rank", kind: "empty", device: "laptop", known: "R16" },
-  // the resort catalogue (destination, map labels, quests)
+  // the resort catalogue (destination, map labels)
   // known: R4 — /api/resorts failing silently removes the destination (no message)
   { endpoint: "resorts", kind: "500", device: "laptop", known: "R4" },
   // known: R10 — /api/resorts 200 `{}` crashes the whole app

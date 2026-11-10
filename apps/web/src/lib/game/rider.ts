@@ -9,7 +9,6 @@ export const RIDER_KEY = "hakuba:rider";
 export const RIDER_CORRUPT_KEY = "hakuba:rider-corrupt";
 /** The current shape's version; see MIGRATIONS below for older ones. */
 export const RIDER_VERSION = 1;
-export const MAX_NAME = 20;
 export const DEFAULT_NAME = "Rider";
 
 /** ISO dates (JST), e.g. "2026-01-02" */
@@ -36,25 +35,6 @@ export function emptyRider(): RiderState {
     quests: [],
     stats: { km: { bus: 0, drive: 0, walk: 0 }, trips: 0 },
   };
-}
-
-export function rename(state: RiderState, name: string): RiderState {
-  const clean = name.trim().slice(0, MAX_NAME);
-  return { ...state, name: clean || DEFAULT_NAME };
-}
-
-const TITLES: [number, string][] = [
-  [8, "Ridge Runner"],
-  [5, "Powder Hunter"],
-  [3, "Valley Rider"],
-  [1, "First Tracks"],
-  [0, "Rookie"],
-];
-
-/** The rider's title from distinct stamps; every world in the catalog makes a Legend. */
-export function titleFor(stamps: number, worlds: number): string {
-  if (worlds > 0 && stamps >= worlds) return "Hakuba Legend";
-  return TITLES.find(([min]) => stamps >= min)?.[1] ?? "Rookie";
 }
 
 // --- validation -----------------------------------------------------------

@@ -20,16 +20,9 @@ import { PilotView } from "@/components/PilotView";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
 import { PoiList, type PoiListState } from "@/components/PoiList";
-import { QuestLog } from "@/components/QuestLog";
-import {
-  MyRiderCard,
-  RiderButton,
-  SharedRiderCard,
-} from "@/components/RiderCard";
 import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
-import { SoundToggle } from "@/components/SoundToggle";
 import { StampMoment } from "@/components/StampMoment";
 import { TitleScreen } from "@/components/TitleScreen";
 import { AddDestinationButton, TripCard } from "@/components/TripCard";
@@ -59,12 +52,9 @@ import { mirrorUrl } from "@/lib/back-close";
 import { nowInHakuba } from "@/lib/depart-at";
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
 import { formatArrival, formatDuration } from "@/lib/format";
-import { completeKonbini, isKonbini } from "@/lib/game/quests";
 import { riderStore } from "@/lib/game/rider";
-import { readRiderHash } from "@/lib/game/rider-share";
-import { sfx } from "@/lib/game/sfx";
 import { earnVisit } from "@/lib/game/stamp-moment";
-import { arrivedAt, jstDate } from "@/lib/game/stamps";
+import { arrivedAt } from "@/lib/game/stamps";
 import { addTrip, coveredKm, journeyArrived, tripKm } from "@/lib/game/stats";
 import { worldNumbers } from "@/lib/game/worlds";
 import {
@@ -222,7 +212,6 @@ export function MapShell() {
       })),
     );
     setImportCode(readImportHash(window.location.hash));
-    setRiderCode(readRiderHash(window.location.hash));
     setSelectedResortId(view.resortId);
     setCategory(view.category);
     setPoiId(view.poiId);
@@ -257,7 +246,6 @@ export function MapShell() {
 
   // Choosing a resort or nearby place replaces a saved place's "Go here".
   const selectResort = (id: string) => {
-    sfx().play("select");
     // the To box and the Bus list follow the resort, so a bus to another one can't stay
     if (storedBusChoice?.resortId !== id) setBusChoice(null);
     setSelectedResortId(id);
@@ -280,7 +268,6 @@ export function MapShell() {
     } else {
       // the place replaces whatever was chosen: no resort card or food row stays pressed,
       // and the link holds only the point (the same gap in Go here is D5, cluster J)
-      sfx().play("select");
       setSelectedResortId(null);
       setPoiId(null);
       setPoint({ coord: place.coord, name: place.name });
@@ -509,12 +496,8 @@ export function MapShell() {
   // SPEC-progression: only a trip on real GPS earns stamps or counts (never a preview or
   // ?simulate); captured at Start, so later planner edits can't change what was ridden
   const realTrip = useRef(false);
-  const konbiniTrip = useRef(false);
   /** the bus journey started at the stop: its "walk" leg is the bus line itself */
   const walkIsLine = useRef(false);
-  // SPEC-progression: your rider card, or someone's from a #rider= link
-  const [riderOpen, setRiderOpen] = useState(false);
-  const [riderCode, setRiderCode] = useState<string | null>(null);
   const [pilotSource, setPilotSource] = useState<PositionSource | null>(null);
   const [following, setFollowing] = useState(true);
   // the destination stays fixed while reroutes replace the route
@@ -580,15 +563,8 @@ export function MapShell() {
   ) => {
     const simulate =
       process.env.NODE_ENV !== "production" && simulateRequested();
-    sfx().play("confirm");
     tripCounted.current = false; // a new trip for the rider's stats
     realTrip.current = !asPreview && !simulate;
-    konbiniTrip.current =
-      mode !== "bus" &&
-      ((point === null &&
-        poiCategory === "convenience" &&
-        selectedPoi !== null) ||
-        filledStops.some((st) => isKonbini(st.name)));
     firstFixChecked.current = false;
     setPreview(asPreview ? "chosen" : null);
     setBusNote(null);
@@ -697,7 +673,7 @@ export function MapShell() {
     }
     if (tripCounted.current) return;
     tripCounted.current = true;
-    // stats: a navigated trip that arrived; a konbini on the way finishes that quest
+    // stats: a navigated trip that arrived
     const km = tripKm({
       mode: busPlan ? "bus" : mode === "walk" ? "walk" : "drive",
       routeM: pilot.route?.totalM ?? 0,
@@ -709,23 +685,8 @@ export function MapShell() {
           }
         : undefined,
     });
-    riderStore.update((s) => {
-      const next = addTrip(s, km, true);
-      return konbiniTrip.current
-        ? completeKonbini(next, jstDate(new Date()))
-        : next;
-    });
+    riderStore.update((s) => addTrip(s, km, true));
   }, [tripArrived]);
-  // SPEC-game-theme: the bus has come (boarding), and leaving the route
-  useEffect(() => {
-    if (busPhase === "ride") sfx().play("bus");
-  }, [busPhase]);
-  // only where the off-route banner shows (not on the bus, not in a preview)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the phase change is the cue
-  useEffect(() => {
-    if (pilot.phase === "offRoute" && !pastWalk && !preview)
-      sfx().play("offRoute");
-  }, [pilot.phase]);
   useWakeLock(piloting);
   useHiddenTimeout(piloting, PILOT_HIDDEN_STOP_MS, exitPilot);
   // During a bus journey the map shows the bus line and every stop, in every phase.
@@ -980,7 +941,6 @@ export function MapShell() {
   const canSwap = fromPlace !== null && toPlace !== null;
   const swapTrip = () => {
     if (!fromPlace || !toPlace) return;
-    sfx().play("select");
     setOrigin(toPlace.coord);
     setOriginName(stopMatchName(toPlace.name));
     setOriginSource(toPlace);
@@ -1171,7 +1131,6 @@ export function MapShell() {
                     category={category}
                     onDirections={directionsTo}
                     onCategory={(c) => {
-                      sfx().play("select");
                       setCategory(c);
                       setPoint(null);
                     }}
@@ -1200,13 +1159,6 @@ export function MapShell() {
           collapseKey={destinationKey}
           revealKey={routeKey}
         >
-          {/* the game HUD: first in the side card; on a phone it shows once the sheet is
-              swiped up, so the resting sheet holds only the answer (v1.9, BC-L1) */}
-          <div className="flex items-center justify-end gap-2 pb-3 max-md:in-data-[state=collapsed]:hidden">
-            <RiderButton onOpen={() => setRiderOpen(true)} />
-            <QuestLog />
-            <SoundToggle />
-          </div>
           {savedOpen ? (
             <SavedPanel
               focusId={savedFocus}
@@ -1219,7 +1171,6 @@ export function MapShell() {
             <ModePanel
               mode={mode}
               onModeChange={(m) => {
-                sfx().play("select");
                 setMode(m);
                 // the destination may have changed on the other tab, and the bus with it
                 if (m === "bus" && point) setBusChoice(null);
@@ -1422,10 +1373,6 @@ export function MapShell() {
             if (imported) setSavedOpen(true);
           }}
         />
-      )}
-      {riderOpen && <MyRiderCard onClose={() => setRiderOpen(false)} />}
-      {riderCode && (
-        <SharedRiderCard code={riderCode} onClose={() => setRiderCode(null)} />
       )}
       <StampMoment />
       <TitleScreen />
