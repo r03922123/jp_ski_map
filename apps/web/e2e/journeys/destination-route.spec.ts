@@ -378,12 +378,18 @@ for (const d of [PHONE, LAPTOP]) {
         d.touch,
       );
       await expect(page).not.toHaveURL(/resort=/);
-      await expect(toBox(page)).toHaveValue("");
+      // a start and no destination: one bar and its card (SPEC-web-app v1.13 rule 2)
+      await expect(toBox(page)).toHaveCount(0);
+      await expect(
+        page
+          .getByRole("group", { name: "From here" })
+          .getByRole("button", { name: "Directions" }),
+      ).toBeVisible();
       await chooseResort(page, /Tsugaike/, d.touch);
       expect(param(page, "resort")).toBe("tsugaike");
     });
 
-    test("✕ on To leaves a box to type the next destination in", async ({
+    test("✕ on To goes back to one bar, whose card picks the next destination", async ({
       page,
     }) => {
       await open(page, `${PLAN}&resort=cortina`);
@@ -392,11 +398,13 @@ for (const d of [PHONE, LAPTOP]) {
         page.getByRole("button", { name: "Remove destination" }),
         d.touch,
       );
+      // a start and no destination: one bar and its card (SPEC-web-app v1.13 rule 2)
+      await expect(toBox(page)).toHaveCount(0);
       await expect(
-        page.getByRole("combobox", {
-          name: /^(to|destination|choose destination)/i,
-        }),
-      ).toBeVisible({ timeout: 3_000 });
+        page
+          .getByRole("group", { name: "From here" })
+          .getByRole("button", { name: "Directions" }),
+      ).toBeVisible();
     });
   });
 }

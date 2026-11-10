@@ -18,6 +18,7 @@ import {
 } from "@/components/ModePanel";
 import { PilotView } from "@/components/PilotView";
 import { PinCard } from "@/components/PinCard";
+import { PlaceCard } from "@/components/PlaceCard";
 import { PoiList, type PoiListState } from "@/components/PoiList";
 import { QuestLog } from "@/components/QuestLog";
 import {
@@ -265,7 +266,9 @@ export function MapShell() {
   // The To box (SPEC-web-app v1.8, BC-T1): a pick there changes only the destination. A
   // resort selects it as the list does (the resorts tab, or a food tab would win); any
   // other place is a free destination with its name.
-  const chooseTo = (place: Suggestion) => {
+  const chooseTo = (
+    place: Pick<Suggestion, "id" | "name" | "coord" | "kind">,
+  ) => {
     setBusChoice(null); // it was chosen for the old destination (v1.13 rule 5)
     if (
       place.kind === "resort" &&
@@ -921,7 +924,32 @@ export function MapShell() {
               }
             : null;
   // the To box in the trip card, once there is a start or a destination
-  const showToBox = origin !== null || toPlace !== null;
+  // two bars once there is a destination; until then one bar, with the place card under
+  // it once there is a start (SPEC-web-app v1.13 rules 1, 2 and 4)
+  const showToBox = toPlace !== null;
+  // a linked destination whose list is still on its way: no card meanwhile, or Directions
+  // would replace that destination with the start. Only a request in flight counts: Bus
+  // never asks for the food list, and a failed request leaves the card usable
+  const destinationLoading =
+    toPlace === null &&
+    ((selectedResortId !== null && resorts.isLoading) ||
+      (mode !== "bus" &&
+        poiCategory !== null &&
+        poiId !== null &&
+        pois.isLoading));
+  // Directions: the start becomes the destination, and From waits to be filled (rule 3)
+  const directionsTo = () => {
+    if (!fromPlace) return;
+    chooseTo({
+      id: fromPlace.id,
+      name: fromPlace.name,
+      coord: fromPlace.coord,
+      // a resort stays a resort; anything else is a named point
+      kind: fromPlace.kind === "resort" ? "resort" : "place",
+    });
+    clearOrigin();
+    setSearchKey((k) => k + 1);
+  };
   // a new destination collapses the sheet so its route shows (v1.9 rule 4, cluster F)
   // bus: the chosen option is the answer too (code review: choosing one from a swiped-up
   // sheet left it at 80 % over the walk leg and the board stop)
@@ -1084,6 +1112,7 @@ export function MapShell() {
                   key={searchKey}
                   // the rail and ⇅ narrow this box in two bars (T78)
                   placeholder={showToBox ? "Search a start" : undefined}
+                  searchIcon={!showToBox}
                   // the top card reads From → To (BC-L1): never blank while there is a start
                   label={searchLabel ?? fromPlace?.name ?? null}
                   onSelect={(place) => {
@@ -1133,6 +1162,22 @@ export function MapShell() {
                 )
               }
               saveDestination={toPlace && <SaveButton place={toPlace} />}
+              placeCard={
+                fromPlace &&
+                !destinationLoading && (
+                  <PlaceCard
+                    place={fromPlace}
+                    showLists={mode !== "bus"}
+                    category={category}
+                    onDirections={directionsTo}
+                    onCategory={(c) => {
+                      sfx().play("select");
+                      setCategory(c);
+                      setPoint(null);
+                    }}
+                  />
+                )
+              }
               saved={
                 <button
                   type="button"

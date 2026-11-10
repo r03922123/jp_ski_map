@@ -288,6 +288,6 @@ Success means:
 8. **A mouse click with both ends set and no open stop box does nothing.** Clicking a route line still selects it. With no trip a click still sets the start, and an open stop box still takes a click. The touch long-press pin card stays.
 9. Each box is one instance. Going from one bar to two moves it and never remounts it, so typing and focus survive (v1.9's "never a second copy").
 
-**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` (rules 6 and 7) and `e2e/journeys/trip-card.spec.ts` (the rest) pass on a phone and a laptop, and the To box is fully in view at 360×740. Until PR 3 of this version lands, a To box still shows once there is a start.
+**Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` (rules 6 and 7) and `e2e/journeys/trip-card.spec.ts` (the rest) pass on a phone and a laptop, and the To box is fully in view at 360×740.
 
 **Boundaries.** *Out of scope:* stops inside the stack, a "close directions" ✕, photos or reviews on the card, Nearby, Share, Send to phone. *Never:* Google's assets, branding or copy.
