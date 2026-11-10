@@ -5,7 +5,7 @@ One entry per merged PR: the few "whys" worth remembering, in plain words. Newes
 ## 2026-11-11 · build new features (owner-approved exception): semantic search, MCP agent tools, timetable VLM
 
 **1. Principle: a saturated eval can't show progress, only regressions.**
-The lexical search already scored 26/26 on `booking_eval.json`, so any new retriever could only tie or lose there. A second set of 40 queries the lexical index is not built for (八方尾根滑雪場, 拉麵, コンビニ) was written by hand before any semantic result was seen, and the old set became the regression guard. Hybrid lifted hit@5 on the new set from 0.15 to 0.65 with the old set still 26/26, 4/4 absent, 0 wrong.
+The lexical search already scored 26/26 on `booking_eval.json`, so any new retriever could only tie or lose there. A second set of 40 queries the lexical index is not built for (八方尾根滑雪場, 拉麵, コンビニ) was written by hand before any semantic result was seen, and the old set became the regression guard. With the fine-tuned model at a calibrated threshold, hybrid lifted hit@5 on the new set from 0.15 to 0.475, with the old set still 26/26, 4/4 absent, 0 wrong.
 *Analogy:* a thermometer that tops out at 40 °C can't tell you a fever got worse; you need a second one, and you keep the first to check you didn't break the normal readings.
 
 **2. Trade-off: fusion versus fill, and a threshold per model.**

@@ -119,8 +119,22 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - Latency: p50/p95 of `suggest()` per mode.
 
 **Acceptance**
-- [ ] Hybrid beats lexical on the hard set at hit@5, with no regression on `booking_eval.json`.
-- [ ] The fine-tuned model is reported against the base model on the hard set and the synthetic dev set, whichever way it comes out.
-- [ ] The API falls back to lexical when the server is down or slow (unit tests); API gates green.
+- [x] Hybrid beats lexical on the hard set at hit@5, with no regression on `booking_eval.json`. *Fine-tuned, calibrated: 0.475 vs 0.15; booking 26/26 present, 4/4 absent empty, 0 wrong.*
+- [x] The fine-tuned model is reported against the base model on the hard set and the synthetic dev set, whichever way it comes out. *See the results below.*
+- [x] The API falls back to lexical when the server is down or slow (unit tests); API gates green. *Also seen live: `ReadTimeout` → lexical results.*
+
+**Results (2026-11-11, hard set n=40, hit@5)**
+
+| Setup | Threshold | Hard hit@5 | category | hotel | resort-en | resort-zh | booking hit / absent / wrong |
+|---|---|---|---|---|---|---|---|
+| Lexical only | – | 0.15 | 0.10 | 0.50 | 0.00 | 0.00 | 26 / 4 / 0 |
+| Base e5-small, hybrid | 0.84 (guessed) | 0.65 | 0.75 | 0.625 | 0.20 | 0.714 | 26 / 4 / 0 |
+| Base e5-small, hybrid | 0.9127 (calibrated) | 0.15 | 0.10 | 0.50 | 0.00 | 0.00 | 26 / 4 / 0 |
+| Fine-tuned, hybrid | 0.5366 (calibrated) | 0.475 | 0.35 | 0.50 | 0.60 | 0.714 | 26 / 4 / 0 |
+
+- Synthetic dev split (unseen entries, whole index as distractors): recall@1 0.714 → 0.851, MRR@10 0.763 → 0.889 after one epoch (3,619 pairs, 255 s on MPS, train loss 0.419).
+- Calibrated on dev, the base model keeps almost nothing (its top-1 is rarely 90% right), so the 0.65 row relied on an untested threshold. Fine-tuning made the model usable at a calibrated threshold, and lifted English resort names, but lost food and shop categories (0.75 → 0.35): 82% of the training pairs are lodging names.
+- Latency on the loaded Mac (load average 25–40): embedding server 30–56 ms warm; `suggest()` hybrid p50 49 ms, p95 81 ms, against lexical p50 33 ms, p95 78 ms.
+- **Next:** rebalance the synthetic pairs by kind and judge it on a *new* held-out query set, since this hard set has now been seen. Semantic search stays off in production until then.
 
 **Boundaries:** local models only ($0); the model and MLflow files are never committed; no query text is logged.
