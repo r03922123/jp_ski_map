@@ -45,6 +45,7 @@ export function TripCard({
   saved,
   addDestination,
   saveDestination,
+  placeCard,
 }: {
   twoBars: boolean;
   from: ReactNode;
@@ -53,6 +54,8 @@ export function TripCard({
   saved: ReactNode;
   addDestination: ReactNode;
   saveDestination: ReactNode;
+  /** under the one bar once there is a start (v1.13 rule 2) */
+  placeCard: ReactNode;
 }) {
   return (
     // a landscape phone has no height for a third row, so it goes beside the boxes
@@ -78,7 +81,7 @@ export function TripCard({
         </div>
         {twoBars ? swap : saved}
       </div>
-      {twoBars && (
+      {twoBars ? (
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">{addDestination}</div>
           <div className="flex shrink-0 items-center gap-1">
@@ -86,6 +89,8 @@ export function TripCard({
             {saved}
           </div>
         </div>
+      ) : (
+        placeCard
       )}
     </div>
   );

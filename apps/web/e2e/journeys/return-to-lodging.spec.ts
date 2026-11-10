@@ -149,12 +149,16 @@ for (const device of DEVICES) {
       await expect(from).toHaveValue(/Happo-One/);
     });
 
-    test("bus: with no destination the button is disabled, and the old hint is gone", async ({
+    test("bus: with no destination there is no swap, and the old hint is gone", async ({
       page,
     }) => {
       await mockBuses(page);
       await page.goto(`/?from=${STATION}&mode=bus`);
-      await expect(swapButton(page)).toBeDisabled();
+      await expect(page.getByLabel("Leave after")).toBeVisible({
+        timeout: 15_000,
+      });
+      // one bar until there is a destination (SPEC-web-app v1.13 rule 1)
+      await expect(swapButton(page)).toHaveCount(0);
       await expect(page.getByText(OLD_BUS_HINT)).toHaveCount(0);
     });
 
@@ -284,7 +288,13 @@ for (const device of DEVICES) {
 
       await expect.poll(() => param(page, "dest")).toBeNull();
       await expect(page.getByText("14:37 → 15:10")).toHaveCount(0);
-      await expect(toBox(page)).toHaveValue("");
+      // a start and no destination: one bar and its card (SPEC-web-app v1.13 rule 2)
+      await expect(toBox(page)).toHaveCount(0);
+      await expect(
+        page
+          .getByRole("group", { name: "From here" })
+          .getByRole("button", { name: "Directions" }),
+      ).toBeVisible();
     });
 
     test("bus: the link clears a resort left selected on another tab too", async ({
@@ -300,7 +310,13 @@ for (const device of DEVICES) {
         .getByRole("button", { name: "Shuttles to resorts" })
         .click({ timeout: 15_000 });
 
-      await expect(toBox(page)).toHaveValue("");
+      // a start and no destination: one bar and its card (SPEC-web-app v1.13 rule 2)
+      await expect(toBox(page)).toHaveCount(0);
+      await expect(
+        page
+          .getByRole("group", { name: "From here" })
+          .getByRole("button", { name: "Directions" }),
+      ).toBeVisible();
       await everyResortListed(page);
     });
 
@@ -364,7 +380,8 @@ for (const device of DEVICES) {
       page,
     }) => {
       await mockBuses(page);
-      await page.goto(`/?from=${RESORT_END}&mode=bus`);
+      // a destination already set: with only a start there is one bar (v1.13 rule 1)
+      await page.goto(`/?from=${RESORT_END}&mode=bus&resort=happo-one`);
       await page.getByLabel("Leave after").fill("2026-03-20T14:30");
 
       const back = page.waitForRequest(isToPlace);
@@ -384,6 +401,8 @@ for (const device of DEVICES) {
       await onlySuggestHakuba47(page);
       await allResorts(page);
       await everyResortListed(page);
+      // a tapped bus gives the To box (v1.13 rule 1) without narrowing the list
+      await region(page, HAKUBA47).getByText("08:11 → 08:39").click();
 
       await pickTo(page, "Hakuba47", /Hakuba47/);
 
@@ -419,7 +438,13 @@ for (const device of DEVICES) {
 
       await page.getByRole("button", { name: "Remove destination" }).click();
 
-      await expect(toBox(page)).toHaveValue("");
+      // a start and no destination: one bar and its card (SPEC-web-app v1.13 rule 2)
+      await expect(toBox(page)).toHaveCount(0);
+      await expect(
+        page
+          .getByRole("group", { name: "From here" })
+          .getByRole("button", { name: "Directions" }),
+      ).toBeVisible();
       await expect(journey).toHaveCount(0);
       await everyResortListed(page);
     });

@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · build new features: feat(web): one bar with a place card, two bars after Directions
+
+**1. Principle: derive the screen from the data, don't store it twice.**
+The card has no "directions mode" flag. One bar or two follows from whether there is a destination, and the place card from whether there is a start without one. A stored flag could disagree with the trip, say after ✕ on To or a shared link, and then the screen would lie.
+*Analogy:* a SQL view rather than a denormalised column you have to keep in sync.
+
+**2. Trade-off: Google's flow costs one tap for the lodging flow's opposite case.**
+A search still sets the start, so "type my lodging, see resort ETAs" stays one step, as the owner chose. Typing a free destination after a start now goes through the card: Ski, Food or Konbini, or Directions and then ⇅.
+
+**3. What could go wrong: moving a value between two slots in two steps.**
+Directions sets the destination from the start, then clears the start. Done the other way round, the start would already be gone. Both happen in one handler, so React renders once, with the new destination and no start.
+
 ## 2026-11-10 · tidy: feat(deploy): package the app for Vercel, with guards before the upload
 
 **1. Principle: check the thing that can't check itself.**

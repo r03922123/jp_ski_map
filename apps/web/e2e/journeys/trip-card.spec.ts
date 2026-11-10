@@ -61,6 +61,7 @@ for (const device of DEVICES) {
       await expect(toBox(page)).toHaveCount(0);
       await expect(swap(page)).toHaveCount(0);
       expect(star.x).toBeGreaterThan(from.x + from.width - 1);
+      await expect(page.locator("[data-search-icon]")).toBeVisible();
     });
 
     test("two bars: equal width, one above the other, ⇅ to their right", async ({
@@ -236,23 +237,6 @@ test.describe("mouse clicks on the map (v1.13 rule 8)", () => {
     await expect(fromBox(page)).toHaveValue(before);
   });
 
-  test("going from one bar to two keeps the same From box", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
-      timeout: 30_000,
-    });
-    const box = await fromBox(page).elementHandle();
-    if (!box) throw new Error("no From box");
-    const at = await bareMap(page);
-
-    await page.mouse.click(at.x, at.y);
-
-    await expect(toBox(page)).toBeVisible({ timeout: 10_000 });
-    expect(await box.evaluate((el) => el.isConnected)).toBe(true);
-  });
-
   test("with only a start, a click still moves it", async ({ page }) => {
     await page.goto(`/?from=${STATION}&mode=drive`);
     await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
@@ -265,3 +249,180 @@ test.describe("mouse clicks on the map (v1.13 rule 8)", () => {
     await expect.poll(() => fromParam(page)).not.toBe(STATION);
   });
 });
+
+// v1.13 rules 1-3: a search gives one bar and a card of next steps; Directions gives two
+const placeCard = (page: Page) =>
+  page.getByRole("group", { name: "From here" });
+const directions = (page: Page) =>
+  placeCard(page).getByRole("button", { name: "Directions" });
+const START_ONLY = `/?from=${STATION}&mode=drive`;
+
+async function searchStation(page: Page) {
+  await fromBox(page).fill("Hakuba Station");
+  await page
+    .getByRole("option", { name: /Hakuba Station/ })
+    .first()
+    .click({ timeout: 15_000 });
+}
+
+for (const device of DEVICES) {
+  test.describe(`${device.name} · place card`, () => {
+    test.use(device.use);
+
+    test("a search gives one bar, the card under it, and the rider at the start", async ({
+      page,
+    }) => {
+      await page.goto("/?mode=drive");
+      await expect(fromBox(page)).toBeVisible({ timeout: 15_000 });
+      await expect(placeCard(page)).toHaveCount(0);
+
+      await searchStation(page);
+
+      await expect(directions(page)).toBeVisible();
+      for (const name of ["Ski", "Food", "Konbini"])
+        await expect(
+          placeCard(page).getByRole("button", { name }),
+        ).toBeVisible();
+      await expect(
+        placeCard(page).getByRole("button", { name: /^Save(d:)? / }),
+      ).toBeVisible();
+      await expect(toBox(page)).toHaveCount(0);
+      await expect(
+        page.getByRole("img", { name: "Starting point" }),
+      ).toBeVisible();
+    });
+
+    test("Food picks the food list and keeps one bar", async ({ page }) => {
+      await page.goto(START_ONLY);
+
+      await placeCard(page).getByRole("button", { name: "Food" }).click();
+
+      await expect(page.getByRole("tab", { name: /Food/ })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      await expect(
+        placeCard(page).getByRole("button", { name: "Food" }),
+      ).toHaveAttribute("aria-pressed", "true");
+      await expect(toBox(page)).toHaveCount(0);
+    });
+
+    test("Directions makes the place the destination and leaves From empty", async ({
+      page,
+    }) => {
+      await page.goto("/?mode=drive");
+      await searchStation(page);
+
+      await directions(page).click();
+
+      await expect(toBox(page)).toHaveValue(/Hakuba Station/);
+      await expect(fromBox(page)).toHaveValue("");
+      await expect(swap(page)).toBeDisabled();
+      await expect(placeCard(page)).toHaveCount(0);
+      await expect
+        .poll(() => new URL(page.url()).searchParams.get("from"))
+        .toBeNull();
+    });
+
+    test("✕ on To with a start set goes back to one bar and the card", async ({
+      page,
+    }) => {
+      await page.goto(TRIP);
+      await routeReady(page);
+
+      await page.getByRole("button", { name: "Remove destination" }).click();
+
+      await expect(toBox(page)).toHaveCount(0);
+      await expect(directions(page)).toBeVisible();
+    });
+
+    test("Bus: the card has Directions and Save only", async ({ page }) => {
+      await page.goto(`/?from=${STATION}&mode=bus`);
+
+      await expect(directions(page)).toBeVisible({ timeout: 15_000 });
+      await expect(
+        placeCard(page).getByRole("button", { name: "Food" }),
+      ).toHaveCount(0);
+      await expect(
+        placeCard(page).getByRole("button", { name: "Ski" }),
+      ).toHaveCount(0);
+      await expect(
+        placeCard(page).getByRole("button", { name: "Konbini" }),
+      ).toHaveCount(0);
+    });
+
+    test("Directions on a resort start selects that resort as the destination", async ({
+      page,
+    }) => {
+      await page.goto("/?mode=drive");
+      await fromBox(page).fill("Happo-One");
+      await page
+        .getByRole("option", { name: /Happo-One/ })
+        .first()
+        .click({ timeout: 15_000 });
+
+      await directions(page).click();
+
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
+      await expect
+        .poll(() => new URL(page.url()).searchParams.get("resort"))
+        .toBe("happo-one");
+    });
+
+    test("Bus: Directions makes the place the destination there too", async ({
+      page,
+    }) => {
+      await page.goto("/?mode=bus");
+      await searchStation(page);
+
+      await directions(page).click();
+
+      await expect(toBox(page)).toHaveValue(/Hakuba Station/);
+      await expect(fromBox(page)).toHaveValue("");
+    });
+
+    test("a linked destination still loading never shows the card", async ({
+      page,
+    }) => {
+      // the resorts answer late: the link already names the destination
+      await page.route("**/api/resorts", async (route) => {
+        await new Promise((r) => setTimeout(r, 3_000));
+        await route.continue();
+      });
+      await page.goto(TRIP);
+      await expect(fromBox(page)).toBeVisible({ timeout: 15_000 });
+      await page.waitForTimeout(1_000); // inside the 3 s the answer takes
+
+      // counted once: a retrying assertion would wait for the answer and pass anyway
+      expect(await placeCard(page).count()).toBe(0);
+      await expect(toBox(page)).toHaveValue(/Happo-One/, { timeout: 15_000 });
+    });
+
+    test("Bus: a food row in the link still leaves the card, since Bus has no food list", async ({
+      page,
+    }) => {
+      await page.goto(
+        `/?from=${STATION}&mode=bus&cat=food&dest=poi:osm:node/123`,
+      );
+
+      await expect(directions(page)).toBeVisible({ timeout: 15_000 });
+    });
+
+    test("a resort from the list turns one bar into two, keeping the same From box", async ({
+      page,
+    }) => {
+      await page.goto(START_ONLY);
+      await expect(fromBox(page)).toBeVisible({ timeout: 15_000 });
+      const box = await fromBox(page).elementHandle();
+      if (!box) throw new Error("no From box");
+
+      await page
+        .getByRole("list", { name: "Ranked resorts" })
+        .getByRole("button", { name: /Happo-One/ })
+        .click({ timeout: 15_000 });
+
+      await expect(toBox(page)).toHaveValue(/Happo-One/);
+      expect(await box.evaluate((el) => el.isConnected)).toBe(true);
+    });
+  });
+}

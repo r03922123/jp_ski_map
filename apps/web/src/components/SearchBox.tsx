@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { type Coord, fetchSuggestions, type Suggestion } from "@/lib/api";
 import { useCoarsePointer } from "@/lib/device";
@@ -87,6 +88,7 @@ export function SearchBox({
   alwaysClearable = false,
   autoFocus = false,
   restoreOnBlur = false,
+  searchIcon = false,
 }: {
   onSelect: (place: Suggestion) => void;
   /** The ✕ button: the text is cleared and the starting point should be dropped. */
@@ -109,6 +111,8 @@ export function SearchBox({
    * keeps what was typed.
    */
   restoreOnBlur?: boolean;
+  /** A magnifier inside the box: the one bar shows it, the two bars have the rail. */
+  searchIcon?: boolean;
 }) {
   const touch = useCoarsePointer();
   const [text, setText] = useState("");
@@ -227,7 +231,7 @@ export function SearchBox({
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
         placeholder={placeholder}
-        className="w-full rounded-full border bg-background py-2 pr-10 pl-4 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden"
+        className={`w-full rounded-full border bg-background py-2 pr-10 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden ${searchIcon ? "pl-9" : "pl-4"}`}
         value={text}
         onChange={(e) => {
           setTyped(true);
@@ -241,6 +245,13 @@ export function SearchBox({
         onBlur={restoreOnBlur ? restoreDraft : undefined}
         onKeyDown={onKeyDown}
       />
+      {searchIcon && (
+        <Search
+          aria-hidden="true"
+          data-search-icon
+          className="pointer-events-none absolute inset-y-0 left-3 my-auto size-4 text-muted-foreground"
+        />
+      )}
       {(text || alwaysClearable) && (
         <button
           type="button"
