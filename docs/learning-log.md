@@ -13,7 +13,7 @@ plus the headers and robots rules. Passing there means the real site works, not 
 **2. Trade-off: five tests, not five hundred.**
 The API allows 120 quick requests per visitor. Hundreds of tests from one IP would trip that limit
 and fail for the wrong reason, and every run costs the free Vercel allowance. Five flows cover each
-service once (Photon, timetables, Valhalla), and the big suite keeps covering the details locally.
+part once (the search API, timetables, Valhalla), and the big suite keeps covering the details locally.
 *Analogy:* a pilot's walk-around checks each system once before take-off; the full inspection
 happens in the hangar.
 
