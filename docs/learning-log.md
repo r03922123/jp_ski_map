@@ -2,6 +2,18 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · tidy: feat(web): migrate older rider saves instead of dropping them
+
+**1. Principle: data you can't re-fetch needs an upgrade path, not just a validator.**
+Stamps live only in each friend's browser. The old reader rejected anything that wasn't version 1, so the first shape change would have quietly emptied every rider card. Reads now run `MIGRATIONS[n]` (version n → n+1) up to the current version, then validate as before.
+*Analogy:* database schema migrations, run in order on the client at read time.
+
+**2. Trade-off: add the hook now, bump the version later.**
+`quests` was suspected dead, but `quests.ts`, `use-quests.ts` and `stamp-moment.ts` still read it, so the shape stays v1 and the step table is empty. The test injects a fake step to prove the loop and the fallback work before a real step exists.
+
+**3. What could go wrong: a migration that's wrong is worse than none.**
+A missing step still sends the raw save to `hakuba:rider-corrupt` (recoverable), but a step that drops a field writes the loss back on the next save. So the SPEC rule is: every shape change bumps `version` and ships its step with a test that a real old save keeps its stamps.
+
 ## 2026-11-10 · tidy: fix(web): pixel sprites at whole-number scales only
 
 **1. Principle: one sprite pixel must cover a whole number of screen pixels.**

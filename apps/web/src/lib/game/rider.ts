@@ -7,6 +7,8 @@ import { createLocalStore } from "@/lib/local-store";
  */
 export const RIDER_KEY = "hakuba:rider";
 export const RIDER_CORRUPT_KEY = "hakuba:rider-corrupt";
+/** The current shape's version; see MIGRATIONS below for older ones. */
+export const RIDER_VERSION = 1;
 export const MAX_NAME = 20;
 export const DEFAULT_NAME = "Rider";
 
@@ -19,7 +21,7 @@ export type QuestState = {
   doneAt?: string;
 };
 export type RiderState = {
-  version: 1;
+  version: typeof RIDER_VERSION;
   name: string;
   stamps: Record<string, Stamp>;
   quests: QuestState[];
@@ -28,7 +30,7 @@ export type RiderState = {
 
 export function emptyRider(): RiderState {
   return {
-    version: 1,
+    version: RIDER_VERSION,
     name: DEFAULT_NAME,
     stamps: {},
     quests: [],
@@ -87,8 +89,32 @@ function isQuest(v: unknown): v is QuestState {
   );
 }
 
-export function parseRider(raw: unknown): RiderState | null {
-  if (!isRecord(raw) || raw.version !== 1 || typeof raw.name !== "string")
+// --- migration --------------------------------------------------------------
+
+type Migration = (old: Record<string, unknown>) => Record<string, unknown>;
+/**
+ * `MIGRATIONS[n]` turns a version-n save into version n+1, as a pure function. Every
+ * change to RiderState's shape bumps `version` and adds a step here with a test
+ * (SPEC-progression "Data"), so friends' stamps survive app updates.
+ */
+const MIGRATIONS: Record<number, Migration> = {};
+
+/** `steps` is for tests; the store always uses MIGRATIONS. */
+export function parseRider(
+  input: unknown,
+  steps: Record<number, Migration> = MIGRATIONS,
+): RiderState | null {
+  if (!isRecord(input) || !Number.isInteger(input.version)) return null;
+  let raw = input;
+  // count with our own `v`, not raw.version, so a step that forgets to bump can't loop
+  for (let v = input.version as number; v < RIDER_VERSION; v++) {
+    const step = steps[v];
+    if (!step) return null; // too old to read: the store keeps the raw value aside
+    const next: unknown = step(raw);
+    if (!isRecord(next)) return null;
+    raw = next;
+  }
+  if (raw.version !== RIDER_VERSION || typeof raw.name !== "string")
     return null;
   const { stamps, quests, stats } = raw;
   if (!isRecord(stamps) || !Object.values(stamps).every(isStamp)) return null;
