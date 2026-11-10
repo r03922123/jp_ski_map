@@ -86,6 +86,48 @@ describe("rider state (SPEC-progression)", () => {
       }),
     ).toBeNull();
   });
+
+  describe("migration: older saves are converted, never dropped", () => {
+    const stamp = {
+      resortId: "happo-one",
+      firstAt: "2026-01-02",
+      visits: ["2026-01-02", "2026-01-03"],
+    };
+    // An older shape, one version behind the current one, with one field the
+    // current shape no longer has and one it lacks.
+    const old = {
+      version: emptyRider().version - 1,
+      name: "Yuki",
+      stamps: { "happo-one": stamp },
+      legacy: "gone in the current shape",
+      stats: { km: { bus: 3, drive: 0, walk: 1 }, trips: 2 },
+    };
+    const steps = {
+      [old.version]: ({ legacy: _, ...s }: Record<string, unknown>) => ({
+        ...s,
+        version: emptyRider().version,
+        quests: [],
+      }),
+    };
+
+    it("an older save loads as the current version with stamps intact", () => {
+      expect(parseRider(old, steps)).toEqual({
+        version: emptyRider().version,
+        name: "Yuki",
+        stamps: { "happo-one": stamp },
+        quests: [],
+        stats: { km: { bus: 3, drive: 0, walk: 1 }, trips: 2 },
+      });
+    });
+
+    it("a version with no migration step, or a step whose output is invalid, is rejected", () => {
+      expect(parseRider(old, {})).toBeNull();
+      expect(
+        parseRider(old, { [old.version]: () => ({ version: 99 }) }),
+      ).toBeNull();
+      expect(parseRider({ ...emptyRider(), version: "1" }, steps)).toBeNull();
+    });
+  });
 });
 
 describe("riderStore", () => {
