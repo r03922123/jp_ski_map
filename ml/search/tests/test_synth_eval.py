@@ -73,3 +73,22 @@ def test_hit_at_k_looks_only_at_the_top_k() -> None:
     results = [place(kind="food"), place(kind="convenience")]
     assert not hit_at({"kind": "convenience"}, results, 1)  # type: ignore[arg-type]
     assert hit_at({"kind": "convenience"}, results, 2)  # type: ignore[arg-type]
+
+
+def test_excluded_queries_never_become_pairs() -> None:
+    es = [entry("r", "food", "Takahashi-ke", detail="Restaurant · ramen")]
+    pairs = make_pairs(es, exclude=frozenset({"ramen", "拉麵"}))
+    queries = {p.query for split in pairs.values() for p in split}
+    assert "Takahashi-ke" in queries and "ramen" not in queries and "拉麵" not in queries
+
+
+def test_no_hard_query_is_a_training_or_dev_query() -> None:
+    # the review found 13 of 40 verbatim in train; the hard set must stay unseen
+    from hakuba_api.places.index import normalize
+    from hakuba_api.places.suggest import load_index
+
+    from hakuba_search.synth import held_out
+
+    pairs = make_pairs(load_index())
+    seen = {normalize(p.query) for split in pairs.values() for p in split}
+    assert len(held_out()) == 40 and not seen & held_out()

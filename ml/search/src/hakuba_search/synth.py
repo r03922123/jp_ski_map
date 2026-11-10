@@ -1,15 +1,21 @@
 """Synthetic (query, entry) pairs for contrastive fine-tuning, generated from the index itself.
 
 Each rule mimics a way people really type a place: dropped or added area words, typos,
-romaji readings, Chinese characters for Japanese words, and food or shop words. The rules
-never read evals/hard_queries.json, so that set stays a fair test.
+romaji readings, Chinese characters for Japanese words, and food or shop words. Rules like
+these regenerate test queries word for word ("ramen", 拉麵), so `make_pairs` drops every query
+equal to one in evals/hard_queries.json after normalising. Near-duplicates ("ramen hakuba")
+can remain.
 """
 
 import hashlib
+import json
 import random
 from dataclasses import dataclass
+from pathlib import Path
 
-from hakuba_api.places.index import Entry
+from hakuba_api.places.index import Entry, normalize
+
+HARD = Path(__file__).parents[2] / "evals" / "hard_queries.json"
 
 # Japanese → Chinese (traditional) words and characters a Chinese-speaking visitor would type
 ZH = {"スキー場": "滑雪場", "ホテル": "酒店", "温泉": "溫泉", "竜": "龍", "乗": "乘", "館": "館"}
@@ -93,9 +99,19 @@ def queries_for(e: Entry, rng: random.Random) -> list[str]:
     return list(dict.fromkeys(q for q in out if q.strip()))
 
 
-def make_pairs(entries: list[Entry], seed: int = 0) -> dict[str, list[Pair]]:
+def held_out() -> frozenset[str]:
+    """Normalised hard-set queries: never a training or calibration query."""
+    return frozenset(normalize(c["q"]) for c in json.loads(HARD.read_text())["cases"])
+
+
+def make_pairs(
+    entries: list[Entry], seed: int = 0, exclude: frozenset[str] | None = None
+) -> dict[str, list[Pair]]:
+    banned = held_out() if exclude is None else exclude
     rng = random.Random(seed)
     pairs: dict[str, list[Pair]] = {"train": [], "dev": []}
     for e in entries:
-        pairs[split_of(e.id)].extend(Pair(q, e.id) for q in queries_for(e, rng))
+        pairs[split_of(e.id)].extend(
+            Pair(q, e.id) for q in queries_for(e, rng) if normalize(q) not in banned
+        )
     return pairs

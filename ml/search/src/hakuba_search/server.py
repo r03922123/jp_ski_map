@@ -52,4 +52,5 @@ if __name__ == "__main__":
     if args.min_score is not None:
         MIN_SCORE = args.min_score
     embedder()  # load before serving, so the first request is not slow
-    uvicorn.run(app, host="127.0.0.1", port=args.port)
+    # the access log would print every ?q=, and queries are user data
+    uvicorn.run(app, host="127.0.0.1", port=args.port, access_log=False)

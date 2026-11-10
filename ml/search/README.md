@@ -9,7 +9,7 @@ Design and acceptance: [SPEC-place-search.md v1.4](../../SPEC-place-search.md).
 | `src/hakuba_search/server.py` | The local server the API calls when `HAKUBA_SEMANTIC_URL` is set |
 | `src/hakuba_search/synth.py` | Synthetic (query, entry) pairs from the index: typos, dropped area words, romaji readings, Chinese characters, cuisine and shop words; split 80/20 by entry |
 | `src/hakuba_search/finetune.py` | Contrastive fine-tune (MultipleNegativesRankingLoss, in-batch negatives, no duplicate entries per batch) on the Mac's GPU (MPS) |
-| `src/hakuba_search/calibrate.py` | Per-model cosine threshold: the lowest score whose top-1 answers on the dev split are ≥ 90% correct. Fine-tuning moves the score scale (0.9127 → 0.5366), so a threshold never carries over between models |
+| `src/hakuba_search/calibrate.py` | Per-model cosine threshold: the lowest score whose top-1 answers on the dev split are ≥ 90% correct. Fine-tuning moves the score scale (0.9127 → 0.5387), so a threshold never carries over between models |
 | `src/hakuba_search/evaluate.py` | lexical vs semantic vs hybrid on `evals/hard_queries.json` (40 hand-written queries) and the API's `booking_eval.json` regression set; logs to MLflow |
 
 ## Commands
@@ -20,16 +20,16 @@ uv run pytest -q                                       # unit tests (synthetic p
 uv run python -m hakuba_search.calibrate               # base model's threshold on the dev split
 uv run python -m hakuba_search.evaluate --min-score 0.9127   # base model, all three modes
 uv run python -m hakuba_search.finetune                # writes models/e5-hakuba (gitignored)
-uv run python -m hakuba_search.calibrate --model models/e5-hakuba          # → 0.5366
-uv run python -m hakuba_search.evaluate --model models/e5-hakuba --min-score 0.5366
-uv run python -m hakuba_search.server --port 8032 --model models/e5-hakuba --min-score 0.5366
+uv run python -m hakuba_search.calibrate --model models/e5-hakuba          # → 0.5387
+uv run python -m hakuba_search.evaluate --model models/e5-hakuba --min-score 0.5387
+uv run python -m hakuba_search.server --port 8032 --model models/e5-hakuba --min-score 0.5387
 HAKUBA_SEMANTIC_URL=http://127.0.0.1:8032 uv run --project ../../services/api fastapi dev ../../services/api/src/hakuba_api/main.py --port 8030
 uv run mlflow ui --backend-store-uri sqlite:///mlflow.db  # compare runs
 ```
 
 ## Results
 
-See the PR description for the latest numbers; MLflow (`mlflow.db`, gitignored) has every run.
+Numbers and caveats: [SPEC-place-search.md v1.4](../../SPEC-place-search.md); MLflow (`mlflow.db`, gitignored) has every run.
 
 ## Caveats
 
