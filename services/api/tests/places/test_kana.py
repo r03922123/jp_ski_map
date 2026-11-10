@@ -29,6 +29,9 @@ def test_to_romaji(ja: str, romaji: str) -> None:
         ("granjam", "guranjamu"),
         ("traumerei", "toroimerai"),
         ("raicho", "raicho"),
+        ("hotel", "hoteru"),  # an h before a vowel stays on both sides
+        ("white", "howaito"),
+        ("hilton", "hiruton"),
     ],
 )
 def test_english_and_its_katakana_reading_sound_alike(english: str, reading: str) -> None:
@@ -39,3 +42,4 @@ def test_different_words_sound_different() -> None:
     assert sound_key("ridge") != sound_key("grace")
     assert sound_key("grace") != sound_key("gurorias")  # 白馬グローリアス
     assert sound_key("phoenix") != sound_key("pension")
+    assert sound_key("maruhachi") != sound_key("marriott")  # 丸八 is not マリオット

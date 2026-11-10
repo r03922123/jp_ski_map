@@ -28,6 +28,9 @@ LONG_WORD = 8  # from this length a query word may carry two typos
 # match, a hair below a spelled one; keys need 3 consonants ("tokyu"/"tokiwa" are "tk").
 SOUND_MATCH = 0.99
 SOUND_PENALTY = 2
+# a one-word query's sound match loses the whole coverage bonus (at most 5), so a
+# one-word reading can't outrank a longer name that spells it ("haven": Haven Lodge)
+SOLO_SOUND_PENALTY = 5
 MIN_SOUND_KEY = 3
 # A reading approximates a name (unknown kanji dropped), so it stays below the
 # exact (100) and name-prefix (90) tiers: 乗鞍荘 reads "norikura" but isn't named it.
@@ -199,7 +202,7 @@ def _score_name(q: str, name: str, by_sound: bool = False) -> float | None:
     if len(q_tokens) == 1:
         m = _token_match(q_tokens[0], tokens, by_sound)
         if m is not None and m >= SOUND_MATCH:
-            return 80 + coverage - (SOUND_PENALTY if m < 1.0 else 0)
+            return 80 + coverage - (SOLO_SOUND_PENALTY if m < 1.0 else 0)
         if q in name:
             return 70 + coverage
         return 40 + 20 * m + coverage if m is not None else None

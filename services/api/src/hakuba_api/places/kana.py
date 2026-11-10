@@ -235,4 +235,7 @@ def sound_key(word: str) -> str:
     # fold doubled letters (ッ "rojji", English "ll") before vowels go, so "gurorias"
     # keeps both r's and doesn't collapse into "grace"
     w = re.sub(r"(.)\1+", r"\1", w)
-    return re.sub(r"[hwaeiouy]", "", w)
+    # an h before a vowel is sounded in both spellings (ハ "ha", "hotel"), so it stays:
+    # without it Maruhachi and Marriott share "mrt". shortcut: a silent h after g, r, k, d
+    # ("ghost", "rhapsody") now counts; none is in the index, add rules if one shows up
+    return re.sub(r"h(?![aeiouy])|[waeiouy]", "", w)
