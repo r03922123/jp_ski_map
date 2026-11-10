@@ -246,9 +246,9 @@ Each item is small enough for its own PR. None is fixed by this page.
    requests (ADR-0004 next step 3). The lodging label
    (ADR-0004 next step 2) ✅ done: `places/refresh_overture.py` builds it from each record's
    sources, and the committed file was counted by a one-off read of the same release. On phones
-   the map credits rise above the bottom sheet ✅ done in
-   [PR #38](https://github.com/r03922123/jp_ski_map/pull/38). Still open (`tasks/todo.md` J10):
-   the API docs that link the licence texts are local only.
+   the map credits rise above the collapsed bottom sheet ✅ done in
+   [PR #38](https://github.com/r03922123/jp_ski_map/pull/38). The API docs that link the licence
+   texts stay local only, because the deployment proxies only `/api/*`.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the
