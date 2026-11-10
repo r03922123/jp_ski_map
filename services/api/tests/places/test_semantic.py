@@ -117,16 +117,25 @@ def test_a_repeated_semantic_id_is_added_once(monkeypatch: pytest.MonkeyPatch) -
     assert ids.count(ramen.id) == 1
 
 
-def test_semantic_hits_do_not_switch_off_photon(
+def test_photon_hits_rank_before_semantic_fill(
     mock: respx.MockRouter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # Photon fills in on too few *lexical* hits; unchecked food hits must not stand in for them
+    # Photon fills in on too few *lexical* hits, and its name-checked hit must not be crowded
+    # off the page by semantic food hits, which carry no name check
     food = [e.id for e in load_index() if e.kind == "food"][:5]
     monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: food)  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     photon.clear_cache()
-    call = mock.get(PHOTON_URL).respond(json={"features": []})
-    suggest("Shiroumaso", NEAR, 8)
+    feature = {
+        "type": "Feature",
+        "properties": {"osm_type": "N", "osm_id": 1, "osm_key": "amenity",
+                       "osm_value": "restaurant", "name": "Zzyzx Shokudo"},
+        "geometry": {"type": "Point", "coordinates": [137.86, 36.70]},
+    }  # fmt: skip
+    call = mock.get(PHOTON_URL).respond(json={"features": [feature]})
+    out = suggest("Zzyzx Shokudo", NEAR, 5)
     assert call.call_count == 1
+    assert out[0].name == "Zzyzx Shokudo" and out[0].source == "photon"
+    assert len(out) == 5
 
 
 def test_a_full_lexical_page_skips_the_semantic_call(monkeypatch: pytest.MonkeyPatch) -> None:

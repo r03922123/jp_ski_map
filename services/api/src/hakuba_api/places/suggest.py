@@ -104,32 +104,37 @@ def suggest(
         if retry_hits := rank(index, retry, near, limit):
             query, hits = retry, retry_hits
     local = [_from_hit(h) for h in hits]
-    lexical_n = len(local)
-    if meaning:
-        # Lexical order stays and meaning only fills in after it: RRF fusion put a look-alike
-        # above an exact name ("Hotel Grace Hakuba" → Hakuba Grace Inn) in the v1.4 eval.
-        known = {e.id: e for e in index}
-        seen = {s.id for s in local}
-        for i in meaning:
-            e = known.get(i)
-            if e is None or i in seen:
-                continue
-            names = [e.name, *filter(None, [e.name_ja])]
-            # a look-alike hotel or stop is a confidently wrong answer (same idea as Photon's)
-            named = e.kind not in ("lodging", "stop") or names_a_place(query, " ".join(names))
-            if named and fits_lodging_words(query, e.kind, names):
-                local.append(_from_entry(e))
-                seen.add(i)
-        local = local[:limit]
-    # semantic food/shop hits carry no name check, so only lexical hits can stand in for Photon
-    if not use_photon or lexical_n >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
-        return local
+    # Page order: lexical, then Photon, then meaning. Semantic food/shop hits carry no name
+    # check, so they never stand in for Photon or push its name-checked hits off the page.
+    extra = _photon_extra(query, limit, local) if use_photon else []
+    page = local + extra
+    seen = {s.id for s in page}
+    known = {e.id: e for e in index} if meaning else {}
+    # Meaning only fills in after the rest: RRF fusion put a look-alike above an exact name
+    # ("Hotel Grace Hakuba" → Hakuba Grace Inn) in the v1.4 eval.
+    for i in meaning:
+        e = known.get(i)
+        if e is None or i in seen or any(_close(e.coord, s.coord) for s in extra):
+            continue
+        names = [e.name, *filter(None, [e.name_ja])]
+        # a look-alike hotel or stop is a confidently wrong answer (same idea as Photon's)
+        named = e.kind not in ("lodging", "stop") or names_a_place(query, " ".join(names))
+        if named and fits_lodging_words(query, e.kind, names):
+            page.append(_from_entry(e))
+            seen.add(i)
+    return page[:limit]
+
+
+def _photon_extra(query: str, limit: int, local: list[Suggestion]) -> list[Suggestion]:
+    """Photon results to add when the lexical index comes up short; [] otherwise."""
+    if len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
+        return []
     try:
         remote = search_photon(query, limit)
     except UpstreamError as e:  # Photon is optional here
         log.warning("photon fallback failed: %s", e)
-        return local
-    extra = [
+        return []
+    return [
         s
         for s in map(from_place, remote)
         if in_hakuba(s.coord)
@@ -137,4 +142,3 @@ def suggest(
         and fits_lodging_words(query, s.kind, [s.name])
         and not any(_close(s.coord, hit.coord) for hit in local)
     ]
-    return (local + extra)[:limit]
