@@ -1,0 +1,46 @@
+[project]
+name = "hakuba-mcp"
+version = "0.1.0"
+description = "MCP server: Hakuba trip-planning tools over the Hakuba Ski Map API"
+readme = "README.md"
+authors = [
+    { name = "r03922123", email = "11392464+r03922123@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp>=1.20.0",
+]
+
+[project.scripts]
+hakuba-mcp = "hakuba_mcp.server:main"
+
+[build-system]
+requires = ["uv_build>=0.8.9,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.414",
+    "pytest>=9.2.0",
+    "respx>=0.23.1",
+    "ruff>=0.17.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pyright]
+include = ["src", "tests", "evals"]
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+extraPaths = ["evals"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["evals"]
