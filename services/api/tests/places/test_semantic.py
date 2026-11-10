@@ -6,7 +6,7 @@ import respx
 
 from hakuba_api.common.geo import Coord
 from hakuba_api.places import semantic
-from hakuba_api.places.semantic import rrf_merge, semantic_ids
+from hakuba_api.places.semantic import semantic_ids
 from hakuba_api.places.suggest import load_index, suggest
 
 URL = "http://127.0.0.1:9999"
@@ -17,19 +17,6 @@ NEAR = Coord(lat=36.70, lng=137.86)
 def mock() -> Iterator[respx.MockRouter]:
     with respx.mock(assert_all_called=False) as m:
         yield m
-
-
-def test_rrf_puts_an_item_both_lists_agree_on_first() -> None:
-    assert rrf_merge(["a", "b"], ["b", "c"]) == ["b", "a", "c"]
-
-
-def test_rrf_breaks_ties_in_favour_of_the_lexical_list() -> None:
-    # both ranked first in one list only: same RRF score, lexical wins
-    assert rrf_merge(["lex"], ["sem"]) == ["lex", "sem"]
-
-
-def test_rrf_with_an_empty_semantic_list_keeps_lexical_order() -> None:
-    assert rrf_merge(["a", "b", "c"], []) == ["a", "b", "c"]
 
 
 def test_no_server_configured_makes_no_call(
@@ -100,3 +87,23 @@ def test_suggest_drops_a_semantic_non_lodging_for_a_hotel_query(
     ramen = next(e for e in load_index() if "ramen" in e.detail)
     monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [ramen.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     assert suggest("Wadano Onsen Hotel", NEAR, 5, use_photon=False) == []
+
+
+def test_suggest_drops_a_semantic_stop_that_shares_no_word(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # booking_eval: an absent onsen inn came back as "The Gakusui" bus stop
+    stop = next(e for e in load_index() if e.id == "stop-the-gakusui")
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [stop.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    assert suggest("Nakaoyama Onsen Shosenkaku", NEAR, 5, use_photon=False) == []
+
+
+def test_suggest_keeps_the_lexical_order_and_appends_meaning(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lexical = [s.id for s in suggest("Hotel Grace Hakuba", NEAR, 5, use_photon=False)]
+    ramen = next(e for e in load_index() if "ramen" in e.detail)
+    meaning = [ramen.id, *reversed(lexical)]
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: meaning)  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    ids = [s.id for s in suggest("Hotel Grace Hakuba", NEAR, 10, use_photon=False)]
+    assert ids[: len(lexical)] == lexical

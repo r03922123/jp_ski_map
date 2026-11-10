@@ -21,7 +21,6 @@ from hakuba_api.places.index import (
 from hakuba_api.places.models import Place
 from hakuba_api.places.photon import search_photon
 from hakuba_api.places.query_clean import clean_query
-from hakuba_api.places.semantic import rrf_merge
 
 log = logging.getLogger(__name__)
 
@@ -105,18 +104,20 @@ def suggest(
             query, hits = retry, retry_hits
     local = [_from_hit(h) for h in hits]
     if meaning:
+        # Lexical order stays and meaning only fills in after it: RRF fusion put a look-alike
+        # above an exact name ("Hotel Grace Hakuba" → Hakuba Grace Inn) in the v1.4 eval.
         known = {e.id: e for e in index}
-        by_id = {s.id: s for s in local}
-        # the same guard as Photon below: a look-alike hotel is a confidently wrong answer
-        trusted = [
-            i
-            for i in meaning
-            if (e := known.get(i))
-            and fits_lodging_words(query, e.kind, names := [e.name, *filter(None, [e.name_ja])])
-            and (e.kind != "lodging" or names_a_place(query, " ".join(names)))
-        ]
-        merged = rrf_merge([s.id for s in local], trusted)
-        local = [by_id.get(i) or _from_entry(known[i]) for i in merged[:limit]]
+        seen = {s.id for s in local}
+        for i in meaning:
+            e = known.get(i)
+            if e is None or i in seen:
+                continue
+            names = [e.name, *filter(None, [e.name_ja])]
+            # a look-alike hotel or stop is a confidently wrong answer (same idea as Photon's)
+            named = e.kind not in ("lodging", "stop") or names_a_place(query, " ".join(names))
+            if named and fits_lodging_words(query, e.kind, names):
+                local.append(_from_entry(e))
+        local = local[:limit]
     if not use_photon or len(local) >= MIN_LOCAL_HITS or len(query.strip()) < MIN_PHOTON_QUERY_LEN:
         return local
     try:
