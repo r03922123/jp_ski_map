@@ -2,6 +2,19 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · tidy: chore: shadcn is a dev tool, AGENTS.md follows CLAUDE.md
+
+**1. Principle: a dependency's section says when it runs.**
+`shadcn` is a CLI that copies component code into the repo; the app only imports its `tailwind.css` while building. Listing it under `dependencies` told every tool it ships with the app, so Dependabot filed its two transitive alerts (minimatch, deepmerge) as runtime risks. Under `devDependencies` they are what they really are: risks to the build machine, not to visitors.
+*Analogy:* the scaffolding goes on the builder's invoice, not into the house's inventory.
+
+**2. Trade-off: a link, not a copy.**
+Codex reads `AGENTS.md`, Claude Code reads `CLAUDE.md`. The old `AGENTS.md` was a hand copy that had already fallen two lines behind. A symlink keeps one source; the cost is that a tool that doesn't follow links would see a 9-byte path. Git and both agents follow it.
+*Analogy:* one calendar shared by two people instead of two paper copies that drift.
+
+**3. What could go wrong: an install that skips dev dependencies.**
+`next build` needs `shadcn/tailwind.css`, so `pnpm install --prod` followed by a build would now fail. Nothing does that today: CI, `serve-public.sh` and Vercel all install dev dependencies. The failure would be loud (a missing import at build), not silent.
+
 ## 2026-11-10 · tidy: fix(places): Maruhachi no longer sounds like Marriott
 
 **1. Principle: a matching key must keep the sounds both spellings share.**

@@ -25,7 +25,8 @@ MIN_FUZZY_LEN = 4
 MAX_EDITS = 2
 LONG_WORD = 8  # from this length a query word may carry two typos
 # A reading that sounds like the query word ("guresu" for "grace") counts as a full
-# match, a hair below a spelled one; keys need 3 consonants ("tokyu"/"tokiwa" are "tk").
+# match, a hair below a spelled one (more for a one-word query, below); keys need 3
+# consonants ("tokyu"/"tokiwa" are "tk").
 SOUND_MATCH = 0.99
 SOUND_PENALTY = 2
 # a one-word query's sound match loses the whole coverage bonus (at most 5), so a

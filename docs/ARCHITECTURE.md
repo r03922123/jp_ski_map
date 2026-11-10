@@ -245,9 +245,10 @@ Each item is small enough for its own PR. None is fixed by this page.
    planned. The 15 My Maps stops left wait on the owner's permission
    requests (ADR-0004 next step 3). The lodging label
    (ADR-0004 next step 2) ✅ done: `places/refresh_overture.py` builds it from each record's
-   sources, and the committed file was counted by a one-off read of the same release. Still open
-   (`tasks/todo.md` J10): on phones the map credits sit behind the bottom sheet, and the API docs
-   that link the licence texts are local only.
+   sources, and the committed file was counted by a one-off read of the same release. On phones
+   the map credits rise above the bottom sheet ✅ done in
+   [PR #38](https://github.com/r03922123/jp_ski_map/pull/38). Still open (`tasks/todo.md` J10):
+   the API docs that link the licence texts are local only.
 2. **Ranking data gaps.** Fill `dayTicketJpy` and `nightSkiing` in `data/resorts.json`, or hide
    the price sort and night-skiing filter until there's data. Decided in
    [ADR-0001](adr/0001-follow-ups-1-2-3-5.md): fill `nightSkiing` for all 10 resorts; hide the
