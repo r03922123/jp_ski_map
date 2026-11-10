@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed. The owner decides at merge. Replaces the Oracle choice for Phase B in `SPEC-deploy.md`,
+Accepted (merged by the owner 2026-11-09; live on Vercel 2026-11-10). Replaces the Oracle choice for Phase B in `SPEC-deploy.md`,
 the "Oracle VM: not yet" row of [ADR-0005](0005-repo-visibility.md) for friends-only use, and, after
 cutover, ADR-0005 Decision 1's "friends keep using the Funnel link".
 
@@ -79,7 +79,8 @@ distribution needing its own notice. Reconsider if deploys ever move to CI.
 
 ## Next steps
 
-1. Land this ADR and the spec in the repo (this change).
+1. Done 2026-11-09: this ADR and the spec landed in PR #39.
 2. Done: the owner created the Vercel Hobby account.
 3. Done 2026-11-09: Probe P and probe S0 passed. Results are in `SPEC-deploy.md`, Evidence.
-4. Build the repo changes, then run Checkpoint S on a preview deployment.
+4. Done 2026-11-11: the repo changes (PRs #41 to #43, #50) and Checkpoint S on a preview. Results
+   are in `SPEC-deploy.md`, under "Probe P and Checkpoint S".
