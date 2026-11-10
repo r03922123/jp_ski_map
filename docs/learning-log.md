@@ -2,6 +2,19 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-10 · tidy: fix(places): Maruhachi no longer sounds like Marriott
+
+**1. Principle: a matching key must keep the sounds both spellings share.**
+`sound_key` strips a word to its consonants so "grace" finds グレース ("guresu"). It also dropped every `h`, so "maruhachi" and "mariotto" (マリオット) both became `mrt`, and "Maruhachi Ryokan" answered with Courtyard by Marriott. An `h` before a vowel is sounded in both spellings (ハ is "ha", "hotel" is "hotel"), so it now stays: Maruhachi is `mrht`.
+*Analogy:* a hash that throws away too many bits collides; this one threw away a bit that carried meaning.
+
+**2. Trade-off: measure the whole index, not only the bug.**
+The key is used for every Japanese name, so the check ran every English word in the index against every reading. 13 pairs stopped matching, all of them wrong (grand ↔ highland, kokoro ↔ kakuhira, maruhachi ↔ mariotto). 5 started: hershe ↔ hershi is right, heaven/haven ↔ "habuno" and horse ↔ hershi are wrong, but a spelled match still ranks first, so "Hakuba Haven Lodge" still answers with itself. The booking eval stayed at 26 hits and 4 correct "not found".
+*Analogy:* changing a shared tokenizer means re-running the whole test set, not only the failing example.
+
+**3. What could go wrong: the next-closest answer is still not the right inn.**
+"Maruhachi Ryokan" now answers まるしち, through the separate two-typo rule ("maruhachi" and "marushichi" are 2 edits apart). The real inns, 白馬旅籠丸八弐番館 and 庄屋丸八, have no Latin reading of 丸八 in our data, so search can't connect them yet. That needs a reading for the kanji, which is its own change.
+
 ## 2026-11-10 · build new features: feat(web): remove the Rider, Quests and Sound buttons
 
 **1. Principle: delete a feature, don't just hide it.**
