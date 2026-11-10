@@ -9,8 +9,8 @@
 # Run it from the checkout that holds the Vercel link and the built tiles; both are gitignored.
 #
 # In the upload, under services/api/: runtime data in data/, tiles in tiles/valhalla_tiles.tar.
-# HAKUBA_DATA_DIR and VALHALLA_TILES must point there (Changes item 9). Whether the function can
-# read files placed there under `services` is unverified until Checkpoint S.
+# HAKUBA_DATA_DIR and VALHALLA_TILES must point there (Changes item 9): the api service root is
+# /var/task in the function, verified at Checkpoint S.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 

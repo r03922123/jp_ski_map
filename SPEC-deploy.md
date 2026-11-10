@@ -6,8 +6,9 @@
 > while the Mac is off. Oracle is now a fallback, under "If Vercel is a no-go".
 > Research: 5 agents + 1 reviewer checked official pricing pages on 2026-10-31 (summary under "Evidence";
 > Phase B has its own Evidence, checked 2026-11-09).
-> **Status 2026-11-11:** Phase B is live on Vercel and passed Checkpoint S (results under "Probe P and
-> Checkpoint S"). Funnel stays on until friends have moved their saved lists; the owner turns it off.
+> **Status 2026-11-11:** Phase B is live on Vercel and passed every no-go row of Checkpoint S. Two
+> non-blocking rows are only partly met: warm latency was measured from home Wi-Fi, not a phone
+> network, and the Mac standby was only partly rehearsed (results under "Probe P and Checkpoint S"). Funnel stays on until friends have moved their saved lists; the owner turns it off.
 
 ## Objective
 Let the author's friends open the planner from their own phones, over HTTPS (needed for GPS),
@@ -260,7 +261,7 @@ plus a temporary `x-boot-id` and `x-client-key` header that never reached `main`
 | Check | Result |
 |---|---|
 | Services serve one origin | Pass: `/` 200, `/api/health` 200, `x-vercel-id` `hkg1::hnd1::…` |
-| Entrypoint and `src/` layout | Pass with `PYTHONPATH=/var/task/src` (Changes item 9). Without it, 500 on every `/api` call |
+| Entrypoint and `src/` layout | Pass with `PYTHONPATH=/var/task/src` (Phase B Changes item 9). Without it, 500 on every `/api` call |
 | Data reached the Function | Pass: `/api/resorts` (10), a bus query at a fixed time, and lodging in one bbox (746) equal the local API byte for byte |
 | Real API cold start | Pass, with little room: 5 new instances after 10 idle minutes each, 4.75 / 4.85 / 4.63 / 4.62 / 5.19 s, median 4.75 s |
 | Warm latency | Pass from the owner's home network on the Mac (not a phone network): median 161 ms of 20, max 224 ms |
@@ -328,8 +329,12 @@ kept below, then AWS Lightsail at $7 a month, which needs the owner's OK to brea
 | The `api` service root is `/var/task`; files the script puts under `services/api/` are there | Probe on `probe-p`, 2026-11-10 |
 | Checkpoint S: every row in the results table above | Protected preview, 2026-11-10/11 |
 
+The `web` pages are prerendered and come from the CDN cache (`x-vercel-cache: HIT`, no function
+segment in `x-vercel-id`), so only the `api` service has a function region.
+
 Not verified: the live check from a phone on mobile data with the Mac's lid closed (Success
-criterion 2, the owner's step); `serve-public.sh` on the new code; a real iPhone.
+criterion 2, the owner's step); warm latency from a phone network; `serve-public.sh` on the new
+code; a real iPhone.
 
 #### Open questions
 1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL
