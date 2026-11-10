@@ -1,8 +1,8 @@
 import { expect, type Page, test } from "@playwright/test";
 
-// T75 (QA on a real iPhone): a tap on the HUD's Rider button landed on Quests next to
-// it. On touch screens every control is at least 44×44 CSS px (Apple's 44 pt; Android's
-// 48 dp is ~44 CSS px at common densities). Exempt, as WCAG 2.5.8 allows: links inside
+// T75 (QA on a real iPhone): a tap on one small button landed on its neighbour. On
+// touch screens every control is at least 44×44 CSS px (Apple's 44 pt; Android's 48 dp
+// is ~44 CSS px at common densities). Exempt, as WCAG 2.5.8 allows: links inside
 // a line of text (map attribution, the timetable link), and the map's own annotations
 // (resort markers, route time labels), which are wide and spaced by the map.
 test.use({
@@ -64,7 +64,7 @@ async function expandSheet(page: Page) {
     .toBeGreaterThan(844 * 0.7);
 }
 
-test("drive: the resort list, HUD, tabs and map controls are big enough", async ({
+test("drive: the resort list, tabs and map controls are big enough", async ({
   page,
 }) => {
   await open(page, "/?from=36.6985,137.8376&mode=drive");
@@ -89,33 +89,6 @@ test("bus: date, time and the options", async ({ page }) => {
   await open(page, "/?from=36.69711,137.85393&mode=bus");
   await expandSheet(page);
   expect(await tooSmall(page)).toEqual([]);
-});
-
-test("the rider card and the quest log", async ({ page }) => {
-  await open(page, "/");
-  // v1.9: the game HUD shows once the sheet is swiped up (the resting sheet holds the answer)
-  await expandSheet(page);
-  await page.getByRole("button", { name: /^Rider card/ }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  expect(await tooSmall(page)).toEqual([]);
-  await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: /^Quests/ }).click();
-  expect(await tooSmall(page)).toEqual([]);
-});
-
-test("HUD buttons are spaced: a tap between Rider and Quests hits neither twice", async ({
-  page,
-}) => {
-  await open(page, "/");
-  await expandSheet(page); // v1.9: the HUD shows in the swiped-up sheet
-  const rider = await page
-    .getByRole("button", { name: /^Rider card/ })
-    .boundingBox();
-  const quests = await page
-    .getByRole("button", { name: /^Quests/ })
-    .boundingBox();
-  if (!rider || !quests) throw new Error("HUD not laid out");
-  expect(quests.x - (rider.x + rider.width)).toBeGreaterThanOrEqual(8);
 });
 
 test("the sheet handle can be grabbed above its thin bar too", async ({
