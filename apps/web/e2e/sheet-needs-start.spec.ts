@@ -55,6 +55,12 @@ test.describe("phone", () => {
     await expect(sheet(page)).toHaveAttribute("data-state", "collapsed");
   });
 
+  // the stops a cleared start leaves stay listed in the sheet, with their ✕
+  test("stops with no start keep the sheet", async ({ page }) => {
+    await openMap(page, "/?mode=drive&stops=36.74000,137.87000");
+    await expect(sheet(page)).toBeVisible();
+  });
+
   test("Saved opens the sheet without a start, and closing it hides it again", async ({
     page,
   }) => {

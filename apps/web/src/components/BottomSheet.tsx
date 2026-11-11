@@ -31,9 +31,6 @@ export function BottomSheet({
   children: ReactNode;
 }) {
   const [expanded, setExpanded] = useState(false);
-  useEffect(() => {
-    if (hiddenOnPhone) setExpanded(false);
-  }, [hiddenOnPhone]);
   const headerRef = useRef<HTMLDivElement>(null);
   const lastCollapseKey = useRef(collapseKey);
   useEffect(() => {
@@ -53,6 +50,13 @@ export function BottomSheet({
   const swipedAt = useRef(Number.NEGATIVE_INFINITY);
   const sectionRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!hiddenOnPhone) return;
+    setExpanded(false);
+    // focus left in the hidden body (the ✕ that cleared the start) would drop to <body>
+    if (bodyRef.current?.contains(document.activeElement))
+      headerRef.current?.focus();
+  }, [hiddenOnPhone]);
 
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;

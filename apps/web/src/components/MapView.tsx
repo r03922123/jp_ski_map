@@ -314,26 +314,25 @@ export default function MapView({
     });
   }, [fitKey, mapReady, piloting]);
 
-  // Phones: the open credits sit on the strip above the sheet that the fit keeps for the
-  // end markers, so a trip folds them, as MapLibre's first drag does. The ⓘ reopens them.
+  // Phones: the compact credits show on first display, then fold after five seconds, as
+  // OSM's attribution guidelines allow; the ⓘ reopens them. After that a new trip folds
+  // them again, as MapLibre's first drag does: open, they sit on the strip above the
+  // sheet that the fit keeps for the end markers.
+  const [creditsShown, setCreditsShown] = useState(false);
   const foldCredits = () =>
     mapRef.current
       ?.getContainer()
       .querySelector(".maplibregl-compact-show")
       ?.classList.remove("maplibregl-compact-show");
-  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for the trip
-  useEffect(() => {
-    if (!mapReady || endPoints.length + drawn.length === 0) return;
-    foldCredits();
-  }, [fitKey, mapReady]);
-  // OSM's attribution guidelines: the credits show on first display and may then fold
-  // after five seconds, which keeps them off the phone's map until the ⓘ is tapped
-  // biome-ignore lint/correctness/useExhaustiveDependencies: once, when the map is ready
   useEffect(() => {
     if (!mapReady) return;
-    const t = setTimeout(foldCredits, CREDITS_SHOWN_MS);
+    const t = setTimeout(() => setCreditsShown(true), CREDITS_SHOWN_MS);
     return () => clearTimeout(t);
   }, [mapReady]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for the trip
+  useEffect(() => {
+    if (creditsShown) foldCredits();
+  }, [fitKey, creditsShown]);
 
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel

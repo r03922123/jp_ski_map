@@ -310,7 +310,7 @@ Success means:
 **Objective.** On a phone the first screen is the map and the search card, not a credits bar and an empty sheet.
 
 **Rules (phones, under `md`).**
-1. **The sheet waits for a start.** With no start and Saved closed, the sheet is hidden; the top card stays. Any start brings it up collapsed: a picked search result, a shared link with `from`, a restored My hotel, a "Start here". Saved opens it without a start. A `?mode=` link with no start keeps its mode. This narrows v1.9 rule 3: the 40 % peek applies once there is a start.
-2. **The credits fold after five seconds.** They show on first display, as OSM's attribution guidelines require, then fold to the ⓘ, which reopens them. A start or trip still folds them at once (J10).
+1. **The sheet waits for a start.** With no start and Saved closed, the sheet is hidden; the top card stays. Any start brings it up collapsed: a picked search result, a shared link with `from`, a restored My hotel, a "Start here". Saved opens it without a start, and so do stops left by a cleared start. A `?mode=` link with no start keeps its mode. This narrows v1.9 rule 3: the 40 % peek applies once there is a start.
+2. **The credits fold after five seconds.** They show on first display, as OSM's attribution guidelines require, then fold to the ⓘ, which reopens them. After that first display a new trip folds them again (J10); a shared trip link no longer folds them before it.
 
 **Success criteria.** `e2e/sheet-needs-start.spec.ts` and `e2e/map-credits.spec.ts` pass. Laptops are unchanged.

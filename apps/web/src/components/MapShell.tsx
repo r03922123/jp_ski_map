@@ -1158,8 +1158,11 @@ export function MapShell() {
           }
           collapseKey={destinationKey}
           revealKey={routeKey}
-          // with no start it would hold only the hint on how to set one
-          hiddenOnPhone={origin === null && !savedOpen}
+          // with no start it would hold only the hint on how to set one (and the stops
+          // a cleared start leaves, which must stay reachable)
+          hiddenOnPhone={
+            origin === null && !savedOpen && filledStops.length === 0
+          }
         >
           {savedOpen ? (
             <SavedPanel
