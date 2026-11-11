@@ -1,6 +1,5 @@
 # jp_ski_map
 - Active branch: none. Parked: none.
-- Takeover phase: tidy (next when: follow-ups 1 and 2 are done)
 - Cost must stay $0 (SPEC-deploy.md). Any paid API, cloud account, or service needs my OK first.
 - SPEC.md is the module map; each module has its own SPEC-*.md.
 - Production is Vercel Hobby (`hnd1`, SPEC-deploy Phase B). Deploy only with `scripts/deploy-vercel.sh` (preview; `--prod` for production), from a checkout that has `.vercel/project.json` and the built tiles. Smoke-test after each deploy: `PROD_URL=<url> pnpm exec playwright test -c e2e-prod/playwright.config.ts` in apps/web (a protected preview also needs `VERCEL_AUTOMATION_BYPASS_SECRET`). Don't write the production URL into the repo: it's public.
