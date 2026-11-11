@@ -1158,6 +1158,8 @@ export function MapShell() {
           }
           collapseKey={destinationKey}
           revealKey={routeKey}
+          // with no start it would hold only the hint on how to set one
+          hiddenOnPhone={origin === null && !savedOpen}
         >
           {savedOpen ? (
             <SavedPanel

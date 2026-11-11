@@ -844,6 +844,12 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - [x] `docs/ARCHITECTURE.md` follow-up 1: the phone credits note marked done (PR #38)
 - [x] Full e2e against the production build (`E2E_PROD=1`, 2026-11-11): 502 tests: 438 passed, 58 skipped (55 dev-only), 6 failed: `setting-the-start`'s hotel-pin tests read the dev map handle without `devOnly` (now guarded in `hotelPin`), the off-season known-fail H passed again (server clock, see Checkpoint P), and `stops.spec.ts` "add a stop by typing" failed once at load ~11 and passed 3/3 alone
 
+## Task J13: Phone map, first load (owner, 2026-11-11, from a production screenshot)
+- [x] The phone's credits fold five seconds after the map loads, as OSM's attribution guidelines allow ("automatically after five seconds"); the ⓘ reopens them. Folding from the very first display was the ask, but the guidelines say attribution "should not require individuals to interact with the map" to be seen, so the credits still show for the first five seconds. Desktop is unchanged (credits open)
+- [x] Below `md` the directions sheet stays hidden until there is a start: a picked search result, a shared link with `from`, a restored My hotel, a "Start here" from a pin or saved place. Saved opens it without a start. `?mode=` alone keeps its mode for when the start is set. The search card on top stays. Desktop's side card is unchanged
+- [x] e2e: `sheet-needs-start.spec.ts`, and `map-credits.spec.ts` now checks the first display, the fold, and the ⓘ above the collapsed sheet
+- Known limits: with no start the sheet's hint ("Type a place above, or long-press the map") no longer shows on phones; the search box placeholder is the only cue. Not checked on a real iPhone or WebKit
+
 ## Vercel Phase B (SPEC-deploy.md v1.6, ADR-0006)
 Recorded exception to the takeover order, so the project stays in "tidy". Each PR is about 300 lines, opens with `Takeover phase: tidy (recorded exception, ADR-0006)`, gets a fresh-eyes review, and the owner approves each merge.
 - [x] S0: Services probe, outside the repo: `/` and `/api/health` 200, `/api` in `hnd1`

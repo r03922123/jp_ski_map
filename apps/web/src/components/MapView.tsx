@@ -118,6 +118,8 @@ const LONG_PRESS_MS = 500;
 const LONG_PRESS_SLOP_PX = 10;
 /** A click this soon after a touch ended was made by that finger (the mouse never touches). */
 const TOUCH_CLICK_MS = 700;
+/** How long the phone's compact credits stay open after the map loads. */
+const CREDITS_SHOWN_MS = 5000;
 const ALT_HIT_LAYER = "route-alts-hit";
 
 // SPEC-game-theme: the chosen route is an overworld trail
@@ -314,14 +316,24 @@ export default function MapView({
 
   // Phones: the open credits sit on the strip above the sheet that the fit keeps for the
   // end markers, so a trip folds them, as MapLibre's first drag does. The ⓘ reopens them.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for the trip
-  useEffect(() => {
-    if (!mapReady || endPoints.length + drawn.length === 0) return;
+  const foldCredits = () =>
     mapRef.current
       ?.getContainer()
       .querySelector(".maplibregl-compact-show")
       ?.classList.remove("maplibregl-compact-show");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for the trip
+  useEffect(() => {
+    if (!mapReady || endPoints.length + drawn.length === 0) return;
+    foldCredits();
   }, [fitKey, mapReady]);
+  // OSM's attribution guidelines: the credits show on first display and may then fold
+  // after five seconds, which keeps them off the phone's map until the ⓘ is tapped
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once, when the map is ready
+  useEffect(() => {
+    if (!mapReady) return;
+    const t = setTimeout(foldCredits, CREDITS_SHOWN_MS);
+    return () => clearTimeout(t);
+  }, [mapReady]);
 
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel

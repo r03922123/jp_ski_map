@@ -305,3 +305,12 @@ Success means:
 **Success criteria.** `e2e/hud-removed.spec.ts` passes: none of the three buttons exists on a phone (sheet expanded) or a laptop; on a laptop, taps create no AudioContext even with `hakuba:sound` saved as on, and a `#rider=` link shows no dialog. The code that made sound or opened the card is deleted, so screen size can't bring either back.
 
 **Boundaries.** *Out of scope:* the stored trip stats (nothing shows them now; a later change can drop them), the stamp moment's look.
+
+## v1.15: The phone map's first load (2026-11-11, the owner's ask from a production screenshot)
+**Objective.** On a phone the first screen is the map and the search card, not a credits bar and an empty sheet.
+
+**Rules (phones, under `md`).**
+1. **The sheet waits for a start.** With no start and Saved closed, the sheet is hidden; the top card stays. Any start brings it up collapsed: a picked search result, a shared link with `from`, a restored My hotel, a "Start here". Saved opens it without a start. A `?mode=` link with no start keeps its mode. This narrows v1.9 rule 3: the 40 % peek applies once there is a start.
+2. **The credits fold after five seconds.** They show on first display, as OSM's attribution guidelines require, then fold to the ⓘ, which reopens them. A start or trip still folds them at once (J10).
+
+**Success criteria.** `e2e/sheet-needs-start.spec.ts` and `e2e/map-credits.spec.ts` pass. Laptops are unchanged.
