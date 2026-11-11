@@ -300,9 +300,13 @@ for (const dev of DEVICES) {
       await expect(fromRow(page)).toHaveCount(0);
       await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(searchBox(page)).toHaveValue("");
-      await expect(
-        page.getByText(/to set\s+your starting point/),
-      ).toBeVisible();
+      // phones hide the sheet with no start (SPEC-web-app v1.15); laptops keep the hint
+      if ((page.viewportSize()?.width ?? 0) < 768)
+        await expect(page.locator("[data-sheet]")).toBeHidden();
+      else
+        await expect(
+          page.getByText(/to set\s+your starting point/),
+        ).toBeVisible();
 
       await searchAndPick(dev, page, "Hakuba Tokyu", /Tokyu/);
       await expect.poll(() => fromParam(page)).toMatch(TOKYU.from);
