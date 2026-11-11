@@ -31,6 +31,11 @@ test.describe("phone", () => {
     await expect(searchBox(page)).toBeVisible();
     await expect(sheet(page)).toBeHidden();
     await expect(page.getByRole("tab", { name: /Drive/ })).toBeHidden();
+    // with no sheet to clear, the credits stay down in the map's corner
+    const credits = await page.locator(".maplibregl-ctrl-attrib").boundingBox();
+    expect((credits?.y ?? 0) + (credits?.height ?? 0)).toBeGreaterThan(
+      844 - 40,
+    );
   });
 
   test("a mode link with no start keeps its mode for when the start is set", async ({
