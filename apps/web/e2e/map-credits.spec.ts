@@ -43,6 +43,8 @@ async function expectOnTop(el: Locator) {
   await expect.poll(() => isOnTop(el), { timeout: 5_000 }).toBe(true);
 }
 
+const START = "/?from=36.69711,137.85393&mode=drive";
+
 for (const [name, viewport] of [
   ["phone 390x844", { width: 390, height: 844 }],
   ["small phone 320x568", { width: 320, height: 568 }],
@@ -52,14 +54,30 @@ for (const [name, viewport] of [
   test.describe(name, () => {
     test.use({ viewport, isMobile: true, hasTouch: true });
 
-    test("the OpenStreetMap credit is above the collapsed sheet", async ({
+    // OSM's attribution guidelines: shown on first display, then they may fold after
+    // five seconds or on map interaction, as long as an (i) brings them back
+    test("the credits show on first display, then fold to the info button", async ({
       page,
     }) => {
       await openMap(page);
+      await expectOnTop(osmLink(page));
+      await expect(osmLink(page)).toBeHidden({ timeout: 10_000 });
+      await expectOnTop(page.locator(INFO_BUTTON));
+    });
+
+    test("with a start, the credits show above the collapsed sheet, fold, and reopen", async ({
+      page,
+    }) => {
+      await openMap(page, START);
       await expect(page.locator("[data-sheet]")).toHaveAttribute(
         "data-state",
         "collapsed",
       );
+      await expectOnTop(osmLink(page));
+      await expect(osmLink(page)).toBeHidden({ timeout: 10_000 });
+      const button = page.locator(INFO_BUTTON);
+      await expectOnTop(button);
+      await button.tap();
       await expectOnTop(osmLink(page));
     });
   });
@@ -72,23 +90,24 @@ test.describe("phone, compact credits", () => {
     hasTouch: true,
   });
 
-  test("the info button folds and reopens the credits", async ({ page }) => {
+  test("the info button opens and folds the credits", async ({ page }) => {
     await openMap(page);
+    await expect(osmLink(page)).toBeHidden({ timeout: 10_000 });
     const button = page.locator(INFO_BUTTON);
-    await expectOnTop(button);
+
+    await button.tap();
+    await expectOnTop(osmLink(page));
 
     await button.tap();
     await expect(osmLink(page)).toBeHidden();
     await expectOnTop(button);
-
-    await button.tap();
-    await expectOnTop(osmLink(page));
   });
 
-  test("the credits come back when the sheet collapses again", async ({
+  test("after the sheet expands and collapses, the info button opens the credits above it", async ({
     page,
   }) => {
-    await openMap(page);
+    await openMap(page, START);
+    await expect(osmLink(page)).toBeHidden({ timeout: 10_000 });
     await page.getByRole("button", { name: "Expand directions" }).tap();
     await expect(page.locator("[data-sheet]")).toHaveAttribute(
       "data-state",
@@ -100,12 +119,13 @@ test.describe("phone, compact credits", () => {
       "data-state",
       "collapsed",
     );
+    await page.locator(INFO_BUTTON).tap();
     await expectOnTop(osmLink(page));
   });
 });
 
 // the route's fit keeps a strip above the sheet for its end markers: the open credits
-// would sit on it, so a trip folds them and the ⓘ brings them back
+// would sit on it, so they fold after their first display and the ⓘ brings them back
 for (const [name, viewport] of [
   ["phone 390x844", { width: 390, height: 844 }],
   ["landscape phone 740x360", { width: 740, height: 360 }],
@@ -113,11 +133,12 @@ for (const [name, viewport] of [
   test.describe(`${name}, with a trip`, () => {
     test.use({ viewport, isMobile: true, hasTouch: true });
 
-    test("the credits fold and the info button reopens them", async ({
+    test("the credits show first, fold, and the info button reopens them", async ({
       page,
     }) => {
       await openMap(page, TRIP);
-      await expect(osmLink(page)).toBeHidden();
+      await expectOnTop(osmLink(page));
+      await expect(osmLink(page)).toBeHidden({ timeout: 10_000 });
       const button = page.locator(INFO_BUTTON);
       await expectOnTop(button);
 

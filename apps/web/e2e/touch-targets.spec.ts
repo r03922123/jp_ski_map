@@ -94,7 +94,8 @@ test("bus: date, time and the options", async ({ page }) => {
 test("the sheet handle can be grabbed above its thin bar too", async ({
   page,
 }) => {
-  await open(page, "/");
+  // a start: with none the phone's sheet is hidden (SPEC-web-app v1.15)
+  await open(page, "/?from=36.69711,137.85393&mode=drive");
   const sheet = await page
     .getByRole("region", { name: "Directions" })
     .boundingBox();

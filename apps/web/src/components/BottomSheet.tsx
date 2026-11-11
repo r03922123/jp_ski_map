@@ -12,6 +12,7 @@ export function BottomSheet({
   header,
   collapseKey,
   revealKey,
+  hiddenOnPhone = false,
   children,
 }: {
   label: string;
@@ -25,6 +26,8 @@ export function BottomSheet({
   collapseKey?: string;
   /** The route on screen; "" when there is none. Only a route appearing collapses the sheet. */
   revealKey?: string;
+  /** Phones: only the header shows (the sheet would hold nothing yet). It comes back collapsed. */
+  hiddenOnPhone?: boolean;
   children: ReactNode;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -47,6 +50,13 @@ export function BottomSheet({
   const swipedAt = useRef(Number.NEGATIVE_INFINITY);
   const sectionRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!hiddenOnPhone) return;
+    setExpanded(false);
+    // focus left in the hidden body (the ✕ that cleared the start) would drop to <body>
+    if (bodyRef.current?.contains(document.activeElement))
+      headerRef.current?.focus();
+  }, [hiddenOnPhone]);
 
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
@@ -150,6 +160,7 @@ export function BottomSheet({
       data-sheet
       tabIndex={-1}
       data-state={expanded ? "expanded" : "collapsed"}
+      data-phone-hidden={hiddenOnPhone || undefined}
       className={cn(
         "pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
         // expanded: never up under the trip card on top (184 px, or 136 on a landscape
@@ -159,6 +170,8 @@ export function BottomSheet({
           ? "h-[min(80dvh,calc(100dvh-232px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
           : "h-[40dvh]",
         "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
+        // invisible, not unmounted: the header inside stays visible, and taps reach the map
+        hiddenOnPhone && "max-md:invisible",
       )}
     >
       <button
@@ -189,7 +202,9 @@ export function BottomSheet({
         <div
           ref={headerRef}
           data-trip-header
-          className="fixed inset-x-2 top-2 z-20 md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
+          // where the title screen hands focus while the sheet is hidden
+          tabIndex={-1}
+          className="visible fixed inset-x-2 top-2 z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
         >
           <div className="pixel-frame p-2 md:contents">{header}</div>
         </div>

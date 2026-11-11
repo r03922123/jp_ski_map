@@ -502,10 +502,10 @@ for (const device of DEVICES) {
       page,
     }) => {
       await page.goto("/?mode=bus");
-      await expect(page.getByRole("tab", { name: /bus/i })).toHaveAttribute(
-        "aria-selected",
-        "true",
-      );
+      // on phones the sheet holding the tabs waits for a start (SPEC-web-app v1.15)
+      await expect(
+        page.getByRole("tab", { name: /bus/i, includeHidden: true }),
+      ).toHaveAttribute("aria-selected", "true");
       await expect(toBox(page)).toHaveCount(0);
     });
   });

@@ -51,11 +51,14 @@ export function TitleScreen() {
     document.cookie = `${TITLE_COOKIE}=seen; path=/; SameSite=Lax`;
     setOpen(false);
     // into the app: the first thing to do is search. On a touch screen focusing the
-    // box would raise the keyboard over the map, so focus lands on the sheet instead.
+    // box would raise the keyboard over the map, so focus lands on the sheet instead
+    // (or, before there is a start, on the search card holding the box).
     const touch = window.matchMedia?.("(pointer: coarse)").matches;
     document
       .querySelector<HTMLElement>(
-        touch ? "main [data-sheet]" : "main [role='combobox']",
+        touch
+          ? "main [data-sheet]:not([data-phone-hidden]), main [data-trip-header]"
+          : "main [role='combobox']",
       )
       ?.focus();
   };

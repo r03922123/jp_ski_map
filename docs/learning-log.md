@@ -2,6 +2,20 @@
 
 One entry per merged PR: the few "whys" worth remembering, in plain words. Newest on top.
 
+## 2026-11-11 · build new features: phone map first load, credits fold and the sheet waits for a start
+
+**1. Principle: a licence obligation sets the floor, the design works above it.**
+The ask was "credits behind the ⓘ from the start". OSM's attribution guidelines allow folding "automatically after five seconds" or on map interaction, but not hiding the credits before anyone has seen them. So the phone shows them on first display, folds them after five seconds, and the ⓘ brings them back.
+*Analogy:* a shop may fold its opening-hours sign away at night, but it can't open without ever putting the sign up.
+
+**2. Trade-off: hide the sheet with CSS visibility, not by unmounting it.**
+The search card on top of the phone screen is a child of the sheet. Unmounting the sheet would remove the search box too, and moving the card out would touch every layout rule built around it. `visibility: hidden` on the sheet with `visible` on the card keeps one component; hidden elements take no taps, so the map gets them. The cost: the sheet's hint on how to set a start no longer shows on phones.
+*Analogy:* turning off the lights in a room but leaving the lamp by the door on.
+
+**3. What could go wrong: something only the hidden sheet could reach.**
+Saved places live in the sheet, so "no start" alone would have hidden them; the rule is "no start and Saved closed". A `?mode=bus` link with no start keeps its mode, and the Bus tab is selected once a start is set. The title screen used to hand focus to the sheet, which a hidden element can't take, so it now falls back to the search card.
+*Analogy:* before closing a corridor, check no door opens only from it.
+
 ## 2026-11-11 · build new features (owner-approved exception): semantic search, MCP agent tools, timetable VLM
 
 **1. Principle: a saturated eval can't show progress, only regressions.**
