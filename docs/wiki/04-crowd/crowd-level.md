@@ -200,6 +200,7 @@ Two design choices worth noticing:
 One request, from tapping **Crowd (estimated)** to the sorted list:
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'actorBkg':'#2d333b','actorBorder':'#6d5dfc','actorTextColor':'#e6edf3','signalColor':'#8b949e','signalTextColor':'#e6edf3','noteBkgColor':'#161b22','noteBorderColor':'#30363d','noteTextColor':'#e6edf3','sequenceNumberColor':'#e6edf3'}}}%%
 sequenceDiagram
   autonumber
   participant U as Browser (SortControls / ResortList)
@@ -309,7 +310,7 @@ These came from calling `HeuristicCrowdSource(load_periods()).estimate(...)` wit
 | Sat 2026-02-21 | Happo-One | 0.85 | very_high | 3-day weekend (Emperor's Birthday), Lunar New Year week, Large, popular resort |
 | Tue 2026-11-03 | Happo-One | 0.55 | high | Public holiday (Culture Day), Large, popular resort |
 
-The last row is the known off-season issue "H": the app shows "Crowd: high (est.)" on a November holiday when resorts are closed, because November is not a season edge ([heuristic.py:108-109](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/crowd/heuristic.py#L108-L109)). An e2e test records it as an expected failure ([bus-trip-time.spec.ts:386-399](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/e2e/journeys/bus-trip-time.spec.ts#L386-L399)). Inference: the test sets the page clock to 2026-11-03, but the API uses the server's real clock (`get_today`), so the test only reproduces the issue when the server's date is also a holiday; `tasks/todo.md` notes it once passed unexpectedly for this reason ([tasks/todo.md:778](https://github.com/r03922123/jp_ski_map/blob/main/tasks/todo.md#L778)).
+The last row is the known off-season issue "H": the app shows "Crowd: high (est.)" on a November holiday when resorts are closed, because November is not a season edge ([heuristic.py:108-109](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/crowd/heuristic.py#L108-L109)). An e2e test records it as an expected failure ([bus-trip-time.spec.ts:386-399](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/e2e/journeys/bus-trip-time.spec.ts#L386-L399)). Inference: the test sets the page clock to 2026-11-03, but the API uses the server's real clock (`get_today`), so the test only reproduces the issue when the server's date gives some resort a score ≥ 0.55 (a Saturday, holiday, three-day weekend or peak period; e.g. Saturday Happo-One is 0.30 + 0.25 = 0.55, high, per [heuristic.py:82-93](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/crowd/heuristic.py#L82-L93)). On a plain weekday the `test.fail` test passes unexpectedly and is reported as a failure; `tasks/todo.md` notes it once passed unexpectedly for this reason ([tasks/todo.md:778](https://github.com/r03922123/jp_ski_map/blob/main/tasks/todo.md#L778)).
 
 ### Implementation notes
 

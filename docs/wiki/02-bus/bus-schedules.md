@@ -105,7 +105,7 @@ The router is mounted on the main app at [services/api/src/hakuba_api/main.py:80
 
 ### Data model (`models.py`)
 
-The JSON on disk is camelCase; Python uses snake_case. `ApiModel` (in `common/models.py`) handles the conversion (inference from the `by_alias=True` dumps at [locate_stops.py:237](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L237); not opened here).
+The JSON on disk is camelCase; Python uses snake_case. `ApiModel` (in `common/models.py`) handles the conversion: `BusStop`, `Timetable` and the other bus models inherit it ([bus/models.py:7](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/models.py#L7), [:15](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/models.py#L15)), and the writers dump `by_alias=True` ( [locate_stops.py:237](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L237)).
 
 ```mermaid
 %%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#2d333b','primaryBorderColor':'#6d5dfc','primaryTextColor':'#e6edf3','lineColor':'#8b949e'}}}%%
@@ -225,7 +225,7 @@ flowchart TD
   AMB -->|no| COR{"trusted stop on its<br>route within 1 km?"}
   COR -->|no| RJ
   COR -->|yes| L
-  L --> V{"every timed leg:<br>car time at most gap x 1.5 + 3 min;<br>untimed legs at most 8 km"}
+  L --> V{"every timed leg:<br>car time at most gap x 1.5 + 3 min;<br>untimed legs at most 8 km,<br>unless one end serves a resort"}
   V -->|fails| RJ
   V -->|passes| OK["bus_stops.json coord"]
   classDef n fill:#2d333b,stroke:#6d5dfc,color:#e6edf3
@@ -242,7 +242,7 @@ flowchart TD
 | GSI geocode | Accept only when the result title contains the lot number (番地) | Coarser matches are a village centre, not a building | [locate_stops.py:47-59](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L47-L59) |
 | Ambiguous GSI points | Reject a point shared by different parent lots | GSI uses one representative point for many rural lots | [locate_stops.py:68-80](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L68-L80) |
 | Corroboration | A trusted stop on the same route within 1 km | Catches a plausible-looking but wrong address | [locate_stops.py:143-152](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L143-L152) |
-| Timetable test | Valhalla drive ≤ scheduled gap × 1.5 + 180 s; untimed neighbours ≤ 8 km | The timetable itself is evidence of distance | [locate_stops.py:108-140](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L108-L140) |
+| Timetable test | Valhalla drive ≤ scheduled gap × 1.5 + 180 s; untimed neighbours ≤ 8 km, except a leg with a resort stop (the last pickup → resort leg may be long) | The timetable itself is evidence of distance | [locate_stops.py:108-140](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L108-L140) |
 
 The timed legs come from the first trip of each direction, since every trip of a direction shares its stop order ([locate_stops.py:88-99](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L88-L99)). With `--write`, rejected stops keep `coord: null` and get `coordSource: "unresolved: <reason>"` ([locate_stops.py:228-240](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/locate_stops.py#L228-L240)).
 
@@ -295,13 +295,13 @@ sequenceDiagram
   R->>S: load_stops() (cached)
   R->>V: matrix("walk", origin, 98 located stops)
   V-->>R: seconds per stop
-  R->>R: keep stops within 20 min, else 3 nearest; hotel-name stop = 0 s
+  R->>R: keep stops within 20 min, else 3 nearest, hotel-name stop = 0 s
   R->>S: load_timetables(), load_manifest_season()
   R->>Q: bus_options(walks, at, timetables, stops, alias)
   Q->>SE: effective_timetables(2026-03-20, day tables)
   SE-->>Q: V2 Mar 16-29 and others, basis "published"
   Q->>Q: per trip x boarding stop x later resort stop, build BusOption
-  Q->>Q: keep best per (route, direction, trip, resort); top 3 per resort
+  Q->>Q: keep best per (route, direction, trip, resort), top 3 per resort
   Q-->>R: BusResult(status "ok", resorts [...])
   R-->>W: JSON (camelCase)
 ```
@@ -384,7 +384,7 @@ The way back to a hotel has more rules, because the destination is not a resort 
 | Rows kept | 3 per resort, by arrival | 5 total, by departure; one row per trip; untimed buses leaving one stop together share a row | [query.py:298](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/query.py#L298), [query.py:302-315](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/query.py#L302-L315), [query.py:332-335](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/query.py#L332-L335) |
 | Extra fields | none | `walkToPlaceS`, `doorArrivesAt` | [query.py:288-291](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/query.py#L288-L291) |
 
-The night endpoint is simpler: nearest walkable stop, every printed departure that isn't the last stop, sorted, first six ([query.py:338-376](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/query.py#L338-L376)).
+The night endpoint is simpler: for every walkable stop (all within 20 min, else the 3 nearest, the same `walks` as above), every printed departure that isn't a direction's last stop and can be reached on foot in time, sorted, first six ([query.py:338-376](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/query.py#L338-L376)).
 
 ## Implementation: the web app side
 
@@ -396,7 +396,7 @@ The night endpoint is simpler: nearest walkable stop, every printed departure th
 | `busPlace` | In bus mode, a destination that isn't a resort switches to `/to-place` | [apps/web/src/components/MapShell.tsx:329-331](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/MapShell.tsx#L329-L331) |
 | Three `useQuery` calls | Exactly one is enabled at a time (resorts, place, or night) | [MapShell.tsx:335-366](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/MapShell.tsx#L335-L366) |
 | `busChoiceFor` | Drops a chosen bus that belongs to the other list | [apps/web/src/lib/nav/bus-place.ts:6-11](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/lib/nav/bus-place.ts#L6-L11) |
-| `stopMatchName` | Sends a place's name for hotel matching, but not "Dropped pin" | [bus-place.ts:13-18](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/lib/nav/bus-place.ts#L13-L18) |
+| `stopMatchName` | Sends a place's name for hotel matching, but not the placeholders "Dropped pin" or "Chosen place" | [bus-place.ts:13-18](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/lib/nav/bus-place.ts#L13-L18) |
 | Ride path | `POST /api/route/path` with drive costing through the located ride stops (approximate) | [MapShell.tsx:370-397](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/MapShell.tsx#L370-L397) |
 | Status messages | `awaiting_review`, `no_service` with next date, "No more departures" | [apps/web/src/components/BusPanel.tsx:294-315](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/BusPanel.tsx#L294-L315), [BusPanel.tsx:332-338](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/BusPanel.tsx#L332-L338) |
 | "Expected" badge | Shown when `basis === "expected"`, with the right one of two notices | [BusPanel.tsx:432-451](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/BusPanel.tsx#L432-L451) |
@@ -442,7 +442,7 @@ stateDiagram-v2
 | `/options` ignores boarding rules and treats every `null` as "not published" | It may offer a ride the `/to-place` rules would refuse | [SPEC-bus-schedules.md:187](https://github.com/r03922123/jp_ski_map/blob/main/SPEC-bus-schedules.md#L187) |
 | Projection repeats last season's mid-season revisions and ignores weekday drift | "Expected" times can be off; the UI says so | [SPEC-bus-schedules.md:99](https://github.com/r03922123/jp_ski_map/blob/main/SPEC-bus-schedules.md#L99) |
 | Ride path is Valhalla's drive route between stops | The drawn line is approximate | [MapShell.tsx:370](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/MapShell.tsx#L370) |
-| Two Konayuki stops have no coordinates yet | They can't be walked to (only matched by hotel name) | (Unknown – verify in data/bus_stops.json, `coordSource` of `stop-jr-minami-otari`, `stop-tsugaike-ent-uchikawa`) |
+| Two Konayuki stops have no coordinates yet | They can't be walked to (only matched by hotel name) | `data/bus_stops.json`: `stop-jr-minami-otari` and `stop-tsugaike-ent-uchikawa` have `coord: null`; their `coordSource` says they are printed only in the season PDF (Konayuki night bus) |
 
 ## References
 

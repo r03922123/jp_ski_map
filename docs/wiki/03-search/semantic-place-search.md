@@ -118,6 +118,7 @@ Two consequences you can derive from the code (**inference**, not tested directl
 ### One keystroke, end to end
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'actorBkg':'#2d333b','actorBorder':'#6d5dfc','actorTextColor':'#e6edf3','signalColor':'#8b949e','signalTextColor':'#e6edf3','noteBkgColor':'#161b22','noteBorderColor':'#30363d','noteTextColor':'#e6edf3','sequenceNumberColor':'#e6edf3'}}}%%
 sequenceDiagram
     autonumber
     participant U as SearchBox.tsx
@@ -169,6 +170,7 @@ Notes on ordering (read from the code):
 ### The fallback, as a state machine
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#2d333b','primaryBorderColor':'#6d5dfc','primaryTextColor':'#e6edf3','lineColor':'#8b949e'}}}%%
 stateDiagram-v2
     [*] --> CheckEnv
     CheckEnv --> LexicalOnly: HAKUBA_SEMANTIC_URL unset
@@ -299,7 +301,7 @@ Food, shop, resort and POI kinds skip the name check on purpose: that is where m
 Two leakage controls are worth copying into any project:
 
 1. **Split by entry, not by pair.** `split_of` hashes the entry id with SHA-1, so every query for one entry lands on the same side and the dev set holds names the model never trained on. The hash is stable across runs and machines, unlike a seeded shuffle that changes when the index grows ([synth.py:53-56](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/synth.py#L53-L56)).
-2. **Drop test queries from training.** `make_pairs` removes any query whose normalised form equals one in `hard_queries.json` ([synth.py:102-117](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/synth.py#L102-L117)), and a test asserts it ([test_synth_eval.py:85](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/tests/test_synth_eval.py#L85)). The first fine-tune had 13 of the 40 hard queries word for word in its training pairs ([SPEC-place-search.md:117](https://github.com/r03922123/jp_ski_map/blob/main/SPEC-place-search.md#L117)). Near-duplicates ("curry hakuba") can remain ([synth.py:5-7](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/synth.py#L5-L7)).
+2. **Drop test queries from training.** `make_pairs` removes any query whose normalised form equals one in `hard_queries.json` ([synth.py:102-117](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/synth.py#L102-L117)), and a test asserts it ([test_synth_eval.py:85](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/tests/test_synth_eval.py#L85)). The first fine-tune had 13 of the 40 hard queries word for word in its training pairs ([SPEC-place-search.md:117](https://github.com/r03922123/jp_ski_map/blob/main/SPEC-place-search.md#L117)). Near-duplicates ("ramen hakuba") can remain ([synth.py:5-7](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/synth.py#L5-L7)).
 
 ### Fine-tuning
 
@@ -309,7 +311,7 @@ Two leakage controls are worth copying into any project:
 
 ### Threshold calibration
 
-A cosine score only means something relative to one model. `threshold_for` sorts dev top-1 answers by score, walks down, and keeps the lowest score at which cumulative precision is still `>= precision` (default 0.9) ([calibrate.py:18-27](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/calibrate.py#L18-L27), [calibrate.py:33](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/calibrate.py#L33)). It calibrates on the synthetic dev split, never on the hard set or booking set, so the test sets stay untouched. It returns `inf` when no prefix reaches the target, which would make the server return nothing.
+A cosine score only means something relative to one model. `threshold_for` sorts dev top-1 answers by score, walks down, and keeps the lowest score at which the cumulative precision of that prefix is `>= precision` (any prefix, not stopping at the first dip) (default 0.9) ([calibrate.py:18-27](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/calibrate.py#L18-L27), [calibrate.py:33](https://github.com/r03922123/jp_ski_map/blob/main/ml/search/src/hakuba_search/calibrate.py#L33)). It calibrates on the synthetic dev split, never on the hard set or booking set, so the test sets stay untouched. It returns `inf` when no prefix reaches the target, which would make the server return nothing.
 
 The spec's result shows why this matters: the base model's guessed threshold (0.84) scored hit@5 0.65 on the hard set, but its calibrated threshold (0.9127) kept almost nothing (0.15, same as lexical); the fine-tuned model is usable at its calibrated 0.5387 (0.55) ([SPEC-place-search.md:128-134](https://github.com/r03922123/jp_ski_map/blob/main/SPEC-place-search.md#L128-L134)).
 

@@ -116,7 +116,7 @@ classDiagram
         +int distance_m
         +LineString geometry
         +Step[] steps
-        +str summary
+        +Optional~str~ summary
         +bool is_estimate = True
     }
     class Step {
@@ -133,8 +133,8 @@ classDiagram
     }
     class MatrixCell {
         +str id
-        +int duration_s
-        +int distance_m
+        +Optional~int~ duration_s
+        +Optional~int~ distance_m
     }
     RouteSet "1" --> "1..3" Route
     Route "1" --> "1" LineString
@@ -155,6 +155,7 @@ Python fields are snake_case; `ApiModel` uses `alias_generator=to_camel`, so the
 Example: the user picks a resort on the Drive tab with no extra stops. `MapShell` calls `fetchRoutes` because `viaStops` is empty ([MapShell.tsx:461](https://github.com/r03922123/jp_ski_map/blob/main/apps/web/src/components/MapShell.tsx#L461)).
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'actorBkg':'#2d333b','actorBorder':'#6d5dfc','actorTextColor':'#e6edf3','signalColor':'#8b949e','signalTextColor':'#e6edf3','noteBkgColor':'#161b22','noteBorderColor':'#30363d','noteTextColor':'#e6edf3','sequenceNumberColor':'#e6edf3'}}}%%
 sequenceDiagram
     autonumber
     participant UI as MapShell (routeQuery)
@@ -206,7 +207,7 @@ Other entry points use the same client:
 | Bus stops near a place | `valhalla.matrix("walk", place, located stops)` | Walk seconds to stops | [bus/router.py:87](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/router.py#L87) |
 | Nearby restaurants / konbini | 25 nearest by straight line, then one matrix call | Rank by travel time | [pois/query.py:10](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/pois/query.py#L10), [:33](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/pois/query.py#L33) |
 
-The internal matrix callers (ranking, bus) call `ValhallaClient.matrix` directly, so the 25-target cap on `MatrixRequest` does not apply to them ([router.py:72](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/router.py#L72) caps only the HTTP body). How many targets they send depends on the catalogue and stop data (Unknown – verify in `data/` resort access points and bus stops).
+The internal matrix callers (ranking, bus) call `ValhallaClient.matrix` directly, so the 25-target cap on `MatrixRequest` does not apply to them ([router.py:72](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/router.py#L72) caps only the HTTP body). Today the ranking sends 12 targets (the access points of 10 resorts in `data/resorts.json`, [ranking/router.py:52-53](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/ranking/router.py#L52-L53)), and every bus request sends 98 (all stops with coordinates in `data/bus_stops.json`, [bus/router.py:86-87](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/bus/router.py#L86-L87)). So each bus request holds the engine lock for a 98-target walk matrix.
 
 ### Error flow
 
@@ -249,11 +250,12 @@ flowchart TD
 
 **Why a lock.** FastAPI runs plain `def` endpoints on a thread pool, so two requests can hit the API at once. The `pyvalhalla` binding releases Python's GIL (global interpreter lock) during a call, and a shared Actor crashes the process under concurrent calls. So every call takes one `threading.Lock` ([engine.py:22](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L22), [:30-42](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L30-L42); rationale in [SPEC-deploy.md:125-130](https://github.com/r03922123/jp_ski_map/blob/main/SPEC-deploy.md#L125-L130)).
 
-**Why a bounded wait.** The C++ call cannot be interrupted, so a request waits at most `LOCK_WAIT_S = 10.0` s for the lock and then becomes a 503 `routing busy` instead of hanging ([engine.py:12](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L12), [:33-34](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L33-L34)). That is also why `/api/matrix` and `/api/route/path` cap their inputs at 25: one big request would hold the lock for everyone ([router.py:49](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/router.py#L49), [:72](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/router.py#L72)).
+**Why a bounded wait.** The C++ call cannot be interrupted, so a request waits at most `LOCK_WAIT_S = 10.0` s for the lock and then raises `RoutingUnavailableError("routing busy")`, which the client sees as a 503 `{"error": "routing_unavailable"}` instead of a hang ([engine.py:12](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L12), [:33-34](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L33-L34)). That is also why `/api/matrix` and `/api/route/path` cap their inputs at 25: one big request would hold the lock for everyone (this guards only the HTTP endpoints; the internal bus matrix above is larger) ([router.py:49](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/router.py#L49), [:72](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/router.py#L72)).
 
 **Why a hand-written singleton.** `get_engine` builds the Actor once per process under a separate `_build_lock`. It avoids `functools.cache` because racing threads may each run the cached function, which would build two Actors. A failed build is not stored, so the next request retries ([engine.py:45-63](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L45-L63)). The binding is imported lazily so the HTTP backend never needs it ([engine.py:56-57](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L56-L57)); the config is the tile tar only ([engine.py:58](https://github.com/r03922123/jp_ski_map/blob/main/services/api/src/hakuba_api/routing/engine.py#L58)).
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#2d333b','primaryBorderColor':'#6d5dfc','primaryTextColor':'#e6edf3','lineColor':'#8b949e'}}}%%
 stateDiagram-v2
     [*] --> NoEngine
     NoEngine --> Building : first request (holds _build_lock)
@@ -263,7 +265,7 @@ stateDiagram-v2
     Busy --> Ready : call returns or raises, finally releases _lock
     Ready --> Waiting : another thread holds _lock
     Waiting --> Busy : lock freed within 10 s
-    Waiting --> Ready : 10 s timeout, 503 "routing busy"
+    Waiting --> Ready : 10 s timeout, 503 routing_unavailable
 ```
 <!-- Sources: services/api/src/hakuba_api/routing/engine.py:12, services/api/src/hakuba_api/routing/engine.py:32-42, services/api/src/hakuba_api/routing/engine.py:45-63 -->
 
