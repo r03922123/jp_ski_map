@@ -166,7 +166,7 @@ def main() -> None:
     questions: list[dict[str, Any]] = json.loads((HERE / "trip_questions.json").read_text())
     if args.only:
         questions = [q for q in questions if q["id"] in args.only.split(",")]
-    api_url = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8011")
+    api_url = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8010")
     config = {
         "mcpServers": {"hakuba": {"command": str(SERVER), "env": {"HAKUBA_API_URL": api_url}}}
     }

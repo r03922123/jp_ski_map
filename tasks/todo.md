@@ -870,7 +870,7 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 ## Task J14: MCP tools in Claude chat (SPEC-agent-tools v2)
 - [x] PR #61: `/mcp/<token>` on Vercel (service `mcp`), stateless Streamable HTTP, GET → 405. Production 1d43e67 (2026-11-13): wrong token 404, initialize, 6 tools, search_place and next_buses live; site smoke 5/5
 - [ ] Owner: add the link from `~/.config/jp_ski_map/mcp-connector-url.txt` as a custom connector on claude.ai, ask a trip question from the phone app, then send the link to friends
-- [ ] Run the agent eval once (`services/mcp/evals/run_eval.py`) and save `last_run.md`. Set `HAKUBA_API_URL` to the production URL or a dev API: the default :8011 is off
+- [ ] Run the agent eval once (`services/mcp/evals/run_eval.py`) and save `last_run.md`. It uses the dev API on :8010 by default; set `HAKUBA_API_URL` to the production URL to test the deployed API
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).

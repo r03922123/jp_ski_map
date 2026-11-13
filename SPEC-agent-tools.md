@@ -19,7 +19,7 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 
 - Prompt `plan_ski_day(start, date)`: origin → snow/crowd → rank → bus or drive → answer with times, and say bus times are timetable estimates.
 - Errors: a 4xx/5xx becomes a `ToolError` with the API's `detail` ("Hakuba API 422 on /api/rank: from must be 'lat,lng'"); a connection failure says the API is not reachable. The model reads these and can retry.
-- Base URL: env `HAKUBA_API_URL`, default `http://127.0.0.1:8011` (the Mac standby API, off since 2026-11-13).
+- Base URL: env `HAKUBA_API_URL`, default `http://127.0.0.1:8010` (the dev API; set the production URL to use the deployed API).
 
 ## Eval
 `services/mcp/evals/trip_questions.json`: 8 trip questions in English, Chinese and Japanese. Each lists `required` tools, `optional` tools that are fine to call, and an `answer_regex`. `run_eval.py` runs each through headless Claude Code (`claude -p … --mcp-config … --strict-mcp-config --tools "" --allowedTools "mcp__hakuba__*" --output-format stream-json`), reads the `tool_use` events, and prints:
