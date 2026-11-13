@@ -12,10 +12,21 @@
           "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
         }
       ]
+    },
+    "mcp": {
+      "root": "services/mcp/",
+      "entrypoint": "src.hakuba_mcp.remote:app",
+      "headers": [
+        {
+          "source": "/(.*)",
+          "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
+        }
+      ]
     }
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/mcp/(.*)", "destination": { "service": "mcp" } },
     { "source": "/(.*)", "destination": { "service": "web" } }
   ]
 }
