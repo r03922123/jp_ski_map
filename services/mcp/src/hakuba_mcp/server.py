@@ -12,7 +12,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
-API_URL = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8011").rstrip("/")
+API_URL = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8010").rstrip("/")
 TIMEOUT_S = 30.0  # a cold Valhalla matrix or Open-Meteo fetch can take several seconds
 
 SortKey = Literal[
