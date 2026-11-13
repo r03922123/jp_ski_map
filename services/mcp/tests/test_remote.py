@@ -26,7 +26,7 @@ def post(path: str, body: object) -> httpx.Response:
         async with httpx.AsyncClient(transport=transport, base_url="https://x.test") as c:
             return await c.post(path, content=json.dumps(body), headers=HEADERS)
 
-    return asyncio.run(go())
+    return asyncio.run(asyncio.wait_for(go(), 5))  # in-process ASGI ignores httpx timeouts
 
 
 @pytest.fixture
@@ -77,7 +77,7 @@ def request(method: str, path: str) -> httpx.Response:
         async with httpx.AsyncClient(transport=transport, base_url="https://x.test") as c:
             return await c.request(method, path, headers=HEADERS, timeout=5)
 
-    return asyncio.run(go())
+    return asyncio.run(asyncio.wait_for(go(), 5))  # in-process ASGI ignores httpx timeouts
 
 
 def test_token_prefix_and_suffix_are_404(token: str) -> None:
@@ -113,4 +113,7 @@ def test_lifespan_starts_and_stops() -> None:
         await remote.app({"type": "lifespan"}, inbox.get, send)  # pyright: ignore[reportArgumentType]
         return sent
 
-    assert asyncio.run(go()) == ["lifespan.startup.complete", "lifespan.shutdown.complete"]
+    assert asyncio.run(asyncio.wait_for(go(), 5)) == [
+        "lifespan.startup.complete",
+        "lifespan.shutdown.complete",
+    ]
