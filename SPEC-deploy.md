@@ -150,7 +150,7 @@ on the Mac keeps serving until cutover.
      `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. A `git archive` holds no link, and an unlinked folder is
      how Probe P created a new project. Stop if the link is missing; never let the CLI create a project.
    - Print the commit it deploys, then run `vercel deploy --environment preview`, or
-     `vercel deploy --prod` only when asked. Without the flag, a new project's first deploy goes to
+     `vercel deploy --prod` only with `--prod`. Without the flag, a new project's first deploy goes to
      production, as it did at Probe P.
    - **A new project's first deploy can't be a preview.** On 2026-11-10 Vercel refused
      `--environment preview` with `first_deployment_production` ("a project's first deployment is
@@ -285,14 +285,14 @@ plus a temporary `x-boot-id` and `x-client-key` header that never reached `main`
 - **Always:** deploy only through the script; hold the lock around every Actor call; keep the HTTP
   backend; verify the tile hash; keep the map and data credits visible.
 - **Ask first:** creating the Vercel account or linking the project (the owner does this); the real
-  project's first deploy; adding the `pyvalhalla` dependency; turning Funnel off; sending friends the new link.
-- **Ask first, with the cost and its source:** upgrading to Pro or adding a card.
-- **Never:** call one Actor from two threads without the lock; commit
-  or publish tiles; make the app commercial on Hobby; serve the dev server publicly.
+  project's first deploy; adding the `pyvalhalla` dependency; turning Funnel off; sending friends the new link;
+  upgrading to Pro or adding a card (the owner does this; give the cost, its source and how it stays capped).
+- **Never:** call one Actor from two threads without the lock; commit or publish tiles; make the app
+  commercial on Hobby; serve the dev server publicly.
 
 #### If Vercel is a no-go
 Stay on Phase A (the Mac) and reopen the choice with the owner. The candidates are the Oracle section
-kept below, then AWS Lightsail at $7 a month, which needs the owner's OK to break the $0 rule.
+kept below, then AWS Lightsail at $7 a month, which needs the owner's OK (CLAUDE.md spend rule).
 
 **Oracle Always Free VM (the v1.5 plan, not built):**
 - One Ampere A1 VM in the home region (Tokyo or Osaka if capacity allows), run with Docker Compose:
@@ -405,10 +405,9 @@ tailscale down && tailscale up --hostname=hakuba-map   # rebuilds every path; th
 - **Always:** only the web port is public; check `/api/health` before turning Funnel on; keep the
   credits (OSM, OpenFreeMap, Open-Meteo, Hakuba Valley, Overture) visible.
 - **Ask first:** turning Funnel on (each time it goes public after a change to what it exposes);
-  creating the Oracle account or VM; changing the GitHub repo's visibility; adding any hosting service not listed here.
-- **Ask first, with the cost and its source:** upgrading any account to paid; adding a card to Render/Vercel.
-- **Never:** open inbound ports on the home router;
-  publicly serve the API anywhere but `/api` on the site's origin, or expose Valhalla as a network service
+  creating the Oracle account or VM; changing the GitHub repo's visibility; adding any hosting service not listed here;
+  upgrading any account to paid or adding a card to Render/Vercel (give the cost, its source and how it stays capped).
+- **Never:** open inbound ports on the home router; publicly serve the API anywhere but `/api` on the site's origin, or expose Valhalla as a network service
   (Phase A binds it to `127.0.0.1`; Phase B has no such service); serve the dev server publicly.
 
 ## Evidence (checked 2026-10-31)
