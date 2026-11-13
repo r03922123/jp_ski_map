@@ -6,8 +6,8 @@
   (`pnpm lint` rewrites files), `typecheck`, `test`, and `build` in a worktree only. Deploy script:
   `sh scripts/test-deploy-vercel.sh`. One test: `uv run --directory services/api --frozen pytest tests/test_health.py -q`,
   `pnpm --dir apps/web test tests/PinCard.test.tsx`, `pnpm --dir apps/web e2e e2e/map.spec.ts`.
-- e2e starts or reuses whatever answers on :8010 and :3000; in the main checkout :3000 is the standby build, so point
-  `E2E_BASE_URL` at your own server, and add `E2E_PROD=1` against `next start` or a deploy.
+- e2e starts or reuses whatever answers on :8010 and :3000, so point `E2E_BASE_URL` at your own server, and add
+  `E2E_PROD=1` against `next start` or a deploy.
 - Start the web server with `pnpm dev`: it copies the gitignored MapLibre worker first, and without it every map test
   times out. Turbopack can serve a stale `globals.css` after a restart: grep the served CSS before trusting a
   screenshot, and `rm -rf apps/web/.next/dev` if it's old.
@@ -21,7 +21,12 @@
   source (the provider's pricing page or a measured estimate).
 - Production is Vercel Hobby (`hnd1`, SPEC-deploy Phase B). Deploy only with `scripts/deploy-vercel.sh` (preview; `--prod` for production), from a checkout that has `.vercel/project.json` and the built tiles. Smoke-test after each deploy: `PROD_URL=<url> pnpm exec playwright test -c e2e-prod/playwright.config.ts` in apps/web (a protected preview also needs `VERCEL_AUTOMATION_BYPASS_SECRET`). Don't write the production URL into the repo: it's public.
 - Vercel needs `PYTHONPATH=/var/task/src` (the bundle is too big for Vercel to install the package itself); the env vars are in SPEC-deploy Phase B Changes item 9.
-- The Mac is the standby: Tailscale Funnel still serves the old link until friends move their saved lists. The API binds 127.0.0.1 only.
+- Production runs only on Vercel. The Mac standby (Funnel, :3000, :8011) and the Valhalla container were shut down on
+  2026-11-13 at the owner's word; `scripts/serve-public.sh --funnel` brings the standby back. The API binds 127.0.0.1 only.
+- The Vercel CLI isn't on PATH: it runs from the npx cache (`npx vercel@65.14.0`). `vercel curl <preview URL>` gets past
+  preview protection without the bypass secret.
+- MCP for Claude chat: production serves the tools at `/mcp/<HAKUBA_MCP_TOKEN>` (SPEC-agent-tools v2). The token lives
+  only in Vercel's env and the owner's `~/.config/jp_ski_map/mcp-connector-url.txt`; never commit or print it.
 - A new worktree has no dependencies: run `uv sync` in services/api and `pnpm install` in apps/web.
 - ML experiments (owner-approved 2026-11-11): `ml/search` (embedding server on :8032, fine-tune, evals → local MLflow), `ml/timetable_vlm` (local VLM drafts, never served), `services/mcp` (agent tools). Each is its own uv project; use `uvx --from 'uv==0.9.30' uv sync`. Semantic search is off unless the API has `HAKUBA_SEMANTIC_URL`. Only one model trains at a time: two at once swap the 16 GB Mac to a halt.
-- The main checkout serves the Mac standby (:3000, :8011) and the shared Valhalla (:8002). In a worktree: use free ports, set `API_URL` for the web server and `E2E_BASE_URL=http://127.0.0.1:<port>` for e2e, and don't run `docker compose` or `serve-public.sh`. In the main checkout, only `serve-public.sh` runs `pnpm build`.
+- Valhalla (:8002) is shared by every checkout and is stopped: start it from the main checkout with `docker compose -f infra/docker-compose.yml up -d valhalla` when routing work needs it. In a worktree: use free ports, set `API_URL` for the web server and `E2E_BASE_URL=http://127.0.0.1:<port>` for e2e, and don't run `docker compose` or `serve-public.sh`. In the main checkout, only `serve-public.sh` runs `pnpm build`.

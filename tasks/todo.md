@@ -865,6 +865,12 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 - [x] Checkpoint S on a preview: every row in SPEC-deploy.md, including the real API's cold start and the iPhone credits screenshot. Every no-go row passed 2026-11-11 (cold start median 4.75 s); results table in SPEC-deploy.md. Partly met: warm latency measured from home Wi-Fi, Mac standby only partly rehearsed
 - [x] PR 7: docs final (`SPEC-deploy.md` results, `docs/ARCHITECTURE.md` including its open phone-credits note, project `CLAUDE.md`, and the two Oracle mentions in `SPEC.md`)
 - [ ] Cutover: production deploy and smoke (owner pre-approved 2026-11-10), new link to friends (the owner sends it), Funnel off (the owner, after friends move their saved lists). Done when SPEC-deploy.md Phase B success criteria 1 to 5 hold; 2 (phone on mobile data, Mac lid closed) is the owner's check
+  - 2026-11-13: the owner asked to run on Vercel only. Funnel off, the standby API and web stopped, the Valhalla container stopped. Still the owner's: criterion 2 on a phone, and telling friends who still use the old link
+
+## Task J14: MCP tools in Claude chat (SPEC-agent-tools v2)
+- [x] PR #61: `/mcp/<token>` on Vercel (service `mcp`), stateless Streamable HTTP, GET → 405. Production 1d43e67 (2026-11-13): wrong token 404, initialize, 6 tools, search_place and next_buses live; site smoke 5/5
+- [ ] Owner: add the link from `~/.config/jp_ski_map/mcp-connector-url.txt` as a custom connector on claude.ai, ask a trip question from the phone app, then send the link to friends
+- [ ] Run the agent eval once (`services/mcp/evals/run_eval.py`) and save `last_run.md`
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
