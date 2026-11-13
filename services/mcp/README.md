@@ -12,14 +12,14 @@ cd services/mcp
 uvx --from 'uv==0.9.30' uv sync
 ```
 
-The server reads `HAKUBA_API_URL` (default `http://127.0.0.1:8011`, the local API).
+The server reads `HAKUBA_API_URL` (default `http://127.0.0.1:8011`, the Mac standby API, which is off since 2026-11-13: point it at the production URL or a dev API on :8010).
 
 ## Use it from Claude Code
 Register it for your user only (no repo `.mcp.json`, so other sessions in this repo aren't prompted):
 
 ```bash
 claude mcp add hakuba --scope user \
-  --env HAKUBA_API_URL=http://127.0.0.1:8011 \
+  --env HAKUBA_API_URL=<production URL, or http://127.0.0.1:8010 for a dev API> \
   -- "$PWD/.venv/bin/hakuba-mcp"
 ```
 
@@ -46,6 +46,6 @@ uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --out evals/last_run.md
 ```
 
 - It uses your Claude Code subscription login (run `claude` and `/login` once if it says "Login expired"). It removes `ANTHROPIC_*` variables first, so it never bills API credit.
-- The API must be answering: `curl -s 127.0.0.1:8011/api/health`.
+- The API must be answering: `curl -s "$HAKUBA_API_URL/api/health"`.
 
 Last run: not yet recorded (the headless CLI's login had expired when this was built; see `evals/last_run.md` once it runs).
