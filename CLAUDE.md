@@ -17,7 +17,8 @@
   rewrites the whole lock.
 - main is protected: changes land through a PR with CI green, committed with the repo-local noreply identity.
   GitHub deletes merged branches, so check the PR is still open before pushing to it.
-- Cost must stay $0 (SPEC-deploy.md). Any paid API, cloud account, or service needs my OK first.
+- A small capped spend is allowed, but ask me before any operation that costs money, with the expected cost and its
+  source (the provider's pricing page or a measured estimate).
 - Production is Vercel Hobby (`hnd1`, SPEC-deploy Phase B). Deploy only with `scripts/deploy-vercel.sh` (preview; `--prod` for production), from a checkout that has `.vercel/project.json` and the built tiles. Smoke-test after each deploy: `PROD_URL=<url> pnpm exec playwright test -c e2e-prod/playwright.config.ts` in apps/web (a protected preview also needs `VERCEL_AUTOMATION_BYPASS_SECRET`). Don't write the production URL into the repo: it's public.
 - Vercel needs `PYTHONPATH=/var/task/src` (the bundle is too big for Vercel to install the package itself); the env vars are in SPEC-deploy Phase B Changes item 9.
 - The Mac is the standby: Tailscale Funnel still serves the old link until friends move their saved lists. The API binds 127.0.0.1 only.

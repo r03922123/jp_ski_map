@@ -197,13 +197,12 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
 - **Ask first:**
   - Adding a dependency that isn't in the stack table.
   - Adding a database.
-  - Adding any paid API, or any API that needs a key.
+  - Adding any paid API, or any API that needs a key. Give the expected cost and its source.
   - Adding a region beyond Hakuba.
   - Changing a module boundary or the capability map.
-  - Deploying anywhere public.
 - **Never:**
   - Commit secrets or the Valhalla tiles / raw timetable downloads.
-  - Call the Claude API, or any paid API, from code.
+  - Call the Claude API from code (the API credit is reserved; SPEC-agent-tools).
   - Scrape Google Maps or Google Popular Times, or any source whose terms forbid it.
   - Publish bus timetable JSON that hasn't passed the validator and human review.
   - Skip or delete failing tests to get green.
