@@ -25,6 +25,11 @@ claude mcp add hakuba --scope user \
 
 Then ask, for example, "I'm at JR Hakuba Station on 2026-12-26, which resort and which bus?" or run the `plan_ski_day` prompt.
 
+## Use it from Claude chat (desktop and phone)
+Production also serves these tools over Streamable HTTP at `https://<production URL>/mcp/<HAKUBA_MCP_TOKEN>` (`src/hakuba_mcp/remote.py`, SPEC-agent-tools v2). The token lives only in Vercel's environment; whoever has the full link can use the tools, so share it only with friends.
+
+On claude.ai: Settings → Connectors → Add custom connector → paste the full link, no OAuth settings. Connectors added on the web also work in the desktop and phone apps. A Free plan allows one custom connector.
+
 ## Checks
 ```bash
 uvx --from 'uv==0.9.30' uv run pytest -q
