@@ -2,7 +2,7 @@
 # Deploy the committed code to Vercel (SPEC-deploy Phase B, Changes item 8). The only way to deploy.
 #
 #   scripts/deploy-vercel.sh          preview
-#   scripts/deploy-vercel.sh --prod   production: ask the owner first
+#   scripts/deploy-vercel.sh --prod   production: say so in the report
 #
 # Uploads a temp folder built from `git archive HEAD`, so uncommitted files (.env, .ux-evidence,
 # .run) can't leave this machine. Every check runs before the first `vercel` call.

@@ -216,7 +216,7 @@ class InProcessEngine:
 uv run pytest                                  # services/api; the fake-Actor tests run in CI
 uv run pytest -m live                          # needs local tiles and Valhalla
 scripts/deploy-vercel.sh                       # protected preview
-scripts/deploy-vercel.sh --prod                # ask first
+scripts/deploy-vercel.sh --prod                # production; say so in the report
 PROD_URL=https://<url> pnpm exec playwright test -c e2e-prod/playwright.config.ts   # apps/web
 vercel billing usage --since 30d --group-by project
 ```
@@ -285,8 +285,9 @@ plus a temporary `x-boot-id` and `x-client-key` header that never reached `main`
 - **Always:** deploy only through the script; hold the lock around every Actor call; keep the HTTP
   backend; verify the tile hash; keep the map and data credits visible.
 - **Ask first:** creating the Vercel account or linking the project (the owner does this); the real
-  project's first deploy; production deploys; adding the `pyvalhalla` dependency; turning Funnel off; sending friends the new link.
-- **Never:** upgrade to Pro or add a card; call one Actor from two threads without the lock; commit
+  project's first deploy; adding the `pyvalhalla` dependency; turning Funnel off; sending friends the new link.
+- **Ask first, with the cost and its source:** upgrading to Pro or adding a card.
+- **Never:** call one Actor from two threads without the lock; commit
   or publish tiles; make the app commercial on Hobby; serve the dev server publicly.
 
 #### If Vercel is a no-go
@@ -405,7 +406,8 @@ tailscale down && tailscale up --hostname=hakuba-map   # rebuilds every path; th
   credits (OSM, OpenFreeMap, Open-Meteo, Hakuba Valley, Overture) visible.
 - **Ask first:** turning Funnel on (each time it goes public after a change to what it exposes);
   creating the Oracle account or VM; changing the GitHub repo's visibility; adding any hosting service not listed here.
-- **Never:** upgrade any account to paid; add a card to Render/Vercel; open inbound ports on the home router;
+- **Ask first, with the cost and its source:** upgrading any account to paid; adding a card to Render/Vercel.
+- **Never:** open inbound ports on the home router;
   publicly serve the API anywhere but `/api` on the site's origin, or expose Valhalla as a network service
   (Phase A binds it to `127.0.0.1`; Phase B has no such service); serve the dev server publicly.
 
