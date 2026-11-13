@@ -12,7 +12,7 @@ cd services/mcp
 uvx --from 'uv==0.9.30' uv sync
 ```
 
-The server reads `HAKUBA_API_URL` (default `http://127.0.0.1:8011`, the local API).
+The server reads `HAKUBA_API_URL` (default `http://127.0.0.1:8011`, the Mac standby API, which is off since 2026-11-13: point it at the production URL or a dev API on :8010).
 
 ## Use it from Claude Code
 Register it for your user only (no repo `.mcp.json`, so other sessions in this repo aren't prompted):
