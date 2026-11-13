@@ -30,8 +30,17 @@ async def app(scope: Scope, receive: Receive, send: Send) -> None:
             await send({"type": "lifespan.startup.complete"})
         await send({"type": "lifespan.shutdown.complete"})
         return
-    if scope["type"] != "http" or not _allowed(scope["path"]):
+    if scope["type"] != "http":
+        return  # no websockets on Vercel
+    if not _allowed(scope["path"]):
         await PlainTextResponse("Not Found", status_code=404)(scope, receive, send)
+        return
+    if scope["method"] != "POST":
+        # A stateless server never writes to a GET event stream, so it would hang until the
+        # platform kills the function. 405 tells MCP clients there is no stream.
+        await PlainTextResponse("POST only", status_code=405, headers={"Allow": "POST"})(
+            scope, receive, send
+        )
         return
     # One manager per request: serverless instances share no memory, and the platform may not
     # run the ASGI lifespan a long-lived manager needs. The SDK has no public handle on this server.

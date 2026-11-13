@@ -15,7 +15,13 @@
     },
     "mcp": {
       "root": "services/mcp/",
-      "entrypoint": "src.hakuba_mcp.remote:app"
+      "entrypoint": "src.hakuba_mcp.remote:app",
+      "headers": [
+        {
+          "source": "/(.*)",
+          "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
+        }
+      ]
     }
   },
   "rewrites": [
