@@ -24,6 +24,7 @@ Give each resort a snow picture that can be compared across resorts: current dep
 - [ ] Unit tests against a recorded Open-Meteo fixture: 24/72 h sums are computed correctly from hourly/daily data.
 - [ ] `asOf` and `source` are always shown in the UI.
 - [x] When Open-Meteo fails, the last good reports are served until their `asOf` is 6 h old (stale-if-error), and the failure is remembered for 60 s, so later requests answer at once instead of each waiting on its 15 s timeout. Requests that miss the cache together share one fetch. Running out of our own request budget is not a failure: it serves the last good report too, is not remembered, and with nothing to serve stays a 503 `upstream_busy`. A real failure with nothing to serve is still a 502 (`tests/snow/test_stale.py`). The fallback lives in the API process's memory, so a fresh serverless instance has none.
+- [x] An old report says so wherever it is shown. The resort card adds a line "Snow as of MM/DD HH:MM" once the report is over 90 minutes old, which also covers a list left open (`apps/web/tests/ResortList.test.tsx`); the Details line always has the time. The agent tools return `snowAsOf` and tell the model to say it when it is over an hour old (SPEC-agent-tools).
 
 ## Boundaries
 - Never: scrape sources whose terms forbid it (e.g. snow-forecast.com, unless allowed). Ask first before adding any new source.
