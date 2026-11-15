@@ -165,7 +165,9 @@ What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the
    upstream call that was really made (`open-meteo;dur=1106.5, valhalla;dur=120.2, total;dur=1239.6`
    for a first request, `valhalla;dur=9.2, total;dur=10.5` once the snow is cached); browser dev
    tools draw it in the Network tab. A request over 1 s or a 5xx is logged with the same breakdown.
-   Neither carries the query string.
+   Neither carries the query string. An entry means the request was really sent: a call our own
+   rate budget refused is not listed. An unhandled error is logged too, but its 500 has no header,
+   because Starlette writes that answer outside every middleware.
 
 **In the API** (`ranking/router.py` `get_rank`, three inputs gathered with FastAPI `Depends`)
 
