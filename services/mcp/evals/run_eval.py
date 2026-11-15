@@ -8,8 +8,10 @@ API directly. Usage (from services/mcp):
 
 import argparse
 import json
+import math
 import os
 import re
+import statistics
 import subprocess
 import tempfile
 import time
@@ -35,12 +37,14 @@ class Outcome:
     turns: int
     seconds: float
     error: str = ""
+    cost_usd: float = 0.0
 
 
-def parse_stream(lines: list[str]) -> tuple[list[str], str, int, str]:
-    """Tool names called (in order, prefix stripped), final answer, turns, error subtype."""
+def parse_stream(lines: list[str]) -> tuple[list[str], str, int, str, float]:
+    """Tool names called (in order, prefix stripped), final answer, turns, error subtype,
+    and the run's cost in USD as the CLI reports it (what the API would have charged)."""
     called: list[str] = []
-    answer, turns, error = "", 0, ""
+    answer, turns, error, cost = "", 0, "", 0.0
     for line in lines:
         try:
             event: dict[str, Any] = json.loads(line)
@@ -53,11 +57,12 @@ def parse_stream(lines: list[str]) -> tuple[list[str], str, int, str]:
         elif event.get("type") == "result":
             answer = str(event.get("result") or "")
             turns = int(event.get("num_turns") or 0)
+            cost = float(event.get("total_cost_usd") or 0.0)
             if event.get("is_error"):
                 error = answer[:120] or str(event.get("subtype"))
             elif event.get("subtype") != "success":
                 error = str(event.get("subtype"))
-    return called, answer, turns, error
+    return called, answer, turns, error, cost
 
 
 def score(q: dict[str, Any], called: list[str], answer: str) -> dict[str, Any]:
@@ -120,16 +125,17 @@ def run_one(q: dict[str, Any], mcp_config: Path, model: str | None) -> Outcome:
             )
         except subprocess.TimeoutExpired:
             return Outcome(q["id"], q["lang"], [], "", 0, TIMEOUT_S, "timeout")
-    called, answer, turns, error = parse_stream(proc.stdout.splitlines())
+    called, answer, turns, error, cost = parse_stream(proc.stdout.splitlines())
     if proc.returncode and not error:
         error = f"exit {proc.returncode}: {proc.stderr.strip()[:200]}"
-    return Outcome(q["id"], q["lang"], called, answer, turns, time.monotonic() - start, error)
+    seconds = time.monotonic() - start
+    return Outcome(q["id"], q["lang"], called, answer, turns, seconds, error, cost)
 
 
 def report(questions: list[dict[str, Any]], outcomes: list[Outcome]) -> str:
     rows = [
-        "| id | lang | pass | tools called | missing | extra | answer check | turns | s |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| id | lang | pass | tools called | missing | extra | answer check | turns | s | $ |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     hit = required = relevant = distinct = passed = 0
     details: list[str] = []
@@ -142,15 +148,23 @@ def report(questions: list[dict[str, Any]], outcomes: list[Outcome]) -> str:
         rows.append(
             f"| {o.id} | {o.lang} | {'PASS' if s['passed'] else 'FAIL'} | "
             f"{', '.join(o.called) or '-'} | {', '.join(s['missing']) or '-'} | "
-            f"{', '.join(s['extra']) or '-'} | {check} | {o.turns} | {o.seconds:.0f} |"
+            f"{', '.join(s['extra']) or '-'} | {check} | {o.turns} | {o.seconds:.0f} | "
+            f"{o.cost_usd:.3f} |"
         )
         excerpt = " ".join(o.answer.split())[:300]
         details.append(f"- **{o.id}**{f' (error: {o.error})' if o.error else ''}: {excerpt}")
     precision = relevant / distinct if distinct else 0.0
     recall = hit / required if required else 0.0
+    n = len(outcomes)
+    rate = passed / n if n else 0.0
+    # binomial standard error: with 8 questions one answer moves the rate by 0.125
+    se = math.sqrt(rate * (1 - rate) / n) if n else 0.0
+    cost = sum(o.cost_usd for o in outcomes)
     summary = (
-        f"**{passed}/{len(outcomes)} passed** · tool-call precision {precision:.2f} "
-        f"({relevant}/{distinct}) · recall {recall:.2f} ({hit}/{required})"
+        f"**{passed}/{n} passed** ({rate:.2f} ± {se:.2f} SE) · tool-call precision "
+        f"{precision:.2f} ({relevant}/{distinct}) · recall {recall:.2f} ({hit}/{required}) · "
+        f"cost ${cost:.2f} (${cost / n if n else 0.0:.3f} per question) · "
+        f"median {statistics.median(o.seconds for o in outcomes) if n else 0.0:.0f} s"
     )
     return "\n".join([summary, "", *rows, "", "Answer excerpts:", "", *details, ""])
 

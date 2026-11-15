@@ -25,6 +25,7 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 `services/mcp/evals/trip_questions.json`: 8 trip questions in English, Chinese and Japanese. Each lists `required` tools, `optional` tools that are fine to call, and an `answer_regex`. `run_eval.py` runs each through headless Claude Code (`claude -p … --mcp-config … --strict-mcp-config --tools "" --allowedTools "mcp__hakuba__*" --output-format stream-json`), reads the `tool_use` events, and prints:
 - pass = every required tool called and the answer matches the regex;
 - recall = required tools called / required tools; precision = distinct calls that were required or optional / distinct calls.
+- the pass rate with its standard error (8 questions: one answer is 0.125), the cost per question in USD as the CLI reports it (`total_cost_usd`: what the API would have charged; the subscription is not billed per run), and the median seconds per question.
 
 ## Acceptance Criteria
 - [ ] `pytest`, `ruff check`, `ruff format --check`, `pyright` (strict) pass in `services/mcp`; tests use respx, no network.
