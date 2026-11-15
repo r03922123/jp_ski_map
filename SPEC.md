@@ -178,7 +178,7 @@ export function ResortList({ resorts, onSelect }: { resorts: RankedResort[]; onS
 | Level | Tool | What |
 |---|---|---|
 | Unit | pytest | Pure logic: ranking scores, crowd heuristic, bus query, timetable validator, coordinate conversion |
-| Contract | pytest + recorded fixtures (`respx`) | Adapters for Valhalla, Photon, Overpass, Open-Meteo against recorded responses. **No live network in the default test run.** |
+| Contract | pytest + recorded fixtures (`respx`) | Adapters for Valhalla, Photon, Overpass, Open-Meteo against recorded responses. **No live network in the default test run**: in the API's tests a call nobody faked fails its test (`tests/conftest.py`). |
 | Data | pytest | Every file in `data/` passes Pydantic validation and cross-reference checks (stop ids exist, resort ids exist) |
 | Integration | pytest, marker `@pytest.mark.live` | Real Valhalla container + real upstream APIs; run on demand: `pytest -m live` |
 | Component | Vitest + Testing Library | Panels and list rendering, mode switching |
