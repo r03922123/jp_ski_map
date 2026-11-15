@@ -139,6 +139,16 @@ def test_a_failed_call_is_still_timed() -> None:
     assert names(response.headers["server-timing"]) == ["open-meteo", "total"]
 
 
+def test_a_call_that_never_answers_is_still_timed() -> None:
+    # the case the header is for: the time spent waiting on a request that raised
+    with respx.mock() as upstream:
+        upstream.get(OPEN_METEO_URL).mock(side_effect=httpx.ConnectTimeout("no answer"))
+        response = TestClient(app).get("/api/snow")
+
+    assert response.status_code == 502
+    assert names(response.headers["server-timing"]) == ["open-meteo", "total"]
+
+
 # --- a call that never happened is not listed -----------------------------------
 
 
