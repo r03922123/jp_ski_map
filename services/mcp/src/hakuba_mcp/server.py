@@ -60,6 +60,11 @@ def _min(seconds: float | None) -> float | None:
     return None if seconds is None else round(seconds / 60, 1)
 
 
+def _to_minute(iso: str | None) -> str | None:
+    """An ISO time cut to the minute, as the bus times are (local time, JST)."""
+    return iso[:16] if iso else None
+
+
 @mcp.tool(annotations=READ_ONLY)
 def search_place(query: str, limit: int = 5) -> list[dict[str, Any]]:
     """Find a hotel, station or any place in Hakuba by name (English or Japanese) or a
@@ -97,7 +102,9 @@ def rank_resorts(
     terrain_size (runs), vertical (m), price (cheapest day ticket, JPY).
     date: YYYY-MM-DD for the crowd estimate (default today, JST). Filters are optional.
     Each item gives resortId, driveMin, sortValue (in the sort's unit), snow in cm and
-    crowdLevel (low/medium/high/very_high).
+    crowdLevel (low/medium/high/very_high). snowAsOf is the local time the snow figures
+    are from; if it is over an hour old the weather service was unreachable and this is
+    the last good report, so tell the user that time.
     """
     ranked = _get(
         "/api/rank",
@@ -123,6 +130,7 @@ def rank_resorts(
                 "driveMin": _min(r.get("driveS")),
                 "summitDepthCm": _obj(snow.get("depthCm")).get("summit"),
                 "newSnow24hCm": _obj(snow.get("newSnowCm")).get("past24h"),
+                "snowAsOf": _to_minute(snow.get("asOf")),
                 "crowdLevel": crowd.get("level"),
             }
         )
@@ -232,9 +240,11 @@ def nearby_pois(
 def crowd_and_snow(date: str | None = None) -> list[dict[str, Any]]:
     """Crowd estimate and snow for every resort. Use it to compare conditions before ranking.
 
-    date: YYYY-MM-DD for the crowd estimate (default today, JST). Snow is the current
-    model forecast (Open-Meteo), whatever the date. Units: cm for snow, crowdScore 0..1,
-    crowdLevel low/medium/high/very_high. Crowd is a heuristic estimate.
+    date: YYYY-MM-DD for the crowd estimate (default today, JST). Snow is the model
+    forecast (Open-Meteo) as of snowAsOf (local time), whatever the date; if that is over
+    an hour old the weather service was unreachable and this is the last good report, so
+    tell the user that time. Units: cm for snow, crowdScore 0..1, crowdLevel
+    low/medium/high/very_high. Crowd is a heuristic estimate.
     """
     crowd = _get("/api/crowd", {"date": date})
     snow = {s["resortId"]: s for s in _get("/api/snow")}
@@ -254,6 +264,7 @@ def crowd_and_snow(date: str | None = None) -> list[dict[str, Any]]:
                 "newSnowPast24hCm": new.get("past24h"),
                 "newSnowNext24hCm": new.get("next24h"),
                 "newSnowNext72hCm": new.get("next72h"),
+                "snowAsOf": _to_minute(s.get("asOf")),
             }
         )
     return out
