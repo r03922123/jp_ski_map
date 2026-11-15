@@ -37,7 +37,7 @@ class Outcome:
     turns: int
     seconds: float
     error: str = ""
-    cost_usd: float = 0.0
+    cost_usd: float = 0.0  # 0 = not reported: a timed-out or crashed run gives none
 
 
 def parse_stream(lines: list[str]) -> tuple[list[str], str, int, str, float]:
@@ -85,6 +85,17 @@ def score(q: dict[str, Any], called: list[str], answer: str) -> dict[str, Any]:
         "answer_ok": answer_ok,
         "passed": required <= distinct and answer_ok,
     }
+
+
+def wilson(passed: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """95% Wilson interval for a pass rate. Unlike rate ± standard error it keeps its width
+    at 0/n and n/n, where the standard error is 0 and would read as certainty."""
+    if n == 0:
+        return 0.0, 1.0
+    p = passed / n
+    centre = (p + z * z / (2 * n)) / (1 + z * z / n)
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    return max(0.0, centre - half), min(1.0, centre + half)
 
 
 def run_one(q: dict[str, Any], mcp_config: Path, model: str | None) -> Outcome:
@@ -137,33 +148,41 @@ def report(questions: list[dict[str, Any]], outcomes: list[Outcome]) -> str:
         "| id | lang | pass | tools called | missing | extra | answer check | turns | s | $ |",
         "|---|---|---|---|---|---|---|---|---|---|",
     ]
-    hit = required = relevant = distinct = passed = 0
+    hit = required = relevant = distinct = 0
+    passes: list[bool] = []
     details: list[str] = []
     for q, o in zip(questions, outcomes, strict=True):
         s = score(q, o.called, o.answer)
         hit, required = hit + s["hit"], required + s["required"]
         relevant, distinct = relevant + s["relevant"], distinct + s["distinct"]
-        passed += s["passed"]
+        passes.append(s["passed"])
         check = ("ok" if s["answer_ok"] else "FAIL") + f" ({q['check']})"
         rows.append(
             f"| {o.id} | {o.lang} | {'PASS' if s['passed'] else 'FAIL'} | "
             f"{', '.join(o.called) or '-'} | {', '.join(s['missing']) or '-'} | "
             f"{', '.join(s['extra']) or '-'} | {check} | {o.turns} | {o.seconds:.0f} | "
-            f"{o.cost_usd:.3f} |"
+            f"{f'{o.cost_usd:.3f}' if o.cost_usd else '-'} |"
         )
         excerpt = " ".join(o.answer.split())[:300]
         details.append(f"- **{o.id}**{f' (error: {o.error})' if o.error else ''}: {excerpt}")
     precision = relevant / distinct if distinct else 0.0
     recall = hit / required if required else 0.0
-    n = len(outcomes)
+    n, passed = len(outcomes), sum(passes)
     rate = passed / n if n else 0.0
-    # binomial standard error: with 8 questions one answer moves the rate by 0.125
-    se = math.sqrt(rate * (1 - rate) / n) if n else 0.0
-    cost = sum(o.cost_usd for o in outcomes)
+    # sample sd / sqrt(n), the search eval's formula. It is 0 when all pass or all fail,
+    # so with 8 questions the interval beside it is the number to read.
+    se = statistics.stdev(passes) / math.sqrt(n) if n > 1 else 0.0
+    low, high = wilson(passed, n)
+    # averaged over the runs that reported a cost: counting the others as $0 would make a
+    # question look cheaper, and the timed-out ones are the longest runs
+    costs = [o.cost_usd for o in outcomes if o.cost_usd]
+    cost = sum(costs)
     summary = (
-        f"**{passed}/{n} passed** ({rate:.2f} ± {se:.2f} SE) · tool-call precision "
-        f"{precision:.2f} ({relevant}/{distinct}) · recall {recall:.2f} ({hit}/{required}) · "
-        f"cost ${cost:.2f} (${cost / n if n else 0.0:.3f} per question) · "
+        f"**{passed}/{n} passed** ({rate:.2f} ± {se:.2f} SE, 95% interval {low:.2f}–{high:.2f})"
+        f" · tool-call precision {precision:.2f} ({relevant}/{distinct}) · "
+        f"recall {recall:.2f} ({hit}/{required}) · "
+        f"cost ${cost:.2f} (${cost / len(costs) if costs else 0.0:.3f} per question, "
+        f"{len(costs)} of {n} reported) · "
         f"median {statistics.median(o.seconds for o in outcomes) if n else 0.0:.0f} s"
     )
     return "\n".join([summary, "", *rows, "", "Answer excerpts:", "", *details, ""])

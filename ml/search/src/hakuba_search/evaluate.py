@@ -57,8 +57,9 @@ def mean_se(xs: Sequence[float]) -> tuple[float, float]:
 
 def paired_diff(base: Sequence[bool], new: Sequence[bool]) -> tuple[float, float]:
     """Mean of `new - base` per query and its standard error. Both modes ran the same
-    queries, so a query's own difficulty cancels and the error is smaller than comparing
-    two separate hit rates."""
+    queries, so what makes a query hard or easy for both cancels: when their hits go
+    together (the usual case) the error is smaller than treating the two hit rates as
+    separate samples, which counts that shared difficulty as noise twice."""
     return mean_se([int(b) - int(a) for a, b in zip(base, new, strict=True)])
 
 
@@ -120,7 +121,8 @@ def main() -> None:
     mlflow.set_experiment("place-search")
     print(f"model={args.model} min_score={args.min_score}")
     lexical: list[bool] | None = None
-    for mode in args.modes.split(","):
+    # lexical first, whatever order was asked for: it is the baseline of the paired difference
+    for mode in sorted(args.modes.split(","), key=lambda m: m != "lexical"):
         res = run(mode, emb if mode != "lexical" else None, args.min_score)
         if mode == "lexical":
             lexical = res["hits5"]

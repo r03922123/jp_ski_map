@@ -1,3 +1,4 @@
+import math
 import random
 from types import SimpleNamespace
 
@@ -101,10 +102,18 @@ def test_mean_and_its_standard_error() -> None:
     assert mean_se([1.0]) == (1.0, 0.0)  # one item says nothing about spread
 
 
-def test_a_paired_difference_is_tighter_than_either_mode_alone() -> None:
+def test_a_paired_difference_is_tighter_than_an_unpaired_one() -> None:
     # hybrid finds 2 queries lexical missed and loses none, on the same 8 queries
     lexical = [True, False, False, True, False, False, True, False]
     hybrid = [True, True, False, True, True, False, True, False]
     diff, se = paired_diff(lexical, hybrid)
     assert diff == 0.25 and se == pytest.approx(0.1637, abs=1e-4)
-    assert se < mean_se(hybrid)[1]  # 0.189: the queries' own difficulty cancels out
+    # treating the two hit rates as separate samples gives 0.259: the queries both modes
+    # find hard (or easy) are counted as noise twice
+    unpaired = math.hypot(mean_se(lexical)[1], mean_se(hybrid)[1])
+    assert unpaired == pytest.approx(0.2588, abs=1e-4) and se < unpaired
+
+
+def test_paired_lists_must_cover_the_same_queries() -> None:
+    with pytest.raises(ValueError):
+        paired_diff([True, False], [True])
