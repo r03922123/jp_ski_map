@@ -23,6 +23,7 @@ Give each resort a snow picture that can be compared across resorts: current dep
 - [ ] A missing value from upstream is `null`, never 0.
 - [ ] Unit tests against a recorded Open-Meteo fixture: 24/72 h sums are computed correctly from hourly/daily data.
 - [ ] `asOf` and `source` are always shown in the UI.
+- [x] When Open-Meteo fails, the last good reports are served for up to 6 h with their own `asOf` (stale-if-error), and the failure is remembered for 60 s so later requests don't each wait on its 15 s timeout. With nothing to fall back on, `/api/snow` is still a 502 (`tests/snow/test_stale.py`). The fallback lives in the API process's memory, so a fresh serverless instance has none.
 
 ## Boundaries
 - Never: scrape sources whose terms forbid it (e.g. snow-forecast.com, unless allowed). Ask first before adding any new source.
