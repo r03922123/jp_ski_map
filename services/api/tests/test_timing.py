@@ -43,6 +43,7 @@ ROUTE = {
     }
 }
 NO_BUDGET = Limits(upstream={"open-meteo": (0.01, 0)})  # our own budget for it is spent
+SHORT_LINK = "https://maps.app.goo.gl/AbCdEf123"
 
 
 @pytest.fixture(autouse=True)
@@ -161,6 +162,35 @@ def test_a_call_our_own_budget_refused_is_not_listed(monkeypatch: pytest.MonkeyP
     assert response.status_code == 503
     assert not open_meteo.called
     assert names(response.headers["server-timing"]) == ["total"]
+
+
+@pytest.mark.parametrize(
+    ("source", "params"), [("photon", {"q": "zz-nothing"}), ("gmaps-link", {"q": SHORT_LINK})]
+)
+def test_a_refused_photon_or_short_link_call_is_not_listed(
+    source: str, params: dict[str, str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(ratelimit, "LIMITS", Limits(upstream={source: (0.01, 0)}))
+    with respx.mock(assert_all_called=False) as upstream:
+        sent = [
+            upstream.get(PHOTON_URL).respond(json={"features": []}),
+            upstream.head(SHORT_LINK).respond(302, headers={"location": "https://www.google.com/"}),
+        ]
+        response = TestClient(app).get("/api/places/search", params=params)
+
+    assert response.status_code == 503
+    assert not any(route.called for route in sent)
+    assert names(response.headers["server-timing"]) == ["total"]
+
+
+def test_a_photon_cache_hit_is_not_listed() -> None:
+    with respx.mock() as upstream:
+        upstream.get(PHOTON_URL).respond(json={"features": []})
+        first = TestClient(app).get("/api/places/search", params={"q": "zz-nothing"})
+        again = TestClient(app).get("/api/places/search", params={"q": "zz-nothing"})
+
+    assert names(first.headers["server-timing"]) == ["photon", "total"]
+    assert names(again.headers["server-timing"]) == ["total"]
 
 
 def test_a_short_link_that_is_never_fetched_is_not_listed() -> None:
@@ -287,11 +317,12 @@ def test_an_unhandled_error_is_logged_with_its_breakdown(caplog: pytest.LogCaptu
     with respx.mock() as upstream, caplog.at_level(logging.WARNING, logger=timing.__name__):
         # 200 with a body the client does not expect: KeyError, no handler, a plain 500.
         # That answer is written outside every middleware, so it carries no header.
-        upstream.post(f"{VALHALLA}/route").respond(json={"unexpected": True})
+        route = upstream.post(f"{VALHALLA}/route").respond(json={"unexpected": True})
         response = TestClient(app, raise_server_exceptions=False).get(
             "/api/route", params=ROUTE_PARAMS
         )
 
+    assert route.called  # the 500 is from that answer, not from a request nobody faked
     assert response.status_code == 500
     [message] = logged(caplog)
     assert "status=500" in message
