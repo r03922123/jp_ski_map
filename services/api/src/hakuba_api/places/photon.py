@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from hakuba_api.common.cache import TtlCache
 from hakuba_api.common.geo import Coord, in_hakuba
 from hakuba_api.common.ratelimit import spend_upstream
+from hakuba_api.common.timing import timed
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
 from hakuba_api.places.models import LODGING_KINDS, Place, PlaceKind
 
@@ -84,15 +85,18 @@ def search_photon(query: str, limit: int) -> list[Place]:
         return cached
     spend_upstream("photon")
     try:
-        response = httpx.get(
-            PHOTON_URL,
-            params={"q": query.strip(), "limit": limit, **HAKUBA_BIAS},
-            headers={"User-Agent": USER_AGENT},
-            timeout=10,
-        )
+        with timed("photon"):
+            response = httpx.get(
+                PHOTON_URL,
+                params={"q": query.strip(), "limit": limit, **HAKUBA_BIAS},
+                headers={"User-Agent": USER_AGENT},
+                timeout=10,
+            )
         response.raise_for_status()
     except httpx.HTTPError as e:
-        raise UpstreamError("photon", str(e)) from e
+        # not str(e): httpx quotes the URL in it, and this URL holds what the user typed
+        status = e.response.status_code if isinstance(e, httpx.HTTPStatusError) else ""
+        raise UpstreamError("photon", f"{type(e).__name__} {status}".rstrip()) from e
     # checked here, so a malformed answer is an UpstreamError like an outage (and isn't cached)
     try:
         data = _Response.model_validate(response.json())

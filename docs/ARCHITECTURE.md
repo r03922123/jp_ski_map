@@ -159,8 +159,17 @@ What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the
 
 4. On the public site the request goes Funnel → `next start`. `next.config.ts` rewrites `/api/*`
    to the FastAPI service, so the browser never sees another origin (no CORS).
-5. `main.py`: `BodyLimit` refuses large bodies, `limit_clients` applies the per-client rate limit
-   (429 with `Retry-After`), and the request reaches the ranking router.
+5. `main.py`: `ServerTiming` (`common/timing.py`) starts the clock, `BodyLimit` refuses large
+   bodies, `limit_clients` applies the per-client rate limit (429 with `Retry-After`), and the
+   request reaches the ranking router. The response carries a `Server-Timing` header listing each
+   upstream call that was really made (`open-meteo;dur=1106.5, valhalla;dur=120.2, total;dur=1239.6`
+   for a first request, `valhalla;dur=9.2, total;dur=10.5` once the snow is cached); browser dev
+   tools draw it in the Network tab. A request over 1 s or a 5xx is logged with the same breakdown.
+   Neither carries the query string. An entry means the request was really sent: a call our own
+   rate budget refused is not listed. `valhalla` is the one exception: it covers the whole routing
+   call, so a wait for the in-process engine's lock, or an engine that fails to start, counts too.
+   An unhandled error is logged, but its 500 has no header, because Starlette writes that answer
+   outside every middleware.
 
 **In the API** (`ranking/router.py` `get_rank`, three inputs gathered with FastAPI `Depends`)
 

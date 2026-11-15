@@ -12,6 +12,7 @@ from pydantic import (
 )
 
 from hakuba_api.common.ratelimit import spend_upstream
+from hakuba_api.common.timing import timed
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
 from hakuba_api.snow.compute import JST, HourlySeries
 
@@ -83,20 +84,22 @@ def fetch_hourly(points: list[Point]) -> list[HourlySeries]:
     an UpstreamError like an outage, not a KeyError deep in snow/compute.py."""
     spend_upstream("open-meteo")
     try:
-        response = httpx.get(
-            OPEN_METEO_URL,
-            params={
-                "latitude": ",".join(str(p[0]) for p in points),
-                "longitude": ",".join(str(p[1]) for p in points),
-                "elevation": ",".join(str(p[2]) for p in points),
-                "hourly": "snowfall,snow_depth,temperature_2m",
-                "past_days": 3,
-                "forecast_days": 4,
-                "timezone": "Asia/Tokyo",
-            },
-            headers={"User-Agent": USER_AGENT},
-            timeout=15,
-        )
+        # only the request itself: a call our own budget refused was never made
+        with timed("open-meteo"):
+            response = httpx.get(
+                OPEN_METEO_URL,
+                params={
+                    "latitude": ",".join(str(p[0]) for p in points),
+                    "longitude": ",".join(str(p[1]) for p in points),
+                    "elevation": ",".join(str(p[2]) for p in points),
+                    "hourly": "snowfall,snow_depth,temperature_2m",
+                    "past_days": 3,
+                    "forecast_days": 4,
+                    "timezone": "Asia/Tokyo",
+                },
+                headers={"User-Agent": USER_AGENT},
+                timeout=15,
+            )
         response.raise_for_status()
     except httpx.HTTPError as e:
         raise UpstreamError("open-meteo", str(e)) from e

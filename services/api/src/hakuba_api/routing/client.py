@@ -3,6 +3,7 @@ from typing import Any
 import httpx
 
 from hakuba_api.common.geo import Coord
+from hakuba_api.common.timing import timed
 from hakuba_api.routing.maneuvers import maneuver_for, route_summary
 from hakuba_api.routing.models import LineString, MatrixCell, Mode, Route, RouteSet, Step
 from hakuba_api.routing.polyline import decode_polyline
@@ -77,6 +78,7 @@ class ValhallaClient:
         self._timeout_s = timeout_s
         self._tiles = tiles
 
+    @timed("valhalla")
     def _post(self, path: str, body: dict[str, Any]) -> Any:
         if self._tiles:
             # Imported here because engine.py needs this module's errors
