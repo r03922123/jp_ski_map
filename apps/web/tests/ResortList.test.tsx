@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   fireEvent,
   render as rtlRender,
   screen,
@@ -99,6 +100,35 @@ describe("ResortList", () => {
     expect(
       screen.getByText(/snow model as of 01\/12 07:00/i),
     ).toBeInTheDocument();
+  });
+
+  it("says on the card when the snow is from, once the report is over 90 minutes old", () => {
+    // The fixture's report is from 07:00. The API serves its last good report while
+    // Open-Meteo is down, and a list left open ages too.
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-01-12T08:29:00+09:00"));
+      render(
+        <ResortList
+          resorts={[ranked()]}
+          selectedId={null}
+          onSelect={vi.fn()}
+        />,
+      );
+      const card = screen.getByRole("button", { name: /Happo-One/ });
+      expect(within(card).queryByText(/as of/)).not.toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(2 * 60_000); // 08:31, with the list still open
+      });
+
+      // its own line, so it never wraps in the middle on a narrow card
+      expect(
+        within(card).getByText("Snow as of 01/12 07:00"),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("marks unreachable resorts instead of showing an ETA", () => {
