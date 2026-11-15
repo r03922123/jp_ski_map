@@ -11,6 +11,7 @@ import httpx
 
 from hakuba_api.common.geo import Coord
 from hakuba_api.common.ratelimit import spend_upstream
+from hakuba_api.common.timing import timed
 from hakuba_api.common.upstream import USER_AGENT
 from hakuba_api.places.models import Place
 
@@ -68,6 +69,7 @@ def parse_google_maps_url(url: str) -> Place | None:
     )
 
 
+@timed("gmaps-link")
 def resolve_short_link(url: str, timeout_s: float = 5) -> str | None:
     """Follow exactly one redirect of a Google short link; never any other host."""
     parsed = urlparse(url.strip())

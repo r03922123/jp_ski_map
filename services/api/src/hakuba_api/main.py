@@ -8,6 +8,7 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 from hakuba_api.bus.router import router as bus_router
 from hakuba_api.catalog.router import router as catalog_router
 from hakuba_api.common import ratelimit
+from hakuba_api.common.timing import ServerTiming
 from hakuba_api.common.upstream import UpstreamBusyError, UpstreamError
 from hakuba_api.crowd.router import router as crowd_router
 from hakuba_api.places.router import router as places_router
@@ -97,6 +98,10 @@ async def limit_clients(
                 {"error": "rate_limited"}, status_code=429, headers={"Retry-After": str(wait)}
             )
     return await call_next(request)
+
+
+# Added last, so it is outermost: a 429 and a 413 are timed too
+app.add_middleware(ServerTiming)
 
 
 @app.exception_handler(RequestValidationError)

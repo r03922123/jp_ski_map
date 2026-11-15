@@ -12,6 +12,7 @@ from pydantic import (
 )
 
 from hakuba_api.common.ratelimit import spend_upstream
+from hakuba_api.common.timing import timed
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
 from hakuba_api.snow.compute import JST, HourlySeries
 
@@ -75,6 +76,7 @@ def parse_hourly(data: Any) -> list[HourlySeries]:
     ]
 
 
+@timed("open-meteo")
 def fetch_hourly(points: list[Point]) -> list[HourlySeries]:
     """One batched call for every point; `elevation` is set explicitly so values are
     downscaled to that height instead of the grid cell's average terrain.

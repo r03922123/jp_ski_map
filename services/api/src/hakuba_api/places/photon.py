@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from hakuba_api.common.cache import TtlCache
 from hakuba_api.common.geo import Coord, in_hakuba
 from hakuba_api.common.ratelimit import spend_upstream
+from hakuba_api.common.timing import timed
 from hakuba_api.common.upstream import USER_AGENT, UpstreamError
 from hakuba_api.places.models import LODGING_KINDS, Place, PlaceKind
 
@@ -84,12 +85,13 @@ def search_photon(query: str, limit: int) -> list[Place]:
         return cached
     spend_upstream("photon")
     try:
-        response = httpx.get(
-            PHOTON_URL,
-            params={"q": query.strip(), "limit": limit, **HAKUBA_BIAS},
-            headers={"User-Agent": USER_AGENT},
-            timeout=10,
-        )
+        with timed("photon"):
+            response = httpx.get(
+                PHOTON_URL,
+                params={"q": query.strip(), "limit": limit, **HAKUBA_BIAS},
+                headers={"User-Agent": USER_AGENT},
+                timeout=10,
+            )
         response.raise_for_status()
     except httpx.HTTPError as e:
         raise UpstreamError("photon", str(e)) from e
