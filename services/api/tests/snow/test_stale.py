@@ -1,6 +1,7 @@
 """An Open-Meteo outage serves the last good snow report, and isn't retried at once."""
 
 import json
+import logging
 import time
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
@@ -29,6 +30,7 @@ HOUR = timedelta(hours=1)
 RETRY_AFTER_FAILURE = timedelta(seconds=60)
 STALE = timedelta(hours=6)
 SEVEN_ISO = "2026-01-12T07:00:00+09:00"
+HALF_PAST = SEVEN + timedelta(minutes=30)
 NO_BUDGET = Limits(upstream={"open-meteo": (0.01, 0)})  # our own budget for it is spent
 
 
@@ -37,6 +39,7 @@ class Upstream:
 
     def __init__(self, delay_s: float = 0.0) -> None:
         self.down = False
+        self.bug = False
         self.calls = 0
         self._delay_s = delay_s
         self._series = parse_hourly(json.loads(FIXTURE.read_text()))
@@ -44,6 +47,8 @@ class Upstream:
     def __call__(self, _points: list[tuple[float, float, int]]) -> list[HourlySeries]:
         self.calls += 1
         time.sleep(self._delay_s)
+        if self.bug:
+            raise KeyError("a bug in our own code, not an upstream failure")
         if self.down:
             raise UpstreamError("open-meteo", "timeout")
         return self._series
@@ -124,16 +129,44 @@ def test_rank_keeps_its_snow_through_an_outage() -> None:
         assert len(get_snow_reports()) == 10  # was {}: the Drive list lost its snow
 
 
+def test_a_failure_is_logged_once_with_its_cause(
+    upstream: Upstream, caplog: pytest.LogCaptureFixture
+) -> None:
+    at(SEVEN)
+    client = TestClient(app)
+    assert client.get("/api/snow").status_code == 200
+    upstream.down = True
+    at(SEVEN + HOUR)
+
+    with caplog.at_level(logging.WARNING, logger=snow_router.__name__):
+        assert [served(client) for _ in range(3)] == [{SEVEN_ISO}] * 3
+
+    # the one real failure, with why; not a line per request answered from the old report
+    [message] = [r.getMessage() for r in caplog.records if r.name == snow_router.__name__]
+    assert "open-meteo: timeout" in message
+
+
+def test_a_bug_in_our_own_code_is_not_mistaken_for_an_outage(upstream: Upstream) -> None:
+    at(SEVEN)
+    client = TestClient(app)
+    assert client.get("/api/snow").status_code == 200
+    upstream.bug = True
+    at(SEVEN + HOUR)
+
+    with pytest.raises(KeyError):  # not answered from the old report as if all were well
+        client.get("/api/snow")
+
+
 # --- how long a failure is remembered, and how old a report may be --------------
 
 
 def test_a_failure_is_not_retried_for_a_minute(upstream: Upstream) -> None:
     upstream.down = True
-    at(SEVEN)
+    at(HALF_PAST)
     client = TestClient(app)
     assert client.get("/api/snow").status_code == 502
     upstream.down = False  # it is back, but we don't ask yet
-    at(SEVEN + RETRY_AFTER_FAILURE - timedelta(seconds=1))
+    at(HALF_PAST + RETRY_AFTER_FAILURE - timedelta(seconds=1))
 
     assert client.get("/api/snow").status_code == 502
     assert upstream.calls == 1
@@ -141,11 +174,11 @@ def test_a_failure_is_not_retried_for_a_minute(upstream: Upstream) -> None:
 
 def test_the_upstream_is_tried_again_once_the_minute_is_over(upstream: Upstream) -> None:
     upstream.down = True
-    at(SEVEN)
+    at(HALF_PAST)
     client = TestClient(app)
     assert client.get("/api/snow").status_code == 502
     upstream.down = False
-    at(SEVEN + RETRY_AFTER_FAILURE)
+    at(HALF_PAST + RETRY_AFTER_FAILURE)
 
     assert client.get("/api/snow").status_code == 200
     assert upstream.calls == 2

@@ -102,9 +102,9 @@ def rank_resorts(
     terrain_size (runs), vertical (m), price (cheapest day ticket, JPY).
     date: YYYY-MM-DD for the crowd estimate (default today, JST). Filters are optional.
     Each item gives resortId, driveMin, sortValue (in the sort's unit), snow in cm and
-    crowdLevel (low/medium/high/very_high). snowAsOf is the local time the snow figures
-    are from; if it is over an hour old the weather service was unreachable and this is
-    the last good report, so tell the user that time.
+    crowdLevel (low/medium/high/very_high). snowAsOf is the local time (JST) the snow
+    figures are from: say that time when you quote them, because they can be a few hours
+    old when the weather service is unreachable.
     """
     ranked = _get(
         "/api/rank",
@@ -241,9 +241,9 @@ def crowd_and_snow(date: str | None = None) -> list[dict[str, Any]]:
     """Crowd estimate and snow for every resort. Use it to compare conditions before ranking.
 
     date: YYYY-MM-DD for the crowd estimate (default today, JST). Snow is the model
-    forecast (Open-Meteo) as of snowAsOf (local time), whatever the date; if that is over
-    an hour old the weather service was unreachable and this is the last good report, so
-    tell the user that time. Units: cm for snow, crowdScore 0..1, crowdLevel
+    forecast (Open-Meteo) as of snowAsOf (local time, JST), whatever the date: say that
+    time when you quote snow figures, because they can be a few hours old when the weather
+    service is unreachable. Units: cm for snow, crowdScore 0..1, crowdLevel
     low/medium/high/very_high. Crowd is a heuristic estimate.
     """
     crowd = _get("/api/crowd", {"date": date})

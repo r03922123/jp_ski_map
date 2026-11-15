@@ -78,18 +78,17 @@ def get_snow(
         if (cached := _cache.get(key)) is not None:  # fetched while this request waited
             return cached
         failed = _failed.get(id(fetch))
-        error: UpstreamError
         if failed is not None and now - failed[0] < RETRY_AFTER_FAILURE:
-            error = UpstreamError(failed[1], "failed less than a minute ago, not retried yet")
+            source, busy = failed[1], False
         else:
             try:
                 reports = snow_reports(fetch, now)
             except UpstreamError as e:
-                error = e
                 # Over our own request budget Open-Meteo wasn't called, so nothing failed:
                 # nothing is remembered, and with no report to serve the answer stays "busy"
-                if not isinstance(e, UpstreamBusyError):
-                    _failed[id(fetch)] = (now, e.source)
+                source, busy = e.source, isinstance(e, UpstreamBusyError)
+                if not busy:
+                    _failed[id(fetch)] = (now, source)
                     log.warning(
                         "snow fetch failed, not retried for %.0f s: %s",
                         RETRY_AFTER_FAILURE.total_seconds(),
@@ -101,5 +100,9 @@ def get_snow(
                 return reports
     stale = _last_good.get(id(fetch))
     if stale is None or now - stale[0].as_of > STALE:
-        raise error
+        # A new error, not the caught one kept in a local: raising that from here would tie
+        # it to this frame in a reference cycle
+        if busy:
+            raise UpstreamBusyError(source)
+        raise UpstreamError(source, "failed, and no report recent enough to serve")
     return stale
