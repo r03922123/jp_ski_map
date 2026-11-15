@@ -1,10 +1,12 @@
+import math
 import random
 from types import SimpleNamespace
 
+import pytest
 from hakuba_api.common.geo import Coord
 from hakuba_api.places.index import Entry
 
-from hakuba_search.evaluate import hit_at, matches
+from hakuba_search.evaluate import hit_at, matches, mean_se, paired_diff
 from hakuba_search.synth import make_pairs, queries_for, split_of, to_zh, typo
 
 AT = Coord(lat=36.7, lng=137.86)
@@ -92,3 +94,26 @@ def test_no_hard_query_is_a_training_or_dev_query() -> None:
     pairs = make_pairs(load_index())
     seen = {normalize(p.query) for split in pairs.values() for p in split}
     assert len(held_out()) == 40 and not seen & held_out()
+
+
+def test_mean_and_its_standard_error() -> None:
+    mean, se = mean_se([1, 0, 1, 0])
+    assert mean == 0.5 and se == pytest.approx(0.2887, abs=1e-4)
+    assert mean_se([1.0]) == (1.0, 0.0)  # one item says nothing about spread
+
+
+def test_a_paired_difference_is_tighter_than_an_unpaired_one() -> None:
+    # hybrid finds 2 queries lexical missed and loses none, on the same 8 queries
+    lexical = [True, False, False, True, False, False, True, False]
+    hybrid = [True, True, False, True, True, False, True, False]
+    diff, se = paired_diff(lexical, hybrid)
+    assert diff == 0.25 and se == pytest.approx(0.1637, abs=1e-4)
+    # treating the two hit rates as separate samples gives 0.259: the queries both modes
+    # find hard (or easy) are counted as noise twice
+    unpaired = math.hypot(mean_se(lexical)[1], mean_se(hybrid)[1])
+    assert unpaired == pytest.approx(0.2588, abs=1e-4) and se < unpaired
+
+
+def test_paired_lists_must_cover_the_same_queries() -> None:
+    with pytest.raises(ValueError):
+        paired_diff([True, False], [True])

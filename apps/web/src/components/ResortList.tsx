@@ -8,6 +8,7 @@ import { formatDuration } from "@/lib/format";
 import { useRider } from "@/lib/game/rider";
 import { worldBadge } from "@/lib/game/sprites";
 import { worldNumbers } from "@/lib/game/worlds";
+import { useNow } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
 
 type Factors = RankedResort["factors"];
@@ -58,6 +59,10 @@ function formatAsOf(iso: string): string {
   return `${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
 }
 
+// A report normally carries the current hour. Past this age the card says when it is from:
+// the API serves its last good report while Open-Meteo is down, and a list left open ages.
+const SNOW_OLD_MS = 90 * 60 * 1000;
+
 function snowSummary(r: RankedResort): string | null {
   const fresh = r.snow?.newSnowCm.past24h;
   const depth = r.snow?.depthCm.summit;
@@ -81,10 +86,14 @@ export function ResortList({
   const catalog = useQuery(resortsQuery);
   const worlds = worldNumbers(catalog.data ?? []);
   const rider = useRider();
+  const now = useNow(60_000);
   return (
     <ol aria-label="Ranked resorts" className="flex flex-col divide-y">
       {resorts.map((r) => {
         const snow = snowSummary(r);
+        const snowIsOld =
+          r.snow != null &&
+          now.getTime() - Date.parse(r.snow.asOf) > SNOW_OLD_MS;
         return (
           <li key={r.resortId} className="py-2">
             <button
@@ -123,6 +132,11 @@ export function ResortList({
                 )}
                 {snow && (
                   <span className="text-xs text-muted-foreground">{snow}</span>
+                )}
+                {snow && snowIsOld && r.snow && (
+                  <span className="text-xs text-muted-foreground">
+                    Snow as of {formatAsOf(r.snow.asOf)}
+                  </span>
                 )}
                 {r.crowd && (
                   <span className="text-xs text-muted-foreground">

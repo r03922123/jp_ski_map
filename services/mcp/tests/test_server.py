@@ -12,6 +12,7 @@ ORIGIN = "36.69830,137.86190"
 
 SNOW = {
     "resortId": "happo-one",
+    "asOf": "2026-12-27T07:00:00+09:00",
     "depthCm": {"base": 40, "summit": 120, "source": "model"},
     "newSnowCm": {"past24h": 12.0, "past72h": 20.0, "next24h": 5.0, "next72h": 9.0},
 }
@@ -84,6 +85,7 @@ def test_rank_resorts_maps_params_drops_none_and_trims() -> None:
         "driveMin": 10.0,
         "summitDepthCm": 120,
         "newSnow24hCm": 12.0,
+        "snowAsOf": "2026-12-27T07:00",  # the API serves an older report in an outage
         "crowdLevel": "high",
     }
 
@@ -95,6 +97,7 @@ def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
     out = s.rank_resorts(ORIGIN)
     assert out[0]["driveMin"] is None
     assert out[0]["summitDepthCm"] is None
+    assert out[0]["snowAsOf"] is None
     assert out[0]["crowdLevel"] is None
 
 
@@ -223,6 +226,7 @@ def test_crowd_and_snow_joins_by_resort() -> None:
             "newSnowPast24hCm": 12.0,
             "newSnowNext24hCm": 5.0,
             "newSnowNext72hCm": 9.0,
+            "snowAsOf": "2026-12-27T07:00",
         }
     ]
 
