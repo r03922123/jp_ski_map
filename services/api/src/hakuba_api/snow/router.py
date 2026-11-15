@@ -1,13 +1,14 @@
 import logging
+import threading
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
 from hakuba_api.catalog.store import load_resorts
 from hakuba_api.common.cache import TtlCache
-from hakuba_api.common.upstream import UpstreamError
+from hakuba_api.common.upstream import UpstreamBusyError, UpstreamError
 from hakuba_api.snow.compute import JST, HourlySeries, build_report
 from hakuba_api.snow.models import SnowReport
 from hakuba_api.snow.openmeteo import Point, fetch_hourly
@@ -21,15 +22,19 @@ HourlyFetcher = Callable[[list[Point]], list[HourlySeries]]
 _cache = TtlCache[str, list[SnowReport]](ttl_s=3600)
 
 # When Open-Meteo fails, the last good reports are served instead (HTTP's stale-if-error,
-# RFC 5861): a few hours old beats no snow at all, and `as_of` already tells the reader
-# how old they are. Past this age the forecast windows have moved too far to show.
-STALE_S = 6 * 3600
-# A failure is remembered this long, so one request a minute waits on a dead upstream
-# (its timeout is 15 s), not every request.
-RETRY_AFTER_FAILURE_S = 60
-# both keyed by the fetcher, like `_cache`
-_last_good = TtlCache[int, list[SnowReport]](ttl_s=STALE_S)
-_failed = TtlCache[int, str](ttl_s=RETRY_AFTER_FAILURE_S)  # value: the failing source
+# RFC 5861): a few hours old beats no snow at all, and each report's `as_of` says how old
+# it is. Past this age the forecast windows have moved too far to show.
+STALE = timedelta(hours=6)
+# A failure is remembered this long, so later requests answer at once instead of each
+# waiting on a dead upstream (its timeout is 15 s).
+RETRY_AFTER_FAILURE = timedelta(seconds=60)
+# Both are keyed by the fetcher, like `_cache`, and aged by the request's `now`, not by a
+# process clock: the limit is on the report's own time.
+_last_good: dict[int, list[SnowReport]] = {}
+_failed: dict[int, tuple[datetime, str]] = {}  # when, and which source
+# One fetch at a time: requests that miss the cache together wait for the first one's
+# answer instead of each calling Open-Meteo, or each waiting out its timeout.
+_fetching = threading.Lock()
 
 
 def clear_cache() -> None:
@@ -69,19 +74,32 @@ def get_snow(
     key = f"{now:%Y-%m-%dT%H}|{id(fetch)}"
     if (cached := _cache.get(key)) is not None:
         return cached
-    source = _failed.get(id(fetch))
-    if source is None:
-        try:
-            reports = snow_reports(fetch, now)
-        except UpstreamError as e:
-            source = e.source
-            _failed.set(id(fetch), source)
+    with _fetching:
+        if (cached := _cache.get(key)) is not None:  # fetched while this request waited
+            return cached
+        failed = _failed.get(id(fetch))
+        error: UpstreamError
+        if failed is not None and now - failed[0] < RETRY_AFTER_FAILURE:
+            error = UpstreamError(failed[1], "failed less than a minute ago, not retried yet")
         else:
-            _cache.set(key, reports)
-            _last_good.set(id(fetch), reports)
-            return reports
+            try:
+                reports = snow_reports(fetch, now)
+            except UpstreamError as e:
+                error = e
+                # Over our own request budget Open-Meteo wasn't called, so nothing failed:
+                # nothing is remembered, and with no report to serve the answer stays "busy"
+                if not isinstance(e, UpstreamBusyError):
+                    _failed[id(fetch)] = (now, e.source)
+                    log.warning(
+                        "snow fetch failed, not retried for %.0f s: %s",
+                        RETRY_AFTER_FAILURE.total_seconds(),
+                        e,
+                    )
+            else:
+                _cache.set(key, reports)
+                _last_good[id(fetch)] = reports
+                return reports
     stale = _last_good.get(id(fetch))
-    if stale is None:
-        raise UpstreamError(source, "failed, and no earlier report to serve")
-    log.warning("%s failed; serving the snow reports as of %s", source, stale[0].as_of)
+    if stale is None or now - stale[0].as_of > STALE:
+        raise error
     return stale
