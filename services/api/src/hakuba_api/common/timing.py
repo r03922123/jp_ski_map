@@ -3,7 +3,8 @@
 Each real upstream call adds one entry; the middleware sends them back as a `Server-Timing`
 header (W3C; browser dev tools draw it) and logs a slow or failed request with the same
 breakdown. Only source names and the path are recorded, never the query string: search
-text is user data.
+text is user data. An unhandled error is logged too, but its 500 has no header: Starlette
+writes that answer outside every middleware.
 """
 
 import logging
@@ -47,15 +48,17 @@ class ServerTiming:
         token = _entries.set(entries)
         start = time.perf_counter()
         status = 500  # what the client gets if the app raises before answering
-        value = ""
+
+        def breakdown() -> str:
+            total = (time.perf_counter() - start) * 1000
+            return ", ".join(f"{n};dur={ms:.1f}" for n, ms in [*entries, ("total", total)])
 
         async def send_timed(message: Message) -> None:
-            nonlocal status, value
+            nonlocal status
             if message["type"] == "http.response.start":
                 status = message["status"]
-                total = (time.perf_counter() - start) * 1000
-                value = ", ".join(f"{n};dur={ms:.1f}" for n, ms in [*entries, ("total", total)])
-                message["headers"] = [*message["headers"], (b"server-timing", value.encode())]
+                headers = message.get("headers", [])  # ASGI lets a response leave them out
+                message["headers"] = [*headers, (b"server-timing", breakdown().encode())]
             await send(message)
 
         try:
@@ -64,11 +67,14 @@ class ServerTiming:
             _entries.reset(token)
             total = (time.perf_counter() - start) * 1000
             if status >= 500 or total >= SLOW_MS:
+                # %r: the path is the client's own text, and a line break in it would start
+                # a new log line. The breakdown is built here, not from the header, because
+                # an unhandled error never starts a response.
                 log.warning(
-                    "slow or failed: %s %s status=%d ms=%.0f [%s]",
+                    "slow or failed: %s %r status=%d ms=%.0f [%s]",
                     scope["method"],
                     scope["path"],
                     status,
                     total,
-                    value,
+                    breakdown(),
                 )

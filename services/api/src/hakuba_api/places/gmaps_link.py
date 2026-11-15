@@ -69,7 +69,6 @@ def parse_google_maps_url(url: str) -> Place | None:
     )
 
 
-@timed("gmaps-link")
 def resolve_short_link(url: str, timeout_s: float = 5) -> str | None:
     """Follow exactly one redirect of a Google short link; never any other host."""
     parsed = urlparse(url.strip())
@@ -77,12 +76,13 @@ def resolve_short_link(url: str, timeout_s: float = 5) -> str | None:
         return None
     spend_upstream("gmaps-link")
     try:
-        response = httpx.head(
-            url.strip(),
-            follow_redirects=False,
-            timeout=timeout_s,
-            headers={"User-Agent": USER_AGENT},
-        )
+        with timed("gmaps-link"):  # only the request: a refused or rejected link made none
+            response = httpx.head(
+                url.strip(),
+                follow_redirects=False,
+                timeout=timeout_s,
+                headers={"User-Agent": USER_AGENT},
+            )
     except httpx.HTTPError:
         return None
     if response.is_redirect:
