@@ -94,7 +94,9 @@ def search_photon(query: str, limit: int) -> list[Place]:
             )
         response.raise_for_status()
     except httpx.HTTPError as e:
-        raise UpstreamError("photon", str(e)) from e
+        # not str(e): httpx quotes the URL in it, and this URL holds what the user typed
+        status = e.response.status_code if isinstance(e, httpx.HTTPStatusError) else ""
+        raise UpstreamError("photon", f"{type(e).__name__} {status}".rstrip()) from e
     # checked here, so a malformed answer is an UpstreamError like an outage (and isn't cached)
     try:
         data = _Response.model_validate(response.json())
