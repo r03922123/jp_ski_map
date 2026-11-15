@@ -872,6 +872,14 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 - [ ] Owner: add the link from `~/.config/jp_ski_map/mcp-connector-url.txt` as a custom connector on claude.ai, ask a trip question from the phone app, then send the link to friends
 - [ ] Run the agent eval once (`services/mcp/evals/run_eval.py`) and save `last_run.md`. It uses the dev API on :8010 by default; set `HAKUBA_API_URL` to the production URL to test the deployed API
 
+## Task J15: Production habits around the ML parts (2026-11-16)
+Three small PRs, each test-first with a fresh-eyes review.
+- [ ] PR #67: `/api/snow` and `/api/rank` serve the last good snow report (up to 6 h, with its own `asOf`) when Open-Meteo fails, and remember a failure for 60 s (`snow/router.py`, `tests/snow/test_stale.py`)
+- [ ] PR #68: a `Server-Timing` header with one entry per upstream call, and a log line for a request over 1 s or a 5xx; never the query string (`common/timing.py`, `tests/test_timing.py`)
+- [ ] PR #69: the search eval prints n, standard error and the paired difference from lexical; the agent eval prints the pass rate with its standard error, cost per question and median seconds
+- Found by #68's first run, open: `/api/places/suggest?q=tokyu` took 1255 ms, 1231 ms of it waiting on Photon, whose timeout is 10 s. Search-as-you-type needs a short timeout on that fallback
+- Still open from J14: the agent eval has never been run, so there is no pass rate or cost number yet
+
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
 - Real-device re-check done 2026-11-01: T73–T77 all pass on the iPhone (via Personal Hotspot; home Wi-Fi blocks phone↔Mac) and the desktop checks pass in Chrome. Android not checked (no device).
