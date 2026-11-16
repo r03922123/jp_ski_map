@@ -134,20 +134,26 @@ def score(q: dict[str, Any], called: list[str], answer: str) -> dict[str, Any]:
 
     recall = required tools called / required; precision = distinct calls that were
     required or optional / distinct calls. Pass = every required tool called and the
-    answer matches the question's regex.
+    answer matches the question's regex. An `any_of` group (e.g. crowd_and_snow or
+    rank_resorts, which both give crowd and snow) counts as one required tool, met by any member.
     """
-    required, allowed = set(q["required"]), set(q["required"]) | set(q["optional"])
+    required = set(q["required"])
+    groups = [set(g) for g in q.get("any_of", [])]
+    allowed = required | set(q["optional"]) | set[str]().union(*groups)
     distinct = set(called)
+    missing = sorted(required - distinct) + [
+        "|".join(sorted(g)) for g in groups if not g & distinct
+    ]
     answer_ok = re.search(q["answer_regex"], answer) is not None
     return {
-        "hit": len(distinct & required),
-        "required": len(required),
+        "hit": len(distinct & required) + sum(1 for g in groups if g & distinct),
+        "required": len(required) + len(groups),
         "relevant": len(distinct & allowed),
         "distinct": len(distinct),
-        "missing": sorted(required - distinct),
+        "missing": missing,
         "extra": sorted(distinct - allowed),
         "answer_ok": answer_ok,
-        "passed": required <= distinct and answer_ok,
+        "passed": not missing and answer_ok,
     }
 
 
@@ -264,6 +270,8 @@ def summarize(questions: list[dict[str, Any]], outcomes: list[Outcome]) -> dict[
         "cost_per_question": sum(costs) / len(costs) if costs else 0.0,
         "cost_reported": len(costs),
         "median_seconds": statistics.median(o.seconds for o in outcomes) if n else 0.0,
+        # failed tool calls the agent had to recover from: each costs a turn and tokens
+        "tool_errors": sum(step.is_error for o in outcomes for step in o.steps),
     }
 
 
@@ -292,7 +300,7 @@ def report(questions: list[dict[str, Any]], outcomes: list[Outcome]) -> str:
         f"recall {m['tool_recall']:.2f} ({m['hit']}/{m['required']}) · "
         f"cost ${m['cost_usd']:.2f} (${m['cost_per_question']:.3f} per question, "
         f"{m['cost_reported']} of {m['n']} reported) · "
-        f"median {m['median_seconds']:.0f} s"
+        f"median {m['median_seconds']:.0f} s · tool errors {m['tool_errors']}"
     )
     return "\n".join([summary, "", *rows, "", "Answer excerpts:", "", *details, ""])
 
@@ -356,8 +364,8 @@ def main() -> None:
             "model": args.model or "default",
             "api": api_label(api_url),
             "questions": ",".join(q["id"] for q in questions),
-            "git_sha": subprocess.run(
-                ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True
+            "git_sha": subprocess.run(  # -dirty: uncommitted changes
+                ["git", "describe", "--always", "--dirty"], capture_output=True, text=True
             ).stdout.strip(),
         }
         from mlflow_log import log_mlflow  # needs the eval group

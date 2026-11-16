@@ -69,6 +69,22 @@ def test_score_precision_recall_parts_and_pass() -> None:
     assert not score(Q, ["search_place", "rank_resorts"], "Goryu")["passed"]
 
 
+def test_any_of_needs_one_tool_of_the_group() -> None:
+    # crowd and snow can come from either tool; requiring one of them would fail the other path
+    q = {
+        "required": ["search_place", "next_buses"],
+        "any_of": [["crowd_and_snow", "rank_resorts"]],
+        "optional": ["route"],
+        "answer_regex": "08:",
+    }
+    via_rank = score(q, ["search_place", "rank_resorts", "next_buses"], "08:13")
+    assert via_rank["passed"] and (via_rank["hit"], via_rank["required"]) == (3, 3)
+    assert via_rank["relevant"] == via_rank["distinct"] == 3
+    neither = score(q, ["search_place", "next_buses"], "08:13")
+    assert not neither["passed"]
+    assert neither["missing"] == ["crowd_and_snow|rank_resorts"]
+
+
 def test_report_gives_the_pass_rate_with_its_error_and_the_cost() -> None:
     questions = [Q | {"id": i, "check": "names Happo"} for i in ("a", "b", "c", "d")]
     tools = ["search_place", "rank_resorts"]
@@ -213,6 +229,10 @@ def test_summary_numbers_match_the_report() -> None:
     assert (s["hit"], s["required"], s["relevant"], s["distinct"]) == (3, 4, 3, 4)
     assert (s["tool_recall"], s["tool_precision"]) == (0.75, 0.75)
     assert (s["cost_usd"], s["cost_reported"], s["median_seconds"]) == (0.04, 1, 50.0)
+    assert s["tool_errors"] == 0
+    outcomes[0].steps = parse_steps(tool_events())  # route ok, rank_resorts failed
+    assert summarize(questions, outcomes)["tool_errors"] == 1
+    assert report(questions, outcomes).splitlines()[0].endswith("· tool errors 1")
 
 
 def test_the_report_never_names_a_deployed_api() -> None:

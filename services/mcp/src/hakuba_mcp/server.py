@@ -202,10 +202,12 @@ def _resolve(place: str) -> str:
     """'lat,lng' passes through; a resort id becomes its main access point."""
     if "," in place:
         return place
-    for resort in _get("/api/resorts"):
+    resorts = _get("/api/resorts")
+    for resort in resorts:
         if resort["id"] == place:
             return _coord(resort["accessPoints"][0]["coord"])
-    raise ToolError(f"unknown place {place!r}: pass 'lat,lng' or a resort id like 'happo-one'")
+    ids = ", ".join(r["id"] for r in resorts)  # so the agent's retry needs no guess
+    raise ToolError(f"unknown place {place!r}: pass 'lat,lng' or a resort id: {ids}")
 
 
 @mcp.tool(annotations=READ_ONLY)

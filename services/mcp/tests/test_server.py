@@ -165,10 +165,14 @@ def test_route_resolves_resort_id_to_its_first_access_point() -> None:
 
 
 @respx.mock
-def test_route_unknown_resort_id_is_a_tool_error() -> None:
-    respx.get(f"{API}/api/resorts").respond(json=[])
-    with pytest.raises(ToolError, match="unknown place 'nowhere'"):
-        s.route("walk", "nowhere", ORIGIN)
+def test_route_unknown_resort_id_lists_the_valid_ids() -> None:
+    # an agent guessed 'hakuba47-goryu' in the eval; the error should say what to pass instead
+    respx.get(f"{API}/api/resorts").respond(json=[{"id": "goryu"}, {"id": "hakuba47"}])
+    with pytest.raises(ToolError) as e:
+        s.route("walk", "hakuba47-goryu", ORIGIN)
+    assert str(e.value) == (
+        "unknown place 'hakuba47-goryu': pass 'lat,lng' or a resort id: goryu, hakuba47"
+    )
 
 
 @respx.mock
