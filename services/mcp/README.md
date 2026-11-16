@@ -30,6 +30,9 @@ Production also serves these tools over Streamable HTTP at `https://<production 
 
 On claude.ai: Settings → Connectors → Add custom connector → paste the full link, no OAuth settings. Connectors added on the web also work in the desktop and phone apps. A Free plan allows one custom connector.
 
+## Production traces (Langfuse)
+With `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` set (Vercel only), every tool call is sent to Langfuse as a `tool` observation: name, duration, argument names, and on failure the error type, the invalid argument names and the API status. Argument values, results and error messages are never sent. Without the keys nothing is sent. Details: SPEC-agent-tools v3.
+
 ## Checks
 ```bash
 uvx --from 'uv==0.9.30' uv run pytest -q
