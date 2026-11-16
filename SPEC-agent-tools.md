@@ -50,6 +50,21 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 - [ ] The site's production smoke suite still passes after the deploy.
 - [ ] Owner check: the connector works in the phone app.
 
+## Production tool traces in Langfuse (v3, 2026-11-16)
+**Goal:** see how the deployed tools are used: calls per tool, latency (p50/p95), error rate, and which optional arguments the agents pass. That is the step after the eval: the eval says whether an agent *can* pick the right tools on 8 fixed questions, production traces say what friends' agents actually do. Done when a tool call from claude.ai shows in the Langfuse project as a `tool` observation with its duration.
+
+**Decisions.**
+- Langfuse Cloud, Japan region (`https://jp.cloud.langfuse.com`, AWS Tokyo, next to Vercel `hnd1`), Hobby plan: $0, 50k units a month, 30 days of data, no card (langfuse.com/pricing, checked 2026-11-16). Dropped: self-hosting (Postgres, ClickHouse, Redis and blob storage for a handful of friends), and OpenTelemetry to a generic backend (no LLM-aware views).
+- The official `langfuse` SDK (5.2.0, OpenTelemetry-based) instead of hand-written OTLP: a dozen lines against a maintained client.
+- One place: `TracedServer.call_tool` wraps every tool call in `tracing.tool_span`, so a new tool is traced without touching it.
+- Privacy: a span holds the tool name, duration, the sorted argument *names* and, on failure, level `ERROR` with the error message. Argument values and results stay out, because they are friends' hotels and coordinates; an error message can still quote the one bad argument (e.g. `unknown place 'x'`).
+- Off unless both `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` are set, so local runs, tests and CI send nothing. `remote.py` flushes after each answered request (in a worker thread), because Vercel may freeze the function right after it answers.
+- Env (Production, and Preview to test): `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_BASE_URL=https://jp.cloud.langfuse.com`, `LANGFUSE_TRACING_ENVIRONMENT` (`production` / `preview`). The owner keeps the keys in `~/.config/jp_ski_map/langfuse.env`; never commit or print them.
+
+**Acceptance.**
+- [x] Tests (spans in memory, no network): a tool call is one `tool` observation named after the tool with its argument names and none of their values; a failed call is level `ERROR`; with no keys there is no client and tools still work; each answered remote request flushes once, a refused one never.
+- [ ] On a deploy with the keys: a `tools/call` shows in Langfuse within a minute, and the site's production smoke suite still passes.
+
 ## Boundaries
 - Always: read-only GETs; trim responses; docstrings say when to use the tool and its units.
 - Never: call the Anthropic API from code (the API credit is reserved; the eval uses the Claude Code subscription and strips `ANTHROPIC_*` env vars); add a root `.mcp.json` (it would prompt every session in this repo); add an agent framework on top of the SDK.

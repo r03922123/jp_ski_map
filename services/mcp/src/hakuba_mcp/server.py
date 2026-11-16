@@ -12,6 +12,8 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
+from hakuba_mcp import tracing
+
 API_URL = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8010").rstrip("/")
 TIMEOUT_S = 30.0  # a cold Valhalla matrix or Open-Meteo fetch can take several seconds
 
@@ -22,7 +24,16 @@ Mode = Literal["drive", "walk"]
 
 READ_ONLY = ToolAnnotations(read_only_hint=True)
 
-mcp = MCPServer(
+
+class TracedServer(MCPServer):
+    """MCPServer that wraps every tool call in a Langfuse span when tracing is on."""
+
+    async def call_tool(self, name: str, arguments: dict[str, Any], context: Any = None) -> Any:
+        with tracing.tool_span(name, arguments):
+            return await super().call_tool(name, arguments, context)
+
+
+mcp = TracedServer(
     "hakuba",
     instructions=(
         "Tools for planning a ski day in Hakuba Valley, Japan (10 resorts). Places are passed "
