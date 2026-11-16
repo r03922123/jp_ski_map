@@ -197,8 +197,7 @@ def _resolve(place: str) -> str:
 def route(mode: Mode, origin: str, destination: str) -> dict[str, Any]:
     """Drive or walk ETA between two places (Valhalla road routing, no live traffic).
 
-    origin / destination: 'lat,lng', or a resort id for its main base: the `resortId` from
-    rank_resorts or crowd_and_snow (e.g. 'happo-one').
+    origin / destination: 'lat,lng', or a resort id (e.g. 'happo-one') for its main base.
     Returns durationMin, distanceKm and a one-line road summary.
     """
     r = _get("/api/route", {"mode": mode, "from": _resolve(origin), "to": _resolve(destination)})
@@ -219,8 +218,8 @@ def nearby_pois(
 ) -> list[dict[str, Any]]:
     """Restaurants (food) or convenience stores near a place, closest by travel time first.
 
-    origin: 'lat,lng' or a `resortId` from rank_resorts or crowd_and_snow. Returns name,
-    minutes away by `mode`, distanceM, coord and opening hours when OpenStreetMap has them.
+    origin: 'lat,lng' or a resort id. Returns name, minutes away by `mode`, distanceM,
+    coord and opening hours when OpenStreetMap has them.
     """
     pois = _get(
         "/api/pois/nearby",
