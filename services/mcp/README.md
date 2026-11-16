@@ -48,4 +48,12 @@ uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --out evals/last_run.md
 - It uses your Claude Code subscription login (run `claude` and `/login` once if it says "Login expired"). It removes `ANTHROPIC_*` variables first, so it never bills API credit.
 - The API must be answering: `curl -s "$HAKUBA_API_URL/api/health"`.
 
-Last run: not yet recorded (the headless CLI's login had expired when this was built; see `evals/last_run.md` once it runs).
+To compare runs in MLflow (each question also gets a trace of its tool calls, with its pass/fail):
+
+```bash
+uvx --from 'uv==0.9.30' uv sync --group eval
+HAKUBA_API_URL=<API URL> uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --mlflow --out evals/last_run.md
+uvx --from 'uv==0.9.30' uv run mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001
+```
+
+Last run: [evals/last_run.md](evals/last_run.md) (2026-11-16, production API: 7 of 8 passed).

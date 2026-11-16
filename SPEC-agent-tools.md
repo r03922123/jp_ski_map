@@ -27,11 +27,14 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 - pass = every required tool called and the answer matches the regex;
 - recall = required tools called / required tools; precision = distinct calls that were required or optional / distinct calls.
 - the pass rate with its standard error (sample sd / √n, as in the search eval) and a 95% Wilson interval, which is the one to read with 8 questions: at 8 of 8 the standard error is 0, but the interval is 0.68–1.00; the cost per question in USD as the CLI reports it (`total_cost_usd`: what the API would have charged; the subscription is not billed per run), averaged over the runs that reported one, because a timed-out or crashed run reports none; and the median seconds per question.
+- `--mlflow` (v3, 2026-11-16) also logs the run to a local MLflow store (`services/mcp/mlflow.db`, gitignored; `MLFLOW_TRACKING_URI` overrides it), experiment `mcp-agent-eval`: params (model, API, question ids, git sha), the summary numbers as metrics, the report, a per-question table, and one trace per question. A trace is the question as the root span with one child `TOOL` span per call (input, result, error status, timed by the CLI's event timestamps), plus a `passed` assessment with the missing tools as its rationale. So a change to a tool is measured as two runs side by side, and a failure is read in its trace, not guessed from the score. MLflow is in the `eval` dependency group (`uv sync --group eval`), which CI and Vercel don't install; its logging lives in `evals/mlflow_log.py` under `# pyright: basic`, because without MLflow installed every MLflow type is unknown.
+- The report names a deployed API as "deployed API (HAKUBA_API_URL)", never its URL: `last_run.md` is committed and the repo is public.
 
 ## Acceptance Criteria
 - [ ] `pytest`, `ruff check`, `ruff format --check`, `pyright` (strict) pass in `services/mcp`; tests use respx, no network.
 - [ ] Each tool test checks the exact query params sent and the trimmed output; HTTP errors, non-JSON errors and connection errors map to `ToolError`.
-- [ ] The eval has run once against the real API, with its table saved in `services/mcp/evals/last_run.md`.
+- [x] The eval has run once against the real API, with its table saved in `services/mcp/evals/last_run.md` (2026-11-16, production API: 7/8, interval 0.53–0.98).
+- [x] `--mlflow` logs the run and one trace per question; tested against a temporary SQLite store (the test is skipped where the `eval` group is not installed).
 
 ## Remote access on Vercel (v2, 2026-11-13)
 **Goal:** the owner and friends use the same six tools from Claude chat in the desktop and phone apps, with the Mac off. Done when the owner adds the URL as a custom connector on claude.ai and a trip question is answered with the tools from the phone app.
