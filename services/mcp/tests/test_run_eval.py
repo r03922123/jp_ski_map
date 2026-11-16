@@ -4,7 +4,17 @@ from pathlib import Path
 
 import pytest
 import run_eval
-from run_eval import Outcome, parse_stream, report, run_one, score, wilson
+from run_eval import (
+    Outcome,
+    api_label,
+    parse_steps,
+    parse_stream,
+    report,
+    run_one,
+    score,
+    summarize,
+    wilson,
+)
 
 Q = {
     "required": ["search_place", "rank_resorts"],
@@ -127,3 +137,108 @@ def test_run_one_keeps_the_cost_the_cli_reported(
 
     assert (outcome.answer, outcome.turns, outcome.error) == ("Happo-One", 3, "")
     assert outcome.cost_usd == 0.07
+
+
+def tool_events() -> list[str]:
+    use = {"type": "tool_use", "id": "t1", "name": "mcp__hakuba__route", "input": {"mode": "drive"}}
+    bad: dict[str, object] = {
+        "type": "tool_use",
+        "id": "t2",
+        "name": "mcp__hakuba__rank_resorts",
+        "input": {},
+    }
+    return [
+        line(
+            {
+                "type": "assistant",
+                "timestamp": "2026-11-16T08:37:01.000Z",
+                "message": {"content": [use]},
+            }
+        ),
+        line(
+            {
+                "type": "assistant",
+                "timestamp": "2026-11-16T08:37:01.500Z",
+                "message": {"content": [bad]},
+            }
+        ),
+        line(
+            {
+                "type": "user",
+                "timestamp": "2026-11-16T08:37:02.250Z",
+                "message": {
+                    "content": [
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": "t1",
+                            "content": '{"durationMin":7.7}',
+                        },
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": "t2",
+                            "is_error": True,
+                            "content": [{"type": "text", "text": "Hakuba API 422"}],
+                        },
+                    ]
+                },
+            }
+        ),
+    ]
+
+
+def test_parse_steps_pairs_each_tool_call_with_its_result_and_times() -> None:
+    steps = parse_steps(tool_events())
+    assert [(s.tool, s.input, s.output, s.is_error) for s in steps] == [
+        ("route", {"mode": "drive"}, '{"durationMin":7.7}', False),
+        ("rank_resorts", {}, "Hakuba API 422", True),
+    ]
+    assert steps[0].end_ns - steps[0].start_ns == 1_250_000_000
+    # a call the CLI never answered (a timeout) keeps its start and an empty result
+    unanswered = parse_steps(tool_events()[:1])[0]
+    assert (unanswered.output, unanswered.end_ns) == ("", unanswered.start_ns)
+
+
+def test_summary_numbers_match_the_report() -> None:
+    questions = [Q | {"id": i, "check": "names Happo"} for i in ("a", "b")]
+    tools = ["search_place", "rank_resorts"]
+    outcomes = [
+        Outcome("a", "en", tools, "Happo", 3, 40.0, cost_usd=0.04),
+        Outcome("b", "en", ["search_place", "nearby_pois"], "Goryu", 2, 60.0),
+    ]
+    s = summarize(questions, outcomes)
+    assert (s["passed"], s["n"], s["pass_rate"]) == (1, 2, 0.5)
+    # b called nearby_pois, which is neither required nor optional: 3 of 4 calls relevant
+    assert (s["hit"], s["required"], s["relevant"], s["distinct"]) == (3, 4, 3, 4)
+    assert (s["tool_recall"], s["tool_precision"]) == (0.75, 0.75)
+    assert (s["cost_usd"], s["cost_reported"], s["median_seconds"]) == (0.04, 1, 50.0)
+
+
+def test_the_report_never_names_a_deployed_api() -> None:
+    assert api_label("http://127.0.0.1:8010") == "http://127.0.0.1:8010"
+    assert api_label("https://example.vercel.app") == "deployed API (HAKUBA_API_URL)"
+
+
+def test_log_mlflow_records_the_run_and_one_trace_per_question(tmp_path: Path) -> None:
+    mlflow = pytest.importorskip("mlflow")  # the eval group; CI installs only dev
+    from mlflow_log import log_mlflow
+
+    uri = f"sqlite:///{tmp_path / 'mlflow.db'}"
+    questions = [Q | {"id": i, "lang": "en", "question": "Where?", "check": "x"} for i in "ab"]
+    steps = parse_steps(tool_events())
+    outcomes = [
+        Outcome("a", "en", ["search_place", "rank_resorts"], "Happo", 3, 4.0, steps=steps),
+        Outcome("b", "en", ["route"], "Goryu", 2, 3.0, error="timeout"),
+    ]
+
+    run_id = log_mlflow(questions, outcomes, {"model": "test"}, "report", uri, tmp_path)
+
+    mlflow.set_tracking_uri(uri)
+    run = mlflow.get_run(run_id)
+    assert run.data.metrics["pass_rate"] == 0.5
+    assert run.data.params["model"] == "test"
+    traces = mlflow.search_traces(run_id=run_id, return_type="list")
+    assert sorted(t.info.request_preview or "" for t in traces) == ['{"question": "Where?"}'] * 2
+    a = next(t for t in traces if t.info.tags.get("question_id") == "a")
+    assert [s.name for s in a.data.spans] == ["a", "route", "rank_resorts"]
+    assert a.data.spans[2].status.status_code == "ERROR"
+    assert [(x.name, x.value) for x in a.info.assessments] == [("passed", True)]
