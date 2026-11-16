@@ -105,7 +105,7 @@ def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
 def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
     option = {
         "boardStopName": "Hotel Hakuba",
-        "firstStopName": "Hotel Hakuba",
+        "firstStopName": "Hakuba Hotel",  # timetable spelling: must not leak as another stop
         "walkS": 652,
         "departsAt": "2026-12-20T08:14:00+09:00",
         "arrivesAt": "2026-12-20T08:19:00+09:00",
@@ -136,7 +136,6 @@ def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
         "boardStop": "Hotel Hakuba",
         "walkMin": 10.9,
         "departs": "2026-12-20T08:14",
-        "departsFrom": "Hotel Hakuba",
         "arrives": "2026-12-20T08:19",
         "rideMin": 5.0,
         "route": "From Misorano",
