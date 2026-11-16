@@ -32,7 +32,10 @@ class TracedServer(MCPServer):
         tool = self._tool_manager.get_tool(name)
         declared = set(tool.parameters.get("properties", {})) if tool else set[str]()
         # declared names only: an agent could put anything, even a hotel name, in a key
-        with tracing.tool_span(name, sorted(declared & arguments.keys())):
+        # the name too: an unknown one is the client's string, so it is not kept either
+        with tracing.tool_span(
+            name if tool else "unknown_tool", sorted(declared & arguments.keys())
+        ):
             return await super().call_tool(name, arguments, context)
 
 

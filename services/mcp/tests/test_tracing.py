@@ -119,6 +119,15 @@ def test_over_http_a_bad_call_is_one_span_with_no_values_and_its_own_trace(
     assert format(span.context.trace_id, "032x") != CLIENT_TRACE
 
 
+def test_an_unknown_tool_name_is_not_kept(spans: InMemorySpanExporter) -> None:
+    with pytest.raises(ToolError):
+        asyncio.run(s.mcp.call_tool("Hotel Secret", {}))
+    tracing.flush()
+    (span,) = spans.get_finished_spans()
+    assert span.name == "unknown_tool"
+    assert "Hotel Secret" not in everything(span)
+
+
 def test_no_keys_means_no_client_and_tools_still_work() -> None:
     assert tracing.client() is None  # conftest removes the keys
     with respx.mock:
