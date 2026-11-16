@@ -105,6 +105,7 @@ def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
 def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
     option = {
         "boardStopName": "Hotel Hakuba",
+        "firstStopName": "Hotel Hakuba",
         "walkS": 652,
         "departsAt": "2026-12-20T08:14:00+09:00",
         "arrivesAt": "2026-12-20T08:19:00+09:00",
@@ -135,6 +136,7 @@ def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
         "boardStop": "Hotel Hakuba",
         "walkMin": 10.9,
         "departs": "2026-12-20T08:14",
+        "departsFrom": "Hotel Hakuba",
         "arrives": "2026-12-20T08:19",
         "rideMin": 5.0,
         "route": "From Misorano",
@@ -144,12 +146,13 @@ def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
 
 @respx.mock
 def test_next_buses_keeps_an_untimed_option_without_arrival() -> None:
-    # production 2026-11-16 09:36 UTC: an untimed option (only the route's first departure is
-    # published) has arrivesAt and rideS null, and [:16] on None crashed the whole tool
+    # production 2026-11-16 09:36 UTC: JR Hakuba has no published time on this trip, so the API
+    # gives the last earlier one (at Iwatake) and arrivesAt/rideS null; [:16] on None crashed
     untimed = {
         "boardStopName": "JR Hakuba Station",
+        "firstStopName": "Hakuba Iwatake Snow Field",
         "walkS": 0,
-        "departsAt": "2026-12-20T08:40:00+09:00",
+        "departsAt": "2026-12-20T15:18:00+09:00",
         "arrivesAt": None,
         "rideS": None,
         "routeName": "Hakuba Valley Line",
@@ -169,7 +172,8 @@ def test_next_buses_keeps_an_untimed_option_without_arrival() -> None:
         {
             "boardStop": "JR Hakuba Station",
             "walkMin": 0.0,
-            "departs": "2026-12-20T08:40",
+            "departs": "2026-12-20T15:18",
+            "departsFrom": "Hakuba Iwatake Snow Field",  # not the boarding stop: say so
             "arrives": None,
             "rideMin": None,
             "route": "Hakuba Valley Line",

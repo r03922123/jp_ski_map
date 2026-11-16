@@ -105,7 +105,7 @@
     "question": "2026-12-20の15時ごろ、JR白馬駅から八方尾根へ行くシャトルバスはありますか？",
     "required": ["search_place", "next_buses"],
     "optional": ["rank_resorts", "crowd_and_snow"],
-    "answer_regex": "15[:：](?!00)\\d\\d",
-    "check": "gives a 15:xx departure other than the 15:00 the question names (an untimed route: no arrival)"
+    "answer_regex": "(?is)(?=.*(15[:：時]\\s*18|１５[:：]１８))(?=.*(岩岳|iwatake|いわたけ))",
+    "check": "gives the 15:18 departure and says it is from Iwatake (JR Hakuba's time is not published)"
   }
 ]
