@@ -9,6 +9,7 @@ from run_eval import (
     api_label,
     parse_steps,
     parse_stream,
+    redact,
     report,
     run_one,
     score,
@@ -196,6 +197,7 @@ def test_parse_steps_pairs_each_tool_call_with_its_result_and_times() -> None:
     # a call the CLI never answered (a timeout) keeps its start and an empty result
     unanswered = parse_steps(tool_events()[:1])[0]
     assert (unanswered.output, unanswered.end_ns) == ("", unanswered.start_ns)
+    assert not unanswered.answered
 
 
 def test_summary_numbers_match_the_report() -> None:
@@ -216,6 +218,49 @@ def test_summary_numbers_match_the_report() -> None:
 def test_the_report_never_names_a_deployed_api() -> None:
     assert api_label("http://127.0.0.1:8010") == "http://127.0.0.1:8010"
     assert api_label("https://example.vercel.app") == "deployed API (HAKUBA_API_URL)"
+    # an agent can quote the URL from a "not reachable" tool error
+    quoted = "Hakuba API not reachable at https://example.vercel.app (ConnectError)"
+    assert redact(quoted, "https://example.vercel.app/") == (
+        "Hakuba API not reachable at deployed API (HAKUBA_API_URL) (ConnectError)"
+    )
+    assert redact("at http://127.0.0.1:8010", "http://127.0.0.1:8010") == "at http://127.0.0.1:8010"
+
+
+def test_a_timed_out_run_keeps_the_tool_calls_it_made(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def fake_run(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        # the partial output arrives as bytes, even with text=True
+        raise subprocess.TimeoutExpired("claude", 420, output="\n".join(tool_events()).encode())
+
+    monkeypatch.setattr(run_eval.subprocess, "run", fake_run)
+    outcome = run_one({"id": "a", "lang": "en", "question": "?"}, tmp_path / "mcp.json", None)
+    assert (outcome.error, outcome.called) == ("timeout", ["route", "rank_resorts"])
+    assert [s.tool for s in outcome.steps] == ["route", "rank_resorts"]
+    assert outcome.started_ns > 0
+
+
+def test_run_one_passes_the_parsed_steps_through(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def fake_run(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        out = "\n".join(tool_events())
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout=out, stderr="")
+
+    monkeypatch.setattr(run_eval.subprocess, "run", fake_run)
+    outcome = run_one({"id": "a", "lang": "en", "question": "?"}, tmp_path / "mcp.json", None)
+    assert [(s.tool, s.answered) for s in outcome.steps] == [
+        ("route", True),
+        ("rank_resorts", True),
+    ]
+
+
+def test_plain_string_content_is_skipped_not_a_crash() -> None:
+    text = line(
+        {"type": "user", "timestamp": "2026-11-16T08:37:01.000Z", "message": {"content": "hi"}}
+    )
+    assert parse_steps([text]) == []
+    assert parse_stream([text])[0] == []
 
 
 def test_log_mlflow_records_the_run_and_one_trace_per_question(tmp_path: Path) -> None:
@@ -242,3 +287,6 @@ def test_log_mlflow_records_the_run_and_one_trace_per_question(tmp_path: Path) -
     assert [s.name for s in a.data.spans] == ["a", "route", "rank_resorts"]
     assert a.data.spans[2].status.status_code == "ERROR"
     assert [(x.name, x.value) for x in a.info.assessments] == [("passed", True)]
+    b = next(t for t in traces if t.info.tags.get("question_id") == "b")
+    assert b.data.spans[0].status.status_code == "ERROR"  # the run timed out
+    assert [(x.name, x.value) for x in b.info.assessments] == [("passed", False)]

@@ -56,7 +56,7 @@ def log_mlflow(
                 ("answer", o.answer),
             ):
                 table[key].append(value)
-            start = o.steps[0].start_ns if o.steps else time.time_ns()
+            start = o.started_ns or (o.steps[0].start_ns if o.steps else time.time_ns())
             root = mlflow.start_span_no_context(
                 o.id,
                 span_type=SpanType.AGENT,
@@ -75,10 +75,9 @@ def log_mlflow(
                 )
                 span.end(
                     outputs=step.output,
-                    status="ERROR" if step.is_error else "OK",
+                    status="ERROR" if step.is_error or not step.answered else "OK",
                     end_time_ns=step.end_ns,
                 )
-            # o.seconds is the whole CLI run, from before the first tool call
             root.end(
                 outputs={"answer": o.answer, "error": o.error},
                 status="ERROR" if o.error else "OK",

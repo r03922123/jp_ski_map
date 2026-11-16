@@ -10,6 +10,7 @@ tool calls, to the local MLflow store: `uv run mlflow ui --backend-store-uri sql
 """
 
 import argparse
+import importlib.util
 import json
 import math
 import os
@@ -42,6 +43,7 @@ class Step:
     is_error: bool
     start_ns: int
     end_ns: int
+    answered: bool = False  # False: the run ended (timeout, crash) before the result came back
 
 
 @dataclass
@@ -55,6 +57,15 @@ class Outcome:
     error: str = ""
     cost_usd: float = 0.0  # 0 = not reported: a timed-out or crashed run gives none
     steps: list[Step] = field(default_factory=list[Step])
+    started_ns: int = 0  # wall clock when the CLI started, for the trace's timeline
+
+
+def _blocks(event: dict[str, Any]) -> list[Any]:
+    """A message's content blocks; a plain-string content has none to read."""
+    content: Any = event.get("message", {}).get("content")
+    if not isinstance(content, list):
+        return []
+    return [b for b in cast(list[Any], content) if not isinstance(b, str)]
 
 
 def parse_stream(lines: list[str]) -> tuple[list[str], str, int, str, float]:
@@ -68,7 +79,7 @@ def parse_stream(lines: list[str]) -> tuple[list[str], str, int, str, float]:
         except json.JSONDecodeError:
             continue
         if event.get("type") == "assistant":
-            for block in event["message"]["content"]:
+            for block in _blocks(event):
                 if block.get("type") == "tool_use":
                     called.append(str(block["name"]).removeprefix(PREFIX))
         elif event.get("type") == "result":
@@ -99,7 +110,7 @@ def parse_steps(lines: list[str]) -> list[Step]:
         if event.get("type") not in ("assistant", "user") or "timestamp" not in event:
             continue
         at = _ns(event["timestamp"])
-        for block in event["message"]["content"]:
+        for block in _blocks(event):
             if block.get("type") == "tool_use":
                 name = str(block["name"]).removeprefix(PREFIX)
                 steps[block["id"]] = Step(name, block.get("input") or {}, "", False, at, at)
@@ -109,6 +120,7 @@ def parse_steps(lines: list[str]) -> list[Step]:
                     items = cast(list[dict[str, Any]], content)
                     content = "".join(str(c.get("text", "")) for c in items)
                 step = steps[block["tool_use_id"]]
+                step.answered = True
                 step.output, step.is_error, step.end_ns = (
                     str(content or ""),
                     bool(block.get("is_error")),
@@ -180,21 +192,42 @@ def run_one(q: dict[str, Any], mcp_config: Path, model: str | None) -> Outcome:
     # Drop ANTHROPIC_API_KEY & co. so the CLI uses the subscription login and never bills the
     # API credit; drop CLAUDE* too, since a parent Claude Code session's vars force bare mode.
     env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC", "CLAUDE"))}
-    start = time.monotonic()
+    start, started_ns = time.monotonic(), time.time_ns()
     with tempfile.TemporaryDirectory() as cwd:  # outside the repo, so its CLAUDE.md isn't loaded
         try:
             proc = subprocess.run(
                 cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=TIMEOUT_S
             )
-        except subprocess.TimeoutExpired:
-            return Outcome(q["id"], q["lang"], [], "", 0, TIMEOUT_S, "timeout")
+        except subprocess.TimeoutExpired as exc:
+            # bytes even with text=True: the partial output is not decoded for us
+            partial = (exc.stdout or b"").decode(errors="replace").splitlines()
+            return Outcome(
+                q["id"],
+                q["lang"],
+                parse_stream(partial)[0],
+                "",
+                0,
+                TIMEOUT_S,
+                "timeout",
+                steps=parse_steps(partial),
+                started_ns=started_ns,
+            )
     lines = proc.stdout.splitlines()
     called, answer, turns, error, cost = parse_stream(lines)
     if proc.returncode and not error:
         error = f"exit {proc.returncode}: {proc.stderr.strip()[:200]}"
     seconds = time.monotonic() - start
     return Outcome(
-        q["id"], q["lang"], called, answer, turns, seconds, error, cost, parse_steps(lines)
+        q["id"],
+        q["lang"],
+        called,
+        answer,
+        turns,
+        seconds,
+        error,
+        cost,
+        parse_steps(lines),
+        started_ns,
     )
 
 
@@ -271,6 +304,13 @@ def api_label(api_url: str) -> str:
     return api_url if host in ("127.0.0.1", "localhost") else "deployed API (HAKUBA_API_URL)"
 
 
+def redact(text: str, api_url: str) -> str:
+    """The report with every mention of the API's URL replaced by its label: an agent can quote
+    it, e.g. from a 'Hakuba API not reachable at <url>' tool error."""
+    base = api_url.rstrip("/")
+    return text.replace(base, api_label(base)) if base else text
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, help="also write the markdown report here")
@@ -281,6 +321,9 @@ def main() -> None:
         "--mlflow", action="store_true", help="log to MLflow (uv sync --group eval)"
     )
     args = parser.parse_args()
+    if args.mlflow and importlib.util.find_spec("mlflow") is None:
+        # fail now, not after the eval has spent its quota
+        parser.error("--mlflow needs MLflow: uvx --from 'uv==0.9.30' uv sync --group eval")
 
     questions: list[dict[str, Any]] = json.loads((HERE / "trip_questions.json").read_text())
     if args.only:
@@ -303,7 +346,7 @@ def main() -> None:
         f"{args.model or 'Claude Code default'} · API: {api_label(api_url)} · "
         f"{len(questions)} questions\n\n"
     )
-    text = header + report(questions, outcomes)
+    text = redact(header + report(questions, outcomes), api_url)
     print(text)
     if args.out:
         args.out.write_text(text)
