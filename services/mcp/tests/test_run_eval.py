@@ -213,6 +213,9 @@ def test_summary_numbers_match_the_report() -> None:
     assert (s["hit"], s["required"], s["relevant"], s["distinct"]) == (3, 4, 3, 4)
     assert (s["tool_recall"], s["tool_precision"]) == (0.75, 0.75)
     assert (s["cost_usd"], s["cost_reported"], s["median_seconds"]) == (0.04, 1, 50.0)
+    assert s["tool_errors"] == 0
+    outcomes[0].steps = parse_steps(tool_events())  # route ok, rank_resorts failed
+    assert summarize(questions, outcomes)["tool_errors"] == 1
 
 
 def test_the_report_never_names_a_deployed_api() -> None:

@@ -57,8 +57,8 @@
     "id": "plan-day-by-bus",
     "lang": "en",
     "question": "Plan my ski day on 2026-12-26 starting from JR Hakuba Station: pick a resort with good snow that isn't too crowded, and tell me which shuttle bus to take around 8am.",
-    "required": ["search_place", "rank_resorts", "next_buses"],
-    "optional": ["crowd_and_snow", "route"],
+    "required": ["search_place", "crowd_and_snow", "next_buses"],
+    "optional": ["rank_resorts", "route"],
     "answer_regex": "(?is)0?8:\\d\\d.*(estimat|timetable)|(estimat|timetable).*0?8:\\d\\d",
     "check": "gives a bus time and says it is an estimate"
   },
@@ -70,5 +70,32 @@
     "optional": [],
     "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake)",
     "check": "names resorts, without a needless place search"
+  },
+  {
+    "id": "drive-to-cortina",
+    "lang": "zh",
+    "question": "從白馬駅開車到白馬Cortina滑雪場要多久？",
+    "required": ["search_place", "route"],
+    "optional": ["rank_resorts", "crowd_and_snow"],
+    "answer_regex": "\\d+(\\.\\d+)?\\s*(分|min)",
+    "check": "gives minutes"
+  },
+  {
+    "id": "drive-to-sanosaka",
+    "lang": "ja",
+    "question": "Hotel Hakubaから白馬さのさかスキー場まで車で何分ですか？",
+    "required": ["search_place", "route"],
+    "optional": ["rank_resorts", "crowd_and_snow"],
+    "answer_regex": "\\d+(\\.\\d+)?\\s*(分|min)",
+    "check": "gives minutes"
+  },
+  {
+    "id": "food-near-iwatake",
+    "lang": "en",
+    "question": "Is there somewhere to eat within walking distance of the Hakuba Iwatake base?",
+    "required": ["nearby_pois"],
+    "optional": ["search_place", "rank_resorts", "crowd_and_snow"],
+    "answer_regex": "(?i)\\d+\\s*(min|分)",
+    "check": "gives a walking time"
   }
 ]

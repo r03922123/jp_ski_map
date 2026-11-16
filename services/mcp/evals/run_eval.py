@@ -264,6 +264,8 @@ def summarize(questions: list[dict[str, Any]], outcomes: list[Outcome]) -> dict[
         "cost_per_question": sum(costs) / len(costs) if costs else 0.0,
         "cost_reported": len(costs),
         "median_seconds": statistics.median(o.seconds for o in outcomes) if n else 0.0,
+        # failed tool calls the agent had to recover from: each costs a turn and tokens
+        "tool_errors": sum(step.is_error for o in outcomes for step in o.steps),
     }
 
 
@@ -292,7 +294,7 @@ def report(questions: list[dict[str, Any]], outcomes: list[Outcome]) -> str:
         f"recall {m['tool_recall']:.2f} ({m['hit']}/{m['required']}) · "
         f"cost ${m['cost_usd']:.2f} (${m['cost_per_question']:.3f} per question, "
         f"{m['cost_reported']} of {m['n']} reported) · "
-        f"median {m['median_seconds']:.0f} s"
+        f"median {m['median_seconds']:.0f} s · tool errors {m['tool_errors']}"
     )
     return "\n".join([summary, "", *rows, "", "Answer excerpts:", "", *details, ""])
 
