@@ -33,7 +33,7 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 ### Eval log (production API, Claude Code default model, n = questions per run)
 | Run | Code | Result | What the traces showed | Decision |
 |---|---|---|---|---|
-| baseline | 7bf5b5d | 7/8 (0.53–0.98), recall 0.93 | `plan-day-by-bus` skipped `rank_resorts` correctly: `crowd_and_snow` gives snow and crowd per resort. `drive-to-goryu` guessed the id `hakuba47-goryu` and retried. | The label was wrong: `crowd_and_snow` required, `rank_resorts` optional. Added `tool_errors` and 3 questions naming resorts with guessable ids. |
+| baseline | e458f26 (tools as on main) | 7/8 (0.53–0.98), recall 0.93 | `plan-day-by-bus` skipped `rank_resorts` correctly: `crowd_and_snow` gives snow and crowd per resort. `drive-to-goryu` guessed the id `hakuba47-goryu` and retried. | The label was wrong: `crowd_and_snow` required, `rank_resorts` optional. Added `tool_errors` and 3 questions naming resorts with guessable ids. |
 | before ×2 | 6fd47e5 | 11/11 and 11/11, 0 tool errors | Over all 30 runs so far, 7 calls passed a resort id; 1 failed. | Too rare to measure a fix at this n; make the failure cheap instead. |
 | after ×2 | 605051c (error lists ids; descriptions say ids come from `rank_resorts`/`crowd_and_snow`) | 10/11 and 11/11, 0 tool errors | The failure called `rank_resorts` to find the id and answered from its drive time (6.6 min; `route` says 7.7). | Revert the wording, keep the error: it shows only after a call failed. |
 | final | 5e921a0 | 11/11 (0.74–1.00), 0 tool errors, $0.045/question | — | Same tool descriptions as the before runs, which passed 22 of 22. |
