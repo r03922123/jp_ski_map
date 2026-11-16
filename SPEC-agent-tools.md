@@ -23,7 +23,7 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 - Base URL: env `HAKUBA_API_URL`, default `http://127.0.0.1:8010` (the dev API; set the production URL to use the deployed API).
 
 ## Eval
-`services/mcp/evals/trip_questions.json`: 8 trip questions in English, Chinese and Japanese. Each lists `required` tools, `optional` tools that are fine to call, and an `answer_regex`. `run_eval.py` runs each through headless Claude Code (`claude -p … --mcp-config … --strict-mcp-config --tools "" --allowedTools "mcp__hakuba__*" --output-format stream-json`), reads the `tool_use` events, and prints:
+`services/mcp/evals/trip_questions.json`: 11 trip questions in English, Chinese and Japanese. Each lists `required` tools, `optional` tools that are fine to call, and an `answer_regex`; an `any_of` group counts as one required tool met by any member, for facts two tools both give (crowd and snow come from `crowd_and_snow` or from `rank_resorts`). `run_eval.py` runs each through headless Claude Code (`claude -p … --mcp-config … --strict-mcp-config --tools "" --allowedTools "mcp__hakuba__*" --output-format stream-json`), reads the `tool_use` events, and prints:
 - pass = every required tool called and the answer matches the regex;
 - recall = required tools called / required tools; precision = distinct calls that were required or optional / distinct calls.
 - the pass rate with its standard error (sample sd / √n, as in the search eval) and a 95% Wilson interval, which is the one to read with 8 questions: at 8 of 8 the standard error is 0, but the interval is 0.68–1.00; the cost per question in USD as the CLI reports it (`total_cost_usd`: what the API would have charged; the subscription is not billed per run), averaged over the runs that reported one, because a timed-out or crashed run reports none; and the median seconds per question.
@@ -31,12 +31,15 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 - The report names a deployed API as "deployed API (HAKUBA_API_URL)", never its URL: `last_run.md` is committed and the repo is public.
 
 ### Eval log (production API, Claude Code default model, n = questions per run)
+Results are as scored at the time; labels changed between runs, so read the rows as a sequence of decisions, not a trend. Under today's labels the baseline would score 8/8.
+
 | Run | Code | Result | What the traces showed | Decision |
 |---|---|---|---|---|
-| baseline | e458f26 (tools as on main) | 7/8 (0.53–0.98), recall 0.93 | `plan-day-by-bus` skipped `rank_resorts` correctly: `crowd_and_snow` gives snow and crowd per resort. `drive-to-goryu` guessed the id `hakuba47-goryu` and retried. | The label was wrong: `crowd_and_snow` required, `rank_resorts` optional. Added `tool_errors` and 3 questions naming resorts with guessable ids. |
-| before ×2 | 6fd47e5 | 11/11 and 11/11, 0 tool errors | Over all 30 runs so far, 7 calls passed a resort id; 1 failed. | Too rare to measure a fix at this n; make the failure cheap instead. |
-| after ×2 | 605051c (error lists ids; descriptions say ids come from `rank_resorts`/`crowd_and_snow`) | 10/11 and 11/11, 0 tool errors | The failure called `rank_resorts` to find the id and answered from its drive time (6.6 min; `route` says 7.7). | Revert the wording, keep the error: it shows only after a call failed. |
-| final | 5e921a0 | 11/11 (0.74–1.00), 0 tool errors, $0.045/question | — | Same tool descriptions as the before runs, which passed 22 of 22. |
+| baseline | e458f26 plus uncommitted eval logging (tools as on main) | 7/8 (0.53–0.98) | `plan-day-by-bus` skipped `rank_resorts` correctly: `crowd_and_snow` gives snow and crowd per resort. `drive-to-goryu` guessed the id `hakuba47-goryu` and retried. | The label was wrong. Now `search_place` and `next_buses` are required, plus one of `crowd_and_snow`/`rank_resorts` (`any_of`, after review: requiring `crowd_and_snow` alone would fail the `rank_resorts(sort="crowd")` path). Added `tool_errors` and 3 questions naming resorts. |
+| before ×2 | 6fd47e5 | 11/11 and 11/11, 0 tool errors | Over all 30 runs so far, 7 calls passed a resort id; 1 failed. The new questions rarely reach `_resolve` (agents look Cortina up by name), so they test id guessing weakly. | Too rare to measure a fix at this n; make the failure cheap instead. |
+| after ×2 | 605051c (error lists ids; descriptions say ids come from `rank_resorts`/`crowd_and_snow`) | 10/11 and 11/11, 0 tool errors | The failure called `rank_resorts` to find the id and answered from its drive time (6.6 min; `route` says 7.7). | 21/22 against 22/22 is noise (Fisher's exact p = 1.0); the revert rests on that one trace showing the mechanism. Reverted the wording, kept the error. |
+| final | 5e921a0 | 11/11 (0.74–1.00), 0 tool errors, $0.045/question | No call hit an unknown id, so the new error text was never shown to the agent. | Same tool descriptions as the before runs (22 of 22). The error text is covered by its unit test only. |
+
 
 ## Acceptance Criteria
 - [ ] `pytest`, `ruff check`, `ruff format --check`, `pyright` (strict) pass in `services/mcp`; tests use respx, no network.

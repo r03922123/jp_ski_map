@@ -23,7 +23,7 @@
     "question": "白馬駅から白馬五竜まで車で何分かかりますか？",
     "required": ["search_place", "route"],
     "optional": ["rank_resorts"],
-    "answer_regex": "\\d+(\\.\\d+)?\\s*(分|min)",
+    "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
     "check": "gives minutes"
   },
   {
@@ -57,8 +57,9 @@
     "id": "plan-day-by-bus",
     "lang": "en",
     "question": "Plan my ski day on 2026-12-26 starting from JR Hakuba Station: pick a resort with good snow that isn't too crowded, and tell me which shuttle bus to take around 8am.",
-    "required": ["search_place", "crowd_and_snow", "next_buses"],
-    "optional": ["rank_resorts", "route"],
+    "required": ["search_place", "next_buses"],
+    "any_of": [["crowd_and_snow", "rank_resorts"]],
+    "optional": ["route"],
     "answer_regex": "(?is)0?8:\\d\\d.*(estimat|timetable)|(estimat|timetable).*0?8:\\d\\d",
     "check": "gives a bus time and says it is an estimate"
   },
@@ -77,7 +78,7 @@
     "question": "從白馬駅開車到白馬Cortina滑雪場要多久？",
     "required": ["search_place", "route"],
     "optional": ["rank_resorts", "crowd_and_snow"],
-    "answer_regex": "\\d+(\\.\\d+)?\\s*(分|min)",
+    "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
     "check": "gives minutes"
   },
   {
@@ -86,7 +87,7 @@
     "question": "Hotel Hakubaから白馬さのさかスキー場まで車で何分ですか？",
     "required": ["search_place", "route"],
     "optional": ["rank_resorts", "crowd_and_snow"],
-    "answer_regex": "\\d+(\\.\\d+)?\\s*(分|min)",
+    "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
     "check": "gives minutes"
   },
   {
@@ -95,7 +96,7 @@
     "question": "Is there somewhere to eat within walking distance of the Hakuba Iwatake base?",
     "required": ["nearby_pois"],
     "optional": ["search_place", "rank_resorts", "crowd_and_snow"],
-    "answer_regex": "(?i)\\d+\\s*(min|分)",
+    "answer_regex": "(?i)\\d+\\s*-?\\s*(min|分)",
     "check": "gives a walking time"
   }
 ]
