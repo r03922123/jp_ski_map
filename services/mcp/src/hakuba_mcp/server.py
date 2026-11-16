@@ -29,7 +29,10 @@ class TracedServer(MCPServer):
     """MCPServer that wraps every tool call in a Langfuse span when tracing is on."""
 
     async def call_tool(self, name: str, arguments: dict[str, Any], context: Any = None) -> Any:
-        with tracing.tool_span(name, arguments):
+        tool = self._tool_manager.get_tool(name)
+        declared = set(tool.parameters.get("properties", {})) if tool else set[str]()
+        # declared names only: an agent could put anything, even a hotel name, in a key
+        with tracing.tool_span(name, sorted(declared & arguments.keys())):
             return await super().call_tool(name, arguments, context)
 
 
