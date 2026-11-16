@@ -98,5 +98,14 @@
     "optional": ["search_place", "rank_resorts", "crowd_and_snow"],
     "answer_regex": "(?i)\\d+\\s*-?\\s*(min|分)",
     "check": "gives a walking time"
+  },
+  {
+    "id": "untimed-bus-afternoon",
+    "lang": "ja",
+    "question": "2026-12-20の15時ごろ、JR白馬駅から八方尾根へ行くシャトルバスはありますか？",
+    "required": ["search_place", "next_buses"],
+    "optional": ["rank_resorts", "crowd_and_snow"],
+    "answer_regex": "(?is)(?=.*(15[:：時]\\s*18|１５[:：時]\\s*１８))(?=.*(岩岳|iwatake|いわたけ))",
+    "check": "gives the 15:18 departure and says it is from Iwatake (JR Hakuba's time is not published)"
   }
 ]
