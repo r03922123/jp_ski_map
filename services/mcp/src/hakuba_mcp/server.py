@@ -185,17 +185,20 @@ def _resolve(place: str) -> str:
     """'lat,lng' passes through; a resort id becomes its main access point."""
     if "," in place:
         return place
-    for resort in _get("/api/resorts"):
+    resorts = _get("/api/resorts")
+    for resort in resorts:
         if resort["id"] == place:
             return _coord(resort["accessPoints"][0]["coord"])
-    raise ToolError(f"unknown place {place!r}: pass 'lat,lng' or a resort id like 'happo-one'")
+    ids = ", ".join(r["id"] for r in resorts)  # so the agent's retry needs no guess
+    raise ToolError(f"unknown place {place!r}: pass 'lat,lng' or a resort id: {ids}")
 
 
 @mcp.tool(annotations=READ_ONLY)
 def route(mode: Mode, origin: str, destination: str) -> dict[str, Any]:
     """Drive or walk ETA between two places (Valhalla road routing, no live traffic).
 
-    origin / destination: 'lat,lng', or a resort id (e.g. 'happo-one') for its main base.
+    origin / destination: 'lat,lng', or a resort id for its main base: the `resortId` from
+    rank_resorts or crowd_and_snow (e.g. 'happo-one').
     Returns durationMin, distanceKm and a one-line road summary.
     """
     r = _get("/api/route", {"mode": mode, "from": _resolve(origin), "to": _resolve(destination)})
@@ -216,8 +219,8 @@ def nearby_pois(
 ) -> list[dict[str, Any]]:
     """Restaurants (food) or convenience stores near a place, closest by travel time first.
 
-    origin: 'lat,lng' or a resort id. Returns name, minutes away by `mode`, distanceM,
-    coord and opening hours when OpenStreetMap has them.
+    origin: 'lat,lng' or a `resortId` from rank_resorts or crowd_and_snow. Returns name,
+    minutes away by `mode`, distanceM, coord and opening hours when OpenStreetMap has them.
     """
     pois = _get(
         "/api/pois/nearby",
