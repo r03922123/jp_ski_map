@@ -870,13 +870,14 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 ## Task J14: MCP tools in Claude chat (SPEC-agent-tools v2)
 - [x] PR #61: `/mcp/<token>` on Vercel (service `mcp`), stateless Streamable HTTP, GET → 405. Production 1d43e67 (2026-11-13): wrong token 404, initialize, 6 tools, search_place and next_buses live; site smoke 5/5
 - [ ] Owner: add the link from `~/.config/jp_ski_map/mcp-connector-url.txt` as a custom connector on claude.ai, ask a trip question from the phone app, then send the link to friends
-- [ ] Run the agent eval once (`services/mcp/evals/run_eval.py`) and save `last_run.md`. It uses the dev API on :8010 by default; set `HAKUBA_API_URL` to the production URL to test the deployed API
+- [x] Run the agent eval once and save `last_run.md` (PR #70, 2026-11-16, production API: 7/8; with `--mlflow` every run and per-question trace is in `services/mcp/mlflow.db`)
 
 ## Task J15: Production habits around the ML parts (2026-11-16)
 Three small PRs, each test-first with a fresh-eyes review.
 - [ ] PR #67: `/api/snow` and `/api/rank` serve the last good snow report (up to 6 h, with its own `asOf`) when Open-Meteo fails, and remember a failure for 60 s (`snow/router.py`, `tests/snow/test_stale.py`)
 - [ ] PR #68: a `Server-Timing` header with one entry per upstream call, and a log line for a request over 1 s or a 5xx; never the query string (`common/timing.py`, `tests/test_timing.py`)
 - [ ] PR #69: the search eval prints n, standard error and the paired difference from lexical; the agent eval prints the pass rate with its standard error, cost per question and median seconds
+- Found by #72's eval, open: for the same trip `rank_resorts` gives `driveMin` 6.6 and `route` gives 7.7 min (matrix vs route cost); an agent that answers from either is "right"
 - Found by #68's first run, open: `/api/places/suggest?q=tokyu` took 1255 ms, 1231 ms of it waiting on Photon, whose timeout is 10 s. Search-as-you-type needs a short timeout on that fallback
 - Still open from J14: the agent eval has never been run, so there is no pass rate or cost number yet
 
@@ -886,3 +887,11 @@ Three small PRs, each test-first with a fresh-eyes review.
 - Pushed 2026-11-01 (9a25e4a, CI green). T79 done after that, local.
 - Next: Checkpoint M once the user has installed Tailscale.
 - Open issue: pilot walk-drag flake (Task 67 note).
+
+## Task J16: MLflow eval loop and Langfuse production traces (SPEC-agent-tools v3, 2026-11-16)
+- [x] PR #70: `run_eval.py --mlflow` logs each eval run (metrics, report, table) and one trace per question (a `TOOL` span per call, a `passed` assessment) to `services/mcp/mlflow.db`; MLflow is the `eval` dependency group only
+- [x] PR #71: each production tool call → one Langfuse `tool` observation (name, duration, declared argument names, error summary; never values); off without keys; own tracer provider
+- [x] PR #72: the eval loop in practice: a wrong label fixed (`any_of`), `tool_errors`, 3 questions, the unknown-resort-id error lists the valid ids; a description change was reverted after its trace showed it moved agents to `rank_resorts`. Eval log in SPEC-agent-tools.md
+- [x] Production 16bee80 (2026-11-16): smoke 5/5; MCP initialize, 6 tools, search_place live, bad id lists the 10 ids, wrong token 404
+- [ ] Owner: create a Langfuse Cloud account in the Japan region (`https://jp.cloud.langfuse.com`, Hobby, $0), a project and its keys, saved to `~/.config/jp_ski_map/langfuse.env` (`LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_BASE_URL`)
+- [ ] Then: set those plus `LANGFUSE_TRACING_ENVIRONMENT=production` and `LANGFUSE_TIMEOUT=2` in Vercel Production, redeploy, make one `tools/call`, and see it in Langfuse within a minute; time a request to check the flush doesn't hold the response
