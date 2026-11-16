@@ -169,7 +169,8 @@ def next_buses(
     awaiting_review = timetable not checked yet),
     `basis` (published, or expected = projected from last season), and per resort the
     earliest options: board stop, walkMin to it, departs/arrives (local time), rideMin.
-    Times are timetable estimates, not live positions.
+    When `timed` is false only the route's first departure is published: departs is that
+    time and arrives/rideMin are null. Times are timetable estimates, not live positions.
     """
     res = _get("/api/bus/options", {"from": origin, "at": at, "name": origin_name})
     return {
@@ -184,8 +185,8 @@ def next_buses(
                     {
                         "boardStop": o["boardStopName"],
                         "walkMin": _min(o["walkS"]),
-                        "departs": o["departsAt"][:16],
-                        "arrives": o["arrivesAt"][:16],
+                        "departs": _to_minute(o["departsAt"]),
+                        "arrives": _to_minute(o["arrivesAt"]),  # None when untimed
                         "rideMin": _min(o["rideS"]),
                         "route": o["routeName"],
                         "timed": o["timed"],

@@ -98,5 +98,14 @@
     "optional": ["search_place", "rank_resorts", "crowd_and_snow"],
     "answer_regex": "(?i)\\d+\\s*-?\\s*(min|分)",
     "check": "gives a walking time"
+  },
+  {
+    "id": "untimed-bus-afternoon",
+    "lang": "ja",
+    "question": "2026-12-20の15時ごろ、JR白馬駅から八方尾根へ行くシャトルバスはありますか？",
+    "required": ["search_place", "next_buses"],
+    "optional": ["rank_resorts", "crowd_and_snow"],
+    "answer_regex": "15[:：](?!00)\\d\\d",
+    "check": "gives a 15:xx departure other than the 15:00 the question names (an untimed route: no arrival)"
   }
 ]

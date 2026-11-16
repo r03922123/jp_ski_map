@@ -143,6 +143,42 @@ def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
 
 
 @respx.mock
+def test_next_buses_keeps_an_untimed_option_without_arrival() -> None:
+    # production 2026-11-16 09:36 UTC: an untimed option (only the route's first departure is
+    # published) has arrivesAt and rideS null, and [:16] on None crashed the whole tool
+    untimed = {
+        "boardStopName": "JR Hakuba Station",
+        "walkS": 0,
+        "departsAt": "2026-12-20T08:40:00+09:00",
+        "arrivesAt": None,
+        "rideS": None,
+        "routeName": "Hakuba Valley Line",
+        "timed": False,
+    }
+    respx.get(f"{API}/api/bus/options").respond(
+        json={
+            "status": "ok",
+            "nextServiceDate": None,
+            "basis": "published",
+            "newerSourcePending": False,
+            "resorts": [{"resortId": "goryu", "options": [untimed]}],
+        }
+    )
+    out = s.next_buses(ORIGIN)
+    assert out["resorts"][0]["options"] == [
+        {
+            "boardStop": "JR Hakuba Station",
+            "walkMin": 0.0,
+            "departs": "2026-12-20T08:40",
+            "arrives": None,
+            "rideMin": None,
+            "route": "Hakuba Valley Line",
+            "timed": False,
+        }
+    ]
+
+
+@respx.mock
 def test_route_resolves_resort_id_to_its_first_access_point() -> None:
     respx.get(f"{API}/api/resorts").respond(
         json=[{"id": "happo-one", "accessPoints": [{"coord": {"lat": 36.70179, "lng": 137.83683}}]}]
