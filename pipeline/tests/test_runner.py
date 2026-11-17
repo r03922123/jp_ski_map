@@ -50,7 +50,8 @@ def test_two_offline_runs_give_the_same_lock_and_outputs(
 ) -> None:
     store = root / "store"
     stages = [Stage.of(crawl)]
-    assert run(stages, root=root, store=store).ran == ["crawl"]
+    first = run(stages, root=root, store=store)
+    assert first.ran == ["crawl"] and len(first.changed) == 1 + 18 + 13  # all new
     online = _outputs(root)
     sources = json.loads(online["out/crawl/sources.json"])
     assert (len(sources["assets"]), len(sources["myMaps"])) == (18, 13)
@@ -92,6 +93,20 @@ def test_a_changed_asset_hash_is_detected_and_locked(root: Path, site: dict[str,
     assert after["fetches"][CHANGED_ASSET] != before["fetches"][CHANGED_ASSET]
     assert (store / after["fetches"][CHANGED_ASSET]).read_bytes() == b"a new timetable"
     assert after["outputs"] != before["outputs"]  # sources.json carries the new hash
+
+
+def test_offline_refuses_a_snapshot_whose_bytes_do_not_match_its_hash(
+    root: Path, site: dict[str, bytes]
+) -> None:
+    store = root / "store"
+    run([Stage.of(crawl)], root=root, store=store)
+    sha = json.loads((root / "pipeline.lock.json").read_text())["stages"]["crawl"]["fetches"][
+        CHANGED_ASSET
+    ]
+    (store / sha).write_bytes(b"version https://git-lfs.github.com/spec/v1")
+    shutil.rmtree(root / "out")
+    with respx.mock, pytest.raises(ValueError, match="does not match its hash"):
+        run([Stage.of(crawl)], root=root, store=store, offline=True)
 
 
 def test_offline_refuses_a_url_the_lock_never_saw(root: Path) -> None:

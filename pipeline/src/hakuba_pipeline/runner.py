@@ -42,7 +42,6 @@ class _Fetcher:
     offline: bool
     locked: dict[str, str]  # url -> sha256 from the last run of the current stage
     log: dict[str, str] = field(default_factory=dict[str, str])
-    changed: list[str] = field(default_factory=list[str])
 
 
 _fetcher: _Fetcher | None = None
@@ -61,6 +60,8 @@ def fetch(url: str) -> bytes:
         if not path.exists():
             raise FileNotFoundError(f"--offline: snapshot {sha} of {url} is not in {f.store}")
         content = path.read_bytes()
+        if hashlib.sha256(content).hexdigest() != sha:  # e.g. a Git LFS pointer, not the bytes
+            raise ValueError(f"--offline: snapshot {sha} of {url} does not match its hash")
     else:
         response = httpx.get(
             url, headers={"User-Agent": USER_AGENT}, timeout=60, follow_redirects=True
@@ -70,11 +71,16 @@ def fetch(url: str) -> bytes:
         sha = hashlib.sha256(content).hexdigest()
         path = f.store / sha
         if not path.exists():
-            path.write_bytes(content)
-        if f.locked.get(url, sha) != sha:
-            f.changed.append(url)
+            _write_atomic(path, content)
     f.log[url] = sha
     return content
+
+
+def _write_atomic(path: Path, content: bytes) -> None:
+    """A crash mid-write must not leave a truncated file under a valid name."""
+    tmp = path.with_name(f".{path.name}.tmp")
+    tmp.write_bytes(content)
+    tmp.replace(path)
 
 
 def _sha(path: Path) -> str:
@@ -91,7 +97,7 @@ def _hash_tree(path: Path) -> dict[str, str]:
 @dataclass
 class Result:
     ran: list[str]
-    changed: list[str]  # URLs whose bytes differ from the lock (new or removed URLs aren't listed)
+    changed: list[str]  # online: URLs new, changed or gone since the lock
 
 
 def run(
@@ -133,7 +139,10 @@ def run(
             "outputs": _hash_tree(out),
         }
         result.ran.append(stage.name)
-        result.changed += fetched.changed
+        before, after = fetched.locked, fetched.log
+        result.changed += sorted(
+            u for u in before.keys() | after.keys() if before.get(u) != after.get(u)
+        )
 
-    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n")
+    _write_atomic(lock_path, (json.dumps(lock, indent=2, sort_keys=True) + "\n").encode())
     return result
