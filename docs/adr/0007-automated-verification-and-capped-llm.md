@@ -1,6 +1,8 @@
 # ADR-0007: Automatic verification replaces human review; capped Claude API calls from code
 
-- Status: **Proposed** (2026-11-18). Accepted only when the owner approves the spend in the PR.
+- Status: **Accepted** (2026-11-18, owner: "yes" to the paid steps within the ~$100 credit and the
+  $5/month cap). Decision 1 takes effect only when P4's gate passes and P7 lands; until then the
+  reviewed timetables are served as before.
 - Specs: [SPEC-pipeline.md](../../SPEC-pipeline.md), [SPEC-ask-maps.md](../../SPEC-ask-maps.md)
 
 ## Context
