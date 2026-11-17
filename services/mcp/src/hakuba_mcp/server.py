@@ -87,11 +87,13 @@ def search_place(query: str, limit: int = 5) -> list[dict[str, Any]]:
     """Find a hotel, station or any place in Hakuba by name (English or Japanese) or a
     Google Maps link. Use this first to turn the user's starting point into an origin.
 
-    Returns places with `coord` as a 'lat,lng' string to pass as `origin` to other tools.
+    Returns places with `coord` as a 'lat,lng' string to pass as `origin` to other tools,
+    and a stable `id`.
     """
     places = _get("/api/places/suggest", {"q": query, "limit": limit})
     return [
         {
+            "id": p["id"],
             "name": p["name"],
             "nameJa": p.get("nameJa"),
             "kind": p.get("kind"),
@@ -168,7 +170,8 @@ def next_buses(
     Returns `status` (ok, no_service with `nextServiceDate` = first service day, or
     awaiting_review = timetable not checked yet),
     `basis` (published, or expected = projected from last season), and per resort the
-    earliest options: board stop, walkMin to it, departs/arrives (local time), rideMin.
+    earliest options: board stop and its stable boardStopId, walkMin to it, departs/arrives
+    (local time), rideMin.
     When `timed` is false the timetable has no time at the boarding stop or at the resort:
     `departs` is the time at `departsFrom`, which can be an earlier stop (the bus reaches the
     boarding stop later, at an unpublished time), and arrives/rideMin are null; don't
@@ -185,6 +188,7 @@ def next_buses(
                 "resortId": r["resortId"],
                 "options": [
                     {
+                        "boardStopId": o["boardStopId"],
                         "boardStop": o["boardStopName"],
                         "walkMin": _min(o["walkS"]),
                         "departs": _to_minute(o["departsAt"]),
@@ -241,7 +245,7 @@ def nearby_pois(
 ) -> list[dict[str, Any]]:
     """Restaurants (food) or convenience stores near a place, closest by travel time first.
 
-    origin: 'lat,lng' or a resort id. Returns name, minutes away by `mode`, distanceM,
+    origin: 'lat,lng' or a resort id. Returns a stable id, name, minutes away by `mode`, distanceM,
     coord and opening hours when OpenStreetMap has them.
     """
     pois = _get(
@@ -250,6 +254,7 @@ def nearby_pois(
     )
     return [
         {
+            "id": p["id"],
             "name": p["name"],
             "nameJa": p.get("nameJa"),
             "minutes": _min(p.get("durationS")),

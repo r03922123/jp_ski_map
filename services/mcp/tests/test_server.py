@@ -61,6 +61,7 @@ def test_search_place_sends_query_and_returns_coord_string() -> None:
     assert route.calls.last.request.url.params == httpx.QueryParams(q="白馬駅", limit="3")
     assert out == [
         {
+            "id": "osm:node/1",
             "name": "JR Hakuba Station",
             "nameJa": "白馬駅",
             "kind": "station",
@@ -104,6 +105,7 @@ def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
 @respx.mock
 def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
     option = {
+        "boardStopId": "hotel-hakuba",
         "boardStopName": "Hotel Hakuba",
         "firstStopName": "Hakuba Hotel",  # timetable spelling: must not leak as another stop
         "walkS": 652,
@@ -133,6 +135,7 @@ def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
     opts = out["resorts"][0]["options"]
     assert len(opts) == 2
     assert opts[0] == {
+        "boardStopId": "hotel-hakuba",
         "boardStop": "Hotel Hakuba",
         "walkMin": 10.9,
         "departs": "2026-12-20T08:14",
@@ -148,6 +151,7 @@ def test_next_buses_keeps_an_untimed_option_without_arrival() -> None:
     # production 2026-11-16 09:36 UTC: JR Hakuba has no published time on this trip, so the API
     # gives the last earlier one (at Iwatake) and arrivesAt/rideS null; [:16] on None crashed
     untimed = {
+        "boardStopId": "jr-hakuba",
         "boardStopName": "JR Hakuba Station",
         "firstStopName": "Hakuba Iwatake Snow Field",
         "walkS": 0,
@@ -169,6 +173,7 @@ def test_next_buses_keeps_an_untimed_option_without_arrival() -> None:
     out = s.next_buses(ORIGIN)
     assert out["resorts"][0]["options"] == [
         {
+            "boardStopId": "jr-hakuba",
             "boardStop": "JR Hakuba Station",
             "walkMin": 0.0,
             "departs": "2026-12-20T15:18",
@@ -241,6 +246,7 @@ def test_nearby_pois_params_and_trimming() -> None:
     }
     assert out == [
         {
+            "id": "osm:node/1",
             "name": "Lawson",
             "nameJa": "ローソン",
             "minutes": 18.8,
