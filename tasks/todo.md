@@ -902,6 +902,8 @@ Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../
 a $5/month Claude API cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
 built in a fresh session from its spec. P1–P3 and A1–A3 cost nothing and can start before the OK;
 P3's hosted-model comparison, P4 and A4 need it.
-- [x] A1 (PR pending, branch `feat/ask-maps-a1`): `id` / `boardStopId` in search_place, nearby_pois and
+**2026-11-18, owner: not yet.** ADR-0007 stays Proposed: only $0 tasks run (P1–P3 without the hosted
+model, A1–A3 with a fake client). P4, A2's real eval and A4 wait for a new OK.
+- [x] A1 (PR #79, branch `feat/ask-maps-a1`): `id` / `boardStopId` in search_place, nearby_pois and
   next_buses; `services/mcp/src/hakuba_mcp/ask.py` serves `POST /ask` (fake-client tests, no API call)
 - [ ] A1 leftovers: agent-tools eval re-run with the new ids; SSE spike on a preview (A4)

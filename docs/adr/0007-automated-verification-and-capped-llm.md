@@ -24,6 +24,13 @@ alone reads 0.77 of cells.
    Haiku 5.5). Cap: **$5 a month** in an Anthropic Console workspace spend limit, plus the app's
    own counter for Ask. The key lives only in Vercel env and GitHub Actions secrets.
 
+3. **Total budget: the owner's prepaid Claude API credit of about $100 is the upper bound for
+   everything** (owner, 2026-11-18). The plan's first season, from the estimates above: P3 model
+   comparison ≈ $5, two season runs ≈ $3, Ask evals (Haiku runs plus one Sonnet paired run) ≈ $10,
+   Ask at 1,000 questions a month for 4 months ≈ $10, so ≈ $28, about 30% of the credit. The
+   monthly cap stays $5, so a season can't take more than ≈ $25 even if usage spikes. For the
+   credit to be a hard bound, auto-reload must be off in the Console (owner check).
+
 ## Alternatives dropped
 - Local VLM only ($0): 0.77 cell accuracy is far below the gate; a single local model can't verify
   itself.
