@@ -902,3 +902,4 @@ Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../
 a $5/month Claude API cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
 built in a fresh session from its spec. P1–P3 and A1–A3 cost nothing and can start before the OK;
 P3's hosted-model comparison, P4 and A4 need it.
+- [x] P1 (2026-11-18): `pipeline/` (`hakuba_pipeline`): stage contract, stdlib runner, `pipeline.lock.json`, `fetch` → `snapshots/<sha256>` (gitignored; `--store` or `$HAKUBA_SNAPSHOTS`), `crawl` reusing `check_sources.parse_page`. CI job `pipeline`. Live crawl 2026-11-18: 31 hashes equal `data/bus/sources.json`; two `--offline` replays byte-identical to the online lock. Not done: the private snapshot repo (the store defaults to a local folder, so `--offline` works only on the machine that crawled)
