@@ -84,5 +84,5 @@ Results are as scored at the time; labels changed between runs, so read the rows
 
 ## Boundaries
 - Always: read-only GETs; trim responses; docstrings say when to use the tool and its units.
-- Never: call the Anthropic API from code (the API credit is reserved; the eval uses the Claude Code subscription and strips `ANTHROPIC_*` env vars); add a root `.mcp.json` (it would prompt every session in this repo); add an agent framework on top of the SDK.
+- Never: call the Anthropic API from the MCP tools themselves (Ask Maps' loop is the one capped exception, ADR-0007; the eval uses the Claude Code subscription and strips `ANTHROPIC_*` env vars); add a root `.mcp.json` (it would prompt every session in this repo); add an agent framework on top of the SDK.
 - Cost: $0.
