@@ -895,3 +895,10 @@ Three small PRs, each test-first with a fresh-eyes review.
 - [x] Production 16bee80 (2026-11-16): smoke 5/5; MCP initialize, 6 tools, search_place live, bad id lists the 10 ids, wrong token 404
 - [x] Owner: Langfuse Cloud, Japan region, Hobby ($0); keys in `~/.config/jp_ski_map/langfuse.env`
 - [x] Vercel Production env set and redeployed (2026-11-16). Checked: 6 `tools/call` → 6 `TOOL` observations (`production`), the bad one `ToolError; invalid arguments: destination`, input/output empty, no coordinate or query text stored. Warm `tools/call` median 0.29 s (max 0.42, n=12), `tools/list` 0.19 s; one 7.7 s call in an earlier batch of 5, not reproduced (likely a cold start, unverified). Read observations with `/api/public/v2/observations`
+
+## Proposed 2026-11-18: rebuild from the URL, and Ask Maps (specs only, nothing built)
+Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../SPEC-ask-maps.md) (A0–A4),
+[ADR-0007](../docs/adr/0007-automated-verification-and-capped-llm.md) (Proposed: waits for the owner's OK on
+a $5/month Claude API cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
+built in a fresh session from its spec. P1–P3 and A1–A3 cost nothing and can start before the OK;
+P3's hosted-model comparison, P4 and A4 need it.
