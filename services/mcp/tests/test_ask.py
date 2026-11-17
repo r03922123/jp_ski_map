@@ -233,8 +233,16 @@ def test_loop_stops_after_six_tool_calls_and_two_more_turns() -> None:
     assert len(fake.messages.requests) == ask.MAX_TOOL_CALLS + ask.MAX_TURNS_AFTER_CAP
     (last,) = tool_results(fake.messages.requests[-1])
     assert last["is_error"] is True and "budget" in last["content"]
+    choices = [r["tool_choice"]["type"] for r in fake.messages.requests]
+    assert choices == ["auto"] * 6 + ["none"] * 2  # the budget's spent: answer now
     assert out["toolCalls"] == 6
     assert out["pins"] == []
+    assert out["answer"] == [{"text": ask.NO_ANSWER, "sources": []}]  # never a blank sheet
+
+
+def test_max_tokens_without_text_says_so() -> None:
+    fake = FakeClient([msg([{"type": "thinking", "thinking": "", "signature": "s"}], "max_tokens")])
+    assert run(fake)["answer"] == [{"text": ask.NO_ANSWER, "sources": []}]
 
 
 def test_request_shape_is_cached_and_capped() -> None:
@@ -247,10 +255,10 @@ def test_request_shape_is_cached_and_capped() -> None:
     assert req["system"][0]["cache_control"] == {"type": "ephemeral"}
     assert req["tools"][-1]["cache_control"] == {"type": "ephemeral"}
     assert len(req["tools"]) == 6
-    # per-question context after the question, so the cached prefix doesn't change
-    assert req["messages"][0] == {"role": "user", "content": "hi"}
+    # the user's start stays in the user turn; local time follows as a system message
+    assert req["messages"][0] == {"role": "user", "content": "hi\n\n(My start: Hakuba Tokyu Hotel)"}
     assert req["messages"][1]["role"] == "system"
-    assert "Hakuba Tokyu Hotel" in req["messages"][1]["content"]
+    assert "Local time" in req["messages"][1]["content"]
 
 
 # ---- HTTP: POST /ask through remote.app -------------------------------------------------------
@@ -259,7 +267,8 @@ def test_request_shape_is_cached_and_capped() -> None:
 @pytest.fixture(autouse=True)
 def site(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     monkeypatch.setenv("PUBLIC_URL", f"{SITE}/")
-    monkeypatch.delenv("VERCEL_URL", raising=False)
+    for name in ("VERCEL_URL", "VERCEL_BRANCH_URL", "VERCEL_PROJECT_PRODUCTION_URL"):
+        monkeypatch.delenv(name, raising=False)
     ask._buckets.clear()  # pyright: ignore[reportPrivateUsage]
     yield
     ask._buckets.clear()  # pyright: ignore[reportPrivateUsage]

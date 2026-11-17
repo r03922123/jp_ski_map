@@ -103,7 +103,13 @@ pin), using the existing `BottomSheet`, `PlaceCard` and map layers.
 *A1 as built (2026-11-18):* `POST /ask` takes `{question, start?}` and returns one JSON response
 `{answer: [{text, sources}], pins: [{source, kind, id, title, coord}], toolCalls}`. The SSE spike
 was not run (it needs a preview deploy); it moves to A4, and JSON is the fallback until then.
-Origins allowed: `PUBLIC_URL` and the deploy's own `https://$VERCEL_URL`; none set = all refused.
+Origins allowed: `PUBLIC_URL` and Vercel's `VERCEL_URL`, `VERCEL_BRANCH_URL` and
+`VERCEL_PROJECT_PRODUCTION_URL`; none set = all refused. Only the local time goes in the
+mid-conversation system message: the user's `start` is their own text, so it stays in the user
+turn (a review found it would otherwise get operator authority). Once the 6 calls are spent the
+next turns send `tool_choice: none`, and an answer with no text (tool call, `max_tokens`,
+refusal) becomes "I couldn't finish an answer", never a blank sheet. Stop and resort pins carry
+no coord (the tools return none); A3 places them from its own stop and resort data.
 Spend limit: a limit we set returns 400 `invalid_request_error` "You have reached your specified
 (workspace) API usage limits", the tier cap 429 with `error_code: enforced_spend_limit_reached`
 (platform docs, rate-limits page, 2026-11-18); both give 503 "Ask is paused this month". Not yet

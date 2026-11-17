@@ -44,6 +44,7 @@ MAX_START_CHARS = 200
 QUESTIONS_PER_DAY = 20
 JST = timezone(timedelta(hours=9))
 
+NO_ANSWER = "I couldn't finish an answer to that. Try a shorter or more specific question."
 PAUSED = "Ask is paused this month: its spending limit is reached. Try again next month."
 
 SYSTEM = """You answer questions from a skier staying in Hakuba Valley, Japan, using only the \
@@ -173,11 +174,12 @@ async def _tools() -> list[ToolParam]:
 async def answer(client: AsyncAnthropic, question: str, start: str | None) -> dict[str, Any]:
     """Run the bounded tool loop; return the cited answer and the pins it cites."""
     now = datetime.now(JST).strftime("%Y-%m-%d %H:%M (%A), Japan time")
-    context = f"Local time: {now}." + (f" The user's start: {start}." if start else "")
+    # start is the user's own text, so it stays in the user turn, not the operator channel
+    asked = f"{question}\n\n(My start: {start})" if start else question
     messages: list[MessageParam] = [
-        {"role": "user", "content": question},
+        {"role": "user", "content": asked},
         # after the question, so the cached tools + system prefix stays the same
-        {"role": "system", "content": context},
+        {"role": "system", "content": f"Local time: {now}."},
     ]
     tools = await _tools()
     pins: dict[str, dict[str, Any]] = {}
@@ -190,6 +192,8 @@ async def answer(client: AsyncAnthropic, question: str, start: str | None) -> di
                 max_tokens=MAX_TOKENS,
                 system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
                 tools=tools,
+                # once the budget is spent the model must answer, not ask for another tool
+                tool_choice={"type": "none"} if calls >= MAX_TOOL_CALLS else {"type": "auto"},
                 messages=messages,
                 output_config={"effort": "low"},
             )
@@ -235,6 +239,9 @@ def _cited(response: Message | None, pins: dict[str, dict[str, Any]]) -> dict[st
                 sources.append(c.source)
                 cited.setdefault(c.source, pins[c.source])
         segments.append({"text": block.text, "sources": sources})
+    if not any(seg["text"].strip() for seg in segments):
+        # stopped on a tool call, max_tokens or a refusal: say so rather than show nothing
+        return {"answer": [{"text": NO_ANSWER, "sources": []}], "pins": []}
     return {"answer": segments, "pins": list(cited.values())}
 
 
@@ -279,8 +286,10 @@ def _allowed_origins() -> set[str]:
     if public := os.environ.get("PUBLIC_URL"):
         parts = urlsplit(public)
         origins.add(f"{parts.scheme}://{parts.netloc}")
-    if vercel := os.environ.get("VERCEL_URL"):  # set by Vercel on every deploy, previews too
-        origins.add(f"https://{vercel}")
+    # set by Vercel: this deploy's own URL, its branch alias, the production domain
+    for name in ("VERCEL_URL", "VERCEL_BRANCH_URL", "VERCEL_PROJECT_PRODUCTION_URL"):
+        if host := os.environ.get(name):
+            origins.add(f"https://{host}")
     return origins
 
 
