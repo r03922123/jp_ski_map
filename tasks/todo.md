@@ -902,3 +902,5 @@ Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../
 a $5/month Claude API cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
 built in a fresh session from its spec. P1–P3 and A1–A3 cost nothing and can start before the OK;
 P3's hosted-model comparison, P4 and A4 need it.
+**2026-11-18, owner: not yet.** ADR-0007 stays Proposed: only $0 tasks run (P1–P3 without the hosted
+model, A1–A3 with a fake client). P4, A2's real eval and A4 wait for a new OK.
