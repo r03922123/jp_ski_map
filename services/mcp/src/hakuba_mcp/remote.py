@@ -12,7 +12,7 @@ from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from starlette.responses import PlainTextResponse
 from starlette.types import Receive, Scope, Send
 
-from hakuba_mcp import tracing
+from hakuba_mcp import ask, tracing
 from hakuba_mcp.server import mcp
 
 PREFIX = "/mcp/"
@@ -34,6 +34,9 @@ async def app(scope: Scope, receive: Receive, send: Send) -> None:
         return
     if scope["type"] != "http":
         return  # no websockets on Vercel
+    if scope["path"].rstrip("/") == "/ask":
+        await ask.app(scope, receive, send)
+        return
     if not _allowed(scope["path"]):
         await PlainTextResponse("Not Found", status_code=404)(scope, receive, send)
         return
