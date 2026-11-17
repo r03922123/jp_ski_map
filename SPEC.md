@@ -204,7 +204,8 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
   - Changing a module boundary or the capability map.
 - **Never:**
   - Commit secrets or the Valhalla tiles / raw timetable downloads.
-  - Call the Claude API from code (the API credit is reserved; SPEC-agent-tools).
+  - Call the Claude API from code, except the two capped uses in ADR-0007 (timetable extractor A,
+    Ask Maps): $5 a month, ~$100 credit in total, key only in Vercel env and Actions secrets.
   - Scrape Google Maps or Google Popular Times, or any source whose terms forbid it.
   - Publish bus timetable JSON that hasn't passed the validator and human review.
   - Skip or delete failing tests to get green.
