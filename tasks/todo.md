@@ -906,3 +906,6 @@ P3's hosted-model comparison, P4 and A4 need it.
 credit and a $5/month cap. Owner to-dos before the first paid call: set the Console workspace spend limit
 to $5/month, confirm auto-reload is off, and add `ANTHROPIC_API_KEY` to Vercel env and Actions secrets.
 - [x] P1 (2026-11-18): `pipeline/` (`hakuba_pipeline`): stage contract, stdlib runner, `pipeline.lock.json`, `fetch` → `snapshots/<sha256>` (gitignored; `--store` or `$HAKUBA_SNAPSHOTS`), `crawl` reusing `check_sources.parse_page`. CI job `pipeline`. Live crawl 2026-11-18: 31 hashes equal `data/bus/sources.json`; two `--offline` replays byte-identical to the online lock. Not done: the private snapshot repo (the store defaults to a local folder, so `--offline` works only on the machine that crawled)
+- [x] A1 (PR #79, branch `feat/ask-maps-a1`): `id` / `boardStopId` in search_place, nearby_pois and
+  next_buses; `services/mcp/src/hakuba_mcp/ask.py` serves `POST /ask` (fake-client tests, no API call)
+- [ ] A1 leftovers: agent-tools eval re-run with the new ids; SSE spike on a preview (A4)
