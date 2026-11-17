@@ -39,6 +39,8 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels; from v1.6 presented as the adventure | all of the above (via HTTP API only) |
 | `deploy` | Zero-cost hosting: Phase A this Mac + Tailscale Funnel, Phase B Vercel Hobby with Valhalla in the API (live 2026-11-10, ADR-0006) *(added v1.5, 2026-10-31)* | hosts every server module |
 | `agent-tools` | Read-only MCP server so an LLM agent can plan a ski day with the API's tools (`services/mcp`) *(added 2026-11-11)* | all server modules (via HTTP API only) |
+| `pipeline` | Rebuild every data artifact from the shuttle-bus URL with no human step: stage DAG, snapshot store, lock file, automatic verification *(proposed 2026-11-18, ADR-0007)* | every data-producing module |
+| `ask-maps` | Ask the map a question: a bounded tool loop over the agent-tools, cited answers, cited places pinned *(proposed 2026-11-18, ADR-0007)* | `agent-tools` |
 
 **Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
 **v1.6 build order:** `game-theme` → `progression` → `web-app` wiring
