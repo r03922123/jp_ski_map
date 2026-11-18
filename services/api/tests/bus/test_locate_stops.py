@@ -170,10 +170,10 @@ def test_a_rejected_stop_is_written_as_not_located_yet() -> None:
     )
     accepted = {"s2": (Coord(lat=36.7, lng=137.85), "osm:node/1 — page")}
 
-    [rejected, untouched] = apply_results(
+    [rejected, accepted_stop] = apply_results(
         [stop, stop.model_copy(update={"id": "s2"})], accepted, {"s1": "outside the bus area"}
     )
 
     assert rejected.coord is None
     assert rejected.coord_source == "not located yet: outside the bus area"
-    assert untouched.coord_source == "osm:node/1 — page"
+    assert accepted_stop.coord_source == "osm:node/1 — page"
