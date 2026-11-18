@@ -30,7 +30,7 @@ import {
   type Suggestion,
 } from "@/lib/api";
 import { formatArrival } from "@/lib/format";
-import { alightIndexOf, boardManually } from "@/lib/nav/bus-journey";
+import { boardManually } from "@/lib/nav/bus-journey";
 import { stopMatchName } from "@/lib/nav/bus-place";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
@@ -38,12 +38,12 @@ import {
   kindFromSuggestion,
   type PlaceInput,
   pinId,
-  placeAt,
   type SavedPlace,
   useSaved,
   visibleMarkers,
 } from "@/lib/saved-places";
-import { DEFAULT_RANK, MAX_STOPS, type RankOptions } from "@/lib/url-state";
+import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
+import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
 import { useLodging, usePois, useRanking } from "@/lib/use-lists";
 import { useRoutes } from "@/lib/use-routes";
@@ -152,14 +152,7 @@ export function MapShell() {
   const { ranking, rankingState } = useRanking(mode, origin, rankOptions);
 
   const savedState = useSaved();
-  const pointPlace: PlaceInput | null = point
-    ? (placeAt(savedState, point.coord) ?? {
-        id: pinId(point.coord),
-        name: point.name ?? "Chosen place",
-        coord: point.coord,
-        kind: "pin",
-      })
-    : null;
+  const pointPlace = pointPlaceOf(savedState, point);
   const {
     busPlace,
     busChoice,
@@ -276,13 +269,48 @@ export function MapShell() {
         lng: (view.bbox.west + view.bbox.east) / 2,
       }
     : null;
-  // Map-tapped and linked stops are pins: name them as the start is named (a saved
-  // place's name, else "Dropped pin") when drawn, so renumbering never strands a "Stop 2".
-  const tripStops = stops.map((st) =>
-    st.place?.kind === "pin"
-      ? { ...st, place: placeAt(savedState, st.place.coord) ?? st.place }
-      : st,
-  );
+  const {
+    tripStops,
+    placingStop,
+    shownResortIds,
+    fromPlace,
+    toPlace,
+    showToBox,
+    destinationResortId,
+    destinationLoading,
+    canAddStop,
+    canSwap,
+    destinationKey,
+    routeKey,
+  } = tripPlaces({
+    mode,
+    routeMode,
+    origin,
+    originSource,
+    point,
+    pointPlace,
+    stops,
+    stopsKey,
+    selectedResortId,
+    poiId,
+    poiCategory,
+    resort,
+    destination,
+    selectedPoi,
+    busPlace,
+    busChoice,
+    showNight,
+    target,
+    activeRoute,
+    piloting,
+    savedOpen,
+    savedState,
+    resorts: resorts.data,
+    listsLoading: {
+      resorts: resorts.isLoading,
+      pois: pois.isLoading,
+    },
+  });
   const clearOrigin = () => {
     setOrigin(null);
     setOriginName(null);
@@ -292,105 +320,11 @@ export function MapShell() {
     // an empty stop box would take the next tap, which is meant for the new start
     setStops((list) => list.filter((st) => st.place !== null));
   };
-  // An open stop box takes map taps only while it is on screen (SPEC-web-app v1.4).
-  const placingStop =
-    mode !== "bus" &&
-    origin !== null &&
-    !piloting &&
-    !savedOpen &&
-    stops.some((st) => st.place === null);
-  // With both ends set only the trip's resort keeps its label (SPEC-web-app v1.12). An
-  // open stop box is choosing again, and a resort can be tapped as the stop.
-  const tripSet =
-    origin !== null &&
-    (mode === "bus"
-      ? busPlace !== null || (busChoice !== null && !showNight)
-      : Boolean(target));
-  // a saved resort comes back as a point, but it is still that resort
-  const pointResortId =
-    pointPlace?.kind === "resort" &&
-    resorts.data?.some((r) => r.id === pointPlace.id)
-      ? pointPlace.id
-      : null;
-  const tripResortId =
-    mode === "bus"
-      ? (busChoice?.resortId ?? null)
-      : point
-        ? pointResortId
-        : poiCategory
-          ? null
-          : selectedResortId;
-  const shownResortIds =
-    tripSet && !placingStop ? (tripResortId ? [tripResortId] : []) : undefined;
   const fillOpenStop = (place: PlaceInput) => {
     const open = stops.find((st) => st.place === null);
     if (open) fillStop(open.key, place);
   };
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
-  const fromPlace: PlaceInput | null = origin
-    ? (originSource ??
-      placeAt(savedState, origin) ?? {
-        id: pinId(origin),
-        name: "Dropped pin",
-        coord: origin,
-        kind: "pin",
-      })
-    : null;
-  // Bus's destination is the lodging or place, else the chosen bus's resort, where it
-  // drops you, else the selected resort (SPEC-web-app v1.13 rule 5)
-  const destinationResortId = pointResortId ?? selectedResortId;
-  const busResort = resorts.data?.find(
-    (r) => r.id === (busChoice?.resortId ?? destinationResortId),
-  );
-  const busResortAt = busChoice
-    ? busChoice.rideStops[alightIndexOf(busChoice)]?.coord
-    : pointResortId
-      ? point?.coord
-      : destination;
-  const busResortPlace: PlaceInput | null = busResort
-    ? {
-        id: busResort.id,
-        name: busResort.name.en,
-        coord: busResortAt ?? busResort.accessPoints[0].coord,
-        kind: "resort",
-      }
-    : null;
-  const toPlace: PlaceInput | null =
-    mode === "bus"
-      ? (busPlace ?? busResortPlace)
-      : pointPlace
-        ? pointPlace
-        : poiCategory
-          ? selectedPoi
-            ? {
-                id: selectedPoi.id,
-                name: selectedPoi.name,
-                coord: selectedPoi.coord,
-                kind: "poi",
-              }
-            : null
-          : resort && destination
-            ? {
-                id: resort.id,
-                name: resort.name.en,
-                coord: destination,
-                kind: "resort",
-              }
-            : null;
-  // the To box in the trip card, once there is a start or a destination
-  // two bars once there is a destination; until then one bar, with the place card under
-  // it once there is a start (SPEC-web-app v1.13 rules 1, 2 and 4)
-  const showToBox = toPlace !== null;
-  // a linked destination whose list is still on its way: no card meanwhile, or Directions
-  // would replace that destination with the start. Only a request in flight counts: Bus
-  // never asks for the food list, and a failed request leaves the card usable
-  const destinationLoading =
-    toPlace === null &&
-    ((selectedResortId !== null && resorts.isLoading) ||
-      (mode !== "bus" &&
-        poiCategory !== null &&
-        poiId !== null &&
-        pois.isLoading));
   // Directions: the start becomes the destination, and From waits to be filled (rule 3)
   const directionsTo = () => {
     if (!fromPlace) return;
@@ -404,34 +338,11 @@ export function MapShell() {
     clearOrigin();
     setSearchKey((k) => k + 1);
   };
-  // a new destination collapses the sheet so its route shows (v1.9 rule 4, cluster F)
-  // bus: the chosen option is the answer too (code review: choosing one from a swiped-up
-  // sheet left it at 80 % over the walk leg and the board stop)
-  const busKey =
-    mode === "bus" && busChoice
-      ? `${busChoice.routeId}/${busChoice.trip}/${busChoice.boardStopId}`
-      : "";
-  const destinationKey = `${selectedResortId}|${poiId}|${point ? `${point.coord.lat},${point.coord.lng}` : ""}|${busKey}`;
-  // with both ends set, anything that changes the route on screen reveals it too: a new
-  // start, mode or stop, or another route option, tapped from a swiped-up sheet
-  const routeKey =
-    origin && target
-      ? `${routeMode}|${origin.lat},${origin.lng}|${target.lat},${target.lng}|${stopsKey}|${activeRoute}`
-      : "";
-
   const addStopRef = useRef<HTMLButtonElement>(null);
   const addStop = () => {
     setSavedOpen(false); // the stop box lives in the trip list, which Saved replaces
     setStops((list) => [...list, { key: newStopKey(), place: null }]);
   };
-  const canAddStop =
-    mode !== "bus" &&
-    fromPlace !== null &&
-    toPlace !== null &&
-    stops.length < MAX_STOPS &&
-    stops.every((s) => s.place !== null);
-  // Back to the lodging in one tap (SPEC-web-app v1.10)
-  const canSwap = fromPlace !== null && toPlace !== null;
   const swapTrip = () => {
     if (!fromPlace || !toPlace) return;
     setOrigin(toPlace.coord);
