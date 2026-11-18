@@ -923,6 +923,6 @@ built in a fresh session from its spec.
 ## Refactor for agent work (2026-11-18)
 Spec: [SPEC-refactor.md](../SPEC-refactor.md) (approved by the owner 2026-11-18). Behaviour-preserving;
 each task is one PR, built in a fresh session from the spec.
-- [ ] H1 `harness`: `deploy` and `new-worktree` skills, MCP-token hook with a CI test, CLAUDE.md trimmed
+- [x] H1 `harness`: `deploy` and `new-worktree` skills, MCP-token hook with a CI test, CLAUDE.md trimmed
 - [ ] T1 `agent-tools`: eval/spec drift; eval re-run (closes the A1 leftover)
 - [ ] W1 → W2 → W3 `web-shell`: characterization tests, then split MapShell, then MapView; before A3
