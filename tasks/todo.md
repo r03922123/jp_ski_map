@@ -915,7 +915,14 @@ built in a fresh session from its spec.
   - [x] P2a: `locate_stops --write` marks a rejected stop `not located yet: <why>` with no point, not
     `unresolved: …` (review finding 1; `apply_results` + test)
   - [ ] P2b `lines`, P2c `osm` pinned + cropped PBF → Valhalla, P2d `stops` without `MANUAL_MATCHES`
-- [ ] Next, $0: P2b, A3 (web AskSheet with a stubbed `/ask`). Then the other $0 tasks in spec order.
+- [ ] Next, $0: P2b, then A3 (web AskSheet with a stubbed `/ask`) once the refactor's W3 merges. Then the other $0 tasks in spec order.
 - Open, seen in P2a: `locate_stops` still geocodes with GSI and writes `gsi:…`, which ADR-0004 bans
   for stops and `KNOWN_SOURCES` doesn't list; P2d drops GSI.
 - Open Dependabot PRs #64, #65, #76: not triaged.
+
+## Refactor for agent work (2026-11-18)
+Spec: [SPEC-refactor.md](../SPEC-refactor.md) (approved by the owner 2026-11-18). Behaviour-preserving;
+each task is one PR, built in a fresh session from the spec.
+- [ ] H1 `harness`: `deploy` and `new-worktree` skills, MCP-token hook with a CI test, CLAUDE.md trimmed
+- [ ] T1 `agent-tools`: eval/spec drift; eval re-run (closes the A1 leftover)
+- [ ] W1 → W2 → W3 `web-shell`: characterization tests, then split MapShell, then MapView; before A3
