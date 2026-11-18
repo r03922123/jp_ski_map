@@ -83,7 +83,16 @@ vi.mock("@/lib/api", async (importOriginal) => {
     },
     fetchRank: vi.fn(async () => []),
     fetchRoutes: vi.fn(),
-    fetchBusOptions: vi.fn(async () => ({ options: [], basis: "published" })),
+    // typed, so a fake that drifts from the API shape fails typecheck, not BusPanel
+    fetchBusOptions: vi.fn(
+      async (): Promise<api.BusResult> => ({
+        status: "ok",
+        nextServiceDate: null,
+        resorts: [],
+        basis: "published",
+        newerSourcePending: false,
+      }),
+    ),
     fetchLodging: vi.fn(async () => []),
     fetchNearbyPois: vi.fn(async () => []),
   };
@@ -207,7 +216,11 @@ describe("MapShell mode", () => {
     fireEvent.click(screen.getByRole("tab", { name: /bus/i }));
     await waitFor(() => expect(query().get("mode")).toBe("bus"));
     expect(map().destination).toBeNull();
-    await waitFor(() => expect(api.fetchBusOptions).toHaveBeenCalled());
+    expect(api.fetchBusOptions).toHaveBeenCalled();
+    // the bus panel shows the (empty) answer
+    expect(
+      await screen.findByText("No more departures after this time today."),
+    ).toBeInTheDocument();
   });
 });
 
