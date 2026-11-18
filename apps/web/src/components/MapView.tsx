@@ -6,7 +6,7 @@ import {
   type Map as MapLibreMap,
   setWorkerUrl,
 } from "maplibre-gl";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import MapGL, {
   type MapRef,
   type MapTouchEvent,
@@ -20,15 +20,22 @@ import {
   ALT_HIT_LAYER,
   AlternateRoutes,
 } from "@/components/map/AlternateRoutes";
-import { RideLine, RideStops } from "@/components/map/BusRideLayers";
+import {
+  BoardingStop,
+  RideLabel,
+  RideLine,
+  RideStops,
+} from "@/components/map/BusRide";
 import { LODGING_LAYER, LodgingLayer } from "@/components/map/LodgingLayer";
+import { ResortMarkers } from "@/components/map/ResortMarkers";
+import { RouteLabels } from "@/components/map/RouteLabels";
+import { SavedMarkers } from "@/components/map/SavedMarkers";
 import { TrailLayers } from "@/components/map/TrailLayers";
+import { TripStopMarkers } from "@/components/map/TripStopMarkers";
 import { PixelSprite } from "@/components/PixelSprite";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
-import { formatDuration } from "@/lib/format";
-import { ICONS, type Pose, worldBadge } from "@/lib/game/sprites";
+import { ICONS, type Pose } from "@/lib/game/sprites";
 import { useGameStyle } from "@/lib/game/use-game-style";
-import { worldNumbers } from "@/lib/game/worlds";
 import {
   HAKUBA_VIEW,
   MAP_ATTRIBUTION,
@@ -39,7 +46,6 @@ import type { Camera } from "@/lib/nav/camera";
 import type { RideStopMark } from "@/lib/ride-stops";
 import {
   type LngLat,
-  labelAnchor,
   MD_BREAKPOINT_PX,
   mapPadding,
   pinCardAnchor,
@@ -103,14 +109,6 @@ export type MapViewProps = {
     /** the rider's pose (SPEC-game-theme) */
     pose: Pose;
   } | null;
-};
-
-const SAVED_ICONS: Record<SavedMarker["icon"], string> = {
-  hotel: "🏨",
-  star: "⭐",
-  heart: "❤️",
-  flag: "🚩",
-  bookmark: "🔖",
 };
 
 // MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
@@ -199,7 +197,6 @@ export default function MapView({
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const mapStyle = useGameStyle(MAP_STYLE_URL);
-  const worlds = useMemo(() => worldNumbers(resorts), [resorts]);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
   // A double-click (double-tap) zooms; its first click must not also move the start.
@@ -484,28 +481,6 @@ export default function MapView({
   }, [camKey, mapReady, pressing]);
 
   const active = routes[activeRoute] ?? null;
-  const labels = useMemo(
-    () =>
-      routes.map((route, index) => {
-        const coords = route.geometry.coordinates as LngLat[];
-        const others =
-          index === activeRoute
-            ? [] // the active route's label sits halfway along it
-            : routes
-                .filter((_, j) => j !== index)
-                .map((r) => r.geometry.coordinates as LngLat[]);
-        return {
-          index,
-          at: coords.length ? labelAnchor(coords, others) : null,
-          text: formatDuration(route.durationS),
-        };
-      }),
-    [routes, activeRoute],
-  );
-  const rideLabelAt =
-    ride && ride.route.geometry.coordinates.length > 1
-      ? labelAnchor(ride.route.geometry.coordinates as LngLat[], [])
-      : null;
 
   function reportView(map: MapLibreMap) {
     const b = map.getBounds();
@@ -634,50 +609,13 @@ export default function MapView({
         highlight={highlight}
       />
       <RideStops stops={ride?.stops} />
-      {resorts
-        .filter((r) => !shownResortIds || shownResortIds.includes(r.id))
-        .map((r) => {
-          const point = r.accessPoints[0];
-          const selected = r.id === selectedResortId;
-          return (
-            <Marker
-              key={r.id}
-              latitude={point.coord.lat}
-              longitude={point.coord.lng}
-              anchor="bottom"
-              // labels stay readable above the idle hero (z auto), and the chosen world's
-              // chip stays above the destination flag on the same spot
-              style={{ zIndex: selected ? 2 : 1 }}
-              onClick={(e) => {
-                e.originalEvent.stopPropagation();
-                if (!piloting) onSelectResort(r.id); // navigating: the trip stays
-              }}
-            >
-              <button
-                type="button"
-                aria-label={r.name.en}
-                aria-pressed={selected}
-                data-resort-marker={r.id}
-                className={`flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] ${
-                  selected
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card text-card-foreground"
-                }`}
-              >
-                <PixelSprite
-                  id={`world-${worlds.get(r.id)}`}
-                  sprite={worldBadge(worlds.get(r.id) ?? 0)}
-                  scale={1}
-                  alt=""
-                />
-                {r.name.en.replace(
-                  / (Snow Resort|Snow Field|Mountain Resort|Ski Resort.*)$/,
-                  "",
-                )}
-              </button>
-            </Marker>
-          );
-        })}
+      <ResortMarkers
+        resorts={resorts}
+        shownResortIds={shownResortIds}
+        selectedResortId={selectedResortId}
+        piloting={piloting}
+        onSelectResort={onSelectResort}
+      />
       {pilot?.puck && (
         <Marker
           longitude={pilot.puck[0]}
@@ -697,105 +635,20 @@ export default function MapView({
         </Marker>
       )}
 
-      {saved.map((p) => (
-        <Marker
-          key={`saved-${p.id}`}
-          latitude={p.coord.lat}
-          longitude={p.coord.lng}
-          anchor="center"
-          onClick={(e) => {
-            e.originalEvent.stopPropagation();
-            if (!piloting) onSelectSaved?.(p.id); // navigating: the trip stays
-          }}
-        >
-          <button
-            type="button"
-            data-saved-marker={p.id}
-            aria-label={`Saved: ${p.name}`}
-            title={p.name}
-            className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
-          >
-            {SAVED_ICONS[p.icon]}
-          </button>
-        </Marker>
-      ))}
-      {stops.map((stop, i) => (
-        <Marker
-          // biome-ignore lint/suspicious/noArrayIndexKey: a stop is its position in the trip
-          key={`trip-stop-${i}`}
-          latitude={stop.coord.lat}
-          longitude={stop.coord.lng}
-          anchor="center"
-          // above the route time chips (3): a chip can land right on a stop
-          style={{ zIndex: 4 }}
-          // a tap on a stop must not fall through to the map (moving the start, or
-          // dropping a second stop on top of it)
-          onClick={(e) => e.originalEvent.stopPropagation()}
-        >
-          <span
-            role="img"
-            aria-label={`Stop ${i + 1}: ${stop.name}`}
-            data-trip-stop={i + 1}
-            className="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
-          >
-            {i + 1}
-          </span>
-        </Marker>
-      ))}
-      {busStop && (
-        <Marker latitude={busStop.lat} longitude={busStop.lng} anchor="bottom">
-          <PixelSprite id="stop" sprite={ICONS.stop} alt="Bus stop" />
-        </Marker>
-      )}
-      {labels.map(
-        ({ index, at, text }) =>
-          at &&
-          !piloting && (
-            <Marker
-              key={`label-${index}`}
-              longitude={at[0]}
-              latitude={at[1]}
-              anchor="bottom"
-              style={{ zIndex: index === activeRoute ? 3 : 2 }}
-            >
-              <button
-                type="button"
-                data-route-label={
-                  index === activeRoute ? "active" : "alternate"
-                }
-                aria-label={`${index === activeRoute ? "Selected route" : "Alternate route"}, ${text}`}
-                aria-pressed={index === activeRoute}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectRoute?.(index);
-                }}
-                className={`mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] ${
-                  index === activeRoute
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card text-card-foreground"
-                }`}
-              >
-                {active?.mode === "walk" ? "🚶 " : "🚗 "}
-                {text}
-              </button>
-            </Marker>
-          ),
-      )}
-      {ride && rideLabelAt && !piloting && (
-        <Marker
-          longitude={rideLabelAt[0]}
-          latitude={rideLabelAt[1]}
-          anchor="bottom"
-          style={{ zIndex: 3, pointerEvents: "none" }}
-        >
-          <span
-            data-route-label="ride"
-            className="mb-1 whitespace-nowrap rounded-lg bg-teal-700 px-2 py-1 text-xs font-semibold text-white shadow-md ring-1 ring-teal-900"
-          >
-            🚌 {ride.label ?? "bus"}
-          </span>
-        </Marker>
-      )}
+      <SavedMarkers
+        saved={saved}
+        piloting={piloting}
+        onSelectSaved={onSelectSaved}
+      />
+      <TripStopMarkers stops={stops} />
+      <BoardingStop at={busStop} />
+      <RouteLabels
+        routes={routes}
+        activeRoute={activeRoute}
+        piloting={piloting}
+        onSelectRoute={onSelectRoute}
+      />
+      <RideLabel ride={ride} piloting={piloting} />
       {destination && (
         <Marker
           latitude={destination.lat}

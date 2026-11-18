@@ -1,7 +1,10 @@
 import { useMemo } from "react";
-import { Layer, Source } from "react-map-gl/maplibre";
-import type { Route } from "@/lib/api";
+import { Layer, Marker, Source } from "react-map-gl/maplibre";
+import { PixelSprite } from "@/components/PixelSprite";
+import type { Coord, Route } from "@/lib/api";
+import { ICONS } from "@/lib/game/sprites";
 import { type RideStopMark, rideStopFeatures } from "@/lib/ride-stops";
+import { type LngLat, labelAnchor } from "@/lib/route-geo";
 import { EMPTY } from "./TrailLayers";
 
 const RIDE_COLOR = "#0f766e"; // the line badge colour in the bus panel
@@ -72,5 +75,49 @@ export function RideStops({ stops }: { stops: RideStopMark[] | undefined }) {
         }}
       />
     </Source>
+  );
+}
+
+/** Boarding stop of the chosen bus option. */
+export function BoardingStop({ at }: { at: Coord | null }) {
+  return (
+    at && (
+      <Marker latitude={at.lat} longitude={at.lng} anchor="bottom">
+        <PixelSprite id="stop" sprite={ICONS.stop} alt="Bus stop" />
+      </Marker>
+    )
+  );
+}
+
+/** The ride's chip (line and ride time) halfway along it; hidden while navigating. */
+export function RideLabel({
+  ride,
+  piloting,
+}: {
+  ride: { route: Route; label: string | null } | null;
+  piloting: boolean;
+}) {
+  const rideLabelAt =
+    ride && ride.route.geometry.coordinates.length > 1
+      ? labelAnchor(ride.route.geometry.coordinates as LngLat[], [])
+      : null;
+  return (
+    ride &&
+    rideLabelAt &&
+    !piloting && (
+      <Marker
+        longitude={rideLabelAt[0]}
+        latitude={rideLabelAt[1]}
+        anchor="bottom"
+        style={{ zIndex: 3, pointerEvents: "none" }}
+      >
+        <span
+          data-route-label="ride"
+          className="mb-1 whitespace-nowrap rounded-lg bg-teal-700 px-2 py-1 text-xs font-semibold text-white shadow-md ring-1 ring-teal-900"
+        >
+          🚌 {ride.label ?? "bus"}
+        </span>
+      </Marker>
+    )
   );
 }
