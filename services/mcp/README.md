@@ -42,7 +42,7 @@ uvx --from 'uv==0.9.30' uv run pyright
 ```
 
 ## Eval
-`evals/trip_questions.json` has 8 questions (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
+`evals/trip_questions.json` has 12 questions (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
 
 ```bash
 uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --out evals/last_run.md
@@ -59,4 +59,4 @@ HAKUBA_API_URL=<API URL> uvx --from 'uv==0.9.30' uv run python evals/run_eval.py
 uvx --from 'uv==0.9.30' uv run mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001
 ```
 
-Last run: [evals/last_run.md](evals/last_run.md) (2026-11-16, production API: 7 of 8 passed).
+Last run: [evals/last_run.md](evals/last_run.md) (2026-11-18, local API, code as main 29433cb: 12 of 12 passed).

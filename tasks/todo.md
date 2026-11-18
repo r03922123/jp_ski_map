@@ -910,7 +910,7 @@ built in a fresh session from its spec.
 - [x] P1 (PR #78): `pipeline/` (`hakuba_pipeline`): stage contract, stdlib runner, `pipeline.lock.json`, `fetch` → `snapshots/<sha256>` (gitignored; `--store` or `$HAKUBA_SNAPSHOTS`), `crawl` reusing `check_sources.parse_page`. CI job `pipeline`. Live crawl: 31 hashes equal `data/bus/sources.json`; two `--offline` replays byte-identical. Not done: the private snapshot repo, so `--offline` works only on the machine that crawled
 - [x] A1 (PR #79): `id` / `boardStopId` in search_place, nearby_pois and next_buses;
   `services/mcp/src/hakuba_mcp/ask.py` serves `POST /ask` as one JSON response (fake-client tests, no real API call)
-- [ ] A1 leftovers: agent-tools eval re-run with the new ids; SSE spike on a preview (folds into A4)
+- [ ] A1 leftovers: ~~agent-tools eval re-run with the new ids~~ done in T1 (12/12, 2026-11-18); SSE spike on a preview (folds into A4)
 - [ ] P2, split into slices (the spec's P2 is ~4 PRs of work):
   - [x] P2a: `locate_stops --write` marks a rejected stop `not located yet: <why>` with no point, not
     `unresolved: …` (review finding 1; `apply_results` + test)
@@ -924,5 +924,5 @@ built in a fresh session from its spec.
 Spec: [SPEC-refactor.md](../SPEC-refactor.md) (approved by the owner 2026-11-18). Behaviour-preserving;
 each task is one PR, built in a fresh session from the spec.
 - [ ] H1 `harness`: `deploy` and `new-worktree` skills, MCP-token hook with a CI test, CLAUDE.md trimmed
-- [ ] T1 `agent-tools`: eval/spec drift; eval re-run (closes the A1 leftover)
+- [x] T1 `agent-tools`: eval/spec drift; eval re-run (closes the A1 leftover): 12/12, local API
 - [ ] W1 → W2 → W3 `web-shell`: characterization tests, then split MapShell, then MapView; before A3
