@@ -925,4 +925,7 @@ Spec: [SPEC-refactor.md](../SPEC-refactor.md) (approved by the owner 2026-11-18)
 each task is one PR, built in a fresh session from the spec.
 - [x] H1 `harness`: `deploy` and `new-worktree` skills, MCP-token hook with a CI test, CLAUDE.md trimmed
 - [x] T1 `agent-tools`: eval/spec drift; eval re-run (closes the A1 leftover): 12/12, local API
-- [ ] W1 → W2 → W3 `web-shell`: characterization tests, then split MapShell, then MapView; before A3
+- [x] W1 `web-shell` R3.1 (PR #85): `apps/web/tests/MapShell.test.tsx`, 8 characterization tests for
+  MapShell's origin, destination, mode and pilot transitions (map stubbed via `next/dynamic`, API
+  fetchers mocked); 9 hand-made breaks each turn the intended test red. No production code changed
+- [ ] W2 → W3 `web-shell`: split MapShell, then MapView; before A3
