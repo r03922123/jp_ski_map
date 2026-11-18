@@ -132,7 +132,7 @@ afterEach(() => {
 describe("MapShell origin", () => {
   it("a map tap with no start sets the origin, the link and the From box", async () => {
     renderShell();
-    await waitFor(() => expect(map().origin).toBeNull());
+    expect(map().origin).toBeNull();
     act(() => map().onPickOrigin(hotel));
     expect(map().origin).toEqual(hotel);
     await waitFor(() => expect(query().get("from")).toBe("36.69736,137.85393"));
@@ -207,12 +207,12 @@ describe("MapShell mode", () => {
     fireEvent.click(screen.getByRole("tab", { name: /bus/i }));
     await waitFor(() => expect(query().get("mode")).toBe("bus"));
     expect(map().destination).toBeNull();
-    expect(api.fetchBusOptions).toHaveBeenCalled();
+    await waitFor(() => expect(api.fetchBusOptions).toHaveBeenCalled());
   });
 });
 
 describe("MapShell pilot", () => {
-  it("Start freezes the route into the pilot; Exit returns to the planner", async () => {
+  it("Start hands the route to the pilot; Exit returns to the planner", async () => {
     const { container } = renderShell(
       "?from=36.69736,137.85393&mode=drive&resort=happo-one",
     );
