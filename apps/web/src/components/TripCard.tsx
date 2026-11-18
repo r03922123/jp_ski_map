@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ArrowUpDown, Plus } from "lucide-react";
 import type { ReactNode, Ref } from "react";
 import { Hero } from "@/components/HeroMarker";
 import { PixelSprite } from "@/components/PixelSprite";
@@ -112,6 +112,51 @@ export function AddDestinationButton({
       onClick={onClick}
     >
       <Plus aria-hidden="true" className="size-4" /> Add destination
+    </button>
+  );
+}
+
+/** ⇅ beside the boxes: back to the lodging in one tap (SPEC-web-app v1.10). */
+export function SwapButton({
+  disabled,
+  onClick,
+}: {
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label="Swap start and destination"
+      disabled={disabled}
+      className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-40"
+      onClick={onClick}
+    >
+      <ArrowUpDown aria-hidden="true" className="size-4" />
+    </button>
+  );
+}
+
+/** ★ Saved: opens the Saved panel in place of the trip lists, and closes it again. */
+export function SavedButton({
+  open,
+  onClick,
+}: {
+  open: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label="Saved places"
+      aria-pressed={open}
+      className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border bg-background px-3 text-xs font-medium shadow-sm hover:bg-muted aria-pressed:bg-amber-50"
+      onClick={onClick}
+    >
+      <span aria-hidden="true" className="text-amber-500">
+        ★
+      </span>
+      <span className="max-md:sr-only">Saved</span>
     </button>
   );
 }

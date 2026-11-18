@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpDown } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
@@ -21,7 +20,12 @@ import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import { StampMoment } from "@/components/StampMoment";
 import { TitleScreen } from "@/components/TitleScreen";
-import { AddDestinationButton, TripCard } from "@/components/TripCard";
+import {
+  AddDestinationButton,
+  SavedButton,
+  SwapButton,
+  TripCard,
+} from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
 import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
 import { formatArrival } from "@/lib/format";
@@ -329,14 +333,7 @@ export function MapShell() {
                   label={searchLabel ?? fromPlace?.name ?? null}
                   onSelect={actions.searchStart}
                   onClear={actions.clearOrigin}
-                  near={
-                    view
-                      ? {
-                          lat: (view.bbox.south + view.bbox.north) / 2,
-                          lng: (view.bbox.west + view.bbox.east) / 2,
-                        }
-                      : null
-                  }
+                  near={viewCentre}
                 />
               }
               to={
@@ -348,15 +345,7 @@ export function MapShell() {
                 />
               }
               swap={
-                <button
-                  type="button"
-                  aria-label="Swap start and destination"
-                  disabled={!canSwap}
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-40"
-                  onClick={actions.swapTrip}
-                >
-                  <ArrowUpDown aria-hidden="true" className="size-4" />
-                </button>
+                <SwapButton disabled={!canSwap} onClick={actions.swapTrip} />
               }
               addDestination={
                 canAddStop && (
@@ -380,21 +369,13 @@ export function MapShell() {
                 )
               }
               saved={
-                <button
-                  type="button"
-                  aria-label="Saved places"
-                  aria-pressed={savedOpen}
-                  className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border bg-background px-3 text-xs font-medium shadow-sm hover:bg-muted aria-pressed:bg-amber-50"
+                <SavedButton
+                  open={savedOpen}
                   onClick={() => {
                     setSavedFocus(null);
                     setSavedOpen((v) => !v);
                   }}
-                >
-                  <span aria-hidden="true" className="text-amber-500">
-                    ★
-                  </span>
-                  <span className="max-md:sr-only">Saved</span>
-                </button>
+                />
               }
             />
           }
