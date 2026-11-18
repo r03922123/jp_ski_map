@@ -59,4 +59,4 @@ HAKUBA_API_URL=<API URL> uvx --from 'uv==0.9.30' uv run python evals/run_eval.py
 uvx --from 'uv==0.9.30' uv run mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001
 ```
 
-Last run: [evals/last_run.md](evals/last_run.md) (2026-11-16, production API: 7 of 8 passed).
+Last run: [evals/last_run.md](evals/last_run.md) (2026-11-18, local API, code as main 29433cb: 12 of 12 passed).
