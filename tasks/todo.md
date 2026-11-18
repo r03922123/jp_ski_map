@@ -931,4 +931,4 @@ each task is one PR, built in a fresh session from the spec.
 - [x] W2 `web-shell` R3.2 for MapShell (PR #88): 1,386 → 497 lines; state and effects in `lib/` hooks
   (`use-trip`, `use-view-url`, `trip-actions`, `trip-places`, `use-routes`, `use-bus-trip`, `use-lists`,
   `nav/use-pilot-session`, `nav/use-pilot-map`); 6 more MapShell tests first; screens unchanged
-- [ ] W3 `web-shell`: split MapView; before A3
+- [x] W3 `web-shell` R3.2 for MapView (PR #89): 1,050 → 555 lines; layers and markers in `components/map/`, gestures and credits in `lib/` hooks
