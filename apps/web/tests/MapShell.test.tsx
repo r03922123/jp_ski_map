@@ -133,6 +133,9 @@ beforeEach(() => {
         removeEventListener: () => {},
       }) as unknown as MediaQueryList,
   );
+  // set per test; reset here so one test's answer never leaks into the next
+  vi.mocked(api.fetchPath).mockReset();
+  vi.mocked(api.fetchSuggestions).mockResolvedValue([]);
   vi.mocked(api.fetchRoutes).mockImplementation(async (mode) => ({
     primary: mode === "drive" ? drive : walk,
     alternates: [],
