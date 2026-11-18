@@ -58,16 +58,15 @@ import {
   reduceBus,
 } from "@/lib/nav/bus-journey";
 import { stopMatchName } from "@/lib/nav/bus-place";
-import { cameraFor } from "@/lib/nav/camera";
 import {
   geolocationSource,
   type PositionSource,
   simulatedSource,
 } from "@/lib/nav/position";
-import { projectForward, splitAt } from "@/lib/nav/project";
 import { isFarFromRoute, useRouteProximity } from "@/lib/nav/proximity";
 import { type NumberedStop, numberStops, stopsAhead } from "@/lib/nav/stops";
 import { usePilot } from "@/lib/nav/use-pilot";
+import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { useReroute } from "@/lib/nav/use-reroute";
 import type { LngLat } from "@/lib/route-geo";
 import {
@@ -559,87 +558,23 @@ export function MapShell() {
   }, [tripArrived]);
   useWakeLock(piloting);
   useHiddenTimeout(piloting, PILOT_HIDDEN_STOP_MS, exitPilot);
-  // During a bus journey the map shows the bus line and every stop, in every phase.
-  const busRide = useMemo(
-    () =>
-      busPlan
-        ? {
-            route: busPlan.line.route,
-            stops: busPlan.stops
-              .slice(0, busPlan.alightIndex + 1)
-              .flatMap((st) =>
-                st.coord
-                  ? [
-                      {
-                        coord: { lat: st.coord[1], lng: st.coord[0] },
-                        name: st.name,
-                      },
-                    ]
-                  : [],
-              ),
-            label: null,
-          }
-        : null,
-    [busPlan],
-  );
-  // the one bus line the map draws (the journey's, or the chosen option's preview)
-  const mapRide = busRide ?? (pilotRoute ? null : rideLeg);
-  const projection = pilot.nav.projection;
-  const onRoute = pilot.phase === "following" || pilot.phase === "arrived";
-  const rideFix = busPhase === "ride" ? pilot.fix : null;
-  const rideAt =
-    busPlan && rideFix
-      ? projectForward(busPlan.line, rideFix, busState.rideIndex, 80, 5000)
-      : null;
-  const rideCamera =
-    busPlan && rideAt && rideFix
-      ? cameraFor(busPlan.line, rideAt, rideFix)
-      : null;
   // SPEC-game-theme: the rider's pose follows the trip
   const pose = heroPose({
     mode: busPlan ? "bus" : mode === "walk" ? "walk" : "drive",
     phase: pilot.phase,
     bus: busPhase ?? undefined,
   });
-  const mapPilotBase =
-    busPlan && rideAt && rideCamera
-      ? {
-          camera: rideCamera,
-          puck: rideAt.point,
-          heading: rideCamera.bearing,
-          covered: splitAt(busPlan.line.coords, rideAt).covered,
-          following,
-          onUserMove: () => setFollowing(false),
-        }
-      : pastWalk && busPlan
-        ? {
-            camera: null, // waiting at the stop, or arrived: the view is the user's
-            puck: pilot.fix ? ([pilot.fix.lng, pilot.fix.lat] as LngLat) : null,
-            heading: null,
-            // arrived: the whole ride reads as done
-            covered: busPhase === "arrived" ? busPlan.line.coords : [],
-            following,
-            onUserMove: () => setFollowing(false),
-          }
-        : piloting
-          ? {
-              camera: pilot.camera,
-              puck:
-                onRoute && projection
-                  ? projection.point
-                  : pilot.fix
-                    ? ([pilot.fix.lng, pilot.fix.lat] as LngLat)
-                    : null,
-              heading: pilot.camera?.bearing ?? null,
-              covered:
-                projection && pilot.route
-                  ? splitAt(pilot.route.coords, projection).covered
-                  : [],
-              following,
-              onUserMove: () => setFollowing(false),
-            }
-          : null;
-  const mapPilot = mapPilotBase ? { ...mapPilotBase, pose } : null;
+  const { busRide, mapPilot } = usePilotMap({
+    pilot,
+    piloting,
+    busPlan,
+    busState,
+    following,
+    setFollowing,
+    pose,
+  });
+  // the one bus line the map draws (the journey's, or the chosen option's preview)
+  const mapRide = busRide ?? (pilotRoute ? null : rideLeg);
   const routeLayers = [
     ...routes.map((_, i) =>
       mode === "bus" ? "walk" : i === activeRoute ? "primary" : "alternate",
