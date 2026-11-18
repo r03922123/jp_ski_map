@@ -901,13 +901,21 @@ Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../
 [ADR-0007](../docs/adr/0007-automated-verification-and-capped-llm.md) (Accepted: paid steps within the ~$100
 credit and a $5/month cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
 built in a fresh session from its spec.
-- [ ] Owner, before the first paid call: Console workspace spend limit $5/month, auto-reload off,
-  `ANTHROPIC_API_KEY` in Vercel env and Actions secrets. P3's hosted comparison, P4, A2 and A4 wait on this.
+- Decision (owner, 2026-11-18): the first version is $0. Build only the $0 tasks (P2, A3, P5's
+  parsers, P6, P7, and P3/P4 with the local extractor B only); every paid call (P3's hosted
+  comparison, P4's re-read with A, A2, A4) waits for a second version. ADR-0007's cap stays the bound then.
+- [ ] Owner, before the second version's first paid call: Console workspace spend limit $5/month,
+  auto-reload off, `ANTHROPIC_API_KEY` in Vercel env and Actions secrets.
 - [x] A0: ADR-0007 accepted (PR #80)
 - [x] P1 (PR #78): `pipeline/` (`hakuba_pipeline`): stage contract, stdlib runner, `pipeline.lock.json`, `fetch` → `snapshots/<sha256>` (gitignored; `--store` or `$HAKUBA_SNAPSHOTS`), `crawl` reusing `check_sources.parse_page`. CI job `pipeline`. Live crawl: 31 hashes equal `data/bus/sources.json`; two `--offline` replays byte-identical. Not done: the private snapshot repo, so `--offline` works only on the machine that crawled
 - [x] A1 (PR #79): `id` / `boardStopId` in search_place, nearby_pois and next_buses;
   `services/mcp/src/hakuba_mcp/ask.py` serves `POST /ask` as one JSON response (fake-client tests, no real API call)
 - [ ] A1 leftovers: agent-tools eval re-run with the new ids; SSE spike on a preview (folds into A4)
-- [ ] Next, $0: P2 (stops stage; fixes the `unresolved:` coordSource bug, review finding 1), A3 (web AskSheet
-  with a stubbed `/ask`). Then P3–P7, A2, A4 in spec order.
+- [ ] P2, split into slices (the spec's P2 is ~4 PRs of work):
+  - [x] P2a: `locate_stops --write` marks a rejected stop `not located yet: <why>` with no point, not
+    `unresolved: …` (review finding 1; `apply_results` + test)
+  - [ ] P2b `lines`, P2c `osm` pinned + cropped PBF → Valhalla, P2d `stops` without `MANUAL_MATCHES`
+- [ ] Next, $0: P2b, A3 (web AskSheet with a stubbed `/ask`). Then the other $0 tasks in spec order.
+- Open, seen in P2a: `locate_stops` still geocodes with GSI and writes `gsi:…`, which ADR-0004 bans
+  for stops and `KNOWN_SOURCES` doesn't list; P2d drops GSI.
 - Open Dependabot PRs #64, #65, #76: not triaged.

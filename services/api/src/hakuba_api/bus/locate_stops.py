@@ -157,6 +157,23 @@ def _in_bus_area(c: Coord) -> bool:
     return b["south"] <= c.lat <= b["north"] and b["west"] <= c.lng <= b["east"]
 
 
+def apply_results(
+    stops: list[BusStop], accepted: dict[str, tuple[Coord, str]], rejected: dict[str, str]
+) -> list[BusStop]:
+    """Rows to write: an accepted stop gets its point, a rejected one stays "not located yet"."""
+    updated: list[BusStop] = []
+    for s in stops:
+        if s.id in accepted:
+            c, how = accepted[s.id]
+            s = s.model_copy(update={"coord": c, "coord_source": how})
+        elif s.id in rejected:
+            # a known prefix (tests/test_data_licenses.py); a new one needs an ADR
+            why = f"not located yet: {rejected[s.id]}"
+            s = s.model_copy(update={"coord": None, "coord_source": why})
+        updated.append(s)
+    return updated
+
+
 def main(write: bool) -> int:
     from hakuba_api.bus.store import load_stops, load_timetables
     from hakuba_api.data.paths import data_dir
@@ -226,15 +243,7 @@ def main(write: bool) -> int:
     print(f"{len(accepted)} accepted, {len(rejected)} rejected, {len(unresolved)} still unresolved")
 
     if write:
-        updated: list[BusStop] = []
-        for s in stops:
-            if s.id in accepted:
-                c, how = accepted[s.id]
-                s = s.model_copy(update={"coord": c, "coord_source": how})
-            elif s.id in rejected:
-                s = s.model_copy(update={"coord_source": f"unresolved: {rejected[s.id]}"})
-            updated.append(s)
-        rows = [s.model_dump(by_alias=True) for s in updated]
+        rows = [s.model_dump(by_alias=True) for s in apply_results(stops, accepted, rejected)]
         text = json.dumps(rows, ensure_ascii=False, indent=1) + "\n"
         (data_dir() / "bus_stops.json").write_text(text)
         print("wrote data/bus_stops.json")
