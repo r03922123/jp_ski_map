@@ -928,4 +928,7 @@ each task is one PR, built in a fresh session from the spec.
 - [x] W1 `web-shell` R3.1 (PR #85): `apps/web/tests/MapShell.test.tsx`, 8 characterization tests for
   MapShell's origin, destination, mode and pilot transitions (map stubbed via `next/dynamic`, API
   fetchers mocked); 9 hand-made breaks each turn the intended test red. No production code changed
-- [ ] W2 → W3 `web-shell`: split MapShell, then MapView; before A3
+- [x] W2 `web-shell` R3.2 for MapShell (PR #88): 1,386 → 497 lines; state and effects in `lib/` hooks
+  (`use-trip`, `use-view-url`, `trip-actions`, `trip-places`, `use-routes`, `use-bus-trip`, `use-lists`,
+  `nav/use-pilot-session`, `nav/use-pilot-map`); 6 more MapShell tests first; screens unchanged
+- [ ] W3 `web-shell`: split MapView; before A3
