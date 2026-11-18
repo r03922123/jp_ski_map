@@ -33,7 +33,7 @@ Other Python projects (`services/mcp`, `pipeline`, `ml/*`) each have their own: 
 ## 3. Shared services
 
 - Valhalla (:8002) is shared by every checkout and is usually stopped. Routing work and the e2e
-  route, poi and trip-card specs need it: ask for it to be started from the main checkout
-  (`docker compose -f infra/docker-compose.yml up -d valhalla`).
-- In a worktree, don't run `docker compose` or `scripts/serve-public.sh`.
+  route, poi and trip-card specs need it: start it from the main checkout with
+  `docker compose -f infra/docker-compose.yml up -d valhalla`.
+- From a worktree's own folder, don't run `docker compose` or `scripts/serve-public.sh`.
 - `pnpm build` is fine in a worktree. In the main checkout only `serve-public.sh` runs it.

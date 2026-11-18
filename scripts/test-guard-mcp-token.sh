@@ -29,6 +29,11 @@ bash_call() { python3 -c 'import json,sys; print(json.dumps({"tool_name":"Bash",
 check deny "cat the connector file" "$(bash_call 'cat ~/.config/jp_ski_map/mcp-connector-url.txt')"
 check deny "Read the connector file" '{"tool_name":"Read","tool_input":{"file_path":"/Users/x/.config/jp_ski_map/mcp-connector-url.txt"}}'
 check deny "Grep the connector file" '{"tool_name":"Grep","tool_input":{"pattern":"mcp","path":"/Users/x/.config/jp_ski_map/mcp-connector-url.txt"}}'
+check deny "glob in the secret folder" "$(bash_call 'cat ~/.config/jp_ski_map/mcp-connector-*.txt')"
+check deny "grep -r the secret folder" "$(bash_call 'grep -r mcp ~/.config/jp_ski_map')"
+check deny "cat chained after a git command" "$(bash_call 'git status && cat ~/.config/jp_ski_map/mcp-connector-url.txt')"
+check allow "git grep for the file name" "$(bash_call 'git grep -n mcp-connector-url.txt')"
+check allow "commit message names the file" "$(bash_call 'git commit -m "Document mcp-connector-url.txt"')"
 check allow "Read another file" '{"tool_name":"Read","tool_input":{"file_path":"/repo/CLAUDE.md"}}'
 check allow "ordinary command" "$(bash_call 'ls -la')"
 check allow "commit with clean changes" "$(bash_call 'git commit -m x')"
@@ -41,6 +46,12 @@ echo "url: https://example.invalid/mcp/$TOK" >"$REPO/a.txt"
 git_q add a.txt
 check deny "commit a staged token path" "$(bash_call 'git commit -m x')"
 check deny "git -C <repo> commit from another folder" "$(bash_call "git -C $REPO commit -m x" /)"
+echo "URL is https://example.invalid/mcp/$TOK." >"$REPO/a.txt"
+git_q add a.txt
+check deny "commit a token path at the end of a sentence" "$(bash_call 'git commit -m x')"
+echo "https://example.invalid/mcp/$TOK/" >"$REPO/a.txt"
+git_q add a.txt
+check deny "commit a token path with a trailing slash" "$(bash_call 'git commit -m x')"
 check allow "git status with a token path staged" "$(bash_call 'git status')"
 
 git_q reset -q

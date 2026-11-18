@@ -3,7 +3,9 @@
 
 The token is the secret part of the production `/mcp/<token>` path (SPEC-agent-tools v2). It lives
 only in Vercel's env and the owner's mcp-connector-url.txt, and the repo is public. Denies:
-- any Bash, Read or Grep call that names mcp-connector-url.txt (reading it prints the token);
+- a Bash command that names mcp-connector-url.txt or its folder ~/.config/jp_ski_map, outside a
+  `git` command (so `git grep` or a commit message may mention the name), and a Read or Grep of
+  either (reading the file prints the token);
 - a Bash `git commit` while the tracked changes add an `/mcp/<token>`-shaped path.
 Reads the hook JSON on stdin; prints a deny decision on stdout, or nothing to allow.
 Tested by scripts/test-guard-mcp-token.sh (run in CI).
@@ -16,9 +18,11 @@ import subprocess
 import sys
 
 SECRET_FILE = "mcp-connector-url.txt"
-# A long URL-safe segment right after /mcp/, ending the path. A file such as services/mcp/mlflow.db
-# or a placeholder such as /mcp/<HAKUBA_MCP_TOKEN> doesn't match.
-TOKEN_PATH = re.compile(r"/mcp/[A-Za-z0-9_-]{20,}(?![A-Za-z0-9_./-])")
+SECRET_DIR = ".config/jp_ski_map"
+# 20+ URL-safe characters right after /mcp/. A file such as services/mcp/mlflow.db or the
+# placeholder /mcp/<HAKUBA_MCP_TOKEN> is shorter or has other characters, so it doesn't match.
+TOKEN_PATH = re.compile(r"/mcp/[A-Za-z0-9_-]{20,}(?![A-Za-z0-9_-])")
+SEGMENT_SPLIT = re.compile(r"&&|\|\||[;|\n]")
 GIT_COMMIT = re.compile(r"\bgit\b[^;&|]*\bcommit\b")
 GIT_DASH_C = re.compile(r"\bgit\s+-C\s+(\S+)[^;&|]*\bcommit\b")
 
@@ -65,7 +69,12 @@ def main() -> None:
 
     if tool == "Bash":
         command = tool_input.get("command", "")
-        if SECRET_FILE in command:
+        # shortcut: splits on shell operators without parsing quotes; a quoted `;` only adds a segment.
+        segments = (seg.strip() for seg in SEGMENT_SPLIT.split(command))
+        if any(
+            not seg.startswith("git ") and (SECRET_FILE in seg or SECRET_DIR in seg)
+            for seg in segments
+        ):
             deny(
                 f"{SECRET_FILE} holds the MCP connector token; reading it would put the secret in "
                 "the transcript. Use the placeholder /mcp/<HAKUBA_MCP_TOKEN>, or ask the owner."
@@ -81,7 +90,8 @@ def main() -> None:
             )
             return
     elif tool in ("Read", "Grep"):
-        if SECRET_FILE in (tool_input.get("file_path") or tool_input.get("path") or ""):
+        path = tool_input.get("file_path") or tool_input.get("path") or ""
+        if SECRET_FILE in path or SECRET_DIR in path:
             deny(f"{SECRET_FILE} holds the MCP connector token; don't read it. Ask the owner.")
 
 
