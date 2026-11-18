@@ -11,6 +11,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -18,6 +19,7 @@ import { MapShell } from "@/components/MapShell";
 import type MapView from "@/components/MapView";
 import type { Resort, Route } from "@/lib/api";
 import * as api from "@/lib/api";
+import { emptyState, savedStore, toggleInList } from "@/lib/saved-places";
 import driveFixture from "./fixtures/route-drive.json";
 import walkFixture from "./fixtures/route-walk.json";
 
@@ -83,6 +85,8 @@ vi.mock("@/lib/api", async (importOriginal) => {
     },
     fetchRank: vi.fn(async () => []),
     fetchRoutes: vi.fn(),
+    fetchPath: vi.fn(),
+    fetchSuggestions: vi.fn(async () => []),
     // typed, so a fake that drifts from the API shape fails typecheck, not BusPanel
     fetchBusOptions: vi.fn(
       async (): Promise<api.BusResult> => ({
@@ -117,6 +121,7 @@ function renderShell(search = "?skip-title") {
 beforeEach(() => {
   mapProps = null;
   localStorage.clear();
+  savedStore.update(() => emptyState()); // the store keeps its state in memory
   // a phone: Start is offered on touch-first devices only (SPEC-pilot "Devices")
   vi.stubGlobal(
     "matchMedia",
@@ -246,5 +251,136 @@ describe("MapShell pilot", () => {
     expect(
       screen.getByRole("button", { name: /start navigation/i }),
     ).toBeInTheDocument();
+  });
+});
+
+// W2 adds these before moving the code they cover (W1's PR listed them as not covered)
+const from = "36.69736,137.85393";
+const fromCoord = { lat: 36.69736, lng: 137.85393 };
+const gondola = happo.accessPoints[0].coord;
+
+describe("MapShell search box", () => {
+  it("picking a search result sets the origin, flies there and writes the link", async () => {
+    const station: api.Suggestion = {
+      id: "jr-hakuba",
+      kind: "place",
+      name: "JR Hakuba Station",
+      nameJa: null,
+      coord: { lat: 36.69877, lng: 137.86197 },
+      detail: null,
+      match: null,
+      source: "test",
+    };
+    vi.mocked(api.fetchSuggestions).mockResolvedValue([station]);
+    renderShell();
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Search hotel or place" }),
+      { target: { value: "hakuba st" } },
+    );
+    fireEvent.click(
+      await screen.findByRole("option", { name: /JR Hakuba Station/ }),
+    );
+    expect(map().origin).toEqual(station.coord);
+    expect(map().flyTo).toEqual(station.coord);
+    await waitFor(() => expect(query().get("from")).toBe("36.69877,137.86197"));
+  });
+});
+
+describe("MapShell swap", () => {
+  it("swap makes the resort the start and the start a point; a second swap restores the resort", async () => {
+    renderShell(`?from=${from}&mode=drive&resort=happo-one`);
+    await waitFor(() => expect(map().destination).not.toBeNull());
+    const swap = () =>
+      fireEvent.click(
+        screen.getByRole("button", { name: "Swap start and destination" }),
+      );
+    swap();
+    expect(map().origin).toEqual(gondola);
+    expect(map().destination).toEqual(fromCoord);
+    await waitFor(() => expect(query().get("dest")).toBe(`pt:${from}`));
+    expect(query().get("resort")).toBeNull();
+    swap();
+    expect(map().origin).toEqual(fromCoord);
+    await waitFor(() => expect(query().get("resort")).toBe("happo-one"));
+    expect(map().destination).toEqual(gondola);
+  });
+});
+
+describe("MapShell stops", () => {
+  it("Add destination opens a stop box that takes the next map tap; the route goes through it", async () => {
+    vi.mocked(api.fetchPath).mockResolvedValue(drive);
+    renderShell(`?from=${from}&mode=drive&resort=happo-one`);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /add destination/i }),
+    );
+    expect(map().placingStop).toBe(true);
+    const stop = { lat: 36.69, lng: 137.84 };
+    act(() => map().onPickOrigin(stop));
+    expect(map().origin).toEqual(fromCoord); // the tap filled the stop, not the start
+    expect(map().placingStop).toBe(false);
+    expect(map().stops).toEqual([{ coord: stop, name: "Dropped pin" }]);
+    await waitFor(() =>
+      expect(query().get("stops")).toBe("36.69000,137.84000"),
+    );
+    await waitFor(() =>
+      expect(api.fetchPath).toHaveBeenCalledWith(
+        "drive",
+        [fromCoord, stop, gondola],
+        { stopAtPoints: true },
+      ),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove stop 1" }));
+    expect(map().stops).toEqual([]);
+    await waitFor(() => expect(query().get("stops")).toBeNull());
+  });
+});
+
+describe("MapShell saved panel", () => {
+  const onsen = {
+    id: "onsen",
+    name: "Onsen",
+    coord: { lat: 36.7, lng: 137.85 },
+    kind: "poi" as const,
+  };
+  const savedButton = () =>
+    screen.getByRole("button", { name: "Saved places" });
+  const onsenCard = () => screen.getByRole("listitem", { name: "Onsen" });
+
+  it("Go here makes a saved place the destination and closes the panel", async () => {
+    savedStore.update((s) => toggleInList(s, onsen, "starred"));
+    renderShell(`?from=${from}&mode=drive`);
+    act(() => map().onSelectSaved?.("onsen")); // a tapped saved marker opens on it
+    expect(savedButton()).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(
+      within(onsenCard()).getByRole("button", { name: "Go here" }),
+    );
+    expect(map().destination).toEqual(onsen.coord);
+    expect(savedButton()).toHaveAttribute("aria-pressed", "false");
+    await waitFor(() =>
+      expect(query().get("dest")).toBe("pt:36.70000,137.85000"),
+    );
+  });
+
+  it("Start from here makes a saved place the start and flies there", async () => {
+    savedStore.update((s) => toggleInList(s, onsen, "starred"));
+    renderShell();
+    act(() => map().onSelectSaved?.("onsen"));
+    fireEvent.click(
+      within(onsenCard()).getByRole("button", { name: "Start from here" }),
+    );
+    expect(map().origin).toEqual(onsen.coord);
+    expect(map().flyTo).toEqual(onsen.coord);
+    expect(savedButton()).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("the Saved button toggles the panel in place of the trip lists", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    expect(screen.queryByRole("region", { name: "Saved" })).toBeNull();
+    fireEvent.click(savedButton());
+    expect(screen.getByRole("region", { name: "Saved" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: /walk/i })).toBeNull();
+    fireEvent.click(savedButton());
+    expect(screen.queryByRole("region", { name: "Saved" })).toBeNull();
   });
 });
