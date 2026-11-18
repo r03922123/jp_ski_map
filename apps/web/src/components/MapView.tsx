@@ -8,16 +8,21 @@ import {
 } from "maplibre-gl";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import MapGL, {
-  Layer,
   type MapRef,
   type MapTouchEvent,
   Marker,
   NavigationControl,
   Popup,
-  Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import { facesLeft, Hero } from "@/components/HeroMarker";
+import {
+  ALT_HIT_LAYER,
+  AlternateRoutes,
+} from "@/components/map/AlternateRoutes";
+import { RideLine, RideStops } from "@/components/map/BusRideLayers";
+import { LODGING_LAYER, LodgingLayer } from "@/components/map/LodgingLayer";
+import { TrailLayers } from "@/components/map/TrailLayers";
 import { PixelSprite } from "@/components/PixelSprite";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
@@ -31,7 +36,7 @@ import {
   MAPLIBRE_WORKER_URL,
 } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
-import { type RideStopMark, rideStopFeatures } from "@/lib/ride-stops";
+import type { RideStopMark } from "@/lib/ride-stops";
 import {
   type LngLat,
   labelAnchor,
@@ -40,7 +45,6 @@ import {
   pinCardAnchor,
   pinEaseOffsetY,
   routeBounds,
-  segment,
 } from "@/lib/route-geo";
 import type { SavedMarker } from "@/lib/saved-places";
 
@@ -109,7 +113,6 @@ const SAVED_ICONS: Record<SavedMarker["icon"], string> = {
   bookmark: "🔖",
 };
 
-const LODGING_LAYER = "lodging-pins";
 // MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
 // but a longer wait makes every single pick feel late
 const DOUBLE_CLICK_MS = 300;
@@ -120,16 +123,6 @@ const LONG_PRESS_SLOP_PX = 10;
 const TOUCH_CLICK_MS = 700;
 /** How long the phone's compact credits stay open after the map loads. */
 const CREDITS_SHOWN_MS = 5000;
-const ALT_HIT_LAYER = "route-alts-hit";
-
-// SPEC-game-theme: the chosen route is an overworld trail
-const TRAIL_INK = "#22223a";
-const TRAIL_GOLD = "#ffd25e";
-const RIDE_COLOR = "#0f766e"; // the line badge colour in the bus panel
-const RIDE_CASING = "#134e4a";
-const ALT_CASING = "#6b7a90";
-
-const EMPTY = { type: "FeatureCollection" as const, features: [] };
 
 /**
  * Bottom-to-top order of our route layers. react-map-gl adds layers asynchronously (when
@@ -491,25 +484,6 @@ export default function MapView({
   }, [camKey, mapReady, pressing]);
 
   const active = routes[activeRoute] ?? null;
-  const activeCoords = (active?.geometry.coordinates ?? []) as LngLat[];
-  const alternates = useMemo(
-    () =>
-      routes
-        .map((route, index) => ({ route, index }))
-        .filter(({ index }) => index !== activeRoute),
-    [routes, activeRoute],
-  );
-  const altGeoJson = useMemo(
-    () => ({
-      type: "FeatureCollection" as const,
-      features: alternates.map(({ route, index }) => ({
-        type: "Feature" as const,
-        properties: { index },
-        geometry: route.geometry,
-      })),
-    }),
-    [alternates],
-  );
   const labels = useMemo(
     () =>
       routes.map((route, index) => {
@@ -528,32 +502,10 @@ export default function MapView({
       }),
     [routes, activeRoute],
   );
-  const rideStopsGeoJson = useMemo(
-    () => rideStopFeatures(ride?.stops ?? []),
-    [ride],
-  );
   const rideLabelAt =
     ride && ride.route.geometry.coordinates.length > 1
       ? labelAnchor(ride.route.geometry.coordinates as LngLat[], [])
       : null;
-  const highlightCoords =
-    highlight && activeCoords.length ? segment(activeCoords, highlight) : [];
-  const isWalk = active?.mode === "walk";
-
-  const lodgingGeoJson = useMemo(
-    () => ({
-      type: "FeatureCollection" as const,
-      features: lodging.map((p) => ({
-        type: "Feature" as const,
-        properties: { name: p.name },
-        geometry: {
-          type: "Point" as const,
-          coordinates: [p.coord.lng, p.coord.lat],
-        },
-      })),
-    }),
-    [lodging],
-  );
 
   function reportView(map: MapLibreMap) {
     const b = map.getBounds();
@@ -669,190 +621,19 @@ export default function MapView({
           {pinCard}
         </Popup>
       )}
-      <Source id="lodging" type="geojson" data={lodgingGeoJson}>
-        <Layer
-          id={LODGING_LAYER}
-          type="circle"
-          paint={{
-            "circle-radius": 6,
-            "circle-color": "#9333ea",
-            "circle-stroke-color": "#ffffff",
-            "circle-stroke-width": 2,
-          }}
-        />
-        <Layer
-          id="lodging-labels"
-          type="symbol"
-          minzoom={15}
-          layout={{
-            "text-field": ["get", "name"],
-            // a font the OpenFreeMap style serves; MapLibre's default (Open Sans) 404s
-            "text-font": ["Noto Sans Regular"],
-            "text-size": 11,
-            "text-offset": [0, 1.2],
-            "text-anchor": "top",
-          }}
-          paint={{
-            "text-color": "#581c87",
-            "text-halo-color": "#ffffff",
-            "text-halo-width": 1.5,
-          }}
-        />
-      </Source>
-      <Source id="route-alts" type="geojson" data={altGeoJson}>
-        <Layer
-          id="route-alts-casing"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          // no casing under the alternates: it would fill their dashes in
-          paint={{ "line-color": ALT_CASING, "line-width": 0 }}
-        />
-        <Layer
-          id="route-alts-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{
-            "line-color": ALT_CASING,
-            "line-width": 5,
-            "line-dasharray": [1.2, 1.6],
-          }}
-        />
-        {/* invisible, finger-sized tap target */}
-        <Layer
-          id={ALT_HIT_LAYER}
-          type="line"
-          paint={{
-            "line-color": "#000000",
-            "line-opacity": 0,
-            "line-width": 22,
-          }}
-        />
-      </Source>
+      <LodgingLayer lodging={lodging} />
+      <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or
           drive route, then the part already covered, the step highlight, and the bus
           stop dots on top. */}
-      <Source
-        id="ride"
-        type="geojson"
-        data={ride ? ride.route.geometry : EMPTY}
-      >
-        <Layer
-          id="ride-casing"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": RIDE_CASING, "line-width": 9 }}
-        />
-        <Layer
-          id="ride-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": RIDE_COLOR, "line-width": 6 }}
-        />
-      </Source>
-      <Source
-        id="route-active"
-        type="geojson"
-        data={active ? active.geometry : EMPTY}
-      >
-        <Layer
-          id="route-active-casing"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          // the overworld path: an ink track (gold dashes on top by car)
-          paint={{
-            "line-color": isWalk ? "#ffffff" : TRAIL_INK,
-            "line-width": isWalk ? 0 : 9,
-          }}
-        />
-        <Layer
-          id="route-active-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{
-            "line-color": isWalk ? TRAIL_INK : TRAIL_GOLD,
-            "line-width": isWalk ? 7 : 4,
-            // zero-length dashes with round caps draw as dots
-            // an overworld trail: footprint dots on foot, a dashed track by car
-            // (round caps add a line width to every dash, so the gap must be wider than 1)
-            "line-dasharray": isWalk ? [0, 1.6] : [1.5, 2],
-          }}
-        />
-      </Source>
-      <Source
-        id="route-covered"
-        type="geojson"
-        data={
-          pilot && pilot.covered.length > 1
-            ? {
-                type: "Feature",
-                properties: {},
-                geometry: { type: "LineString", coordinates: pilot.covered },
-              }
-            : EMPTY
-        }
-      >
-        <Layer
-          id="route-covered-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": "#9ca3af", "line-width": 7 }}
-        />
-      </Source>
-      <Source
-        id="route-highlight"
-        type="geojson"
-        data={{
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: highlightCoords },
-        }}
-      >
-        <Layer
-          id="route-highlight-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": "#f59e0b", "line-width": 8 }}
-        />
-      </Source>
-      <Source id="ride-stops" type="geojson" data={rideStopsGeoJson}>
-        {/* Google-Maps transit style: on and off stand out, stops between are small */}
-        <Layer
-          id="ride-stop-dots"
-          type="circle"
-          paint={{
-            "circle-radius": ["match", ["get", "role"], "via", 5, 8],
-            "circle-color": "#ffffff",
-            "circle-stroke-color": RIDE_CASING,
-            "circle-stroke-width": ["match", ["get", "role"], "via", 2.5, 3.5],
-          }}
-        />
-        <Layer
-          id="ride-stop-names"
-          type="symbol"
-          layout={{
-            // where you get on and off: always; the stops between: once zoomed in
-            // (MapLibre allows "zoom" only as the input of a top-level step)
-            "text-field": [
-              "step",
-              ["zoom"],
-              ["case", ["==", ["get", "role"], "via"], "", ["get", "name"]],
-              14,
-              ["get", "name"],
-            ],
-            "text-font": ["Noto Sans Regular"],
-            "text-size": ["match", ["get", "role"], "via", 11, 12.5],
-            "text-offset": [0, 1.1],
-            "text-anchor": "top",
-            "text-max-width": 9,
-          }}
-          paint={{
-            "text-color": RIDE_CASING,
-            "text-halo-color": "#ffffff",
-            "text-halo-width": 1.6,
-          }}
-        />
-      </Source>
+      <RideLine route={ride?.route ?? null} />
+      <TrailLayers
+        active={active}
+        covered={pilot?.covered ?? null}
+        highlight={highlight}
+      />
+      <RideStops stops={ride?.stops} />
       {resorts
         .filter((r) => !shownResortIds || shownResortIds.includes(r.id))
         .map((r) => {
