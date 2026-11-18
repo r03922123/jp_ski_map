@@ -21,8 +21,9 @@
 - Vercel needs `PYTHONPATH=/var/task/src` (the bundle is too big for Vercel to install the package itself); the env vars are in SPEC-deploy Phase B Changes item 9.
 - Production runs only on Vercel; the Mac standby (Funnel, :3000, :8011) is stopped. `scripts/serve-public.sh --funnel`
   brings it back, but ask the owner first: it makes the Mac public.
-- `vercel` isn't on PATH: the deploy script falls back to the npx copy in `~/.npm/_npx`; run other `vercel` commands
-  from there. `vercel curl <preview URL>` gets past preview protection without the bypass secret.
+- `vercel` isn't on PATH: the deploy script falls back to the npx copy. For other commands, prefix
+  `PATH="$(dirname "$(ls ~/.npm/_npx/*/node_modules/.bin/vercel | head -1)"):$PATH"`.
+  `vercel curl <preview URL>` gets past preview protection without the bypass secret.
 - MCP for Claude chat: production serves the tools at `/mcp/<HAKUBA_MCP_TOKEN>` (SPEC-agent-tools v2). The token lives
   only in Vercel's env and the owner's `~/.config/jp_ski_map/mcp-connector-url.txt`; never commit or print it.
 - A new worktree has no dependencies: run `uv sync` in services/api and `pnpm install` in apps/web.
