@@ -1,15 +1,10 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import {
-  type MapGeoJSONFeature,
-  type Map as MapLibreMap,
-  setWorkerUrl,
-} from "maplibre-gl";
+import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import MapGL, {
   type MapRef,
-  type MapTouchEvent,
   Marker,
   NavigationControl,
   Popup,
@@ -53,6 +48,8 @@ import {
   routeBounds,
 } from "@/lib/route-geo";
 import type { SavedMarker } from "@/lib/saved-places";
+import { useCompactCredits } from "@/lib/use-compact-credits";
+import { useMapGestures } from "@/lib/use-map-gestures";
 
 setWorkerUrl(MAPLIBRE_WORKER_URL);
 
@@ -110,17 +107,6 @@ export type MapViewProps = {
     pose: Pose;
   } | null;
 };
-
-// MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
-// but a longer wait makes every single pick feel late
-const DOUBLE_CLICK_MS = 300;
-/** Touch long-press: UIKit's default hold (0.5 s) and allowable movement (10 pt). */
-const LONG_PRESS_MS = 500;
-const LONG_PRESS_SLOP_PX = 10;
-/** A click this soon after a touch ended was made by that finger (the mouse never touches). */
-const TOUCH_CLICK_MS = 700;
-/** How long the phone's compact credits stay open after the map loads. */
-const CREDITS_SHOWN_MS = 5000;
 
 /**
  * Bottom-to-top order of our route layers. react-map-gl adds layers asynchronously (when
@@ -199,71 +185,14 @@ export default function MapView({
   const mapStyle = useGameStyle(MAP_STYLE_URL);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
-  // A double-click (double-tap) zooms; its first click must not also move the start.
-  // A pick waits out the double-click window, and a second click inside it cancels it.
-  const pendingPick = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cancelPick = () => {
-    if (pendingPick.current === null) return false;
-    clearTimeout(pendingPick.current);
-    pendingPick.current = null;
-    return true;
-  };
-  // biome-ignore lint/correctness/useExhaustiveDependencies: cancelPick only reads a ref
-  useEffect(() => () => void cancelPick(), []);
-
-  // Touch long-press, with the platform defaults: UIKit's long press (0.5 s, 10 pt of
-  // allowable movement) and Android's long-press timeout. A second finger is a pinch, a
-  // finger that travels is a pan; neither drops a pin.
-  const hold = useRef<{
-    x: number;
-    y: number;
-    timer: ReturnType<typeof setTimeout>;
-  } | null>(null);
-  const longPressed = useRef(false); // its lift-off click belongs to the press
-  const lastTouch = useRef(0); // a click this soon after a touch came from a finger
-  const endHold = () => {
-    if (hold.current) clearTimeout(hold.current.timer);
-    hold.current = null;
-  };
-  // biome-ignore lint/correctness/useExhaustiveDependencies: endHold only reads a ref
-  useEffect(() => () => endHold(), []);
-  // react-map-gl 8 sets `features` on touch events too (its _onPointerEvent queries
-  // the interactive layers for every pointer event); only its types leave it out
-  const startHold = (e: MapTouchEvent & { features?: MapGeoJSONFeature[] }) => {
-    endHold();
-    lastTouch.current = Date.now();
-    longPressed.current = false;
-    if (e.points.length !== 1 || pilot !== null || !onDropPin) return;
-    // pressed on a hotel pin: the card is about that hotel (its spot and name)
-    const hotel = e.features?.find((f) => f.layer.id === LODGING_LAYER);
-    const geom = hotel?.geometry;
-    const coord: Coord =
-      geom?.type === "Point"
-        ? { lat: geom.coordinates[1], lng: geom.coordinates[0] }
-        : { lat: e.lngLat.lat, lng: e.lngLat.lng };
-    const name =
-      geom?.type === "Point"
-        ? ((hotel?.properties?.name as string) ?? null)
-        : null;
-    hold.current = {
-      x: e.point.x,
-      y: e.point.y,
-      timer: setTimeout(() => {
-        hold.current = null;
-        longPressed.current = true;
-        onDropPin(coord, name);
-      }, LONG_PRESS_MS),
-    };
-  };
-  const moveHold = (e: MapTouchEvent) => {
-    const h = hold.current;
-    if (!h) return;
-    if (
-      e.points.length !== 1 ||
-      Math.hypot(e.point.x - h.x, e.point.y - h.y) > LONG_PRESS_SLOP_PX
-    )
-      endHold();
-  };
+  const gestures = useMapGestures({
+    piloting: pilot !== null,
+    placingStop,
+    onSelectRoute,
+    onPickOrigin,
+    onDropPin,
+    onMapTap,
+  });
 
   // Fit the whole route set once per new search or picked option, clear of the directions
   // panel. Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after
@@ -304,25 +233,7 @@ export default function MapView({
     });
   }, [fitKey, mapReady, piloting]);
 
-  // Phones: the compact credits show on first display, then fold after five seconds, as
-  // OSM's attribution guidelines allow; the ⓘ reopens them. After that a new trip folds
-  // them again, as MapLibre's first drag does: open, they sit on the strip above the
-  // sheet that the fit keeps for the end markers.
-  const [creditsShown, setCreditsShown] = useState(false);
-  const foldCredits = () =>
-    mapRef.current
-      ?.getContainer()
-      .querySelector(".maplibregl-compact-show")
-      ?.classList.remove("maplibregl-compact-show");
-  useEffect(() => {
-    if (!mapReady) return;
-    const t = setTimeout(() => setCreditsShown(true), CREDITS_SHOWN_MS);
-    return () => clearTimeout(t);
-  }, [mapReady]);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for the trip
-  useEffect(() => {
-    if (creditsShown) foldCredits();
-  }, [fitKey, creditsShown]);
+  useCompactCredits(mapRef, mapReady, fitKey);
 
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
@@ -529,53 +440,13 @@ export default function MapView({
       onMouseDown={press}
       onTouchStart={(e) => {
         press();
-        startHold(e);
+        gestures.startHold(e);
       }}
-      onTouchMove={moveHold}
-      onTouchEnd={() => {
-        endHold();
-        lastTouch.current = Date.now();
-      }}
-      onTouchCancel={endHold}
-      onClick={(e) => {
-        const feature = e.features?.[0];
-        // a route line selects that route, unless a stop is being placed: a stop along
-        // the way is the likeliest tap then
-        if (feature?.layer.id === ALT_HIT_LAYER && !placingStop) {
-          onSelectRoute?.(Number(feature.properties?.index));
-          return;
-        }
-        // navigating (or previewing): the pilot owns the map, a tap must not replace
-        // the trip being followed with a new start
-        if (piloting) return;
-        // the click that ends a long-press: the press already dropped its pin
-        if (longPressed.current) {
-          longPressed.current = false;
-          return;
-        }
-        // the second click of a double-click: it zooms, nothing is picked
-        if (cancelPick() || e.originalEvent.detail > 1) return;
-        // a lodging pin snaps the origin onto the hotel itself
-        const pin = feature?.geometry;
-        const at: Coord =
-          pin?.type === "Point"
-            ? { lat: pin.coordinates[1], lng: pin.coordinates[0] }
-            : { lat: e.lngLat.lat, lng: e.lngLat.lng };
-        // a finger looks, it doesn't edit (BC-A1): a hotel pin opens its card, empty map
-        // closes one. An open stop box is the exception: the user asked for a point.
-        const byFinger = Date.now() - lastTouch.current < TOUCH_CLICK_MS;
-        if (byFinger && onDropPin && !placingStop) {
-          if (pin?.type === "Point")
-            onDropPin(at, (feature?.properties?.name as string) ?? null);
-          else onMapTap?.();
-          return;
-        }
-        pendingPick.current = setTimeout(() => {
-          pendingPick.current = null;
-          onPickOrigin(at);
-        }, DOUBLE_CLICK_MS);
-      }}
-      onDblClick={() => cancelPick()}
+      onTouchMove={gestures.moveHold}
+      onTouchEnd={gestures.touchEnd}
+      onTouchCancel={gestures.endHold}
+      onClick={gestures.click}
+      onDblClick={() => gestures.cancelPick()}
     >
       <NavigationControl position="bottom-right" />
       {droppedPin && (
