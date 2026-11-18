@@ -28,6 +28,14 @@ else
   die "usage: scripts/deploy-vercel.sh [--prod]"
 fi
 
+# This Mac has the CLI only as an npx copy, not on PATH.
+# shortcut: takes the first npx copy found; pin a version here if two different ones ever exist.
+if ! command -v vercel >/dev/null; then
+  npx_vercel=$(ls "$HOME"/.npm/_npx/*/node_modules/.bin/vercel 2>/dev/null | head -1 || true)
+  [[ -n $npx_vercel ]] || die "vercel CLI not found on PATH or in ~/.npm/_npx (run 'npx vercel --version' once)"
+  PATH="$(dirname "$npx_vercel"):$PATH"
+fi
+
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 git -C "$ROOT" archive HEAD | tar -x -C "$STAGE"
