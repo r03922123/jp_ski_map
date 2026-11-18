@@ -96,6 +96,19 @@ pnpm --dir apps/web exec biome ci && pnpm --dir apps/web typecheck && pnpm --dir
 pnpm --dir apps/web e2e        # full suite; needs the API, Valhalla and `pnpm dev`
 ```
 
+## Tasks (each one PR, built in a fresh session from this file)
+
+| # | Task | Check |
+|---|---|---|
+| H1 | `harness`: R1.1–R1.4 (`deploy` and `new-worktree` skills, the token hook with its test wired into CI, CLAUDE.md trimmed) | hook test green in CI; a fresh `claude -p "how do I deploy a preview?"` transcript shows the `deploy` skill loaded |
+| T1 | `agent-tools`: R2.1–R2.3; the eval re-run also closes the A1 leftover ("re-run with the new ids", tasks/todo.md) | MCP gates; `evals/last_run.md` with n, ≥ 12/12, same API sha before/after |
+| W1 | `web-shell` R3.1: characterization tests for MapShell's state transitions, passing on today's code | vitest green; tests fail when a transition is broken by hand |
+| W2 | R3.2 for MapShell: hooks into `src/lib/` | MapShell ≤ 500 lines; vitest + Playwright green; screenshots match |
+| W3 | R3.2 for MapView: sources and layers into components | MapView ≤ 600 lines; same checks |
+
+H1 and T1 share no files and can run at the same time. W1 → W2 → W3 run in order, before Ask Maps A3
+(owner decision, 2026-11-18).
+
 ## Testing strategy
 
 Behaviour-preserving refactor, so the existing 800+ unit tests are the contract. New tests only where
@@ -113,7 +126,5 @@ checked with its eval, not only unit tests, because a docstring change can chang
 
 ## Open questions
 
-1. Is this scoped reading right, or did "whole codebase" mean something larger (e.g. a new
-   architecture)? *Recommended: scoped, as above.*
-2. Ask Maps A3 also edits `MapShell`. Split it before A3 or after? *Recommended: before, so A3
-   lands in the smaller files; pause A3 until `web-shell` merges.*
+None. Answered by the owner on 2026-11-18: the scoped reading above is right, and `web-shell`
+lands before Ask Maps A3, which pauses until W3 merges.
