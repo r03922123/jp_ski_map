@@ -95,3 +95,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Deploy script stops on bad input (stubbed vercel; nothing can deploy)
         run: scripts/test-deploy-vercel.sh
+
+  claude-hooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: MCP-token hook denies the secret file and token-shaped commits
+        run: scripts/test-guard-mcp-token.sh
