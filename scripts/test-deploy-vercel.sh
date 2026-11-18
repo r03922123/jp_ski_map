@@ -7,6 +7,9 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 export PATH="$WORK/bin:/usr/bin:/bin"
+# The script falls back to ~/.npm/_npx, so HOME is a throwaway too: the real npx copy can't be reached.
+export HOME="$WORK/home"
+mkdir "$HOME"
 export VERCEL_STUB_LOG="$WORK/vercel.log"
 REPO="$WORK/repo"
 OUT="$WORK/out"
@@ -209,6 +212,18 @@ VERCEL_ORG_ID=team_test deploy
 expect_stop "only VERCEL_ORG_ID set" "project link incomplete"
 VERCEL_PROJECT_ID=prj_test deploy
 expect_stop "only VERCEL_PROJECT_ID set" "project link incomplete"
+
+echo "uses the npx copy when vercel is not on PATH"
+new_repo
+NPX_BIN="$HOME/.npm/_npx/abc123/node_modules/.bin"
+mkdir -p "$NPX_BIN"
+mv "$WORK/bin/vercel" "$NPX_BIN/vercel"
+deploy
+expect_args "deploy --environment preview"
+
+rm -rf "$HOME/.npm"
+deploy
+expect_stop "no vercel CLI anywhere" "vercel CLI not found"
 
 echo "committed deploy config is well formed"
 REAL="$HERE/.."
