@@ -11,11 +11,7 @@ import { DestinationPicker } from "@/components/DestinationPicker";
 import { DrivePanel, type RankingState } from "@/components/DrivePanel";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
-import {
-  ModePanel,
-  type PanelMode,
-  type RouteState,
-} from "@/components/ModePanel";
+import { ModePanel, type PanelMode } from "@/components/ModePanel";
 import { PilotView } from "@/components/PilotView";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
@@ -32,7 +28,6 @@ import {
   type TripStop,
 } from "@/components/TripPanel";
 import {
-  ApiError,
   type Bbox,
   type BusOption,
   type Coord,
@@ -100,6 +95,7 @@ import {
   serializeViewState,
 } from "@/lib/url-state";
 import { useNow } from "@/lib/use-now";
+import { useRoutes } from "@/lib/use-routes";
 import { useHiddenTimeout, useWakeLock } from "@/lib/wake-lock";
 
 /** Stop navigating after the page has been hidden this long (SPEC-pilot boundaries). */
@@ -446,47 +442,15 @@ export function MapShell() {
       : (point?.coord ?? (poiCategory ? poiTarget : destination));
   // With stops (drive/walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
-  const routeQuery = useQuery({
-    queryKey: ["routes", routeMode, origin, target, viaStops],
-    queryFn: async () => {
-      if (!origin || !target)
-        throw new Error("route query ran without both ends");
-      return viaStops.length > 0
-        ? {
-            primary: await fetchPath(routeMode, [origin, ...viaStops, target], {
-              stopAtPoints: true,
-            }),
-            alternates: [],
-          }
-        : fetchRoutes(routeMode, origin, target);
-    },
-    enabled: Boolean(origin && target),
-    retry: false,
-  });
-  // Primary first, then alternates; the bus tab shows only the walk to the stop.
-  const routes = useMemo<Route[]>(() => {
-    const set = routeQuery.data;
-    if (!set) return [];
-    return mode === "bus" ? [set.primary] : [set.primary, ...set.alternates];
-  }, [routeQuery.data, mode]);
-  const [activeRoute, setActiveRoute] = useState(0);
-  const [highlight, setHighlight] = useState<[number, number] | null>(null);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on every new route set
-  useEffect(() => setActiveRoute(0), [routes]);
-
-  const routeState: RouteState = !routeQuery.isEnabled
-    ? { status: "idle" }
-    : routeQuery.isPending
-      ? { status: "loading" }
-      : routeQuery.isError
-        ? {
-            status: "error",
-            error:
-              routeQuery.error instanceof ApiError
-                ? routeQuery.error.code
-                : "unknown",
-          }
-        : { status: "success", data: routes[activeRoute] ?? routes[0] };
+  const {
+    routes,
+    routeState,
+    isPending: routePending,
+    activeRoute,
+    setActiveRoute,
+    highlight,
+    setHighlight,
+  } = useRoutes({ mode, routeMode, origin, target, viaStops });
 
   const routeData = routeState.status === "success" ? routeState.data : null;
 
@@ -1237,9 +1201,7 @@ export function MapShell() {
                   onSelect={setBusChoice}
                   // only once the walk to the stop is known: it is the first leg
                   onStart={
-                    routeQuery.isPending || !pilotAvailable
-                      ? undefined
-                      : startBusPilot
+                    routePending || !pilotAvailable ? undefined : startBusPilot
                   }
                   startNote={busNote}
                 />
