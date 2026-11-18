@@ -896,16 +896,18 @@ Three small PRs, each test-first with a fresh-eyes review.
 - [x] Owner: Langfuse Cloud, Japan region, Hobby ($0); keys in `~/.config/jp_ski_map/langfuse.env`
 - [x] Vercel Production env set and redeployed (2026-11-16). Checked: 6 `tools/call` → 6 `TOOL` observations (`production`), the bad one `ToolError; invalid arguments: destination`, input/output empty, no coordinate or query text stored. Warm `tools/call` median 0.29 s (max 0.42, n=12), `tools/list` 0.19 s; one 7.7 s call in an earlier batch of 5, not reproduced (likely a cold start, unverified). Read observations with `/api/public/v2/observations`
 
-## Proposed 2026-11-18: rebuild from the URL, and Ask Maps (specs only, nothing built)
+## Rebuild from the URL, and Ask Maps (2026-11-18; status at main 8485c47)
 Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../SPEC-ask-maps.md) (A0–A4),
-[ADR-0007](../docs/adr/0007-automated-verification-and-capped-llm.md) (Proposed: waits for the owner's OK on
-a $5/month Claude API cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
-built in a fresh session from its spec. P1–P3 and A1–A3 cost nothing and can start before the OK;
-P3's hosted-model comparison, P4 and A4 need it.
-**2026-11-18, owner: approved** later that day. ADR-0007 is Accepted: paid steps may run within the ~$100
-credit and a $5/month cap. Owner to-dos before the first paid call: set the Console workspace spend limit
-to $5/month, confirm auto-reload is off, and add `ANTHROPIC_API_KEY` to Vercel env and Actions secrets.
-- [x] P1 (2026-11-18): `pipeline/` (`hakuba_pipeline`): stage contract, stdlib runner, `pipeline.lock.json`, `fetch` → `snapshots/<sha256>` (gitignored; `--store` or `$HAKUBA_SNAPSHOTS`), `crawl` reusing `check_sources.parse_page`. CI job `pipeline`. Live crawl 2026-11-18: 31 hashes equal `data/bus/sources.json`; two `--offline` replays byte-identical to the online lock. Not done: the private snapshot repo (the store defaults to a local folder, so `--offline` works only on the machine that crawled)
-- [x] A1 (PR #79, branch `feat/ask-maps-a1`): `id` / `boardStopId` in search_place, nearby_pois and
-  next_buses; `services/mcp/src/hakuba_mcp/ask.py` serves `POST /ask` (fake-client tests, no API call)
-- [ ] A1 leftovers: agent-tools eval re-run with the new ids; SSE spike on a preview (A4)
+[ADR-0007](../docs/adr/0007-automated-verification-and-capped-llm.md) (Accepted: paid steps within the ~$100
+credit and a $5/month cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
+built in a fresh session from its spec.
+- [ ] Owner, before the first paid call: Console workspace spend limit $5/month, auto-reload off,
+  `ANTHROPIC_API_KEY` in Vercel env and Actions secrets. P3's hosted comparison, P4, A2 and A4 wait on this.
+- [x] A0: ADR-0007 accepted (PR #80)
+- [x] P1 (PR #78): `pipeline/` (`hakuba_pipeline`): stage contract, stdlib runner, `pipeline.lock.json`, `fetch` → `snapshots/<sha256>` (gitignored; `--store` or `$HAKUBA_SNAPSHOTS`), `crawl` reusing `check_sources.parse_page`. CI job `pipeline`. Live crawl: 31 hashes equal `data/bus/sources.json`; two `--offline` replays byte-identical. Not done: the private snapshot repo, so `--offline` works only on the machine that crawled
+- [x] A1 (PR #79): `id` / `boardStopId` in search_place, nearby_pois and next_buses;
+  `services/mcp/src/hakuba_mcp/ask.py` serves `POST /ask` as one JSON response (fake-client tests, no real API call)
+- [ ] A1 leftovers: agent-tools eval re-run with the new ids; SSE spike on a preview (folds into A4)
+- [ ] Next, $0: P2 (stops stage; fixes the `unresolved:` coordSource bug, review finding 1), A3 (web AskSheet
+  with a stubbed `/ask`). Then P3–P7, A2, A4 in spec order.
+- Open Dependabot PRs #64, #65, #76: not triaged.
