@@ -31,11 +31,8 @@ import {
   type Bbox,
   type BusOption,
   type Coord,
-  fetchBusOptions,
-  fetchBusToPlace,
   fetchLodging,
   fetchNearbyPois,
-  fetchNightBus,
   fetchPath,
   fetchRank,
   fetchRoutes,
@@ -44,9 +41,8 @@ import {
   type Suggestion,
 } from "@/lib/api";
 import { mirrorUrl } from "@/lib/back-close";
-import { nowInHakuba } from "@/lib/depart-at";
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
-import { formatArrival, formatDuration } from "@/lib/format";
+import { formatArrival } from "@/lib/format";
 import { riderStore } from "@/lib/game/rider";
 import { earnVisit } from "@/lib/game/stamp-moment";
 import { arrivedAt } from "@/lib/game/stamps";
@@ -61,7 +57,7 @@ import {
   planBus,
   reduceBus,
 } from "@/lib/nav/bus-journey";
-import { busChoiceFor, stopMatchName } from "@/lib/nav/bus-place";
+import { stopMatchName } from "@/lib/nav/bus-place";
 import { cameraFor } from "@/lib/nav/camera";
 import {
   geolocationSource,
@@ -94,6 +90,7 @@ import {
   type RankOptions,
   serializeViewState,
 } from "@/lib/url-state";
+import { useBusTrip } from "@/lib/use-bus-trip";
 import { useNow } from "@/lib/use-now";
 import { useRoutes } from "@/lib/use-routes";
 import { useHiddenTimeout, useWakeLock } from "@/lib/wake-lock";
@@ -111,24 +108,6 @@ const MapView = dynamic(() => import("./MapView"), { ssr: false });
 const LODGING_MIN_ZOOM = 14;
 
 /** Current Hakuba time as "YYYY-MM-DDTHH:mm" for the datetime-local input. */
-type Loadable<T> =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "success"; data: T };
-
-function loadable<T>(q: {
-  isEnabled: boolean;
-  isPending: boolean;
-  isError: boolean;
-  data: T | undefined;
-}): Loadable<T> {
-  if (!q.isEnabled) return { status: "idle" };
-  if (q.isPending) return { status: "loading" };
-  if (q.isError || q.data === undefined) return { status: "error" };
-  return { status: "success", data: q.data };
-}
-
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const [mode, setMode] = useState<PanelMode>("drive");
@@ -178,10 +157,7 @@ export function MapShell() {
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
-  const [departAt, setDepartAt] = useState("");
-  const [showNight, setShowNight] = useState(false);
   const [storedBusChoice, setBusChoice] = useState<BusOption | null>(null);
-  useEffect(() => setDepartAt(nowInHakuba()), []); // client clock only, avoids SSR mismatch
 
   // Restore the shared view once, then mirror every change back into the URL.
   // `ready` is state (not a ref) so the first URL write happens on a render that
@@ -322,89 +298,19 @@ export function MapShell() {
         kind: "pin",
       })
     : null;
-  // Bus mode with a destination that isn't a resort: the way back (SPEC-web-app v1.11)
-  const busPlace =
-    mode === "bus" && pointPlace?.kind !== "resort" ? pointPlace : null;
-  const busChoice = busChoiceFor(storedBusChoice, busPlace !== null);
-  const busPlaceName = stopMatchName(busPlace?.name);
-  const busEnabled = mode === "bus" && origin !== null && departAt !== "";
-  const bus = useQuery({
-    queryKey: ["bus", origin, departAt, originName],
-    queryFn: () => fetchBusOptions(origin!, departAt, originName),
-    enabled: busEnabled && !showNight && busPlace === null,
-    retry: false,
-  });
-  const busToPlace = useQuery({
-    queryKey: [
-      "bus-to-place",
-      origin,
-      busPlace?.coord,
-      departAt,
-      originName,
-      busPlaceName,
-    ],
-    queryFn: () =>
-      fetchBusToPlace(
-        origin!,
-        busPlace!.coord,
-        departAt,
-        originName,
-        busPlaceName,
-      ),
-    enabled: busEnabled && !showNight && busPlace !== null,
-    retry: false,
-  });
-  const night = useQuery({
-    queryKey: ["night-bus", origin, departAt],
-    queryFn: () => fetchNightBus(origin!, departAt),
-    enabled: busEnabled && showNight,
-    retry: false,
-  });
-  const busStop =
-    mode === "bus" && !showNight ? (busChoice?.boardStopCoord ?? null) : null;
-
-  // The bus ride, drawn along the roads between its located stops (approximate).
-  // To the stop where you get off (as the journey list), with names for the map.
-  const rideStopMarks = useMemo(
-    () =>
-      busChoice
-        ? busChoice.rideStops
-            .slice(0, alightIndexOf(busChoice) + 1)
-            .flatMap((s) => (s.coord ? [{ coord: s.coord, name: s.name }] : []))
-        : [],
-    [busChoice],
-  );
-  const rideStops = useMemo(
-    () => rideStopMarks.map((m) => m.coord),
-    [rideStopMarks],
-  );
-  const ride = useQuery({
-    queryKey: [
-      "ride",
-      busChoice?.routeId,
-      busChoice?.trip,
-      busChoice?.boardStopId,
-      busChoice?.alightStopId,
-    ],
-    queryFn: () => fetchPath("drive", rideStops),
-    enabled: busStop !== null && rideStops.length >= 2,
-    retry: false,
-    staleTime: Number.POSITIVE_INFINITY,
-  });
-  // Memoised: MapView re-fits the map when this changes, so it must not be a new
-  // object on every render (that re-fit after each pan looped under reduced motion).
-  const rideLeg = useMemo(
-    () =>
-      busStop !== null && busChoice && ride.data
-        ? {
-            route: ride.data,
-            stops: rideStopMarks,
-            label:
-              busChoice.rideS != null ? formatDuration(busChoice.rideS) : null,
-          }
-        : null,
-    [busStop, busChoice, ride.data, rideStopMarks],
-  );
+  const {
+    busPlace,
+    busChoice,
+    busStop,
+    rideRoute,
+    rideLeg,
+    results: busResults,
+    basis: busBasis,
+    departAt,
+    setDepartAt,
+    showNight,
+    setShowNight,
+  } = useBusTrip({ mode, origin, originName, pointPlace, storedBusChoice });
 
   // Drive to the access point the ranking found nearest; otherwise the first one.
   const resort = resorts.data?.find((r) => r.id === selectedResortId);
@@ -560,7 +466,7 @@ export function MapShell() {
       setBusNote(FAR_FROM_STOP);
       return;
     }
-    const plan = planBus(busChoice, ride.data ?? null);
+    const plan = planBus(busChoice, rideRoute);
     setBusPlan(plan);
     setBusState(initialBus());
     // the walk to the boarding stop; already there → the bus line stands in
@@ -992,11 +898,7 @@ export function MapShell() {
           plan={busPlan}
           state={busState}
           now={now}
-          basis={
-            (busPlace ? busToPlace.data : bus.data)?.basis === "expected"
-              ? "expected"
-              : "published"
-          }
+          basis={busBasis}
           onBoard={() => setBusState(boardManually)}
           onExit={exitPilot}
         />
@@ -1177,7 +1079,7 @@ export function MapShell() {
               busPanel={
                 <BusPanel
                   resorts={resorts.data ?? []}
-                  result={loadable(bus)}
+                  result={busResults.bus}
                   // the resort itself, not a tapped bus's: that would collapse the list.
                   // Only a known one: a stale link must not say there are no shuttles
                   onlyResortId={
@@ -1188,11 +1090,11 @@ export function MapShell() {
                   place={
                     busPlace && {
                       name: busPlace.name,
-                      result: loadable(busToPlace),
+                      result: busResults.toPlace,
                       onClear: clearTo,
                     }
                   }
-                  night={loadable(night)}
+                  night={busResults.night}
                   showNight={showNight}
                   onShowNightChange={setShowNight}
                   departAt={departAt}
