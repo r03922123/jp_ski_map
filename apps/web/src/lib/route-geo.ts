@@ -83,12 +83,13 @@ export const MD_BREAKPOINT_PX = 768;
 // bottom edge with the Add destination row, its 4 px frame and 8 px. BottomSheet's
 // expanded height reserves the same 184 in a Tailwind class: change them together
 const TRIP_CARD_PX = 184;
-// the start and destination markers stand above their point (anchor "bottom")
-const MARKER_PX = 40;
-// a landscape phone: 120 px of card + its 4 px frame + 4 px + a 36 px marker, and the
+// the start marker (Hero at 2x, 48 px) stands above its point (anchor "bottom");
+// HeroMarker.test checks the sprite is this tall
+export const MARKER_PX = 48;
+// a landscape phone: 120 px of card + its 4 px frame + 4 px + a marker, and the
 // bottom margin shrinks, so the markers still fit between the panels
 const SHORT_SCREEN_PX = 480;
-const SHORT_SCREEN_TOP_PX = 164;
+const SHORT_SCREEN_TOP_PX = 120 + 4 + 4 + MARKER_PX;
 // a fit with no map left between its paddings does nothing at all
 const MIN_CLEAR_PX = 16;
 

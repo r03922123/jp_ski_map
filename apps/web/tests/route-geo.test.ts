@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   type LngLat,
   labelAnchor,
+  MARKER_PX,
   mapPadding,
   pinCardAnchor,
   pinEaseOffsetY,
@@ -81,13 +82,18 @@ describe("mapPadding", () => {
 
   it("leaves room on phones for a marker standing above its point", () => {
     expect(mapPadding({ width: 390, height: 699 }).top).toBeGreaterThanOrEqual(
-      184 + 40,
+      184 + MARKER_PX,
     );
   });
 
-  it("keeps marker room on a landscape phone", () => {
-    expect(mapPadding({ width: 740, height: 360 }).top).toBeGreaterThanOrEqual(
-      160,
+  // the landscape trip card is 120 px tall with a 4 px frame; the start marker stands
+  // MARKER_PX above its point, so a point on the padding line must clear 124 + MARKER_PX
+  it.each([
+    [740, 360],
+    [667, 375],
+  ])("keeps a whole marker's room on a %ix%i landscape phone", (width, height) => {
+    expect(mapPadding({ width, height }).top).toBeGreaterThanOrEqual(
+      120 + 4 + MARKER_PX,
     );
   });
 
