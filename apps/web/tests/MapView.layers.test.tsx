@@ -285,3 +285,55 @@ describe("MapView phone credits", () => {
     expect(el.classList.contains("maplibregl-compact-show")).toBe(false);
   });
 });
+
+describe("MapView clicks on a route line and double-clicks", () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  const click = (feature: object | undefined, detail = 1) =>
+    act(() =>
+      (h.props.onClick as (e: unknown) => void)({
+        features: feature ? [feature] : [],
+        lngLat: { lat: 36.7, lng: 137.85 },
+        originalEvent: { detail },
+      }),
+    );
+  const altLine = { layer: { id: "route-alts-hit" }, properties: { index: 1 } };
+
+  it("a click on an alternate selects it, unless a stop box is open", () => {
+    const onSelectRoute = vi.fn();
+    const onPickOrigin = vi.fn();
+    const { rerender } = render(
+      <MapView
+        {...base}
+        onSelectRoute={onSelectRoute}
+        onPickOrigin={onPickOrigin}
+      />,
+    );
+    click(altLine);
+    expect(onSelectRoute).toHaveBeenCalledWith(1);
+    rerender(
+      <MapView
+        {...base}
+        placingStop
+        onSelectRoute={onSelectRoute}
+        onPickOrigin={onPickOrigin}
+      />,
+    );
+    click(altLine);
+    act(() => vi.advanceTimersByTime(300));
+    expect(onSelectRoute).toHaveBeenCalledTimes(1);
+    expect(onPickOrigin).toHaveBeenCalledTimes(1); // the stop box takes the point
+  });
+
+  it("the second click of a double-click picks nothing", () => {
+    const onPickOrigin = vi.fn();
+    render(<MapView {...base} onPickOrigin={onPickOrigin} />);
+    click(undefined, 2);
+    act(() => vi.advanceTimersByTime(300));
+    expect(onPickOrigin).not.toHaveBeenCalled();
+    click(undefined, 1);
+    act(() => vi.advanceTimersByTime(300));
+    expect(onPickOrigin).toHaveBeenCalledWith({ lat: 36.7, lng: 137.85 });
+  });
+});
