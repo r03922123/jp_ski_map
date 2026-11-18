@@ -8,14 +8,14 @@ import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
 import { BusPilotView } from "@/components/BusPilotView";
 import { DestinationPicker } from "@/components/DestinationPicker";
-import { DrivePanel, type RankingState } from "@/components/DrivePanel";
+import { DrivePanel } from "@/components/DrivePanel";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ModePanel, type PanelMode } from "@/components/ModePanel";
 import { PilotView } from "@/components/PilotView";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
-import { PoiList, type PoiListState } from "@/components/PoiList";
+import { PoiList } from "@/components/PoiList";
 import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
@@ -31,9 +31,6 @@ import {
   type Bbox,
   type BusOption,
   type Coord,
-  fetchLodging,
-  fetchNearbyPois,
-  fetchRank,
   resortsQuery,
   type Suggestion,
 } from "@/lib/api";
@@ -64,12 +61,11 @@ import {
   serializeViewState,
 } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
+import { useLodging, usePois, useRanking } from "@/lib/use-lists";
 import { useRoutes } from "@/lib/use-routes";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
 const MapView = dynamic(() => import("./MapView"), { ssr: false });
-
-const LODGING_MIN_ZOOM = 14;
 
 /** Current Hakuba time as "YYYY-MM-DDTHH:mm" for the datetime-local input. */
 export function MapShell() {
@@ -229,29 +225,8 @@ export function MapShell() {
   };
 
   const resorts = useQuery(resortsQuery);
-
-  const showLodging = view !== null && view.zoom >= LODGING_MIN_ZOOM;
-  const lodging = useQuery({
-    queryKey: ["lodging", view?.bbox],
-    queryFn: () => fetchLodging(view!.bbox),
-    enabled: showLodging,
-    retry: false,
-    staleTime: Number.POSITIVE_INFINITY, // snapshot data
-  });
-  const lodgingPins = showLodging ? (lodging.data ?? []) : [];
-
-  const ranking = useQuery({
-    queryKey: ["rank", origin, rankOptions],
-    queryFn: () => fetchRank(origin!, rankOptions),
-    enabled: mode === "drive" && origin !== null,
-    retry: false,
-    placeholderData: (previous) => previous, // keep the list while re-sorting
-  });
-  const rankingState: RankingState = ranking.isPending
-    ? { status: "loading" }
-    : ranking.isError
-      ? { status: "error" }
-      : { status: "success", data: ranking.data };
+  const lodgingPins = useLodging(view);
+  const { ranking, rankingState } = useRanking(mode, origin, rankOptions);
 
   const savedState = useSaved();
   const pointPlace: PlaceInput | null = point
@@ -291,20 +266,13 @@ export function MapShell() {
 
   // Food / konbini destinations (drive and walk only; shuttles serve resorts).
   const poiCategory = category === "resorts" ? null : category;
-  const pois = useQuery({
-    queryKey: ["pois", origin, poiCategory, routeMode],
-    queryFn: () => fetchNearbyPois(origin!, poiCategory!, routeMode),
-    enabled: mode !== "bus" && origin !== null && poiCategory !== null,
-    retry: false,
-    placeholderData: (previous) => previous,
+  const { pois, poiState, selectedPoi, poiTarget } = usePois({
+    mode,
+    routeMode,
+    origin,
+    poiCategory,
+    poiId,
   });
-  const poiState: PoiListState = pois.isPending
-    ? { status: "loading" }
-    : pois.isError
-      ? { status: "error" }
-      : { status: "success", data: pois.data };
-  const selectedPoi = pois.data?.find((p) => p.id === poiId) ?? null;
-  const poiTarget = poiCategory ? (selectedPoi?.coord ?? null) : null;
 
   const target =
     mode === "bus"
