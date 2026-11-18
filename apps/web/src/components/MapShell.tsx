@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpDown } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
 import { BusPilotView } from "@/components/BusPilotView";
@@ -11,7 +11,7 @@ import { DestinationPicker } from "@/components/DestinationPicker";
 import { DrivePanel } from "@/components/DrivePanel";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
-import { ModePanel, type PanelMode } from "@/components/ModePanel";
+import { ModePanel } from "@/components/ModePanel";
 import { PilotView } from "@/components/PilotView";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
@@ -22,159 +22,82 @@ import { SearchBox } from "@/components/SearchBox";
 import { StampMoment } from "@/components/StampMoment";
 import { TitleScreen } from "@/components/TitleScreen";
 import { AddDestinationButton, TripCard } from "@/components/TripCard";
-import {
-  DestinationBox,
-  TripPanel,
-  type TripStop,
-} from "@/components/TripPanel";
+import { DestinationBox, TripPanel } from "@/components/TripPanel";
 import {
   type Bbox,
-  type BusOption,
   type Coord,
   resortsQuery,
   type Suggestion,
 } from "@/lib/api";
-import { mirrorUrl } from "@/lib/back-close";
 import { formatArrival } from "@/lib/format";
 import { alightIndexOf, boardManually } from "@/lib/nav/bus-journey";
 import { stopMatchName } from "@/lib/nav/bus-place";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import {
-  hotelOf,
   kindFromSuggestion,
   type PlaceInput,
   pinId,
   placeAt,
   type SavedPlace,
-  savedStore,
   useSaved,
   visibleMarkers,
 } from "@/lib/saved-places";
-import { readImportHash } from "@/lib/saved-share";
-import {
-  DEFAULT_RANK,
-  type DestinationCategory,
-  MAX_STOPS,
-  parseViewState,
-  type RankOptions,
-  serializeViewState,
-} from "@/lib/url-state";
+import { DEFAULT_RANK, MAX_STOPS, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
 import { useLodging, usePois, useRanking } from "@/lib/use-lists";
 import { useRoutes } from "@/lib/use-routes";
+import { type TripPoint, useTrip } from "@/lib/use-trip";
+import { useViewUrl } from "@/lib/use-view-url";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
 const MapView = dynamic(() => import("./MapView"), { ssr: false });
 
-/** Current Hakuba time as "YYYY-MM-DDTHH:mm" for the datetime-local input. */
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
-  const [mode, setMode] = useState<PanelMode>("drive");
-  const [origin, setOrigin] = useState<Coord | null>(null);
-  // name of the searched place, if the origin came from search (not a dropped pin)
-  const [originName, setOriginName] = useState<string | null>(null);
-  // what the origin is, for saving it (a search result's id, else the pin's coordinate)
-  const [originSource, setOriginSource] = useState<PlaceInput | null>(null);
-  const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
-  const [category, setCategory] = useState<DestinationCategory>("resorts");
-  const [poiId, setPoiId] = useState<string | null>(null);
-  // a free destination (a saved place's or a pin's "Go here", a To-box place), with its
-  // name when it has one; the link holds only the coordinate (names in the URL: cluster E)
-  const [point, setPoint] = useState<{
-    coord: Coord;
-    name: string | null;
-  } | null>(null);
-  // stops between start and destination; an empty one is waiting for typing or a map tap
-  const [stops, setStops] = useState<TripStop[]>([]);
+  const trip = useTrip();
+  const {
+    mode,
+    setMode,
+    origin,
+    setOrigin,
+    originName,
+    setOriginName,
+    originSource,
+    setOriginSource,
+    searchLabel,
+    setSearchLabel,
+    searchKey,
+    setSearchKey,
+    selectedResortId,
+    setSelectedResortId,
+    category,
+    setCategory,
+    poiId,
+    setPoiId,
+    point,
+    setPoint,
+    stops,
+    setStops,
+    storedBusChoice,
+    setBusChoice,
+    newStopKey,
+    filledStops,
+    stopsKey,
+    fillStop,
+  } = trip;
   // A long-pressed point (or tapped hotel pin) and its card: touch edits the trip only
   // through the card's buttons (docs/ux/behaviour-cards.md BC-A1)
-  const [droppedPin, setDroppedPin] = useState<{
-    coord: Coord;
-    name: string | null;
-  } | null>(null);
-  const stopKeys = useRef(0);
-  const [searchKey, setSearchKey] = useState(0);
-  const newStopKey = () => {
-    stopKeys.current += 1;
-    return `stop-${stopKeys.current}`;
-  };
-  const filledStops = stops.flatMap((st) => (st.place ? [st.place] : []));
-  const stopsKey = filledStops
-    .map((st) => `${st.coord.lat},${st.coord.lng}`)
-    .join(";");
-  const fillStop = (key: string, place: PlaceInput) =>
-    setStops((list) =>
-      list.map((st) => (st.key === key ? { ...st, place } : st)),
-    );
+  const [droppedPin, setDroppedPin] = useState<TripPoint | null>(null);
   // Saved panel: open, and optionally focused on one place (a tapped saved marker)
   const [savedOpen, setSavedOpen] = useState(false);
   const [savedFocus, setSavedFocus] = useState<string | null>(null);
-  // text the app puts in the search box when it sets the origin itself
-  const [searchLabel, setSearchLabel] = useState<string | null>(null);
   // a shared list waiting for the user to confirm (`#import=…`)
   const [importCode, setImportCode] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
-  const [storedBusChoice, setBusChoice] = useState<BusOption | null>(null);
-
-  // Restore the shared view once, then mirror every change back into the URL.
-  // `ready` is state (not a ref) so the first URL write happens on a render that
-  // already holds the restored values; with a ref, StrictMode's double-mount
-  // would overwrite the shared URL with defaults before it is read again.
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    const view = parseViewState(window.location.search);
-    setMode(view.mode);
-    setOrigin(view.origin);
-    // No shared origin: start from My hotel, like Google starting from Home.
-    const hotel = view.origin ? undefined : hotelOf(savedStore.getSnapshot());
-    if (hotel) {
-      setOrigin(hotel.coord);
-      setOriginName(hotel.name);
-      setOriginSource(hotel);
-      setSearchLabel(`My hotel · ${hotel.name}`);
-    }
-    setPoint(view.point ? { coord: view.point, name: null } : null);
-    setStops(
-      view.stops.map((coord, i) => ({
-        key: `stop-url-${i}`,
-        place: { id: pinId(coord), name: "Dropped pin", coord, kind: "pin" },
-      })),
-    );
-    setImportCode(readImportHash(window.location.hash));
-    setSelectedResortId(view.resortId);
-    setCategory(view.category);
-    setPoiId(view.poiId);
-    setRankOptions(view.rank);
-    setReady(true);
-  }, []);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: stopsKey stands for the stops' content
-  useEffect(() => {
-    if (!ready) return;
-    const search = serializeViewState({
-      origin,
-      mode,
-      resortId: selectedResortId,
-      poiId,
-      category,
-      rank: rankOptions,
-      point: point?.coord ?? null,
-      stops: filledStops.map((s) => s.coord),
-    });
-    mirrorUrl(search);
-  }, [
-    ready,
-    origin,
-    mode,
-    selectedResortId,
-    poiId,
-    category,
-    rankOptions,
-    point,
-    stopsKey,
-  ]);
+  useViewUrl({ trip, rankOptions, setRankOptions, setImportCode });
 
   // Choosing a resort or nearby place replaces a saved place's "Go here".
   const selectResort = (id: string) => {
