@@ -6,11 +6,12 @@ import respx
 from hakuba_api.bus.locate_stops import (
     GSI_URL,
     RouteLeg,
+    apply_results,
     find_violations,
     geocode_gsi,
     legs_from_timetables,
 )
-from hakuba_api.bus.models import Timetable
+from hakuba_api.bus.models import BusStop, Timetable
 from hakuba_api.common.geo import Coord
 
 
@@ -153,3 +154,26 @@ def test_gsi_point_needs_a_trusted_stop_nearby_on_its_routes() -> None:
     }
 
     assert uncorroborated(candidates, trusted, routes) == {"stop-far-new"}
+
+
+def test_a_rejected_stop_is_written_as_not_located_yet() -> None:
+    # tests/test_data_licenses.py accepts "not located yet", not the old "unresolved:"
+    stop = BusStop.model_validate(
+        {
+            "id": "s1",
+            "name": {"ja": "停", "en": "Stop"},
+            "coord": None,
+            "servesResortId": None,
+            "aliases": [],
+            "coordSource": "x",
+        }
+    )
+    accepted = {"s2": (Coord(lat=36.7, lng=137.85), "osm:node/1 — page")}
+
+    [rejected, untouched] = apply_results(
+        [stop, stop.model_copy(update={"id": "s2"})], accepted, {"s1": "outside the bus area"}
+    )
+
+    assert rejected.coord is None
+    assert rejected.coord_source == "not located yet: outside the bus area"
+    assert untouched.coord_source == "osm:node/1 — page"
