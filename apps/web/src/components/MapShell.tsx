@@ -5,13 +5,12 @@ import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
-import { BusPilotView } from "@/components/BusPilotView";
 import { DestinationPicker } from "@/components/DestinationPicker";
 import { DrivePanel } from "@/components/DrivePanel";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ModePanel } from "@/components/ModePanel";
-import { PilotView } from "@/components/PilotView";
+import { PilotScreens } from "@/components/PilotScreens";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
 import { PoiList } from "@/components/PoiList";
@@ -28,8 +27,6 @@ import {
 } from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
 import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
-import { formatArrival } from "@/lib/format";
-import { boardManually } from "@/lib/nav/bus-journey";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import { useSaved, visibleMarkers } from "@/lib/saved-places";
@@ -140,28 +137,7 @@ export function MapShell() {
 
   const routeData = routeState.status === "success" ? routeState.data : null;
 
-  const {
-    pilot,
-    pilotRoute,
-    piloting,
-    reroute,
-    reroutes,
-    following,
-    setFollowing,
-    busPlan,
-    busState,
-    setBusState,
-    busPhase,
-    pastWalk,
-    preview,
-    busNote,
-    now,
-    pilotAvailable,
-    proximity,
-    startPilot,
-    startBusPilot,
-    exitPilot,
-  } = usePilotSession({
+  const session = usePilotSession({
     mode,
     resorts: resorts.data,
     routes,
@@ -171,6 +147,22 @@ export function MapShell() {
     busChoice,
     rideRoute,
   });
+  const {
+    pilot,
+    pilotRoute,
+    piloting,
+    following,
+    setFollowing,
+    busPlan,
+    busState,
+    busPhase,
+    pastWalk,
+    busNote,
+    pilotAvailable,
+    proximity,
+    startPilot,
+    startBusPilot,
+  } = session;
   // SPEC-game-theme: the rider's pose follows the trip
   const pose = heroPose({
     mode: busPlan ? "bus" : mode === "walk" ? "walk" : "drive",
@@ -283,39 +275,7 @@ export function MapShell() {
       <h1 id="app-title" className="sr-only">
         Hakuba Valley trip planner
       </h1>
-      {busPlan && pastWalk && (
-        <BusPilotView
-          plan={busPlan}
-          state={busState}
-          now={now}
-          basis={busBasis}
-          onBoard={() => setBusState(boardManually)}
-          onExit={exitPilot}
-        />
-      )}
-      {pilotRoute && !pastWalk && (
-        <PilotView
-          status={pilot}
-          mode={pilotRoute.mode}
-          following={following}
-          reroute={reroute}
-          reroutes={reroutes}
-          footnote={
-            busPlan
-              ? `Then ${busPlan.option.routeName} from ${busPlan.stops[0].name} at ${formatArrival(new Date(busPlan.departsAtMs), 0)}`
-              : undefined
-          }
-          busStops={
-            busPlan
-              ? busPlan.stops.slice(0, busPlan.alightIndex + 1)
-              : undefined
-          }
-          onExit={exitPilot}
-          onRecenter={() => setFollowing(true)}
-          now={new Date()}
-          preview={preview}
-        />
-      )}
+      <PilotScreens session={session} basis={busBasis} />
       {!pilotRoute && (
         <BottomSheet
           label="Directions"
