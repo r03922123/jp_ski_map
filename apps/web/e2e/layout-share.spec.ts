@@ -157,6 +157,11 @@ for (const s of STATES) {
         content: "nextjs-portal { display: none !important; }",
       });
       await onTop(page, /^ETA ~ \d+/);
+      // a long trip's ETA would wrap and be clipped in 84 px: low keeps it to one line
+      await expect(page.getByText(/^ETA ~ \d+/).first()).toHaveCSS(
+        "white-space",
+        "nowrap",
+      );
       await onTop(page, /^(Start navigation|Start|Preview route)$/);
     }
   });

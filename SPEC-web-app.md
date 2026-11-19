@@ -356,7 +356,12 @@ leaving 71% for the map. Our lowest is 40dvh, which leaves 33–39% (BC-L1 updat
   up: low → collapsed → expanded. A tap or Enter on the handle toggles collapsed ↔ expanded, and from low it
   goes to collapsed.
 - `low` is 84 px: the handle and the first row. With a route (`slim`) that row is the ETA and Start, as on a
-  landscape phone; with the ranked list it is the top of the list. The body scrolls back to the top.
+  landscape phone, kept to one line; otherwise it is the top of the sheet's content (the mode tabs). The body
+  scrolls back to the top.
+- New content in the sheet (Saved opened, a category list, another mode) brings a low sheet up to collapsed
+  (`raiseKey`), so it never shows in an 84 px strip.
+- From `md` up (a touch tablet) touch drags don't change the side card's state.
+- Keyboard and screen-reader users don't reach `low`: it is a view convenience, and nothing lives only there.
 - The map credits sit above whichever height the sheet has (84 px + 32 px when low).
 - The handle in `low` reads "Expand directions", with `aria-expanded="false"`.
 - Recorded change: a downward drag on a collapsed sheet used to do nothing except keep Safari's pull-to-refresh
@@ -368,5 +373,5 @@ the 40% fit put it).
 **Done when.**
 - [ ] vitest (`tests/BottomSheet.test.tsx`): the transitions above for handle swipes, body drags and taps.
 - [ ] e2e `layout-share.spec.ts`: a new state, L4 with the sheet swiped low, shows map ≥ 60% of the page at
-  390×797, against 35% when collapsed. The ETA and Start stay visible and on top (as in `small-phone.spec.ts`).
+  390×797 and 360×740, against 35% when collapsed, with the ETA on one line. The ETA and Start stay visible and on top (as in `small-phone.spec.ts`).
 - [ ] e2e `map-credits.spec.ts` and `small-phone.spec.ts` still pass. A phone-size screenshot of the low sheet.

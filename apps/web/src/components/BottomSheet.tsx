@@ -19,6 +19,7 @@ export function BottomSheet({
   header,
   collapseKey,
   revealKey,
+  raiseKey,
   hiddenOnPhone = false,
   slim = false,
   children,
@@ -34,6 +35,8 @@ export function BottomSheet({
   collapseKey?: string;
   /** The route on screen; "" when there is none. Only a route appearing collapses the sheet. */
   revealKey?: string;
+  /** New content (Saved, a category list, a mode): a low sheet comes up to collapsed. */
+  raiseKey?: string;
   /** Phones: only the header shows (the sheet would hold nothing yet). It comes back collapsed. */
   hiddenOnPhone?: boolean;
   /**
@@ -58,6 +61,12 @@ export function BottomSheet({
     lastRevealKey.current = revealKey;
     if (revealKey) setState("collapsed");
   }, [revealKey]);
+  const lastRaiseKey = useRef(raiseKey);
+  useEffect(() => {
+    if (raiseKey === lastRaiseKey.current) return;
+    lastRaiseKey.current = raiseKey;
+    setState((s) => (s === "low" ? "collapsed" : s));
+  }, [raiseKey]);
   const dragStartY = useRef<number | null>(null);
   // a mouse drag still sends a click afterwards; it must not undo the swipe. (A moving
   // touch on Android sends none, so the swipe acts on pointerup, not on click.)
@@ -104,6 +113,11 @@ export function BottomSheet({
       resizes: boolean;
     } | null = null;
     const onStart = (e: TouchEvent) => {
+      // from md up the sheet is a side card with no heights to step through (a tablet)
+      if (window.matchMedia?.("(width >= 48rem)").matches) {
+        gesture = null;
+        return;
+      }
       const target = e.target as Element;
       if (target.closest("[data-touch-exempt]")) {
         gesture = null; // the handle has its own swipe
@@ -186,7 +200,7 @@ export function BottomSheet({
       data-phone-hidden={hiddenOnPhone || undefined}
       data-slim={slim || undefined}
       className={cn(
-        "pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
+        "group/sheet pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
         // expanded: never up under the trip card on top (184 px, or 136 on a landscape
         // phone, where its third row sits beside the boxes), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BottomSheet } from "@/components/BottomSheet";
 
 describe("BottomSheet", () => {
@@ -200,6 +200,61 @@ describe("BottomSheet", () => {
     expect(sheet()).toHaveAttribute("data-state", "low");
     expect(drag(body(), 400, 300)).toBe(false);
     expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
+  it("going low scrolls the body back to its top", () => {
+    renderSheet();
+    scrolledTo(120);
+    swipe(500, 600);
+    expect(sheet()).toHaveAttribute("data-state", "low");
+    expect(body().scrollTop).toBe(0);
+  });
+
+  it("new content (raiseKey) brings a low sheet up to collapsed, and leaves an expanded one", () => {
+    const ui = (raiseKey: string) => (
+      <BottomSheet label="Directions" raiseKey={raiseKey}>
+        <p>list</p>
+      </BottomSheet>
+    );
+    const { rerender } = render(ui("ranked"));
+    scrolledTo(0);
+    drag(body(), 300, 400);
+    expect(sheet()).toHaveAttribute("data-state", "low");
+    rerender(ui("saved"));
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+    fireEvent.click(handle());
+    rerender(ui("food"));
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
+
+  it("a new collapseKey or a focused search box lifts a low sheet too", () => {
+    const ui = (key: string) => (
+      <BottomSheet label="Directions" collapseKey={key}>
+        <input aria-label="Stop 1" />
+      </BottomSheet>
+    );
+    const { rerender } = render(ui("a"));
+    scrolledTo(0);
+    drag(body(), 300, 400);
+    rerender(ui("b"));
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+    drag(body(), 300, 400);
+    fireEvent.focus(screen.getByRole("textbox", { name: "Stop 1" }));
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+  });
+
+  describe("from md up (a touch tablet), where the sheet is a side card", () => {
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("touch drags leave its state and the list's scrolling alone", () => {
+      vi.stubGlobal("matchMedia", (q: string) => ({
+        matches: q.includes("48rem"),
+      }));
+      renderSheet();
+      scrolledTo(0);
+      expect(drag(body(), 300, 400)).toBe(true);
+      expect(sheet()).toHaveAttribute("data-state", "collapsed");
+    });
   });
 
   it("a downward drag in the list at its top is the sheet's: Safari never sees a pull, the sheet collapses", () => {
