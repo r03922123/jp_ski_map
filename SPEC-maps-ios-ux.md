@@ -54,7 +54,15 @@ ffmpeg -i .ux-evidence/ios-layout/L3.mov -vf fps=10 .ux-evidence/ios-layout/L3/%
 # 3. Ours, same states at the same CSS size (iPhone 15/16/17: 393×852), measured by a Playwright spec
 pnpm --dir apps/web e2e e2e/layout-share.spec.ts      # prints a JSON row per state
 # 4. Ours on the real iPhone (Safari and the home-screen app), with the existing iPhone driver
+# 5. REA on our side only: capture_browser_scenario of our app per state (step_id = L1…L6) before a fix,
+#    again after it, then compare_web_captures(before, after) to prove only the intended layout changed
 ```
+
+**Where REA fits, and where it doesn't (checked 2026-11-20).** REA works on our own app (scripted scenarios,
+before/after diffs), and on Google Maps *web* only as a passive observer while a human drives
+(rea-benchmark-workflow). It cannot attach to an iPhone, since iOS browsers are WebKit and not CDP. Its Apple
+tools (`open_bundle_resources`, `decode_interface_builder`, `inspect_asset_catalog`, `open_binary`) would mean
+opening Google's app bundle. This study doesn't do that: see Boundaries.
 
 Measuring a frame: the agent reads the PNG, finds the edges of the top chrome and the sheet (a row scan for
 the colour change), and converts pixels to % of height and to points (÷ 3 on a 3× screen). Each number in a
