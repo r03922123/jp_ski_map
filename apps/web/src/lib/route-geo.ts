@@ -90,6 +90,9 @@ export const MARKER_PX = 48;
 // bottom margin shrinks, so the markers still fit between the panels
 const SHORT_SCREEN_PX = 480;
 const SHORT_SCREEN_TOP_PX = 120 + 4 + 4 + MARKER_PX;
+// a landscape phone with a route: the collapsed sheet is only its ETA + Start row
+// (BottomSheet's slim height: the 22 px handle and the 61 px row; change them together)
+export const SLIM_BAR_PX = 84;
 // a fit with no map left between its paddings does nothing at all
 const MIN_CLEAR_PX = 16;
 
@@ -147,9 +150,12 @@ export function pinEaseOffsetY({
 export function mapPadding({
   width,
   height,
+  slimSheet = false,
 }: {
   width: number;
   height: number;
+  /** the sheet is a slim ETA + Start bar on a short screen (BottomSheet `slim`) */
+  slimSheet?: boolean;
 }) {
   if (width >= MD_BREAKPOINT_PX) {
     return {
@@ -160,7 +166,10 @@ export function mapPadding({
     };
   }
   const short = height < SHORT_SCREEN_PX;
-  const bottom = Math.round(height * SHEET_FRACTION) + (short ? 12 : 32);
+  const bottom =
+    short && slimSheet
+      ? SLIM_BAR_PX + 12
+      : Math.round(height * SHEET_FRACTION) + (short ? 12 : 32);
   const top = short ? SHORT_SCREEN_TOP_PX : TRIP_CARD_PX + MARKER_PX;
   return {
     top: Math.min(top, Math.max(0, height - bottom - MIN_CLEAR_PX)),

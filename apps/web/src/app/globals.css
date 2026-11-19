@@ -209,6 +209,17 @@
     .maplibregl-ctrl-attrib {
     transform: translateY(calc(-40dvh - 32px));
   }
+  /* a landscape phone with a route: the sheet is the 84 px ETA bar (BottomSheet slim) */
+  @media (height < 480px) {
+    :has(
+        > [data-sheet][data-state="collapsed"][data-slim]:not(
+            [data-phone-hidden]
+          )
+      )
+      .maplibregl-ctrl-attrib {
+      transform: translateY(calc(-84px - 32px));
+    }
+  }
 }
 
 /* SPEC-game-theme: a stepped pixel border drawn with box-shadows (no images). The four

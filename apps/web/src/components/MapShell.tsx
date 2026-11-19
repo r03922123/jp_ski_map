@@ -250,6 +250,9 @@ export function MapShell() {
       onAddStop={canAddStop ? () => actions.pinAddStop(droppedPin) : undefined}
     />
   );
+  // the sheet shows DirectionsPanel, whose sticky ETA + Start row is the landscape bar
+  const slimSheet =
+    !savedOpen && origin !== null && mode !== "bus" && routeData !== null;
 
   return (
     <main
@@ -336,6 +339,7 @@ export function MapShell() {
           hiddenOnPhone={
             origin === null && !savedOpen && filledStops.length === 0
           }
+          slim={slimSheet}
         >
           {savedOpen ? (
             <SavedPanel
@@ -437,6 +441,7 @@ export function MapShell() {
       {/* after the sheet in the DOM, so Tab reaches the search box before the map's
           ~20 markers and links (T78); it paints below everything (z-index 0) */}
       <MapView
+        slimSheet={slimSheet}
         resorts={resorts.data ?? []}
         shownResortIds={shownResortIds}
         selectedResortId={selectedResortId}
