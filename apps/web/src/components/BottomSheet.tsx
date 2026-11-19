@@ -200,7 +200,7 @@ export function BottomSheet({
       data-phone-hidden={hiddenOnPhone || undefined}
       data-slim={slim || undefined}
       className={cn(
-        "group/sheet pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
+        "group/sheet pixel-frame fixed right-[max(0.25rem,var(--safe-right))] bottom-[calc(0.25rem+var(--safe-bottom))] left-[max(0.25rem,var(--safe-left))] outline-none z-10 flex flex-col transition-[height] duration-200",
         // expanded: never up under the trip card on top (132 px since v1.18's two rows, or 136 on a landscape
         // phone, where the card is 120 px), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
@@ -208,7 +208,7 @@ export function BottomSheet({
           ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1
             "h-[84px]"
           : expanded
-            ? "h-[min(80dvh,calc(100dvh-180px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
+            ? "h-[min(80dvh,calc(100dvh-180px-var(--safe-top)-var(--safe-bottom)))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
             : slim
               ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
                 "h-[40dvh] max-md:[@media(max-height:479px)]:h-[84px]"
@@ -248,7 +248,7 @@ export function BottomSheet({
           data-trip-header
           // where the title screen hands focus while the sheet is hidden
           tabIndex={-1}
-          className="visible fixed inset-x-2 top-2 z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
+          className="visible fixed top-[calc(0.5rem+var(--safe-top))] right-[max(0.5rem,var(--safe-right))] left-[max(0.5rem,var(--safe-left))] z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
         >
           <div className="pixel-frame p-2 md:contents">{header}</div>
         </div>

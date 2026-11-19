@@ -66,7 +66,7 @@ export function PilotView({
       data-nav-remaining-m={guidance ? Math.round(guidance.remainingM) : ""}
       data-reroutes={reroutes}
       data-preview={preview ?? ""}
-      className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-between"
+      className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-between pt-(--safe-top)"
     >
       <section
         aria-label="Next turn"

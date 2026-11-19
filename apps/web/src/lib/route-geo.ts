@@ -106,21 +106,31 @@ const PIN_CARD_HALF_WIDTH_PX = 140; // its Popup's maxWidth is 280
  * reach under the trip card on top and below it stays clear of the sheet (v1.9 rule 7),
  * beside an edge keeping it on screen. Otherwise undefined: MapLibre picks the side.
  */
+/**
+ * The status bar's and home indicator's heights in px (v1.19): the page runs under them,
+ * so the trip card sits `top` lower and the sheet `bottom` higher. 0 outside the
+ * home-screen app.
+ */
+export type SafeInsets = { top: number; bottom: number };
+const NO_INSETS: SafeInsets = { top: 0, bottom: 0 };
+
 export function pinCardAnchor({
   x,
   y,
   width,
   height,
+  safe = NO_INSETS,
 }: {
   x: number;
   y: number;
   width: number;
   height: number;
+  safe?: SafeInsets;
 }): "top" | "top-left" | "top-right" | undefined {
   if (width >= MD_BREAKPOINT_PX) return undefined;
   const opensBelow =
-    y - PIN_CARD_PX < TRIP_CARD_PX &&
-    y + PIN_CARD_PX <= height * (1 - SHEET_FRACTION);
+    y - PIN_CARD_PX < TRIP_CARD_PX + safe.top &&
+    y + PIN_CARD_PX <= height * (1 - SHEET_FRACTION) - safe.bottom;
   if (!opensBelow) return undefined;
   if (x < PIN_CARD_HALF_WIDTH_PX) return "top-left";
   if (x > width - PIN_CARD_HALF_WIDTH_PX) return "top-right";
@@ -134,15 +144,20 @@ export function pinCardAnchor({
 export function pinEaseOffsetY({
   width,
   height,
+  safe = NO_INSETS,
 }: {
   width: number;
   height: number;
+  safe?: SafeInsets;
 }) {
-  const pinY = TRIP_CARD_PX + PIN_CARD_PX;
+  const pinY = TRIP_CARD_PX + safe.top + PIN_CARD_PX;
   // no room for the pin above the sheet on a short screen: leave it in the middle
-  if (width >= MD_BREAKPOINT_PX || pinY > height * (1 - SHEET_FRACTION))
+  if (
+    width >= MD_BREAKPOINT_PX ||
+    pinY > height * (1 - SHEET_FRACTION) - safe.bottom
+  )
     return 0;
-  const { top, bottom } = mapPadding({ width, height });
+  const { top, bottom } = mapPadding({ width, height, safe });
   const centre = top + (height - top - bottom) / 2;
   return Math.max(0, pinY - centre);
 }
@@ -152,11 +167,13 @@ export function mapPadding({
   width,
   height,
   slimSheet = false,
+  safe = NO_INSETS,
 }: {
   width: number;
   height: number;
   /** the sheet is a slim ETA + Start bar on a short screen (BottomSheet `slim`) */
   slimSheet?: boolean;
+  safe?: SafeInsets;
 }) {
   if (width >= MD_BREAKPOINT_PX) {
     return {
@@ -168,10 +185,11 @@ export function mapPadding({
   }
   const short = height < SHORT_SCREEN_PX;
   const bottom =
-    short && slimSheet
+    (short && slimSheet
       ? SLIM_BAR_PX + 12
-      : Math.round(height * SHEET_FRACTION) + (short ? 12 : 32);
-  const top = short ? SHORT_SCREEN_TOP_PX : TRIP_CARD_PX + MARKER_PX;
+      : Math.round(height * SHEET_FRACTION) + (short ? 12 : 32)) + safe.bottom;
+  const top =
+    (short ? SHORT_SCREEN_TOP_PX : TRIP_CARD_PX + MARKER_PX) + safe.top;
   return {
     top: Math.min(top, Math.max(0, height - bottom - MIN_CLEAR_PX)),
     right: 32,

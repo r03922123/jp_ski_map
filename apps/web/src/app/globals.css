@@ -49,6 +49,12 @@
 
 /* SPEC-game-theme: snowy overworld palette, values from src/lib/game/tokens.ts (tested) */
 :root {
+  /* v1.19: the page runs under the status bar and home indicator (viewport-fit=cover);
+     every control pinned to an edge keeps out of them through these. 0 in a Safari tab */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
   --background: #eef3f7;
   --foreground: #22223a;
   --card: #fffaf0;
@@ -264,4 +270,15 @@
   .title-start {
     animation: none;
   }
+}
+
+/* v1.19: MapLibre's corner controls (zoom, credits) stay out of the home indicator and,
+   in landscape, the notch */
+.maplibregl-ctrl-bottom-right {
+  bottom: var(--safe-bottom);
+  right: var(--safe-right);
+}
+.maplibregl-ctrl-bottom-left {
+  bottom: var(--safe-bottom);
+  left: var(--safe-left);
 }

@@ -6,7 +6,7 @@ import { expect, type Page, test } from "@playwright/test";
 // target yet; only "the state rendered and some map shows" is asserted.
 // LAYOUT_VIEWPORT=390x797 stands in for the home-screen app on a 390×844 iPhone (its 47 pt
 // status bar is outside the page)
-const [width, height] = (process.env.LAYOUT_VIEWPORT ?? "393x852")
+const [width, height] = (process.env.LAYOUT_VIEWPORT || "393x852")
   .split("x")
   .map(Number);
 test.use({
@@ -168,3 +168,54 @@ for (const s of STATES) {
     }
   });
 }
+
+// SPEC-web-app v1.19: the home-screen app runs under the status bar. Chromium has no notch,
+// so the iPhone's insets are simulated by setting the --safe-* variables to its 47/34 px
+test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  const NOTCH =
+    ":root { --safe-top: 47px !important; --safe-bottom: 34px !important; }";
+
+  for (const low of [false, true]) {
+    test(`directions preview${low ? ", sheet low" : ""}: map behind the status bar, panels clear of it`, async ({
+      page,
+    }) => {
+      await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+      await page.addStyleTag({ content: NOTCH });
+      await expect(
+        page.locator(
+          "main[data-map-loaded='true']:not([data-route-points='0'])",
+        ),
+      ).toBeAttached({ timeout: 30_000 });
+      await expect(page.locator(".maplibregl-compact-show")).toHaveCount(0, {
+        timeout: 15_000,
+      });
+      if (low) await swipeSheetDown(page);
+      await page.waitForTimeout(500);
+
+      const card = await page.locator("[data-trip-header]").boundingBox();
+      const sheet = await page.locator("[data-sheet]").boundingBox();
+      if (!card || !sheet) throw new Error("not laid out");
+      // right under the status bar and right above the home bar, not merely clear of them
+      expect(card.y).toBeGreaterThanOrEqual(47);
+      expect(card.y).toBeLessThanOrEqual(47 + 12);
+      expect(sheet.y + sheet.height).toBeLessThanOrEqual(844 - 34);
+      expect(sheet.y + sheet.height).toBeGreaterThanOrEqual(844 - 34 - 8);
+      // the rows behind the status bar show map (the fade over them takes no taps)
+      const behindStatusBar = await page.evaluate(() =>
+        [5, 20, 40].every((y) =>
+          document.elementFromPoint(195, y)?.closest(".maplibregl-map"),
+        ),
+      );
+      expect(behindStatusBar).toBe(true);
+      const result = await share(page);
+      await page.screenshot({
+        path: test.info().outputPath(`notch${low ? "-low" : ""}.png`),
+      });
+      console.log(
+        `layout-share ${JSON.stringify({ state: low ? "notch-L4-low" : "notch-L4", ...result })}`,
+      );
+      if (low) expect(result.mapPct).toBeGreaterThanOrEqual(70);
+    });
+  }
+});
