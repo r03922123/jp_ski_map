@@ -79,9 +79,24 @@ card names the frame it came from.
 
 ## Gap table (filled by the study)
 
+**Approved scope (2026-11-20): L1, L3, L4 first.** Our app has no L3 state (a place picked with no trip
+yet): picking a place sets the start, and a resort opens the trip (L4). So "L1b" measures our state between them,
+the start set with the ranked list.
+
+**Ours, measured 2026-11-20** by `e2e/layout-share.spec.ts`: 393×852, Chromium mobile emulation, after the
+credits fold. Two runs gave identical numbers.
+
+| State | Top chrome | Visible map (largest band) | Sheet |
+|---|---|---|---|
+| L1 opened, no start | 8.0% | 91.9% | 0.1% (sheet hidden until a start is set) |
+| L1b start set, ranked list | 14.1% | 42.7% | 43.2% |
+| L4 directions preview | 20.2% | 36.6% | 43.2% |
+
 | Gap | State | Google (measured) | Ours (measured) | Proposed fix | Size |
 |---|---|---|---|---|---|
-| … | L1 | visible map …% | visible map …% | … | S/M/L |
+| pending the owner's recordings | L1 | … | map 91.9% | … | … |
+| pending | L3 vs L1b | … | map 42.7% | … | … |
+| pending | L4 | … | map 36.6% (top 20.2%, sheet 43.2%) | … | … |
 
 Ranked by how much map area the fix gains, then by size.
 

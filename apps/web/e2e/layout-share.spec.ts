@@ -1,0 +1,98 @@
+import { expect, type Page, test } from "@playwright/test";
+
+// SPEC-maps-ios-ux: how an iPhone-sized screen splits between top chrome, visible map and
+// the sheet, per state. Rows are classified the way the Google Maps frames are: a row is
+// map when bare map shows at 2 of 3 points across it. These numbers are a baseline, not a
+// target yet; only "the state rendered and some map shows" is asserted.
+test.use({
+  viewport: { width: 393, height: 852 },
+  isMobile: true,
+  hasTouch: true,
+});
+
+const STATES = [
+  {
+    id: "L1",
+    note: "opened, no start",
+    url: "/",
+    wait: "main[data-map-loaded='true']",
+  },
+  {
+    id: "L1b",
+    note: "start set, ranked resorts, sheet collapsed",
+    url: "/?from=36.6985,137.8376&mode=drive",
+    wait: "main[data-map-loaded='true']",
+  },
+  {
+    id: "L4",
+    note: "directions preview, sheet collapsed",
+    url: "/?from=36.6985,137.8376&mode=drive&resort=happo-one",
+    wait: "main[data-map-loaded='true']:not([data-route-points='0'])",
+  },
+] as const;
+
+async function share(page: Page) {
+  return page.evaluate(() => {
+    const w = innerWidth;
+    const h = innerHeight;
+    const isMap = (x: number, y: number) => {
+      const hit = document.elementFromPoint(x, y);
+      return (
+        hit !== null &&
+        hit.closest(".maplibregl-map") !== null &&
+        hit.closest(".maplibregl-ctrl") === null
+      );
+    };
+    const rows: boolean[] = [];
+    for (let y = 0; y < h; y++)
+      rows.push(
+        [w / 4, w / 2, (3 * w) / 4].filter((x) => isMap(x, y + 0.5)).length >=
+          2,
+      );
+    // the floating cards leave thin strips of map at the edges: measure the chrome around
+    // the largest unbroken band of map rows
+    let best = { start: 0, len: 0 };
+    for (let y = 0, start = 0; y <= h; y++) {
+      if (y < h && rows[y]) continue;
+      if (y - start > best.len) best = { start, len: y - start };
+      start = y + 1;
+    }
+    const pct = (n: number) => Math.round((n / h) * 1000) / 10;
+    return {
+      topPct: pct(best.start),
+      bandPct: pct(best.len),
+      mapPct: pct(rows.filter(Boolean).length),
+      bottomPct: pct(h - best.start - best.len),
+    };
+  });
+}
+
+for (const s of STATES) {
+  test(`${s.id}: ${s.note}`, async ({ page }) => {
+    await page.goto(s.url);
+    await expect(page.locator(s.wait).first()).toBeAttached({
+      timeout: 30_000,
+    });
+    // the steady state: the phone's credits fold 5 s after load (use-compact-credits)
+    await expect(page.locator(".maplibregl-compact-show")).toHaveCount(0, {
+      timeout: 15_000,
+    });
+    // the sheet animates its height and the camera eases; measure once two readings agree
+    let result = await share(page);
+    await expect(async () => {
+      const again = await share(page);
+      const same = JSON.stringify(again) === JSON.stringify(result);
+      result = again;
+      expect(same).toBe(true);
+    }).toPass({ timeout: 10_000, intervals: [500] });
+
+    // the frame the numbers came from, to check a reading by eye
+    await page.screenshot({ path: test.info().outputPath(`${s.id}.png`) });
+    console.log(`layout-share ${JSON.stringify({ state: s.id, ...result })}`);
+    test.info().annotations.push({
+      type: "layout-share",
+      description: JSON.stringify({ state: s.id, ...result }),
+    });
+    expect(result.mapPct).toBeGreaterThan(0);
+  });
+}
