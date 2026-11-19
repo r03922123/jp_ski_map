@@ -78,6 +78,7 @@ for (const s of STATES) {
       timeout: 15_000,
     });
     // the sheet animates its height and the camera eases; measure once two readings agree
+    await page.waitForTimeout(500); // past the sheet's 200 ms height transition
     let result = await share(page);
     await expect(async () => {
       const again = await share(page);

@@ -39,9 +39,11 @@ measures the same state in our app at the same screen size.
 - Transition time between states, in ms (frames at 10 fps).
 - What collapses or hides when the user drags the map or scrolls the sheet.
 
-The output for each state is one **layout card** (LC-L1 … LC-L6) in [docs/ux/behaviour-cards.md](docs/ux/behaviour-cards.md),
-in the existing format: Setup / Observed / Inferred / Unknown / What we take / What we don't take. It also gets
-one row in a gap table (below).
+**Prior evidence.** [BC-L1](docs/ux/behaviour-cards.md) (2026-11-04) already measured Google's map share from the
+BC-A1 recording: about 54% with a place card and about 38% in route preview, ±10 px, full screen at 390×844.
+This study reuses those numbers for L3 and L4 and extends BC-L1, so it adds no parallel card series. New
+observations (L1, sheet detents, timing) go into BC-L1 or a BC-L2 card in the same file, in the existing format: Setup / Observed / Inferred / Unknown / What we take / What we don't take. It also gets
+a row in the gap table (below).
 
 ## How (commands)
 
@@ -51,9 +53,10 @@ one row in a gap table (below).
 #    .ux-evidence/ios-layout/ (git-ignored).
 # 2. Frames: 10/s for timing, plus one still per resting state
 ffmpeg -i .ux-evidence/ios-layout/L3.mov -vf fps=10 .ux-evidence/ios-layout/L3/%04d.png
-# 3. Ours, same states at the same CSS size (iPhone 15/16/17: 393×852), measured by a Playwright spec
+# 3. Ours, same states at the same CSS size (iPhone 15/16: 393×852), measured by a Playwright spec
 pnpm --dir apps/web e2e e2e/layout-share.spec.ts      # prints a JSON row per state
-# 4. Ours on the real iPhone (Safari and the home-screen app), with the existing iPhone driver
+# 4. Ours on the real iPhone (Safari tab and the home-screen app): a full-screen screenshot per state, taken by
+#    the owner or with the existing iPhone driver, measured like Google's frames (Playwright can't reach iOS)
 # 5. REA on our side only: capture_browser_scenario of our app per state (step_id = L1…L6) before a fix,
 #    again after it, then compare_web_captures(before, after) to prove only the intended layout changed
 ```
@@ -71,10 +74,12 @@ card names the frame it came from.
 ## Project structure
 
 - `SPEC-maps-ios-ux.md`: this file, holding the gap table.
-- `docs/ux/behaviour-cards.md`: the layout cards LC-L1 to LC-L6, written in our own words.
-- `apps/web/e2e/layout-share.spec.ts`: new. It measures our states with `getBoundingClientRect` and prints
-  `{state, topPct, mapPct, sheetPct}`. It asserts only that the states render, because the numbers are a
-  baseline, not a target yet.
+- `docs/ux/behaviour-cards.md`: BC-L1, extended, and BC-L2 if needed, written in our own words.
+- `apps/web/e2e/layout-share.spec.ts`: new. It scans every row with `elementFromPoint` at 3 points across.
+  A row counts as map when 2 of the 3 points hit the map, including markers and labels drawn on it. It prints
+  `{state, topPct, bandPct, mapPct, bottomPct}`: the chrome above the largest unbroken map band, the band, all
+  map rows, and everything below the band (the sheet plus its 4 px margin). It asserts only that some map shows,
+  because the numbers are a baseline, not a target yet.
 - `.ux-evidence/ios-layout/` (git-ignored): recordings and frames. They never enter git.
 
 ## Gap table (filled by the study)
@@ -86,7 +91,12 @@ the start set with the ranked list.
 **Ours, measured 2026-11-20** by `e2e/layout-share.spec.ts`: 393×852, Chromium mobile emulation, after the
 credits fold. Two runs gave identical numbers.
 
-| State | Top chrome | Visible map (largest band) | Sheet |
+**Denominators differ.** These are shares of the *page* (852 px, no status bar or browser bars). BC-L1's Google
+numbers are shares of the *whole screen*, status bar included. On a real iPhone our page also loses the status
+bar, and in a Safari tab the address and tab bars too. So the gap is settled by step 4 (full-screen screenshots
+of ours on the iPhone, in points), not by this table alone.
+
+| State | Top chrome | Visible map (largest band) | Below the map (sheet) |
 |---|---|---|---|
 | L1 opened, no start | 8.0% | 91.9% | 0.1% (sheet hidden until a start is set) |
 | L1b start set, ranked list | 14.1% | 42.7% | 43.2% |
@@ -94,9 +104,13 @@ credits fold. Two runs gave identical numbers.
 
 | Gap | State | Google (measured) | Ours (measured) | Proposed fix | Size |
 |---|---|---|---|---|---|
-| pending the owner's recordings | L1 | … | map 91.9% | … | … |
-| pending | L3 vs L1b | … | map 42.7% | … | … |
-| pending | L4 | … | map 36.6% (top 20.2%, sheet 43.2%) | … | … |
+| pending the owner's recording | L1 | not measured yet | map 91.9% of page | … | … |
+| pending step 4 | L3 vs L1b | ≈54% of screen (BC-L1, place card, no top card) | 42.7% of page (top 14.1%) | … | … |
+| pending step 4 | L4 | ≈38% of screen (BC-L1: top ≈11%, sheet ≈44%) | 36.6% of page (top 20.2%, sheet 43.2%) | … | … |
+
+So far, from the page-only numbers: in L4 the map share is close to Google's, but our top card is about twice as
+tall (20% vs 11%). In L3 Google shows no top card at all. Both stay unconfirmed until step 4 adds the status
+bar and browser bars.
 
 Ranked by how much map area the fix gains, then by size.
 
@@ -130,17 +144,20 @@ Ranked by how much map area the fix gains, then by size.
 
 ## Success criteria
 
-- [ ] LC-L1 … LC-L6 written, each number with a frame reference, and no personal data in any frame used.
-- [ ] `layout-share.spec.ts` merged, with our numbers for the same 6 states, on desktop Chromium at 393×852
-  and on the real iPhone (Safari and the home-screen app).
+- [ ] BC-L1 extended with an L1 measurement, each number with a frame reference, and no personal data in any frame
+  used.
+- [ ] `layout-share.spec.ts` merged, with our numbers for L1, L1b and L4 at 393×852 in Chromium (done here).
+- [ ] The same states measured from full-screen screenshots of ours on the real iPhone (Safari tab and the
+  home-screen app), in points of the whole screen.
 - [ ] The gap table is filled and ranked, and each of the top 3 gaps has a one-paragraph fix proposal that names
   the files.
 - [ ] The owner picks which gaps to build. Each one then gets its own spec section and PR (not part of this
   study).
 
-## Open questions (for the owner)
+## What the owner still provides (updated 2026-11-20, after BC-L1 was found)
 
-1. **You need to record 6 short screen recordings** (L1–L6, about 20 s each) on your iPhone in the Google Maps
-   app. Recommended: Hakuba Station → Happo-One, the same trip as BC-A1, so the cards are comparable.
-2. **Scope:** start with L1, L3 and L4, the states where the map share hurt most in your 2026-11-11 check, and add
-   L2, L5 and L6 only if those three leave questions. Recommended: yes. It halves the recording and measuring.
+1. **One Google Maps iOS recording, L1 only** (the app opened, nothing searched, about 10 s). BC-L1 already covers
+   L3 and L4.
+2. **Six screenshots of our app on your iPhone:** L1, L1b and L4 (the URLs are in `e2e/layout-share.spec.ts`),
+   each once in a Safari tab and once from the home-screen icon. They give our full-screen numbers in points,
+   which is the comparison that counts.
