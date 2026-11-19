@@ -208,7 +208,14 @@ export default function MapView({
     p ? [[p.lng, p.lat] as LngLat] : [],
   );
   const drawn = [...routes, ...(ride ? [ride.route] : [])];
-  const fitKey = `${canvasSize}/${slimSheet}/${activeRoute}/${endPoints.join(";")}/${drawn
+  // the slim bar only moves the fit on a short phone: elsewhere (Saved toggling it) no refit
+  const [canvasW, canvasH] = canvasSize.split("x").map(Number);
+  const fitBottom = mapPadding({
+    width: canvasW,
+    height: canvasH,
+    slimSheet,
+  }).bottom;
+  const fitKey = `${canvasSize}/${fitBottom}/${activeRoute}/${endPoints.join(";")}/${drawn
     .map(
       (r) =>
         `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,

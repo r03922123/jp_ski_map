@@ -46,7 +46,8 @@ export function DirectionsPanel({
   return (
     <>
       <div className="sticky bottom-0 z-10 -mx-4 flex items-center justify-between gap-2 border-t bg-card px-4 py-2">
-        <p className="text-lg font-semibold">
+        {/* one line in the landscape bar, whose 84 px fit one row (BottomSheet slim) */}
+        <p className="min-w-0 text-lg font-semibold max-md:[@media(max-height:479px)]:truncate">
           ETA ~ {formatDuration(route.durationS)} ·{" "}
           {formatDistance(route.distanceM)}
         </p>

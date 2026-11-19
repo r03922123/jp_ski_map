@@ -64,6 +64,12 @@ export function BottomSheet({
       headerRef.current?.focus();
   }, [hiddenOnPhone]);
 
+  // the ETA row sticks to the bottom only while it is below the fold: a sheet collapsed
+  // after scrolling past it would show steps, not ETA and Start (T77)
+  useEffect(() => {
+    if (slim && !expanded && bodyRef.current) bodyRef.current.scrollTop = 0;
+  }, [slim, expanded]);
+
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
 
