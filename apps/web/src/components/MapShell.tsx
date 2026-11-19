@@ -300,14 +300,6 @@ export function MapShell() {
               swap={
                 <SwapButton disabled={!canSwap} onClick={actions.swapTrip} />
               }
-              addDestination={
-                canAddStop && (
-                  <AddDestinationButton
-                    ref={addStopRef}
-                    onClick={actions.addStop}
-                  />
-                )
-              }
               saveDestination={toPlace && <SaveButton place={toPlace} />}
               placeCard={
                 fromPlace &&
@@ -324,6 +316,7 @@ export function MapShell() {
               saved={
                 <SavedButton
                   open={savedOpen}
+                  compact={showToBox}
                   onClick={() => {
                     setSavedFocus(null);
                     setSavedOpen((v) => !v);
@@ -367,6 +360,14 @@ export function MapShell() {
                   onRemoveStop={actions.removeStop}
                   onFillStop={fillStop}
                   onClearFrom={actions.clearFrom}
+                  addDestination={
+                    canAddStop && (
+                      <AddDestinationButton
+                        ref={addStopRef}
+                        onClick={actions.addStop}
+                      />
+                    )
+                  }
                 />
               }
               onStart={

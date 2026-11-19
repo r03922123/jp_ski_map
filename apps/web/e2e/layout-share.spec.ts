@@ -149,6 +149,8 @@ for (const s of STATES) {
       description: JSON.stringify({ state: s.id, ...result }),
     });
     expect(result.mapPct).toBeGreaterThan(0);
+    // v1.18: the two-row trip card (it was 21.6% of a 390×797 page with three rows)
+    if (s.id === "L4") expect(result.topPct).toBeLessThanOrEqual(16);
     if ("low" in s) {
       // v1.17 done-when: most of the page is map, and the trip's answer stays in reach
       expect(result.bandPct).toBeGreaterThanOrEqual(60);

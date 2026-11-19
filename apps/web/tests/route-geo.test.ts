@@ -83,7 +83,7 @@ describe("mapPadding", () => {
 
   it("leaves room on phones for a marker standing above its point", () => {
     expect(mapPadding({ width: 390, height: 699 }).top).toBeGreaterThanOrEqual(
-      184 + MARKER_PX,
+      132 + MARKER_PX, // v1.18: the two-row card (was 184)
     );
   });
 
@@ -171,7 +171,7 @@ describe("pinEaseOffsetY", () => {
 
     expect(y).toBeLessThanOrEqual(height * 0.6);
     expect(pinCardAnchor({ x: 200, y, width, height })).toBeUndefined();
-    expect(y - 190).toBeGreaterThanOrEqual(184);
+    expect(y - 190).toBeGreaterThanOrEqual(132); // v1.18: the two-row card (was 184)
   });
 
   it("doesn't shift a laptop", () => {
@@ -181,8 +181,20 @@ describe("pinEaseOffsetY", () => {
   it.each([
     [667, 375],
     [740, 360],
-    [375, 553],
   ])("doesn't push the pin into the sheet at %ix%i", (width, height) => {
     expect(pinEaseOffsetY({ width, height })).toBe(0);
+  });
+
+  // v1.18 (recorded change; 375x553 was in the list above): with the two-row card a pin and
+  // its 190 px card fit between card and sheet (132 + 190 = 322 < 332), so it moves, and
+  // stays above the sheet
+  it("at 375x553 the pin now fits above the sheet, and stays out of it", () => {
+    const size = { width: 375, height: 553 };
+    const { top, bottom } = mapPadding(size);
+    const centre = top + (size.height - top - bottom) / 2;
+    const y = centre + pinEaseOffsetY(size);
+
+    expect(pinEaseOffsetY(size)).toBeGreaterThan(0);
+    expect(y).toBeLessThanOrEqual(size.height * 0.6);
   });
 });

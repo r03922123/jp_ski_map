@@ -190,6 +190,41 @@ describe("TripPanel with its state (add → type → pick)", () => {
   });
 });
 
+describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
+  it("shows the slot above the Trip list, where any number of stops can't push it under the ETA row", () => {
+    const addStopRef = { current: null };
+    const props = {
+      stops: [],
+      addStopRef,
+      near: null,
+      onRemoveStop: () => {},
+      onFillStop: () => {},
+      onClearFrom: () => {},
+      addDestination: <button type="button">Add destination</button>,
+    };
+    const { rerender } = render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TripPanel from={hotel} {...props} />
+      </QueryClientProvider>,
+    );
+    const list = screen.getByRole("list", { name: "Trip" });
+    const add = screen.getByRole("button", { name: "Add destination" });
+    expect(
+      add.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    // the slot alone is enough to render the panel (a start being retyped keeps the stops)
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <TripPanel from={null} {...props} />
+      </QueryClientProvider>,
+    );
+    expect(
+      screen.getByRole("button", { name: "Add destination" }),
+    ).toBeVisible();
+  });
+});
+
 describe("stops in the URL", () => {
   it("round-trips stops=lat,lng;lat,lng", () => {
     const view = parseViewState(
@@ -348,7 +383,7 @@ describe("DestinationBox (the To box)", () => {
     const { onClearTo } = renderToBox(resort);
     const box = screen.getByRole("combobox", { name: "To" });
     expect(box).toHaveValue("Happo-One");
-    expect(box).toHaveAttribute("placeholder", "Search a destination");
+    expect(box).toHaveAttribute("placeholder", "Where to?"); // v1.18 (was "Search a destination")
     fireEvent.click(screen.getByRole("button", { name: "Remove destination" }));
     expect(onClearTo).toHaveBeenCalled();
   });

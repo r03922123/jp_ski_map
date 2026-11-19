@@ -107,8 +107,8 @@ Measured 2026-11-20 from the owner's recordings (BC-L1 update in docs/ux/behavio
 
 | Gap | State | Google (measured) | Ours (measured) | Proposed fix | Size |
 |---|---|---|---|---|---|
-| G1 no low sheet height | L3 / L1b, L4 | sheet can rest at 143 pt: map 598 pt (70.9%) | lowest sheet 346 pt: map 331 pt (39.2%) in L1b, 279 pt in L4 | A third, low resting height for `BottomSheet` (drag down from collapsed), reusing the existing `slim` 84 px height: the handle plus the ETA/Start row (the trip) or the top result row (the list). Files: `BottomSheet.tsx`, `route-geo.ts` (`SHEET_FRACTION` for the camera fit), `e2e/layout-share.spec.ts`, `e2e/small-phone.spec.ts`. Gain up to ≈260 pt. | M |
-| G2 tall trip card | L4 | top chrome ends ≈150 pt | ends 219 pt (47 status + 172 card) | Fold the third row ("+ Add destination", ☆) into the From/To rows, e.g. "+" beside the To box. Files: the trip card in `MapShell.tsx` / `TripCard.tsx`, and the 232 px / 184 px constants in `BottomSheet.tsx`. Gain ≈40–50 pt. | S |
+| G1 no low sheet height (**done**, PR #98: L4 map 279 → 514 pt) | L3 / L1b, L4 | sheet can rest at 143 pt: map 598 pt (70.9%) | lowest sheet 346 pt: map 331 pt (39.2%) in L1b, 279 pt in L4 | A third, low resting height for `BottomSheet` (drag down from collapsed), reusing the existing `slim` 84 px height: the handle plus the ETA/Start row (the trip) or the top result row (the list). Files: `BottomSheet.tsx`, `route-geo.ts` (`SHEET_FRACTION` for the camera fit), `e2e/layout-share.spec.ts`, `e2e/small-phone.spec.ts`. Gain up to ≈260 pt. | M |
+| G2 tall trip card (**done**, PR #99: card 172 → 120 px; with G1, L4 map 71% of the page) | L4 | top chrome ends ≈150 pt | ends 219 pt (47 status + 172 card) | Fold the third row ("+ Add destination", ☆) into the From/To rows, e.g. "+" beside the To box. Files: the trip card in `MapShell.tsx` / `TripCard.tsx`, and the 232 px / 184 px constants in `BottomSheet.tsx`. Gain ≈40–50 pt. | S |
 | — | L1 | map 554 pt (65.6%) | map 728 pt (86.2%) | None: ours already shows more map. | — |
 
 Ranked by how much map area the fix gains, then by size.

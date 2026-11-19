@@ -215,8 +215,9 @@ test.describe("phone: adding stops", () => {
       page.getByRole("combobox", { name: "Stop 1" }),
     ).toHaveAttribute("placeholder", /tap the map/i);
     const cdp = await page.context().newCDPSession(page);
-    // the focused box expands the sheet: only a strip of map stays above it
-    await touch(cdp, await bareMap(page, 180), 60);
+    // the focused box expands the sheet: only a strip of map stays above it, under the
+    // trip card (v1.18: the two-row card ends at 120 px, so the strip starts there; was 180)
+    await touch(cdp, await bareMap(page, 120), 60);
     await expect(tripRows(page)).toHaveCount(2);
     await expect(page.getByRole("combobox", { name: "Stop 1" })).toHaveCount(0);
     await expect(page).toHaveURL(/stops=36\.\d+%2C137\.\d+/);
