@@ -13,10 +13,19 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     background_color: ICON_BACKGROUND,
     theme_color: "#eef3f7",
-    icons: [192, 512].map((n) => ({
-      src: `/icon/${n}`,
-      sizes: `${n}x${n}`,
-      type: "image/png",
-    })),
+    icons: [
+      ...[192, 512].map((n) => ({
+        src: `/icon/${n}`,
+        sizes: `${n}x${n}`,
+        type: "image/png",
+      })),
+      // full-bleed navy with the rider inside the safe zone, so Android can mask it to any shape
+      {
+        src: "/icon/512",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+    ],
   };
 }

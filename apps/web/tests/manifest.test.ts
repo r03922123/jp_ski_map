@@ -15,9 +15,15 @@ describe("web app manifest (SPEC-web-app v1.16)", () => {
     const icons = manifest().icons ?? [];
 
     for (const size of ["192x192", "512x512"]) {
-      const icon = icons.find((i) => i.sizes === size);
+      const icon = icons.find((i) => i.sizes === size && !i.purpose);
       expect(icon?.type).toBe("image/png");
       expect(served).toContain(icon?.src);
     }
+  });
+
+  it("offers a maskable icon for Android launchers", () => {
+    const icons = manifest().icons ?? [];
+
+    expect(icons.find((i) => i.purpose === "maskable")?.src).toBe("/icon/512");
   });
 });
