@@ -38,6 +38,8 @@ class RankedResort(ApiModel):
     factors: Factors
     snow: SnowReport | None
     crowd: CrowdEstimate | None
+    stats_source: str  # free text with URLs, as stored in the catalog
+    website: str
 
 
 @dataclass
@@ -122,6 +124,8 @@ def rank(items: list[RankInput], sort: SortKey, filters: Filters) -> list[Ranked
             factors=factors,
             snow=item.snow,
             crowd=item.crowd,
+            stats_source=item.resort.stats_source,
+            website=item.resort.website,
         )
         for position, (item, factors) in enumerate(sorted(scored, key=order), start=1)
     ]
