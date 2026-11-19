@@ -895,6 +895,8 @@ Three small PRs, each test-first with a fresh-eyes review.
 - [x] Production 16bee80 (2026-11-16): smoke 5/5; MCP initialize, 6 tools, search_place live, bad id lists the 10 ids, wrong token 404
 - [x] Owner: Langfuse Cloud, Japan region, Hobby ($0); keys in `~/.config/jp_ski_map/langfuse.env`
 - [x] Vercel Production env set and redeployed (2026-11-16). Checked: 6 `tools/call` → 6 `TOOL` observations (`production`), the bad one `ToolError; invalid arguments: destination`, input/output empty, no coordinate or query text stored. Warm `tools/call` median 0.29 s (max 0.42, n=12), `tools/list` 0.19 s; one 7.7 s call in an earlier batch of 5, not reproduced (likely a cold start, unverified). Read observations with `/api/public/v2/observations`
+- [x] PR #94 (eval v4, 2026-11-19): `trip_questions.json` 12 → 100 questions (35 en, 32 zh, 33 ja); each regex is unit-tested against a right answer, 2+ wrong ones, the question echo and a no-data reply. Broken-tools run 2/91 leaks (fixed); production run 97/100 (Wilson 0.92–0.99), 100/100 after 3 label fixes. Run store copy in `jp_ski_map_ml_artifacts/mcp-eval-v4/`
+- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; crowd heuristic ranks Jigatake quietest on every date (its "less-visited" reason raises the score)
 
 ## Rebuild from the URL, and Ask Maps (2026-11-18; status at main 8485c47)
 Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../SPEC-ask-maps.md) (A0–A4),
