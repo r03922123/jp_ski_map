@@ -46,6 +46,7 @@ def crowd(score: float) -> CrowdEstimate:
         score=score,
         source="heuristic",
         reasons=[],
+        contributions=[],
     )
 
 

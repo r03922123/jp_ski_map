@@ -9,7 +9,7 @@ import holidays
 from pydantic import TypeAdapter
 
 from hakuba_api.catalog.models import Resort
-from hakuba_api.crowd.models import CrowdEstimate, CrowdLevel, PeakPeriod
+from hakuba_api.crowd.models import Contribution, CrowdEstimate, CrowdLevel, PeakPeriod
 from hakuba_api.data.paths import data_dir
 from hakuba_api.snow.models import SnowReport
 
@@ -114,44 +114,43 @@ class HeuristicCrowdSource:
         self._periods = periods
 
     def estimate(self, resort: Resort, day: date, snow: SnowReport | None) -> CrowdEstimate:
-        score = 0.0
-        reasons: list[str] = []
+        added: list[Contribution] = []
 
         weight, reason = _day_type(day)
-        score += weight
         if reason:
-            reasons.append(reason)
+            added.append(Contribution(label=reason, weight=weight))
 
-        matching = [p for p in self._periods if p.start <= day <= p.end]
-        for period in sorted(matching, key=lambda p: -p.weight):
-            reasons.append(period.name)
-        if matching:
-            score += max(p.weight for p in matching)
+        matching = sorted(
+            (p for p in self._periods if p.start <= day <= p.end), key=lambda p: -p.weight
+        )
+        # Only the largest overlapping period counts; the rest are listed with weight 0
+        for i, period in enumerate(matching):
+            added.append(Contribution(label=period.name, weight=period.weight if i == 0 else 0.0))
 
         new_snow = _new_snow_for(day, snow)
         if new_snow is not None and new_snow >= CONFIG.powder_threshold_cm:
-            score += CONFIG.powder
-            reasons.append(f"Powder day ({round(new_snow)} cm new)")
+            added.append(
+                Contribution(label=f"Powder day ({round(new_snow)} cm new)", weight=CONFIG.powder)
+            )
 
         prior = CONFIG.resort_prior.get(resort.id, CONFIG.default_prior)
-        score += prior
         if prior >= CONFIG.popular_prior_at_least:
-            reasons.append("Large, popular resort")
+            added.append(Contribution(label="Large, popular resort", weight=prior))
         elif prior >= CONFIG.moderate_prior_at_least:
-            reasons.append("Moderately popular resort")
+            added.append(Contribution(label="Moderately popular resort", weight=prior))
         elif prior > 0:
-            reasons.append("Less-visited resort")
+            added.append(Contribution(label="Less-visited resort", weight=prior))
 
         if _is_season_edge(day):
-            score += CONFIG.season_edge
-            reasons.append("Early/late season")
+            added.append(Contribution(label="Early/late season", weight=CONFIG.season_edge))
 
-        score = round(min(max(score, 0.0), 1.0), 2)
+        score = round(min(max(sum(c.weight for c in added), 0.0), 1.0), 2)
         return CrowdEstimate(
             resort_id=resort.id,
             date=day,
             level=level_for(score),
             score=score,
             source="heuristic",
-            reasons=reasons,
+            reasons=[c.label for c in added],
+            contributions=added,
         )
