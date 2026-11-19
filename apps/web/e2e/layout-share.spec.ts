@@ -4,8 +4,13 @@ import { expect, type Page, test } from "@playwright/test";
 // the sheet, per state. Rows are classified the way the Google Maps frames are: a row is
 // map when bare map shows at 2 of 3 points across it. These numbers are a baseline, not a
 // target yet; only "the state rendered and some map shows" is asserted.
+// LAYOUT_VIEWPORT=390x797 stands in for the home-screen app on a 390×844 iPhone (its 47 pt
+// status bar is outside the page)
+const [width, height] = (process.env.LAYOUT_VIEWPORT ?? "393x852")
+  .split("x")
+  .map(Number);
 test.use({
-  viewport: { width: 393, height: 852 },
+  viewport: { width, height },
   isMobile: true,
   hasTouch: true,
 });
@@ -89,7 +94,9 @@ for (const s of STATES) {
 
     // the frame the numbers came from, to check a reading by eye
     await page.screenshot({ path: test.info().outputPath(`${s.id}.png`) });
-    console.log(`layout-share ${JSON.stringify({ state: s.id, ...result })}`);
+    console.log(
+      `layout-share ${JSON.stringify({ state: s.id, width, height, ...result })}`,
+    );
     test.info().annotations.push({
       type: "layout-share",
       description: JSON.stringify({ state: s.id, ...result }),

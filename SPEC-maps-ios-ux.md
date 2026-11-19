@@ -102,15 +102,14 @@ of ours on the iPhone, in points), not by this table alone.
 | L1b start set, ranked list | 14.1% | 42.7% | 43.2% |
 | L4 directions preview | 20.2% | 36.6% | 43.2% |
 
+Measured 2026-11-20 from the owner's recordings (BC-L1 update in docs/ux/behaviour-cards.md), and ours at
+390×797 (the home-screen app's page on that 390×844 iPhone). Points are of the whole 844 pt screen.
+
 | Gap | State | Google (measured) | Ours (measured) | Proposed fix | Size |
 |---|---|---|---|---|---|
-| pending the owner's recording | L1 | not measured yet | map 91.9% of page | … | … |
-| pending step 4 | L3 vs L1b | ≈54% of screen (BC-L1, place card, no top card) | 42.7% of page (top 14.1%) | … | … |
-| pending step 4 | L4 | ≈38% of screen (BC-L1: top ≈11%, sheet ≈44%) | 36.6% of page (top 20.2%, sheet 43.2%) | … | … |
-
-So far, from the page-only numbers: in L4 the map share is close to Google's, but our top card is about twice as
-tall (20% vs 11%). In L3 Google shows no top card at all. Both stay unconfirmed until step 4 adds the status
-bar and browser bars.
+| G1 no low sheet height | L3 / L1b, L4 | sheet can rest at 143 pt: map 598 pt (70.9%) | lowest sheet 346 pt: map 331 pt (39.2%) in L1b, 279 pt in L4 | A third, low resting height for `BottomSheet` (drag down from collapsed), reusing the existing `slim` 84 px height: the handle plus the ETA/Start row (the trip) or the top result row (the list). Files: `BottomSheet.tsx`, `route-geo.ts` (`SHEET_FRACTION` for the camera fit), `e2e/layout-share.spec.ts`, `e2e/small-phone.spec.ts`. Gain up to ≈260 pt. | M |
+| G2 tall trip card | L4 | top chrome ends ≈150 pt | ends 219 pt (47 status + 172 card) | Fold the third row ("+ Add destination", ☆) into the From/To rows, e.g. "+" beside the To box. Files: the trip card in `MapShell.tsx` / `TripCard.tsx`, and the 232 px / 184 px constants in `BottomSheet.tsx`. Gain ≈40–50 pt. | S |
+| — | L1 | map 554 pt (65.6%) | map 728 pt (86.2%) | None: ours already shows more map. | — |
 
 Ranked by how much map area the fix gains, then by size.
 
@@ -157,8 +156,7 @@ Ranked by how much map area the fix gains, then by size.
 
 ## What the owner still provides (updated 2026-11-20, after BC-L1 was found)
 
-1. **One Google Maps iOS recording, L1 only** (the app opened, nothing searched, about 10 s). BC-L1 already covers
-   L3 and L4.
+1. ~~One Google Maps iOS recording, L1~~: received 2026-11-20 (two recordings, covering L1, L2 and L3).
 2. **Six screenshots of our app on your iPhone:** L1, L1b and L4 (the URLs are in `e2e/layout-share.spec.ts`),
    each once in a Safari tab and once from the home-screen icon. They give our full-screen numbers in points,
    which is the comparison that counts.
