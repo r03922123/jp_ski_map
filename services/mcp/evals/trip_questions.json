@@ -20,13 +20,14 @@
     "question": "我住在白馬駅附近，2026-12-26 早上 8 點想搭接駁巴士去八方尾根，有哪些班次？",
     "required": ["search_place", "next_buses"],
     "optional": ["rank_resorts"],
-    "answer_regex": "0?8[:：]\\d\\d",
+    "answer_regex": "0?8[:：](?!00)\\d\\d",
     "check": "gives an 08:xx departure time",
-    "regex_why": "An 08:xx time is required, so an answer giving only the echoed 8 o'clock ('8點') or a 09:xx bus fails; any 08:xx passes, even a wrong one (kept for comparison).",
+    "regex_why": "An 08:xx time other than 08:00 is required, so the echoed 8:00 from the question (seen when every tool failed) or a 09:xx bus fails; any other 08:xx passes, even a wrong one (kept for comparison).",
     "positive": "08:13 從JR白馬駅出發，08:23 到八方。",
     "negatives": [
       "早上 8 點有車，大約 10 分鐘到八方。",
-      "下一班是 09:13 從白馬駅出發。"
+      "下一班是 09:13 從白馬駅出發。",
+      "所以我沒辦法提供 2026-12-26 早上 8:00 後從白馬駅到八方尾根的接駁巴士時刻。"
     ]
   },
   {
@@ -96,13 +97,14 @@
     "required": ["search_place", "next_buses"],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["route"],
-    "answer_regex": "(?is)0?8:\\d\\d.*(estimat|timetable)|(estimat|timetable).*0?8:\\d\\d",
+    "answer_regex": "(?is)0?8:(?!00)\\d\\d.*(estimat|timetable)|(estimat|timetable).*0?8:(?!00)\\d\\d",
     "check": "gives a bus time and says it is an estimate",
-    "regex_why": "Needs an 08:xx time and the word estimate/timetable, so a plan that drops the caveat or gives only '8am' fails; the time itself is not pinned (kept for comparison).",
+    "regex_why": "Needs an 08:xx time other than the echoed 8:00 and the word estimate/timetable, so a plan that drops the caveat or only restates '8am' fails; the time itself is not pinned (kept for comparison).",
     "positive": "Take the 08:46 shuttle; times are estimates from last season's timetable.",
     "negatives": [
       "Take the 08:46 shuttle to Norikura.",
-      "Buses leave around 8am; times are estimates."
+      "Buses leave around 8am; times are estimates.",
+      "The service is down, so I can't tell you which bus leaves after 8:00; times would come from the timetable."
     ]
   },
   {
@@ -537,7 +539,7 @@
     "question": "What time is the last shuttle bus from Happo-One back to JR Hakuba Station on 2027-01-15?",
     "required": [],
     "optional": ["search_place", "next_buses"],
-    "answer_regex": "(?is)^(?!.*(?<![\\d.])1[5-9][:：]\\d\\d)(?!.*(?<![\\d.:])\\d{1,2}\\s*(?:[ap]\\.?m\\b|o'?clock|[時点點]))(?=.*(don't|doesn't|do not|does not|can't|cannot|can not|unable|no (data|information|timetable)|not (available|covered|included|cover))).*(return|back|from (the )?(resort|happo)|toward|direction|only (shows?|covers?|lists?|gives?))",
+    "answer_regex": "(?is)^(?!.*(?<![\\d.])1[5-9][:：]\\d\\d)(?!.*(?<![\\d.:])\\d{1,2}\\s*(?:[ap]\\.?m\\b|o'?clock|[時点點]))(?=.*(don['’]t|doesn['’]t|didn['’]t|isn['’]t|aren['’]t|couldn['’]t|could not|not able|do not|does not|can['’]t|cannot|can not|unable|no (data|information|timetable)|not (available|covered|included|cover))).*(return|back|from (the )?(resort|happo)|toward|direction|only (shows?|covers?|lists?|gives?))",
     "check": "says the tools only cover buses toward resorts",
     "regex_why": "next_buses only lists buses from an origin to resorts, so the answer must say the return trip is not covered; an invented last bus like 17:30 or 16:45 fails because any 15:00-19:59 time is rejected. A time like '5 pm' or '17時' is rejected too.",
     "positive": "I can't answer that from my tools: the bus tool only shows departures from a place toward the resorts, not the return trip back to the station. Please check the official shuttle timetable.",
@@ -546,6 +548,10 @@
       "Sorry, I couldn't reach the Hakuba API, so I can't check that right now.",
       "Buses run until about 17:46, so the last one back is around then.",
       "I don't have return timetables, but the last bus back is usually around 5 pm."
+    ],
+    "more_positives": [
+      "I couldn't find the last bus time. Even when the service is working, its bus tool only lists buses from a starting point to the ski resorts, not back to the station.",
+      "I can’t give you that time. The bus tool lists buses from where you start to the ski resorts. It doesn’t list buses from a resort back to a station."
     ]
   },
   {
@@ -554,7 +560,7 @@
     "question": "On 2027-01-15 I'll be at JR Hakuba Station at 17:00. If I take a shuttle to Tsugaike, when do I get there?",
     "required": ["search_place", "next_buses"],
     "optional": [],
-    "answer_regex": "(?is)^(?!.*(?<![\\d.])18[:：][0-5]\\d)(?=.*((?<![\\d０-９.])[1１][7７]\\s*[:：時点點]\\s*[4４][6６](?![\\d０-９])))(?=.*(not (published|listed|given|available|known)|no (published|listed|arrival)|unpublished|unknown|doesn't (list|show|give)|does not (list|show|give)|isn't (published|listed)|can't (say|tell)|cannot (say|tell)))",
+    "answer_regex": "(?is)^(?!.*(?<![\\d.])18[:：][0-5]\\d)(?=.*((?<![\\d０-９.])[1１][7７]\\s*[:：時点點]\\s*[4４][6６](?![\\d０-９])))(?=.*(not (published|listed|given|available|known)|no (published|listed|arrival)|unpublished|unknown|doesn['’]t (list|show|give)|does not (list|show|give)|isn['’]t (published|listed)|can['’]t (say|tell)|cannot (say|tell)))",
     "check": "17:46 from JR Hakuba Station, arrival time not published",
     "regex_why": "Requires the 17:46 departure and a statement that the arrival is not published, so the 17:10 bus (which leaves Hakuba Happo Bus Terminal, not the station) or an invented 18:xx arrival fails. The times are basis: expected (projected from last season), so re-check them when the 2026-27 timetable is published.",
     "positive": "The 17:46 Cortina ↔ Hakuba GORYU bus leaves from JR Hakuba Station, but the timetable has no published arrival time at Tsugaike, so I can't tell you exactly when you'd get there.",
@@ -1295,7 +1301,7 @@
     "question": "How crowded will Niseko be on 2027-01-13?",
     "required": [],
     "optional": ["search_place", "crowd_and_snow", "rank_resorts"],
-    "answer_regex": "(?is)^(?=.*(?:(?:don't|do not|doesn't|does not|can't|cannot|couldn't|could not|unable|isn't|is not|aren't|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|book|support|available|find|check|include)|outside[^.\\n]{0,40}(?:hakuba|coverage|scope)|only\\s+(?:cover|ha(?:ve|s)|know|include)))(?!.*niseko[^\\n]{0,40}\\b(?:low|medium|moderate|high|very.high|busy|quiet)\\b)",
+    "answer_regex": "(?is)^(?=.*(?:(?:don['’]t|do not|doesn['’]t|does not|can['’]t|cannot|couldn['’]t|could not|unable|isn['’]t|is not|aren['’]t|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|book|support|available|find|check|include)|outside[^.\\n]{0,40}(?:hakuba|coverage|scope)|only\\s+(?:cover|ha(?:ve|s)|know|include)))(?!.*niseko[^\\n]{0,40}\\b(?:low|medium|moderate|high|very.high|busy|quiet)\\b)",
     "check": "says Niseko is not covered, without inventing a crowd level",
     "regex_why": "Requires a 'not covered / no data' statement and rules out an invented level such as 'Niseko will be medium'.",
     "positive": "I can't check that: my tools only cover the 10 Hakuba Valley resorts, and Niseko (Hokkaido) isn't one of them.",
@@ -1311,7 +1317,7 @@
     "question": "Can you book me a private ski lesson at Happo-One on 2027-01-14 and tell me the price?",
     "required": [],
     "optional": [],
-    "answer_regex": "(?is)^(?=.*(?:(?:don't|do not|doesn't|does not|can't|cannot|couldn't|could not|unable|isn't|is not|aren't|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|book|support|available|find|check|include)|outside[^.\\n]{0,40}(?:hakuba|coverage|scope)|only\\s+(?:cover|ha(?:ve|s)|know|include)))(?!.*(?:¥|￥|JPY|yen)\\s*\\d|.*\\d[\\d,]*\\s*(?:yen|JPY|円))",
+    "answer_regex": "(?is)^(?=.*(?:(?:don['’]t|do not|doesn['’]t|does not|can['’]t|cannot|couldn['’]t|could not|unable|isn['’]t|is not|aren['’]t|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|book|support|available|find|check|include)|outside[^.\\n]{0,40}(?:hakuba|coverage|scope)|only\\s+(?:cover|ha(?:ve|s)|know|include)))(?!.*(?:¥|￥|JPY|yen)\\s*\\d|.*\\d[\\d,]*\\s*(?:yen|JPY|円))",
     "check": "says it cannot book lessons or price them, without a price",
     "regex_why": "Requires a 'can't book / no data' statement and rules out an invented price such as '¥25,000'.",
     "positive": "I can't book lessons, and my tools have no ski school information or prices; please contact a ski school at Happo-One directly.",
@@ -1343,15 +1349,19 @@
     "question": "白馬接駁巴士公司的客服電話是多少？",
     "required": [],
     "optional": ["search_place", "next_buses"],
-    "answer_regex": "(?is)^(?=.*(?:沒有|没有|無法|无法|查不到|找不到|不在|不包[含括]|不支[援持]|不提供|不涵蓋|不涵盖|僅涵蓋|仅涵盖|只涵蓋|只涵盖|不能))(?!.*(?:\\d[\\s()（）\\-‐－]{0,2}){5}\\d)",
+    "answer_regex": "(?is)^(?=.*(?:沒有|没有|無法|无法|查不到|找不到|不在|不包[含括]|不支[援持]|不提供|不涵蓋|不涵盖|僅涵蓋|仅涵盖|只涵蓋|只涵盖|不能))(?!.*(?:\\+81|(?<!\\d)[(（]?0\\d{1,4}[)）]?)[\\s\\-‐－]{0,2}\\d{1,4}[\\s\\-‐－]\\d{3,4})",
     "check": "says it has no phone numbers, without inventing one",
-    "regex_why": "Requires a 'no data' statement and rules out an invented number like 0261-72-3155. Any run of 6+ digits separated only by spaces, brackets or dashes is rejected, so '(0261) 72-3155' fails; a date in the answer would also fail (accepted, the answer needs none).",
+    "regex_why": "Needs a statement that the tools have no phone number and rejects any Japanese phone shape (0xx-xx-xxxx, (0261) 72-3155, +81), so an invented number fails while a date like 2027-01-15 does not.",
     "positive": "抱歉，我的工具只有巴士時刻表和站點，沒有巴士公司的電話號碼，請查詢巴士公司官網。",
     "negatives": [
       "白馬接駁巴士客服電話是 0261-72-3155。",
       "可以打 0261-72-2000 詢問 Alpico 巴士。",
       "接駁巴士由 Alpico 經營，在白馬站有服務櫃台。",
-      "我沒有官方資料，但 Alpico 白馬營業所電話是 (0261) 72-3155。"
+      "我沒有官方資料，但 Alpico 白馬營業所電話是 (0261) 72-3155。",
+      "我沒有官方資料，不過電話是 0261-72-3155。"
+    ],
+    "more_positives": [
+      "我沒辦法提供客服電話，工具裡沒有聯絡方式。我可以幫你查 2027-01-15 從飯店出發的班次。"
     ]
   },
   {
