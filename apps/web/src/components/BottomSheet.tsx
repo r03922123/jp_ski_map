@@ -65,7 +65,8 @@ export function BottomSheet({
   }, [hiddenOnPhone]);
 
   // the ETA row sticks to the bottom only while it is below the fold: a sheet collapsed
-  // after scrolling past it would show steps, not ETA and Start (T77)
+  // after scrolling past it would show steps, not ETA and Start (T77). Any screen: a
+  // route that appears (slim turns on) also scrolls back to its answer (bug F)
   useEffect(() => {
     if (slim && !expanded && bodyRef.current) bodyRef.current.scrollTop = 0;
   }, [slim, expanded]);
