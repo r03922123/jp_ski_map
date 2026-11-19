@@ -373,26 +373,35 @@ test.describe("turning a phone", () => {
     await expectClear(page, [], { start: false, end: true });
   });
 
-  test("with a finger on the map, the fit catches up when it lifts", async ({
-    page,
-  }) => {
-    const out = await open(page, NORTH);
-    await expectClear(page, out.primary.geometry.coordinates);
-    const cdp = await page.context().newCDPSession(page);
+  // turned, y 350 is on the sheet's ETA text and y 200 still on the map. Lifted on the
+  // map, the tap's mousedown used to stop the fit (MapLibre takes it as a grab)
+  for (const [where, y] of [
+    ["on the sheet", 350],
+    ["on the map", 200],
+  ] as const) {
+    test(`with a finger on the map, the fit catches up when it lifts ${where}`, async ({
+      page,
+    }) => {
+      const out = await open(page, NORTH);
+      await expectClear(page, out.primary.geometry.coordinates);
+      const cdp = await page.context().newCDPSession(page);
 
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchStart",
-      // turned, the finger is on the sheet's ETA text, as y 300 was on the 40 % sheet
-      // (y 300 now meets the slim bar's handle, which takes the lift as a tap)
-      touchPoints: [{ x: 30, y: 350, id: 1 }],
-    });
-    await page.setViewportSize({ width: 667, height: 375 });
-    await page.waitForTimeout(500);
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchEnd",
-      touchPoints: [],
-    });
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [{ x: 30, y, id: 1 }],
+      });
+      await page.setViewportSize({ width: 667, height: 375 });
+      await page.waitForTimeout(500);
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: [],
+      });
 
-    await expectClear(page, out.primary.geometry.coordinates);
-  });
+      await expectClear(page, out.primary.geometry.coordinates);
+      // the map turned under the finger: its lift is no tap and no long-press
+      await expect(
+        page.getByRole("group", { name: "Dropped pin" }),
+      ).toHaveCount(0);
+    });
+  }
 });

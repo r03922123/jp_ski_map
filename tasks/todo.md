@@ -922,7 +922,7 @@ built in a fresh session from its spec.
 
 ## Landscape route bar (2026-11-19, PR #91)
 - [x] Landscape phones (< 480 px tall) with a walk or drive route: the collapsed sheet is a slim 84 px ETA + Start bar (owner's choice over hiding the sheet, which would drop Start, T77). The fit area goes from 28 px to 88 px at 740x360. A sheet whose route appears scrolls back to the top, which also fixes known bug F (L4, M5), "answer in view" (its 4 e2e tests no longer `test.fail`).
-- [ ] Bug (also on main): a finger held on the map while the phone turns, then lifted on the map, leaves the route unfitted. The "turning a phone" e2e test lifts on the sheet, so it doesn't catch this.
+- [x] Bug: a finger held on the map while the phone turns, then lifted on the map, left the route unfitted. Cause: the lift counted as a tap, and the browser follows a tap with a mousedown, which MapLibre takes as a grab and so stops the fit the lift had just started. Turning the phone also dropped a pin (the hold became a long-press). Now a resize under a finger cancels the long-press, and its lift sends no tap (`touchend` preventDefault). The e2e test lifts both on the sheet and on the map.
 - Still failing locally, also on main: the dev-only Next "1 Insight" badge covers the bottom-left (small-phone walk ×2, bus "Start in view" ×2, map-credits 360×740); "Start from Walk"; the off-season `test.fail` passes unexpectedly. Hiding the badge makes the small-phone tests pass.
 
 ## Refactor for agent work (2026-11-18)
