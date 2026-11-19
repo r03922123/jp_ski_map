@@ -1,0 +1,919 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MapView draws (characterization) > empty: every route source stays mounted, empty 1`] = `
+<div>
+  <div
+    data-attribution="{"customAttribution":"Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-interactive="["lodging-pins","route-alts-hit"]"
+    data-map="true"
+  >
+    <div
+      data-nav-control="true"
+    />
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="lodging"
+    >
+      <i
+        data-layer="lodging-pins"
+        data-style="{"type":"circle","paint":{"circle-radius":6,"circle-color":"#9333ea","circle-stroke-color":"#ffffff","circle-stroke-width":2}}"
+      />
+      <i
+        data-layer="lodging-labels"
+        data-style="{"type":"symbol","minzoom":15,"layout":{"text-field":["get","name"],"text-font":["Noto Sans Regular"],"text-size":11,"text-offset":[0,1.2],"text-anchor":"top"},"paint":{"text-color":"#581c87","text-halo-color":"#ffffff","text-halo-width":1.5}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="route-alts"
+    >
+      <i
+        data-layer="route-alts-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":0}}"
+      />
+      <i
+        data-layer="route-alts-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":5,"line-dasharray":[1.2,1.6]}}"
+      />
+      <i
+        data-layer="route-alts-hit"
+        data-style="{"type":"line","paint":{"line-color":"#000000","line-opacity":0,"line-width":22}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="ride"
+    >
+      <i
+        data-layer="ride-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#134e4a","line-width":9}}"
+      />
+      <i
+        data-layer="ride-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0f766e","line-width":6}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="route-active"
+    >
+      <i
+        data-layer="route-active-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":9}}"
+      />
+      <i
+        data-layer="route-active-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffd25e","line-width":4,"line-dasharray":[1.5,2]}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="route-covered"
+    >
+      <i
+        data-layer="route-covered-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#9ca3af","line-width":7}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[]}}"
+      data-source="route-highlight"
+    >
+      <i
+        data-layer="route-highlight-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#f59e0b","line-width":8}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="ride-stops"
+    >
+      <i
+        data-layer="ride-stop-dots"
+        data-style="{"type":"circle","paint":{"circle-radius":["match",["get","role"],"via",5,8],"circle-color":"#ffffff","circle-stroke-color":"#134e4a","circle-stroke-width":["match",["get","role"],"via",2.5,3.5]}}"
+      />
+      <i
+        data-layer="ride-stop-names"
+        data-style="{"type":"symbol","layout":{"text-field":["step",["zoom"],["case",["==",["get","role"],"via"],"",["get","name"]],14,["get","name"]],"text-font":["Noto Sans Regular"],"text-size":["match",["get","role"],"via",11,12.5],"text-offset":[0,1.1],"text-anchor":"top","text-max-width":9},"paint":{"text-color":"#134e4a","text-halo-color":"#ffffff","text-halo-width":1.6}}"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.83,36.69"
+      data-style="{"zIndex":1}"
+    >
+      <button
+        aria-label="Hakuba Happo-One Snow Resort"
+        aria-pressed="false"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        data-resort-marker="happo-one"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Happo-One
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.82,36.66"
+      data-style="{"zIndex":2}"
+    >
+      <button
+        aria-label="Hakuba Goryu Ski Resort"
+        aria-pressed="true"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        data-resort-marker="goryu"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Goryu
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`MapView draws (characterization) > navigating: the covered part, the rider puck, the start dot, no time chips 1`] = `
+<div>
+  <div
+    data-attribution="{"customAttribution":"Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-interactive="["lodging-pins","route-alts-hit"]"
+    data-map="true"
+  >
+    <div
+      data-nav-control="true"
+    />
+    <div
+      data-popup="true"
+    >
+      <p>
+        pin card
+      </p>
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Hotel Hakuba"},"geometry":{"type":"Point","coordinates":[137.854,36.697]}},{"type":"Feature","properties":{"name":"Starfall Lodge"},"geometry":{"type":"Point","coordinates":[137.856,36.7]}}]}"
+      data-source="lodging"
+    >
+      <i
+        data-layer="lodging-pins"
+        data-style="{"type":"circle","paint":{"circle-radius":6,"circle-color":"#9333ea","circle-stroke-color":"#ffffff","circle-stroke-width":2}}"
+      />
+      <i
+        data-layer="lodging-labels"
+        data-style="{"type":"symbol","minzoom":15,"layout":{"text-field":["get","name"],"text-font":["Noto Sans Regular"],"text-size":11,"text-offset":[0,1.2],"text-anchor":"top"},"paint":{"text-color":"#581c87","text-halo-color":"#ffffff","text-halo-width":1.5}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"index":1},"geometry":{"type":"LineString","coordinates":[[137.854,36.697],[137.857,36.701],[137.862,36.699]]}}]}"
+      data-source="route-alts"
+    >
+      <i
+        data-layer="route-alts-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":0}}"
+      />
+      <i
+        data-layer="route-alts-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":5,"line-dasharray":[1.2,1.6]}}"
+      />
+      <i
+        data-layer="route-alts-hit"
+        data-style="{"type":"line","paint":{"line-color":"#000000","line-opacity":0,"line-width":22}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"LineString","coordinates":[[137.86,36.7],[137.85,36.68],[137.84,36.66]]}"
+      data-source="ride"
+    >
+      <i
+        data-layer="ride-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#134e4a","line-width":9}}"
+      />
+      <i
+        data-layer="ride-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0f766e","line-width":6}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"LineString","coordinates":[[137.854,36.697],[137.858,36.698],[137.862,36.699]]}"
+      data-source="route-active"
+    >
+      <i
+        data-layer="route-active-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffffff","line-width":0}}"
+      />
+      <i
+        data-layer="route-active-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":7,"line-dasharray":[0,1.6]}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[[137.854,36.697],[137.858,36.698]]}}"
+      data-source="route-covered"
+    >
+      <i
+        data-layer="route-covered-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#9ca3af","line-width":7}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[[137.854,36.697],[137.858,36.698]]}}"
+      data-source="route-highlight"
+    >
+      <i
+        data-layer="route-highlight-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#f59e0b","line-width":8}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Happo Bus Terminal","role":"board"},"geometry":{"type":"Point","coordinates":[137.86,36.7]}},{"type":"Feature","properties":{"name":"Echoland","role":"via"},"geometry":{"type":"Point","coordinates":[137.85,36.68]}},{"type":"Feature","properties":{"name":"Hakuba 47","role":"alight"},"geometry":{"type":"Point","coordinates":[137.84,36.66]}}]}"
+      data-source="ride-stops"
+    >
+      <i
+        data-layer="ride-stop-dots"
+        data-style="{"type":"circle","paint":{"circle-radius":["match",["get","role"],"via",5,8],"circle-color":"#ffffff","circle-stroke-color":"#134e4a","circle-stroke-width":["match",["get","role"],"via",2.5,3.5]}}"
+      />
+      <i
+        data-layer="ride-stop-names"
+        data-style="{"type":"symbol","layout":{"text-field":["step",["zoom"],["case",["==",["get","role"],"via"],"",["get","name"]],14,["get","name"]],"text-font":["Noto Sans Regular"],"text-size":["match",["get","role"],"via",11,12.5],"text-offset":[0,1.1],"text-anchor":"top","text-max-width":9},"paint":{"text-color":"#134e4a","text-halo-color":"#ffffff","text-halo-width":1.6}}"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.83,36.69"
+      data-style="{"zIndex":1}"
+    >
+      <button
+        aria-label="Hakuba Happo-One Snow Resort"
+        aria-pressed="false"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        data-resort-marker="happo-one"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Happo-One
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.82,36.66"
+      data-style="{"zIndex":2}"
+    >
+      <button
+        aria-label="Hakuba Goryu Ski Resort"
+        aria-pressed="true"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        data-resort-marker="goryu"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Goryu
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.858,36.698"
+      data-style="{"zIndex":5,"pointerEvents":"none"}"
+    >
+      <img
+        alt="Your position"
+        class="[image-rendering:pixelated] drop-shadow-[0_2px_0_rgb(34_34_58/0.35)]"
+        data-frame="0"
+        data-pose="walk"
+        height="48"
+        width="48"
+      />
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.854,36.697"
+    >
+      <button
+        aria-label="Saved: My hotel"
+        class="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
+        data-saved-marker="s1"
+        title="My hotel"
+        type="button"
+      >
+        🏨
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.862,36.699"
+    >
+      <button
+        aria-label="Saved: Station"
+        class="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
+        data-saved-marker="s2"
+        title="Station"
+        type="button"
+      >
+        ❤️
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.858,36.698"
+      data-style="{"zIndex":4}"
+    >
+      <span
+        aria-label="Stop 1: Konbini"
+        class="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
+        data-trip-stop="1"
+        role="img"
+      >
+        1
+      </span>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.86,36.7"
+    >
+      <img
+        alt="Bus stop"
+        class="[image-rendering:pixelated] "
+        height="32"
+        width="32"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.862,36.699"
+      data-style="{"zIndex":1,"pointerEvents":"none"}"
+    >
+      <img
+        alt="Destination"
+        class="[image-rendering:pixelated] "
+        height="32"
+        width="32"
+      />
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.854,36.697"
+      data-style="{"pointerEvents":"none"}"
+    >
+      <span
+        aria-label="Starting point"
+        class="block size-[18px] rounded-full border-[3px] border-white bg-blue-600 shadow-[0_0_0_6px_rgb(37_99_235/0.2),0_1px_4px_rgb(0_0_0/0.4)]"
+        role="img"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`MapView draws (characterization) > planning by car: the active route is the gold-dashed track 1`] = `
+<div>
+  <div
+    data-attribution="{"customAttribution":"Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-interactive="["lodging-pins","route-alts-hit"]"
+    data-map="true"
+  >
+    <div
+      data-nav-control="true"
+    />
+    <div
+      data-popup="true"
+    >
+      <p>
+        pin card
+      </p>
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Hotel Hakuba"},"geometry":{"type":"Point","coordinates":[137.854,36.697]}},{"type":"Feature","properties":{"name":"Starfall Lodge"},"geometry":{"type":"Point","coordinates":[137.856,36.7]}}]}"
+      data-source="lodging"
+    >
+      <i
+        data-layer="lodging-pins"
+        data-style="{"type":"circle","paint":{"circle-radius":6,"circle-color":"#9333ea","circle-stroke-color":"#ffffff","circle-stroke-width":2}}"
+      />
+      <i
+        data-layer="lodging-labels"
+        data-style="{"type":"symbol","minzoom":15,"layout":{"text-field":["get","name"],"text-font":["Noto Sans Regular"],"text-size":11,"text-offset":[0,1.2],"text-anchor":"top"},"paint":{"text-color":"#581c87","text-halo-color":"#ffffff","text-halo-width":1.5}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"index":0},"geometry":{"type":"LineString","coordinates":[[137.854,36.697],[137.858,36.698],[137.862,36.699]]}}]}"
+      data-source="route-alts"
+    >
+      <i
+        data-layer="route-alts-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":0}}"
+      />
+      <i
+        data-layer="route-alts-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":5,"line-dasharray":[1.2,1.6]}}"
+      />
+      <i
+        data-layer="route-alts-hit"
+        data-style="{"type":"line","paint":{"line-color":"#000000","line-opacity":0,"line-width":22}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="ride"
+    >
+      <i
+        data-layer="ride-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#134e4a","line-width":9}}"
+      />
+      <i
+        data-layer="ride-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0f766e","line-width":6}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"LineString","coordinates":[[137.854,36.697],[137.857,36.701],[137.862,36.699]]}"
+      data-source="route-active"
+    >
+      <i
+        data-layer="route-active-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":9}}"
+      />
+      <i
+        data-layer="route-active-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffd25e","line-width":4,"line-dasharray":[1.5,2]}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="route-covered"
+    >
+      <i
+        data-layer="route-covered-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#9ca3af","line-width":7}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[[137.854,36.697],[137.857,36.701]]}}"
+      data-source="route-highlight"
+    >
+      <i
+        data-layer="route-highlight-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#f59e0b","line-width":8}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="ride-stops"
+    >
+      <i
+        data-layer="ride-stop-dots"
+        data-style="{"type":"circle","paint":{"circle-radius":["match",["get","role"],"via",5,8],"circle-color":"#ffffff","circle-stroke-color":"#134e4a","circle-stroke-width":["match",["get","role"],"via",2.5,3.5]}}"
+      />
+      <i
+        data-layer="ride-stop-names"
+        data-style="{"type":"symbol","layout":{"text-field":["step",["zoom"],["case",["==",["get","role"],"via"],"",["get","name"]],14,["get","name"]],"text-font":["Noto Sans Regular"],"text-size":["match",["get","role"],"via",11,12.5],"text-offset":[0,1.1],"text-anchor":"top","text-max-width":9},"paint":{"text-color":"#134e4a","text-halo-color":"#ffffff","text-halo-width":1.6}}"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.83,36.69"
+      data-style="{"zIndex":1}"
+    >
+      <button
+        aria-label="Hakuba Happo-One Snow Resort"
+        aria-pressed="false"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        data-resort-marker="happo-one"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Happo-One
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.82,36.66"
+      data-style="{"zIndex":2}"
+    >
+      <button
+        aria-label="Hakuba Goryu Ski Resort"
+        aria-pressed="true"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        data-resort-marker="goryu"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Goryu
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.854,36.697"
+    >
+      <button
+        aria-label="Saved: My hotel"
+        class="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
+        data-saved-marker="s1"
+        title="My hotel"
+        type="button"
+      >
+        🏨
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.862,36.699"
+    >
+      <button
+        aria-label="Saved: Station"
+        class="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
+        data-saved-marker="s2"
+        title="Station"
+        type="button"
+      >
+        ❤️
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.858,36.698"
+      data-style="{"zIndex":4}"
+    >
+      <span
+        aria-label="Stop 1: Konbini"
+        class="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
+        data-trip-stop="1"
+        role="img"
+      >
+        1
+      </span>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.86,36.7"
+    >
+      <img
+        alt="Bus stop"
+        class="[image-rendering:pixelated] "
+        height="32"
+        width="32"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.858,36.698"
+      data-style="{"zIndex":2}"
+    >
+      <button
+        aria-label="Alternate route, 11 min"
+        aria-pressed="false"
+        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        data-route-label="alternate"
+        type="button"
+      >
+        🚗 
+        11 min
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.8569397618323,36.70091968244309"
+      data-style="{"zIndex":3}"
+    >
+      <button
+        aria-label="Selected route, 14 min"
+        aria-pressed="true"
+        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        data-route-label="active"
+        type="button"
+      >
+        🚗 
+        14 min
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.862,36.699"
+      data-style="{"zIndex":1,"pointerEvents":"none"}"
+    >
+      <img
+        alt="Destination"
+        class="[image-rendering:pixelated] "
+        height="32"
+        width="32"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.854,36.697"
+      data-style="{"pointerEvents":"none"}"
+    >
+      <img
+        alt="Starting point"
+        class="[image-rendering:pixelated] drop-shadow-[0_2px_0_rgb(34_34_58/0.35)]"
+        data-frame="0"
+        data-pose="idle"
+        height="48"
+        width="48"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`MapView draws (characterization) > planning on foot: routes, alternates, ride, lodging, markers and labels 1`] = `
+<div>
+  <div
+    data-attribution="{"customAttribution":"Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-interactive="["lodging-pins","route-alts-hit"]"
+    data-map="true"
+  >
+    <div
+      data-nav-control="true"
+    />
+    <div
+      data-popup="true"
+    >
+      <p>
+        pin card
+      </p>
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Hotel Hakuba"},"geometry":{"type":"Point","coordinates":[137.854,36.697]}},{"type":"Feature","properties":{"name":"Starfall Lodge"},"geometry":{"type":"Point","coordinates":[137.856,36.7]}}]}"
+      data-source="lodging"
+    >
+      <i
+        data-layer="lodging-pins"
+        data-style="{"type":"circle","paint":{"circle-radius":6,"circle-color":"#9333ea","circle-stroke-color":"#ffffff","circle-stroke-width":2}}"
+      />
+      <i
+        data-layer="lodging-labels"
+        data-style="{"type":"symbol","minzoom":15,"layout":{"text-field":["get","name"],"text-font":["Noto Sans Regular"],"text-size":11,"text-offset":[0,1.2],"text-anchor":"top"},"paint":{"text-color":"#581c87","text-halo-color":"#ffffff","text-halo-width":1.5}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"index":1},"geometry":{"type":"LineString","coordinates":[[137.854,36.697],[137.857,36.701],[137.862,36.699]]}}]}"
+      data-source="route-alts"
+    >
+      <i
+        data-layer="route-alts-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":0}}"
+      />
+      <i
+        data-layer="route-alts-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#6b7a90","line-width":5,"line-dasharray":[1.2,1.6]}}"
+      />
+      <i
+        data-layer="route-alts-hit"
+        data-style="{"type":"line","paint":{"line-color":"#000000","line-opacity":0,"line-width":22}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"LineString","coordinates":[[137.86,36.7],[137.85,36.68],[137.84,36.66]]}"
+      data-source="ride"
+    >
+      <i
+        data-layer="ride-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#134e4a","line-width":9}}"
+      />
+      <i
+        data-layer="ride-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0f766e","line-width":6}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"LineString","coordinates":[[137.854,36.697],[137.858,36.698],[137.862,36.699]]}"
+      data-source="route-active"
+    >
+      <i
+        data-layer="route-active-casing"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffffff","line-width":0}}"
+      />
+      <i
+        data-layer="route-active-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":7,"line-dasharray":[0,1.6]}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[]}"
+      data-source="route-covered"
+    >
+      <i
+        data-layer="route-covered-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#9ca3af","line-width":7}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[[137.854,36.697],[137.858,36.698]]}}"
+      data-source="route-highlight"
+    >
+      <i
+        data-layer="route-highlight-line"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#f59e0b","line-width":8}}"
+      />
+    </div>
+    <div
+      data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Happo Bus Terminal","role":"board"},"geometry":{"type":"Point","coordinates":[137.86,36.7]}},{"type":"Feature","properties":{"name":"Echoland","role":"via"},"geometry":{"type":"Point","coordinates":[137.85,36.68]}},{"type":"Feature","properties":{"name":"Hakuba 47","role":"alight"},"geometry":{"type":"Point","coordinates":[137.84,36.66]}}]}"
+      data-source="ride-stops"
+    >
+      <i
+        data-layer="ride-stop-dots"
+        data-style="{"type":"circle","paint":{"circle-radius":["match",["get","role"],"via",5,8],"circle-color":"#ffffff","circle-stroke-color":"#134e4a","circle-stroke-width":["match",["get","role"],"via",2.5,3.5]}}"
+      />
+      <i
+        data-layer="ride-stop-names"
+        data-style="{"type":"symbol","layout":{"text-field":["step",["zoom"],["case",["==",["get","role"],"via"],"",["get","name"]],14,["get","name"]],"text-font":["Noto Sans Regular"],"text-size":["match",["get","role"],"via",11,12.5],"text-offset":[0,1.1],"text-anchor":"top","text-max-width":9},"paint":{"text-color":"#134e4a","text-halo-color":"#ffffff","text-halo-width":1.6}}"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.83,36.69"
+      data-style="{"zIndex":1}"
+    >
+      <button
+        aria-label="Hakuba Happo-One Snow Resort"
+        aria-pressed="false"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        data-resort-marker="happo-one"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Happo-One
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.82,36.66"
+      data-style="{"zIndex":2}"
+    >
+      <button
+        aria-label="Hakuba Goryu Ski Resort"
+        aria-pressed="true"
+        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        data-resort-marker="goryu"
+        type="button"
+      >
+        <img
+          alt=""
+          class="[image-rendering:pixelated] "
+          height="16"
+          width="16"
+        />
+        Hakuba Goryu
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.854,36.697"
+    >
+      <button
+        aria-label="Saved: My hotel"
+        class="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
+        data-saved-marker="s1"
+        title="My hotel"
+        type="button"
+      >
+        🏨
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.862,36.699"
+    >
+      <button
+        aria-label="Saved: Station"
+        class="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
+        data-saved-marker="s2"
+        title="Station"
+        type="button"
+      >
+        ❤️
+      </button>
+    </div>
+    <div
+      data-anchor="center"
+      data-marker-at="137.858,36.698"
+      data-style="{"zIndex":4}"
+    >
+      <span
+        aria-label="Stop 1: Konbini"
+        class="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
+        data-trip-stop="1"
+        role="img"
+      >
+        1
+      </span>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.86,36.7"
+    >
+      <img
+        alt="Bus stop"
+        class="[image-rendering:pixelated] "
+        height="32"
+        width="32"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.85799997628868,36.69799999407217"
+      data-style="{"zIndex":3}"
+    >
+      <button
+        aria-label="Selected route, 11 min"
+        aria-pressed="true"
+        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        data-route-label="active"
+        type="button"
+      >
+        🚶 
+        11 min
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.857,36.701"
+      data-style="{"zIndex":2}"
+    >
+      <button
+        aria-label="Alternate route, 14 min"
+        aria-pressed="false"
+        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        data-route-label="alternate"
+        type="button"
+      >
+        🚶 
+        14 min
+      </button>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.84999981992834,36.679999639856675"
+      data-style="{"zIndex":3,"pointerEvents":"none"}"
+    >
+      <span
+        class="mb-1 whitespace-nowrap rounded-lg bg-teal-700 px-2 py-1 text-xs font-semibold text-white shadow-md ring-1 ring-teal-900"
+        data-route-label="ride"
+      >
+        🚌 
+        Line V · 28 min
+      </span>
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.862,36.699"
+      data-style="{"zIndex":1,"pointerEvents":"none"}"
+    >
+      <img
+        alt="Destination"
+        class="[image-rendering:pixelated] "
+        height="32"
+        width="32"
+      />
+    </div>
+    <div
+      data-anchor="bottom"
+      data-marker-at="137.854,36.697"
+      data-style="{"pointerEvents":"none"}"
+    >
+      <img
+        alt="Starting point"
+        class="[image-rendering:pixelated] drop-shadow-[0_2px_0_rgb(34_34_58/0.35)]"
+        data-frame="0"
+        data-pose="idle"
+        height="48"
+        width="48"
+      />
+    </div>
+  </div>
+</div>
+`;

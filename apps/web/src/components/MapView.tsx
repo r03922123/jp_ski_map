@@ -1,29 +1,36 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import {
-  type MapGeoJSONFeature,
-  type Map as MapLibreMap,
-  setWorkerUrl,
-} from "maplibre-gl";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import MapGL, {
-  Layer,
   type MapRef,
-  type MapTouchEvent,
   Marker,
   NavigationControl,
   Popup,
-  Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import { facesLeft, Hero } from "@/components/HeroMarker";
+import {
+  ALT_HIT_LAYER,
+  AlternateRoutes,
+} from "@/components/map/AlternateRoutes";
+import {
+  BoardingStop,
+  RideLabel,
+  RideLine,
+  RideStops,
+} from "@/components/map/BusRide";
+import { LODGING_LAYER, LodgingLayer } from "@/components/map/LodgingLayer";
+import { ResortMarkers } from "@/components/map/ResortMarkers";
+import { RouteLabels } from "@/components/map/RouteLabels";
+import { SavedMarkers } from "@/components/map/SavedMarkers";
+import { TrailLayers } from "@/components/map/TrailLayers";
+import { TripStopMarkers } from "@/components/map/TripStopMarkers";
 import { PixelSprite } from "@/components/PixelSprite";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
-import { formatDuration } from "@/lib/format";
-import { ICONS, type Pose, worldBadge } from "@/lib/game/sprites";
+import { ICONS, type Pose } from "@/lib/game/sprites";
 import { useGameStyle } from "@/lib/game/use-game-style";
-import { worldNumbers } from "@/lib/game/worlds";
 import {
   HAKUBA_VIEW,
   MAP_ATTRIBUTION,
@@ -31,18 +38,18 @@ import {
   MAPLIBRE_WORKER_URL,
 } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
-import { type RideStopMark, rideStopFeatures } from "@/lib/ride-stops";
+import type { RideStopMark } from "@/lib/ride-stops";
 import {
   type LngLat,
-  labelAnchor,
   MD_BREAKPOINT_PX,
   mapPadding,
   pinCardAnchor,
   pinEaseOffsetY,
   routeBounds,
-  segment,
 } from "@/lib/route-geo";
 import type { SavedMarker } from "@/lib/saved-places";
+import { useCompactCredits } from "@/lib/use-compact-credits";
+import { useMapGestures } from "@/lib/use-map-gestures";
 
 setWorkerUrl(MAPLIBRE_WORKER_URL);
 
@@ -100,36 +107,6 @@ export type MapViewProps = {
     pose: Pose;
   } | null;
 };
-
-const SAVED_ICONS: Record<SavedMarker["icon"], string> = {
-  hotel: "🏨",
-  star: "⭐",
-  heart: "❤️",
-  flag: "🚩",
-  bookmark: "🔖",
-};
-
-const LODGING_LAYER = "lodging-pins";
-// MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
-// but a longer wait makes every single pick feel late
-const DOUBLE_CLICK_MS = 300;
-/** Touch long-press: UIKit's default hold (0.5 s) and allowable movement (10 pt). */
-const LONG_PRESS_MS = 500;
-const LONG_PRESS_SLOP_PX = 10;
-/** A click this soon after a touch ended was made by that finger (the mouse never touches). */
-const TOUCH_CLICK_MS = 700;
-/** How long the phone's compact credits stay open after the map loads. */
-const CREDITS_SHOWN_MS = 5000;
-const ALT_HIT_LAYER = "route-alts-hit";
-
-// SPEC-game-theme: the chosen route is an overworld trail
-const TRAIL_INK = "#22223a";
-const TRAIL_GOLD = "#ffd25e";
-const RIDE_COLOR = "#0f766e"; // the line badge colour in the bus panel
-const RIDE_CASING = "#134e4a";
-const ALT_CASING = "#6b7a90";
-
-const EMPTY = { type: "FeatureCollection" as const, features: [] };
 
 /**
  * Bottom-to-top order of our route layers. react-map-gl adds layers asynchronously (when
@@ -206,74 +183,16 @@ export default function MapView({
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const mapStyle = useGameStyle(MAP_STYLE_URL);
-  const worlds = useMemo(() => worldNumbers(resorts), [resorts]);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
-  // A double-click (double-tap) zooms; its first click must not also move the start.
-  // A pick waits out the double-click window, and a second click inside it cancels it.
-  const pendingPick = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cancelPick = () => {
-    if (pendingPick.current === null) return false;
-    clearTimeout(pendingPick.current);
-    pendingPick.current = null;
-    return true;
-  };
-  // biome-ignore lint/correctness/useExhaustiveDependencies: cancelPick only reads a ref
-  useEffect(() => () => void cancelPick(), []);
-
-  // Touch long-press, with the platform defaults: UIKit's long press (0.5 s, 10 pt of
-  // allowable movement) and Android's long-press timeout. A second finger is a pinch, a
-  // finger that travels is a pan; neither drops a pin.
-  const hold = useRef<{
-    x: number;
-    y: number;
-    timer: ReturnType<typeof setTimeout>;
-  } | null>(null);
-  const longPressed = useRef(false); // its lift-off click belongs to the press
-  const lastTouch = useRef(0); // a click this soon after a touch came from a finger
-  const endHold = () => {
-    if (hold.current) clearTimeout(hold.current.timer);
-    hold.current = null;
-  };
-  // biome-ignore lint/correctness/useExhaustiveDependencies: endHold only reads a ref
-  useEffect(() => () => endHold(), []);
-  // react-map-gl 8 sets `features` on touch events too (its _onPointerEvent queries
-  // the interactive layers for every pointer event); only its types leave it out
-  const startHold = (e: MapTouchEvent & { features?: MapGeoJSONFeature[] }) => {
-    endHold();
-    lastTouch.current = Date.now();
-    longPressed.current = false;
-    if (e.points.length !== 1 || pilot !== null || !onDropPin) return;
-    // pressed on a hotel pin: the card is about that hotel (its spot and name)
-    const hotel = e.features?.find((f) => f.layer.id === LODGING_LAYER);
-    const geom = hotel?.geometry;
-    const coord: Coord =
-      geom?.type === "Point"
-        ? { lat: geom.coordinates[1], lng: geom.coordinates[0] }
-        : { lat: e.lngLat.lat, lng: e.lngLat.lng };
-    const name =
-      geom?.type === "Point"
-        ? ((hotel?.properties?.name as string) ?? null)
-        : null;
-    hold.current = {
-      x: e.point.x,
-      y: e.point.y,
-      timer: setTimeout(() => {
-        hold.current = null;
-        longPressed.current = true;
-        onDropPin(coord, name);
-      }, LONG_PRESS_MS),
-    };
-  };
-  const moveHold = (e: MapTouchEvent) => {
-    const h = hold.current;
-    if (!h) return;
-    if (
-      e.points.length !== 1 ||
-      Math.hypot(e.point.x - h.x, e.point.y - h.y) > LONG_PRESS_SLOP_PX
-    )
-      endHold();
-  };
+  const gestures = useMapGestures({
+    piloting: pilot !== null,
+    placingStop,
+    onSelectRoute,
+    onPickOrigin,
+    onDropPin,
+    onMapTap,
+  });
 
   // Fit the whole route set once per new search or picked option, clear of the directions
   // panel. Keyed on what is drawn, not on prop identity: a parent re-render (e.g. after
@@ -314,25 +233,7 @@ export default function MapView({
     });
   }, [fitKey, mapReady, piloting]);
 
-  // Phones: the compact credits show on first display, then fold after five seconds, as
-  // OSM's attribution guidelines allow; the ⓘ reopens them. After that a new trip folds
-  // them again, as MapLibre's first drag does: open, they sit on the strip above the
-  // sheet that the fit keeps for the end markers.
-  const [creditsShown, setCreditsShown] = useState(false);
-  const foldCredits = () =>
-    mapRef.current
-      ?.getContainer()
-      .querySelector(".maplibregl-compact-show")
-      ?.classList.remove("maplibregl-compact-show");
-  useEffect(() => {
-    if (!mapReady) return;
-    const t = setTimeout(() => setCreditsShown(true), CREDITS_SHOWN_MS);
-    return () => clearTimeout(t);
-  }, [mapReady]);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for the trip
-  useEffect(() => {
-    if (creditsShown) foldCredits();
-  }, [fitKey, creditsShown]);
+  useCompactCredits(mapRef, mapReady, fitKey);
 
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
@@ -491,69 +392,6 @@ export default function MapView({
   }, [camKey, mapReady, pressing]);
 
   const active = routes[activeRoute] ?? null;
-  const activeCoords = (active?.geometry.coordinates ?? []) as LngLat[];
-  const alternates = useMemo(
-    () =>
-      routes
-        .map((route, index) => ({ route, index }))
-        .filter(({ index }) => index !== activeRoute),
-    [routes, activeRoute],
-  );
-  const altGeoJson = useMemo(
-    () => ({
-      type: "FeatureCollection" as const,
-      features: alternates.map(({ route, index }) => ({
-        type: "Feature" as const,
-        properties: { index },
-        geometry: route.geometry,
-      })),
-    }),
-    [alternates],
-  );
-  const labels = useMemo(
-    () =>
-      routes.map((route, index) => {
-        const coords = route.geometry.coordinates as LngLat[];
-        const others =
-          index === activeRoute
-            ? [] // the active route's label sits halfway along it
-            : routes
-                .filter((_, j) => j !== index)
-                .map((r) => r.geometry.coordinates as LngLat[]);
-        return {
-          index,
-          at: coords.length ? labelAnchor(coords, others) : null,
-          text: formatDuration(route.durationS),
-        };
-      }),
-    [routes, activeRoute],
-  );
-  const rideStopsGeoJson = useMemo(
-    () => rideStopFeatures(ride?.stops ?? []),
-    [ride],
-  );
-  const rideLabelAt =
-    ride && ride.route.geometry.coordinates.length > 1
-      ? labelAnchor(ride.route.geometry.coordinates as LngLat[], [])
-      : null;
-  const highlightCoords =
-    highlight && activeCoords.length ? segment(activeCoords, highlight) : [];
-  const isWalk = active?.mode === "walk";
-
-  const lodgingGeoJson = useMemo(
-    () => ({
-      type: "FeatureCollection" as const,
-      features: lodging.map((p) => ({
-        type: "Feature" as const,
-        properties: { name: p.name },
-        geometry: {
-          type: "Point" as const,
-          coordinates: [p.coord.lng, p.coord.lat],
-        },
-      })),
-    }),
-    [lodging],
-  );
 
   function reportView(map: MapLibreMap) {
     const b = map.getBounds();
@@ -602,53 +440,13 @@ export default function MapView({
       onMouseDown={press}
       onTouchStart={(e) => {
         press();
-        startHold(e);
+        gestures.startHold(e);
       }}
-      onTouchMove={moveHold}
-      onTouchEnd={() => {
-        endHold();
-        lastTouch.current = Date.now();
-      }}
-      onTouchCancel={endHold}
-      onClick={(e) => {
-        const feature = e.features?.[0];
-        // a route line selects that route, unless a stop is being placed: a stop along
-        // the way is the likeliest tap then
-        if (feature?.layer.id === ALT_HIT_LAYER && !placingStop) {
-          onSelectRoute?.(Number(feature.properties?.index));
-          return;
-        }
-        // navigating (or previewing): the pilot owns the map, a tap must not replace
-        // the trip being followed with a new start
-        if (piloting) return;
-        // the click that ends a long-press: the press already dropped its pin
-        if (longPressed.current) {
-          longPressed.current = false;
-          return;
-        }
-        // the second click of a double-click: it zooms, nothing is picked
-        if (cancelPick() || e.originalEvent.detail > 1) return;
-        // a lodging pin snaps the origin onto the hotel itself
-        const pin = feature?.geometry;
-        const at: Coord =
-          pin?.type === "Point"
-            ? { lat: pin.coordinates[1], lng: pin.coordinates[0] }
-            : { lat: e.lngLat.lat, lng: e.lngLat.lng };
-        // a finger looks, it doesn't edit (BC-A1): a hotel pin opens its card, empty map
-        // closes one. An open stop box is the exception: the user asked for a point.
-        const byFinger = Date.now() - lastTouch.current < TOUCH_CLICK_MS;
-        if (byFinger && onDropPin && !placingStop) {
-          if (pin?.type === "Point")
-            onDropPin(at, (feature?.properties?.name as string) ?? null);
-          else onMapTap?.();
-          return;
-        }
-        pendingPick.current = setTimeout(() => {
-          pendingPick.current = null;
-          onPickOrigin(at);
-        }, DOUBLE_CLICK_MS);
-      }}
-      onDblClick={() => cancelPick()}
+      onTouchMove={gestures.moveHold}
+      onTouchEnd={gestures.touchEnd}
+      onTouchCancel={gestures.endHold}
+      onClick={gestures.click}
+      onDblClick={() => gestures.cancelPick()}
     >
       <NavigationControl position="bottom-right" />
       {droppedPin && (
@@ -669,234 +467,26 @@ export default function MapView({
           {pinCard}
         </Popup>
       )}
-      <Source id="lodging" type="geojson" data={lodgingGeoJson}>
-        <Layer
-          id={LODGING_LAYER}
-          type="circle"
-          paint={{
-            "circle-radius": 6,
-            "circle-color": "#9333ea",
-            "circle-stroke-color": "#ffffff",
-            "circle-stroke-width": 2,
-          }}
-        />
-        <Layer
-          id="lodging-labels"
-          type="symbol"
-          minzoom={15}
-          layout={{
-            "text-field": ["get", "name"],
-            // a font the OpenFreeMap style serves; MapLibre's default (Open Sans) 404s
-            "text-font": ["Noto Sans Regular"],
-            "text-size": 11,
-            "text-offset": [0, 1.2],
-            "text-anchor": "top",
-          }}
-          paint={{
-            "text-color": "#581c87",
-            "text-halo-color": "#ffffff",
-            "text-halo-width": 1.5,
-          }}
-        />
-      </Source>
-      <Source id="route-alts" type="geojson" data={altGeoJson}>
-        <Layer
-          id="route-alts-casing"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          // no casing under the alternates: it would fill their dashes in
-          paint={{ "line-color": ALT_CASING, "line-width": 0 }}
-        />
-        <Layer
-          id="route-alts-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{
-            "line-color": ALT_CASING,
-            "line-width": 5,
-            "line-dasharray": [1.2, 1.6],
-          }}
-        />
-        {/* invisible, finger-sized tap target */}
-        <Layer
-          id={ALT_HIT_LAYER}
-          type="line"
-          paint={{
-            "line-color": "#000000",
-            "line-opacity": 0,
-            "line-width": 22,
-          }}
-        />
-      </Source>
+      <LodgingLayer lodging={lodging} />
+      <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or
           drive route, then the part already covered, the step highlight, and the bus
           stop dots on top. */}
-      <Source
-        id="ride"
-        type="geojson"
-        data={ride ? ride.route.geometry : EMPTY}
-      >
-        <Layer
-          id="ride-casing"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": RIDE_CASING, "line-width": 9 }}
-        />
-        <Layer
-          id="ride-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": RIDE_COLOR, "line-width": 6 }}
-        />
-      </Source>
-      <Source
-        id="route-active"
-        type="geojson"
-        data={active ? active.geometry : EMPTY}
-      >
-        <Layer
-          id="route-active-casing"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          // the overworld path: an ink track (gold dashes on top by car)
-          paint={{
-            "line-color": isWalk ? "#ffffff" : TRAIL_INK,
-            "line-width": isWalk ? 0 : 9,
-          }}
-        />
-        <Layer
-          id="route-active-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{
-            "line-color": isWalk ? TRAIL_INK : TRAIL_GOLD,
-            "line-width": isWalk ? 7 : 4,
-            // zero-length dashes with round caps draw as dots
-            // an overworld trail: footprint dots on foot, a dashed track by car
-            // (round caps add a line width to every dash, so the gap must be wider than 1)
-            "line-dasharray": isWalk ? [0, 1.6] : [1.5, 2],
-          }}
-        />
-      </Source>
-      <Source
-        id="route-covered"
-        type="geojson"
-        data={
-          pilot && pilot.covered.length > 1
-            ? {
-                type: "Feature",
-                properties: {},
-                geometry: { type: "LineString", coordinates: pilot.covered },
-              }
-            : EMPTY
-        }
-      >
-        <Layer
-          id="route-covered-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": "#9ca3af", "line-width": 7 }}
-        />
-      </Source>
-      <Source
-        id="route-highlight"
-        type="geojson"
-        data={{
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: highlightCoords },
-        }}
-      >
-        <Layer
-          id="route-highlight-line"
-          type="line"
-          layout={{ "line-cap": "round", "line-join": "round" }}
-          paint={{ "line-color": "#f59e0b", "line-width": 8 }}
-        />
-      </Source>
-      <Source id="ride-stops" type="geojson" data={rideStopsGeoJson}>
-        {/* Google-Maps transit style: on and off stand out, stops between are small */}
-        <Layer
-          id="ride-stop-dots"
-          type="circle"
-          paint={{
-            "circle-radius": ["match", ["get", "role"], "via", 5, 8],
-            "circle-color": "#ffffff",
-            "circle-stroke-color": RIDE_CASING,
-            "circle-stroke-width": ["match", ["get", "role"], "via", 2.5, 3.5],
-          }}
-        />
-        <Layer
-          id="ride-stop-names"
-          type="symbol"
-          layout={{
-            // where you get on and off: always; the stops between: once zoomed in
-            // (MapLibre allows "zoom" only as the input of a top-level step)
-            "text-field": [
-              "step",
-              ["zoom"],
-              ["case", ["==", ["get", "role"], "via"], "", ["get", "name"]],
-              14,
-              ["get", "name"],
-            ],
-            "text-font": ["Noto Sans Regular"],
-            "text-size": ["match", ["get", "role"], "via", 11, 12.5],
-            "text-offset": [0, 1.1],
-            "text-anchor": "top",
-            "text-max-width": 9,
-          }}
-          paint={{
-            "text-color": RIDE_CASING,
-            "text-halo-color": "#ffffff",
-            "text-halo-width": 1.6,
-          }}
-        />
-      </Source>
-      {resorts
-        .filter((r) => !shownResortIds || shownResortIds.includes(r.id))
-        .map((r) => {
-          const point = r.accessPoints[0];
-          const selected = r.id === selectedResortId;
-          return (
-            <Marker
-              key={r.id}
-              latitude={point.coord.lat}
-              longitude={point.coord.lng}
-              anchor="bottom"
-              // labels stay readable above the idle hero (z auto), and the chosen world's
-              // chip stays above the destination flag on the same spot
-              style={{ zIndex: selected ? 2 : 1 }}
-              onClick={(e) => {
-                e.originalEvent.stopPropagation();
-                if (!piloting) onSelectResort(r.id); // navigating: the trip stays
-              }}
-            >
-              <button
-                type="button"
-                aria-label={r.name.en}
-                aria-pressed={selected}
-                data-resort-marker={r.id}
-                className={`flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] ${
-                  selected
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card text-card-foreground"
-                }`}
-              >
-                <PixelSprite
-                  id={`world-${worlds.get(r.id)}`}
-                  sprite={worldBadge(worlds.get(r.id) ?? 0)}
-                  scale={1}
-                  alt=""
-                />
-                {r.name.en.replace(
-                  / (Snow Resort|Snow Field|Mountain Resort|Ski Resort.*)$/,
-                  "",
-                )}
-              </button>
-            </Marker>
-          );
-        })}
+      <RideLine route={ride?.route ?? null} />
+      <TrailLayers
+        active={active}
+        covered={pilot?.covered ?? null}
+        highlight={highlight}
+      />
+      <RideStops stops={ride?.stops} />
+      <ResortMarkers
+        resorts={resorts}
+        shownResortIds={shownResortIds}
+        selectedResortId={selectedResortId}
+        piloting={piloting}
+        onSelectResort={onSelectResort}
+      />
       {pilot?.puck && (
         <Marker
           longitude={pilot.puck[0]}
@@ -916,105 +506,20 @@ export default function MapView({
         </Marker>
       )}
 
-      {saved.map((p) => (
-        <Marker
-          key={`saved-${p.id}`}
-          latitude={p.coord.lat}
-          longitude={p.coord.lng}
-          anchor="center"
-          onClick={(e) => {
-            e.originalEvent.stopPropagation();
-            if (!piloting) onSelectSaved?.(p.id); // navigating: the trip stays
-          }}
-        >
-          <button
-            type="button"
-            data-saved-marker={p.id}
-            aria-label={`Saved: ${p.name}`}
-            title={p.name}
-            className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-amber-50 text-sm shadow"
-          >
-            {SAVED_ICONS[p.icon]}
-          </button>
-        </Marker>
-      ))}
-      {stops.map((stop, i) => (
-        <Marker
-          // biome-ignore lint/suspicious/noArrayIndexKey: a stop is its position in the trip
-          key={`trip-stop-${i}`}
-          latitude={stop.coord.lat}
-          longitude={stop.coord.lng}
-          anchor="center"
-          // above the route time chips (3): a chip can land right on a stop
-          style={{ zIndex: 4 }}
-          // a tap on a stop must not fall through to the map (moving the start, or
-          // dropping a second stop on top of it)
-          onClick={(e) => e.originalEvent.stopPropagation()}
-        >
-          <span
-            role="img"
-            aria-label={`Stop ${i + 1}: ${stop.name}`}
-            data-trip-stop={i + 1}
-            className="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
-          >
-            {i + 1}
-          </span>
-        </Marker>
-      ))}
-      {busStop && (
-        <Marker latitude={busStop.lat} longitude={busStop.lng} anchor="bottom">
-          <PixelSprite id="stop" sprite={ICONS.stop} alt="Bus stop" />
-        </Marker>
-      )}
-      {labels.map(
-        ({ index, at, text }) =>
-          at &&
-          !piloting && (
-            <Marker
-              key={`label-${index}`}
-              longitude={at[0]}
-              latitude={at[1]}
-              anchor="bottom"
-              style={{ zIndex: index === activeRoute ? 3 : 2 }}
-            >
-              <button
-                type="button"
-                data-route-label={
-                  index === activeRoute ? "active" : "alternate"
-                }
-                aria-label={`${index === activeRoute ? "Selected route" : "Alternate route"}, ${text}`}
-                aria-pressed={index === activeRoute}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectRoute?.(index);
-                }}
-                className={`mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] ${
-                  index === activeRoute
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card text-card-foreground"
-                }`}
-              >
-                {active?.mode === "walk" ? "🚶 " : "🚗 "}
-                {text}
-              </button>
-            </Marker>
-          ),
-      )}
-      {ride && rideLabelAt && !piloting && (
-        <Marker
-          longitude={rideLabelAt[0]}
-          latitude={rideLabelAt[1]}
-          anchor="bottom"
-          style={{ zIndex: 3, pointerEvents: "none" }}
-        >
-          <span
-            data-route-label="ride"
-            className="mb-1 whitespace-nowrap rounded-lg bg-teal-700 px-2 py-1 text-xs font-semibold text-white shadow-md ring-1 ring-teal-900"
-          >
-            🚌 {ride.label ?? "bus"}
-          </span>
-        </Marker>
-      )}
+      <SavedMarkers
+        saved={saved}
+        piloting={piloting}
+        onSelectSaved={onSelectSaved}
+      />
+      <TripStopMarkers stops={stops} />
+      <BoardingStop at={busStop} />
+      <RouteLabels
+        routes={routes}
+        activeRoute={activeRoute}
+        piloting={piloting}
+        onSelectRoute={onSelectRoute}
+      />
+      <RideLabel ride={ride} piloting={piloting} />
       {destination && (
         <Marker
           latitude={destination.lat}
