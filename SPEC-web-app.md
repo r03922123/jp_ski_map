@@ -314,3 +314,31 @@ Success means:
 2. **The credits fold after five seconds.** They show on first display, as OSM's attribution guidelines require, then fold to the ⓘ, which reopens them. After that first display a new trip folds them again (J10); a shared trip link no longer folds them before it.
 
 **Success criteria.** `e2e/sheet-needs-start.spec.ts` and `e2e/map-credits.spec.ts` pass. Laptops are unchanged.
+
+## v1.16: Full screen on the phone, from the home screen (2026-11-20, the owner's ask)
+
+**Objective.** On a phone the app fills the whole screen, like a native app, with no browser address bar or
+tab bar taking map space.
+
+**Decision.** iPhone Safari never lets a page hide its own bars (the Fullscreen API works only on iPad and
+for video), so the only way on an iPhone is **Add to Home Screen**: the app then opens in its own window
+(`display: standalone`). Android Chrome does the same from "Install app" / "Add to Home screen". This adds a
+web app manifest and icons only: **no service worker and no offline mode** (that stays under "Ask first").
+`standalone`, not `fullscreen`: iOS ignores `fullscreen`, and keeping the phone's status bar (clock,
+battery) avoids putting the search bar under the notch, so no safe-area work is needed at the top.
+
+**What changes.** `app/manifest.ts` (name, `start_url: "/"`, `display: "standalone"`, title-screen navy as
+the splash background, PNG icons 192 and 512), `app/icon.tsx` and `app/apple-icon.tsx` drawing the idle rider
+sprite on navy, and `metadata.appleWebApp` so iOS opens the home-screen icon as an app.
+
+**Known limit.** iOS keeps a home-screen app's storage apart from Safari's, so saved places made in Safari
+don't appear in the home-screen app (and the reverse).
+
+**Done when.**
+- [ ] vitest: the manifest has `display: "standalone"`, `start_url: "/"` and a 192 and a 512 PNG icon whose
+  `src` the icon route serves.
+- [ ] On the dev server: `/manifest.webmanifest`, `/icon/192`, `/icon/512` and the apple icon return 200 with the
+  right content type and size; `<head>` has the manifest link, `apple-touch-icon` and
+  `mobile-web-app-capable`.
+- [ ] CI checks pass and the production smoke test passes after deploy.
+- Not checkable here: the real Add to Home Screen on the owner's iPhone.

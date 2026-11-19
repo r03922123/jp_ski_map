@@ -17,6 +17,8 @@ export const metadata: Metadata = {
     "Bus, drive and walk to Hakuba Valley ski resorts from your hotel",
   // shared by link with friends, not listed: strangers would spend the free upstreams' budgets
   robots: { index: false, follow: false },
+  // SPEC-web-app v1.16: the home-screen icon opens full screen on iOS
+  appleWebApp: { capable: true, title: "Hakuba", statusBarStyle: "default" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
