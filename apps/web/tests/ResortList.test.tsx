@@ -193,6 +193,33 @@ describe("ResortList", () => {
     ).toBe(true);
   });
 
+  it("only links an http(s) website and drops trailing punctuation", () => {
+    render(
+      <ResortList
+        resorts={[
+          ranked({
+            website: "data:text/html,<b>x</b>",
+            statsSource: "Price: https://x.jp/price. Checked.",
+          }),
+        ]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+    const hrefs = block
+      .getAllByRole("link", { hidden: true })
+      .map((a) => a.getAttribute("href"));
+
+    expect(hrefs).not.toContain("data:text/html,<b>x</b>");
+    expect(hrefs).toContain("https://x.jp/price");
+    expect(block.getAllByText("(opens in a new tab)").length).toBe(
+      hrefs.length,
+    );
+  });
+
   it("says on the card when the snow is from, once the report is over 90 minutes old", () => {
     // The fixture's report is from 07:00. The API serves its last good report while
     // Open-Meteo is down, and a list left open ages too.

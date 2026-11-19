@@ -64,7 +64,8 @@ function formatAsOf(iso: string): string {
 const SNOW_OLD_MS = 90 * 60 * 1000;
 
 // Only http(s) URLs become links; any other text, e.g. "javascript:…", stays plain
-const WEB_URL = /(https?:\/\/[^\s;,()]+)/;
+// A URL never ends in . : or ' here: that's the sentence around it
+const WEB_URL = /(https?:\/\/[^\s;,()]*[^\s;,().:'])/;
 
 function SourceLink({ href }: { href: string }) {
   return (
@@ -75,6 +76,7 @@ function SourceLink({ href }: { href: string }) {
       className="break-all underline"
     >
       {href}
+      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );
 }
@@ -103,8 +105,10 @@ function SourcesAndWeights({ r }: { r: RankedResort }) {
         </dd>
         <dt className="font-medium">Fresh snow, snow depth</dt>
         <dd>
-          Open-Meteo, {r.snow?.depthCm.source ?? "model"}:{" "}
-          <SourceLink href="https://open-meteo.com/" />
+          {r.snow?.depthCm.source === "reported"
+            ? "Reported by the resort; forecast from Open-Meteo"
+            : "Open-Meteo model"}
+          : <SourceLink href="https://open-meteo.com/" />
         </dd>
         {r.crowd && (
           <>
@@ -130,9 +134,7 @@ function SourcesAndWeights({ r }: { r: RankedResort }) {
         <dt className="font-medium">Runs, vertical drop, ticket price</dt>
         <dd>{linkify(r.statsSource)}</dd>
         <dt className="font-medium">Resort website</dt>
-        <dd>
-          <SourceLink href={r.website} />
-        </dd>
+        <dd>{linkify(r.website)}</dd>
       </dl>
     </details>
   );
