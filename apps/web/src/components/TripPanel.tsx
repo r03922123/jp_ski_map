@@ -22,7 +22,7 @@ export type TripPanelProps = {
   stops: TripStop[];
   /** the Add destination button (the slot below), which takes focus after an edit */
   addStopRef: RefObject<HTMLButtonElement | null>;
-  /** "+ Add destination" under the list (v1.18; it was the trip card's third row) */
+  /** "+ Add destination" above the list (v1.18; it was the trip card's third row) */
   addDestination?: ReactNode;
   /** search bias for stop boxes (the map centre) */
   near: Coord | null;
@@ -62,6 +62,8 @@ export function TripPanel({
   if (!from && stops.length === 0 && !addDestination) return null;
   return (
     <div className="flex flex-col items-start gap-1">
+      {/* above the list: two or more stops would push it under the sticky ETA row (v1.18) */}
+      {addDestination}
       {(from || stops.length > 0) && (
         <ul
           ref={listRef}
@@ -120,7 +122,6 @@ export function TripPanel({
           )}
         </ul>
       )}
-      {addDestination}
     </div>
   );
 }

@@ -202,7 +202,7 @@ export function BottomSheet({
       className={cn(
         "group/sheet pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
         // expanded: never up under the trip card on top (132 px since v1.18's two rows, or 136 on a landscape
-        // phone, where its third row sits beside the boxes), so the handle stays
+        // phone, where the card is 120 px), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
         state === "low"
           ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1

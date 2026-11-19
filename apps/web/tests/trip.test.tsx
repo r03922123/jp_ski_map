@@ -191,7 +191,7 @@ describe("TripPanel with its state (add → type → pick)", () => {
 });
 
 describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
-  it("shows the slot under the Trip list, and with no start yet as well", () => {
+  it("shows the slot above the Trip list, where any number of stops can't push it under the ETA row", () => {
     const addStopRef = { current: null };
     const props = {
       stops: [],
@@ -210,9 +210,10 @@ describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
     const list = screen.getByRole("list", { name: "Trip" });
     const add = screen.getByRole("button", { name: "Add destination" });
     expect(
-      list.compareDocumentPosition(add) & Node.DOCUMENT_POSITION_FOLLOWING,
+      add.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
 
+    // the slot alone is enough to render the panel (a start being retyped keeps the stops)
     rerender(
       <QueryClientProvider client={new QueryClient()}>
         <TripPanel from={null} {...props} />

@@ -93,7 +93,7 @@ function TrailingSlot({ children }: { children: ReactNode }) {
   return <div className="flex w-11 shrink-0 justify-center">{children}</div>;
 }
 
-/** ⊕ under the sheet's Trip list (v1.18): opens an empty stop box, as Google's "Add stop" does. */
+/** ⊕ above the sheet's Trip list (v1.18): opens an empty stop box, as Google's "Add stop" does. */
 export function AddDestinationButton({
   ref,
   onClick,

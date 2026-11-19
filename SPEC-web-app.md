@@ -386,8 +386,11 @@ card was 172 px against Google's ≈95 pt: a third row held "+ Add destination",
 - Two bars: row 1 is the rail, the From box and **★ Saved**, the same place it has in the one-bar card. Row 2 is
   the rail, the To box and the destination's **☆**. ⇅ stays to the right of both rows. No third row, on any
   screen.
-- **"+ Add destination" moves into the sheet**, under the Trip list (From, then the stops), which is where the
-  stop box it opens appears. Its focus handling (TripPanel hands focus back to it after an edit) is unchanged.
+- **"+ Add destination" moves into the sheet**, just above the Trip list (From, then the stops), which is
+  where the stop box it opens appears. Above, not under: at 360×740 two stops pushed it under the sticky ETA
+  row (measured in review: its bottom at 732 px, the ETA row's top at 676). Its focus handling (TripPanel hands focus back to it after an edit) is unchanged.
+- Recorded change: when the sheet is only its 84 px bar (a landscape phone with a route, or the low sheet of
+  v1.17) Add destination is one swipe up away; before it was in the card.
 - Recorded change: while Saved is open the sheet shows Saved, so Add destination isn't on screen. It comes
   back when Saved closes (v1.13 had it in the top card, where it also closed Saved).
 - The expanded sheet's top limit follows the shorter card (`BottomSheet` 100dvh − 180 px, `route-geo`

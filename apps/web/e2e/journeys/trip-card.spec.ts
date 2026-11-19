@@ -448,3 +448,51 @@ for (const device of DEVICES) {
     });
   });
 }
+
+// v1.18 review: Add destination lives in the sheet now, under the Trip list
+test.describe("Add destination in the sheet", () => {
+  test.describe("phone 360x740 with two stops", () => {
+    test.use({
+      viewport: { width: 360, height: 740 },
+      isMobile: true,
+      hasTouch: true,
+    });
+
+    test("the collapsed sheet shows it above the sticky ETA row, without scrolling", async ({
+      page,
+    }) => {
+      await page.goto(`${TRIP}&stops=36.6955,137.8590;36.6940,137.8520`);
+      await routeReady(page);
+      const add = await addDestination(page).boundingBox();
+      // v1.18 review: two stops pushed it under the ETA row when it sat below the list
+      const eta = await page
+        .getByText(/^ETA ~ \d+/)
+        .first()
+        .boundingBox();
+      if (!add || !eta) throw new Error("not laid out");
+
+      expect(add.y + add.height).toBeLessThanOrEqual(eta.y);
+    });
+  });
+
+  test.describe("landscape phone 740x360", () => {
+    test.use({
+      viewport: { width: 740, height: 360 },
+      isMobile: true,
+      hasTouch: true,
+    });
+
+    // recorded trade-off: the slim 84 px bar shows only ETA and Start; one swipe up reaches it
+    test("after expanding the sheet, Add destination opens the stop box", async ({
+      page,
+    }) => {
+      await page.goto(TRIP);
+      await routeReady(page);
+      await page.getByRole("button", { name: "Expand directions" }).click();
+      await addDestination(page).tap();
+      await expect(
+        page.getByRole("combobox", { name: "Stop 1" }),
+      ).toBeFocused();
+    });
+  });
+});
