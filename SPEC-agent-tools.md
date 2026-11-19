@@ -49,6 +49,43 @@ Results are as scored at the time; labels changed between runs, so read the rows
 - [x] The eval has run once against the real API, with its table saved in `services/mcp/evals/last_run.md` (2026-11-16, production API: 7/8, interval 0.53–0.98).
 - [x] `--mlflow` logs the run and one trace per question; tested against a temporary SQLite store (the test is skipped where the `eval` group is not installed).
 
+## Eval v4: 100 questions (planned, 2026-11-19)
+**Goal:** an eval that can tell two versions apart. At 12 questions every recent run scores 12/12 (interval 0.76–1.00), so a tool change can only show up as a regression, never as an improvement. Done when `trip_questions.json` holds 100 questions whose regexes are shown to reject wrong answers, and one full run is logged to MLflow with its failures read in their traces.
+
+**The set.**
+- 100 questions in all: the 12 existing ones unchanged (their ids stay, so the old runs remain comparable question by question) plus 88 new ones. About a third each in en, zh, ja.
+- Coverage, counting the main tool a question needs: `rank_resorts` ~20 (all 7 sorts, and each filter: `date`, `night_skiing`, `hakuba_valley_pass`, `max_drive_min`), `next_buses` ~18 (timed, untimed, no service that day, a stop that is not a station), `route` ~14 (drive and walk, resort ids and places), `nearby_pois` ~12 (food and convenience, from a resort and from a place), `crowd_and_snow` ~12 (fixed dates across the season), whole-day plans with 3+ tools ~14, and ~10 the tools cannot answer (a resort outside Hakuba, lift ticket refunds, a past date's snow): `required: []`, and the regex checks the answer says it has no data instead of inventing it.
+- Some questions are meant to be hard: the set is useful only if today's tools fail some of them.
+- Every question uses fixed dates in the 2026-27 season, never "today", so its answer does not move with the run date.
+
+**Ground truth before regex.** Each regex is written from what the tools actually return for that question (called by hand through the hakuba tools, production API), not from what the answer should look like. A value is pinned only when it is stable:
+- stable, so pinned: resort names, catalog stats (vertical, night skiing, pass), timetable times and stops, POI names, crowd levels (computed from the calendar), drive and walk minutes (with ±2 min, since the router can change).
+- live, so only its form is checked: snow depths and new snow (a number with "cm" next to the right resort), and `snowAsOf`.
+- Answers in zh may come in simplified or traditional characters, and a resort may be named in English, kanji or katakana: each regex accepts all the forms the tools return (白馬/白马, 駅/站, 八方/Happo).
+
+**New fields per question** (the runner ignores them; `check` stays the report's short label):
+- `regex_why`: one sentence on why a wrong answer does not match, naming the wrong answer it rules out.
+- `positive`: a short correct answer, written from the ground truth, which must match.
+- `negatives`: at least 2 realistic wrong answers, which must not match: the wrong resort or stop, a time off by one bus, the time echoed from the question, the right number with the wrong unit.
+
+**Checks, in order.**
+1. Offline test (`tests/test_run_eval.py`, in CI): every question has the fields above and ids are unique; every regex compiles, matches its `positive`, and matches none of its `negatives`, nor the question text itself (an echo), nor a fixed "I couldn't reach the Hakuba API" answer.
+2. Review: a fresh agent that has not seen this conversation checks the set against this spec and the tool docstrings in `server.py` (agent-skills:code-review-and-quality), looking for wrong labels and regexes a wrong answer could pass. Findings are fixed before any run.
+3. Broken-tools run: the eval with `HAKUBA_API_URL` pointing at a closed port, so every tool call fails. Every question with `required` tools must fail its answer check; each one that passes is a regex an agent can satisfy from memory or guesswork, and is fixed. The questions with `required: []` are expected to pass here.
+4. Real run: production API, Claude Code default model, `--workers 3 --mlflow`, report saved to `last_run.md`, and one row in the eval log. Every failure is read in its MLflow trace and recorded as either a label error (fix the question, say so in the log) or an agent or tool failure (keep it: that is what the eval is for). A regex is never loosened just to make a run pass.
+
+**Decisions.**
+- Kept the scorer as is (regex plus required tools); an LLM judge is out of scope: it would cost API credit and need its own eval.
+- The 12 existing questions keep their labels, so the new run is compared with the 2026-11-18 run as paired results on those 12.
+- Cost: the runs use the Claude Code subscription, not API credit. At the last measured $0.047 per question (as the CLI reports it), each full run is about $4.70 of API-equivalent usage, within the subscription's limits; two full runs (steps 3 and 4) plus re-runs of fixed questions.
+- Risk: when the 2026-27 timetable is published, bus questions with `basis: expected` may change their times. Their `regex_why` names that, and the bus questions are the first to re-check after a timetable update.
+
+**Acceptance.**
+- [ ] 100 questions; the offline test passes, with `pytest`, `ruff check`, `ruff format --check`, `pyright` in `services/mcp`.
+- [ ] Review findings fixed or answered in the PR.
+- [ ] Broken-tools run: no question with `required` tools passes its answer check.
+- [ ] Real run logged (MLflow, `last_run.md`, eval log row), each failure classified from its trace.
+
 ## Remote access on Vercel (v2, 2026-11-13)
 **Goal:** the owner and friends use the same six tools from Claude chat in the desktop and phone apps, with the Mac off. Done when the owner adds the URL as a custom connector on claude.ai and a trip question is answered with the tools from the phone app.
 
