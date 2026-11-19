@@ -6,7 +6,14 @@ import { cn } from "@/lib/utils";
 const DRAG_THRESHOLD_PX = 30;
 const SWIPE_CLICK_MS = 400;
 
-/** Bottom sheet on phones (collapsed / expanded), floating card from `md` up. */
+/** Phones' resting heights (SPEC-web-app v1.17): 84 px, 40dvh, nearly full. */
+type SheetState = "low" | "collapsed" | "expanded";
+const stepDown = (s: SheetState): SheetState =>
+  s === "expanded" ? "collapsed" : "low";
+const stepUp = (s: SheetState): SheetState =>
+  s === "low" ? "collapsed" : "expanded";
+
+/** Bottom sheet on phones (low / collapsed / expanded), floating card from `md` up. */
 export function BottomSheet({
   label,
   header,
@@ -36,19 +43,20 @@ export function BottomSheet({
   slim?: boolean;
   children: ReactNode;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [state, setState] = useState<SheetState>("collapsed");
+  const expanded = state === "expanded";
   const headerRef = useRef<HTMLDivElement>(null);
   const lastCollapseKey = useRef(collapseKey);
   useEffect(() => {
     if (collapseKey === lastCollapseKey.current) return;
     lastCollapseKey.current = collapseKey;
-    setExpanded(false);
+    setState("collapsed");
   }, [collapseKey]);
   const lastRevealKey = useRef(revealKey);
   useEffect(() => {
     if (revealKey === lastRevealKey.current) return;
     lastRevealKey.current = revealKey;
-    if (revealKey) setExpanded(false);
+    if (revealKey) setState("collapsed");
   }, [revealKey]);
   const dragStartY = useRef<number | null>(null);
   // a mouse drag still sends a click afterwards; it must not undo the swipe. (A moving
@@ -58,7 +66,7 @@ export function BottomSheet({
   const bodyRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!hiddenOnPhone) return;
-    setExpanded(false);
+    setState("collapsed");
     // focus left in the hidden body (the ✕ that cleared the start) would drop to <body>
     if (bodyRef.current?.contains(document.activeElement))
       headerRef.current?.focus();
@@ -68,8 +76,9 @@ export function BottomSheet({
   // after scrolling past it would show steps, not ETA and Start (T77). Any screen: a
   // route that appears (slim turns on) also scrolls back to its answer (bug F)
   useEffect(() => {
-    if (slim && !expanded && bodyRef.current) bodyRef.current.scrollTop = 0;
-  }, [slim, expanded]);
+    if ((slim || state === "low") && !expanded && bodyRef.current)
+      bodyRef.current.scrollTop = 0;
+  }, [slim, state, expanded]);
 
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
@@ -130,8 +139,8 @@ export function BottomSheet({
     const onEnd = () => {
       if (gesture?.owned && gesture.resizes) {
         const dy = gesture.lastY - gesture.startY;
-        if (dy > DRAG_THRESHOLD_PX) setExpanded(false);
-        else if (dy < -DRAG_THRESHOLD_PX) setExpanded(true);
+        if (dy > DRAG_THRESHOLD_PX) setState(stepDown);
+        else if (dy < -DRAG_THRESHOLD_PX) setState(stepUp);
       }
       gesture = null;
     };
@@ -156,13 +165,14 @@ export function BottomSheet({
     if (start === null) return;
     const dy = clientY - start;
     if (Math.abs(dy) <= DRAG_THRESHOLD_PX) return; // a tap: its click toggles
-    setExpanded(dy < 0);
+    setState(dy < 0 ? stepUp : stepDown);
     swipedAt.current = performance.now();
   }
 
   function onHandleClick() {
     if (performance.now() - swipedAt.current < SWIPE_CLICK_MS) return;
-    setExpanded((e) => !e); // tap or keyboard
+    // tap or keyboard: collapsed <-> expanded; a low sheet comes back to collapsed
+    setState((s) => (s === "collapsed" ? "expanded" : "collapsed"));
   }
 
   return (
@@ -172,7 +182,7 @@ export function BottomSheet({
       // a place to hand focus without raising a phone's keyboard (the title screen)
       data-sheet
       tabIndex={-1}
-      data-state={expanded ? "expanded" : "collapsed"}
+      data-state={state}
       data-phone-hidden={hiddenOnPhone || undefined}
       data-slim={slim || undefined}
       className={cn(
@@ -180,12 +190,15 @@ export function BottomSheet({
         // expanded: never up under the trip card on top (184 px, or 136 on a landscape
         // phone, where its third row sits beside the boxes), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
-        expanded
-          ? "h-[min(80dvh,calc(100dvh-232px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
-          : slim
-            ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
-              "h-[40dvh] max-md:[@media(max-height:479px)]:h-[84px]"
-            : "h-[40dvh]",
+        state === "low"
+          ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1
+            "h-[84px]"
+          : expanded
+            ? "h-[min(80dvh,calc(100dvh-232px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
+            : slim
+              ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
+                "h-[40dvh] max-md:[@media(max-height:479px)]:h-[84px]"
+              : "h-[40dvh]",
         "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
         // invisible, not unmounted: the header inside stays visible, and taps reach the map
         hiddenOnPhone && "max-md:invisible",
@@ -233,6 +246,7 @@ export function BottomSheet({
           "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4",
           // the sticky ETA row sits on the bar's bottom edge, the rest scrolled behind it
           slim && !expanded && "max-md:[@media(max-height:479px)]:pb-0",
+          slim && state === "low" && "max-md:pb-0",
         )}
         // a search box down here (a trip stop) needs room for its suggestions. Only a box
         // you type in: a tapped checkbox or date field that grew the sheet moved out from
@@ -243,7 +257,7 @@ export function BottomSheet({
             t instanceof HTMLInputElement &&
             (t.type === "search" || t.type === "text")
           )
-            setExpanded(true);
+            setState("expanded");
         }}
       >
         {children}

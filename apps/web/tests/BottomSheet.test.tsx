@@ -152,6 +152,7 @@ describe("BottomSheet", () => {
   function scrolledTo(top: number) {
     Object.defineProperty(body(), "scrollTop", {
       configurable: true,
+      writable: true, // a low sheet scrolls its body back to the top (v1.17)
       value: top,
     });
   }
@@ -166,9 +167,47 @@ describe("BottomSheet", () => {
     return browserMayAct;
   }
 
+  // v1.17: three resting heights, one step per swipe
+  it("a swipe down from collapsed rests low, a swipe up from low comes back to collapsed", () => {
+    renderSheet();
+    swipe(500, 600);
+    expect(sheet()).toHaveAttribute("data-state", "low");
+    swipe(600, 700); // already at the bottom
+    expect(sheet()).toHaveAttribute("data-state", "low");
+    swipe(700, 600);
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+    swipe(600, 500);
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+    swipe(500, 600);
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
+  it("a tap on the handle of a low sheet brings it to collapsed, still not expanded", () => {
+    renderSheet();
+    scrolledTo(0);
+    drag(body(), 300, 400); // a body drag: a handle swipe would swallow the next click
+    expect(sheet()).toHaveAttribute("data-state", "low");
+    expect(handle()).toHaveAccessibleName("Expand directions");
+    expect(handle()).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(handle());
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
+  it("an upward drag on a low sheet's body raises it one step", () => {
+    renderSheet();
+    scrolledTo(0);
+    drag(body(), 300, 400);
+    expect(sheet()).toHaveAttribute("data-state", "low");
+    expect(drag(body(), 400, 300)).toBe(false);
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+  });
+
   it("a downward drag in the list at its top is the sheet's: Safari never sees a pull, the sheet collapses", () => {
     renderSheet();
-    fireEvent.focus(screen.getByRole("textbox", { name: "Search" })); // expanded
+    // expanded (was a focus on the header, which since v1.9 leaves the sheet collapsed:
+    // the test passed on a sheet that was never expanded)
+    fireEvent.click(handle());
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
     scrolledTo(0);
     expect(
       drag(screen.getByRole("button", { name: "Add stop" }), 300, 400),
@@ -176,11 +215,13 @@ describe("BottomSheet", () => {
     expect(sheet()).toHaveAttribute("data-state", "collapsed");
   });
 
-  it("a collapsed sheet still keeps the pull from Safari", () => {
+  // v1.17 (recorded change; was "stays collapsed"): the drag Safari never sees now lowers
+  // the sheet to its low height, like Google Maps' place sheet (BC-L1 update)
+  it("a collapsed sheet still keeps the pull from Safari, and the drag lowers it", () => {
     renderSheet();
     scrolledTo(0);
     expect(drag(body(), 300, 400)).toBe(false);
-    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+    expect(sheet()).toHaveAttribute("data-state", "low");
   });
 
   it("a downward drag in a list scrolled down scrolls the list, as before", () => {
