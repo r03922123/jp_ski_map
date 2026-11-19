@@ -186,14 +186,17 @@
     "question": "I'm staying at Tsugaike Kogen Hotel Hakuba Berghaus. Which ski resort is the shortest drive away, and how many minutes is it?",
     "required": ["search_place", "rank_resorts"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[0０]|[1１]|[2２]|[3３])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:min|分))^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:tsugaike|栂池|つがいけ|ツガイケ)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[0０]|[1１]|[2２]|[3３])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:-|~|〜)?\\s*(?:min|分))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:tsugaike|栂池|つがいけ|ツガイケ)|(?:closest|nearest|shortest|一番近|最も近|最寄|最近|最短)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:tsugaike|栂池|つがいけ|ツガイケ))",
     "check": "names Tsugaike, ~1 min drive",
-    "regex_why": "Tsugaike (1.4 min by car) leads, so an answer naming Norikura or Iwatake first, or a drive of 6+ minutes, fails.",
+    "regex_why": "Tsugaike (1.4 min by car) leads, so an answer naming Norikura or Iwatake first, or a drive of 6+ minutes, fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "Tsugaike Mountain Resort is closest, about a 1-minute drive (1.4 min).",
     "negatives": [
       "Hakuba Norikura is the closest at about 6 minutes.",
       "Tsugaike Mountain Resort, roughly a 10 minute drive.",
       "Hakuba Iwatake is the shortest drive, about 8 min."
+    ],
+    "more_positives": [
+      "Tsugaike Mountain Resort is closest, about a 1-minute drive."
     ]
   },
   {
@@ -202,9 +205,9 @@
     "question": "信濃大町駅から車で一番近いスキー場はどこですか？何分かかりますか？",
     "required": ["search_place", "rank_resorts"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[1１][4４]|[1１][5５]|[1１][6６]|[1１][7７]|[1１][8８])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:min|分))^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳|kashimayari|鹿[島岛][槍枪鑓])",
+    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[1１][4４]|[1１][5５]|[1１][6６]|[1１][7７]|[1１][8８])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:-|~|〜)?\\s*(?:min|分))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳|kashimayari|鹿[島岛][槍枪鑓])|(?:closest|nearest|shortest|一番近|最も近|最寄|最近|最短)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:jigatake|[爺爷].{0,2}岳|kashimayari|鹿[島岛][槍枪鑓]))",
     "check": "names Jigatake, ~16 min",
-    "regex_why": "Jigatake and Kashimayari tie at 15.7 min, so either may lead, but an answer leading with Sanosaka or a Hakuba-centric 30+ min guess fails.",
+    "regex_why": "Jigatake and Kashimayari tie at 15.7 min, so either may lead, but an answer leading with Sanosaka or a Hakuba-centric 30+ min guess fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "一番近いのは爺ガ岳スキー場で、車で約16分です。",
     "negatives": [
       "白馬さのさかが一番近く、約21分です。",
@@ -217,9 +220,9 @@
     "question": "從神城駅出發，最近、又能用 Hakuba Valley 共通券的雪場是哪一個？開車要幾分鐘？",
     "required": ["search_place", "rank_resorts"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[1１]|[2２]|[3３]|[4４]|[5５])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:min|分))^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[1１]|[2２]|[3３]|[4４]|[5５])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:-|~|〜)?\\s*(?:min|分))(?:^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ)|(?:closest|nearest|shortest|一番近|最も近|最寄|最近|最短)(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:gory[uū]|五[竜龍龙]|ゴリュウ))",
     "check": "names Goryu, ~3 min",
-    "regex_why": "Goryu is 3.4 min from Kamishiro Station, so naming Sanosaka (5.8 min) or Happo-One first, or a 10+ minute drive, fails.",
+    "regex_why": "Goryu is 3.4 min from Kamishiro Station, so naming Sanosaka (5.8 min) or Happo-One first, or a 10+ minute drive, fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "最近的是 ABLE 白马五龙，开车约 3 分钟（3.4 分钟），可以使用 Hakuba Valley 通用券。",
     "negatives": [
       "最近的是白馬さのさか，開車約6分鐘。",
@@ -233,9 +236,9 @@
     "question": "From 36.6983,137.8619, which resort within an 8-minute drive has the most new snow, and how many cm?",
     "required": ["rank_resorts"],
     "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))^(?:(?!(?:tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))(?:^(?:(?!(?:tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳)|(?:most\\s+(?:new|fresh)|最多|一番多|最も多)(?:(?!(?:tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳))",
     "check": "names a resort within 8 min + cm (live data, form only)",
-    "regex_why": "New snow is live data, so only the form is pinned: the first resort named must be one of the three within 8 min (Iwatake, Happo-One, Goryu) with a cm figure, which rules out Tsugaike or Hakuba47 (10+ min away) and an answer with no amount.",
+    "regex_why": "New snow is live data, so only the form is pinned: the first resort named must be one of the three within 8 min (Iwatake, Happo-One, Goryu) with a cm figure, which rules out Tsugaike or Hakuba47 (10+ min away) and an answer with no amount. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "Hakuba Happo-One has the most new snow within 8 minutes: about 93 cm (as of 18:00 JST), a 6-minute drive.",
     "negatives": [
       "Hakuba47 has the most fresh snow, 50 cm, about 10 minutes away.",
@@ -249,9 +252,9 @@
     "question": "我住在 Hakuba Tokyu Hotel，晚上也想滑夜場。有夜間滑雪的雪場裡，哪個新雪最多？多少公分？",
     "required": ["search_place", "rank_resorts"],
     "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))(?:^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳)|(?:most\\s+(?:new|fresh)|最多|一番多|最も多)(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳))",
     "check": "names a night-skiing resort + cm (live data, form only)",
-    "regex_why": "Only Goryu, Sanosaka and Jigatake have night skiing, so with live snow only the form is pinned: an answer that forgets the filter and leads with Happo-One or Hakuba47 fails, as does one with no cm figure.",
+    "regex_why": "Only Goryu, Sanosaka and Jigatake have night skiing, so with live snow only the form is pinned: an answer that forgets the filter and leads with Happo-One or Hakuba47 fails, as does one with no cm figure. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "有夜滑的雪場中，ABLE 白马五龙新雪最多，约 62 cm（截至 18:00），开车约 12 分钟。",
     "negatives": [
       "八方尾根新雪最多，約 93 公分。",
@@ -280,9 +283,9 @@
     "question": "Staying at Hakuba Mominoki Hotel and I want to ski at night too. Of the resorts with night skiing, which has the deepest snow at the summit?",
     "required": ["search_place", "rank_resorts"],
     "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))(?:^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳)|(?:deepest|最深|一番深|最も深)(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳))",
     "check": "names a night-skiing resort + cm (live data, form only)",
-    "regex_why": "Only Goryu, Sanosaka and Jigatake have night skiing, so with live depths only the form is pinned: leading with Happo-One (deepest overall) fails, as does an answer with no cm figure.",
+    "regex_why": "Only Goryu, Sanosaka and Jigatake have night skiing, so with live depths only the form is pinned: leading with Happo-One (deepest overall) fails, as does an answer with no cm figure. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "Of the night-skiing resorts, ABLE Hakuba GORYU has the deepest summit snow: 33 cm (as of 18:00 JST).",
     "negatives": [
       "Happo-One has the deepest snow, 42 cm at the summit.",
@@ -295,14 +298,17 @@
     "question": "白馬樅の木ホテルから車で15分以内のスキー場で、2027-01-13に一番空いているのはどこですか？",
     "required": ["search_place", "rank_resorts"],
     "optional": ["crowd_and_snow", "route"],
-    "answer_regex": "(?is)^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:iwatake|岩岳)",
+    "answer_regex": "(?is)(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:iwatake|岩岳)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:iwatake|岩岳))",
     "check": "names Iwatake (filter + date)",
-    "regex_why": "Without the 15-minute filter Jigatake (35 min) is quietest, and Goryu/Tsugaike come next, so an answer leading with Jigatake, Sanosaka or Goryu fails.",
+    "regex_why": "Without the 15-minute filter Jigatake (35 min) is quietest, and Goryu/Tsugaike come next, so an answer leading with Jigatake, Sanosaka or Goryu fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "15分以内では白馬岩岳スノーフィールドが一番空いています（混雑度：中、車で約7分）。",
     "negatives": [
       "一番空いているのは爺ガ岳スキー場です（混雑度：低）。",
       "白馬さのさかが空いています、約15分です。",
       "白馬五竜が比較的空いています。"
+    ],
+    "more_positives": [
+      "2027-01-13は八方尾根（車で約4分）が medium（0.40）。15分以内で一番空いているのは白馬岩岳（0.30）です。"
     ]
   },
   {
@@ -311,9 +317,9 @@
     "question": "2027-02-13 我想從 Hotel Hakuba 出發，去開車 15 分鐘內、有夜場的雪場，哪個人最少？",
     "required": ["search_place", "rank_resorts"],
     "optional": ["crowd_and_snow", "route"],
-    "answer_regex": "(?is)^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:sanosaka|さのさか|サノサカ|佐野坂)",
+    "answer_regex": "(?is)(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:sanosaka|さのさか|サノサカ|佐野坂)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:sanosaka|さのさか|サノサカ|佐野坂))",
     "check": "names Sanosaka (3 filters)",
-    "regex_why": "Night skiing within 15 min leaves Sanosaka (12 min) and Goryu, and Sanosaka is quieter, so leading with Goryu, or with Jigatake (32 min, outside the limit), fails.",
+    "regex_why": "Night skiing within 15 min leaves Sanosaka (12 min) and Goryu, and Sanosaka is quieter, so leading with Goryu, or with Jigatake (32 min, outside the limit), fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "符合條件的雪場中，White Resort 白馬さのさか人最少（擁擠度中等），開車約 12 分鐘。",
     "negatives": [
       "爺ガ岳人最少，可以夜滑。",
@@ -326,9 +332,9 @@
     "question": "On 2027-03-06, starting from Shinano-Omachi Station, which resort will be the least crowded, and what crowd level should I expect there?",
     "required": ["search_place", "rank_resorts"],
     "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|[爺爷].{0,2}岳)[^\\n]{0,80}?(medium|moderate|中等|中程度|普通|ふつう|やや混|中(?![\\d])))^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳)",
+    "answer_regex": "(?is)(?=.*(?:jigatake|[爺爷].{0,2}岳)[^\\n]{0,80}?(?:\\n[^\\n]{0,80}?)?(medium|moderate|中等|中程度|普通|ふつう|やや混|中(?![\\d])))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:jigatake|[爺爷].{0,2}岳))",
     "check": "names Jigatake + medium crowd",
-    "regex_why": "Jigatake is quietest that Saturday at a calendar-based 'medium', so leading with Sanosaka or Kashimayari, or an answer that never gives 'medium' within a line of Jigatake (e.g. calls it 'low'), fails.",
+    "regex_why": "Jigatake is quietest that Saturday at a calendar-based 'medium', so leading with Sanosaka or Kashimayari, or an answer that never gives 'medium' within a line of Jigatake (e.g. calls it 'low'), fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "Jigatake Snow Resort should be the least crowded on 2027-03-06, with a medium crowd level; it's about 16 minutes away.",
     "negatives": [
       "Kashimayari Family Park will be the quietest, crowd level medium.",
@@ -342,9 +348,9 @@
     "question": "白馬岩岳から車で15分以内で、コース数が一番多いスキー場はどこですか？何本ありますか？",
     "required": ["search_place", "rank_resorts"],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])16(?!\\d|[.,]\\d))^(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])16(?!\\d|[.,]\\d))(?:^(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方)|(?:most\\s+(?:runs|courses|trails)|最多|一番多|最も多)(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:happ?[oō]|八方))",
     "check": "names Happo-One, 16 runs",
-    "regex_why": "Cortina ties Happo-One at 16 runs but is beyond 15 min, so leading with Cortina or Goryu (15 runs) fails, as does Happo-One with a wrong count.",
+    "regex_why": "Cortina ties Happo-One at 16 runs but is beyond 15 min, so leading with Cortina or Goryu (15 runs) fails, as does Happo-One with a wrong count. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "15分以内では白馬八方尾根が最多で、16コースあります（車で約9分）。",
     "negatives": [
       "白馬コルチナが16コースで一番多いです。",
@@ -373,9 +379,9 @@
     "question": "從 36.6983,137.8619 出發，有夜間滑雪的雪場中，哪個垂直落差最大？多少公尺？",
     "required": ["rank_resorts"],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])926(?!\\d|[.,]\\d))^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])926(?!\\d|[.,]\\d))(?:^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ)|(?:largest|biggest|greatest|highest|最大|一番大き|最も大き)(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:gory[uū]|五[竜龍龙]|ゴリュウ))",
     "check": "names Goryu, 926 m",
-    "regex_why": "Among night-skiing resorts Goryu (926 m) leads, so an answer that forgets the filter and leads with Happo-One (1071 m) fails, as does Sanosaka (460 m).",
+    "regex_why": "Among night-skiing resorts Goryu (926 m) leads, so an answer that forgets the filter and leads with Happo-One (1071 m) fails, as does Sanosaka (460 m). The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "有夜滑的雪場中，ABLE 白马五龙的垂直落差最大，为 926 米。",
     "negatives": [
       "白馬八方尾根落差最大，1071 公尺，也有夜滑。",
@@ -388,9 +394,9 @@
     "question": "Tsugaike Kogen Hotel Hakuba Berghausから車で10分以内のスキー場で、標高差が一番大きいのはどこですか？",
     "required": ["search_place", "rank_resorts"],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])904(?!\\d|[.,]\\d))^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:tsugaike|栂池|つがいけ|ツガイケ)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])904(?!\\d|[.,]\\d))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:tsugaike|栂池|つがいけ|ツガイケ)|(?:largest|biggest|greatest|highest|最大|一番大き|最も大き)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:tsugaike|栂池|つがいけ|ツガイケ))",
     "check": "names Tsugaike, 904 m",
-    "regex_why": "Within 10 min only Tsugaike, Norikura and Iwatake remain and Tsugaike (904 m) leads, so Happo-One (1071 m, 16 min away) or Norikura (798 m) fails.",
+    "regex_why": "Within 10 min only Tsugaike, Norikura and Iwatake remain and Tsugaike (904 m) leads, so Happo-One (1071 m, 16 min away) or Norikura (798 m) fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "10分以内では栂池高原スキー場（Tsugaike Mountain Resort）の標高差が最大で、904mです。",
     "negatives": [
       "白馬八方尾根で、標高差は1071mです。",
@@ -403,9 +409,9 @@
     "question": "ホテル白馬から行ける、Hakuba Valleyチケットが使えるスキー場の中で、標高差が一番大きいのはどこ？何メートル？",
     "required": ["search_place", "rank_resorts"],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])1[,，]?071(?!\\d|[.,]\\d))^(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])1[,，]?071(?!\\d|[.,]\\d))(?:^(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方)|(?:largest|biggest|greatest|highest|最大|一番大き|最も大き)(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:happ?[oō]|八方))",
     "check": "names Happo-One, 1071 m",
-    "regex_why": "Happo-One (1071 m) leads, so Goryu (926 m) or Tsugaike (904 m), or Happo-One with a wrong figure, fails.",
+    "regex_why": "Happo-One (1071 m) leads, so Goryu (926 m) or Tsugaike (904 m), or Happo-One with a wrong figure, fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "白馬八方尾根が一番大きく、標高差は1,071mです。",
     "negatives": [
       "エイブル白馬五竜で、926mです。",
@@ -418,9 +424,9 @@
     "question": "From JR Hakuba Station, which resort has the cheapest one-day lift ticket, and how much is it?",
     "required": ["search_place", "rank_resorts"],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])5[,，]?500(?!\\d|[.,]\\d))^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])5[,，]?500(?!\\d|[.,]\\d))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳)|(?:cheapest|least\\s+expensive|最便宜|一番安|最も安|最安)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:jigatake|[爺爷].{0,2}岳))",
     "check": "names Jigatake, 5,500 yen",
-    "regex_why": "Jigatake (5,500 JPY) is cheapest, so leading with Sanosaka (5,700) or Kashimayari (6,200) fails, as does Jigatake with a wrong price.",
+    "regex_why": "Jigatake (5,500 JPY) is cheapest, so leading with Sanosaka (5,700) or Kashimayari (6,200) fails, as does Jigatake with a wrong price. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "Jigatake Snow Resort has the cheapest day ticket at ¥5,500 (about 30 minutes' drive).",
     "negatives": [
       "White Resort Hakuba Sanosaka is cheapest at ¥5,700.",
@@ -433,13 +439,14 @@
     "question": "從 Tsugaike Kogen Hotel Hakuba Berghaus 開車 10 分鐘內的雪場，哪個一日券最便宜？多少日圓？",
     "required": ["search_place", "rank_resorts"],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])6[,，]?500(?!\\d|[.,]\\d))^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:norikura|[乗乘]鞍|のりくら)",
+    "answer_regex": "(?is)(?=.*(?<![\\d.])6[,，]?500(?!\\d|[.,]\\d))(?:^(?:(?!(?:tsugaike(?!\\s*kogen\\s*hotel)|栂池|つがいけ|ツガイケ|happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:norikura|[乗乘]鞍|のりくら)|(?:cheapest|least\\s+expensive|最便宜|一番安|最も安|最安)(?:(?!(?:tsugaike(?!\\s*kogen\\s*hotel)|栂池|つがいけ|ツガイケ|happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:tsugaike(?!\\s*kogen\\s*hotel)|栂池|つがいけ|ツガイケ|happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:norikura|[乗乘]鞍|のりくら))",
     "check": "names Norikura, 6,500 yen",
-    "regex_why": "Within 10 min Norikura (6,500 JPY) is cheapest, so an answer that forgets the filter and leads with Jigatake (5,500) fails, as does Iwatake (7,500).",
+    "regex_why": "Within 10 min Norikura (6,500 JPY) is cheapest, so an answer that forgets the filter and leads with Jigatake (5,500) fails, as does Iwatake (7,500). Tsugaike leading (except in the hotel name Tsugaike Kogen Hotel) fails too. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "10 分钟车程内，白马乘鞍温泉滑雪场的一日券最便宜，6,500 日元。",
     "negatives": [
       "爺ガ岳最便宜，一日券 5,500 日圓。",
-      "白馬岩岳最便宜，7,500 日圓。"
+      "白馬岩岳最便宜，7,500 日圓。",
+      "栂池高原滑雪場最便宜，一日券 6,500 日圓；白馬乘鞍也在 10 分鐘內。"
     ]
   },
   {
@@ -479,7 +486,7 @@
     "question": "Staying at Hakuba Tokyu Hotel. On 2027-01-15 at 8:30, where do I catch the first shuttle to Happo-One, how long is the walk to that stop, and what time does it leave?",
     "required": ["search_place", "next_buses"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*((?<![\\d０-９.])[0０]?[8８]\\s*[:：時点點]\\s*[4４][8８](?![\\d０-９])))(?=.*(happo.{0,12}terminal|八方.{0,10}(ターミナル|總站|总站|バスタ)|八方巴士))(?=.*((?<![\\d.])(8|9|10|11|12)(\\.\\d)?\\s*(-\\s*\\d+\\s*)?(min|分)))",
+    "answer_regex": "(?is)(?=.*((?<![\\d０-９.])[0０]?[8８]\\s*[:：時点點]\\s*[4４][8８](?![\\d０-９])))(?=.*(happo.{0,12}terminal|八方.{0,10}(ターミナル|總站|总站|バスタ)|八方巴士))(?=.*((?<![\\d.])(8|9|10|11|12)(\\.\\d)?\\s*([-~〜]\\s*\\d+\\s*)?[-~〜]?\\s*(min|分)))",
     "check": "walk ~10 min to Hakuba Happo Bus Terminal, 08:48 bus",
     "regex_why": "Requires the 08:48 departure, Hakuba Happo Bus Terminal and a 8-12 min walk, so the 08:56 bus, a 'board at the hotel' answer or a walk without minutes fails. The times are basis: expected (projected from last season), so re-check them when the 2026-27 timetable is published.",
     "positive": "Walk about 10 minutes to Hakuba Happo Bus Terminal and take the 08:48 Cortina ↔ Hakuba GORYU shuttle; it reaches Happo-One at 08:53.",
@@ -487,6 +494,9 @@
       "Board right outside the hotel at the Hakuba Tokyu Hotel stop at 08:48.",
       "Walk about 10 minutes to Hakuba Happo Bus Terminal and take the 08:56 bus.",
       "Walk to Hakuba Happo Bus Terminal for the 08:48 bus; it is a short walk."
+    ],
+    "more_positives": [
+      "It's a 10-minute walk to Hakuba Happo Bus Terminal; take the 08:48 bus, arriving 08:53."
     ]
   },
   {
@@ -527,14 +537,15 @@
     "question": "What time is the last shuttle bus from Happo-One back to JR Hakuba Station on 2027-01-15?",
     "required": [],
     "optional": ["search_place", "next_buses"],
-    "answer_regex": "(?is)^(?!.*(?<![\\d.])1[5-9][:：]\\d\\d)(?=.*(don't|doesn't|do not|does not|can't|cannot|can not|unable|no (data|information|timetable)|not (available|covered|included|cover))).*(return|back|from (the )?(resort|happo)|toward|direction|only (shows?|covers?|lists?|gives?))",
+    "answer_regex": "(?is)^(?!.*(?<![\\d.])1[5-9][:：]\\d\\d)(?!.*(?<![\\d.:])\\d{1,2}\\s*(?:[ap]\\.?m\\b|o'?clock|[時点點]))(?=.*(don't|doesn't|do not|does not|can't|cannot|can not|unable|no (data|information|timetable)|not (available|covered|included|cover))).*(return|back|from (the )?(resort|happo)|toward|direction|only (shows?|covers?|lists?|gives?))",
     "check": "says the tools only cover buses toward resorts",
-    "regex_why": "next_buses only lists buses from an origin to resorts, so the answer must say the return trip is not covered; an invented last bus like 17:30 or 16:45 fails because any 15:00-19:59 time is rejected.",
+    "regex_why": "next_buses only lists buses from an origin to resorts, so the answer must say the return trip is not covered; an invented last bus like 17:30 or 16:45 fails because any 15:00-19:59 time is rejected. A time like '5 pm' or '17時' is rejected too.",
     "positive": "I can't answer that from my tools: the bus tool only shows departures from a place toward the resorts, not the return trip back to the station. Please check the official shuttle timetable.",
     "negatives": [
       "The last bus from Happo-One back to JR Hakuba Station leaves at 17:30.",
       "Sorry, I couldn't reach the Hakuba API, so I can't check that right now.",
-      "Buses run until about 17:46, so the last one back is around then."
+      "Buses run until about 17:46, so the last one back is around then.",
+      "I don't have return timetables, but the last bus back is usually around 5 pm."
     ]
   },
   {
@@ -927,14 +938,15 @@
     "question": "What's the closest place to eat from the Happo-One base, and how many minutes' walk is it?",
     "required": ["nearby_pois"],
     "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)(?=.*(?:unjaune))(?=.*(?:(?<![\\d.０-９])(?:[0-3０-３])(?:[.．]\\d+)?\\s*(?:-|~|〜)?\\s*(?:min|分)|(?<![\\d.０-９])88\\s*m(?!i)))",
+    "answer_regex": "(?is)^(?=(?:(?!uncle\\s*steven|アンクル|maeda|まえだ|roots|ルーツ|aduka).)*?unjaune)(?=.*(?:(?<![\\d.０-９])(?:[0-3０-３])(?:[.．]\\d+)?\\s*(?:-|~|〜)?\\s*(?:min|分)|(?<![\\d.０-９])88\\s*m(?!i)))",
     "check": "names Unjaune, ~1 min walk",
-    "regex_why": "Pins the nearest POI Unjaune (1 min, 88 m), so the second one, Uncle Steven's, or a nameless 'several cafes nearby' fails.",
+    "regex_why": "Pins the nearest POI Unjaune (1 min, 88 m), so the second one, Uncle Steven's, or a nameless 'several cafes nearby' fails. Unjaune must come before Uncle Steven's, Maeda, Roots or Aduka, so an answer leading with Uncle Steven's fails.",
     "positive": "The closest is Unjaune, about a 1-minute walk (88 m) from the Happo-One base.",
     "negatives": [
       "Uncle Steven's is about a 3-minute walk.",
       "There are several cafes within 5 minutes.",
-      "Unjaune, about 10 minutes away."
+      "Unjaune, about 10 minutes away.",
+      "The closest is Uncle Steven's, about 3 min walk; Unjaune is a bit further."
     ]
   },
   {
@@ -943,14 +955,15 @@
     "question": "白馬五龍滑雪場附近有便利商店嗎？走路要多久？",
     "required": ["nearby_pois"],
     "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)(?=.*(?:7\\s*[-‐－]?\\s*(?:eleven|11)|セブン|seven|小七))(?=.*(?:(?<![\\d.０-９])(?:22|23|24|25|26|２２|２３|２４|２５|２６)(?:[.．]\\d+)?\\s*(?:-|~|〜)?\\s*(?:min|分)))",
+    "answer_regex": "(?is)^(?=(?:(?!lawson|ローソン|罗森|羅森|family\\s*mart|ファミリーマート|全家|yamazaki|ヤマザキ|y\\s*shop).)*?(?:7\\s*[-‐－]?\\s*(?:eleven|11)|セブン|seven|小七))(?=.*(?:(?<![\\d.０-９])(?:22|23|24|25|２２|２３|２４|２５)(?:[.．]\\d+)?\\s*(?:-|~|〜)?\\s*(?:min|分)))",
     "check": "names 7-Eleven, ~24 min walk",
-    "regex_why": "Pins the nearest store, a 7-Eleven 23.8 min (2 km) away, so 'a Lawson right next to the base' or a nameless 'about 5 minutes' fails.",
+    "regex_why": "Pins the nearest store, a 7-Eleven 23.8 min (2 km) away, so 'a Lawson right next to the base' or a nameless 'about 5 minutes' fails. 7-Eleven must be named before Lawson and the window is 22-25 min, so Lawson's 26.8 min fails.",
     "positive": "最近的是 7-Eleven（セブン-イレブン），步行约 24 分钟（约 2 公里）。",
     "negatives": [
       "附近有一家 Lawson，走路 5 分钟。",
       "有便利商店，走路大概 10 分鐘。",
-      "最近的是 Lawson，步行约 27 分钟。"
+      "最近的是 Lawson，步行约 27 分钟。",
+      "最近的是 Lawson，步行约 26.8 分钟；7-Eleven 也在附近。"
     ]
   },
   {
@@ -1104,7 +1117,7 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}\\b(?:medium|moderate))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,30}\\b(?:low|high|very.high)\\b)",
+    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?\\b(?:medium|moderate))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,30}\\b(?:low|high|very.high)\\b)",
     "check": "Happo-One is medium on 2027-01-13",
     "regex_why": "Requires 'medium' next to Happo-One and rules out an answer that calls it low or high (e.g. the New Year 'very high' level).",
     "positive": "Happo-One on Wednesday 2027-01-13 is expected to be **medium** (crowdScore 0.40: Australian school holidays, large popular resort). Crowd is a heuristic estimate.",
@@ -1112,6 +1125,9 @@
       "Happo-One should be low on 2027-01-13, it's a regular weekday.",
       "Happo-One will be high on 2027-01-13 because of the Australian holidays.",
       "Crowds depend on the weather, so I can't say for sure how busy Happo-One will be."
+    ],
+    "more_positives": [
+      "**Happo-One** (Wed 2027-01-13)\n- Crowd level: **medium** (0.40)"
     ]
   },
   {
@@ -1121,9 +1137,9 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ)",
+    "answer_regex": "(?is)(?:^(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ))",
     "check": "names Jigatake first (crowdScore 0.70, the lowest)",
-    "regex_why": "The first resort named must be Jigatake, so an answer leading with the next quietest, Sanosaka (0.73) or Kashimayari (0.78), fails.",
+    "regex_why": "The first resort named must be Jigatake, so an answer leading with the next quietest, Sanosaka (0.73) or Kashimayari (0.78), fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "2027-01-01 人最少的是**爺ガ岳（Jigatake）**，人潮等級 high（0.70）；元旦連假所有雪場都很擠，八方尾根是 very_high。",
     "negatives": [
       "元旦人最少的是白馬佐野坂（Sanosaka），人潮等級 high。",
@@ -1138,9 +1154,9 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?:(?!goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:happo|八方|はっぽう)",
+    "answer_regex": "(?is)(?:^(?:(?!goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:happo|八方|はっぽう)|(?:busiest|most\\s+crowded|一番混|最も混|最[擁拥]?[擠挤]|最多人)(?:(?!goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:happo|八方|はっぽう))",
     "check": "names Happo-One first (the only very_high)",
-    "regex_why": "The first resort named must be Happo-One, so an answer leading with Goryu or Tsugaike (both high, 0.75) fails.",
+    "regex_why": "The first resort named must be Happo-One, so an answer leading with Goryu or Tsugaike (both high, 0.75) fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "2027-02-06に一番混むのは**白馬八方尾根**で、混雑度は very_high（0.80、土曜日＋春節週間）です。混雑は推定値です。",
     "negatives": [
       "一番混むのはエイブル白馬五竜（high、0.75）です。",
@@ -1155,7 +1171,7 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう)[^\\n]{0,80}(?<!very[ _-])\\bhigh\\b)(?!.*(?:goryu|五竜|五龍|五龙|ごりゅう)[^\\n]{0,30}\\b(?:low|medium|very.high)\\b)",
+    "answer_regex": "(?is)^(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?<!very[ _-])\\bhigh\\b)(?!.*(?:goryu|五竜|五龍|五龙|ごりゅう)[^\\n]{0,30}\\b(?:low|medium|very.high)\\b)",
     "check": "Goryu is high (not very_high) on 2027-02-06",
     "regex_why": "Requires 'high' next to Goryu without 'very', so the Happo-One level 'very high' or a plain 'medium' fails.",
     "positive": "Goryu on Saturday 2027-02-06 is expected to be **high** (crowdScore 0.75: Saturday, Lunar New Year week, large popular resort).",
@@ -1172,14 +1188,17 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:(?<!very[ _-])\\bhigh\\b|(?<!非常)(?<!很)(?<!極)(?<!极)高|擁擠|拥挤|偏多|較多|较多))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,30}(?:\\blow\\b|\\bmedium\\b|very.high|中等|普通|低|非常高|極高|极高))",
+    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?:(?<!very[ _-])\\bhigh\\b|(?<!非常)(?<!很)(?<!極)(?<!极)高|擁擠|拥挤|偏多|較多|较多))(?!.*(?:happo|八方|はっぽう)[^\\n，,（(]{0,30}(?:\\blow\\b|\\bmedium\\b|very.high|中等|普通|低|非常高|極高|极高))",
     "check": "Happo-One is high on 2027-03-13",
-    "regex_why": "Requires high next to Happo-One and rules out 'medium', the level of every other resort that Saturday.",
+    "regex_why": "Requires high next to Happo-One and rules out 'medium', the level of every other resort that Saturday. The low/medium check stops at the first comma or bracket, so '其他雪場為 medium' after Happo's level does not count.",
     "positive": "2027-03-13（週六）八方尾根的人潮預估為 **high（高）**，crowdScore 0.55，其他雪場多為 medium。",
     "negatives": [
       "八方尾根 2027-03-13 人潮等級 medium（中等），不算多。",
       "八方尾根那天人潮 very_high，非常擠。",
       "三月是雪季尾聲，八方尾根人潮應該是 low。"
+    ],
+    "more_positives": [
+      "八方尾根：high（其他雪場為 medium）"
     ]
   },
   {
@@ -1189,7 +1208,7 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)(?:tsugaike|栂池|つがいけ)[^\\n]{0,80}(?:very.?high|非常に(?:高|混)|とても(?:高|混)|大変混|極めて|かなり混|激混|最も高|最高)",
+    "answer_regex": "(?is)(?:tsugaike|栂池|つがいけ)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?:very.?high|非常に(?:高|混)|とても(?:高|混)|大変混|極めて|かなり混|激混|最も高|最高)",
     "check": "Tsugaike is very_high on 2027-01-01",
     "regex_why": "Requires very high next to Tsugaike, so a plain 'high' (the level of Jigatake or Norikura that day) fails.",
     "positive": "2027-01-01の栂池高原の混雑予想は **very_high（非常に混雑）**、crowdScore 0.90 です（元日の3連休・年末年始）。",
@@ -1206,7 +1225,7 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:iwatake|岩岳|いわたけ)[^\\n]{0,80}(?<!very[ _-])\\bhigh\\b)(?!.*(?:iwatake|岩岳|いわたけ)[^\\n]{0,30}\\b(?:low|medium|very.high)\\b)",
+    "answer_regex": "(?is)^(?=.*(?:iwatake|岩岳|いわたけ)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?<!very[ _-])\\bhigh\\b)(?!.*(?:iwatake|岩岳|いわたけ)[^\\n]{0,30}\\b(?:low|medium|very.high)\\b)",
     "check": "Iwatake is high on 2027-01-11",
     "regex_why": "Requires 'high' next to Iwatake, so 'medium' (a Monday guess, and Jigatake's level that day) fails.",
     "positive": "Iwatake on Monday 2027-01-11 is expected to be **high** (crowdScore 0.65: three-day weekend for Coming of Age Day plus Australian school holidays).",
@@ -1240,7 +1259,7 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:\\blow\\b|低|(?<!不)少|不[太會会]?[擠挤多]|空))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,30}(?:\\bmedium\\b|\\bhigh\\b|中等|很多|[擁拥][擠挤]))",
+    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?:\\blow\\b|低|(?<!不)少|不[太會会]?[擠挤多]|空))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,30}(?:\\bmedium\\b|\\bhigh\\b|中等|很多|(?<!不)(?<!不太)(?<!不會)(?<!不会)(?<!不算)(?<!不會太)(?<!不会太)[擁拥][擠挤]))",
     "check": "Happo-One is low on 2026-12-16",
     "regex_why": "Requires low next to Happo-One, so 'medium' or 'high' (a guess from it being the most popular resort) fails.",
     "positive": "2026-12-16（週三）八方尾根人潮預估為 **low（低）**，crowdScore 0.10，早季平日人不多。",
@@ -1248,6 +1267,9 @@
       "八方尾根是最熱門的雪場，2026-12-16 人潮 medium（中等）。",
       "八方尾根那天人潮 high，很擁擠。",
       "十二月中旬雪季剛開始，建議出發前查看官網。"
+    ],
+    "more_positives": [
+      "八方尾根那天人潮 low（0.10），不會太擁擠。"
     ]
   },
   {
@@ -1257,9 +1279,9 @@
     "required": [],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["search_place"],
-    "answer_regex": "(?is)^(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ)",
+    "answer_regex": "(?is)(?:^(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ))",
     "check": "names Jigatake first (crowdScore 0.50, medium)",
-    "regex_why": "The first resort named must be Jigatake, so an answer leading with Sanosaka (0.53, also medium) fails.",
+    "regex_why": "The first resort named must be Jigatake, so an answer leading with Sanosaka (0.53, also medium) fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
     "positive": "2027-01-11に一番空いているのは**爺ガ岳スキー場**で、混雑度は medium（0.50）です。他はほぼ high です。",
     "negatives": [
       "一番空いているのは白馬さのさか（medium）です。",
@@ -1321,14 +1343,15 @@
     "question": "白馬接駁巴士公司的客服電話是多少？",
     "required": [],
     "optional": ["search_place", "next_buses"],
-    "answer_regex": "(?is)^(?=.*(?:沒有|没有|無法|无法|查不到|找不到|不在|不包[含括]|不支[援持]|不提供|不涵蓋|不涵盖|僅涵蓋|仅涵盖|只涵蓋|只涵盖|不能))(?!.*\\d{2,4}\\s*[-‐－]\\s*\\d{2,4}\\s*[-‐－]\\s*\\d{3,4})",
+    "answer_regex": "(?is)^(?=.*(?:沒有|没有|無法|无法|查不到|找不到|不在|不包[含括]|不支[援持]|不提供|不涵蓋|不涵盖|僅涵蓋|仅涵盖|只涵蓋|只涵盖|不能))(?!.*(?:\\d[\\s()（）\\-‐－]{0,2}){5}\\d)",
     "check": "says it has no phone numbers, without inventing one",
-    "regex_why": "Requires a 'no data' statement and rules out an invented number like 0261-72-3155.",
+    "regex_why": "Requires a 'no data' statement and rules out an invented number like 0261-72-3155. Any run of 6+ digits separated only by spaces, brackets or dashes is rejected, so '(0261) 72-3155' fails; a date in the answer would also fail (accepted, the answer needs none).",
     "positive": "抱歉，我的工具只有巴士時刻表和站點，沒有巴士公司的電話號碼，請查詢巴士公司官網。",
     "negatives": [
       "白馬接駁巴士客服電話是 0261-72-3155。",
       "可以打 0261-72-2000 詢問 Alpico 巴士。",
-      "接駁巴士由 Alpico 經營，在白馬站有服務櫃台。"
+      "接駁巴士由 Alpico 經營，在白馬站有服務櫃台。",
+      "我沒有官方資料，但 Alpico 白馬營業所電話是 (0261) 72-3155。"
     ]
   },
   {
@@ -1369,14 +1392,17 @@
     "question": "2026-02-01の八方尾根の積雪は何cmでしたか？",
     "required": [],
     "optional": ["crowd_and_snow", "rank_resorts"],
-    "answer_regex": "(?is)^(?=.*(?:ありません|できません|わかりません|分かりません|含まれ(?:てい)?ません|対象外|範囲外|持っていません|見つかりません|情報がない|データがない|対応していない|できない))(?!.*\\d+(?:\\.\\d+)?\\s*(?:cm|ｃｍ|センチ))",
+    "answer_regex": "(?is)^(?=.*(?:ありません|できません|わかりません|分かりません|含まれ(?:てい)?ません|対象外|範囲外|持っていません|見つかりません|情報がない|データがない|対応していない|できない))(?!(?:.*[。\\n])?(?:(?!現在|時点|時點|现在|目前|\\bnow\\b|current|as\\s+of|最新)[^。\\n])*?\\d+(?:\\.\\d+)?\\s*(?:cm|ｃｍ|センチ)(?:(?!現在|時点|時點|现在|目前|\\bnow\\b|current|as\\s+of|最新)[^。\\n])*(?:[。\\n]|$))",
     "check": "says past snow is not available, without quoting a depth",
-    "regex_why": "Requires a 'no past data' statement and rules out quoting the current forecast (e.g. 42cm, snowAsOf 2026-11-19) as if it were the 2026-02-01 depth.",
+    "regex_why": "Requires a 'no past data' statement and rules out quoting the current forecast (e.g. 42cm, snowAsOf 2026-11-19) as if it were the 2026-02-01 depth. A cm figure is allowed only in a sentence that marks it as current (現在, 時点, now, as of), so today's depth quoted as such passes; an answer that puts 現在 in the same sentence as an invented past depth would also pass (known gap).",
     "positive": "申し訳ありません、過去の積雪データは取得できません。ツールが返すのは現在の予報値だけです。",
     "negatives": [
       "2026-02-01の八方尾根の山頂積雪は42cmでした。",
       "その日は約250cmの積雪がありました。",
       "2月上旬は例年積雪が多い時期です。"
+    ],
+    "more_positives": [
+      "過去のデータは取得できません。参考までに現在の山頂積雪は42cm（2026-11-19 18:00時点）です。"
     ]
   },
   {
@@ -1398,18 +1424,19 @@
   {
     "id": "plan-quiet-bus-from-hotel",
     "lang": "en",
-    "question": "I'm at Hotel Hakuba on 2027-01-20. Which resort will be the least crowded that day, and which shuttle bus (stop and departure time) gets me there?",
+    "question": "I'm at Hotel Hakuba on 2027-01-20 and want to leave around 9am. Which resort will be the least crowded that day, and which shuttle bus (stop and departure time) gets me there?",
     "required": ["search_place", "next_buses"],
     "any_of": [["rank_resorts", "crowd_and_snow"]],
     "optional": ["route", "nearby_pois"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d０-９])[1１][0０]\\s*[:：時]\\s*[5５][0０]))(?=.*(?:happo bus terminal|八方バスターミナル|八方巴士|bus terminal|バスターミナル))",
+    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d０-９])[1１][0０]\\s*[:：時点點]\\s*[5５][0０]))(?=.*(?:happo bus terminal|八方バスターミナル|八方巴士|bus terminal|バスターミナル))",
     "check": "picks Jigatake and the 10:50 bus from Hakuba Happo Bus Terminal",
-    "regex_why": "Crowd is calendar-based so Jigatake is pinned, and the 10:50 Happo Bus Terminal departure is required, which rules out Sanosaka's 08:00 bus from Hotel Hakuba and the untimed 17:30 Jigatake bus.",
+    "regex_why": "Crowd is calendar-based so Jigatake is pinned, and the 10:50 Happo Bus Terminal departure is required, which rules out Sanosaka's 08:00 bus from Hotel Hakuba and the untimed 17:30 Jigatake bus. The question says around 9am, so the earlier 07:25 Jigatake bus fails too.",
     "positive": "Jigatake Snow Resort is the quietest on 2027-01-20 (low). Bus: walk about 12 min to Hakuba Happo Bus Terminal and take the 10:50 Happo ↔ Jigatake bus, arriving 11:58 (timetable estimate).",
     "negatives": [
       "White Resort Hakuba Sanosaka is the quietest. Take the 08:00 bus from Hotel Hakuba, arriving 08:50.",
       "Jigatake is the quietest; take the 17:30 bus from Hakuba Happo Bus Terminal.",
-      "Jigatake will be the least crowded, but I couldn't find a bus time."
+      "Jigatake will be the least crowded, but I couldn't find a bus time.",
+      "Jigatake is the quietest. Walk to Hakuba Happo Bus Terminal and take the 07:25 Happo-Jigatake bus, arriving 08:33."
     ]
   },
   {
@@ -1419,7 +1446,7 @@
     "required": ["search_place", "nearby_pois"],
     "any_of": [["rank_resorts", "crowd_and_snow"], ["route", "rank_resorts"]],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d.])\\d+(?:\\.\\d+)?\\s*cm))(?:(?=.*(?:tsugaike|栂池|つがいけ|ツガイケ))(?=.*(?:(?<![\\d.０-９])(?:[1１][1１]|[1１][2２]|[1１][3３]|[1１][4４]|[1１][5５])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:tsuga ?base|ツガベース|栂池パーク))|(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:holiday|ホリデイ|brew ?pub|ブリューパブ)))",
+    "answer_regex": "(?is)(?=.*(?:(?<![\\d.])\\d+(?:\\.\\d+)?\\s*cm))(?:(?=.*(?:tsugaike|栂池|つがいけ|ツガイケ))(?=.*(?:(?<![\\d.０-９])(?:[1１][1１]|[1１][2２]|[1１][3３]|[1１][4４]|[1１][5５])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:tsuga ?base|ツガベース|栂池パーク))|(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:holiday|ホリデイ|brew ?pub|ブリューパブ)))",
     "check": "snow in cm, then the chosen resort's drive time and a lunch spot at its base",
     "regex_why": "The resort depends on live snow so either is accepted, but each branch pins its own drive time (Tsugaike 13 min, Iwatake 7 min) and base restaurant, so Tsugaike with Iwatake's 7 min or a plan without a lunch spot fails.",
     "positive": "Tsugaike has more fresh snow (46 cm vs 8 cm as of 18:00). It's about a 13 min drive. For lunch, Tsuga Base is 1 min walk from the base.",
@@ -1435,7 +1462,7 @@
     "question": "Which resort with night skiing is the shortest drive from JR Hakuba Station, how many minutes is it, and what is the nearest convenience store I can walk to from its base?",
     "required": ["search_place", "rank_resorts", "nearby_pois"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう|ゴリュウ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９]|[1１][0０])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:7-?eleven|7-?11|seven|セブン|小七|７-?(?:eleven|11)))",
+    "answer_regex": "(?is)(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう|ゴリュウ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９]|[1１][0０])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:7-?eleven|7-?11|seven|セブン|小七|７-?(?:eleven|11)))",
     "check": "Goryu, ~7 min drive, 7-Eleven nearby",
     "regex_why": "Requires Goryu with a 5-10 min drive and the 7-Eleven, so Sanosaka (the next night-skiing resort) or naming only the Lawson fails.",
     "positive": "ABLE Hakuba GORYU has night skiing and is about 7 min by car. The nearest convenience store is a 7-Eleven, about 24 min walk (2.0 km) from the base.",
@@ -1443,6 +1470,9 @@
       "White Resort Hakuba Sanosaka, about 10 min drive; there's a 7-Eleven nearby.",
       "Goryu is about 7 min away; the nearest convenience store is a Lawson, 27 min walk.",
       "Goryu has night skiing and a 7-Eleven nearby."
+    ],
+    "more_positives": [
+      "ABLE Hakuba GORYU is a 7-minute drive… 7-Eleven, 24 min walk."
     ]
   },
   {
@@ -1451,7 +1481,7 @@
     "question": "On 2027-01-12 I'll be at JR Hakuba Station around 8:30 and want to ski Hakuba Goryu. Compare the shuttle bus with driving: which bus do I take, when does it arrive, and how long is the drive?",
     "required": ["search_place", "next_buses", "route"],
     "optional": ["rank_resorts"],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時]\\s*[4４][2２]))(?=.*(?:(?<![\\d０-９])[0０]?[9９]\\s*[:：時]\\s*[2２][3３]))(?=.*(?:(?<![\\d.０-９])(?:[6６]|[7７]|[8８]|[9９]|[1１][0０])(?:\\.\\d)?\\s*(?:min|分)))",
+    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][2２]))(?=.*(?:(?<![\\d０-９])[0０]?[9９]\\s*[:：時点點]\\s*[2２][3３]))(?=.*(?:(?<![\\d.０-９])(?:[6６]|[7７]|[8８]|[9９]|[1１][0０])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))",
     "check": "08:42 bus arriving 09:23 vs ~8 min drive",
     "regex_why": "Requires the 08:42 departure, its 09:23 arrival and a 6-10 min drive, so the 08:46 Cortina-loop bus, the echoed 8:30, or a bus-only answer fails.",
     "positive": "Bus: the 08:42 Cortina ↔ Hakuba GORYU shuttle from JR Hakuba Station arrives at Goryu at 09:23 (41 min, timetable estimate). Driving takes about 8 min (5.3 km).",
@@ -1467,7 +1497,7 @@
     "question": "我住在 Hotel Hakuba，想去一日券最便宜的雪場。開車要多久？雪場附近有走路能到的午餐地方嗎？",
     "required": ["search_place", "rank_resorts", "nearby_pois"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d.０-９])(?:[3３][0０]|[3３][1１]|[3３][2２]|[3３][3３]|[3３][4４])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:山品|美麻|miasa|沒有|没有))",
+    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d.０-９])(?:[3３][0０]|[3３][1１]|[3３][2２]|[3３][3３]|[3３][4４])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:山品|美麻|miasa|沒有|没有))",
     "check": "Jigatake, ~32 min drive, and no restaurant within a walk (nearest 山品 11.7 km)",
     "regex_why": "Requires Jigatake (5,500 yen, cheapest) with a 30-34 min drive and the lunch finding, so Sanosaka at 12 min or a plan that skips the lunch question fails.",
     "positive": "一日券最便宜的是爺岳（Jigatake，5,500 日圓），從 Hotel Hakuba 開車約 32 分鐘。雪場附近走路沒有餐廳，最近的山品在 11.7 公里外。",
@@ -1483,7 +1513,7 @@
     "question": "我在 JR 神城站，2027-02-10 想去開車 10 分鐘內垂直落差最大的雪場。早上 8 點以後搭接駁巴士還是走路比較好？各要多久？",
     "required": ["search_place", "rank_resorts", "next_buses"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう|ゴリュウ))(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時]\\s*[4４][0０]))(?=.*(?:(?<![\\d.])1[3-7](?:\\.\\d)?\\s*(?:min|分)))",
+    "answer_regex": "(?is)(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう|ゴリュウ))(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][0０]))(?=.*(?:(?<![\\d.])1[3-7](?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))",
     "check": "Goryu; 08:40 bus from ESCAL PLAZA after a ~15 min walk, or walk ~15 min",
     "regex_why": "Requires Goryu, the 08:40 departure and a 13-17 min walk, so Sanosaka (the other resort within 10 min), the 08:22 Cortina bus, or an answer without the walk time fails.",
     "positive": "開車 10 分鐘內垂直落差最大的是白馬五竜（926 m）。巴士要先走約 15 分鐘到 ESCAL PLAZA，搭 08:40 的車 08:45 到；直接走路到五竜也只要約 15 分鐘，所以走路比較好。",
@@ -1491,6 +1521,9 @@
       "垂直落差最大的是白馬五竜，搭 08:22 的巴士，08:50 到。",
       "最大的是 Sanosaka，搭 08:28 的巴士。",
       "白馬五竜，08:40 的巴士。"
+    ],
+    "more_positives": [
+      "白馬五竜：走約15分鐘到ESCAL PLAZA，搭8點40分的巴士。"
     ]
   },
   {
@@ -1500,14 +1533,18 @@
     "required": ["search_place", "next_buses"],
     "any_of": [["crowd_and_snow", "rank_resorts"], ["route", "rank_resorts"]],
     "optional": [],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時]\\s*[1１][5５]))(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時]\\s*[3３][8８]|(?<![\\d０-９])[0０]?[8８]\\s*[:：時]\\s*[4４][5５]))(?=.*(?:(?<![\\d.０-９])(?:[1１][1１]|[1１][2２]|[1１][3３]|[1１][4４]|[1１][5５])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:high|高))",
+    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[1１][5５]))(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[3３][8８]|(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][5５]))(?=.*(?:(?<![\\d.０-９])(?:[1１][1１]|[1１][2２]|[1１][3３]|[1１][4４]|[1１][5５])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:\\bhigh\\b|(?:人潮|擁擠度|拥挤度|擁擠程度|拥挤程度|人數|人数|人流)[^\\n。]{0,8}?(?<!不)高(?!原)|很擁擠|很拥挤|非常擁擠|非常拥挤))",
     "check": "08:15 bus (arr 08:38 or 08:45), ~13 min drive, crowd high",
-    "regex_why": "Requires the 08:15 departure with its 08:38/08:45 arrival, an 11-15 min drive and the high crowd level, so the echoed 8:00, the next 08:48 loop, or an answer without the crowd level fails.",
+    "regex_why": "Requires the 08:15 departure with its 08:38/08:45 arrival, an 11-15 min drive and the high crowd level, so the echoed 8:00, the next 08:48 loop, or an answer without the crowd level fails. The crowd check needs 'high' or 高 after a crowd word, so the 高 in 栂池高原 next to a 'medium' level fails.",
     "positive": "08:15 從 Hakuba Tokyu Hotel 站上車，08:45 到栂池（也可走約 10 分鐘到八方巴士總站搭 08:15，08:38 到）。開車約 13 分鐘。那天擁擠度預估為高（high）。",
     "negatives": [
       "搭 08:00 的巴士，08:30 到；開車約 13 分鐘；人會很多。",
       "08:15 的巴士 08:45 到，開車約 13 分鐘。",
-      "08:15 的巴士 08:45 到，那天擁擠度高。"
+      "08:15 的巴士 08:45 到，那天擁擠度高。",
+      "08:15 上車，08:45 到栂池高原；開車約 13 分鐘；那天人潮 medium。"
+    ],
+    "more_positives": [
+      "搭8點15分的巴士，8點45分到栂池高原；開車約13分鐘；那天人潮預估為高（high）。"
     ]
   },
   {
@@ -1517,7 +1554,7 @@
     "required": ["search_place", "next_buses", "nearby_pois"],
     "any_of": [["route", "rank_resorts"]],
     "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?:12\\s*[-/月]\\s*13|(?<!\\d)13\\s*[日號号]))(?=.*(?:(?<![\\d.０-９])(?:[4４]|[5５]|[6６]|[7７]|[8８])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:unjaune|uncle steven|まえだ|maeda|roots|ルーツ|aduka))",
+    "answer_regex": "(?is)(?=.*(?:12\\s*[-/月]\\s*13|(?<!\\d)13\\s*[日號号]))(?=.*(?:(?<![\\d.０-９])(?:[4４]|[5５]|[6６]|[7７]|[8８])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:unjaune|uncle steven|まえだ|maeda|roots|ルーツ|aduka))",
     "check": "no bus until 2026-12-13, ~6 min drive, a restaurant at the Happo base",
     "regex_why": "Requires the first service date 12-13, a 4-8 min drive and a named Happo-base restaurant, so inventing an 08:xx bus on 12-05 or skipping lunch fails.",
     "positive": "2026-12-05 接駁巴士還沒開始營運，第一天是 2026-12-13。開車去八方尾根約 6 分鐘（2.6 公里）。午餐可以去基地旁的 Unjaune（步行 1 分鐘）或 Uncle Steven's（3 分鐘）。",
@@ -1533,7 +1570,7 @@
     "question": "2027-01-16にホテル白馬から、ナイター営業があるスキー場のうち一番空いているところへ行きたいです。15時以降のシャトルバスと、車なら何分かかるかを教えてください。",
     "required": ["search_place", "rank_resorts", "next_buses"],
     "optional": ["route", "crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d０-９])[1１][7７]\\s*[:：時]\\s*[3３][0０]))(?=.*(?:八方バスターミナル|happo bus terminal|バスターミナル|巴士))(?=.*(?:(?<![\\d.０-９])(?:[3３][0０]|[3３][1１]|[3３][2２]|[3３][3３]|[3３][4４])(?:\\.\\d)?\\s*(?:min|分)))",
+    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d０-９])[1１][7７]\\s*[:：時点點]\\s*[3３][0０]))(?=.*(?:八方バスターミナル|happo bus terminal|バスターミナル|巴士))(?=.*(?:(?<![\\d.０-９])(?:[3３][0０]|[3３][1１]|[3３][2２]|[3３][3３]|[3３][4４])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))",
     "check": "Jigatake; untimed 17:30 from Happo Bus Terminal; ~32 min drive",
     "regex_why": "Requires Jigatake, the 17:30 departure from Happo Bus Terminal and a 30-34 min drive, so Sanosaka (second quietest), the 15:13 Happo bus, or a bus-only answer fails.",
     "positive": "一番空いているナイター営業のスキー場は爺ガ岳（混雑は中程度）です。15時以降のバスは白馬八方バスターミナル発17:30の1本だけで（徒歩約12分）、到着時刻は時刻表に載っていません。車なら約32分です。",
@@ -1550,7 +1587,7 @@
     "required": ["search_place", "nearby_pois"],
     "any_of": [["rank_resorts", "crowd_and_snow"]],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:very.?high|非常に|とても混|大変混|かなり混|最も混|一番混|激しく混))(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:holiday|ホリデイ|brew ?pub|ブリューパブ))",
+    "answer_regex": "(?is)(?=.*(?:very.?high|非常に|とても混|大変混|かなり混|最も混|一番混|激しく混))(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:holiday|ホリデイ|brew ?pub|ブリューパブ))",
     "check": "Happo very high; Iwatake ~7 min drive; Holiday for lunch",
     "regex_why": "Requires Happo's very-high crowd, Iwatake with a 5-9 min drive and an Iwatake base restaurant, so Jigatake (quieter but 35 min away) or a plan without lunch fails.",
     "positive": "八方尾根は混雑度「very_high（非常に混雑）」の予想です。車で10分以内なら白馬岩岳（high）のほうが空いていて、車で約7分です。ランチはベースから徒歩1分のホリデイがおすすめです。",
@@ -1567,7 +1604,7 @@
     "required": ["search_place", "next_buses", "nearby_pois"],
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時]\\s*[4４][6６]))(?=.*(?:tsuga ?base|ツガベース|栂池パーク))",
+    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][6６]))(?=.*(?:tsuga ?base|ツガベース|栂池パーク))",
     "check": "Tsugaike (medium vs Happo high); 08:46 bus; Tsuga Base for lunch",
     "regex_why": "Requires the 08:46 Tsugaike bus and a Tsugaike base restaurant, so picking Happo (08:13 bus, Unjaune) or the bus without lunch fails.",
     "positive": "空いているのは栂池（混雑は中程度、八方尾根は高）です。JR白馬駅08:46発のバスで09:10着（時刻表の推定）。ランチはベースから徒歩1分のツガベースがあります。",
@@ -1583,7 +1620,7 @@
     "question": "JR白馬駅から車で8分以内、Hakuba Valley共通券が使えるスキー場のうち一日券が一番安いのはどこですか？いくらで、車で何分か、ベースから歩いて行けるコンビニも教えてください。",
     "required": ["search_place", "rank_resorts", "nearby_pois"],
     "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d０-９])[7７][,，]?[5５][0０][0０](?![\\d０-９])))(?=.*(?:(?<![\\d.０-９])(?:[3３]|[4４]|[5５]|[6６]|[7７])(?:\\.\\d)?\\s*(?:min|分)))(?=.*(?:7-?eleven|7-?11|seven|セブン|小七|７-?(?:eleven|11)))",
+    "answer_regex": "(?is)(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d０-９])[7７][,，]?[5５][0０][0０](?![\\d０-９])))(?=.*(?:(?<![\\d.０-９])(?:[3３]|[4４]|[5５]|[6６]|[7７])(?:\\.\\d)?\\s*(?:-|~|〜)?\\s*(?:min|分)))(?=.*(?:7-?eleven|7-?11|seven|セブン|小七|７-?(?:eleven|11)))",
     "check": "Iwatake 7,500 yen, ~5 min drive, 7-Eleven",
     "regex_why": "Requires Iwatake at 7,500 yen with a 3-7 min drive and the 7-Eleven, so Goryu (9,500), the echoed 8 min, or naming only the Lawson fails.",
     "positive": "一番安いのは白馬岩岳（一日券7,500円）で、JR白馬駅から車で約5分です。ベースから徒歩約19分（1.6km）のところにセブン-イレブンがあります。",

@@ -333,7 +333,8 @@ def test_question_ids_are_unique_and_tools_are_real() -> None:
 def test_regex_takes_the_right_answer_and_rejects_wrong_ones(q: dict[str, Any]) -> None:
     pattern = re.compile(q["answer_regex"])
     assert q["regex_why"].strip()
-    assert pattern.search(q["positive"]), "the correct answer must match"
+    for right in [q["positive"], *q.get("more_positives", [])]:
+        assert pattern.search(right), f"correct answer did not match: {right}"
     assert len(q["negatives"]) >= 2
     for wrong in q["negatives"]:
         assert not pattern.search(wrong), f"wrong answer matched: {wrong}"
