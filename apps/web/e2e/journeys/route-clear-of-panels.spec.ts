@@ -373,6 +373,47 @@ test.describe("turning a phone", () => {
     await expectClear(page, [], { start: false, end: true });
   });
 
+  // only the touch the map turned under stops being a tap: not a later one that starts
+  // on the sheet, after a plain tap (its mousedown left the map "pressed") or a cancel
+  for (const [label, before] of [
+    ["after a tap on the map", "tap"],
+    ["after a touch the turn cancelled", "cancel"],
+  ] as const) {
+    test(`a sheet tap still works ${label}`, async ({ page }) => {
+      await open(page, NORTH);
+      await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+        timeout: 30_000,
+      });
+      const cdp = await page.context().newCDPSession(page);
+      const at = { x: 30, y: 200, id: 1 };
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [at],
+      });
+      if (before === "tap") {
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchEnd",
+          touchPoints: [],
+        });
+        await page.waitForTimeout(800);
+        await page.setViewportSize({ width: 667, height: 375 });
+      } else {
+        await page.setViewportSize({ width: 667, height: 375 });
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchCancel",
+          touchPoints: [],
+        });
+      }
+      await page.waitForTimeout(500);
+
+      await page.getByRole("button", { name: "Expand directions" }).tap();
+      await expect(page.locator("[data-sheet]")).toHaveAttribute(
+        "data-state",
+        "expanded",
+      );
+    });
+  }
+
   // turned, y 350 is on the sheet's ETA text and y 200 still on the map. Lifted on the
   // map, the tap's mousedown used to stop the fit (MapLibre takes it as a grab)
   for (const [where, y] of [
