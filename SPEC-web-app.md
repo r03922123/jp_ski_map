@@ -375,3 +375,31 @@ the 40% fit put it).
 - [ ] e2e `layout-share.spec.ts`: a new state, L4 with the sheet swiped low, shows map ≥ 60% of the page at
   390×797 and 360×740, against 35% when collapsed, with the ETA on one line. The ETA and Start stay visible and on top (as in `small-phone.spec.ts`).
 - [ ] e2e `map-credits.spec.ts` and `small-phone.spec.ts` still pass. A phone-size screenshot of the low sheet.
+
+## v1.18: A two-row trip card (2026-11-20, gap G2 in SPEC-maps-ios-ux; the owner chose "Add destination in the sheet")
+
+**Objective.** The trip card on top ends higher, so the map gets the rows it used. In directions preview the
+card was 172 px against Google's ≈95 pt: a third row held "+ Add destination", the destination's ☆ and
+★ Saved.
+
+**Rules.**
+- Two bars: row 1 is the rail, the From box and **★ Saved**, the same place it has in the one-bar card. Row 2 is
+  the rail, the To box and the destination's **☆**. ⇅ stays to the right of both rows. No third row, on any
+  screen.
+- **"+ Add destination" moves into the sheet**, under the Trip list (From, then the stops), which is where the
+  stop box it opens appears. Its focus handling (TripPanel hands focus back to it after an edit) is unchanged.
+- Recorded change: while Saved is open the sheet shows Saved, so Add destination isn't on screen. It comes
+  back when Saved closes (v1.13 had it in the top card, where it also closed Saved).
+- The expanded sheet's top limit follows the shorter card (`BottomSheet` 100dvh − 180 px, `route-geo`
+  `TRIP_CARD_PX` 132), so the strip of map above an expanded sheet sits at 120–176 px.
+- The To box's hint is "Where to?": "Search a destination" no longer fits the narrower box at 360 px.
+- Trade-off, recorded: ★ and ☆ each take a 44 px slot beside the boxes (the touch-target minimum), so the boxes
+  are 48 px narrower: 200 px at 360 px wide (was 248), 233 px at 393. Long names truncate sooner.
+
+**Done when.**
+- [ ] e2e `journeys/trip-card.spec.ts`: ★ Saved is right of the From box, ☆ right of the To box, and nothing in
+  the card is below the To box. Add destination is inside the sheet, opens Stop 1, and is hidden while Saved is
+  open. At 360×740 the To box is at least 200 px wide (was 220).
+- [ ] e2e `layout-share.spec.ts` L4 at 390×797: top chrome ≤ 16% of the page (it was 21.6%).
+- [ ] vitest: TripPanel shows the Add destination slot under the Trip list. The stops e2e and journeys still
+  pass, or fail on main the same way.

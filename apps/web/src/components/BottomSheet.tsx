@@ -201,14 +201,14 @@ export function BottomSheet({
       data-slim={slim || undefined}
       className={cn(
         "group/sheet pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
-        // expanded: never up under the trip card on top (184 px, or 136 on a landscape
+        // expanded: never up under the trip card on top (132 px since v1.18's two rows, or 136 on a landscape
         // phone, where its third row sits beside the boxes), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
         state === "low"
           ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1
             "h-[84px]"
           : expanded
-            ? "h-[min(80dvh,calc(100dvh-232px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
+            ? "h-[min(80dvh,calc(100dvh-180px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
             : slim
               ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
                 "h-[40dvh] max-md:[@media(max-height:479px)]:h-[84px]"
