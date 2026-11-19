@@ -94,6 +94,8 @@ export type MapViewProps = {
   /** The dropped pin, with its card (`pinCard`) drawn at it. */
   droppedPin?: { coord: Coord; name: string | null } | null;
   pinCard?: ReactNode;
+  /** The sheet is a slim ETA + Start bar on a landscape phone (BottomSheet `slim`). */
+  slimSheet?: boolean;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
   pilot?: {
     camera: Camera | null;
@@ -137,11 +139,12 @@ export function keepRouteLayerOrder(map: MapLibreMap): void {
 }
 
 type HasCanvas = Pick<MapLibreMap, "getCanvas">;
-const paddingOf = (map: HasCanvas) => {
+const paddingOf = (map: HasCanvas, slimSheet = false) => {
   const canvas = map.getCanvas();
   return mapPadding({
     width: canvas.clientWidth,
     height: canvas.clientHeight,
+    slimSheet,
   });
 };
 const sizeOf = (map: HasCanvas) => {
@@ -179,6 +182,7 @@ export default function MapView({
   onMapTap,
   droppedPin = null,
   pinCard,
+  slimSheet = false,
   pilot = null,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
@@ -204,7 +208,7 @@ export default function MapView({
     p ? [[p.lng, p.lat] as LngLat] : [],
   );
   const drawn = [...routes, ...(ride ? [ride.route] : [])];
-  const fitKey = `${canvasSize}/${activeRoute}/${endPoints.join(";")}/${drawn
+  const fitKey = `${canvasSize}/${slimSheet}/${activeRoute}/${endPoints.join(";")}/${drawn
     .map(
       (r) =>
         `${r.mode}:${r.durationS}:${r.distanceM}:${r.geometry.coordinates.length}`,
@@ -222,7 +226,7 @@ export default function MapView({
     ];
     if (all.length < 2) return;
     map.fitBounds(routeBounds(all), {
-      padding: paddingOf(map),
+      padding: paddingOf(map, slimSheet),
       // replaces what navigation or a dropped pin left on the map: added to that, the
       // padding can exceed the map, and the fit silently does nothing
       absolutePadding: true,

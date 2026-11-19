@@ -170,6 +170,44 @@ for (const device of DEVICES) {
   });
 }
 
+// a landscape phone left ~80 px of map between the panels: with a route, the collapsed
+// sheet is only its ETA + Start row (T77 keeps both in view), and expands as before
+for (const device of DEVICES.filter((d) => d.width > d.height && d.touch)) {
+  test.describe(`slim bar · ${device.name}`, () => {
+    test.use({
+      viewport: { width: device.width, height: device.height },
+      isMobile: true,
+      hasTouch: true,
+    });
+
+    test("a route leaves the map room above a slim ETA + Start bar", async ({
+      page,
+    }) => {
+      const out = await open(page, NORTH);
+      const sheet = page.locator("[data-sheet]");
+      const start = page.getByRole("button", {
+        name: /Start navigation|Preview route/,
+      });
+      await expect(start).toBeInViewport({ ratio: 1 });
+      await expect(page.getByText(/^ETA ~/)).toBeInViewport({ ratio: 1 });
+      await expect
+        .poll(async () => (await sheet.boundingBox())?.height ?? 0)
+        .toBeLessThanOrEqual(84); // route-geo SLIM_BAR_PX
+      const header = await page.locator("[data-trip-header]").boundingBox();
+      const box = await sheet.boundingBox();
+      if (!header || !box) throw new Error("missing panel");
+      expect(box.y - (header.y + header.height)).toBeGreaterThanOrEqual(120);
+      await expectClear(page, out.primary.geometry.coordinates);
+
+      await page.getByRole("button", { name: "Expand directions" }).click();
+      await expect
+        .poll(async () => (await sheet.boundingBox())?.height ?? 0)
+        .toBeGreaterThan(150);
+      await expect(page.getByRole("list", { name: "Steps" })).toBeVisible();
+    });
+  });
+}
+
 test.describe("resizing", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -304,7 +342,9 @@ test.describe("turning a phone", () => {
 
     await cdp.send("Input.dispatchTouchEvent", {
       type: "touchStart",
-      touchPoints: [{ x: 30, y: 300, id: 1 }],
+      // turned, the finger is on the sheet's ETA text, as y 300 was on the 40 % sheet
+      // (y 300 now meets the slim bar's handle, which takes the lift as a tap)
+      touchPoints: [{ x: 30, y: 350, id: 1 }],
     });
     await page.setViewportSize({ width: 667, height: 375 });
     await page.waitForTimeout(500);

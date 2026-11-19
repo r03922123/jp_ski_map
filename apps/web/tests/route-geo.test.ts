@@ -8,6 +8,7 @@ import {
   pinEaseOffsetY,
   pointAlong,
   routeBounds,
+  SLIM_BAR_PX,
   segment,
 } from "@/lib/route-geo";
 
@@ -94,6 +95,24 @@ describe("mapPadding", () => {
   ])("keeps a whole marker's room on a %ix%i landscape phone", (width, height) => {
     expect(mapPadding({ width, height }).top).toBeGreaterThanOrEqual(
       120 + 4 + MARKER_PX,
+    );
+  });
+
+  // a landscape phone with a route: the sheet is only its ETA + Start row, so the
+  // route gets the height the 40 % sheet took (28 px left to fit into at 740x360 before)
+  it.each([
+    [740, 360],
+    [667, 375],
+  ])("fits above the slim ETA bar on a %ix%i landscape phone", (width, height) => {
+    const p = mapPadding({ width, height, slimSheet: true });
+    expect(p.bottom).toBeGreaterThanOrEqual(SLIM_BAR_PX);
+    expect(p.bottom).toBeLessThanOrEqual(SLIM_BAR_PX + 16);
+    expect(height - p.top - p.bottom).toBeGreaterThanOrEqual(3 * 28);
+  });
+
+  it("keeps the 40 % sheet's room on a tall phone, slim or not", () => {
+    expect(mapPadding({ width: 390, height: 699, slimSheet: true })).toEqual(
+      mapPadding({ width: 390, height: 699 }),
     );
   });
 

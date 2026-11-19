@@ -13,6 +13,7 @@ export function BottomSheet({
   collapseKey,
   revealKey,
   hiddenOnPhone = false,
+  slim = false,
   children,
 }: {
   label: string;
@@ -28,6 +29,11 @@ export function BottomSheet({
   revealKey?: string;
   /** Phones: only the header shows (the sheet would hold nothing yet). It comes back collapsed. */
   hiddenOnPhone?: boolean;
+  /**
+   * A route with its ETA + Start row (DirectionsPanel). On a landscape phone the
+   * collapsed sheet is only that row, so the route has room (route-geo SLIM_BAR_PX).
+   */
+  slim?: boolean;
   children: ReactNode;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -161,6 +167,7 @@ export function BottomSheet({
       tabIndex={-1}
       data-state={expanded ? "expanded" : "collapsed"}
       data-phone-hidden={hiddenOnPhone || undefined}
+      data-slim={slim || undefined}
       className={cn(
         "pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
         // expanded: never up under the trip card on top (184 px, or 136 on a landscape
@@ -168,7 +175,10 @@ export function BottomSheet({
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
         expanded
           ? "h-[min(80dvh,calc(100dvh-232px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
-          : "h-[40dvh]",
+          : slim
+            ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
+              "h-[40dvh] max-md:[@media(max-height:479px)]:h-[84px]"
+            : "h-[40dvh]",
         "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
         // invisible, not unmounted: the header inside stays visible, and taps reach the map
         hiddenOnPhone && "max-md:invisible",
@@ -212,7 +222,11 @@ export function BottomSheet({
       <div
         ref={bodyRef}
         data-sheet-body
-        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4"
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4",
+          // the sticky ETA row sits on the bar's bottom edge, the rest scrolled behind it
+          slim && !expanded && "max-md:[@media(max-height:479px)]:pb-0",
+        )}
         // a search box down here (a trip stop) needs room for its suggestions. Only a box
         // you type in: a tapped checkbox or date field that grew the sheet moved out from
         // under the finger, and the tap was lost (v1.9)
