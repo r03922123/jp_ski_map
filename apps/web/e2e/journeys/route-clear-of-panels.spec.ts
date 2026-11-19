@@ -373,26 +373,76 @@ test.describe("turning a phone", () => {
     await expectClear(page, [], { start: false, end: true });
   });
 
-  test("with a finger on the map, the fit catches up when it lifts", async ({
-    page,
-  }) => {
-    const out = await open(page, NORTH);
-    await expectClear(page, out.primary.geometry.coordinates);
-    const cdp = await page.context().newCDPSession(page);
+  // only the touch the map turned under stops being a tap: not a later one that starts
+  // on the sheet, after a plain tap (its mousedown left the map "pressed") or a cancel
+  for (const [label, before] of [
+    ["after a tap on the map", "tap"],
+    ["after a touch the turn cancelled", "cancel"],
+  ] as const) {
+    test(`a sheet tap still works ${label}`, async ({ page }) => {
+      await open(page, NORTH);
+      await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+        timeout: 30_000,
+      });
+      const cdp = await page.context().newCDPSession(page);
+      const at = { x: 30, y: 200, id: 1 };
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [at],
+      });
+      if (before === "tap") {
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchEnd",
+          touchPoints: [],
+        });
+        await page.waitForTimeout(800);
+        await page.setViewportSize({ width: 667, height: 375 });
+      } else {
+        await page.setViewportSize({ width: 667, height: 375 });
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchCancel",
+          touchPoints: [],
+        });
+      }
+      await page.waitForTimeout(500);
 
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchStart",
-      // turned, the finger is on the sheet's ETA text, as y 300 was on the 40 % sheet
-      // (y 300 now meets the slim bar's handle, which takes the lift as a tap)
-      touchPoints: [{ x: 30, y: 350, id: 1 }],
+      await page.getByRole("button", { name: "Expand directions" }).tap();
+      await expect(page.locator("[data-sheet]")).toHaveAttribute(
+        "data-state",
+        "expanded",
+      );
     });
-    await page.setViewportSize({ width: 667, height: 375 });
-    await page.waitForTimeout(500);
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchEnd",
-      touchPoints: [],
-    });
+  }
 
-    await expectClear(page, out.primary.geometry.coordinates);
-  });
+  // turned, y 350 is on the sheet's ETA text and y 200 still on the map. Lifted on the
+  // map, the tap's mousedown used to stop the fit (MapLibre takes it as a grab)
+  for (const [where, y] of [
+    ["on the sheet", 350],
+    ["on the map", 200],
+  ] as const) {
+    test(`with a finger on the map, the fit catches up when it lifts ${where}`, async ({
+      page,
+    }) => {
+      const out = await open(page, NORTH);
+      await expectClear(page, out.primary.geometry.coordinates);
+      const cdp = await page.context().newCDPSession(page);
+
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [{ x: 30, y, id: 1 }],
+      });
+      await page.setViewportSize({ width: 667, height: 375 });
+      await page.waitForTimeout(500);
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: [],
+      });
+
+      await expectClear(page, out.primary.geometry.coordinates);
+      // the map turned under the finger: its lift is no tap and no long-press
+      await expect(
+        page.getByRole("group", { name: "Dropped pin" }),
+      ).toHaveCount(0);
+    });
+  }
 });

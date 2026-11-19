@@ -256,6 +256,11 @@ export default function MapView({
   // (Task 67). The ref is set before React sees the press.
   const [pressing, setPressing] = useState(false);
   const pressed = useRef(false);
+  // the map was resized under a finger that started on it (a phone turned): that touch
+  // no longer points at what it started on, so its lift is no tap (see release). Only
+  // that touch: both are cleared when it ends or is cancelled
+  const mapTouch = useRef(false);
+  const resizedUnderFinger = useRef(false);
   const press = () => {
     pressed.current = true;
     setPressing(true);
@@ -265,12 +270,30 @@ export default function MapView({
       // a lifted finger with another still on the map is not a release
       // (no `instanceof TouchEvent`: desktop Firefox has no TouchEvent global)
       if (e && "touches" in e && (e as TouchEvent).touches.length > 0) return;
+      // no tap: the browser would follow it with a mousedown on the map, which MapLibre
+      // takes as a grab and stops the fit this release starts (the old fit stayed)
+      // a touchend goes where its touch began: only the map finger's lift, not a second
+      // finger's tap on the sheet
+      if (
+        e?.type === "touchend" &&
+        resizedUnderFinger.current &&
+        e.cancelable &&
+        mapRef.current?.getContainer().contains(e.target as Node)
+      )
+        e.preventDefault();
+      // pointerup comes before touchend: the touch isn't over yet
+      if (e?.type !== "pointerup" && e?.type !== "mouseup") {
+        mapTouch.current = false;
+        resizedUnderFinger.current = false;
+      }
       pressed.current = false;
       setPressing(false);
     };
     // touchend too: a touch sequence without pointer events (some WebViews, scripted
     // touches) would otherwise leave the map thinking a finger is still down
+    // mouseup too: the mousedown a browser sends after a tap presses the map again
     const ends = [
+      "mouseup",
       "pointerup",
       "pointercancel",
       "touchend",
@@ -443,6 +466,10 @@ export default function MapView({
       // not under a finger: a re-fit must never pull the map away mid-gesture
       onResize={(e) => {
         if (!pressed.current) setCanvasSize(sizeOf(e.target));
+        else if (mapTouch.current) {
+          resizedUnderFinger.current = true;
+          gestures.endHold(); // nor a long-press: turning the phone drops no pin
+        }
       }}
       onMoveEnd={(e: ViewStateChangeEvent) => reportView(e.target)}
       onStyleData={(e) => keepRouteLayerOrder(e.target)}
@@ -450,6 +477,8 @@ export default function MapView({
       // wired when the map is created, so a press during loading counts too
       onMouseDown={press}
       onTouchStart={(e) => {
+        mapTouch.current = true;
+        resizedUnderFinger.current = false;
         press();
         gestures.startHold(e);
       }}
