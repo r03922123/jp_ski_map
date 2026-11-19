@@ -272,7 +272,14 @@ export default function MapView({
       if (e && "touches" in e && (e as TouchEvent).touches.length > 0) return;
       // no tap: the browser would follow it with a mousedown on the map, which MapLibre
       // takes as a grab and stops the fit this release starts (the old fit stayed)
-      if (e?.type === "touchend" && resizedUnderFinger.current && e.cancelable)
+      // a touchend goes where its touch began: only the map finger's lift, not a second
+      // finger's tap on the sheet
+      if (
+        e?.type === "touchend" &&
+        resizedUnderFinger.current &&
+        e.cancelable &&
+        mapRef.current?.getContainer().contains(e.target as Node)
+      )
         e.preventDefault();
       // pointerup comes before touchend: the touch isn't over yet
       if (e?.type !== "pointerup" && e?.type !== "mouseup") {
