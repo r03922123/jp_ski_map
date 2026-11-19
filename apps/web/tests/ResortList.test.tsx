@@ -31,7 +31,7 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       driveTime: 368,
       freshSnow: 46.8,
       snowDepth: 299,
-      crowd: 0.62,
+      crowd: 0.6,
       terrainSize: 16,
       vertical: 1071,
       price: null,
@@ -47,11 +47,18 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       resortId: "happo-one",
       date: "2026-01-12",
       level: "high",
-      score: 0.62,
+      score: 0.6,
       source: "heuristic",
       isEstimate: true,
       reasons: ["3-day weekend (Coming of Age Day)", "Large, popular resort"],
+      contributions: [
+        { label: "3-day weekend (Coming of Age Day)", weight: 0.35 },
+        { label: "Large, popular resort", weight: 0.25 },
+      ],
     },
+    statsSource:
+      "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://www.happo-one.jp/price/ (checked 2026-11-06)",
+    website: "https://www.happo-one.jp/",
     ...overrides,
   };
 }
@@ -96,10 +103,121 @@ describe("ResortList", () => {
     expect(screen.getByText("Vertical drop")).toBeInTheDocument();
     expect(screen.getByText("1071 m")).toBeInTheDocument();
     expect(screen.getByText("Ticket price").nextSibling).toHaveTextContent("—");
-    expect(screen.getByText(/Coming of Age Day/)).toBeInTheDocument();
+    expect(screen.getByText(/Crowd estimate:/)).toHaveTextContent(
+      /Coming of Age Day/,
+    );
     expect(
       screen.getByText(/snow model as of 01\/12 07:00/i),
     ).toBeInTheDocument();
+  });
+
+  it("keeps sources and weights closed until asked", () => {
+    render(
+      <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
+    );
+
+    const sources = screen.getByText("Sources & weights").closest("details");
+    expect(sources).not.toHaveAttribute("open");
+  });
+
+  it("links every stats URL and the data sources, and shows each crowd weight", () => {
+    render(
+      <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
+    );
+    fireEvent.click(screen.getByText("Sources & weights"));
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+    const hrefs = block.getAllByRole("link").map((a) => a.getAttribute("href"));
+
+    expect(hrefs).toEqual([
+      "https://www.openstreetmap.org/copyright",
+      "https://open-meteo.com/",
+      "https://www.hakubavalley.com/en/ski_resort_info_en/",
+      "https://www.happo-one.jp/price/",
+      "https://www.happo-one.jp/",
+    ]);
+    for (const a of block.getAllByRole("link")) {
+      expect(a).toHaveAttribute("target", "_blank");
+      expect(a).toHaveAttribute("rel", "noopener noreferrer");
+    }
+    expect(block.getByText("+0.35")).toBeInTheDocument();
+    expect(block.getByText("+0.25")).toBeInTheDocument();
+    expect(block.getByText("0.60")).toBeInTheDocument();
+  });
+
+  it("shows a negative weight and says when the sum was capped", () => {
+    render(
+      <ResortList
+        resorts={[
+          ranked({
+            crowd: {
+              ...(ranked().crowd as NonNullable<RankedResort["crowd"]>),
+              score: 0,
+              reasons: ["Early/late season"],
+              contributions: [{ label: "Early/late season", weight: -0.15 }],
+            },
+          }),
+        ]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+
+    expect(block.getByText("−0.15")).toBeInTheDocument();
+    expect(block.getByText(/capped to 0–1/)).toBeInTheDocument();
+  });
+
+  it("never turns a non-web URL in the stats source into a link", () => {
+    render(
+      <ResortList
+        resorts={[
+          ranked({ statsSource: "javascript:alert(1) and nothing else" }),
+        ]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+
+    expect(block.getByText(/javascript:alert\(1\)/)).toBeInTheDocument();
+    expect(
+      block
+        .getAllByRole("link", { hidden: true })
+        .every((a) => a.getAttribute("href")?.startsWith("https://")),
+    ).toBe(true);
+  });
+
+  it("only links an http(s) website and drops trailing punctuation", () => {
+    render(
+      <ResortList
+        resorts={[
+          ranked({
+            website: "data:text/html,<b>x</b>",
+            statsSource: "Price: https://x.jp/price. Checked.",
+          }),
+        ]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+    const hrefs = block
+      .getAllByRole("link", { hidden: true })
+      .map((a) => a.getAttribute("href"));
+
+    expect(hrefs).not.toContain("data:text/html,<b>x</b>");
+    expect(hrefs).toContain("https://x.jp/price");
+    expect(block.getAllByText("(opens in a new tab)").length).toBe(
+      hrefs.length,
+    );
   });
 
   it("says on the card when the snow is from, once the report is over 90 minutes old", () => {

@@ -8,6 +8,13 @@ from hakuba_api.snow.models import SnowReport
 CrowdLevel = Literal["low", "medium", "high", "very_high"]
 
 
+class Contribution(ApiModel):
+    """One term of the crowd score: what it is and exactly how much it added."""
+
+    label: str
+    weight: float
+
+
 class CrowdEstimate(ApiModel):
     resort_id: str
     date: date
@@ -16,6 +23,7 @@ class CrowdEstimate(ApiModel):
     source: str
     is_estimate: bool = True
     reasons: list[str]
+    contributions: list[Contribution]
 
 
 class PeakPeriod(ApiModel):
