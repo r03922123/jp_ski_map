@@ -30,6 +30,7 @@ Levels: < 0.3 low, < 0.55 medium, < 0.8 high, otherwise very_high.
 - [ ] Deterministic: the same inputs always give the same score. Every contributing factor appears in `reasons`.
 - [ ] Unit tests: a weekday in mid-Jan with no new snow at Jigatake → low; Saturday during Lunar New Year with a 30 cm powder day at Happo-One → very_high.
 - [ ] The UI always shows "estimated" and the reasons.
+- [ ] v1.1: `contributions` lists the weight of every term (see SPEC-resort-ranking v1.1).
 
 ## Boundaries
 - Never: scrape Google Popular Times or any source whose terms forbid it.
