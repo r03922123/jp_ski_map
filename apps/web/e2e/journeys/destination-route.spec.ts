@@ -665,7 +665,7 @@ for (const d of ALL) {
     test("after choosing from further down the list, the ETA and Start are in view", async ({
       page,
     }) => {
-      test.fail(); // known: F (L4, M5) — the panel stays scrolled to the card; ETA, Start and the To row are scrolled out above
+      // F (L4, M5), fixed: a sheet whose route appears scrolls back to its ETA + Start
       await open(page, PLAN);
       await expect(ranked(page)).toBeVisible({ timeout: 20_000 });
       await chooseResort(page, /Cortina/, d.touch);
