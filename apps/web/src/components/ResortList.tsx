@@ -63,6 +63,81 @@ function formatAsOf(iso: string): string {
 // the API serves its last good report while Open-Meteo is down, and a list left open ages.
 const SNOW_OLD_MS = 90 * 60 * 1000;
 
+// Only http(s) URLs become links; any other text, e.g. "javascript:…", stays plain
+const WEB_URL = /(https?:\/\/[^\s;,()]+)/;
+
+function SourceLink({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="break-all underline"
+    >
+      {href}
+    </a>
+  );
+}
+
+function linkify(text: string) {
+  return text.split(WEB_URL).map((part, i) =>
+    // biome-ignore lint/suspicious/noArrayIndexKey: the same URL can appear twice; parts never reorder
+    i % 2 ? <SourceLink key={part + i} href={part} /> : part,
+  );
+}
+
+const signed = (w: number) => `${w < 0 ? "−" : "+"}${Math.abs(w).toFixed(2)}`;
+
+function SourcesAndWeights({ r }: { r: RankedResort }) {
+  const sum = r.crowd?.contributions.reduce((s, c) => s + c.weight, 0) ?? 0;
+  return (
+    <details className="mt-1">
+      <summary className="cursor-pointer text-muted-foreground">
+        Sources &amp; weights
+      </summary>
+      <dl className="mt-1 space-y-1 text-muted-foreground">
+        <dt className="font-medium">Drive time</dt>
+        <dd>
+          OpenStreetMap roads, Valhalla router:{" "}
+          <SourceLink href="https://www.openstreetmap.org/copyright" />
+        </dd>
+        <dt className="font-medium">Fresh snow, snow depth</dt>
+        <dd>
+          Open-Meteo, {r.snow?.depthCm.source ?? "model"}:{" "}
+          <SourceLink href="https://open-meteo.com/" />
+        </dd>
+        {r.crowd && (
+          <>
+            <dt className="font-medium">Crowd (heuristic estimate)</dt>
+            <dd>
+              <ul>
+                {r.crowd.contributions.map((c) => (
+                  <li key={c.label} className="flex justify-between gap-3">
+                    <span>{c.label}</span>
+                    <span className="tabular-nums">{signed(c.weight)}</span>
+                  </li>
+                ))}
+                <li className="flex justify-between gap-3 font-medium">
+                  <span>Sum</span>
+                  <span className="tabular-nums">{sum.toFixed(2)}</span>
+                </li>
+              </ul>
+              {(sum < 0 || sum > 1) && <p>The sum is capped to 0–1.</p>}
+              <p>Levels: below 0.30 low, below 0.55 medium, below 0.80 high.</p>
+            </dd>
+          </>
+        )}
+        <dt className="font-medium">Runs, vertical drop, ticket price</dt>
+        <dd>{linkify(r.statsSource)}</dd>
+        <dt className="font-medium">Resort website</dt>
+        <dd>
+          <SourceLink href={r.website} />
+        </dd>
+      </dl>
+    </details>
+  );
+}
+
 function snowSummary(r: RankedResort): string | null {
   const fresh = r.snow?.newSnowCm.past24h;
   const depth = r.snow?.depthCm.summit;
@@ -178,6 +253,7 @@ export function ResortList({
                   Snow model as of {formatAsOf(r.snow.asOf)} (Open-Meteo)
                 </p>
               )}
+              <SourcesAndWeights r={r} />
             </details>
           </li>
         );

@@ -381,6 +381,16 @@ export interface components {
              */
             newerSourcePending: boolean;
         };
+        /**
+         * Contribution
+         * @description One term of the crowd score: what it is and exactly how much it added.
+         */
+        Contribution: {
+            /** Label */
+            label: string;
+            /** Weight */
+            weight: number;
+        };
         /** Coord */
         Coord: {
             /** Lat */
@@ -413,6 +423,8 @@ export interface components {
             isEstimate: boolean;
             /** Reasons */
             reasons: string[];
+            /** Contributions */
+            contributions: components["schemas"]["Contribution"][];
         };
         /**
          * Factors
@@ -638,6 +650,10 @@ export interface components {
             factors: components["schemas"]["Factors"];
             snow: components["schemas"]["SnowReport"] | null;
             crowd: components["schemas"]["CrowdEstimate"] | null;
+            /** Statssource */
+            statsSource: string;
+            /** Website */
+            website: string;
         };
         /** Resort */
         Resort: {
