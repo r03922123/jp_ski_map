@@ -180,8 +180,15 @@ test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
     test(`directions preview${low ? ", sheet low" : ""}: map behind the status bar, panels clear of it`, async ({
       page,
     }) => {
+      // before load, so the first camera fit already sees them (review nit)
+      await page.addInitScript((css) => {
+        document.addEventListener("DOMContentLoaded", () => {
+          const style = document.createElement("style");
+          style.textContent = css;
+          document.head.append(style);
+        });
+      }, NOTCH);
       await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
-      await page.addStyleTag({ content: NOTCH });
       await expect(
         page.locator(
           "main[data-map-loaded='true']:not([data-route-points='0'])",
@@ -201,6 +208,12 @@ test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
       expect(card.y).toBeLessThanOrEqual(47 + 12);
       expect(sheet.y + sheet.height).toBeLessThanOrEqual(844 - 34);
       expect(sheet.y + sheet.height).toBeGreaterThanOrEqual(844 - 34 - 8);
+      // MapLibre's corner controls (zoom, credits) sit above the home bar (review finding 1)
+      const controls = await page
+        .locator(".maplibregl-ctrl-bottom-right")
+        .boundingBox();
+      if (!controls) throw new Error("no map controls");
+      expect(controls.y + controls.height).toBeLessThanOrEqual(844 - 34);
       // the rows behind the status bar show map (the fade over them takes no taps)
       const behindStatusBar = await page.evaluate(() =>
         [5, 20, 40].every((y) =>
@@ -218,4 +231,28 @@ test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
       if (low) expect(result.mapPct).toBeGreaterThanOrEqual(70);
     });
   }
+});
+
+// v1.19 review: a notched iPhone in landscape is ≥ 812 px wide, so it gets the side card
+test.describe("iPhone landscape insets simulated, 844×390 (v1.19)", () => {
+  test.use({ viewport: { width: 844, height: 390 } });
+  const SIDES =
+    ":root { --safe-left: 47px !important; --safe-right: 47px !important; --safe-bottom: 21px !important; }";
+
+  test("the side card stays clear of the notch", async ({ page }) => {
+    await page.addInitScript((css) => {
+      document.addEventListener("DOMContentLoaded", () => {
+        const style = document.createElement("style");
+        style.textContent = css;
+        document.head.append(style);
+      });
+    }, SIDES);
+    await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+    await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+      timeout: 30_000,
+    });
+    const card = await page.locator("[data-sheet]").boundingBox();
+    if (!card) throw new Error("no side card");
+    expect(card.x).toBeGreaterThanOrEqual(47);
+  });
 });

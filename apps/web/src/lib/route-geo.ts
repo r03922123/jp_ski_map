@@ -111,7 +111,13 @@ const PIN_CARD_HALF_WIDTH_PX = 140; // its Popup's maxWidth is 280
  * so the trip card sits `top` lower and the sheet `bottom` higher. 0 outside the
  * home-screen app.
  */
-export type SafeInsets = { top: number; bottom: number };
+export type SafeInsets = {
+  top: number;
+  bottom: number;
+  /** a notched iPhone in landscape (≥ 812 px wide, so the side-card layout) */
+  left?: number;
+  right?: number;
+};
 const NO_INSETS: SafeInsets = { top: 0, bottom: 0 };
 
 export function pinCardAnchor({
@@ -177,10 +183,10 @@ export function mapPadding({
 }) {
   if (width >= MD_BREAKPOINT_PX) {
     return {
-      top: 60,
-      right: 60,
-      bottom: 60,
-      left: PANEL_WIDTH_PX + PANEL_INSET_PX + 48,
+      top: 60 + safe.top,
+      right: 60 + (safe.right ?? 0),
+      bottom: 60 + safe.bottom,
+      left: PANEL_WIDTH_PX + PANEL_INSET_PX + 48 + (safe.left ?? 0),
     };
   }
   const short = height < SHORT_SCREEN_PX;

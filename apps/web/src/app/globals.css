@@ -273,12 +273,13 @@
 }
 
 /* v1.19: MapLibre's corner controls (zoom, credits) stay out of the home indicator and,
-   in landscape, the notch */
-.maplibregl-ctrl-bottom-right {
+   in landscape, the notch. Scoped under .maplibregl-map: MapLibre's stylesheet loads after
+   this one (the map is lazy) and sets the same corners to 0 */
+.maplibregl-map .maplibregl-ctrl-bottom-right {
   bottom: var(--safe-bottom);
   right: var(--safe-right);
 }
-.maplibregl-ctrl-bottom-left {
+.maplibregl-map .maplibregl-ctrl-bottom-left {
   bottom: var(--safe-bottom);
   left: var(--safe-left);
 }

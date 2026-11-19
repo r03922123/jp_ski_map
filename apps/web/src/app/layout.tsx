@@ -43,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* keeps the white status-bar clock readable over a light map (v1.19) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed inset-x-0 top-0 z-50 h-(--safe-top) bg-linear-to-b from-black/45 to-transparent"
+          className="pointer-events-none fixed inset-x-0 top-0 z-50 h-(--safe-top) bg-linear-to-b from-black/55 via-black/40 via-70% to-transparent"
         />
       </body>
     </html>

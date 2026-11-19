@@ -424,7 +424,11 @@ Maps. Today the page starts under an opaque status bar, which shows as a solid n
   - the navigation views pad their top bar by `--safe-top` (their bottom bars already pad by the bottom inset).
 - The camera fit (`route-geo`: `mapPadding`, `pinEaseOffsetY`, `pinCardAnchor`) takes the same insets in px,
   read once from a probe element, so routes and pins stay clear of the moved panels.
-- In a Safari tab the insets are 0 in portrait, so nothing moves there.
+- In a Safari tab the insets are 0 in portrait, so nothing moves there. In landscape a notched iPhone has side
+  insets in Safari too, and is ≥ 812 px wide, so the md side card and its camera fit also take the insets.
+- MapLibre's corner controls are moved with a selector scoped under `.maplibregl-map`: MapLibre's own
+  stylesheet loads after ours and resets the corners to 0.
+- Phone dialogs pinned to the bottom (ImportDialog, ListPicker) pad their buttons above the home indicator.
 
 **Done when.**
 - [ ] vitest: route-geo with `safe = { top: 47, bottom: 34 }` moves the fit's top and bottom by those amounts,

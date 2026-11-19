@@ -228,3 +228,17 @@ describe("safe-area insets (SPEC-web-app v1.19)", () => {
     expect(pinCardAnchor({ x: 200, y: 340, ...tall, safe })).toBe("top");
   });
 });
+
+describe("safe-area insets from md up (v1.19 review: a notched iPhone in landscape is ≥ 812 px wide)", () => {
+  it("moves the side card's fit by the left and top insets", () => {
+    const flat = mapPadding({ width: 844, height: 390 });
+    const notched = mapPadding({
+      width: 844,
+      height: 390,
+      safe: { top: 0, bottom: 21, left: 47, right: 47 },
+    });
+    expect(notched.left).toBe(flat.left + 47);
+    expect(notched.right).toBe(flat.right + 47);
+    expect(notched.bottom).toBe(flat.bottom + 21);
+  });
+});

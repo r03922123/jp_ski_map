@@ -213,7 +213,7 @@ export function BottomSheet({
               ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
                 "h-[40dvh] max-md:[@media(max-height:479px)]:h-[84px]"
               : "h-[40dvh]",
-        "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
+        "md:absolute md:inset-x-auto md:bottom-auto md:top-[calc(1rem+var(--safe-top))] md:left-[calc(1rem+var(--safe-left))] md:h-auto md:max-h-[calc(100dvh-2.5rem-var(--safe-top)-var(--safe-bottom))] md:w-96",
         // invisible, not unmounted: the header inside stays visible, and taps reach the map
         hiddenOnPhone && "max-md:invisible",
       )}

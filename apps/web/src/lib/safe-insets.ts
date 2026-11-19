@@ -9,12 +9,14 @@ export function safeInsets(): SafeInsets {
   if (typeof document === "undefined") return { top: 0, bottom: 0 };
   const probe = document.createElement("div");
   probe.style.cssText =
-    "position:fixed;visibility:hidden;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom)";
+    "position:fixed;visibility:hidden;padding:var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left)";
   document.body.appendChild(probe);
   const style = getComputedStyle(probe);
   const insets = {
     top: Number.parseFloat(style.paddingTop) || 0,
     bottom: Number.parseFloat(style.paddingBottom) || 0,
+    left: Number.parseFloat(style.paddingLeft) || 0,
+    right: Number.parseFloat(style.paddingRight) || 0,
   };
   probe.remove();
   return insets;
