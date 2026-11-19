@@ -117,8 +117,9 @@ Ranked by how much map area the fix gains, then by size.
 ## Testing strategy
 
 - The Playwright spec above runs locally with `pnpm --dir apps/web e2e e2e/layout-share.spec.ts` (CI runs no e2e:
-  it needs Valhalla). Point `E2E_BASE_URL` at one running `pnpm dev`, because back-to-back runs that each start
-  their own server alternate with "connection refused".
+  it needs Valhalla). Point `E2E_BASE_URL` at one running `pnpm dev`. Next 16.4.3's `next dev` exits on every
+  other start to show a security-upgrade notice, so runs that start their own server alternate with "connection
+  refused".
 - Each later fix PR turns its gap row into an assertion. For example "L1 visible map ≥ X% at 393×852" goes in
   `layout-share.spec.ts`, alongside a before/after screenshot and an iPhone check.
 - The study's own check: every number in a card comes with its frame reference, and a second reading of
