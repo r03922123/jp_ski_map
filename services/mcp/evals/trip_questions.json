@@ -6,7 +6,13 @@
     "required": ["search_place", "rank_resorts"],
     "optional": ["crowd_and_snow", "route"],
     "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake)",
-    "check": "names a resort"
+    "check": "names a resort",
+    "regex_why": "Weak, kept for comparison: any Hakuba resort name passes, so it rules out only an answer that names no resort (a refusal, or a generic 'Hakuba Valley').",
+    "positive": "Happo-One has the most fresh snow, about 6 minutes' drive from Hotel Hakuba.",
+    "negatives": [
+      "Hakuba Valley has had fresh snow; the drive is about 6 minutes.",
+      "I can't tell which resort has the most snow."
+    ]
   },
   {
     "id": "bus-to-happo",
@@ -15,7 +21,13 @@
     "required": ["search_place", "next_buses"],
     "optional": ["rank_resorts"],
     "answer_regex": "0?8[:：]\\d\\d",
-    "check": "gives an 08:xx departure time"
+    "check": "gives an 08:xx departure time",
+    "regex_why": "An 08:xx time is required, so an answer giving only the echoed 8 o'clock ('8點') or a 09:xx bus fails; any 08:xx passes, even a wrong one (kept for comparison).",
+    "positive": "08:13 從JR白馬駅出發，08:23 到八方。",
+    "negatives": [
+      "早上 8 點有車，大約 10 分鐘到八方。",
+      "下一班是 09:13 從白馬駅出發。"
+    ]
   },
   {
     "id": "drive-to-goryu",
@@ -24,7 +36,13 @@
     "required": ["search_place", "route"],
     "optional": ["rank_resorts"],
     "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
-    "check": "gives minutes"
+    "check": "gives minutes",
+    "regex_why": "Weak, kept for comparison: any number of minutes passes, so it rules out only a distance-only or time-less answer, not a wrong duration.",
+    "positive": "約8分（5.3km）です。",
+    "negatives": [
+      "約5.3kmです。",
+      "車ですぐ着きます。"
+    ]
   },
   {
     "id": "crowd-and-depth",
@@ -33,7 +51,13 @@
     "required": ["crowd_and_snow"],
     "optional": [],
     "answer_regex": "(?is)(low|medium|high|very.high).*\\d+\\s*cm|\\d+\\s*cm.*(low|medium|high|very.high)",
-    "check": "gives a crowd level and a depth in cm"
+    "check": "gives a crowd level and a depth in cm",
+    "regex_why": "Needs both a crowd level word and a depth in cm, so an answer with only the crowd level or only the depth fails; the level itself is not pinned (kept for comparison).",
+    "positive": "Crowds: expected to be high. Snow depth at the summit is 12 cm.",
+    "negatives": [
+      "Happo-One is expected to be busy on Sunday.",
+      "There is 12 cm of snow at the summit."
+    ]
   },
   {
     "id": "quietest-resort",
@@ -42,7 +66,13 @@
     "required": ["search_place", "rank_resorts"],
     "optional": ["crowd_and_snow", "route"],
     "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake|八方|五竜|岩岳|栂池|乘鞍|乗鞍|科爾蒂納|コルチナ|鹿島槍|爺ガ岳|佐野坂)",
-    "check": "names a resort"
+    "check": "names a resort",
+    "regex_why": "Weak, kept for comparison: any resort name in English or kanji passes, so it rules out only an answer that names no resort.",
+    "positive": "2026-12-31 人最少的是爺ヶ岳（Jigatake），開車約 35 分鐘。",
+    "negatives": [
+      "白馬的雪場那天都很擠，開車約 30 分鐘。",
+      "我查不到人潮資料。"
+    ]
   },
   {
     "id": "konbini-near-station",
@@ -51,7 +81,13 @@
     "required": ["search_place", "nearby_pois"],
     "optional": [],
     "answer_regex": "(?i)(ローソン|セブン|ファミリーマート|ファミマ|lawson|7-eleven|seven|familymart)",
-    "check": "names a convenience store chain"
+    "check": "names a convenience store chain",
+    "regex_why": "A chain name is required, so 'there is a convenience store nearby' without naming it fails; it does not check the walking time.",
+    "positive": "いちばん近いのはローソンで、歩いて約20分です。",
+    "negatives": [
+      "駅の近くにコンビニがあります。歩いて約20分です。",
+      "コンビニは見つかりませんでした。"
+    ]
   },
   {
     "id": "plan-day-by-bus",
@@ -61,7 +97,13 @@
     "any_of": [["crowd_and_snow", "rank_resorts"]],
     "optional": ["route"],
     "answer_regex": "(?is)0?8:\\d\\d.*(estimat|timetable)|(estimat|timetable).*0?8:\\d\\d",
-    "check": "gives a bus time and says it is an estimate"
+    "check": "gives a bus time and says it is an estimate",
+    "regex_why": "Needs an 08:xx time and the word estimate/timetable, so a plan that drops the caveat or gives only '8am' fails; the time itself is not pinned (kept for comparison).",
+    "positive": "Take the 08:46 shuttle; times are estimates from last season's timetable.",
+    "negatives": [
+      "Take the 08:46 shuttle to Norikura.",
+      "Buses leave around 8am; times are estimates."
+    ]
   },
   {
     "id": "coord-no-search",
@@ -70,7 +112,13 @@
     "required": ["rank_resorts"],
     "optional": [],
     "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake)",
-    "check": "names resorts, without a needless place search"
+    "check": "names resorts, without a needless place search",
+    "regex_why": "Weak, kept for comparison: any resort name passes, so it rules out only an answer with no resort; the order is not checked.",
+    "positive": "Top 3 by vertical: Happo-One 1,071 m, Goryu 926 m, Tsugaike.",
+    "negatives": [
+      "The resorts near 36.6983,137.8619 have up to 1,071 m of vertical.",
+      "I can't rank them by vertical."
+    ]
   },
   {
     "id": "drive-to-cortina",
@@ -79,7 +127,13 @@
     "required": ["search_place", "route"],
     "optional": ["rank_resorts", "crowd_and_snow"],
     "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
-    "check": "gives minutes"
+    "check": "gives minutes",
+    "regex_why": "Weak, kept for comparison: any number of minutes passes, so it rules out only a distance-only answer, not a wrong duration.",
+    "positive": "从JR白马站开车到白马Cortina大约要20分钟，约13.5 km。",
+    "negatives": [
+      "全程約 13.5 km。",
+      "開車不會太久。"
+    ]
   },
   {
     "id": "drive-to-sanosaka",
@@ -88,7 +142,13 @@
     "required": ["search_place", "route"],
     "optional": ["rank_resorts", "crowd_and_snow"],
     "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
-    "check": "gives minutes"
+    "check": "gives minutes",
+    "regex_why": "Weak, kept for comparison: any number of minutes passes, so it rules out only a distance-only answer, not a wrong duration.",
+    "positive": "車で約22分、距離は約10.2kmです。",
+    "negatives": [
+      "距離は約10.2kmです。",
+      "車ですぐです。"
+    ]
   },
   {
     "id": "food-near-iwatake",
@@ -97,7 +157,13 @@
     "required": ["nearby_pois"],
     "optional": ["search_place", "rank_resorts", "crowd_and_snow"],
     "answer_regex": "(?i)\\d+\\s*-?\\s*(min|分)",
-    "check": "gives a walking time"
+    "check": "gives a walking time",
+    "regex_why": "A walking time is required, so naming a restaurant without minutes fails; the place and the minutes are not pinned (kept for comparison).",
+    "positive": "Holiday is about 1 min walk from the Iwatake base.",
+    "negatives": [
+      "Yes, Holiday and Hakuba Brew Pub are close to the base.",
+      "Hakuba Brew Pub is 322 m away."
+    ]
   },
   {
     "id": "untimed-bus-afternoon",
@@ -106,6 +172,12 @@
     "required": ["search_place", "next_buses"],
     "optional": ["rank_resorts", "crowd_and_snow"],
     "answer_regex": "(?is)(?=.*(15[:：時]\\s*18|１５[:：時]\\s*１８))(?=.*(岩岳|iwatake|いわたけ))",
-    "check": "gives the 15:18 departure and says it is from Iwatake (JR Hakuba's time is not published)"
+    "check": "gives the 15:18 departure and says it is from Iwatake (JR Hakuba's time is not published)",
+    "regex_why": "Needs 15:18 and Iwatake together, so the wrong-stop answer '15:18 from JR白馬駅' and the echoed 15時 both fail.",
+    "positive": "15:18 白馬岩岳スノーフィールド発の便があります（JR白馬駅の時刻は時刻表に載っていません）。",
+    "negatives": [
+      "15:18 JR白馬駅発の便があります。",
+      "15時ごろの便があります。"
+    ]
   }
 ]

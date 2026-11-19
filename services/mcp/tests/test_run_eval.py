@@ -1,6 +1,8 @@
 import json
+import re
 import subprocess
 from pathlib import Path
+from typing import Any
 
 import pytest
 import run_eval
@@ -310,3 +312,31 @@ def test_log_mlflow_records_the_run_and_one_trace_per_question(tmp_path: Path) -
     b = next(t for t in traces if t.info.tags.get("question_id") == "b")
     assert b.data.spans[0].status.status_code == "ERROR"  # the run timed out
     assert [(x.name, x.value) for x in b.info.assessments] == [("passed", False)]
+
+
+QUESTIONS = json.loads((run_eval.HERE / "trip_questions.json").read_text())
+TOOLS = {"search_place", "rank_resorts", "next_buses", "route", "nearby_pois", "crowd_and_snow"}
+# what an agent says when every tool call failed: no question that needs a tool may pass on it
+NO_DATA = "Sorry, I couldn't reach the Hakuba API, so I can't check that right now."
+
+
+def test_question_ids_are_unique_and_tools_are_real() -> None:
+    ids = [q["id"] for q in QUESTIONS]
+    assert len(ids) == len(set(ids))
+    for q in QUESTIONS:
+        named = {*q["required"], *q["optional"], *(t for g in q.get("any_of", []) for t in g)}
+        assert named <= TOOLS, q["id"]
+        assert q["lang"] in ("en", "zh", "ja"), q["id"]
+
+
+@pytest.mark.parametrize("q", QUESTIONS, ids=[q["id"] for q in QUESTIONS])
+def test_regex_takes_the_right_answer_and_rejects_wrong_ones(q: dict[str, Any]) -> None:
+    pattern = re.compile(q["answer_regex"])
+    assert q["regex_why"].strip()
+    assert pattern.search(q["positive"]), "the correct answer must match"
+    assert len(q["negatives"]) >= 2
+    for wrong in q["negatives"]:
+        assert not pattern.search(wrong), f"wrong answer matched: {wrong}"
+    assert not pattern.search(q["question"]), "echoing the question must not pass"
+    if q["required"] or q.get("any_of"):
+        assert not pattern.search(NO_DATA), "an answer with no data must not pass"
