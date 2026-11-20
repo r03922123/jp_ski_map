@@ -922,13 +922,15 @@ built in a fresh session from its spec.
   for stops and `KNOWN_SOURCES` doesn't list; P2d drops GSI.
 - Open Dependabot PRs #64, #65, #76: not triaged.
 
-## Phone screen split, Google Maps iOS benchmark (2026-11-20, PRs #93, #96–#99)
+## Phone screen split, Google Maps iOS benchmark (2026-11-20, PRs #93, #96–#100)
 Spec: [SPEC-maps-ios-ux.md](../SPEC-maps-ios-ux.md); measured from the owner's two iPhone recordings (BC-L1 update).
 - [x] Sources & weights block in the ranked list (#93); full screen from the home screen: manifest + rider icons (#96)
 - [x] Study spec and `e2e/layout-share.spec.ts` (#97): `LAYOUT_VIEWPORT=390x797` is the home-screen app on a 390×844 iPhone
 - [x] G1 low sheet height, 84 px (#98, v1.17): directions preview map 35% → 64.5% of the page
 - [x] G2 two-row trip card (#99, v1.18): + Add destination above the sheet's Trip list; map 41.5% collapsed, 71% low (Google's place sheet: 71% of the screen)
-- [ ] Owner: try both on the real iPhone (Safari tab and home-screen app); our numbers so far are Chromium emulation
+- [x] Map under the status bar in the home-screen app (#100, v1.19; production 2026-11-20): with simulated 47/34 px insets, 73.8% of the 390×844 screen is map with the sheet low
+- [ ] Owner: try both on the real iPhone (Safari tab and home-screen app); our numbers so far are Chromium emulation (v1.19: insets simulated; check the clock is readable and nothing sits under the notch or home bar)
+- [ ] `layout-share` L1 against production measures the first-visit title screen (0% map): set the `hakuba_title=seen` cookie in that state
 - [ ] Next.js 16.4.3 → 16.4.5+: two moderate advisories (`'use cache'`, unused here); `next dev` 16.4.3 exits on every other start to show an upgrade notice, so start it twice or point e2e at a running server
 - Open: the camera doesn't refit when the sheet goes low (the route stays where the 40% fit put it)
 
