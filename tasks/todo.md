@@ -935,6 +935,16 @@ Spec: [SPEC-maps-ios-ux.md](../SPEC-maps-ios-ux.md); measured from the owner's t
 - [ ] Next.js 16.4.3 → 16.4.5+: two moderate advisories (`'use cache'`, unused here); `next dev` 16.4.3 exits on every other start to show an upgrade notice, so start it twice or point e2e at a running server
 - Open: the camera doesn't refit when the sheet goes low (the route stays where the 40% fit put it)
 
+## Google Maps route preview, second pass (2026-11-20, PRs #108–#110)
+From the owner's two screenshots (ours and Google Maps iPhone route preview): Google's map 422 pt (50%), ours 321 pt (38%), plus a 47 pt band at the bottom and a blurred strip behind the clock.
+- [x] #108, v1.25: ordinary status bar (`default` + theme-color `#eef3f7`), fade removed: ends the 47 pt band and the blur at their cause (black-translucent)
+- [x] #109, v1.26: the sheet shows the answer first (ETA, Start) after the mode tabs; the trip list follows it (with stops it leads); Bus puts "Leave after" beside its box
+- [x] #110, v1.27: slimmer trip card (112 → 98 px); L4 top chrome 14.1% → 12.4% at 393×852
+- [x] Production 6f841d9 (2026-11-20): e2e-prod smoke 5/5; status-bar, side-panel, mode-tabs and layout-share L4 e2e 10/10 against production
+- [ ] Owner, on the iPhone: reopen the home-screen app (re-add the icon if the old look stays); expect no band and a light bar. With USB connected, open /viewport-check from the icon so the agent can read safe top 0 and gap 0, then delete the gap code
+- Open: removing the last stop can leave keyboard focus on Add destination below the sheet's fold (review of #109, minor)
+- Local e2e on main: ~40 journey/sheet tests fail with and without these PRs (place-card trip-card tests, flaky camera-fit tests in route-clear-of-panels and route-option-visible, map-credits first display); resilience "switch to Walk" became timing-dependent with #106 and now uses Bus
+
 ## Google Maps layout on the laptop, and real-iPhone numbers (2026-11-20, PRs #105, #106)
 - [x] Real iPhone, Safari tab (390×699 page on an 844 pt screen), production, via Web Inspector eval: map 556 pt idle (66%),
   276 pt in route preview (33%; Google's app ≈320 pt, which loses no Safari bars). The low sheet wasn't reached
