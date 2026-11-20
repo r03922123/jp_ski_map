@@ -1,6 +1,6 @@
 # Google Maps interaction design across Hakuba workflows
 
-Draft for owner approval, 2026-11-20. Takeover phase is tidy.
+Approved by the owner and released to production, 2026-11-20. Takeover phase is tidy.
 
 ## Outcome
 
@@ -99,5 +99,8 @@ to all working screens. Production release follows approval of the completed res
   name; every stop move collapses the sheet; a hung suggestion request shows "Searching…" with no timeout;
   `importList` and `importSummary` don't trim a hand-made link's list name
 - Open: on phones in Chromium emulation, focusing the search leaves a blank patch of map tiles below the
-  suggestions (also before this work; not seen on a device yet). Device acceptance: a cold Home Screen
-  launch (#113's black-translucent and the white clock), keyboard and rotation; then owner approval
+  suggestions (also before this work; not seen on a device yet)
+- Released: #113–#119 merged, production bb1fd78 (2026-11-20, the owner chose to release before the device
+  check): smoke 5/5 and `maps-look` 1/1 against production
+- Open, owner: device acceptance on the iPhone: a cold Home Screen launch (#113's black-translucent, is the
+  white clock readable?), keyboard and rotation
