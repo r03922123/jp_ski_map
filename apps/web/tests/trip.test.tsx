@@ -113,8 +113,10 @@ describe("TripPanel", () => {
     ).toBeInTheDocument();
   });
 
-  // T4 (docs/ux/google-maps-workflows.md): stops can be reordered without a drag
-  it("moves a stop up or down; the ends offer only the way that exists", () => {
+  // T4 (docs/ux/google-maps-workflows.md): stops can be reordered without a drag. Review of
+  // #117: the ends keep both buttons (one marked disabled), so a move to an end never removes
+  // the button that has focus
+  it("moves a stop up or down; at the ends that way is disabled, not removed", () => {
     const second = { ...konbini, id: "k2", name: "Lawson Hakuba" };
     const handlers = renderTrip({
       stops: [
@@ -122,14 +124,29 @@ describe("TripPanel", () => {
         { key: "s2", place: second },
       ],
     });
-    expect(screen.queryByRole("button", { name: "Move stop 1 up" })).toBeNull();
+    const firstUp = screen.getByRole("button", { name: "Move stop 1 up" });
+    expect(firstUp).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(firstUp);
+    expect(handlers.onMoveStop).not.toHaveBeenCalled();
     expect(
-      screen.queryByRole("button", { name: "Move stop 2 down" }),
-    ).toBeNull();
+      screen.getByRole("button", { name: "Move stop 2 down" }),
+    ).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(screen.getByRole("button", { name: "Move stop 1 down" }));
     expect(handlers.onMoveStop).toHaveBeenCalledWith("s1", 1);
     fireEvent.click(screen.getByRole("button", { name: "Move stop 2 up" }));
     expect(handlers.onMoveStop).toHaveBeenCalledWith("s2", -1);
+  });
+
+  // review of #117: an open stop box is not a neighbour (it would renumber the list only)
+  it("offers no reorder while a stop box is open", () => {
+    renderTrip({
+      stops: [
+        { key: "s1", place: konbini },
+        { key: "s2", place: { ...konbini, id: "k2", name: "Lawson" } },
+        { key: "s3", place: null },
+      ],
+    });
+    expect(screen.queryByRole("button", { name: /Move stop/ })).toBeNull();
   });
 
   it("offers no reorder for a single stop", () => {
