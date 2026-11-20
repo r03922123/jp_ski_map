@@ -5,12 +5,11 @@ import type { SafeInsets } from "@/lib/route-geo";
  * fit. CSS custom properties don't resolve env() in getComputedStyle, so a probe element
  * pads itself with them and reports the result. 0 on the server and in a Safari tab.
  */
-export function safeInsets(
-  topInset: "--safe-top" | "--trip-safe-top" = "--safe-top",
-): SafeInsets {
+export function safeInsets(): SafeInsets {
   if (typeof document === "undefined") return { top: 0, bottom: 0 };
   const probe = document.createElement("div");
-  probe.style.cssText = `position:fixed;visibility:hidden;padding:var(${topInset}) var(--safe-right) var(--safe-bottom) var(--safe-left)`;
+  probe.style.cssText =
+    "position:fixed;visibility:hidden;padding:var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left)";
   document.body.appendChild(probe);
   const style = getComputedStyle(probe);
   const insets = {

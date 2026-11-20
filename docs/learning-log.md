@@ -1116,5 +1116,5 @@ with the supplier before the dish goes on the public menu.
 ## 2026-11-20 · tidy: Show the map behind the Home Screen clock
 
 - The solid strip hid the map. The revised design asks iOS for a translucent status bar and leaves the canvas visible to the top edge.
-- Moving the search card costs some map space. The original screenshot puts the end of the blur near 82 pt on a 390 pt screen. At a 47 pt hardware inset the new frame starts near 83 pt. The sheet and route camera reserve the same extra space.
+- The owner wants the search box in its original position. It keeps its 8 px margin below the hardware inset. iOS controls how far the native blur reaches over the map and controls.
 - An invisible-to-touch cover can still hide a map, like glass painted on one side. The regression check changes the canvas colour and compares the pixels behind the clock. Native blur and status-icon legibility still need a screenshot from the installed version.

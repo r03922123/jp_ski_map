@@ -49,9 +49,8 @@
 
 /* SPEC-game-theme: snowy overworld palette, values from src/lib/game/tokens.ts (tested) */
 :root {
-  /* Hardware insets protect edge controls; the trip header also clears the iOS blur. */
+  /* Hardware insets keep controls clear of the clock, notch and home indicator. */
   --safe-top: env(safe-area-inset-top, 0px);
-  --trip-safe-top: var(--safe-top);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
@@ -292,13 +291,5 @@
 @media (display-mode: standalone) {
   html {
     min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
-  }
-
-  @media (width < 48rem) {
-    :root {
-      /* On the 390 pt iPhone the dark frame becomes sharp at about y=82.
-         Its top edge paints 4 px above the header box. */
-      --trip-safe-top: calc(var(--safe-top) + min(32px, var(--safe-top)));
-    }
   }
 }

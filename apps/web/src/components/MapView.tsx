@@ -146,7 +146,7 @@ const paddingOf = (map: HasCanvas, slimSheet = false) => {
     width: canvas.clientWidth,
     height: canvas.clientHeight,
     slimSheet,
-    safe: safeInsets("--trip-safe-top"),
+    safe: safeInsets(),
   });
 };
 const sizeOf = (map: HasCanvas) => {
@@ -216,7 +216,7 @@ export default function MapView({
     width: canvasW,
     height: canvasH,
     slimSheet,
-    safe: safeInsets("--trip-safe-top"),
+    safe: safeInsets(),
   }).bottom;
   const fitKey = `${canvasSize}/${fitBottom}/${activeRoute}/${endPoints.join(";")}/${drawn
     .map(
@@ -381,7 +381,7 @@ export default function MapView({
         pinEaseOffsetY({
           width: map.getCanvas().clientWidth,
           height: map.getCanvas().clientHeight,
-          safe: safeInsets("--trip-safe-top"),
+          safe: safeInsets(),
         }),
       ],
       duration: prefersReducedMotion() ? 0 : 600,
@@ -400,7 +400,7 @@ export default function MapView({
           y: pinAt.y,
           width: pinMap.getCanvas().clientWidth,
           height: pinMap.getCanvas().clientHeight,
-          safe: safeInsets("--trip-safe-top"),
+          safe: safeInsets(),
         })
       : undefined;
 

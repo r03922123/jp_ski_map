@@ -36,7 +36,7 @@ test("home-screen mode grows the root by the top inset, capped at the screen", a
   expect(valid).toBe(true);
 });
 
-test("the map extends behind the clock and the phone search clears the blur", async ({
+test("the map extends behind the clock and the phone search stays in place", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -60,7 +60,7 @@ test("the map extends behind the clock and the phone search clears the blur", as
       }
     }
   });
-  await expect(header).toHaveCSS("top", "87px");
+  await expect(header).toHaveCSS("top", "55px");
   // A non-interactive opaque overlay still passes hit testing. Check painted pixels.
   const canvas = page.locator(".maplibregl-canvas");
   await expect(canvas).toBeVisible();
