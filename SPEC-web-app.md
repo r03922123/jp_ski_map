@@ -518,5 +518,6 @@ tab. Cluster G's candidate, now taken for drive and walk.
   keeps its plain label: its time depends on the timetable choice.
 - Done when: MapShell tests show both times on the tabs for a resort with one shared drive request, none for
   a Food place, none for a two-entrance resort with no ranking; `e2e/mode-tabs.spec.ts` fits 320 px with a
-  walk over an hour; the route
-  panel still asks for the open mode's route; the phone tab row doesn't overflow at 320 px (e2e small-phone).
+  walk over an hour, and the 384 px side card at 1280×800; a two-entrance resort hides the times again when
+  the start moves in Walk (the ranking's placeholder is the old start's); the route panel still asks for the
+  open mode's route.

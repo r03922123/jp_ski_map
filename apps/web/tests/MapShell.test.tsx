@@ -251,6 +251,41 @@ describe("MapShell mode", () => {
     }
   });
 
+  // re-review of #106: the ranking keeps the old start's answer as placeholder data
+  it("a two-entrance resort hides the times again when the start moves in Walk", async () => {
+    const second = { ...happo.accessPoints[0], id: "happo-one-second" };
+    happo.accessPoints.push(second);
+    try {
+      renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+      // the ranking for this start has loaded: one place for every mode
+      expect(
+        await screen.findByRole("tab", { name: /Walk 11 min/ }),
+      ).toBeInTheDocument();
+      fireEvent.mouseDown(screen.getByRole("tab", { name: /walk/i }));
+      fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
+      await waitFor(() => expect(query().get("mode")).toBe("walk"));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Clear starting point" }),
+      );
+      act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+      await waitFor(() =>
+        expect(map().origin).toEqual({ lat: 36.69, lng: 137.86 }),
+      );
+      await waitFor(() =>
+        expect(
+          vi
+            .mocked(api.fetchRoutes)
+            .mock.calls.some((c) => c[1].lat === 36.69 && c[0] === "walk"),
+        ).toBe(true),
+      );
+      await new Promise((r) => setTimeout(r, 50));
+      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+    } finally {
+      happo.accessPoints.pop();
+    }
+  });
+
   it("a Food place shows no times on the tabs: its place is picked per mode", async () => {
     const ramen = { lat: 36.699, lng: 137.84 };
     vi.mocked(api.fetchNearbyPois).mockResolvedValue([

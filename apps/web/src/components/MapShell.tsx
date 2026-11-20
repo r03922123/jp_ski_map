@@ -132,11 +132,13 @@ export function MapShell() {
   } = useRoutes({ mode, routeMode, origin, target, viaStops });
   // the tabs' times need one place for every mode: a Food or Konbini list picks its place per
   // mode, and Drive heads for the ranking's nearest entrance, so a resort with several waits
-  // for the ranking (cached, so every mode then uses that entrance)
+  // for this start's ranking (cached, so every mode then uses that entrance; a placeholder is
+  // the previous start's)
   const sharedTarget =
     point !== null ||
     (!poiCategory &&
-      ((resort?.accessPoints.length ?? 0) <= 1 || ranking.data !== undefined));
+      ((resort?.accessPoints.length ?? 0) <= 1 ||
+        (ranking.data !== undefined && !ranking.isPlaceholderData)));
   const durations = useModeDurations({
     origin,
     target: sharedTarget ? tripTarget : null,
