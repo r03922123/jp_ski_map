@@ -80,6 +80,8 @@ test.describe("landscape iPhone, notch simulated", () => {
     const cardBox = await card.boundingBox();
     const tabBox = await collapse.boundingBox();
     if (!cardBox || !tabBox) throw new Error("no card or tab");
+    // the touch-screen rule is on: the tab is 44 px wide, not its 24 px
+    expect(tabBox.width).toBe(44);
     expect(tabBox.x).toBeGreaterThanOrEqual(cardBox.x + cardBox.width);
 
     await collapse.tap();
