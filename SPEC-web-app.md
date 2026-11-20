@@ -572,3 +572,23 @@ padding goes to 4 and the gap to 2: 98 px, 14 px more map in every phone state w
   reserve 180 → 166 px with it. Landscape constants stay (an overestimate only leaves more room).
 - Done when: layout-share L4 top chrome ≤ 13.5% at 393×852 (it was ≤ 16, measured ≈14.6%); route-geo tests
   use 118; the From/To connector dots still sit between the two markers.
+
+## v1.28: The home-screen app fills the screen (2026-11-20, read on the owner's iPhone)
+v1.25's `default` status bar didn't end the band. Read through Web Inspector from the re-added home-screen
+icon (iOS 27.2.1, iPhone 12, 390×844): `standalone` true, status-bar meta `default`, yet safe-area top 47 px
+and `innerHeight` 797. iOS still runs the app under the clock and lays it out one top inset short, and it
+draws nothing below that edge, so v1.20/v1.22's `--viewport-gap` (which moved our layers to 844) could never
+show there. Field reports name it WebKit 301108 (iOS 26+ home-screen apps).
+- `@media (display-mode: standalone) { html { min-height: min(100lvh, calc(100% + env(safe-area-inset-top))) } }`:
+  a root taller by the top inset makes iOS size the page to the screen. Injected live on the owner's phone:
+  `innerHeight` 797 → 844, `main` 0–844 and the sheet 472–844 once the gap was 0. The `100lvh` cap keeps a
+  device with no top inset from scrolling.
+- `--viewport-gap` (v1.20/v1.22) is deleted: it never showed on the device, and iOS can grow the page
+  without a `resize` event, so a stale 47 px gap would push the sheet below the screen (review of #112).
+  The sheet sits at `bottom-0`; the Chromium simulation of the short viewport goes with it.
+- Done when: `e2e/standalone-height.spec.ts` finds the rule with a value the browser accepts (Chromium can't
+  emulate standalone); after deploy, the phone's home-screen app reads `innerHeight` 844 and `scrollHeight`
+  equal to it (`/viewport-check`) on a cold launch, after rotating, and after coming back from the
+  background, and shows no band.
+- Open: the blur behind the clock. With iOS keeping the app under the clock whatever the meta says, the strip
+  is iOS's; next step is a screenshot from the phone to see what it is.

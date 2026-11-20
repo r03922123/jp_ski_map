@@ -175,7 +175,7 @@ for (const s of STATES) {
 // SPEC-web-app v1.19: the home-screen app runs under the status bar. Chromium has no notch,
 // so the iPhone's insets are simulated by setting the --safe-* variables to its 47/34 px
 test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
-  // the screen as tall as the viewport: here the page fills the phone (v1.20 below: it doesn't)
+  // the screen as tall as the viewport: here the page fills the phone (v1.28: the real home-screen app needs a CSS rule for that)
   test.use({
     viewport: { width: 390, height: 844 },
     screen: { width: 390, height: 844 },
@@ -271,48 +271,5 @@ test.describe("iPhone landscape insets simulated, 844×390 (v1.19)", () => {
     const card = await page.locator("[data-sheet]").boundingBox();
     if (!card) throw new Error("no side card");
     expect(card.x).toBeGreaterThanOrEqual(47);
-  });
-});
-
-// v1.20, from the owner's iPhone: the home-screen app's viewport is one status bar shorter
-// than the 844 pt screen, which left a 47 pt band below the map. Simulated here as a
-// 797 px viewport on an 844 px screen with the 47 px inset
-test.describe("home-screen viewport short by the status bar (v1.20)", () => {
-  test.use({
-    viewport: { width: 390, height: 797 },
-    screen: { width: 390, height: 844 },
-  });
-
-  test("the map reaches the screen's bottom edge", async ({ page }) => {
-    await page.addInitScript(() => {
-      // iOS 26 reports navigator.standalone false in the home-screen app (v1.22); the
-      // gap is for Apple's WebKit, which Chromium stands in for here
-      Object.defineProperty(navigator, "standalone", { value: false });
-      Object.defineProperty(navigator, "vendor", {
-        value: "Apple Computer, Inc.",
-      });
-      document.addEventListener("DOMContentLoaded", () => {
-        const style = document.createElement("style");
-        style.textContent =
-          ":root { --safe-top: 47px !important; --safe-bottom: 34px !important; }";
-        document.head.append(style);
-        dispatchEvent(new Event("resize"));
-      });
-    });
-    await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
-    await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
-      timeout: 30_000,
-    });
-    await expect
-      .poll(async () => (await page.locator("main").boundingBox())?.height)
-      .toBe(844);
-    // the sheet comes down with it, right above the home bar (v1.20 review)
-    const sheet = await page.locator("[data-sheet]").boundingBox();
-    if (!sheet) throw new Error("no sheet");
-    expect(Math.round(sheet.y + sheet.height)).toBe(844);
-    // and the credits stay above the sheet, not behind it
-    const credits = await page.locator(".maplibregl-ctrl-attrib").boundingBox();
-    if (!credits) throw new Error("no credits");
-    expect(credits.y + credits.height).toBeLessThanOrEqual(sheet.y);
   });
 });

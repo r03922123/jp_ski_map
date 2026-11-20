@@ -32,7 +32,7 @@ function measure() {
     `inner ${innerWidth}×${innerHeight}  client ${document.documentElement.clientHeight}`,
     `visualViewport ${Math.round(visualViewport?.height ?? -1)}  offsetTop ${Math.round(visualViewport?.offsetTop ?? -1)}`,
     `safe top ${s.top} bottom ${s.bottom} left ${s.left} right ${s.right}`,
-    `--viewport-gap ${getComputedStyle(document.documentElement).getPropertyValue("--viewport-gap") || "unset"}`,
+    `scrollHeight ${document.documentElement.scrollHeight}`,
     `heights: ${heights.join(", ")}`,
   ];
 }

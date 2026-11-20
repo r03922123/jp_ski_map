@@ -285,9 +285,13 @@
   left: var(--safe-left);
 }
 
-/* v1.20: the iPhone home-screen app lays the page out one status bar shorter than the
-   screen; full-screen layers reach past it to the bottom edge (--viewport-gap, set by
-   trackViewportGap, is 0 everywhere else). Unlayered: beats the inset-0 utility */
-.fixed.inset-0 {
-  bottom: calc(0px - var(--viewport-gap, 0px));
+/* v1.28: iOS 26+ lays a home-screen app out one top inset short of the screen and draws
+   nothing below that edge (WebKit 301108): the 47 pt band. A root taller by the inset makes
+   iOS size the page to the whole screen (owner's iPhone: innerHeight 797 → 844). Capped at
+   100lvh, so a device with no top inset doesn't scroll. Replaces v1.20's --viewport-gap, which moved
+   our layers below an edge iOS never draws past */
+@media (display-mode: standalone) {
+  html {
+    min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
+  }
 }
