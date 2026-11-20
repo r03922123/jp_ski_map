@@ -35,7 +35,7 @@ import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
 import { useLodging, usePois, useRanking } from "@/lib/use-lists";
-import { useRoutes } from "@/lib/use-routes";
+import { useModeDurations, useRoutes } from "@/lib/use-routes";
 import { type TripPoint, useTrip } from "@/lib/use-trip";
 import { useViewUrl } from "@/lib/use-view-url";
 
@@ -116,10 +116,9 @@ export function MapShell() {
     poiId,
   });
 
-  const target =
-    mode === "bus"
-      ? busStop
-      : (point?.coord ?? (poiCategory ? poiTarget : destination));
+  // where drive and walk go; a Food or Konbini list picks its place per mode
+  const tripTarget = point?.coord ?? (poiCategory ? poiTarget : destination);
+  const target = mode === "bus" ? busStop : tripTarget;
   // With stops (drive/walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
   const {
@@ -131,6 +130,20 @@ export function MapShell() {
     highlight,
     setHighlight,
   } = useRoutes({ mode, routeMode, origin, target, viaStops });
+  // the tabs' times need one place for every mode: a Food or Konbini list picks its place per
+  // mode, and Drive heads for the ranking's nearest entrance, so a resort with several waits
+  // for this start's ranking (cached, so every mode then uses that entrance; a placeholder is
+  // the previous start's)
+  const sharedTarget =
+    point !== null ||
+    (!poiCategory &&
+      ((resort?.accessPoints.length ?? 0) <= 1 ||
+        (ranking.data !== undefined && !ranking.isPlaceholderData)));
+  const durations = useModeDurations({
+    origin,
+    target: sharedTarget ? tripTarget : null,
+    viaStops: filledStops.map((s) => s.coord),
+  });
 
   const routeData = routeState.status === "success" ? routeState.data : null;
 
@@ -351,6 +364,7 @@ export function MapShell() {
               selectedResortId={selectedResortId}
               onSelectResort={actions.selectResort}
               hasOrigin={origin !== null}
+              durations={durations}
               placeStrip={
                 <TripPanel
                   from={fromPlace}

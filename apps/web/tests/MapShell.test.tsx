@@ -182,7 +182,8 @@ describe("MapShell destination", () => {
     expect(map().destination).toEqual(happo.accessPoints[0].coord);
     await waitFor(() => expect(query().get("resort")).toBe("happo-one"));
     await waitFor(() => expect(map().routes).toEqual([drive]));
-    expect(api.fetchRoutes).toHaveBeenLastCalledWith(
+    // v1.24: the Walk tab's time is asked for too, so drive is not always the last call
+    expect(api.fetchRoutes).toHaveBeenCalledWith(
       "drive",
       { lat: 36.69736, lng: 137.85393 },
       happo.accessPoints[0].coord,
@@ -215,6 +216,99 @@ describe("MapShell mode", () => {
       expect.anything(),
       expect.anything(),
     );
+  });
+
+  // v1.24 (BC-L1, BC-L2): like Google's mode row, each tab shows its own time
+  it("the Drive and Walk tabs show each mode's time to the resort", async () => {
+    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    // drive 463 s, walk 686 s in the fixtures
+    await waitFor(() => expect(map().routes).toEqual([drive]));
+    expect(
+      await screen.findByRole("tab", { name: /Drive 8 min/ }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("tab", { name: /Walk 11 min/ }),
+    ).toBeInTheDocument();
+    // the Drive tab's time and the panel's route are one request
+    const driveCalls = vi
+      .mocked(api.fetchRoutes)
+      .mock.calls.filter((c) => c[0] === "drive");
+    expect(driveCalls).toHaveLength(1);
+  });
+
+  // review of #106: Drive goes to the ranking's nearest entrance, Walk (with no ranking
+  // yet) to the first, so a two-entrance resort's tab time would be for another place
+  it("a two-entrance resort with no ranking yet shows no times on the tabs", async () => {
+    const second = { ...happo.accessPoints[0], id: "happo-one-second" };
+    happo.accessPoints.push(second);
+    try {
+      renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
+      await waitFor(() => expect(map().routes).toEqual([walk]));
+      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+    } finally {
+      happo.accessPoints.pop();
+    }
+  });
+
+  // re-review of #106: the ranking keeps the old start's answer as placeholder data
+  it("a two-entrance resort hides the times again when the start moves in Walk", async () => {
+    const second = { ...happo.accessPoints[0], id: "happo-one-second" };
+    happo.accessPoints.push(second);
+    try {
+      renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+      // the ranking for this start has loaded: one place for every mode
+      expect(
+        await screen.findByRole("tab", { name: /Walk 11 min/ }),
+      ).toBeInTheDocument();
+      fireEvent.mouseDown(screen.getByRole("tab", { name: /walk/i }));
+      fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
+      await waitFor(() => expect(query().get("mode")).toBe("walk"));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Clear starting point" }),
+      );
+      act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+      await waitFor(() =>
+        expect(map().origin).toEqual({ lat: 36.69, lng: 137.86 }),
+      );
+      await waitFor(() =>
+        expect(
+          vi
+            .mocked(api.fetchRoutes)
+            .mock.calls.some((c) => c[1].lat === 36.69 && c[0] === "walk"),
+        ).toBe(true),
+      );
+      await new Promise((r) => setTimeout(r, 50));
+      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+    } finally {
+      happo.accessPoints.pop();
+    }
+  });
+
+  it("a Food place shows no times on the tabs: its place is picked per mode", async () => {
+    const ramen = { lat: 36.699, lng: 137.84 };
+    vi.mocked(api.fetchNearbyPois).mockResolvedValue([
+      {
+        id: "osm:node/1",
+        category: "food",
+        name: "Ramen",
+        nameJa: null,
+        coord: ramen,
+        brand: null,
+        cuisine: "ramen",
+        openingHours: null,
+        durationS: 300,
+        distanceM: 2000,
+      } as api.NearbyPoi,
+    ]);
+    renderShell(
+      "?from=36.69736,137.85393&mode=drive&cat=food&dest=poi:osm:node/1",
+    );
+    await waitFor(() => expect(map().destination).toEqual(ramen));
+    await waitFor(() => expect(map().routes).toEqual([drive]));
+    expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
   });
 
   it("switching to Bus drops the drive route target: the map gets no destination", async () => {
