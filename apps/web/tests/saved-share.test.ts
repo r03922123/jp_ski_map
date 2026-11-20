@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  addList,
   emptyState,
   findPlace,
+  MAX_LISTS,
   type PlaceInput,
   toggleInList,
 } from "@/lib/saved-places";
@@ -9,6 +11,7 @@ import {
   decodeImport,
   encodeList,
   importList,
+  importSummary,
   MAX_IMPORT,
   readImportHash,
 } from "@/lib/saved-share";
@@ -100,5 +103,37 @@ describe("share links", () => {
     const created = renamed.lists.find((l) => l.name === "Onsen trip");
     expect(created?.builtIn).toBe(false);
     expect(findPlace(renamed, onsen.id)?.lists).toEqual([created?.id]);
+  });
+});
+
+// review of #118: the message says what the import really did, not what the link held
+describe("importSummary", () => {
+  const list = {
+    name: "Onsen trip",
+    icon: "bookmark" as const,
+    places: [onsen, station],
+  };
+  it("counts the places it added", () => {
+    const before = emptyState();
+    expect(importSummary(before, importList(before, list), list)).toBe(
+      "Added 2 places to “Onsen trip”",
+    );
+  });
+  it("says so when the list already had them (the same link opened twice)", () => {
+    const once = importList(emptyState(), list);
+    expect(importSummary(once, importList(once, list), list)).toBe(
+      "“Onsen trip” already has these places",
+    );
+  });
+  it("says nothing was added when no list can be made", () => {
+    let full = emptyState();
+    while (full.lists.length < MAX_LISTS) {
+      const made = addList(full, `List ${full.lists.length}`, "star");
+      if (!made) break;
+      full = made.state;
+    }
+    expect(importSummary(full, importList(full, list), list)).toBe(
+      `Couldn't add “Onsen trip”: Saved holds at most ${MAX_LISTS} lists`,
+    );
   });
 });

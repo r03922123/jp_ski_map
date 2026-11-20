@@ -2,6 +2,7 @@ import {
   addList,
   isCoord,
   type ListIcon,
+  MAX_LISTS,
   type PlaceInput,
   type SavedKind,
   type SavedState,
@@ -138,4 +139,24 @@ export function importList(state: SavedState, list: ImportedList): SavedState {
     if (!already) next = toggleInList(next, place, target);
   }
   return next;
+}
+
+/** What an import really did, for the line Saved shows afterwards (T5, review of #118). */
+export function importSummary(
+  before: SavedState,
+  after: SavedState,
+  list: ImportedList,
+): string {
+  const count = (state: SavedState) => {
+    const id = state.lists.find((l) => l.name === list.name)?.id;
+    return id === undefined
+      ? null
+      : state.places.filter((p) => p.lists.includes(id)).length;
+  };
+  const now = count(after);
+  if (now === null)
+    return `Couldn't add “${list.name}”: Saved holds at most ${MAX_LISTS} lists`;
+  const added = now - (count(before) ?? 0);
+  if (added === 0) return `“${list.name}” already has these places`;
+  return `Added ${added} ${added === 1 ? "place" : "places"} to “${list.name}”`;
 }
