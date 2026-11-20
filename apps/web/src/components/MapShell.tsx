@@ -68,6 +68,8 @@ export function MapShell() {
   const [savedFocus, setSavedFocus] = useState<string | null>(null);
   // a shared list waiting for the user to confirm (`#import=…`)
   const [importCode, setImportCode] = useState<string | null>(null);
+  // T5: what an import added, shown at the top of Saved until it closes
+  const [savedNotice, setSavedNotice] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
@@ -364,7 +366,11 @@ export function MapShell() {
               canGoHere={mode !== "bus"}
               onStartFrom={actions.startFrom}
               onGoHere={actions.goTo}
-              onClose={() => setSavedOpen(false)}
+              onClose={() => {
+                setSavedOpen(false);
+                setSavedNotice(null);
+              }}
+              notice={savedNotice}
             />
           ) : (
             <ModePanel
@@ -516,10 +522,13 @@ export function MapShell() {
       {importCode && (
         <ImportDialog
           code={importCode}
-          onDone={(imported) => {
+          onDone={(added) => {
             // the URL mirror above already dropped the fragment, so a reload won't ask again
             setImportCode(null);
-            if (imported) setSavedOpen(true);
+            if (added) {
+              setSavedNotice(added);
+              setSavedOpen(true);
+            }
           }}
         />
       )}
