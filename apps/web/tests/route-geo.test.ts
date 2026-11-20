@@ -186,7 +186,7 @@ describe("pinEaseOffsetY", () => {
   });
 
   // v1.18 (recorded change; 375x553 was in the list above): with the two-row card a pin and
-  // its 190 px card fit between card and sheet (132 + 190 = 322 < 332), so it moves, and
+  // its 190 px card fit between card and sheet (118 + 190 = 308 < 332 since v1.27; 132 + 190 = 322 in v1.18), so it moves, and
   // stays above the sheet
   it("at 375x553 the pin now fits above the sheet, and stays out of it", () => {
     const size = { width: 375, height: 553 };

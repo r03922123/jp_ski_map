@@ -87,7 +87,7 @@ const TRIP_CARD_PX = 118;
 // the start marker (Hero at 2x, 48 px) stands above its point (anchor "bottom");
 // HeroMarker.test checks the sprite is this tall
 export const MARKER_PX = 48;
-// a landscape phone: 120 px of card + its 4 px frame + 4 px + a marker, and the
+// a landscape phone: 120 px of card (106 since v1.27: kept as an overestimate) + its 4 px frame + 4 px + a marker, and the
 // bottom margin shrinks, so the markers still fit between the panels
 const SHORT_SCREEN_PX = 480;
 const SHORT_SCREEN_TOP_PX = 120 + 4 + 4 + MARKER_PX;

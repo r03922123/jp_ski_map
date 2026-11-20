@@ -215,7 +215,7 @@ export function BottomSheet({
       className={cn(
         "group/sheet pixel-frame fixed right-(--safe-right) bottom-[calc(0px-var(--viewport-gap,0px))] left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate,visibility] duration-200 motion-reduce:transition-none",
         // expanded: never up under the trip card on top (118 px since v1.27's slimmer card, or 136 on a landscape
-        // phone, where the card is 120 px), so the handle stays
+        // phone, where 120 px overestimates the 106 px card), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
         state === "low"
           ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1

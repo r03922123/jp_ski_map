@@ -150,8 +150,10 @@ for (const s of STATES) {
     });
     expect(result.mapPct).toBeGreaterThan(0);
     // v1.18: the two-row trip card (it was 21.6% of a 390×797 page with three rows)
-    // v1.27: 4 px padding and a 2 px gap (≈14.6% before)
-    if (s.id === "L4") expect(result.topPct).toBeLessThanOrEqual(13.5);
+    // v1.27: 4 px padding and a 2 px gap; in px, so 390x797 (the home-screen size) holds too
+    // (measured 106 px at 393x852, 120 before)
+    if (s.id === "L4")
+      expect((result.topPct * height) / 100).toBeLessThanOrEqual(112);
     if ("low" in s) {
       // v1.17 done-when: most of the page is map, and the trip's answer stays in reach
       expect(result.bandPct).toBeGreaterThanOrEqual(60);
