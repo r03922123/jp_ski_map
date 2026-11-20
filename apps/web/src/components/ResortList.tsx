@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { CheckInButton } from "@/components/CheckInButton";
 import { PixelSprite } from "@/components/PixelSprite";
 import { type RankedResort, resortsQuery } from "@/lib/api";
@@ -164,8 +165,24 @@ export function ResortList({
   const worlds = worldNumbers(catalog.data ?? []);
   const rider = useRider();
   const now = useNow(60_000);
+  // T3: a new order (sort, date, category) must not hide the selection. Only on a change of
+  // order: not on mount, and not when the user just tapped a row
+  const listRef = useRef<HTMLOListElement>(null);
+  const order = resorts.map((r) => r.resortId).join();
+  const lastOrder = useRef(order);
+  useEffect(() => {
+    if (order === lastOrder.current) return;
+    lastOrder.current = order;
+    listRef.current
+      ?.querySelector<HTMLElement>('button[aria-pressed="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [order]);
   return (
-    <ol aria-label="Ranked resorts" className="flex flex-col divide-y">
+    <ol
+      ref={listRef}
+      aria-label="Ranked resorts"
+      className="flex flex-col divide-y"
+    >
       {resorts.map((r) => {
         const snow = snowSummary(r);
         const snowIsOld =
@@ -179,7 +196,8 @@ export function ResortList({
               onClick={() => onSelect(r.resortId, r.accessPointId)}
               className={cn(
                 "flex w-full items-start gap-3 rounded-lg p-2 text-left hover:bg-muted",
-                r.resortId === selectedId && "bg-muted",
+                r.resortId === selectedId &&
+                  "bg-accent ring-1 ring-primary hover:bg-accent",
               )}
             >
               <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">

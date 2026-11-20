@@ -74,7 +74,10 @@ to all working screens. Production release follows approval of the completed res
 - [x] T2 explore, search, place, sheet: "Searching…" while the first results load, Back on the open search
   surface, the pin card's Go here as the one prominent action with Save (☆) beside it, ArrowUp/ArrowDown on
   the sheet handle for its three heights
-- [ ] T3 directions and route comparison
+- [x] T3 directions and route comparison: selected tabs read as selected (white, blue semibold text;
+  unselected muted, not 60% ink), the selected resort is outlined and comes back into view when the order
+  changes. Already there and kept: ETA, arrival and distance first, route options below, steps after five
+  behind "Show all", Start in the sticky answer row
 - [ ] T4 stops and shuttle
 - [ ] T5 saved lists
 - [ ] T6 navigation, errors, desktop and landscape

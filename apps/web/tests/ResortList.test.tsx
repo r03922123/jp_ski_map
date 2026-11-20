@@ -13,10 +13,15 @@ import { SortControls } from "@/components/SortControls";
 import type { RankedResort } from "@/lib/api";
 
 // resort cards carry a Check in button, which reads the resort catalog
-const render = (ui: ReactElement) =>
-  rtlRender(
-    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
-  );
+// a wrapper (not a wrapped element), so rerender keeps the provider
+const render = (ui: ReactElement) => {
+  const client = new QueryClient();
+  return rtlRender(ui, {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    ),
+  });
+};
 
 function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
   return {
@@ -91,6 +96,47 @@ describe("ResortList", () => {
       "happo-one",
       "happo-one-adam-gondola",
     );
+  });
+
+  // T3 (docs/ux/google-maps-workflows.md): re-sorting, a new date or a category change
+  // must not hide the selection
+  it("brings the selected resort into view when the order changes", () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    const a = ranked();
+    const b = ranked({ resortId: "goryu", name: "Goryu", rank: 2 });
+    const view = render(
+      <ResortList resorts={[a, b]} selectedId="goryu" onSelect={vi.fn()} />,
+    );
+    scroll.mockClear();
+    view.rerender(
+      <ResortList
+        resorts={[
+          { ...b, rank: 1 },
+          { ...a, rank: 2 },
+        ]}
+        selectedId="goryu"
+        onSelect={vi.fn()}
+      />,
+    );
+    expect(scroll).toHaveBeenCalledTimes(1);
+    expect(scroll).toHaveBeenCalledWith({ block: "nearest" });
+    expect(scroll.mock.contexts[0]).toBe(
+      screen.getByRole("button", { name: /Goryu/ }),
+    );
+    // the same order again: no jump while the user scrolls the list
+    scroll.mockClear();
+    view.rerender(
+      <ResortList
+        resorts={[
+          { ...b, rank: 1 },
+          { ...a, rank: 2 },
+        ]}
+        selectedId="goryu"
+        onSelect={vi.fn()}
+      />,
+    );
+    expect(scroll).not.toHaveBeenCalled();
   });
 
   it("expands to every factor, crowd reasons and the snow timestamp", () => {

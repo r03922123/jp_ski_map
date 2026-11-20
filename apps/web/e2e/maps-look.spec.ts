@@ -44,6 +44,21 @@ test("the working interface has the Maps look, not the pixel look", async ({
         return `rgb(${r}, ${g}, ${b})`;
       })(),
       framed,
+      // T3: the selected mode tab reads as selected: white, blue text
+      tab: (() => {
+        const t = document.querySelector('[role="tab"][aria-selected="true"]');
+        const c = document.createElement("canvas").getContext("2d");
+        if (!t || !c) return "";
+        const rgb = (v: string) => {
+          c.clearRect(0, 0, 1, 1);
+          c.fillStyle = v;
+          c.fillRect(0, 0, 1, 1);
+          const [r, g, b] = c.getImageData(0, 0, 1, 1).data;
+          return `rgb(${r}, ${g}, ${b})`;
+        };
+        const cs = getComputedStyle(t);
+        return `${rgb(cs.color)} on ${rgb(cs.backgroundColor)}`;
+      })(),
     };
   });
 
@@ -53,4 +68,5 @@ test("the working interface has the Maps look, not the pixel look", async ({
   expect(look.primary).toBe("#1967d2");
   expect(look.startBg).toBe("rgb(25, 103, 210)");
   expect(look.framed).toBe(0);
+  expect(look.tab).toBe("rgb(25, 103, 210) on rgb(255, 255, 255)");
 });
