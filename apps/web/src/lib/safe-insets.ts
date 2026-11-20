@@ -23,10 +23,11 @@ export function safeInsets(): SafeInsets {
 }
 
 /**
- * How far the page's viewport falls short of the screen, up to the status bar's height
+ * How far the page's viewport falls short of the screen when that is the status bar's height
  * (SPEC-web-app v1.20). An iPhone home-screen app with a black-translucent status bar lays
  * the page out one status bar shorter than the screen, leaving a band below every
- * `fixed inset-0` layer. 0 wherever the viewport fills the screen, and in a Safari tab.
+ * `fixed inset-0` layer. 0 wherever the viewport fills the screen, and in a Safari tab,
+ * whose top inset is 0 (the owner's iPhone, /viewport-check, 2026-11-20).
  */
 export function viewportGap({
   screenW,
@@ -48,7 +49,11 @@ export function viewportGap({
     : [Math.min(screenW, screenH), Math.max(screenW, screenH)];
   // a window narrower than the screen (iPad Split View) isn't full screen: no gap
   if (innerW !== screenWide) return 0;
-  return Math.min(Math.max(screenTall - innerH, 0), safeTop);
+  // only a shortfall of exactly the status bar is this bug; a Safari tab or a shorter
+  // window falls short by other amounts (review of v1.22)
+  return safeTop > 0 && Math.abs(screenTall - innerH - safeTop) <= 1
+    ? safeTop
+    : 0;
 }
 
 /** Keeps --viewport-gap on <html> current; returns the cleanup. */
@@ -61,18 +66,19 @@ export function trackViewportGap(): () => void {
         screenH: screen.height,
         innerW: innerWidth,
         innerH: innerHeight,
-        // iOS only (navigator.standalone): Android's screen also counts its nav bar
-        safeTop:
-          "standalone" in navigator && navigator.standalone === true
-            ? safeInsets().top
-            : 0,
+        // Apple's WebKit only: Android's screen also counts its nav bar. Not
+        // navigator.standalone: v1.20 required it and the band stayed on the owner's iPhone
+        safeTop: navigator.vendor.startsWith("Apple") ? safeInsets().top : 0,
       })}px`,
     );
   update();
+  // the safe-area insets can settle after the first paint
+  const late = setTimeout(update, 1000);
   // orientationchange too: resize may come before the new safe-area inset applies
   addEventListener("resize", update);
   addEventListener("orientationchange", update);
   return () => {
+    clearTimeout(late);
     removeEventListener("resize", update);
     removeEventListener("orientationchange", update);
   };

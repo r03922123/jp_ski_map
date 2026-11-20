@@ -18,8 +18,9 @@ describe("viewportGap", () => {
     expect(viewportGap({ ...phone, innerH: 660, safeTop: 0 })).toBe(0);
   });
 
-  it("never exceeds the status bar, whatever else shortens the viewport", () => {
-    expect(viewportGap({ ...phone, innerH: 500, safeTop: 47 })).toBe(47);
+  it("is 0 when the viewport falls short by anything but the status bar", () => {
+    expect(viewportGap({ ...phone, innerH: 500, safeTop: 47 })).toBe(0);
+    expect(viewportGap({ ...phone, innerH: 699, safeTop: 47 })).toBe(0);
   });
 
   it("compares landscape heights with the screen's short side", () => {
