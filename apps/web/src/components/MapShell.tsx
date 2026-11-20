@@ -461,6 +461,7 @@ export function MapShell() {
                   options={rankOptions}
                   onOptionsChange={setRankOptions}
                   ranking={rankingState}
+                  fetching={ranking.isFetching}
                   selectedResortId={selectedResortId}
                   onSelectResort={actions.selectResort}
                 />
