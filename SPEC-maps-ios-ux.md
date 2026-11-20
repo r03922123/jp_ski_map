@@ -132,7 +132,9 @@ Ranked by how much map area the fix gains, then by size.
     reverse engineering their software.
   - Intercept the app's network traffic, or use any jailbreak or instrumentation tool on it. REA and Frida don't
     touch it.
-  - Script or automate the Google Maps app or google.com. A human drives it, and we only watch the screen.
+  - Script or automate the Google Maps app or google.com (no test scripts, scenarios or bulk requests). Owner-approved
+    exception (2026-11-20): the agent may drive it by hand at a person's pace, one action at a time, keeping only
+    element boxes, sizes and screen dimensions ([rea-benchmark-workflow](docs/ux/rea-benchmark-workflow.md)).
   - Commit Google screenshots, recordings, icons, colours, copy or exact layouts. The repo gets our own words
     and numbers only (the repo is public).
 - **Always:**
