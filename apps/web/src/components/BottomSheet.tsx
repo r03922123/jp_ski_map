@@ -200,7 +200,7 @@ export function BottomSheet({
       data-phone-hidden={hiddenOnPhone || undefined}
       data-slim={slim || undefined}
       className={cn(
-        "group/sheet pixel-frame fixed right-[max(0.25rem,var(--safe-right))] bottom-[calc(0.25rem+var(--safe-bottom))] left-[max(0.25rem,var(--safe-left))] outline-none z-10 flex flex-col transition-[height] duration-200",
+        "group/sheet pixel-frame fixed right-[max(0.25rem,var(--safe-right))] bottom-[calc(0.25rem+var(--safe-bottom)-var(--viewport-gap,0px))] left-[max(0.25rem,var(--safe-left))] outline-none z-10 flex flex-col transition-[height] duration-200",
         // expanded: never up under the trip card on top (132 px since v1.18's two rows, or 136 on a landscape
         // phone, where the card is 120 px), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"

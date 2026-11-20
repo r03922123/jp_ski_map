@@ -929,6 +929,7 @@ Spec: [SPEC-maps-ios-ux.md](../SPEC-maps-ios-ux.md); measured from the owner's t
 - [x] G1 low sheet height, 84 px (#98, v1.17): directions preview map 35% → 64.5% of the page
 - [x] G2 two-row trip card (#99, v1.18): + Add destination above the sheet's Trip list; map 41.5% collapsed, 71% low (Google's place sheet: 71% of the screen)
 - [x] Map under the status bar in the home-screen app (#100, v1.19; production 2026-11-20): with simulated 47/34 px insets, 73.8% of the 390×844 screen is map with the sheet low
+- [x] No band below the map in the home-screen app (v1.20): iOS laid the page out 47 pt short; full-screen layers now reach the bottom edge
 - [ ] Owner: try both on the real iPhone (Safari tab and home-screen app); our numbers so far are Chromium emulation (v1.19: insets simulated; check the clock is readable and nothing sits under the notch or home bar)
 - [ ] `layout-share` L1 against production measures the first-visit title screen (0% map): set the `hakuba_title=seen` cookie in that state
 - [ ] Next.js 16.4.3 → 16.4.5+: two moderate advisories (`'use cache'`, unused here); `next dev` 16.4.3 exits on every other start to show an upgrade notice, so start it twice or point e2e at a running server
