@@ -529,11 +529,12 @@ the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to plann
 "Dropped pin" row, the date box with its label above it, Night bus and a notice; its map got 321 pt (38%).
 - Drive and Walk: the directions (ETA, arrival, Start, then steps) come right after the mode tabs, before the
   trip list and the Resorts / Food / Konbini picker. Walk had them last.
-- The trip list's From row shows only with stops (filled or being placed): with none it repeats the top
-  card's From. "+ Add destination" stays, now below the answer.
+- The trip list (its From row, stops and "+ Add destination") follows the answer; in Bus it follows the
+  options. Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
+  hides the place card (review of #109), and the journey e2e specs use its ✕.
 - Bus: "Leave after" sits beside its date box, not above it (one row fewer before the options).
 - Not taken: Google's title row and its share/filter buttons; Start, Add stops and Save as one button row
   (our Start sits in the sticky ETA row, ★ beside the top card's To).
-- Done when: ModePanel tests put the ETA before the picker in Walk and before the trip list in Drive; a
-  MapShell test finds no Trip list without stops and the From row once a stop box opens; e2e small-phone,
-  sheet-needs-start and stops pass as on main.
+- Done when: ModePanel tests put the ETA before the picker in Walk and before the trip list in Drive, and
+  Bus's options before the trip list; e2e journeys, saved, stops, bus, sheet-needs-start and small-phone
+  fail only where main does.

@@ -127,8 +127,9 @@ export function ModePanel({
       {/* v1.26: the answer comes first (Google's route preview); the trip list, pickers
           and settings follow it */}
       {hasOrigin && mode !== "bus" && directions}
-      {/* the trip stays listed while the start is being changed (its stops survive) */}
-      {placeStrip}
+      {/* the trip stays listed while the start is being changed (its stops survive); it
+          holds the start's ★, so it stays, below the answer (v1.26; Bus: below its options) */}
+      {(mode !== "bus" || !hasOrigin || !busPanel) && placeStrip}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
           Type a place above, or {touch ? "long-press" : "tap"} the map, to set
@@ -137,6 +138,7 @@ export function ModePanel({
       ) : mode === "bus" && busPanel ? (
         <>
           {busPanel}
+          {placeStrip}
           <RouteSummary mode="walk" route={route} />
         </>
       ) : mode === "drive" && drivePanel ? (

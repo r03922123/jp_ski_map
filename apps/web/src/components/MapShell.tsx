@@ -367,10 +367,7 @@ export function MapShell() {
               durations={durations}
               placeStrip={
                 <TripPanel
-                  // v1.26: with no stops the From row only repeats the top card
-                  from={
-                    tripStops.length > 0 && mode !== "bus" ? fromPlace : null
-                  }
+                  from={fromPlace}
                   stops={mode === "bus" ? [] : tripStops}
                   addStopRef={addStopRef}
                   near={viewCentre}

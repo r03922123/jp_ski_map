@@ -173,8 +173,7 @@ test("a stop box takes a tap on an alternate route line (a stop on the way), the
   await expect(trip(page).getByRole("listitem")).toHaveCount(2);
 
   await page.getByRole("button", { name: "Remove stop 1" }).click();
-  // v1.26: with no stops left the list goes; the top card shows the start
-  await expect(trip(page)).toHaveCount(0);
+  await expect(trip(page).getByRole("listitem")).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: "Add destination" }),
   ).toBeFocused();
@@ -299,9 +298,8 @@ test("the bus tab offers no stops and no ✕ on the bus's stop", async ({
     .first()
     .click({ timeout: 15_000 });
 
-  // no trip list: the top card holds the start and the To box the destination
-  // (SPEC-web-app v1.13 rule 7; v1.26 dropped the start's repeat in the sheet)
-  await expect(trip(page)).toHaveCount(0);
+  // only the start: the To box above is the destination (SPEC-web-app v1.13 rule 7)
+  await expect(trip(page).getByRole("listitem")).toHaveCount(1);
   await expect(page.getByRole("combobox", { name: "To" })).toHaveValue(
     /Hakuba47/,
   );

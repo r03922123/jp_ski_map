@@ -184,4 +184,15 @@ describe("ModePanel", () => {
       true,
     );
   });
+
+  it("Bus shows its options before the trip list", () => {
+    renderPanel({
+      mode: "bus",
+      busPanel: <div>Bus options</div>,
+      placeStrip: <div>Trip list</div>,
+    });
+    expect(
+      before(screen.getByText("Bus options"), screen.getByText("Trip list")),
+    ).toBe(true);
+  });
 });

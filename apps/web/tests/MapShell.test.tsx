@@ -153,8 +153,7 @@ describe("MapShell origin", () => {
     act(() => map().onPickOrigin(hotel));
     expect(map().origin).toEqual(hotel);
     await waitFor(() => expect(query().get("from")).toBe("36.69736,137.85393"));
-    // the top card's From box (v1.26: the sheet no longer repeats it)
-    expect(screen.getByDisplayValue("Dropped pin")).toBeInTheDocument();
+    expect(screen.getAllByText("Dropped pin").length).toBeGreaterThan(0);
   });
 
   it("a shared link restores the origin, and a tap with both ends set keeps it", async () => {
@@ -405,18 +404,6 @@ describe("MapShell swap", () => {
 });
 
 describe("MapShell stops", () => {
-  // v1.26: with no stops the trip list's From row only repeated the top card
-  it("the sheet lists the trip's From only once there are stops", async () => {
-    renderShell(`?from=${from}&mode=drive&resort=happo-one`);
-    const add = await screen.findByRole("button", { name: /add destination/i });
-    expect(screen.queryByRole("list", { name: "Trip" })).toBeNull();
-    fireEvent.click(add);
-    const trip = screen.getByRole("list", { name: "Trip" });
-    expect(
-      within(trip).getByRole("button", { name: "Remove starting point" }),
-    ).toBeInTheDocument();
-  });
-
   it("Add destination opens a stop box that takes the next map tap; the route goes through it", async () => {
     vi.mocked(api.fetchPath).mockResolvedValue(drive);
     renderShell(`?from=${from}&mode=drive&resort=happo-one`);
