@@ -529,11 +529,17 @@ short (the band, which two measured patches didn't remove on the owner's phone),
 over the map, so iOS's frosted strip and our dark fade sit over it (the blur). Google's app has a dark clock over
 a clear map; a web app can't (`black-translucent` is the only style that draws under the bar, and its clock is
 white).
-- `statusBarStyle: "default"`: the page starts below an ordinary status bar and reaches the screen's bottom,
-  as a Safari tab does. The fade behind the clock goes (nothing runs under the bar to fade). The map no longer
-  shows behind the clock, the 47 pt that the clock covered anyway.
+- `statusBarStyle: "default"`: the page starts below an ordinary, opaque status bar and reaches the screen's
+  bottom, as a Safari tab does. The fade behind the clock goes (nothing runs under the bar to fade). The map
+  no longer shows behind the clock, the 47 pt that the clock covered anyway.
+- The bar is a solid strip, so its colour is set: `theme-color` `#eef3f7`, the page's background and the
+  manifest's `theme_color`, with a dark clock. Before v1.19 this style showed a navy strip (the owner's
+  complaint then); whether iOS paints the bar from `theme-color` or from the manifest is unknown, so the
+  owner's phone decides (review of #108).
 - `--viewport-gap` stays: it is 0 unless the shortfall equals a non-zero top inset, which this style shouldn't
   produce. Removed once the owner's iPhone shows no band.
-- Done when: e2e reads `default` in the status-bar meta and finds no fade; the owner's iPhone home-screen app
-  (re-added if iOS kept the old style) shows no band and no strip. iOS reads the meta when the app launches;
-  if the old style sticks, removing and re-adding the icon picks up the new one.
+- Done when: e2e reads `default` in the status-bar meta, `#eef3f7` in `theme-color`, and finds no fade; on the
+  owner's iPhone the home-screen app shows no band and a light bar, and `/viewport-check` opened from it reads
+  safe top 0 and `--viewport-gap 0px` (if iOS still reported a 47 pt top inset here, the gap code would push
+  every layer 47 pt past the bottom). Whether iOS re-reads the style at launch or only when the icon is added
+  is unknown: if the old look stays after closing and reopening the app, remove the icon and add it again.

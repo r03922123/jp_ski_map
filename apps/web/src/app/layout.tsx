@@ -27,8 +27,12 @@ export const metadata: Metadata = {
   },
 };
 
-// v1.19: the page runs under the status bar and home indicator; --safe-* keep controls out
-export const viewport: Viewport = { viewportFit: "cover" };
+// cover: the page runs under the home indicator and a landscape notch; --safe-* keep controls
+// out. v1.25: the status bar is opaque, in the page's light colour (the manifest's theme_color)
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: "#eef3f7",
+};
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

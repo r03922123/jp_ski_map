@@ -24,7 +24,8 @@ export function safeInsets(): SafeInsets {
 
 /**
  * How far the page's viewport falls short of the screen when that is the status bar's height
- * (SPEC-web-app v1.20). An iPhone home-screen app with a black-translucent status bar lays
+ * (SPEC-web-app v1.20; v1.25 dropped that status bar, so expect 0 until it's removed). An
+ * iPhone home-screen app with a black-translucent status bar lays
  * the page out one status bar shorter than the screen, leaving a band below every
  * `fixed inset-0` layer. 0 wherever the viewport fills the screen, and in a Safari tab,
  * whose top inset is 0 (the owner's iPhone, /viewport-check, 2026-11-20).
