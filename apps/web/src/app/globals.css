@@ -283,3 +283,10 @@
   bottom: var(--safe-bottom);
   left: var(--safe-left);
 }
+
+/* v1.20: the iPhone home-screen app lays the page out one status bar shorter than the
+   screen; full-screen layers reach past it to the bottom edge (--viewport-gap, set by
+   trackViewportGap, is 0 everywhere else). Unlayered: beats the inset-0 utility */
+.fixed.inset-0 {
+  bottom: calc(0px - var(--viewport-gap, 0px));
+}

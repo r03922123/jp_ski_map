@@ -438,3 +438,15 @@ Maps. Today the page starts under an opaque status bar, which shows as a solid n
   ≤ 844 − 34 (and within 8 px of it); L4-low map ≥ 70% of the screen. Measured: 73.8% (Google's place sheet: 71%).
 - [ ] Owner's check on the real iPhone (home-screen app): map behind the clock, clock readable, nothing under
   the notch or the home bar.
+
+## v1.20: No band below the map in the home-screen app (2026-11-20, the owner's iPhone screenshot)
+After v1.19, the owner's iPhone home-screen app showed the map behind the clock but a 47 pt
+band of page background below the sheet: iOS lays the page out one status bar (47 pt)
+shorter than the 844 pt screen, so every `fixed inset-0` layer stopped early.
+- `trackViewportGap` (lib/safe-insets) sets `--viewport-gap` on `<html>`: the screen's
+  height minus the page's, capped at the status bar's height, and only where
+  `navigator.standalone` is true (iOS home-screen apps; Android's screen also counts its nav
+  bar). One unlayered rule in globals.css extends every `.fixed.inset-0` layer by it.
+- Done when: unit tests for the gap; the e2e "home-screen viewport short by the status bar"
+  (797 px viewport on an 844 px screen) sees `main` 844 px tall, and fails without the fix.
+- Not ours: the frosted strip behind the clock is drawn by iOS; the app has no blur.

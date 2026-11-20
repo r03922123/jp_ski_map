@@ -21,3 +21,50 @@ export function safeInsets(): SafeInsets {
   probe.remove();
   return insets;
 }
+
+/**
+ * How far the page's viewport falls short of the screen, up to the status bar's height
+ * (SPEC-web-app v1.20). An iPhone home-screen app with a black-translucent status bar lays
+ * the page out one status bar shorter than the screen, leaving a band below every
+ * `fixed inset-0` layer. 0 wherever the viewport fills the screen, and in a Safari tab.
+ */
+export function viewportGap({
+  screenW,
+  screenH,
+  innerW,
+  innerH,
+  safeTop,
+}: {
+  screenW: number;
+  screenH: number;
+  innerW: number;
+  innerH: number;
+  safeTop: number;
+}): number {
+  // iOS keeps screen.width/height in portrait order; match the page's orientation
+  const screenTall =
+    innerW > innerH ? Math.min(screenW, screenH) : Math.max(screenW, screenH);
+  return Math.min(Math.max(screenTall - innerH, 0), safeTop);
+}
+
+/** Keeps --viewport-gap on <html> current; returns the cleanup. */
+export function trackViewportGap(): () => void {
+  const update = () =>
+    document.documentElement.style.setProperty(
+      "--viewport-gap",
+      `${viewportGap({
+        screenW: screen.width,
+        screenH: screen.height,
+        innerW: innerWidth,
+        innerH: innerHeight,
+        // iOS only (navigator.standalone): Android's screen also counts its nav bar
+        safeTop:
+          "standalone" in navigator && navigator.standalone === true
+            ? safeInsets().top
+            : 0,
+      })}px`,
+    );
+  update();
+  addEventListener("resize", update);
+  return () => removeEventListener("resize", update);
+}
