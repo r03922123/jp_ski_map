@@ -478,3 +478,19 @@ by it; any other shortfall (a tab, a shorter window) gives 0. Measured again 1 s
   stays ≥ 63% (the docked sheet now covers the strip of map by the home bar). Owner's check
   on the real iPhone is the last part.
 - Open: the frosted strip behind the clock is drawn by iOS, not the app.
+
+## v1.24: Each mode tab shows its travel time (2026-11-20, BC-L1 + BC-L2)
+Google Maps' mode row shows every mode's duration, on the iPhone (BC-L1: 🚗 7 min · 🚌 23 min · 🚶 40 min)
+and on the laptop (BC-L2), so modes can be compared without switching. Ours showed a time only for the open
+tab. Cluster G's candidate, now taken for drive and walk.
+- With a start and a resort or pin destination, the Drive and Walk tabs read "🚗 Drive 8 min" and
+  "🚶 Walk 11 min" (`formatDuration` of the primary route, through the trip's stops when there are any).
+  Shown on every tab, Bus included (the drive and walk targets are the resort, not the bus stop).
+- Both routes are asked for with the route panel's own query key, so the open tab's route is one shared
+  request and switching tabs then shows its route at once, from the cache. One extra Valhalla request per
+  trip (our own server, no cost).
+- Not shown: for a Food or Konbini list (the destination there is picked per mode, so another mode's time
+  would be to a different place), while loading, or after an error (the tab stays as it was). The Bus tab
+  keeps its plain label: its time depends on the timetable choice.
+- Done when: MapShell tests show both times on the tabs for a resort, and none for a Food list; the route
+  panel still asks for the open mode's route; the phone tab row doesn't overflow at 320 px (e2e small-phone).

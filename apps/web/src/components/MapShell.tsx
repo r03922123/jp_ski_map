@@ -35,7 +35,7 @@ import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
 import { useLodging, usePois, useRanking } from "@/lib/use-lists";
-import { useRoutes } from "@/lib/use-routes";
+import { useModeDurations, useRoutes } from "@/lib/use-routes";
 import { type TripPoint, useTrip } from "@/lib/use-trip";
 import { useViewUrl } from "@/lib/use-view-url";
 
@@ -116,10 +116,9 @@ export function MapShell() {
     poiId,
   });
 
-  const target =
-    mode === "bus"
-      ? busStop
-      : (point?.coord ?? (poiCategory ? poiTarget : destination));
+  // where drive and walk go; a Food or Konbini list picks its place per mode
+  const tripTarget = point?.coord ?? (poiCategory ? poiTarget : destination);
+  const target = mode === "bus" ? busStop : tripTarget;
   // With stops (drive/walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
   const {
@@ -131,6 +130,11 @@ export function MapShell() {
     highlight,
     setHighlight,
   } = useRoutes({ mode, routeMode, origin, target, viaStops });
+  const durations = useModeDurations({
+    origin,
+    target: poiCategory && !point ? null : tripTarget,
+    viaStops: filledStops.map((s) => s.coord),
+  });
 
   const routeData = routeState.status === "success" ? routeState.data : null;
 
@@ -351,6 +355,7 @@ export function MapShell() {
               selectedResortId={selectedResortId}
               onSelectResort={actions.selectResort}
               hasOrigin={origin !== null}
+              durations={durations}
               placeStrip={
                 <TripPanel
                   from={fromPlace}

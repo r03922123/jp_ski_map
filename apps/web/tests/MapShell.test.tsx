@@ -182,7 +182,8 @@ describe("MapShell destination", () => {
     expect(map().destination).toEqual(happo.accessPoints[0].coord);
     await waitFor(() => expect(query().get("resort")).toBe("happo-one"));
     await waitFor(() => expect(map().routes).toEqual([drive]));
-    expect(api.fetchRoutes).toHaveBeenLastCalledWith(
+    // v1.24: the Walk tab's time is asked for too, so drive is not always the last call
+    expect(api.fetchRoutes).toHaveBeenCalledWith(
       "drive",
       { lat: 36.69736, lng: 137.85393 },
       happo.accessPoints[0].coord,
@@ -215,6 +216,31 @@ describe("MapShell mode", () => {
       expect.anything(),
       expect.anything(),
     );
+  });
+
+  // v1.24 (BC-L1, BC-L2): like Google's mode row, each tab shows its own time
+  it("the Drive and Walk tabs show each mode's time to the resort", async () => {
+    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    // drive 463 s, walk 686 s in the fixtures
+    await waitFor(() => expect(map().routes).toEqual([drive]));
+    expect(
+      await screen.findByRole("tab", { name: /Drive 8 min/ }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("tab", { name: /Walk 11 min/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("a Food list shows no times on the tabs: its place is picked per mode", async () => {
+    renderShell(
+      "?from=36.69736,137.85393&mode=drive&resort=happo-one&cat=food",
+    );
+    expect(
+      await screen.findByRole("tab", { name: "🚗 Drive" }),
+    ).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
   });
 
   it("switching to Bus drops the drive route target: the map gets no destination", async () => {

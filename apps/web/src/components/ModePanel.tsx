@@ -9,6 +9,15 @@ import { formatDistance, formatDuration } from "@/lib/format";
 
 export type PanelMode = Mode | "bus";
 
+const tabTime = (seconds: number | undefined) =>
+  seconds === undefined ? null : (
+    // the space outside the span: inside it, the tab's name reads "Drive8 min"
+    <>
+      {" "}
+      <span className="text-xs opacity-80">{formatDuration(seconds)}</span>
+    </>
+  );
+
 export type RouteState =
   | { status: "idle" }
   | { status: "loading" }
@@ -28,6 +37,8 @@ export type ModePanelProps = {
   activeRoute?: number;
   onSelectRoute?: (index: number) => void;
   onHighlightStep?: (range: [number, number] | null) => void;
+  /** v1.24: each mode's travel time in seconds, shown on its tab once known */
+  durations?: Partial<Record<Mode, number>>;
   /** Departure used for "Arrive ~"; defaults to now. */
   departAt?: Date;
   /** Drive mode: ranked resort list replacing the plain picker. */
@@ -66,6 +77,7 @@ export function ModePanel({
   activeRoute = 0,
   onSelectRoute = () => {},
   onHighlightStep = () => {},
+  durations = {},
   departAt,
   drivePanel,
   destinationPicker,
@@ -100,8 +112,12 @@ export function ModePanel({
           <TabsTrigger value="bus" disabled={!busPanel}>
             🚌 Bus
           </TabsTrigger>
-          <TabsTrigger value="drive">🚗 Drive</TabsTrigger>
-          <TabsTrigger value="walk">🚶 Walk</TabsTrigger>
+          <TabsTrigger value="drive">
+            🚗 Drive{tabTime(durations.drive)}
+          </TabsTrigger>
+          <TabsTrigger value="walk">
+            🚶 Walk{tabTime(durations.walk)}
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
