@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useBackToClose } from "@/lib/back-close";
 import {
   addList,
@@ -47,7 +48,9 @@ export function ListPicker({
     setNewName("");
   }
 
-  return (
+  // a portal: opened from a pin card (a MapLibre popup, transformed), a fixed dialog would be
+  // laid out inside the popup, squeezed and clipped by the map (review of #115)
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 md:items-center">
       <button
         type="button"
@@ -64,7 +67,10 @@ export function ListPicker({
         tabIndex={-1}
         className="relative flex max-h-[80dvh] w-full max-w-sm flex-col gap-3 overflow-y-auto rounded-t-2xl bg-background p-4 pb-[calc(1rem+var(--safe-bottom))] shadow-xl outline-none md:rounded-2xl md:pb-4"
         onKeyDown={(e) => {
-          if (e.key === "Escape") onClose();
+          if (e.key === "Escape") {
+            e.preventDefault(); // the pin card under it keeps its own Escape for itself
+            onClose();
+          }
         }}
       >
         <div>
@@ -147,6 +153,7 @@ export function ListPicker({
           Done
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
