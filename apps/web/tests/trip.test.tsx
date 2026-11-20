@@ -137,6 +137,44 @@ describe("TripPanel", () => {
     expect(handlers.onMoveStop).toHaveBeenCalledWith("s2", -1);
   });
 
+  // re-review of #117: React moves the focused row on Move down, and a moved element loses
+  // focus; it goes back to the moved stop's button
+  it("keeps focus on the moved stop's button after a real Move down", () => {
+    const second = { ...konbini, id: "k2", name: "Lawson Hakuba" };
+    function Reorderable() {
+      const [stops, setStops] = useState<TripStop[]>([
+        { key: "s1", place: konbini },
+        { key: "s2", place: second },
+      ]);
+      return (
+        <QueryClientProvider client={new QueryClient()}>
+          <TripPanel
+            from={hotel}
+            stops={stops}
+            addStopRef={{ current: null }}
+            near={null}
+            onRemoveStop={() => {}}
+            onFillStop={() => {}}
+            onClearFrom={() => {}}
+            onMoveStop={(key, by) =>
+              setStops((list) => {
+                const i = list.findIndex((st) => st.key === key);
+                const next = [...list];
+                [next[i], next[i + by]] = [next[i + by], next[i]];
+                return next;
+              })
+            }
+          />
+        </QueryClientProvider>
+      );
+    }
+    render(<Reorderable />);
+    const down = screen.getByRole("button", { name: "Move stop 1 down" });
+    down.focus();
+    fireEvent.click(down);
+    expect(document.activeElement).toHaveAccessibleName("Move stop 2 down");
+  });
+
   // review of #117: an open stop box is not a neighbour (it would renumber the list only)
   it("offers no reorder while a stop box is open", () => {
     renderTrip({
