@@ -462,3 +462,18 @@ and draws one coloured column per CSS height (inset-0, 100vh/lvh/dvh/svh, inset-
 by the top inset), so a screenshot from the home screen shows which reaches the screen's
 bottom. A button hides the status-bar fade, to see whether the frosted strip is iOS's own.
 Diagnostic only; removed once the band and blur are fixed.
+
+## v1.22: The band, take two, and a sheet on the bottom edge (2026-11-20, the owner's iPhone)
+v1.20 changed nothing on the owner's iPhone. `/viewport-check` in Safari showed the top inset
+is 0 in a Safari tab, and iOS 26 left `navigator.standalone` false, so v1.20's gate never
+opened. The gap is now measured on Apple's WebKit (`navigator.vendor`) wherever the page
+draws under the status bar (top inset > 0, which a Safari tab never has), and again 1 s
+after load in case the insets settle late.
+- Google Maps layout: on phones the sheet sits on the screen's bottom edge, full width
+  (inside the side insets); `pb-(--safe-bottom)` keeps its content above the home bar and
+  every phone height adds that padding back, so the sheet's top edge stays where it was.
+- Done when: the e2e sheet bottom is the screen's bottom (844) with 34 px padding, in the
+  notch simulation and in the short-viewport one; the unbroken map band with the sheet low
+  stays ≥ 63% (the docked sheet now covers the strip of map by the home bar). Owner's check
+  on the real iPhone is the last part.
+- Open: the frosted strip behind the clock is drawn by iOS, not the app.

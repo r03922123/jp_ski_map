@@ -210,8 +210,13 @@ test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
       // right under the status bar and right above the home bar, not merely clear of them
       expect(card.y).toBeGreaterThanOrEqual(47);
       expect(card.y).toBeLessThanOrEqual(47 + 12);
-      expect(sheet.y + sheet.height).toBeLessThanOrEqual(844 - 34);
-      expect(sheet.y + sheet.height).toBeGreaterThanOrEqual(844 - 34 - 8);
+      // v1.22: the sheet sits on the screen's bottom edge, as in Google Maps, and its
+      // padding keeps its content above the home bar
+      expect(Math.round(sheet.y + sheet.height)).toBe(844);
+      await expect(page.locator("[data-sheet]")).toHaveCSS(
+        "padding-bottom",
+        "34px",
+      );
       // MapLibre's corner controls (zoom, credits) sit above the home bar (review finding 1)
       const controls = await page
         .locator(".maplibregl-ctrl-bottom-right")
@@ -232,7 +237,9 @@ test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
       console.log(
         `layout-share ${JSON.stringify({ state: low ? "notch-L4-low" : "notch-L4", ...result })}`,
       );
-      if (low) expect(result.mapPct).toBeGreaterThanOrEqual(70);
+      // v1.22: the docked sheet covers the strip of map that showed under it by the home
+      // bar (mapPct 73.8 → 69.9); the unbroken map above the sheet is what counts (63.0 → 63.5)
+      if (low) expect(result.bandPct).toBeGreaterThanOrEqual(63);
     });
   }
 });
@@ -275,8 +282,12 @@ test.describe("home-screen viewport short by the status bar (v1.20)", () => {
 
   test("the map reaches the screen's bottom edge", async ({ page }) => {
     await page.addInitScript(() => {
-      // the iPhone home-screen app (Safari-only property)
-      Object.defineProperty(navigator, "standalone", { value: true });
+      // iOS 26 reports navigator.standalone false in the home-screen app (v1.22); the
+      // gap is for Apple's WebKit, which Chromium stands in for here
+      Object.defineProperty(navigator, "standalone", { value: false });
+      Object.defineProperty(navigator, "vendor", {
+        value: "Apple Computer, Inc.",
+      });
       document.addEventListener("DOMContentLoaded", () => {
         const style = document.createElement("style");
         style.textContent =
@@ -295,8 +306,7 @@ test.describe("home-screen viewport short by the status bar (v1.20)", () => {
     // the sheet comes down with it, right above the home bar (v1.20 review)
     const sheet = await page.locator("[data-sheet]").boundingBox();
     if (!sheet) throw new Error("no sheet");
-    expect(sheet.y + sheet.height).toBeLessThanOrEqual(844 - 34);
-    expect(sheet.y + sheet.height).toBeGreaterThanOrEqual(844 - 34 - 8);
+    expect(Math.round(sheet.y + sheet.height)).toBe(844);
     // and the credits stay above the sheet, not behind it
     const credits = await page.locator(".maplibregl-ctrl-attrib").boundingBox();
     if (!credits) throw new Error("no credits");

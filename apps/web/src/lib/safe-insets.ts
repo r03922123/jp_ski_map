@@ -26,7 +26,8 @@ export function safeInsets(): SafeInsets {
  * How far the page's viewport falls short of the screen, up to the status bar's height
  * (SPEC-web-app v1.20). An iPhone home-screen app with a black-translucent status bar lays
  * the page out one status bar shorter than the screen, leaving a band below every
- * `fixed inset-0` layer. 0 wherever the viewport fills the screen, and in a Safari tab.
+ * `fixed inset-0` layer. 0 wherever the viewport fills the screen, and in a Safari tab,
+ * whose top inset is 0 (the owner's iPhone, /viewport-check, 2026-11-20).
  */
 export function viewportGap({
   screenW,
@@ -61,18 +62,19 @@ export function trackViewportGap(): () => void {
         screenH: screen.height,
         innerW: innerWidth,
         innerH: innerHeight,
-        // iOS only (navigator.standalone): Android's screen also counts its nav bar
-        safeTop:
-          "standalone" in navigator && navigator.standalone === true
-            ? safeInsets().top
-            : 0,
+        // Apple's WebKit only: Android's screen also counts its nav bar. Not
+        // navigator.standalone: iOS 26 left the owner's home-screen app's at false (v1.22)
+        safeTop: navigator.vendor.startsWith("Apple") ? safeInsets().top : 0,
       })}px`,
     );
   update();
+  // the safe-area insets can settle after the first paint
+  const late = setTimeout(update, 1000);
   // orientationchange too: resize may come before the new safe-area inset applies
   addEventListener("resize", update);
   addEventListener("orientationchange", update);
   return () => {
+    clearTimeout(late);
     removeEventListener("resize", update);
     removeEventListener("orientationchange", update);
   };

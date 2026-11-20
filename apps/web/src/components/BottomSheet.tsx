@@ -199,21 +199,23 @@ export function BottomSheet({
       data-state={state}
       data-phone-hidden={hiddenOnPhone || undefined}
       data-slim={slim || undefined}
+      // v1.22: on phones the sheet sits on the bottom edge, as in Google Maps; its padding
+      // keeps the content above the home bar, and each height adds that padding back
       className={cn(
-        "group/sheet pixel-frame fixed right-[max(0.25rem,var(--safe-right))] bottom-[calc(0.25rem+var(--safe-bottom)-var(--viewport-gap,0px))] left-[max(0.25rem,var(--safe-left))] outline-none z-10 flex flex-col transition-[height] duration-200",
+        "group/sheet pixel-frame fixed right-(--safe-right) bottom-[calc(0px-var(--viewport-gap,0px))] left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height] duration-200",
         // expanded: never up under the trip card on top (132 px since v1.18's two rows, or 136 on a landscape
         // phone, where the card is 120 px), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
         state === "low"
           ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1
-            "h-[84px]"
+            "h-[calc(84px+var(--safe-bottom))]"
           : expanded
-            ? "h-[min(80dvh,calc(100dvh-180px-var(--safe-top)-var(--safe-bottom)))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
+            ? "h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-180px-var(--safe-top)))] max-md:[@media(max-height:479px)]:h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-136px+var(--safe-bottom)))]"
             : slim
               ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
-                "h-[40dvh] max-md:[@media(max-height:479px)]:h-[84px]"
-              : "h-[40dvh]",
-        "md:absolute md:inset-x-auto md:bottom-auto md:top-[calc(1rem+var(--safe-top))] md:left-[calc(1rem+var(--safe-left))] md:h-auto md:max-h-[calc(100dvh-2.5rem-var(--safe-top)-var(--safe-bottom))] md:w-96",
+                "h-[calc(40dvh+var(--safe-bottom))] max-md:[@media(max-height:479px)]:h-[calc(84px+var(--safe-bottom))]"
+              : "h-[calc(40dvh+var(--safe-bottom))]",
+        "md:absolute md:inset-x-auto md:bottom-auto md:pb-0 md:top-[calc(1rem+var(--safe-top))] md:left-[calc(1rem+var(--safe-left))] md:h-auto md:max-h-[calc(100dvh-2.5rem-var(--safe-top)-var(--safe-bottom))] md:w-96",
         // invisible, not unmounted: the header inside stays visible, and taps reach the map
         hiddenOnPhone && "max-md:invisible",
       )}
