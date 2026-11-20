@@ -457,8 +457,9 @@ export function BusPanel(props: BusPanelProps) {
   const range = departRange();
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end gap-3 text-sm">
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+        {/* v1.26: label beside the box, one row fewer before the options */}
+        <div className="flex items-center gap-2">
           <label htmlFor="depart-at" className="font-medium">
             Leave after
           </label>
@@ -475,7 +476,7 @@ export function BusPanel(props: BusPanelProps) {
             }
           />
         </div>
-        <label className="flex items-center gap-2 pb-1">
+        <label className="flex items-center gap-2">
           <input
             type="checkbox"
             checked={showNight}

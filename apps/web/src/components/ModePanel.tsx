@@ -124,6 +124,9 @@ export function ModePanel({
         </TabsList>
       </Tabs>
 
+      {/* v1.26: the answer comes first (Google's route preview); the trip list, pickers
+          and settings follow it */}
+      {hasOrigin && mode !== "bus" && directions}
       {/* the trip stays listed while the start is being changed (its stops survive) */}
       {placeStrip}
       {!hasOrigin ? (
@@ -138,7 +141,6 @@ export function ModePanel({
         </>
       ) : mode === "drive" && drivePanel ? (
         <>
-          {directions}
           {destinationPicker}
           {poiPanel ?? drivePanel}
         </>
@@ -165,7 +167,6 @@ export function ModePanel({
               </select>
             </div>
           )}
-          {directions}
         </>
       )}
     </div>

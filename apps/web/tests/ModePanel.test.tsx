@@ -159,4 +159,29 @@ describe("ModePanel", () => {
 
     expect(screen.getByText(/long walk/i)).toBeInTheDocument();
   });
+
+  // v1.26: the answer first, as in Google's route preview (owner's screenshot)
+  const before = (a: HTMLElement, b: HTMLElement) =>
+    Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+
+  it("Walk shows the ETA before the destination picker", () => {
+    renderPanel({
+      mode: "walk",
+      route: { status: "success", data: route({ mode: "walk" }) },
+      destinationPicker: <div>Destination picker</div>,
+    });
+    expect(
+      before(screen.getByText(/ETA/), screen.getByText("Destination picker")),
+    ).toBe(true);
+  });
+
+  it("Drive shows the ETA before the trip list", () => {
+    renderPanel({
+      drivePanel: <div>Ranked resorts</div>,
+      placeStrip: <div>Trip list</div>,
+    });
+    expect(before(screen.getByText(/ETA/), screen.getByText("Trip list"))).toBe(
+      true,
+    );
+  });
 });

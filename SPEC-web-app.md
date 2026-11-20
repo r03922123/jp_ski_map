@@ -521,3 +521,19 @@ tab. Cluster G's candidate, now taken for drive and walk.
   walk over an hour, and the 384 px side card at 1280×800; a two-entrance resort hides the times again when
   the start moves in Walk (the ranking's placeholder is the old start's); the route panel still asks for the
   open mode's route.
+
+## v1.26: The sheet shows the answer first (2026-11-20, the owner's Google Maps screenshot, BC-L1)
+The owner's screenshot of Google Maps' iPhone route preview: under the mode row with times, the sheet shows
+the answer (time, arrival, distance) and Start, and nothing else above the fold; its map gets 422 pt (50%) of
+the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to planning controls: a second
+"Dropped pin" row, the date box with its label above it, Night bus and a notice; its map got 321 pt (38%).
+- Drive and Walk: the directions (ETA, arrival, Start, then steps) come right after the mode tabs, before the
+  trip list and the Resorts / Food / Konbini picker. Walk had them last.
+- The trip list's From row shows only with stops (filled or being placed): with none it repeats the top
+  card's From. "+ Add destination" stays, now below the answer.
+- Bus: "Leave after" sits beside its date box, not above it (one row fewer before the options).
+- Not taken: Google's title row and its share/filter buttons; Start, Add stops and Save as one button row
+  (our Start sits in the sticky ETA row, ★ beside the top card's To).
+- Done when: ModePanel tests put the ETA before the picker in Walk and before the trip list in Drive; a
+  MapShell test finds no Trip list without stops and the From row once a stop box opens; e2e small-phone,
+  sheet-needs-start and stops pass as on main.
