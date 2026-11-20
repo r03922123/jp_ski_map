@@ -190,6 +190,22 @@ describe("MapShell destination", () => {
     );
   });
 
+  // T2: a dropped pin can be saved from its card, like any place
+  it("a dropped pin's card offers Save, which opens the list picker", async () => {
+    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    await waitFor(() => expect(map().destination).not.toBeNull());
+    act(() => map().onDropPin?.({ lat: 36.68, lng: 137.86 }, null));
+    // the start (from a link's coordinates) is a "Dropped pin" too: look inside the card
+    const card = screen
+      .getAllByRole("group", { name: "Dropped pin" })
+      .find((g) => g.tagName === "FIELDSET");
+    if (!card) throw new Error("no pin card");
+    fireEvent.click(
+      within(card).getByRole("button", { name: "Save Dropped pin" }),
+    );
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  });
+
   it("a pin's Go here makes the pin the destination instead of the resort", async () => {
     renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());

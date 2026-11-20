@@ -336,6 +336,41 @@ describe("SearchBox", () => {
     const { input } = renderBox("My hotel · Hotel Hakuba");
     expect(input).toHaveValue("My hotel · Hotel Hakuba");
   });
+
+  // T2 (docs/ux/google-maps-workflows.md): an explicit loading state, not an empty gap
+  it("says it is searching while the first results load", async () => {
+    let resolve: (v: Suggestion[]) => void = () => {};
+    vi.spyOn(api, "fetchSuggestions").mockReturnValue(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+    const { input } = renderBox();
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: "hotel" } });
+    expect(
+      await screen.findByRole("status", { name: "" }, { timeout: 2000 }),
+    ).toHaveTextContent(/Searching/);
+    await act(async () => resolve([hotelHakuba]));
+    expect(
+      await screen.findByRole("option", { name: /Hotel Hakuba/ }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Searching/)).toBeNull();
+  });
+
+  // T2: a Back action leaves the search surface without changing the trip
+  it("Back closes the suggestions and puts the committed text back", async () => {
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHakuba]);
+    const { input, onSelect } = renderBox("Dropped pin");
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: "hot" } });
+    await screen.findByRole("option", { name: /Hotel Hakuba/ });
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(input).toHaveValue("Dropped pin");
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
+  });
 });
 
 // BC-T1 (docs/ux/behaviour-cards.md): in Google's destination field typing is a draft; the

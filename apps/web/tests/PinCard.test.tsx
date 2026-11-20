@@ -40,4 +40,36 @@ describe("PinCard", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(h.onClose).toHaveBeenCalledTimes(2);
   });
+
+  // T2: Directions (Go here) is the one prominent action; Save sits beside the others
+  it("makes Go here the prominent action and shows the Save slot", () => {
+    render(
+      <PinCard
+        name={null}
+        onStart={() => {}}
+        onGo={() => {}}
+        onClose={() => {}}
+        save={<button type="button">Save Dropped pin</button>}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Go here" })).toHaveAttribute(
+      "data-variant",
+      "primary",
+    );
+    expect(screen.getByRole("button", { name: "Start here" })).toHaveAttribute(
+      "data-variant",
+      "secondary",
+    );
+    expect(
+      screen.getByRole("button", { name: "Save Dropped pin" }),
+    ).toBeInTheDocument();
+  });
+
+  it("with no Go here (Bus), Start here is the prominent one", () => {
+    render(<PinCard name={null} onStart={() => {}} onClose={() => {}} />);
+    expect(screen.getByRole("button", { name: "Start here" })).toHaveAttribute(
+      "data-variant",
+      "primary",
+    );
+  });
 });

@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
-const ACTION =
+// T2: one prominent action (Go here, Google's Directions; Start here in Bus), the rest outlined
+const PRIMARY =
   "rounded-full bg-primary px-4 py-1 font-medium text-primary-foreground shadow-sm";
+const SECONDARY =
+  "rounded-full border bg-card px-4 py-1 font-medium text-primary hover:bg-muted";
 
 /**
  * The card on a dropped pin (docs/ux/behaviour-cards.md BC-A1). In Google Maps a long-press
@@ -17,12 +20,15 @@ export function PinCard({
   onGo,
   onAddStop,
   onClose,
+  save,
 }: {
   name: string | null;
   onStart: () => void;
   onGo?: () => void;
   onAddStop?: () => void;
   onClose: () => void;
+  /** the place's Save (☆) button, beside the actions */
+  save?: ReactNode;
 }) {
   const title = name ?? "Dropped pin";
   useEffect(() => {
@@ -47,19 +53,35 @@ export function PinCard({
         ✕
       </button>
       <div className="clear-left flex flex-wrap gap-2">
-        <button type="button" onClick={onStart} className={ACTION}>
-          Start here
-        </button>
         {onGo && (
-          <button type="button" onClick={onGo} className={ACTION}>
+          <button
+            type="button"
+            onClick={onGo}
+            data-variant="primary"
+            className={PRIMARY}
+          >
             Go here
           </button>
         )}
+        <button
+          type="button"
+          onClick={onStart}
+          data-variant={onGo ? "secondary" : "primary"}
+          className={onGo ? SECONDARY : PRIMARY}
+        >
+          Start here
+        </button>
         {onAddStop && (
-          <button type="button" onClick={onAddStop} className={ACTION}>
+          <button
+            type="button"
+            onClick={onAddStop}
+            data-variant="secondary"
+            className={SECONDARY}
+          >
             Add stop
           </button>
         )}
+        {save}
       </div>
     </fieldset>
   );

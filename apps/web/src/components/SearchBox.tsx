@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { type Coord, fetchSuggestions, type Suggestion } from "@/lib/api";
 import { useCoarsePointer } from "@/lib/device";
@@ -162,6 +162,15 @@ export function SearchBox({
     query.length > 0 &&
     (results.data !== undefined || savedRows.length > 0);
   const rows = showRecent ? recentRows : suggestions;
+  // T2: the first answer for a query is on its way (later keystrokes keep the old rows)
+  const searching =
+    open &&
+    query.length > 0 &&
+    results.isFetching &&
+    results.data === undefined &&
+    savedRows.length === 0;
+  // T2: a Back action while the search surface is open, as in Google Maps
+  const surfaceOpen = showList || showRecent || searching;
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -186,6 +195,15 @@ export function SearchBox({
     setText(committed.current);
     setOpen(false);
     setActive(-1);
+  }
+
+  // leave the search surface: the committed text comes back and the trip is untouched
+  function goBack() {
+    setText(committed.current);
+    setTyped(false);
+    setOpen(false);
+    setActive(-1);
+    inputRef.current?.blur();
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -231,7 +249,7 @@ export function SearchBox({
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
         placeholder={placeholder}
-        className={`w-full rounded-full border bg-background py-2 pr-10 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden ${searchIcon ? "pl-9" : "pl-4"}`}
+        className={`w-full rounded-full border bg-background py-2 pr-10 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden ${searchIcon || surfaceOpen ? "pl-9" : "pl-4"}`}
         value={text}
         onChange={(e) => {
           setTyped(true);
@@ -245,12 +263,25 @@ export function SearchBox({
         onBlur={restoreOnBlur ? restoreDraft : undefined}
         onKeyDown={onKeyDown}
       />
-      {searchIcon && (
-        <Search
-          aria-hidden="true"
-          data-search-icon
-          className="pointer-events-none absolute inset-y-0 left-3 my-auto size-4 text-muted-foreground"
-        />
+      {surfaceOpen ? (
+        <button
+          type="button"
+          aria-label="Back"
+          // keep the input focused until the click: a blur would close the list first
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={goBack}
+          className="absolute inset-y-0 left-1 my-auto flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+        >
+          <ArrowLeft aria-hidden="true" className="size-4" />
+        </button>
+      ) : (
+        searchIcon && (
+          <Search
+            aria-hidden="true"
+            data-search-icon
+            className="pointer-events-none absolute inset-y-0 left-3 my-auto size-4 text-muted-foreground"
+          />
+        )
       )}
       {(text || alwaysClearable) && (
         <button
@@ -273,6 +304,11 @@ export function SearchBox({
           Search is unavailable right now — paste a Google Maps link or tap the
           map instead.
         </p>
+      )}
+      {searching && !results.isError && (
+        <output className="absolute inset-x-0 top-full z-20 mt-1 block rounded-xl border bg-background px-4 py-2 text-sm text-muted-foreground shadow-lg">
+          Searching…
+        </output>
       )}
       {(showList || showRecent) && !results.isError && (
         <div
