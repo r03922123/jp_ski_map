@@ -583,9 +583,12 @@ show there. Field reports name it WebKit 301108 (iOS 26+ home-screen apps).
   a root taller by the top inset makes iOS size the page to the screen. Injected live on the owner's phone:
   `innerHeight` 797 → 844, `main` 0–844 and the sheet 472–844 once the gap was 0. The `100lvh` cap keeps a
   device with no top inset from scrolling.
-- `--viewport-gap` stays for now: with the rule in place at load, the shortfall it gates on is 0. Deleted once
-  the deployed app reads gap 0 on the phone.
-- Done when: `e2e/standalone-height.spec.ts` finds the rule (Chromium can't emulate standalone); after deploy,
-  the phone's home-screen app reads `innerHeight` 844 and gap 0px, and shows no band.
+- `--viewport-gap` (v1.20/v1.22) is deleted: it never showed on the device, and iOS can grow the page
+  without a `resize` event, so a stale 47 px gap would push the sheet below the screen (review of #112).
+  The sheet sits at `bottom-0`; the Chromium simulation of the short viewport goes with it.
+- Done when: `e2e/standalone-height.spec.ts` finds the rule with a value the browser accepts (Chromium can't
+  emulate standalone); after deploy, the phone's home-screen app reads `innerHeight` 844 and `scrollHeight`
+  equal to it (`/viewport-check`) on a cold launch, after rotating, and after coming back from the
+  background, and shows no band.
 - Open: the blur behind the clock. With iOS keeping the app under the clock whatever the meta says, the strip
   is iOS's; next step is a screenshot from the phone to see what it is.

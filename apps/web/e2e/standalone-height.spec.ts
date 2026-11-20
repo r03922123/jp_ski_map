@@ -23,7 +23,15 @@ test("home-screen mode grows the root by the top inset, capped at the screen", a
       }
     }),
   );
-  expect(rules.join("\n")).toMatch(
-    /html\s*\{\s*min-height:\s*min\(100lvh,\s*calc\(100% \+ env\(safe-area-inset-top\)\)\)/,
+  const css = rules.join("\n");
+  const value = css.match(/html\s*\{\s*min-height:\s*([^;]+);\s*\}/)?.[1];
+  expect(value).toBe("min(100lvh, calc(100% + env(safe-area-inset-top)))");
+  // env() values are stored unchecked; with the inset filled in, the browser must accept it
+  // (a typo would make iOS drop the rule silently)
+  const valid = await page.evaluate(
+    (v) =>
+      CSS.supports("min-height", v.replace("env(safe-area-inset-top)", "47px")),
+    value ?? "",
   );
+  expect(valid).toBe(true);
 });

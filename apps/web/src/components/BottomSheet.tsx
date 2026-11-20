@@ -213,7 +213,7 @@ export function BottomSheet({
       // v1.22: on phones the sheet sits on the bottom edge, as in Google Maps; its padding
       // keeps the content above the home bar, and each height adds that padding back
       className={cn(
-        "group/sheet pixel-frame fixed right-(--safe-right) bottom-[calc(0px-var(--viewport-gap,0px))] left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate,visibility] duration-200 motion-reduce:transition-none",
+        "group/sheet pixel-frame fixed right-(--safe-right) bottom-0 left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate,visibility] duration-200 motion-reduce:transition-none",
         // expanded: never up under the trip card on top (118 px since v1.27's slimmer card, or 136 on a landscape
         // phone, where 120 px overestimates the 106 px card), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
