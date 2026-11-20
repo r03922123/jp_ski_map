@@ -545,6 +545,25 @@ white).
   every layer 47 pt past the bottom). Whether iOS re-reads the style at launch or only when the icon is added
   is unknown: if the old look stays after closing and reopening the app, remove the icon and add it again.
 
+## v1.26: The sheet shows the answer first (2026-11-20, the owner's Google Maps screenshot, BC-L1)
+The owner's screenshot of Google Maps' iPhone route preview: under the mode row with times, the sheet shows
+the answer (time, arrival, distance) and Start, and nothing else above the fold; its map gets 422 pt (50%) of
+the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to planning controls: a second
+"Dropped pin" row, the date box with its label above it, Night bus and a notice; its map got 321 pt (38%).
+- Drive and Walk: the directions (ETA, arrival, Start, then steps) come right after the mode tabs, before the
+  trip list and the Resorts / Food / Konbini picker. Walk had them last.
+- The trip list (its From row, stops and "+ Add destination") follows the answer; in Bus it follows the
+  options. With stops it leads, above the answer: it is what the user is editing, and v1.18's "Add
+  destination in the collapsed sheet with two stops" holds. The answer moves, the list keeps its place in the
+  tree (a moved list remounts and loses its focus after a stop is removed). Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
+  hides the place card (review of #109), and the journey e2e specs use its ✕.
+- Bus: "Leave after" sits beside its date box, not above it (one row fewer before the options).
+- Not taken: Google's title row and its share/filter buttons; Start, Add stops and Save as one button row
+  (our Start sits in the sticky ETA row, ★ beside the top card's To).
+- Done when: ModePanel tests put the ETA before the picker in Walk and before the trip list in Drive, and
+  Bus's options before the trip list; e2e journeys, saved, stops, bus, sheet-needs-start and small-phone
+  fail only where main does.
+
 ## v1.27: A slimmer trip card (2026-11-20, the owner's Google Maps screenshot)
 Google's From/To card in the owner's screenshot is ≈95 pt: two rows with a divider and no gap. Ours was 112 px:
 8 padding, a 44 px box, an 8 px gap, a 44 px box, 8 padding. The boxes stay 44 px (touch targets, T75), so the
