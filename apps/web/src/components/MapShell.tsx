@@ -365,6 +365,7 @@ export function MapShell() {
               onSelectResort={actions.selectResort}
               hasOrigin={origin !== null}
               durations={durations}
+              tripFirst={mode !== "bus" && tripStops.length > 0}
               placeStrip={
                 <TripPanel
                   from={fromPlace}

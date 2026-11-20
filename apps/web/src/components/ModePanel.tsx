@@ -42,6 +42,8 @@ export type ModePanelProps = {
   onHighlightStep?: (range: [number, number] | null) => void;
   /** v1.24: each mode's travel time in seconds, shown on its tab once known */
   durations?: Partial<Record<Mode, number>>;
+  /** v1.26: the trip has stops, so its list (being edited) leads, above the answer */
+  tripFirst?: boolean;
   /** Departure used for "Arrive ~"; defaults to now. */
   departAt?: Date;
   /** Drive mode: ranked resort list replacing the plain picker. */
@@ -81,6 +83,7 @@ export function ModePanel({
   onSelectRoute = () => {},
   onHighlightStep = () => {},
   durations = {},
+  tripFirst = false,
   departAt,
   drivePanel,
   destinationPicker,
@@ -126,10 +129,13 @@ export function ModePanel({
 
       {/* v1.26: the answer comes first (Google's route preview); the trip list, pickers
           and settings follow it */}
-      {hasOrigin && mode !== "bus" && directions}
+      {/* the trip list keeps one place in the tree and the answer moves around it: a list
+          that moved would remount and lose its refocus after a stop is removed */}
+      {!tripFirst && hasOrigin && mode !== "bus" && directions}
       {/* the trip stays listed while the start is being changed (its stops survive); it
           holds the start's ★, so it stays, below the answer (v1.26; Bus: below its options) */}
       {(mode !== "bus" || !hasOrigin || !busPanel) && placeStrip}
+      {tripFirst && hasOrigin && mode !== "bus" && directions}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
           Type a place above, or {touch ? "long-press" : "tap"} the map, to set

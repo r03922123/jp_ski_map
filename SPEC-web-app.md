@@ -530,7 +530,9 @@ the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to plann
 - Drive and Walk: the directions (ETA, arrival, Start, then steps) come right after the mode tabs, before the
   trip list and the Resorts / Food / Konbini picker. Walk had them last.
 - The trip list (its From row, stops and "+ Add destination") follows the answer; in Bus it follows the
-  options. Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
+  options. With stops it leads, above the answer: it is what the user is editing, and v1.18's "Add
+  destination in the collapsed sheet with two stops" holds. The answer moves, the list keeps its place in the
+  tree (a moved list remounts and loses its focus after a stop is removed). Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
   hides the place card (review of #109), and the journey e2e specs use its ✕.
 - Bus: "Leave after" sits beside its date box, not above it (one row fewer before the options).
 - Not taken: Google's title row and its share/filter buttons; Start, Add stops and Save as one button row

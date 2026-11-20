@@ -195,4 +195,16 @@ describe("ModePanel", () => {
       before(screen.getByText("Bus options"), screen.getByText("Trip list")),
     ).toBe(true);
   });
+
+  // trip-card e2e (v1.18): with stops the list is what the user is editing, so it leads
+  it("with stops the trip list stays above the ETA", () => {
+    renderPanel({
+      drivePanel: <div>Ranked resorts</div>,
+      placeStrip: <div>Trip list</div>,
+      tripFirst: true,
+    });
+    expect(before(screen.getByText("Trip list"), screen.getByText(/ETA/))).toBe(
+      true,
+    );
+  });
 });
