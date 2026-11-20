@@ -237,18 +237,6 @@ export function BottomSheet({
     >
       <button
         type="button"
-        aria-label={panelHidden ? "Expand side panel" : "Collapse side panel"}
-        aria-expanded={!panelHidden}
-        aria-controls={sectionId}
-        // just outside the card's right edge (past its 4 px frame), so a touch screen's 44 px
-        // minimum grows it outward, not over the card
-        className="surface visible absolute top-1/2 left-full rounded-r-lg hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
-        onClick={() => setPanelHidden((h) => !h)}
-      >
-        <span aria-hidden>{panelHidden ? "▸" : "◂"}</span>
-      </button>
-      <button
-        type="button"
         aria-label={expanded ? "Collapse directions" : "Expand directions"}
         aria-expanded={expanded}
         // the bar is thin to save the sheet's height; its hit area reaches up over the
@@ -312,6 +300,20 @@ export function BottomSheet({
       >
         {children}
       </div>
+      {/* last in the card: the search box stays the first Tab stop (T78); absolute, so its
+          place on screen doesn't change */}
+      <button
+        type="button"
+        aria-label={panelHidden ? "Expand side panel" : "Collapse side panel"}
+        aria-expanded={!panelHidden}
+        aria-controls={sectionId}
+        // just outside the card's right edge (past its 4 px frame), so a touch screen's 44 px
+        // minimum grows it outward, not over the card
+        className="surface visible absolute top-1/2 left-full rounded-r-lg hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
+        onClick={() => setPanelHidden((h) => !h)}
+      >
+        <span aria-hidden>{panelHidden ? "▸" : "◂"}</span>
+      </button>
     </section>
   );
 }
