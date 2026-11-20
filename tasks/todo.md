@@ -944,6 +944,7 @@ Spec: [SPEC-maps-ios-ux.md](../SPEC-maps-ios-ux.md); measured from the owner's t
 - [x] #105, v1.23: collapse the side panel on a laptop (tab beside the card, clear of a landscape notch; reopens on
   a new destination, route, Saved or import)
 - [x] #106, v1.24: each mode tab shows its time ("🚗 Drive 8 min"), drive and walk; not for Food/Konbini, not on Bus
+- [x] Production 39d5ad5 (2026-11-20): e2e-prod smoke 5/5; side-panel and mode-tabs e2e 4/4 against production
 - Open: Google Maps iOS can't be driven from a Claude Code session (no computer-use tools here, no Xcode); the low
   sheet and the start-set state still need a real-finger check on the iPhone. Bus tab time; the expand tab centres
   on the card, not the window (review nit)
