@@ -46,6 +46,7 @@ export function DrivePanel({
             resorts={ranking.data}
             selectedId={selectedResortId}
             onSelect={(id) => onSelectResort(id)}
+            scrollKey={JSON.stringify(options)}
           />
         ))}
     </div>

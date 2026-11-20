@@ -98,45 +98,39 @@ describe("ResortList", () => {
     );
   });
 
-  // T3 (docs/ux/google-maps-workflows.md): re-sorting, a new date or a category change
-  // must not hide the selection
-  it("brings the selected resort into view when the order changes", () => {
+  // T3 (docs/ux/google-maps-workflows.md): re-sorting or a new date must not hide the
+  // selection. Review of #116: a new start reorders the list too, and must not scroll it
+  it("brings the selected resort into view after the user re-sorts, not on any reorder", () => {
+    const original = Element.prototype.scrollIntoView;
     const scroll = vi.fn();
     Element.prototype.scrollIntoView = scroll;
-    const a = ranked();
-    const b = ranked({ resortId: "goryu", name: "Goryu", rank: 2 });
-    const view = render(
-      <ResortList resorts={[a, b]} selectedId="goryu" onSelect={vi.fn()} />,
-    );
-    scroll.mockClear();
-    view.rerender(
-      <ResortList
-        resorts={[
-          { ...b, rank: 1 },
-          { ...a, rank: 2 },
-        ]}
-        selectedId="goryu"
-        onSelect={vi.fn()}
-      />,
-    );
-    expect(scroll).toHaveBeenCalledTimes(1);
-    expect(scroll).toHaveBeenCalledWith({ block: "nearest" });
-    expect(scroll.mock.contexts[0]).toBe(
-      screen.getByRole("button", { name: /Goryu/ }),
-    );
-    // the same order again: no jump while the user scrolls the list
-    scroll.mockClear();
-    view.rerender(
-      <ResortList
-        resorts={[
-          { ...b, rank: 1 },
-          { ...a, rank: 2 },
-        ]}
-        selectedId="goryu"
-        onSelect={vi.fn()}
-      />,
-    );
-    expect(scroll).not.toHaveBeenCalled();
+    try {
+      const a = ranked();
+      const b = ranked({ resortId: "goryu", name: "Goryu", rank: 2 });
+      const list = (order: RankedResort[], key: string) => (
+        <ResortList
+          resorts={order}
+          selectedId="goryu"
+          onSelect={vi.fn()}
+          scrollKey={key}
+        />
+      );
+      const view = render(list([a, b], "drive"));
+      // a new start: the order changes, the options don't
+      view.rerender(list([b, a], "drive"));
+      expect(scroll).not.toHaveBeenCalled();
+      // the user picks another sort; the new order arrives with the next ranking
+      view.rerender(list([b, a], "snow"));
+      expect(scroll).not.toHaveBeenCalled();
+      view.rerender(list([a, b], "snow"));
+      expect(scroll).toHaveBeenCalledTimes(1);
+      expect(scroll).toHaveBeenCalledWith({ block: "nearest" });
+      expect(scroll.mock.contexts[0]).toBe(
+        screen.getByRole("button", { name: /Goryu/ }),
+      );
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
   });
 
   it("expands to every factor, crowd reasons and the snow timestamp", () => {
