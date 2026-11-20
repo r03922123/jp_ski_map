@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
 import { DestinationPicker } from "@/components/DestinationPicker";
@@ -68,8 +68,12 @@ export function MapShell() {
   const [savedFocus, setSavedFocus] = useState<string | null>(null);
   // a shared list waiting for the user to confirm (`#import=…`)
   const [importCode, setImportCode] = useState<string | null>(null);
-  // T5: what an import added, shown at the top of Saved until it closes
+  // T5: what an import added, shown at the top of Saved until it closes, by any route (its
+  // ✕, the Saved toggle, Start from, Go here, Add destination; review of #118)
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!savedOpen) setSavedNotice(null);
+  }, [savedOpen]);
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
@@ -362,10 +366,7 @@ export function MapShell() {
               canGoHere={mode !== "bus"}
               onStartFrom={actions.startFrom}
               onGoHere={actions.goTo}
-              onClose={() => {
-                setSavedOpen(false);
-                setSavedNotice(null);
-              }}
+              onClose={() => setSavedOpen(false)}
               notice={savedNotice}
             />
           ) : (

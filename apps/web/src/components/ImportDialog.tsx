@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef } from "react";
 import { useBackToClose } from "@/lib/back-close";
 import { savedStore } from "@/lib/saved-places";
-import { decodeImport, importList } from "@/lib/saved-share";
+import { decodeImport, importList, importSummary } from "@/lib/saved-share";
 
 const PREVIEW = 8;
 
@@ -70,10 +70,14 @@ export function ImportDialog({
                 type="button"
                 className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
                 onClick={() => {
+                  const before = savedStore.getSnapshot();
                   savedStore.update((s) => importList(s, result.list));
-                  const n = result.list.places.length;
                   onDone(
-                    `Added ${n} ${n === 1 ? "place" : "places"} to “${result.list.name}”`,
+                    importSummary(
+                      before,
+                      savedStore.getSnapshot(),
+                      result.list,
+                    ),
                   );
                 }}
               >
