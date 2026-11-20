@@ -7,7 +7,7 @@ import {
   within,
 } from "@testing-library/react";
 import type { ReactElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ResortList } from "@/components/ResortList";
 import { SortControls } from "@/components/SortControls";
 import type { RankedResort } from "@/lib/api";
@@ -99,38 +99,53 @@ describe("ResortList", () => {
   });
 
   // T3 (docs/ux/google-maps-workflows.md): re-sorting or a new date must not hide the
-  // selection. Review of #116: a new start reorders the list too, and must not scroll it
-  it("brings the selected resort into view after the user re-sorts, not on any reorder", () => {
+  // selection. Reviews of #116: a new start reorders the list too and must not scroll it, and
+  // a re-sort that keeps the order must not leave a scroll waiting for the next reorder
+  describe("brings the selected resort into view after the user re-sorts", () => {
     const original = Element.prototype.scrollIntoView;
     const scroll = vi.fn();
-    Element.prototype.scrollIntoView = scroll;
-    try {
-      const a = ranked();
-      const b = ranked({ resortId: "goryu", name: "Goryu", rank: 2 });
-      const list = (order: RankedResort[], key: string) => (
-        <ResortList
-          resorts={order}
-          selectedId="goryu"
-          onSelect={vi.fn()}
-          scrollKey={key}
-        />
-      );
-      const view = render(list([a, b], "drive"));
-      // a new start: the order changes, the options don't
-      view.rerender(list([b, a], "drive"));
+    beforeEach(() => {
+      scroll.mockClear();
+      Element.prototype.scrollIntoView = scroll;
+    });
+    afterEach(() => {
+      Element.prototype.scrollIntoView = original;
+    });
+    const a = ranked();
+    const b = ranked({ resortId: "goryu", name: "Goryu", rank: 2 });
+    const list = (order: RankedResort[], key: string, fetching: boolean) => (
+      <ResortList
+        resorts={order}
+        selectedId="goryu"
+        onSelect={vi.fn()}
+        scrollKey={key}
+        fetching={fetching}
+      />
+    );
+
+    it("once the ranking for the new options has loaded", () => {
+      const view = render(list([a, b], "drive", false));
+      view.rerender(list([a, b], "snow", true));
       expect(scroll).not.toHaveBeenCalled();
-      // the user picks another sort; the new order arrives with the next ranking
-      view.rerender(list([b, a], "snow"));
-      expect(scroll).not.toHaveBeenCalled();
-      view.rerender(list([a, b], "snow"));
+      view.rerender(list([b, a], "snow", false));
       expect(scroll).toHaveBeenCalledTimes(1);
       expect(scroll).toHaveBeenCalledWith({ block: "nearest" });
       expect(scroll.mock.contexts[0]).toBe(
         screen.getByRole("button", { name: /Goryu/ }),
       );
-    } finally {
-      Element.prototype.scrollIntoView = original;
-    }
+    });
+
+    it("not for a new start, nor later after a re-sort that kept the order", () => {
+      const view = render(list([a, b], "drive", false));
+      view.rerender(list([b, a], "drive", false)); // a new start
+      expect(scroll).not.toHaveBeenCalled();
+      view.rerender(list([b, a], "date", true)); // a new date, same order
+      view.rerender(list([b, a], "date", false));
+      scroll.mockClear();
+      view.rerender(list([a, b], "date", true)); // then a new start
+      view.rerender(list([a, b], "date", false));
+      expect(scroll).not.toHaveBeenCalled();
+    });
   });
 
   it("expands to every factor, crowd reasons and the snow timestamp", () => {
