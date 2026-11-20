@@ -57,6 +57,12 @@ export function TripPanel({
     (addStopRef.current ?? listRef.current)?.focus();
     setRefocus(false);
   }, [refocus, addStopRef]);
+  // T4: reorder only filled stops; an open stop box would renumber the list but not the
+  // route or the map (review of #117)
+  const canReorder =
+    onMoveStop !== undefined &&
+    stops.length > 1 &&
+    stops.every((st) => st.place !== null);
   const removeStop = (key: string) => {
     setRefocus(true);
     onRemoveStop(key);
@@ -92,14 +98,15 @@ export function TripPanel({
                 place={stop.place}
                 removeLabel={`Remove stop ${i + 1}`}
                 onRemove={() => removeStop(stop.key)}
-                onMoveUp={
-                  onMoveStop && i > 0
-                    ? () => onMoveStop(stop.key, -1)
-                    : undefined
-                }
-                onMoveDown={
-                  onMoveStop && i < stops.length - 1
-                    ? () => onMoveStop(stop.key, 1)
+                move={
+                  canReorder
+                    ? {
+                        up: i > 0 ? () => onMoveStop(stop.key, -1) : null,
+                        down:
+                          i < stops.length - 1
+                            ? () => onMoveStop(stop.key, 1)
+                            : null,
+                      }
                     : undefined
                 }
               />
@@ -156,18 +163,17 @@ function Row({
   place,
   removeLabel,
   onRemove,
-  onMoveUp,
-  onMoveDown,
+  move,
 }: {
   marker: string;
   label: string;
   place: PlaceInput;
   removeLabel: string;
   onRemove: () => void;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
+  /** T4: both directions, null at an end (disabled, not removed: it may hold focus) */
+  move?: { up: (() => void) | null; down: (() => void) | null };
 }) {
-  const move =
+  const moveClass =
     "flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted";
   return (
     <li className="flex items-center gap-2 px-2 py-1 not-last:border-b">
@@ -182,26 +188,24 @@ function Row({
         <span className="sr-only">{label}: </span>
         {place.name}
       </span>
-      {onMoveUp && (
-        <button
-          type="button"
-          aria-label={`Move ${label.toLowerCase()} up`}
-          className={move}
-          onClick={onMoveUp}
-        >
-          <ChevronUp aria-hidden="true" className="size-4" />
-        </button>
-      )}
-      {onMoveDown && (
-        <button
-          type="button"
-          aria-label={`Move ${label.toLowerCase()} down`}
-          className={move}
-          onClick={onMoveDown}
-        >
-          <ChevronDown aria-hidden="true" className="size-4" />
-        </button>
-      )}
+      {move &&
+        (
+          [
+            ["up", move.up, ChevronUp],
+            ["down", move.down, ChevronDown],
+          ] as const
+        ).map(([dir, onMove, Icon]) => (
+          <button
+            key={dir}
+            type="button"
+            aria-label={`Move ${label.toLowerCase()} ${dir}`}
+            aria-disabled={onMove === null || undefined}
+            className={`${moveClass} aria-disabled:opacity-40 aria-disabled:hover:bg-transparent`}
+            onClick={() => onMove?.()}
+          >
+            <Icon aria-hidden="true" className="size-4" />
+          </button>
+        ))}
       <SaveButton place={place} />
       <button
         type="button"
