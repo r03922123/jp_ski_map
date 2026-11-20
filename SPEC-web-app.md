@@ -453,3 +453,12 @@ shorter than the 844 pt screen, so every `fixed inset-0` layer stopped early.
   the home bar and the credits stay above it. iPad Split View (window narrower than the
   screen) gets no gap. Owner's check on the real iPhone is the last part of done.
 - Not ours: the frosted strip behind the clock is drawn by iOS; the app has no blur.
+
+## v1.21: A viewport check page for the owner's iPhone (2026-11-20)
+v1.20's fix didn't change the owner's phone: the 47 pt band stayed, so one of the numbers it
+relies on reads differently on the device, and Chromium can't show which. `/viewport-check`
+prints what iOS reports (standalone, screen, inner, visualViewport, safe insets, the gap)
+and draws one coloured column per CSS height (inset-0, 100vh/lvh/dvh/svh, inset-0 extended
+by the top inset), so a screenshot from the home screen shows which reaches the screen's
+bottom. A button hides the status-bar fade, to see whether the frosted strip is iOS's own.
+Diagnostic only; removed once the band and blur are fixed.
