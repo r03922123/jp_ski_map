@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import {
   type ReactNode,
   type RefObject,
@@ -27,6 +27,8 @@ export type TripPanelProps = {
   /** search bias for stop boxes (the map centre) */
   near: Coord | null;
   onRemoveStop: (key: string) => void;
+  /** T4: reorder a stop (by -1: earlier, 1: later) */
+  onMoveStop?: (key: string, by: -1 | 1) => void;
   onFillStop: (key: string, place: PlaceInput) => void;
   onClearFrom: () => void;
 };
@@ -41,6 +43,7 @@ export function TripPanel({
   addStopRef,
   near,
   onRemoveStop,
+  onMoveStop,
   onFillStop,
   onClearFrom,
   addDestination,
@@ -89,6 +92,16 @@ export function TripPanel({
                 place={stop.place}
                 removeLabel={`Remove stop ${i + 1}`}
                 onRemove={() => removeStop(stop.key)}
+                onMoveUp={
+                  onMoveStop && i > 0
+                    ? () => onMoveStop(stop.key, -1)
+                    : undefined
+                }
+                onMoveDown={
+                  onMoveStop && i < stops.length - 1
+                    ? () => onMoveStop(stop.key, 1)
+                    : undefined
+                }
               />
             ) : (
               <li
@@ -143,13 +156,19 @@ function Row({
   place,
   removeLabel,
   onRemove,
+  onMoveUp,
+  onMoveDown,
 }: {
   marker: string;
   label: string;
   place: PlaceInput;
   removeLabel: string;
   onRemove: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }) {
+  const move =
+    "flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted";
   return (
     <li className="flex items-center gap-2 px-2 py-1 not-last:border-b">
       {/^\d+$/.test(marker) ? (
@@ -163,6 +182,26 @@ function Row({
         <span className="sr-only">{label}: </span>
         {place.name}
       </span>
+      {onMoveUp && (
+        <button
+          type="button"
+          aria-label={`Move ${label.toLowerCase()} up`}
+          className={move}
+          onClick={onMoveUp}
+        >
+          <ChevronUp aria-hidden="true" className="size-4" />
+        </button>
+      )}
+      {onMoveDown && (
+        <button
+          type="button"
+          aria-label={`Move ${label.toLowerCase()} down`}
+          className={move}
+          onClick={onMoveDown}
+        >
+          <ChevronDown aria-hidden="true" className="size-4" />
+        </button>
+      )}
       <SaveButton place={place} />
       <button
         type="button"

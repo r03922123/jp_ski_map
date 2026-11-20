@@ -41,6 +41,7 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
     onRemoveStop: vi.fn(),
     onFillStop: vi.fn(),
     onClearFrom: vi.fn(),
+    onMoveStop: vi.fn(),
   };
   render(
     <QueryClientProvider client={new QueryClient()}>
@@ -110,6 +111,30 @@ describe("TripPanel", () => {
     expect(
       screen.getByRole("button", { name: "Remove stop 1" }),
     ).toBeInTheDocument();
+  });
+
+  // T4 (docs/ux/google-maps-workflows.md): stops can be reordered without a drag
+  it("moves a stop up or down; the ends offer only the way that exists", () => {
+    const second = { ...konbini, id: "k2", name: "Lawson Hakuba" };
+    const handlers = renderTrip({
+      stops: [
+        { key: "s1", place: konbini },
+        { key: "s2", place: second },
+      ],
+    });
+    expect(screen.queryByRole("button", { name: "Move stop 1 up" })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Move stop 2 down" }),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Move stop 1 down" }));
+    expect(handlers.onMoveStop).toHaveBeenCalledWith("s1", 1);
+    fireEvent.click(screen.getByRole("button", { name: "Move stop 2 up" }));
+    expect(handlers.onMoveStop).toHaveBeenCalledWith("s2", -1);
+  });
+
+  it("offers no reorder for a single stop", () => {
+    renderTrip({ stops: [{ key: "s1", place: konbini }] });
+    expect(screen.queryByRole("button", { name: /Move stop/ })).toBeNull();
   });
 });
 

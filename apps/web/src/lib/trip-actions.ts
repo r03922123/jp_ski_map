@@ -208,6 +208,16 @@ export function tripActions(
     },
     removeStop: (key: string) =>
       setStops((list) => list.filter((s) => s.key !== key)),
+    /** T4: swap a stop with its neighbour (by -1: earlier, 1: later); the ends stay put */
+    moveStop: (key: string, by: -1 | 1) =>
+      setStops((list) => {
+        const i = list.findIndex((s) => s.key === key);
+        const j = i + by;
+        if (i < 0 || j < 0 || j >= list.length) return list;
+        const next = [...list];
+        [next[i], next[j]] = [next[j], next[i]];
+        return next;
+      }),
     /** a map tap */
     pickOnMap: (coord: Coord) => {
       // an open stop box takes the tap (Google: type, or put a point on the map)
