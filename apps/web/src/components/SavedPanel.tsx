@@ -23,6 +23,8 @@ type Props = {
   canGoHere: boolean;
   /** Open straight to this place (a saved marker tapped on the map). */
   focusId?: string | null;
+  /** T5: a one-line status at the top, e.g. what an import added */
+  notice?: string | null;
 };
 
 /** Google's "Saved" tab: lists → places → start from / go here. */
@@ -32,6 +34,7 @@ export function SavedPanel({
   onClose,
   canGoHere,
   focusId = null,
+  notice = null,
 }: Props) {
   const state = useSaved();
   const [openList, setOpenList] = useState<string | null>(null);
@@ -80,6 +83,12 @@ export function SavedPanel({
           ✕
         </button>
       </div>
+
+      {notice && (
+        <output className="block rounded-lg bg-accent px-3 py-2 text-sm">
+          {notice}
+        </output>
+      )}
 
       {focused && openList === null && (
         <ul>

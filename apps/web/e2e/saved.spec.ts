@@ -145,6 +145,10 @@ test("a shared list is imported only after confirming", async ({ page }) => {
   await expect(dialog).toContainText("Mimizuku no Yu");
   await dialog.getByRole("button", { name: "Add to Saved" }).click();
 
+  // T5: the import says what it did
+  await expect(
+    page.getByRole("region", { name: "Saved" }).getByRole("status"),
+  ).toHaveText("Added 1 place to “Onsen trip”");
   await expect(
     page.getByRole("button", { name: /Onsen trip.*1 place/ }),
   ).toBeVisible();

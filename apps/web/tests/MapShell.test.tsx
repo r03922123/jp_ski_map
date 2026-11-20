@@ -509,6 +509,33 @@ describe("MapShell saved panel", () => {
     screen.getByRole("button", { name: "Saved places" });
   const onsenCard = () => screen.getByRole("listitem", { name: "Onsen" });
 
+  // review of #118: the import notice goes once Saved closes, by any route
+  it("the import notice is gone after Saved closes through its toggle", async () => {
+    const code = btoa(
+      JSON.stringify({
+        v: 1,
+        n: "Onsen trip",
+        i: "bookmark",
+        p: [["osm-node-7", "Mimizuku no Yu", 36.69735, 137.84402, "poi"]],
+      }),
+    )
+      .replaceAll("+", "-")
+      .replaceAll("/", "_")
+      .replace(/=+$/, "");
+    renderShell(`?skip-title#import=${code}`);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Add to Saved" }),
+    );
+    const panel = await screen.findByRole("region", { name: "Saved" });
+    expect(within(panel).getByRole("status")).toHaveTextContent(
+      "Added 1 place to “Onsen trip”",
+    );
+    fireEvent.click(savedButton());
+    fireEvent.click(savedButton());
+    const again = await screen.findByRole("region", { name: "Saved" });
+    expect(within(again).queryByRole("status")).toBeNull();
+  });
+
   it("Go here makes a saved place the destination and closes the panel", async () => {
     savedStore.update((s) => toggleInList(s, onsen, "starred"));
     renderShell(`?from=${from}&mode=drive`);

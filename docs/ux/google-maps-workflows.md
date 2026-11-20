@@ -82,5 +82,7 @@ to all working screens. Production release follows approval of the completed res
   one stop), the route and the shared link follow; a chosen bus option has the same blue outline as a
   chosen resort. Already there and kept: departure → arrival first, boarding stop, walk and wait, the
   ride timeline for the chosen option, published vs estimated labels
-- [ ] T5 saved lists
+- [x] T5 saved lists: an import says what it added ("Added 1 place to “Onsen trip”", a status line at
+  the top of Saved until it closes). Already there and kept: lists → places with notes, Back to lists, 🏨
+  and the My hotel row, Share with "Link copied"
 - [ ] T6 navigation, errors, desktop and landscape

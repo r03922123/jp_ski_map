@@ -135,6 +135,22 @@ describe("SavedPanel", () => {
     ).toBeInTheDocument();
   });
 
+  // T5 (docs/ux/google-maps-workflows.md): import feedback
+  it("shows a notice, such as what an import added, at the top", () => {
+    render(
+      <SavedPanel
+        onStartFrom={vi.fn()}
+        onGoHere={vi.fn()}
+        onClose={vi.fn()}
+        canGoHere
+        notice="Added 2 places to “Crew”"
+      />,
+    );
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Added 2 places to “Crew”",
+    );
+  });
+
   it("says where the data lives", () => {
     setup();
     expect(screen.getByText(/stored on this device/i)).toBeInTheDocument();
