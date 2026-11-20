@@ -521,3 +521,19 @@ tab. Cluster G's candidate, now taken for drive and walk.
   walk over an hour, and the 384 px side card at 1280×800; a two-entrance resort hides the times again when
   the start moves in Walk (the ranking's placeholder is the old start's); the route panel still asks for the
   open mode's route.
+
+## v1.25: An ordinary status bar ends the band and the blur (2026-11-20, the owner's iPhone screenshots)
+After v1.20 and v1.22 the home-screen app still showed a 47 pt band below the sheet, and a blurred dark strip
+behind the clock. Both come from v1.19's `black-translucent` status bar: iOS lays that app out one status bar
+short (the band, which two measured patches didn't remove on the owner's phone), and draws the clock white
+over the map, so iOS's frosted strip and our dark fade sit over it (the blur). Google's app has a dark clock over
+a clear map; a web app can't (`black-translucent` is the only style that draws under the bar, and its clock is
+white).
+- `statusBarStyle: "default"`: the page starts below an ordinary status bar and reaches the screen's bottom,
+  as a Safari tab does. The fade behind the clock goes (nothing runs under the bar to fade). The map no longer
+  shows behind the clock, the 47 pt that the clock covered anyway.
+- `--viewport-gap` stays: it is 0 unless the shortfall equals a non-zero top inset, which this style shouldn't
+  produce. Removed once the owner's iPhone shows no band.
+- Done when: e2e reads `default` in the status-bar meta and finds no fade; the owner's iPhone home-screen app
+  (re-added if iOS kept the old style) shows no band and no strip. iOS reads the meta when the app launches;
+  if the old style sticks, removing and re-adding the icon picks up the new one.

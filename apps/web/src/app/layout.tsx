@@ -18,11 +18,12 @@ export const metadata: Metadata = {
   // shared by link with friends, not listed: strangers would spend the free upstreams' budgets
   robots: { index: false, follow: false },
   // SPEC-web-app v1.16: the home-screen icon opens full screen on iOS
-  // v1.19: the home-screen app draws under the status bar (white clock, see the fade below)
+  // v1.25: an ordinary status bar. v1.19's black-translucent drew under it, but iOS then laid
+  // the app out one status bar short (a band below the sheet) and its white clock needed a fade
   appleWebApp: {
     capable: true,
     title: "Hakuba",
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
 };
 
@@ -40,12 +41,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="h-full">
         <Providers>{children}</Providers>
-        {/* keeps the white status-bar clock readable over a light map (v1.19) */}
-        <div
-          aria-hidden="true"
-          data-status-fade
-          className="pointer-events-none fixed inset-x-0 top-0 z-50 h-(--safe-top) bg-linear-to-b from-black/55 via-black/40 via-70% to-transparent"
-        />
       </body>
     </html>
   );
