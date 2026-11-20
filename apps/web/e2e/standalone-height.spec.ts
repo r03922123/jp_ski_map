@@ -35,3 +35,44 @@ test("home-screen mode grows the root by the top inset, capped at the screen", a
   );
   expect(valid).toBe(true);
 });
+
+test("the home-screen status bar has a solid, non-interactive background", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.addStyleTag({ content: ":root { --safe-top: 47px }" });
+  const statusBar = () =>
+    page.evaluate(() => {
+      const style = getComputedStyle(document.body, "::after");
+      return {
+        content: style.content,
+        position: style.position,
+        height: style.height,
+        color: style.backgroundColor,
+        pointerEvents: style.pointerEvents,
+      };
+    });
+  expect((await statusBar()).content).toBe("none");
+  // Activate the shipped rules in this tab. Chromium cannot launch the iOS web app.
+  await page.evaluate(() => {
+    for (const sheet of document.styleSheets) {
+      if (sheet.href && new URL(sheet.href).origin !== location.origin)
+        continue;
+      for (const rule of sheet.cssRules) {
+        if (
+          rule instanceof CSSMediaRule &&
+          rule.conditionText === "(display-mode: standalone)"
+        ) {
+          rule.media.mediaText = "all";
+        }
+      }
+    }
+  });
+  expect(await statusBar()).toEqual({
+    content: '""',
+    position: "fixed",
+    height: "47px",
+    color: "rgb(238, 243, 247)",
+    pointerEvents: "none",
+  });
+});

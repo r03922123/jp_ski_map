@@ -294,4 +294,15 @@
   html {
     min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
   }
+
+  /* iOS samples the pixels under the clock. Give it a solid surface above the map. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    height: var(--safe-top);
+    z-index: 50;
+    background-color: var(--background);
+    pointer-events: none;
+  }
 }

@@ -1106,3 +1106,9 @@ The doc itself can also drift. It says which day it was checked against `main`, 
 knows how fresh it is.
 *Analogy:* a restaurant that can't say where an ingredient came from should label it and check
 with the supplier before the dish goes on the public menu.
+
+## 2026-11-20 · tidy: Keep map detail out of the iPhone status bar
+
+- The Home Screen app draws the map behind the clock. A solid strip there gives iOS one colour to sample, like putting plain paper behind a translucent label.
+- The strip uses the phone’s reported top inset. On the connected iPhone that was 47 px. The search box stays in place and the viewport still measures 844 px tall.
+- A browser test can measure the strip and verify it lets taps through. The phone itself draws the blur, so judging the search border takes a look at the installed app.
