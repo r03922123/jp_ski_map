@@ -39,7 +39,6 @@ function measure() {
 
 export default function ViewportCheck() {
   const [lines, setLines] = useState<string[]>([]);
-  const [fade, setFade] = useState(true);
   const update = useCallback(() => setLines(measure()), []);
 
   useEffect(() => {
@@ -51,11 +50,6 @@ export default function ViewportCheck() {
       removeEventListener("resize", update);
     };
   }, [update]);
-
-  useEffect(() => {
-    const el = document.querySelector<HTMLElement>("[data-status-fade]");
-    if (el) el.style.display = fade ? "" : "none";
-  }, [fade]);
 
   return (
     <main className="fixed inset-0 bg-[#eef3f7]">
@@ -89,13 +83,6 @@ export default function ViewportCheck() {
             onClick={update}
           >
             Measure again
-          </button>
-          <button
-            type="button"
-            className="border border-black px-2"
-            onClick={() => setFade((f) => !f)}
-          >
-            {fade ? "Hide" : "Show"} status-bar fade
           </button>
         </div>
       </div>
