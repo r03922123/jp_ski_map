@@ -34,7 +34,7 @@ export function PinCard({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <fieldset className="surface relative rounded-xl flex flex-col gap-2 px-3 py-2 pr-9 text-sm">
+    <fieldset className="surface relative rounded-[12px] flex flex-col gap-2 px-3 py-2 pr-9 text-sm">
       {/* float: a legend otherwise sits on the frame's border line. The legend names the
           card, so ✕ stays outside it */}
       <legend className="float-left font-medium">{title}</legend>

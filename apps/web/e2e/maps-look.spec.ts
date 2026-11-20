@@ -50,7 +50,7 @@ test("the working interface has the Maps look, not the pixel look", async ({
   expect(look.font).not.toMatch(/DotGothic/i);
   expect(look.cardRadius).toBeGreaterThanOrEqual(12);
   expect(look.sheetRadius).toBeGreaterThanOrEqual(12);
-  expect(look.primary).toBe("#1967d2");
-  expect(look.startBg).toBe("rgb(25, 103, 210)");
+  expect(look.primary).toBe("#185fc6");
+  expect(look.startBg).toBe("rgb(24, 95, 198)");
   expect(look.framed).toBe(0);
 });

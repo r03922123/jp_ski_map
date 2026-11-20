@@ -30,7 +30,7 @@ export function StampMoment() {
       className="pointer-events-none fixed inset-x-0 top-1/4 z-30 flex justify-center px-4"
     >
       {moment && (
-        <span className="surface pointer-events-auto rounded-xl flex items-center gap-3 px-4 py-3">
+        <span className="surface pointer-events-auto rounded-[12px] flex items-center gap-3 px-4 py-3">
           <Hero pose="ride" alt="" scale={2} />
           <span className="flex flex-col">
             <span className="text-lg">Stamp earned!</span>
