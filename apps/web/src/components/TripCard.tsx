@@ -60,7 +60,8 @@ export function TripCard({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
+        {/* v1.27: a 2 px gap, as Google's two rows sit together */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex items-center gap-1">
             {twoBars && (
               <RailStop stop="from">

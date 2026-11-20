@@ -83,7 +83,7 @@ describe("mapPadding", () => {
 
   it("leaves room on phones for a marker standing above its point", () => {
     expect(mapPadding({ width: 390, height: 699 }).top).toBeGreaterThanOrEqual(
-      132 + MARKER_PX, // v1.18: the two-row card (was 184)
+      118 + MARKER_PX, // v1.27: the slimmer card (v1.18: 132, before it 184)
     );
   });
 
@@ -171,7 +171,7 @@ describe("pinEaseOffsetY", () => {
 
     expect(y).toBeLessThanOrEqual(height * 0.6);
     expect(pinCardAnchor({ x: 200, y, width, height })).toBeUndefined();
-    expect(y - 190).toBeGreaterThanOrEqual(132); // v1.18: the two-row card (was 184)
+    expect(y - 190).toBeGreaterThanOrEqual(118); // v1.27 (v1.18: 132, before it 184)
   });
 
   it("doesn't shift a laptop", () => {
@@ -221,8 +221,8 @@ describe("safe-area insets (SPEC-web-app v1.19)", () => {
   });
 
   it("opens a pin's card below it when the moved trip card leaves no room above", () => {
-    // 390×1000: 190 px above y = 340 is 150, clear of the flat card (132) but not of
-    // 132 + 47; below it, 340 + 190 = 530 still fits above the moved sheet (600 − 34)
+    // 390×1000: 190 px above y = 340 is 150, clear of the flat card (118) but not of
+    // 118 + 47; below it, 340 + 190 = 530 still fits above the moved sheet (600 − 34)
     const tall = { width: 390, height: 1000 };
     expect(pinCardAnchor({ x: 200, y: 340, ...tall })).toBeUndefined();
     expect(pinCardAnchor({ x: 200, y: 340, ...tall, safe })).toBe("top");
