@@ -210,7 +210,7 @@ export function BottomSheet({
           ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1
             "h-[calc(84px+var(--safe-bottom))]"
           : expanded
-            ? "h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-180px-var(--safe-top)))] max-md:[@media(max-height:479px)]:h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-136px+var(--safe-bottom)))]"
+            ? "h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-180px-var(--safe-top)))] max-md:[@media(max-height:479px)]:h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-136px))]"
             : slim
               ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
                 "h-[calc(40dvh+var(--safe-bottom))] max-md:[@media(max-height:479px)]:h-[calc(84px+var(--safe-bottom))]"

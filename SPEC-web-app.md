@@ -464,11 +464,12 @@ bottom. A button hides the status-bar fade, to see whether the frosted strip is 
 Diagnostic only; removed once the band and blur are fixed.
 
 ## v1.22: The band, take two, and a sheet on the bottom edge (2026-11-20, the owner's iPhone)
-v1.20 changed nothing on the owner's iPhone. `/viewport-check` in Safari showed the top inset
-is 0 in a Safari tab, and iOS 26 left `navigator.standalone` false, so v1.20's gate never
-opened. The gap is now measured on Apple's WebKit (`navigator.vendor`) wherever the page
-draws under the status bar (top inset > 0, which a Safari tab never has), and again 1 s
-after load in case the insets settle late.
+v1.20 changed nothing on the owner's iPhone. `/viewport-check`, read in a Safari tab, showed
+a tab's top inset is 0 (and its viewport 145 pt short, for its toolbars). Not measured in the
+home-screen app itself, so v1.20's `navigator.standalone` gate is the likely cause, not a
+proven one. The gate is now the shortfall itself: on Apple's WebKit (`navigator.vendor`),
+when the viewport is short of the screen by exactly the top inset (±1 px), the layers extend
+by it; any other shortfall (a tab, a shorter window) gives 0. Measured again 1 s after load.
 - Google Maps layout: on phones the sheet sits on the screen's bottom edge, full width
   (inside the side insets); `pb-(--safe-bottom)` keeps its content above the home bar and
   every phone height adds that padding back, so the sheet's top edge stays where it was.
