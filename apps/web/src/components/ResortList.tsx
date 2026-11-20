@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { CheckInButton } from "@/components/CheckInButton";
 import { PixelSprite } from "@/components/PixelSprite";
 import { type RankedResort, resortsQuery } from "@/lib/api";
@@ -154,18 +155,46 @@ export function ResortList({
   resorts,
   selectedId,
   onSelect,
+  scrollKey,
+  fetching = false,
 }: {
   resorts: RankedResort[];
   selectedId: string | null;
   onSelect: (resortId: string, accessPointId: string) => void;
+  /** the user's sort and date: a new order that follows a change here is brought to the selection */
+  scrollKey?: string;
+  /** the ranking is being fetched (for new options, the list still shows the old one) */
+  fetching?: boolean;
 }) {
   // SPEC-web-app v1.6 level select: each card is a world, numbered by geography
   const catalog = useQuery(resortsQuery);
   const worlds = worldNumbers(catalog.data ?? []);
   const rider = useRider();
   const now = useNow(60_000);
+  // T3: a re-sort or a new date must not hide the selection: once the ranking for the user's
+  // new options has loaded, the selected row comes into view. Only then: a new start reorders
+  // the list too, and a scroll there could push the sheet's Start out of view; and a re-sort
+  // that kept the order must not leave a scroll waiting (reviews of #116)
+  const listRef = useRef<HTMLOListElement>(null);
+  const lastKey = useRef(scrollKey);
+  const [pending, setPending] = useState(false);
+  if (scrollKey !== lastKey.current) {
+    lastKey.current = scrollKey;
+    setPending(true);
+  }
+  useEffect(() => {
+    if (!pending || fetching) return;
+    setPending(false);
+    listRef.current
+      ?.querySelector<HTMLElement>('button[aria-pressed="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [pending, fetching]);
   return (
-    <ol aria-label="Ranked resorts" className="flex flex-col divide-y">
+    <ol
+      ref={listRef}
+      aria-label="Ranked resorts"
+      className="flex flex-col divide-y"
+    >
       {resorts.map((r) => {
         const snow = snowSummary(r);
         const snowIsOld =
@@ -179,7 +208,8 @@ export function ResortList({
               onClick={() => onSelect(r.resortId, r.accessPointId)}
               className={cn(
                 "flex w-full items-start gap-3 rounded-lg p-2 text-left hover:bg-muted",
-                r.resortId === selectedId && "bg-muted",
+                r.resortId === selectedId &&
+                  "bg-accent ring-1 ring-primary hover:bg-accent",
               )}
             >
               <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
