@@ -57,7 +57,7 @@ export function DirectionsPanel({
             aria-label={
               startKind === "preview" ? "Preview route" : "Start navigation"
             }
-            className="flex shrink-0 items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow hover:bg-primary"
+            className="flex shrink-0 items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90"
             onClick={onStart}
           >
             {startKind === "preview" ? (
