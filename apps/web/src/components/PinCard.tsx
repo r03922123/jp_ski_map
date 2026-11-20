@@ -34,7 +34,8 @@ export function PinCard({
   useEffect(() => {
     // Escape dismisses it, like the app's other pop-ups
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      // an Escape a dialog above it already handled (its Save list picker) is not ours
+      if (e.key === "Escape" && !e.defaultPrevented) onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);

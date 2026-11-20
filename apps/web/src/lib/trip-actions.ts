@@ -11,7 +11,7 @@ import {
 import type { DestinationCategory } from "@/lib/url-state";
 import type { Trip, TripPoint } from "@/lib/use-trip";
 
-const pinPlace = (pin: TripPoint): PlaceInput => ({
+export const pinPlace = (pin: TripPoint): PlaceInput => ({
   id: pinId(pin.coord),
   name: pin.name ?? "Dropped pin",
   coord: pin.coord,

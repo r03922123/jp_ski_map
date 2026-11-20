@@ -199,11 +199,13 @@ export function SearchBox({
 
   // leave the search surface: the committed text comes back and the trip is untouched
   function goBack() {
+    // blur first: on iOS a blur mid-composition commits the kana, and that change must not
+    // land after the reset and reopen the list
+    inputRef.current?.blur();
     setText(committed.current);
     setTyped(false);
     setOpen(false);
     setActive(-1);
-    inputRef.current?.blur();
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -249,7 +251,7 @@ export function SearchBox({
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
         placeholder={placeholder}
-        className={`w-full rounded-full border bg-background py-2 pr-10 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden ${searchIcon || surfaceOpen ? "pl-9" : "pl-4"}`}
+        className={`w-full rounded-full border bg-background py-2 pr-10 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden ${surfaceOpen ? "pl-12" : searchIcon ? "pl-9" : "pl-4"}`}
         value={text}
         onChange={(e) => {
           setTyped(true);
@@ -267,6 +269,9 @@ export function SearchBox({
         <button
           type="button"
           aria-label="Back"
+          // out of the Tab order: Escape is the keyboard path, and a Tab onto a button that
+          // vanishes as the box blurs would drop focus to the page (review of #115)
+          tabIndex={-1}
           // keep the input focused until the click: a blur would close the list first
           onMouseDown={(e) => e.preventDefault()}
           onClick={goBack}
