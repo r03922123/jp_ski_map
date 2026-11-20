@@ -79,15 +79,15 @@ const PANEL_WIDTH_PX = 384; // BottomSheet md:w-96
 const PANEL_INSET_PX = 12; // md:left-3
 const SHEET_FRACTION = 0.4; // collapsed bottom sheet, h-[40dvh]
 export const MD_BREAKPOINT_PX = 768;
-// v1.13, v1.18: the From/To card on top of the map on phones, plus a margin: 120 px to
-// its bottom edge (two rows, no Add destination row), its 4 px frame and 8 px.
-// BottomSheet's expanded height reserves the same 132 (+48) in a Tailwind class:
-// change them together
-const TRIP_CARD_PX = 132;
+// v1.13, v1.18, v1.27: the From/To card on top of the map on phones, plus a margin: 106 px
+// to its bottom edge (two 44 px rows, a 2 px gap, 4 px padding, 8 px from the top), its
+// 4 px frame and 8 px. BottomSheet's expanded height reserves the same 118 (+48) in a
+// Tailwind class: change them together
+const TRIP_CARD_PX = 118;
 // the start marker (Hero at 2x, 48 px) stands above its point (anchor "bottom");
 // HeroMarker.test checks the sprite is this tall
 export const MARKER_PX = 48;
-// a landscape phone: 120 px of card + its 4 px frame + 4 px + a marker, and the
+// a landscape phone: 120 px of card (106 since v1.27: kept as an overestimate) + its 4 px frame + 4 px + a marker, and the
 // bottom margin shrinks, so the markers still fit between the panels
 const SHORT_SCREEN_PX = 480;
 const SHORT_SCREEN_TOP_PX = 120 + 4 + 4 + MARKER_PX;
