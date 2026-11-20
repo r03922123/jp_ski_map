@@ -190,6 +190,27 @@ describe("MapShell destination", () => {
     );
   });
 
+  // review of #115: a pin on a saved place (a lodging pin of My hotel) is that place
+  it("a pin dropped on a saved place shows it as saved", async () => {
+    const hotelPlace = {
+      id: "osm-node-1",
+      name: "Hotel Hakuba",
+      coord: { lat: 36.68, lng: 137.86 },
+      kind: "lodging" as const,
+    };
+    savedStore.update((s) => toggleInList(s, hotelPlace, "starred"));
+    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    await waitFor(() => expect(map().destination).not.toBeNull());
+    act(() => map().onDropPin?.(hotelPlace.coord, "Hotel Hakuba"));
+    const card = screen
+      .getAllByRole("group", { name: "Hotel Hakuba" })
+      .find((g) => g.tagName === "FIELDSET");
+    if (!card) throw new Error("no pin card");
+    expect(
+      within(card).getByRole("button", { name: "Saved: Hotel Hakuba" }),
+    ).toBeInTheDocument();
+  });
+
   // T2: a dropped pin can be saved from its card, like any place
   it("a dropped pin's card offers Save, which opens the list picker", async () => {
     renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");

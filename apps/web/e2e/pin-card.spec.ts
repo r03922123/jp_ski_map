@@ -97,3 +97,25 @@ test("a long-press then a tap elsewhere closes the card, start unchanged", async
   await expect(page.getByRole("group", { name: "Dropped pin" })).toHaveCount(0);
   expect(fromParam(page)).toBe(before);
 });
+
+// review of #115: the card is a MapLibre popup (transformed); a fixed dialog opened from it
+// was laid out inside the popup, squeezed to the card's width and clipped by the map
+test("the pin's Save dialog opens over the screen, not inside the card", async ({
+  page,
+}) => {
+  await openTrip(page);
+  const cdp = await page.context().newCDPSession(page);
+  await touch(cdp, await mapPoint(page, 220), 700);
+  const card = page.getByRole("group", { name: "Dropped pin" }).last();
+  await card.getByRole("button", { name: /^Save / }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  expect(
+    await dialog.evaluate((el) => el.closest(".maplibregl-popup") === null),
+  ).toBe(true);
+  const box = await dialog.boundingBox();
+  expect(box?.width ?? 0).toBeGreaterThanOrEqual(360);
+  await page.screenshot({
+    path: test.info().outputPath("pin-save-dialog.png"),
+  });
+});

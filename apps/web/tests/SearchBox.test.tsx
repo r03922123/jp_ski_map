@@ -365,6 +365,12 @@ describe("SearchBox", () => {
     fireEvent.focus(input);
     fireEvent.change(input, { target: { value: "hot" } });
     await screen.findByRole("option", { name: /Hotel Hakuba/ });
+    // review of #115: out of the Tab order (Escape is the keyboard path), so tabbing past
+    // the box never lands on a button that vanishes
+    expect(screen.getByRole("button", { name: "Back" })).toHaveAttribute(
+      "tabindex",
+      "-1",
+    );
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.queryByRole("listbox")).toBeNull();
     expect(input).toHaveValue("Dropped pin");
