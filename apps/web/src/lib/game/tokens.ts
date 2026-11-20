@@ -10,7 +10,7 @@ export const TOKENS = {
   "card-foreground": "#22223a",
   popover: "#ffffff",
   "popover-foreground": "#22223a",
-  primary: "#1967d2", // blue primary actions
+  primary: "#185fc6", // blue primary actions (≥ 4.5:1 on muted too, review of #114)
   "primary-foreground": "#ffffff",
   secondary: "#e3ebf1",
   "secondary-foreground": "#22223a",
@@ -21,7 +21,7 @@ export const TOKENS = {
   destructive: "#b3261e",
   border: "#b8c4ce",
   input: "#b8c4ce",
-  ring: "#1967d2", // focus rings need ≥ 3:1 on panels
+  ring: "#185fc6", // focus rings need ≥ 3:1 on panels
 } as const;
 
 export type Token = keyof typeof TOKENS;
@@ -39,6 +39,9 @@ export const TEXT_PAIRS: [Token, Token][] = [
   ["accent-foreground", "accent"],
   ["destructive", "card"],
   ["primary", "card"],
+  // review of #114: blue text and links also sit on muted (hover) and the page background
+  ["primary", "muted"],
+  ["primary", "background"],
 ];
 
 /** Non-text pairs (WCAG 1.4.11): focus rings need 3:1 against what they sit on. */

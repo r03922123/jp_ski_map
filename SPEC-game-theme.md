@@ -2,7 +2,8 @@
 
 > Module of [SPEC.md](SPEC.md). Depends on: nothing (browser only). Consumed by: `web-app`.
 > Added 2026-10-31 (v1.6). Decisions: a game skin over the real planner; the real map restyled, not
-> replaced; original art and sound made in code; UI font DotGothic16 (OFL); replaces today's look (no toggle).
+> replaced; original art and sound made in code; replaces today's look (no toggle). Since v2 (2026-11-20) the UI
+> uses the device's sans-serif and the Maps look (see "UI frames and type").
 
 ## Objective
 Make planning a ski day feel like starting an adventure: a pixel snowboarder crossing a snowy
@@ -62,14 +63,17 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
 - **Font:** the device's own sans-serif (`system-ui`, then Hiragino Sans / Noto Sans JP for Japanese
   names). Nothing to download. Was DotGothic16.
 - **Surfaces:** `.surface` (white, a soft two-layer shadow) with rounded corners where it's used: the trip
-  card and side card 16 px, the phone sheet's top 16 px, pin cards and toasts 12 px. Was the stepped
-  pixel frame.
-- **Controls:** `--radius` 0.75rem; primary actions are blue (`--primary` #1967d2, white text) and
+  card and side card 16 px, the phone sheet's top 16 px, pin cards and toasts 12 px (exact values, not the
+  `rounded-*` scale). Was the stepped pixel frame. Every other `rounded-md/lg/xl/2xl` in the app now follows
+  `--radius` 0.75rem (it was 0).
+- **Controls:** `--radius` 0.75rem; primary actions are blue (`--primary` #185fc6, white text 6.0:1, ≥ 4.5:1
+  as text on white, muted and the page background) and
   pill-shaped; map chips (resort labels, route times) are pills with a white edge and a soft shadow.
   Every control keeps its accessible name. The user-location dot stays Maps blue.
 - **Colour:** text contrast ≥ 4.5:1 and focus rings ≥ 3:1, checked by the tokens test
   (`tests/game-tokens.test.ts`). No dark mode.
-- **Kept:** the rider sprite, world badges on resort chips and in the list, stamp moments, the title screen.
+- **Kept:** the rider sprite, world badges on resort chips and in the list, stamp moments, the title screen
+  (its layout and snow; its text now uses the system font too).
 
 ## Sound
 > **Removed in web-app v1.14 (2026-11-10):** the app has no sound. The rest of this section is history.
@@ -108,7 +112,7 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
 
 ## Boundaries
 - **Always:** keep accessible names and roles; keep exact numbers visible; credit the map data as today.
-- **Ask first:** any dependency besides DotGothic16; audio files; a game engine; changing what the planner computes.
+- **Ask first:** any new dependency; audio files; a game engine; changing what the planner computes.
 - **Never:** copy or imitate a specific game's characters, names, sprites, music, sound effects, items or screens
   (for example creature-catching balls, warp pipes, "?" blocks, or a famous plumber's look); hide or round a real
   ETA, time or distance for style; autoplay sound.
