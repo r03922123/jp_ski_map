@@ -535,7 +535,8 @@ white).
 - The bar is a solid strip, so its colour is set: `theme-color` `#eef3f7`, the page's background and the
   manifest's `theme_color`, with a dark clock. Before v1.19 this style showed a navy strip (the owner's
   complaint then); whether iOS paints the bar from `theme-color` or from the manifest is unknown, so the
-  owner's phone decides (review of #108).
+  owner's phone decides (review of #108). If it is still navy, the next thing to change is the manifest's
+  `background_color` (the icon's navy; Android's splash screen uses it too).
 - `--viewport-gap` stays: it is 0 unless the shortfall equals a non-zero top inset, which this style shouldn't
   produce. Removed once the owner's iPhone shows no band.
 - Done when: e2e reads `default` in the status-bar meta, `#eef3f7` in `theme-color`, and finds no fade; on the
