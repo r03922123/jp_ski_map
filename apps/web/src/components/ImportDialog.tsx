@@ -30,7 +30,7 @@ export function ImportDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="flex max-h-[80dvh] w-full max-w-sm flex-col gap-3 overflow-y-auto rounded-t-2xl bg-background p-4 shadow-xl outline-none md:rounded-2xl"
+        className="flex max-h-[80dvh] w-full max-w-sm flex-col gap-3 overflow-y-auto rounded-t-2xl bg-background p-4 pb-[calc(1rem+var(--safe-bottom))] shadow-xl outline-none md:rounded-2xl md:pb-4"
         onKeyDown={(e) => {
           if (e.key === "Escape") onDone(false);
         }}

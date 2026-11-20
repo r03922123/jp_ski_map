@@ -198,3 +198,47 @@ describe("pinEaseOffsetY", () => {
     expect(y).toBeLessThanOrEqual(size.height * 0.6);
   });
 });
+
+// v1.19: the page runs under the status bar and home indicator; the panels move by the insets
+describe("safe-area insets (SPEC-web-app v1.19)", () => {
+  const phone = { width: 390, height: 844 };
+  const safe = { top: 47, bottom: 34 };
+
+  it("moves the fit's top and bottom by the insets", () => {
+    const flat = mapPadding(phone);
+    const notched = mapPadding({ ...phone, safe });
+    expect(notched.top).toBe(flat.top + 47);
+    expect(notched.bottom).toBe(flat.bottom + 34);
+  });
+
+  it("eases a pin lower by the top inset, and still not into the moved sheet", () => {
+    const flat = pinEaseOffsetY(phone);
+    const notched = pinEaseOffsetY({ ...phone, safe });
+    const { top, bottom } = mapPadding({ ...phone, safe });
+    const y = top + (phone.height - top - bottom) / 2 + notched;
+    expect(notched).toBeGreaterThanOrEqual(flat);
+    expect(y).toBeLessThanOrEqual(phone.height * 0.6 - 34);
+  });
+
+  it("opens a pin's card below it when the moved trip card leaves no room above", () => {
+    // 390×1000: 190 px above y = 340 is 150, clear of the flat card (132) but not of
+    // 132 + 47; below it, 340 + 190 = 530 still fits above the moved sheet (600 − 34)
+    const tall = { width: 390, height: 1000 };
+    expect(pinCardAnchor({ x: 200, y: 340, ...tall })).toBeUndefined();
+    expect(pinCardAnchor({ x: 200, y: 340, ...tall, safe })).toBe("top");
+  });
+});
+
+describe("safe-area insets from md up (v1.19 review: a notched iPhone in landscape is ≥ 812 px wide)", () => {
+  it("moves the side card's fit by the left and top insets", () => {
+    const flat = mapPadding({ width: 844, height: 390 });
+    const notched = mapPadding({
+      width: 844,
+      height: 390,
+      safe: { top: 0, bottom: 21, left: 47, right: 47 },
+    });
+    expect(notched.left).toBe(flat.left + 47);
+    expect(notched.right).toBe(flat.right + 47);
+    expect(notched.bottom).toBe(flat.bottom + 21);
+  });
+});

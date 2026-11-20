@@ -406,3 +406,35 @@ card was 172 px against Google's ≈95 pt: a third row held "+ Add destination",
 - [ ] e2e `layout-share.spec.ts` L4 at 390×797: top chrome ≤ 16% of the page (it was 21.6%).
 - [ ] vitest: TripPanel shows the Add destination slot under the Trip list. The stops e2e and journeys still
   pass, or fail on main the same way.
+
+## v1.19: The map runs under the status bar (2026-11-20, the owner's ask from an iPhone screenshot)
+
+**Objective.** In the home-screen app the map fills the whole screen, the status bar included, as in Google
+Maps. Today the page starts under an opaque status bar, which shows as a solid navy strip above the map.
+
+**Rules.**
+- `viewport-fit=cover` and `apple-mobile-web-app-status-bar-style: black-translucent`: the page draws under the
+  status bar and the home indicator. The clock is white, so a dark fade (the status bar's height, pointer
+  events off) keeps it readable over a light map.
+- One set of insets, `--safe-top|bottom|left|right` = `env(safe-area-inset-*)` on `:root`, keeps controls out of
+  the system areas:
+  - the trip card sits `--safe-top` lower and the sheet `--safe-bottom` higher, both with `--safe-left|right`
+    in landscape;
+  - the expanded sheet's limit, the credits' lift and the map controls follow the same insets;
+  - the navigation views pad their top bar by `--safe-top` (their bottom bars already pad by the bottom inset).
+- The camera fit (`route-geo`: `mapPadding`, `pinEaseOffsetY`, `pinCardAnchor`) takes the same insets in px,
+  read once from a probe element, so routes and pins stay clear of the moved panels.
+- In a Safari tab the insets are 0 in portrait, so nothing moves there. In landscape a notched iPhone has side
+  insets in Safari too, and is ≥ 812 px wide, so the md side card and its camera fit also take the insets.
+- MapLibre's corner controls are moved with a selector scoped under `.maplibregl-map`: MapLibre's own
+  stylesheet loads after ours and resets the corners to 0.
+- Phone dialogs pinned to the bottom (ImportDialog, ListPicker) pad their buttons above the home indicator.
+
+**Done when.**
+- [ ] vitest: route-geo with `safe = { top: 47, bottom: 34 }` moves the fit's top and bottom by those amounts,
+  and the pin rules use the moved edges.
+- [ ] e2e `layout-share.spec.ts`, iPhone insets simulated by setting `--safe-top: 47px; --safe-bottom: 34px` at
+  390×844: the rows behind the status bar (0–47) are map; the card's top is ≥ 47 px; the sheet's bottom is
+  ≤ 844 − 34 (and within 8 px of it); L4-low map ≥ 70% of the screen. Measured: 73.8% (Google's place sheet: 71%).
+- [ ] Owner's check on the real iPhone (home-screen app): map behind the clock, clock readable, nothing under
+  the notch or the home bar.
