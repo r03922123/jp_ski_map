@@ -223,9 +223,11 @@
     transform: translateY(calc(-84px - 32px));
   }
   /* T6: a short landscape phone has no room for both the zoom buttons and the risen credits
-     (the ⓘ covered zoom-out). Phones pinch to zoom, and Google Maps shows no zoom buttons there */
+     (the ⓘ covered zoom-out). Phones pinch to zoom, and Google Maps shows no zoom buttons
+     there; the compass stays, the only way back to north (review of #119) */
   @media (pointer: coarse) and (height < 480px) {
-    .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+    .maplibregl-ctrl-bottom-right
+      :is(.maplibregl-ctrl-zoom-in, .maplibregl-ctrl-zoom-out) {
       display: none;
     }
   }

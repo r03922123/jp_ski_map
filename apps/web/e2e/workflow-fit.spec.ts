@@ -12,16 +12,18 @@ const SIZES = [
 ] as const;
 
 const STATES = [
-  { name: "explore", url: "/" },
+  { name: "explore", url: "/", route: false },
   {
     name: "drive trip",
     url: "/?from=36.6985,137.8376&mode=drive&resort=happo-one",
+    route: true,
   },
   {
     name: "walk trip",
     url: "/?from=36.6985,137.8376&mode=walk&resort=happo-one",
+    route: true,
   },
-  { name: "bus", url: "/?from=36.6985,137.8376&mode=bus" },
+  { name: "bus", url: "/?from=36.6985,137.8376&mode=bus", route: false },
 ] as const;
 
 /** Buttons the user can reach that stick out past the window's left or right edge. */
@@ -61,9 +63,17 @@ for (const size of SIZES) {
         page,
       }) => {
         await page.goto(state.url);
+        // a trip is measured with its route drawn (review of #119: "Routing is unavailable"
+        // would pass without ever reaching the 84 px landscape bar)
         await page
-          .locator("main[data-map-loaded='true']")
+          .locator(
+            state.route
+              ? "main[data-map-loaded='true']:not([data-route-points='0'])"
+              : "main[data-map-loaded='true']",
+          )
           .waitFor({ timeout: 30_000 });
+        if (state.route && size.height < 480)
+          await page.locator("[data-sheet][data-slim]").waitFor();
         await page.waitForTimeout(800); // the sheet's height and the route fit settle
         const overflow = await page.evaluate(
           () =>
