@@ -445,4 +445,19 @@ describe("BottomSheet", () => {
       expect(sheet()).not.toHaveAttribute("data-panel");
     });
   });
+
+  // T2: the three heights are reachable without a swipe (keyboard, switch control)
+  it("ArrowDown and ArrowUp on the handle step through low, collapsed and expanded", () => {
+    renderSheet();
+    const h = handle();
+    fireEvent.keyDown(h, { key: "ArrowDown" });
+    expect(sheet()).toHaveAttribute("data-state", "low");
+    fireEvent.keyDown(h, { key: "ArrowUp" });
+    expect(sheet()).toHaveAttribute("data-state", "collapsed");
+    fireEvent.keyDown(h, { key: "ArrowUp" });
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+    fireEvent.keyDown(h, { key: "ArrowUp" });
+    expect(sheet()).toHaveAttribute("data-state", "expanded");
+    expect(h).toHaveAttribute("aria-keyshortcuts", "ArrowUp ArrowDown");
+  });
 });

@@ -67,3 +67,14 @@ original position, a fresh reviewer and owner approval before merge.
 
 The earlier single-bar preview is a direction sample. This spec expands the design
 to all working screens. Production release follows approval of the completed result.
+
+## Progress (Claude Code, from Codex's 99532a3; one stacked PR per slice)
+
+- [x] T1 shared look (#114): system sans-serif, `.surface` cards and sheet, one primary blue, pill chips
+- [x] T2 explore, search, place, sheet: "Searching…" while the first results load, Back on the open search
+  surface, the pin card's Go here as the one prominent action with Save (☆) beside it, ArrowUp/ArrowDown on
+  the sheet handle for its three heights
+- [ ] T3 directions and route comparison
+- [ ] T4 stops and shuttle
+- [ ] T5 saved lists
+- [ ] T6 navigation, errors, desktop and landscape

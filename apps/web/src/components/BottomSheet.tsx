@@ -265,6 +265,13 @@ export function BottomSheet({
           dragStartY.current = null;
         }}
         onClick={onHandleClick}
+        // T2: the three heights without a swipe (keyboard, switch control)
+        aria-keyshortcuts="ArrowUp ArrowDown"
+        onKeyDown={(e) => {
+          if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+          e.preventDefault();
+          setState(e.key === "ArrowUp" ? stepUp : stepDown);
+        }}
       >
         <span className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
       </button>

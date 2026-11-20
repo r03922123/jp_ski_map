@@ -29,8 +29,8 @@ import { DestinationBox, TripPanel } from "@/components/TripPanel";
 import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
-import { useSaved, visibleMarkers } from "@/lib/saved-places";
-import { tripActions } from "@/lib/trip-actions";
+import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
+import { pinPlace, tripActions } from "@/lib/trip-actions";
 import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
@@ -261,6 +261,12 @@ export function MapShell() {
         mode === "bus" ? undefined : () => actions.pinGo(droppedPin)
       }
       onAddStop={canAddStop ? () => actions.pinAddStop(droppedPin) : undefined}
+      save={
+        // a saved place at that spot (My hotel's lodging pin) is that place, not a new pin
+        <SaveButton
+          place={placeAt(savedState, droppedPin.coord) ?? pinPlace(droppedPin)}
+        />
+      }
     />
   );
   // the sheet shows DirectionsPanel, whose sticky ETA + Start row is the landscape bar
