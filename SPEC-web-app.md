@@ -563,3 +563,12 @@ the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to plann
 - Done when: ModePanel tests put the ETA before the picker in Walk and before the trip list in Drive, and
   Bus's options before the trip list; e2e journeys, saved, stops, bus, sheet-needs-start and small-phone
   fail only where main does.
+
+## v1.27: A slimmer trip card (2026-11-20, the owner's Google Maps screenshot)
+Google's From/To card in the owner's screenshot is ≈95 pt: two rows with a divider and no gap. Ours was 112 px:
+8 padding, a 44 px box, an 8 px gap, a 44 px box, 8 padding. The boxes stay 44 px (touch targets, T75), so the
+padding goes to 4 and the gap to 2: 98 px, 14 px more map in every phone state with a trip.
+- `TRIP_CARD_PX` (route-geo, the card's bottom plus frame and margin) 132 → 118, and the expanded sheet's
+  reserve 180 → 166 px with it. Landscape constants stay (an overestimate only leaves more room).
+- Done when: layout-share L4 top chrome ≤ 13.5% at 393×852 (it was ≤ 16, measured ≈14.6%); route-geo tests
+  use 118; the From/To connector dots still sit between the two markers.
