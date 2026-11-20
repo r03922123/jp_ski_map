@@ -68,5 +68,5 @@ test("the working interface has the Maps look, not the pixel look", async ({
   expect(look.primary).toBe("#185fc6");
   expect(look.startBg).toBe("rgb(24, 95, 198)");
   expect(look.framed).toBe(0);
-  expect(look.tab).toBe("rgb(25, 103, 210) on rgb(255, 255, 255)");
+  expect(look.tab).toBe("rgb(24, 95, 198) on rgb(255, 255, 255)");
 });
