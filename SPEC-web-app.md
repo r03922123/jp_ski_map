@@ -449,4 +449,7 @@ shorter than the 844 pt screen, so every `fixed inset-0` layer stopped early.
   bar). One unlayered rule in globals.css extends every `.fixed.inset-0` layer by it.
 - Done when: unit tests for the gap; the e2e "home-screen viewport short by the status bar"
   (797 px viewport on an 844 px screen) sees `main` 844 px tall, and fails without the fix.
+- The bottom sheet (its own `fixed` layer) moves down by the same gap, so it stays right above
+  the home bar and the credits stay above it. iPad Split View (window narrower than the
+  screen) gets no gap. Owner's check on the real iPhone is the last part of done.
 - Not ours: the frosted strip behind the clock is drawn by iOS; the app has no blur.

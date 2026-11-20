@@ -42,8 +42,12 @@ export function viewportGap({
   safeTop: number;
 }): number {
   // iOS keeps screen.width/height in portrait order; match the page's orientation
-  const screenTall =
-    innerW > innerH ? Math.min(screenW, screenH) : Math.max(screenW, screenH);
+  const landscape = innerW > innerH;
+  const [screenWide, screenTall] = landscape
+    ? [Math.max(screenW, screenH), Math.min(screenW, screenH)]
+    : [Math.min(screenW, screenH), Math.max(screenW, screenH)];
+  // a window narrower than the screen (iPad Split View) isn't full screen: no gap
+  if (innerW !== screenWide) return 0;
   return Math.min(Math.max(screenTall - innerH, 0), safeTop);
 }
 
@@ -65,6 +69,11 @@ export function trackViewportGap(): () => void {
       })}px`,
     );
   update();
+  // orientationchange too: resize may come before the new safe-area inset applies
   addEventListener("resize", update);
-  return () => removeEventListener("resize", update);
+  addEventListener("orientationchange", update);
+  return () => {
+    removeEventListener("resize", update);
+    removeEventListener("orientationchange", update);
+  };
 }

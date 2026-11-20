@@ -30,4 +30,16 @@ describe("viewportGap", () => {
       viewportGap({ ...phone, innerW: 844, innerH: 370, safeTop: 20 }),
     ).toBe(20);
   });
+
+  it("is 0 in an iPad split window, which is narrower than the screen", () => {
+    expect(
+      viewportGap({
+        screenW: 1024,
+        screenH: 1366,
+        innerW: 507,
+        innerH: 1024,
+        safeTop: 24,
+      }),
+    ).toBe(0);
+  });
 });

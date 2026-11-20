@@ -292,5 +292,14 @@ test.describe("home-screen viewport short by the status bar (v1.20)", () => {
     await expect
       .poll(async () => (await page.locator("main").boundingBox())?.height)
       .toBe(844);
+    // the sheet comes down with it, right above the home bar (v1.20 review)
+    const sheet = await page.locator("[data-sheet]").boundingBox();
+    if (!sheet) throw new Error("no sheet");
+    expect(sheet.y + sheet.height).toBeLessThanOrEqual(844 - 34);
+    expect(sheet.y + sheet.height).toBeGreaterThanOrEqual(844 - 34 - 8);
+    // and the credits stay above the sheet, not behind it
+    const credits = await page.locator(".maplibregl-ctrl-attrib").boundingBox();
+    if (!credits) throw new Error("no credits");
+    expect(credits.y + credits.height).toBeLessThanOrEqual(sheet.y);
   });
 });
