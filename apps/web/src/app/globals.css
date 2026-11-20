@@ -49,10 +49,9 @@
 
 /* SPEC-game-theme: snowy overworld palette, values from src/lib/game/tokens.ts (tested) */
 :root {
-  /* v1.19: the page runs under the home indicator and a landscape notch (viewport-fit=cover;
-     since v1.25 not under the status bar); every control pinned to an edge keeps out of them
-     through these. 0 in a Safari tab */
+  /* Hardware insets protect edge controls; the trip header also clears the iOS blur. */
   --safe-top: env(safe-area-inset-top, 0px);
+  --trip-safe-top: var(--safe-top);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
@@ -295,14 +294,11 @@
     min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
   }
 
-  /* iOS samples the pixels under the clock. Give it a solid surface above the map. */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0 0 auto;
-    height: var(--safe-top);
-    z-index: 50;
-    background-color: var(--background);
-    pointer-events: none;
+  @media (width < 48rem) {
+    :root {
+      /* On the 390 pt iPhone the dark frame becomes sharp at about y=82.
+         Its top edge paints 4 px above the header box. */
+      --trip-safe-top: calc(var(--safe-top) + min(32px, var(--safe-top)));
+    }
   }
 }

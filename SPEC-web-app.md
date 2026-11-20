@@ -592,3 +592,13 @@ show there. Field reports name it WebKit 301108 (iOS 26+ home-screen apps).
   background, and shows no band.
 - Open: the blur behind the clock. With iOS keeping the app under the clock whatever the meta says, the strip
   is iOS's; next step is a screenshot from the phone to see what it is.
+
+## v1.29: Extend the live map behind the Home Screen clock
+
+On the 390 pt phone the original screenshot shows the search frame losing contrast from its
+top edge to about y=82. Request a translucent iOS status bar and draw the map up to the
+top edge. Use the v1.28 root sizing for the bottom edge. In narrow standalone viewports
+allow up to 32 px beyond the top hardware inset for the search frame, sheet and camera.
+The extra space scales down to zero when the OS reserves the status bar outside the page.
+Pass when the upper map pixels change with the canvas and the search frame clears the blur
+on the installed iPhone app. The page should still reach the bottom after a cold launch.

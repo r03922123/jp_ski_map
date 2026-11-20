@@ -1112,3 +1112,9 @@ with the supplier before the dish goes on the public menu.
 - The Home Screen app draws the map behind the clock. A solid strip there gives iOS one colour to sample, like putting plain paper behind a translucent label.
 - The strip uses the phone’s reported top inset. On the connected iPhone that was 47 px. The search box stays in place and the viewport still measures 844 px tall.
 - A browser test can measure the strip and verify it lets taps through. The phone itself draws the blur, so judging the search border takes a look at the installed app.
+
+## 2026-11-20 · tidy: Show the map behind the Home Screen clock
+
+- The solid strip hid the map. The revised design asks iOS for a translucent status bar and leaves the canvas visible to the top edge.
+- Moving the search card costs some map space. The original screenshot puts the end of the blur near 82 pt on a 390 pt screen. At a 47 pt hardware inset the new frame starts near 83 pt. The sheet and route camera reserve the same extra space.
+- An invisible-to-touch cover can still hide a map, like glass painted on one side. The regression check changes the canvas colour and compares the pixels behind the clock. Native blur and status-icon legibility still need a screenshot from the installed version.
