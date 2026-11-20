@@ -57,7 +57,7 @@ export function DirectionsPanel({
             aria-label={
               startKind === "preview" ? "Preview route" : "Start navigation"
             }
-            className="flex shrink-0 items-center gap-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+            className="flex shrink-0 items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90"
             onClick={onStart}
           >
             {startKind === "preview" ? (
@@ -104,7 +104,7 @@ export function DirectionsPanel({
                 className={cn(
                   "flex cursor-pointer items-baseline justify-between rounded-md border px-3 py-2 text-sm has-[:focus-visible]:ring-2",
                   i === activeRoute
-                    ? "border-blue-600 bg-blue-50"
+                    ? "border-primary bg-blue-50"
                     : "hover:bg-muted",
                 )}
               >

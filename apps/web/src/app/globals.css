@@ -47,8 +47,13 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* SPEC-game-theme: snowy overworld palette, values from src/lib/game/tokens.ts (tested) */
+/* The Maps look (docs/ux/google-maps-workflows.md T1; SPEC-game-theme v2): light surfaces,
+   blue primary actions. Values from src/lib/game/tokens.ts (tested for contrast) */
 :root {
+  /* the device's own sans-serif: readable, no download, and it covers Japanese names */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans",
+    "Noto Sans JP", sans-serif;
   /* Hardware insets keep controls clear of the clock, notch and home indicator. */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -56,12 +61,12 @@
   --safe-right: env(safe-area-inset-right, 0px);
   --background: #eef3f7;
   --foreground: #22223a;
-  --card: #fffaf0;
+  --card: #ffffff;
   --card-foreground: #22223a;
-  --popover: #fffaf0;
+  --popover: #ffffff;
   --popover-foreground: #22223a;
-  --primary: #2f5d50;
-  --primary-foreground: #fffaf0;
+  --primary: #185fc6;
+  --primary-foreground: #ffffff;
   --secondary: #e3ebf1;
   --secondary-foreground: #22223a;
   --muted: #e3ebf1;
@@ -71,15 +76,13 @@
   --destructive: #b3261e;
   --border: #b8c4ce;
   --input: #b8c4ce;
-  --ring: #8a5a00;
+  --ring: #185fc6;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  /* square corners: the pixel look (rounded-full chips stay round) */
-  --radius: 0rem;
-  --ink: #22223a;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -232,17 +235,13 @@
   }
 }
 
-/* SPEC-game-theme: a stepped pixel border drawn with box-shadows (no images). The four
-   outer shadows leave the corners notched, like a sprite's frame. */
-.pixel-frame {
+/* T1: a raised map surface (cards, sheets, toasts): white with a soft two-layer shadow, as
+   Maps panels float over the map. Corners are set where it's used (a sheet rounds its top) */
+.surface {
   background: var(--card);
   box-shadow:
-    0 -4px 0 0 var(--ink),
-    0 4px 0 0 var(--ink),
-    -4px 0 0 0 var(--ink),
-    4px 0 0 0 var(--ink),
-    inset 0 0 0 2px #fff,
-    0 8px 0 0 rgb(34 34 58 / 0.25);
+    0 1px 2px rgb(60 64 67 / 0.3),
+    0 2px 6px 2px rgb(60 64 67 / 0.15);
 }
 
 /* SPEC-web-app v1.6 title screen: drifting snow and a blinking start, still with reduced motion */

@@ -68,7 +68,7 @@ export function ImportDialog({
               </button>
               <button
                 type="button"
-                className="rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white"
+                className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
                 onClick={() => {
                   savedStore.update((s) => importList(s, result.list));
                   onDone(true);
