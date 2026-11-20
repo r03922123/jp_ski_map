@@ -35,3 +35,44 @@ test("home-screen mode grows the root by the top inset, capped at the screen", a
   );
   expect(valid).toBe(true);
 });
+
+test("the map extends behind the clock and the phone search stays in place", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const header = page.locator("[data-trip-header]");
+  await expect(header).toBeVisible();
+  await page.addStyleTag({ content: ":root { --safe-top: 47px }" });
+  await expect(header).toHaveCSS("top", "55px");
+  // Activate the shipped rules in this tab. Chromium cannot launch the iOS web app.
+  await page.evaluate(() => {
+    for (const sheet of document.styleSheets) {
+      if (sheet.href && new URL(sheet.href).origin !== location.origin)
+        continue;
+      for (const rule of sheet.cssRules) {
+        if (
+          rule instanceof CSSMediaRule &&
+          rule.conditionText === "(display-mode: standalone)"
+        ) {
+          rule.media.mediaText = "all";
+        }
+      }
+    }
+  });
+  await expect(header).toHaveCSS("top", "55px");
+  // A non-interactive opaque overlay still passes hit testing. Check painted pixels.
+  const canvas = page.locator(".maplibregl-canvas");
+  await expect(canvas).toBeVisible();
+  const clip = { x: 120, y: 20, width: 2, height: 2 };
+  await canvas.evaluate((el) => {
+    el.style.filter = "brightness(0)";
+  });
+  const dark = await page.screenshot({ clip });
+  await canvas.evaluate((el) => {
+    el.style.filter = "brightness(0) invert(1)";
+  });
+  expect((await page.screenshot({ clip })).equals(dark)).toBe(false);
+  await page.addStyleTag({ content: ":root { --safe-top: 0px }" });
+  await expect(header).toHaveCSS("top", "8px");
+});

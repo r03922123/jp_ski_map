@@ -18,17 +18,14 @@ export const metadata: Metadata = {
   // shared by link with friends, not listed: strangers would spend the free upstreams' budgets
   robots: { index: false, follow: false },
   // SPEC-web-app v1.16: the home-screen icon opens full screen on iOS
-  // v1.25: an ordinary status bar. v1.19's black-translucent drew under it, but iOS then laid
-  // the app out one status bar short (a band below the sheet) and its white clock needed a fade
+  // Request edge-to-edge map content when launched from the iPhone Home Screen.
   appleWebApp: {
     capable: true,
     title: "Hakuba",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
   },
 };
 
-// cover: the page runs under the home indicator and a landscape notch; --safe-* keep controls
-// out. v1.25: the status bar is opaque, in the page's light colour (the manifest's theme_color)
 export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: "#eef3f7",

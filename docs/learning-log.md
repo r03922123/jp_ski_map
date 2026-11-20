@@ -1106,3 +1106,15 @@ The doc itself can also drift. It says which day it was checked against `main`, 
 knows how fresh it is.
 *Analogy:* a restaurant that can't say where an ingredient came from should label it and check
 with the supplier before the dish goes on the public menu.
+
+## 2026-11-20 · tidy: Keep map detail out of the iPhone status bar
+
+- The Home Screen app draws the map behind the clock. A solid strip there gives iOS one colour to sample, like putting plain paper behind a translucent label.
+- The strip uses the phone’s reported top inset. On the connected iPhone that was 47 px. The search box stays in place and the viewport still measures 844 px tall.
+- A browser test can measure the strip and verify it lets taps through. The phone itself draws the blur, so judging the search border takes a look at the installed app.
+
+## 2026-11-20 · tidy: Show the map behind the Home Screen clock
+
+- The solid strip hid the map. The revised design asks iOS for a translucent status bar and leaves the canvas visible to the top edge.
+- The owner wants the search box in its original position. It keeps its 8 px margin below the hardware inset. iOS controls how far the native blur reaches over the map and controls.
+- An invisible-to-touch cover can still hide a map, like glass painted on one side. The regression check changes the canvas colour and compares the pixels behind the clock. Native blur and status-icon legibility still need a screenshot from the installed version.

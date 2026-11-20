@@ -49,9 +49,7 @@
 
 /* SPEC-game-theme: snowy overworld palette, values from src/lib/game/tokens.ts (tested) */
 :root {
-  /* v1.19: the page runs under the home indicator and a landscape notch (viewport-fit=cover;
-     since v1.25 not under the status bar); every control pinned to an edge keeps out of them
-     through these. 0 in a Safari tab */
+  /* Hardware insets keep controls clear of the clock, notch and home indicator. */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
