@@ -9,11 +9,14 @@ import { formatDistance, formatDuration } from "@/lib/format";
 
 export type PanelMode = Mode | "bus";
 
-const tabTime = (seconds: number | undefined) =>
-  seconds === undefined ? null : (
-    // the space outside the span: inside it, the tab's name reads "Drive8 min"
+/** "Drive" plus its time; on phones only the icon and time show, as in Google's mode row (v1.24) */
+const tabLabel = (word: string, seconds: number | undefined) =>
+  seconds === undefined ? (
+    word
+  ) : (
+    // spaces outside the spans: inside them, the tab's name reads "Drive8 min"
     <>
-      {" "}
+      <span className="max-sm:sr-only">{word}</span>{" "}
       <span className="text-xs opacity-80">{formatDuration(seconds)}</span>
     </>
   );
@@ -113,10 +116,10 @@ export function ModePanel({
             🚌 Bus
           </TabsTrigger>
           <TabsTrigger value="drive">
-            🚗 Drive{tabTime(durations.drive)}
+            🚗 {tabLabel("Drive", durations.drive)}
           </TabsTrigger>
           <TabsTrigger value="walk">
-            🚶 Walk{tabTime(durations.walk)}
+            🚶 {tabLabel("Walk", durations.walk)}
           </TabsTrigger>
         </TabsList>
       </Tabs>

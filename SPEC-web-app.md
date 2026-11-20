@@ -485,12 +485,19 @@ and on the laptop (BC-L2), so modes can be compared without switching. Ours show
 tab. Cluster G's candidate, now taken for drive and walk.
 - With a start and a resort or pin destination, the Drive and Walk tabs read "🚗 Drive 8 min" and
   "🚶 Walk 11 min" (`formatDuration` of the primary route, through the trip's stops when there are any).
-  Shown on every tab, Bus included (the drive and walk targets are the resort, not the bus stop).
+  Shown on every tab, Bus included (the drive and walk targets are the resort, not the bus stop). On
+  phones (below `sm`) the word is screen-reader only once a time shows, so "🚶 1 h 36 min" fits 320 px, as
+  Google's phone row shows icon and time.
 - Both routes are asked for with the route panel's own query key, so the open tab's route is one shared
-  request and switching tabs then shows its route at once, from the cache. One extra Valhalla request per
-  trip (our own server, no cost).
-- Not shown: for a Food or Konbini list (the destination there is picked per mode, so another mode's time
+  request and switching tabs then shows its route at once, from the cache. Extra Valhalla requests (our own
+  server, no cost): one per trip in drive or walk mode, two in bus mode (drive and walk to the resort), and
+  the hidden mode refetches when the browser tab regains focus, as the panel's own route does.
+- Times need one place for every mode. Drive heads for the ranking's nearest entrance and the others use the
+  first until a ranking is cached, so a resort with several entrances (Happo-One, Goryu) shows times once the
+  ranking has loaded, which happens in drive mode (review of #106). Not shown: for such a resort before that, for a Food or Konbini list (the destination there is picked per mode, so another mode's time
   would be to a different place), while loading, or after an error (the tab stays as it was). The Bus tab
   keeps its plain label: its time depends on the timetable choice.
-- Done when: MapShell tests show both times on the tabs for a resort, and none for a Food list; the route
+- Done when: MapShell tests show both times on the tabs for a resort with one shared drive request, none for
+  a Food place, none for a two-entrance resort with no ranking; `e2e/mode-tabs.spec.ts` fits 320 px with a
+  walk over an hour; the route
   panel still asks for the open mode's route; the phone tab row doesn't overflow at 320 px (e2e small-phone).

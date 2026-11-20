@@ -229,16 +229,49 @@ describe("MapShell mode", () => {
     expect(
       await screen.findByRole("tab", { name: /Walk 11 min/ }),
     ).toBeInTheDocument();
+    // the Drive tab's time and the panel's route are one request
+    const driveCalls = vi
+      .mocked(api.fetchRoutes)
+      .mock.calls.filter((c) => c[0] === "drive");
+    expect(driveCalls).toHaveLength(1);
   });
 
-  it("a Food list shows no times on the tabs: its place is picked per mode", async () => {
+  // review of #106: Drive goes to the ranking's nearest entrance, Walk (with no ranking
+  // yet) to the first, so a two-entrance resort's tab time would be for another place
+  it("a two-entrance resort with no ranking yet shows no times on the tabs", async () => {
+    const second = { ...happo.accessPoints[0], id: "happo-one-second" };
+    happo.accessPoints.push(second);
+    try {
+      renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
+      await waitFor(() => expect(map().routes).toEqual([walk]));
+      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+    } finally {
+      happo.accessPoints.pop();
+    }
+  });
+
+  it("a Food place shows no times on the tabs: its place is picked per mode", async () => {
+    const ramen = { lat: 36.699, lng: 137.84 };
+    vi.mocked(api.fetchNearbyPois).mockResolvedValue([
+      {
+        id: "osm:node/1",
+        category: "food",
+        name: "Ramen",
+        nameJa: null,
+        coord: ramen,
+        brand: null,
+        cuisine: "ramen",
+        openingHours: null,
+        durationS: 300,
+        distanceM: 2000,
+      } as api.NearbyPoi,
+    ]);
     renderShell(
-      "?from=36.69736,137.85393&mode=drive&resort=happo-one&cat=food",
+      "?from=36.69736,137.85393&mode=drive&cat=food&dest=poi:osm:node/1",
     );
-    expect(
-      await screen.findByRole("tab", { name: "🚗 Drive" }),
-    ).toBeInTheDocument();
-    await new Promise((r) => setTimeout(r, 50));
+    await waitFor(() => expect(map().destination).toEqual(ramen));
+    await waitFor(() => expect(map().routes).toEqual([drive]));
     expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
   });
