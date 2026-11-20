@@ -522,6 +522,29 @@ tab. Cluster G's candidate, now taken for drive and walk.
   the start moves in Walk (the ranking's placeholder is the old start's); the route panel still asks for the
   open mode's route.
 
+## v1.25: An ordinary status bar ends the band and the blur (2026-11-20, the owner's iPhone screenshots)
+After v1.20 and v1.22 the home-screen app still showed a 47 pt band below the sheet, and a blurred dark strip
+behind the clock. Both come from v1.19's `black-translucent` status bar: iOS lays that app out one status bar
+short (the band, which two measured patches didn't remove on the owner's phone), and draws the clock white
+over the map, so iOS's frosted strip and our dark fade sit over it (the blur). Google's app has a dark clock over
+a clear map; a web app can't (`black-translucent` is the only style that draws under the bar, and its clock is
+white).
+- `statusBarStyle: "default"`: the page starts below an ordinary, opaque status bar and reaches the screen's
+  bottom, as a Safari tab does. The fade behind the clock goes (nothing runs under the bar to fade). The map
+  no longer shows behind the clock, the 47 pt that the clock covered anyway.
+- The bar is a solid strip, so its colour is set: `theme-color` `#eef3f7`, the page's background and the
+  manifest's `theme_color`, with a dark clock. Before v1.19 this style showed a navy strip (the owner's
+  complaint then); whether iOS paints the bar from `theme-color` or from the manifest is unknown, so the
+  owner's phone decides (review of #108). If it is still navy, the next thing to change is the manifest's
+  `background_color` (the icon's navy; Android's splash screen uses it too).
+- `--viewport-gap` stays: it is 0 unless the shortfall equals a non-zero top inset, which this style shouldn't
+  produce. Removed once the owner's iPhone shows no band.
+- Done when: e2e reads `default` in the status-bar meta, `#eef3f7` in `theme-color`, and finds no fade; on the
+  owner's iPhone the home-screen app shows no band and a light bar, and `/viewport-check` opened from it reads
+  safe top 0 and `--viewport-gap 0px` (if iOS still reported a 47 pt top inset here, the gap code would push
+  every layer 47 pt past the bottom). Whether iOS re-reads the style at launch or only when the icon is added
+  is unknown: if the old look stays after closing and reopening the app, remove the icon and add it again.
+
 ## v1.27: A slimmer trip card (2026-11-20, the owner's Google Maps screenshot)
 Google's From/To card in the owner's screenshot is ≈95 pt: two rows with a divider and no gap. Ours was 112 px:
 8 padding, a 44 px box, an 8 px gap, a 44 px box, 8 padding. The boxes stay 44 px (touch targets, T75), so the
