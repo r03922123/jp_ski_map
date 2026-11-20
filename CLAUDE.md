@@ -1,4 +1,5 @@
 # jp_ski_map
+Takeover phase: tidy (next when: the remaining architecture follow-ups are complete)
 - Status: `tasks/todo.md` and the git log. SPEC.md is the module map; each module has its own SPEC-*.md.
 - Run checks inside each project, as CI does (`.github/workflows/ci.yml`): from the repo root, pytest and pyright find
   no config. API: `uv run --directory services/api --frozen` + `ruff check`, `ruff format --check`, `pyright`,
