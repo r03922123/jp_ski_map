@@ -63,13 +63,18 @@ export function BottomSheet({
   useEffect(() => {
     if (revealKey === lastRevealKey.current) return;
     lastRevealKey.current = revealKey;
-    if (revealKey) setState("collapsed");
+    if (revealKey) {
+      setState("collapsed");
+      setPanelHidden(false);
+    }
   }, [revealKey]);
   const lastRaiseKey = useRef(raiseKey);
   useEffect(() => {
     if (raiseKey === lastRaiseKey.current) return;
     lastRaiseKey.current = raiseKey;
     setState((s) => (s === "low" ? "collapsed" : s));
+    // Saved or an imported list opens inside the card: a collapsed one comes back
+    setPanelHidden(false);
   }, [raiseKey]);
   const dragStartY = useRef<number | null>(null);
   // a mouse drag still sends a click afterwards; it must not undo the swipe. (A moving
@@ -208,7 +213,7 @@ export function BottomSheet({
       // v1.22: on phones the sheet sits on the bottom edge, as in Google Maps; its padding
       // keeps the content above the home bar, and each height adds that padding back
       className={cn(
-        "group/sheet pixel-frame fixed right-(--safe-right) bottom-[calc(0px-var(--viewport-gap,0px))] left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate] duration-200 motion-reduce:transition-none",
+        "group/sheet pixel-frame fixed right-(--safe-right) bottom-[calc(0px-var(--viewport-gap,0px))] left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate,visibility] duration-200 motion-reduce:transition-none",
         // expanded: never up under the trip card on top (132 px since v1.18's two rows, or 136 on a landscape
         // phone, where the card is 120 px), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
@@ -226,7 +231,8 @@ export function BottomSheet({
         hiddenOnPhone && "max-md:invisible",
         // out past the window's left edge; invisible so Tab skips it. The toggle stays visible
         panelHidden &&
-          "md:invisible md:-translate-x-[calc(100%+1rem+var(--safe-left))]",
+          // its right edge rests on the safe-area line, so the tab beside it clears a notch
+          "md:invisible md:-translate-x-[calc(100%+1rem)]",
       )}
     >
       <button
@@ -234,8 +240,9 @@ export function BottomSheet({
         aria-label={panelHidden ? "Expand side panel" : "Collapse side panel"}
         aria-expanded={!panelHidden}
         aria-controls={sectionId}
-        // on the card's right edge, so it ends at the window's left edge when the card is out
-        className="pixel-frame visible absolute top-1/2 -right-7 hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
+        // just outside the card's right edge (past its 4 px frame), so a touch screen's 44 px
+        // minimum grows it outward, not over the card
+        className="pixel-frame visible absolute top-1/2 left-full ml-1 hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
         onClick={() => setPanelHidden((h) => !h)}
       >
         <span aria-hidden>{panelHidden ? "▸" : "◂"}</span>

@@ -60,3 +60,35 @@ test("the side card collapses out of the way and comes back, the camera stays", 
     expect(await onMap(page, cx, cy)).toBe(false),
   ).toPass();
 });
+
+// review of #105: a touch screen makes every button at least 44 px wide (globals.css), and a
+// landscape iPhone has a notch on the left; the tabs must grow outward and stay right of it
+test.describe("landscape iPhone, notch simulated", () => {
+  test.use({ viewport: { width: 844, height: 390 }, hasTouch: true });
+
+  test("the tabs sit beside the card and right of the notch", async ({
+    page,
+  }) => {
+    await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+    await page.addStyleTag({
+      content:
+        ":root { --safe-left: 47px !important; --safe-right: 47px !important; }",
+    });
+    await page.locator("main[data-map-loaded='true']").waitFor();
+    const card = page.locator("[data-sheet]");
+    const collapse = page.getByRole("button", { name: "Collapse side panel" });
+    const cardBox = await card.boundingBox();
+    const tabBox = await collapse.boundingBox();
+    if (!cardBox || !tabBox) throw new Error("no card or tab");
+    expect(tabBox.x).toBeGreaterThanOrEqual(cardBox.x + cardBox.width);
+
+    await collapse.tap();
+    // after the slide, the tab rests just right of the notch and nothing covers it
+    await expect
+      .poll(async () => (await onTop(page, "Expand side panel")).left)
+      .toBeLessThan(47 + 12);
+    const expand = await onTop(page, "Expand side panel");
+    expect(expand.left).toBeGreaterThanOrEqual(47);
+    expect(expand.hit).toBe(true);
+  });
+});

@@ -407,6 +407,29 @@ describe("BottomSheet", () => {
       expect(sheet()).toHaveAttribute("data-state", "collapsed");
     });
 
+    // review of #105: Saved, an imported list or a new route open inside the card
+    it("new content (raiseKey) or a new route brings a collapsed panel back", () => {
+      const view = render(
+        <BottomSheet label="Directions" raiseKey="a" revealKey="">
+          <p>list</p>
+        </BottomSheet>,
+      );
+      fireEvent.click(toggle(/^Collapse side panel$/));
+      view.rerender(
+        <BottomSheet label="Directions" raiseKey="saved" revealKey="">
+          <p>list</p>
+        </BottomSheet>,
+      );
+      expect(sheet()).not.toHaveAttribute("data-panel");
+      fireEvent.click(toggle(/^Collapse side panel$/));
+      view.rerender(
+        <BottomSheet label="Directions" raiseKey="saved" revealKey="drive|a">
+          <p>list</p>
+        </BottomSheet>,
+      );
+      expect(sheet()).not.toHaveAttribute("data-panel");
+    });
+
     it("a new destination brings a collapsed panel back", () => {
       const view = render(
         <BottomSheet label="Directions" collapseKey="happo-one">
