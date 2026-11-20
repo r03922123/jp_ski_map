@@ -935,6 +935,20 @@ Spec: [SPEC-maps-ios-ux.md](../SPEC-maps-ios-ux.md); measured from the owner's t
 - [ ] Next.js 16.4.3 → 16.4.5+: two moderate advisories (`'use cache'`, unused here); `next dev` 16.4.3 exits on every other start to show an upgrade notice, so start it twice or point e2e at a running server
 - Open: the camera doesn't refit when the sheet goes low (the route stays where the 40% fit put it)
 
+## Google Maps layout on the laptop, and real-iPhone numbers (2026-11-20, PRs #105, #106)
+- [x] Real iPhone, Safari tab (390×699 page on an 844 pt screen), production, via Web Inspector eval: map 556 pt idle (66%),
+  276 pt in route preview (33%; Google's app ≈320 pt, which loses no Safari bars). The low sheet wasn't reached
+  (a synthetic swipe doesn't move it); the start-set state read 192 and 276 pt on two runs
+- [x] Google Maps in desktop Chrome measured by the agent with the owner's OK (BC-L2); the driving rule now records
+  that exception (docs/ux/rea-benchmark-workflow.md, SPEC-maps-ios-ux.md)
+- [x] #105, v1.23: collapse the side panel on a laptop (tab beside the card, clear of a landscape notch; reopens on
+  a new destination, route, Saved or import)
+- [x] #106, v1.24: each mode tab shows its time ("🚗 Drive 8 min"), drive and walk; not for Food/Konbini, not on Bus
+- Open: Google Maps iOS can't be driven from a Claude Code session (no computer-use tools here, no Xcode); the low
+  sheet and the start-set state still need a real-finger check on the iPhone. Bus tab time; the expand tab centres
+  on the card, not the window (review nit)
+- Local e2e: 15 tests fail on main and with these PRs alike (dev "1 Insight" badge, first-display credits, small-phone walk)
+
 ## Landscape route bar (2026-11-19, PR #91)
 - [x] Landscape phones (< 480 px tall) with a walk or drive route: the collapsed sheet is a slim 84 px ETA + Start bar (owner's choice over hiding the sheet, which would drop Start, T77). The fit area goes from 28 px to 88 px at 740x360. A sheet whose route appears scrolls back to the top, which also fixes known bug F (L4, M5), "answer in view" (its 4 e2e tests no longer `test.fail`).
 - [x] Bug: a finger held on the map while the phone turns, then lifted on the map, left the route unfitted. Cause: the lift counted as a tap, and the browser follows a tap with a mousedown, which MapLibre takes as a grab and so stops the fit the lift had just started. Turning the phone also dropped a pin (the hold became a long-press). Now a resize under a finger cancels the long-press, and its lift sends no tap (`touchend` preventDefault). The e2e test lifts both on the sheet and on the map.

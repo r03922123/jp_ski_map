@@ -478,3 +478,22 @@ by it; any other shortfall (a tab, a shorter window) gives 0. Measured again 1 s
   stays ≥ 63% (the docked sheet now covers the strip of map by the home bar). Owner's check
   on the real iPhone is the last part.
 - Open: the frosted strip behind the clock is drawn by iOS, not the app.
+
+## v1.23: Collapse the side panel on a laptop (2026-11-20, BC-L2)
+The owner asked for Google Maps' layout on the laptop too. Measured (BC-L2): Google's directions card is
+408 px wide and full height, like our 384 px card, so the split already matches; the gap is that Google's
+card can be collapsed and ours can't, so a trip always hides 400 px of map.
+- From `md` up, a "Collapse side panel" button (24 × 48; 44 wide on touch screens, growing outward) sits
+  just outside the card's right edge, centred on the card,
+  `aria-expanded` and `aria-controls` set. Pressing it slides the card left out of the window and makes
+  its content `invisible` (so Tab skips it); the button stays, now "Expand side panel", at the window's left
+  edge, right of the safe-area line (a landscape iPhone's notch). Pressing it again brings the card back. Focus stays on the button.
+- The camera doesn't move on either press (as Google's). Whatever opens inside the card brings it back: a
+  new destination (`collapseKey`), a new route (`revealKey`, e.g. "Start here" from a pin), and new content
+  (`raiseKey`: Saved from a saved marker, an imported list).
+- Phones (below `md`) are unchanged: the button is not rendered there (`hidden md:flex`).
+- Done when: BottomSheet unit tests cover the toggle, its labels and the reopen on a new destination;
+  `e2e/side-panel.spec.ts` at 1440×900 shows a tap at the card's old centre lands on the map after
+  collapsing, the expand tab is on screen and on top, the map's centre is unchanged, and expanding brings
+  the card back; on a touch 844×390 screen with a 47 px notch the tab sits beside the card, and once
+  collapsed it rests right of the notch, on top. Not done: durations on the mode tabs (cluster G).

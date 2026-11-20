@@ -156,3 +156,35 @@ tab and home-screen app).
 **What we take:** a low resting height for the sheet that keeps only the answer row (title or ETA and its main
 action), reached by dragging down; and a shorter trip card.
 **What we don't take:** Google's chips, tab bar, Street View thumbnail, colours and card styling.
+
+---
+
+### BC-L2 The side panel on a laptop (Google Maps in desktop Chrome, 2026-11-20)
+
+**Setup.** The owner's Chrome, 1440×722 viewport, signed in (so no screenshot is kept: it showed saved
+places). The agent opened directions Hakuba Station → Happo-One with the owner's go-ahead and read element
+boxes from the page's DOM (`aria-label`s and `getBoundingClientRect`), plus two screenshots it looked at and
+did not save. No script source, network or storage was read.
+
+**Observed** (CSS px):
+
+| State | Panel | Map |
+|---|---|---|
+| Opened, nothing searched | none: a floating search box (x 88–464, y 12, 48 tall) and a row of category chips beside it, right of a 72 px icon rail | the whole window behind them |
+| Directions preview | a card at x 72, y 8, 408 × 706 (the window's height less 8 px above and below) | the route framed to the right of the card |
+| After "Collapse side panel" | gone, the icon rail too; an "Expand side panel" tab, 23 × 48, at x 0, centred vertically | **unchanged**: the camera doesn't move, the route stays where it was |
+
+- The collapse tab is 23 × 48 on the card's right edge, centred vertically (y 337–385 of 722).
+- The mode row at the top of the card shows each mode's duration (🚗 7 min · 🚌 40 min · 🚶 40 min).
+- Zoom and locate buttons are 29 px, bottom right; the layers tile is bottom left.
+
+**Inferred:** the panel is a fixed-width column, so a wider window gives every extra pixel to the map; the
+collapse tab is the one control that hands the whole window to the map while a trip is open.
+
+**Unknown:** whether a new search or destination reopens a collapsed panel (searching needs the panel, so the
+question only arises from the map); keyboard focus after collapsing.
+
+**What we take** (SPEC-web-app v1.23): a collapse tab on the side card's right edge from `md` up; collapsing
+slides the card out, leaves an expand tab at the window's left edge, and doesn't move the camera.
+**What we don't take:** the icon rail, the category chips, Google's icons and styling. Durations on the mode
+tabs stay a candidate (cluster G, BC-L1).

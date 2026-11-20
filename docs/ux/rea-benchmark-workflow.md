@@ -24,6 +24,7 @@ So REA is the **evidence recorder and regression differ**. Gestures stay with Pl
 
 - **Google side: a human drives, REA only watches what's on screen.** Google's Terms forbid reverse engineering their services "to extract trade secrets or other proprietary information". They also forbid automated access against `robots.txt`, which disallows most `/maps/` paths. So:
   - no `capture_browser_scenario` against google.com;
+  - **owner-approved exception (2026-11-20):** the agent may drive Google Maps itself in the owner's own browser or phone, at a person's pace (one action at a time, a few page loads per state), keeping only element boxes, sizes and screen dimensions. Still no scripts, no REA scenarios, no bulk requests, and nothing of Google's committed;
   - no script-source export, network bodies, storage or `analyze_web_bundle` on Google pages.
   - Allowed: screenshots, the accessibility tree and DOM structure (roles, labels, layout) of what the user is looking at, as Chrome DevTools would show them.
 - **Our side: anything goes** (it's our app): scripted scenarios, network, console.
