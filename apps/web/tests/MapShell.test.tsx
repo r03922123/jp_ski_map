@@ -441,6 +441,34 @@ describe("MapShell swap", () => {
 });
 
 describe("MapShell stops", () => {
+  // T4: reordering stops changes the route's order and the shared link
+  // (the Walk tab's time asks for its route too, so the drive call isn't always last)
+  it("Move down swaps two stops in the route and the link", async () => {
+    vi.mocked(api.fetchPath).mockResolvedValue(drive);
+    const a = { lat: 36.69, lng: 137.84 };
+    const b = { lat: 36.695, lng: 137.845 };
+    renderShell(
+      `?from=${from}&mode=drive&resort=happo-one&stops=36.69000,137.84000;36.69500,137.84500`,
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Move stop 1 down" }),
+    );
+    await waitFor(() =>
+      expect(query().get("stops")).toBe(
+        "36.69500,137.84500;36.69000,137.84000",
+      ),
+    );
+    await waitFor(() =>
+      expect(api.fetchPath).toHaveBeenCalledWith(
+        "drive",
+        [fromCoord, b, a, gondola],
+        {
+          stopAtPoints: true,
+        },
+      ),
+    );
+  });
+
   it("Add destination opens a stop box that takes the next map tap; the route goes through it", async () => {
     vi.mocked(api.fetchPath).mockResolvedValue(drive);
     renderShell(`?from=${from}&mode=drive&resort=happo-one`);

@@ -78,6 +78,9 @@ to all working screens. Production release follows approval of the completed res
   unselected muted, not 60% ink), the selected resort is outlined and comes back into view when the order
   changes. Already there and kept: ETA, arrival and distance first, route options below, steps after five
   behind "Show all", Start in the sticky answer row
-- [ ] T4 stops and shuttle
+- [x] T4 stops and shuttle: Move up / Move down on each stop (accessible handles; none at the ends or for
+  one stop), the route and the shared link follow; a chosen bus option has the same blue outline as a
+  chosen resort. Already there and kept: departure → arrival first, boarding stop, walk and wait, the
+  ride timeline for the chosen option, published vs estimated labels
 - [ ] T5 saved lists
 - [ ] T6 navigation, errors, desktop and landscape

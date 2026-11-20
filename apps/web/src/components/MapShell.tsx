@@ -379,6 +379,7 @@ export function MapShell() {
                   addStopRef={addStopRef}
                   near={viewCentre}
                   onRemoveStop={actions.removeStop}
+                  onMoveStop={actions.moveStop}
                   onFillStop={fillStop}
                   onClearFrom={actions.clearFrom}
                   addDestination={

@@ -175,7 +175,8 @@ function OptionButton({
       onClick={() => onSelect(option)}
       className={cn(
         "flex w-full items-start gap-2 rounded-lg p-2 text-left hover:bg-muted",
-        selected && "bg-muted",
+        // the same selected look as a resort row (T3)
+        selected && "bg-accent ring-1 ring-primary hover:bg-accent",
       )}
     >
       <span className="mt-0.5 rounded bg-teal-700 px-1.5 text-xs font-bold text-white">

@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import {
   type ReactNode,
   type RefObject,
@@ -27,6 +27,8 @@ export type TripPanelProps = {
   /** search bias for stop boxes (the map centre) */
   near: Coord | null;
   onRemoveStop: (key: string) => void;
+  /** T4: reorder a stop (by -1: earlier, 1: later) */
+  onMoveStop?: (key: string, by: -1 | 1) => void;
   onFillStop: (key: string, place: PlaceInput) => void;
   onClearFrom: () => void;
 };
@@ -41,6 +43,7 @@ export function TripPanel({
   addStopRef,
   near,
   onRemoveStop,
+  onMoveStop,
   onFillStop,
   onClearFrom,
   addDestination,
@@ -54,6 +57,12 @@ export function TripPanel({
     (addStopRef.current ?? listRef.current)?.focus();
     setRefocus(false);
   }, [refocus, addStopRef]);
+  // T4: reorder only filled stops; an open stop box would renumber the list but not the
+  // route or the map (review of #117)
+  const canReorder =
+    onMoveStop !== undefined &&
+    stops.length > 1 &&
+    stops.every((st) => st.place !== null);
   const removeStop = (key: string) => {
     setRefocus(true);
     onRemoveStop(key);
@@ -89,6 +98,17 @@ export function TripPanel({
                 place={stop.place}
                 removeLabel={`Remove stop ${i + 1}`}
                 onRemove={() => removeStop(stop.key)}
+                move={
+                  canReorder
+                    ? {
+                        up: i > 0 ? () => onMoveStop(stop.key, -1) : null,
+                        down:
+                          i < stops.length - 1
+                            ? () => onMoveStop(stop.key, 1)
+                            : null,
+                      }
+                    : undefined
+                }
               />
             ) : (
               <li
@@ -143,13 +163,18 @@ function Row({
   place,
   removeLabel,
   onRemove,
+  move,
 }: {
   marker: string;
   label: string;
   place: PlaceInput;
   removeLabel: string;
   onRemove: () => void;
+  /** T4: both directions, null at an end (disabled, not removed: it may hold focus) */
+  move?: { up: (() => void) | null; down: (() => void) | null };
 }) {
+  const moveClass =
+    "flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted";
   return (
     <li className="flex items-center gap-2 px-2 py-1 not-last:border-b">
       {/^\d+$/.test(marker) ? (
@@ -163,6 +188,24 @@ function Row({
         <span className="sr-only">{label}: </span>
         {place.name}
       </span>
+      {move &&
+        (
+          [
+            ["up", move.up, ChevronUp],
+            ["down", move.down, ChevronDown],
+          ] as const
+        ).map(([dir, onMove, Icon]) => (
+          <button
+            key={dir}
+            type="button"
+            aria-label={`Move ${label.toLowerCase()} ${dir}`}
+            aria-disabled={onMove === null || undefined}
+            className={`${moveClass} aria-disabled:opacity-40 aria-disabled:hover:bg-transparent`}
+            onClick={() => onMove?.()}
+          >
+            <Icon aria-hidden="true" className="size-4" />
+          </button>
+        ))}
       <SaveButton place={place} />
       <button
         type="button"

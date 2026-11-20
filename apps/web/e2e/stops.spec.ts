@@ -307,3 +307,22 @@ test("the bus tab offers no stops and no ✕ on the bus's stop", async ({
     page.getByRole("button", { name: "Add destination" }),
   ).toHaveCount(0);
 });
+
+// re-review of #117: on Move down React moves the focused row, and the browser drops focus
+// from a moved element; focus goes back to the moved stop's button
+test("Move down keeps keyboard focus on the moved stop", async ({ page }) => {
+  await page.goto(
+    "/?from=36.6985,137.8376&mode=drive&resort=happo-one&stops=36.69000,137.84000;36.69500,137.84500",
+  );
+  const down = page.getByRole("button", { name: "Move stop 1 down" });
+  await down.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(
+    /stops=36\.69500%2C137\.84500%3B36\.69000|stops=36\.69500,137\.84500;36\.69000/,
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+    )
+    .toBe("Move stop 2 down");
+});
