@@ -165,7 +165,7 @@ export function PilotView({
           <button
             type="button"
             aria-label="Re-centre"
-            className="mr-3 flex items-center gap-1 rounded-full bg-background px-4 py-2 text-sm font-semibold text-blue-700 shadow-lg"
+            className="mr-3 flex items-center gap-1 rounded-full bg-background px-4 py-2 text-sm font-semibold text-primary shadow-lg"
             onClick={onRecenter}
           >
             <Crosshair aria-hidden="true" className="size-4" /> Re-centre

@@ -59,7 +59,7 @@ export function RouteLabels({
                   e.stopPropagation();
                   onSelectRoute?.(index);
                 }}
-                className={`mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] ${
+                className={`mb-1 whitespace-nowrap rounded-full border border-white px-2.5 py-1 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] ${
                   index === activeRoute
                     ? "bg-primary text-primary-foreground"
                     : "bg-card text-card-foreground"

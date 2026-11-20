@@ -250,7 +250,7 @@ function OptionRow({
             <button
               type="button"
               aria-label="Start bus journey"
-              className="mt-1 ml-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+              className="mt-1 ml-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow hover:bg-primary"
               onClick={onStart}
             >
               ▶ Start

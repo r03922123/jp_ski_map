@@ -56,17 +56,20 @@ The resorts are numbered **W1–Wn by geography, north to south** (n = resorts i
 W1 Cortina to W10 Jigatake), like an overworld, so a world keeps its number whatever the list is sorted by.
 The order comes from `resorts.json` by northernmost access point. A test checks that the numbering is complete and stable.
 
-## UI frames and type
-- **Font:** DotGothic16 through `next/font/google`. Self-hosted at build time, so nothing loads from Google
-  at runtime. The Latin subset is preloaded; Japanese glyphs load on demand by unicode-range. Body text is
-  ≥ 16 px, and numbers use tabular figures where the font allows.
-- **Dialog box:** a stepped pixel border (CSS box-shadow steps, no images), cream fill, dark text. It's used
-  for directions, quests and stamp moments.
-- **Level card:** a world badge, the resort name (EN and JA), stamp state, then the same facts as today
-  (ETA, fresh snow, crowd...).
-- **Buttons:** chunky, with a 2 px press-down offset. Every control keeps its current accessible name.
-- **Colour:** text contrast ≥ 4.5:1 (checked by a test on the theme tokens), focus rings ≥ 3:1. The app has no dark mode today; a
-  night-skiing palette comes with one (not part of v1.6).
+## UI frames and type (v2, 2026-11-20: the Maps look)
+Replaced by docs/ux/google-maps-workflows.md T1, at the owner's request: the working interface follows
+Google Maps' conventions, and the game stays in the rider, the world badges, stamps and sounds.
+- **Font:** the device's own sans-serif (`system-ui`, then Hiragino Sans / Noto Sans JP for Japanese
+  names). Nothing to download. Was DotGothic16.
+- **Surfaces:** `.surface` (white, a soft two-layer shadow) with rounded corners where it's used: the trip
+  card and side card 16 px, the phone sheet's top 16 px, pin cards and toasts 12 px. Was the stepped
+  pixel frame.
+- **Controls:** `--radius` 0.75rem; primary actions are blue (`--primary` #1967d2, white text) and
+  pill-shaped; map chips (resort labels, route times) are pills with a white edge and a soft shadow.
+  Every control keeps its accessible name. The user-location dot stays Maps blue.
+- **Colour:** text contrast ≥ 4.5:1 and focus rings ≥ 3:1, checked by the tokens test
+  (`tests/game-tokens.test.ts`). No dark mode.
+- **Kept:** the rider sprite, world badges on resort chips and in the list, stamp moments, the title screen.
 
 ## Sound
 > **Removed in web-app v1.14 (2026-11-10):** the app has no sound. The rest of this section is history.

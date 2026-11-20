@@ -213,7 +213,7 @@ export function BottomSheet({
       // v1.22: on phones the sheet sits on the bottom edge, as in Google Maps; its padding
       // keeps the content above the home bar, and each height adds that padding back
       className={cn(
-        "group/sheet pixel-frame fixed right-(--safe-right) bottom-0 left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate,visibility] duration-200 motion-reduce:transition-none",
+        "group/sheet surface rounded-t-2xl md:rounded-2xl fixed right-(--safe-right) bottom-0 left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate,visibility] duration-200 motion-reduce:transition-none",
         // expanded: never up under the trip card on top (118 px since v1.27's slimmer card, or 136 on a landscape
         // phone, where 120 px overestimates the 106 px card), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
@@ -242,7 +242,7 @@ export function BottomSheet({
         aria-controls={sectionId}
         // just outside the card's right edge (past its 4 px frame), so a touch screen's 44 px
         // minimum grows it outward, not over the card
-        className="pixel-frame visible absolute top-1/2 left-full ml-1 hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
+        className="surface visible absolute top-1/2 left-full ml-1 rounded-r-lg hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
         onClick={() => setPanelHidden((h) => !h)}
       >
         <span aria-hidden>{panelHidden ? "▸" : "◂"}</span>
@@ -279,7 +279,7 @@ export function BottomSheet({
           tabIndex={-1}
           className="max-md:visible fixed top-[calc(0.5rem+var(--safe-top))] right-[max(0.5rem,var(--safe-right))] left-[max(0.5rem,var(--safe-left))] z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
         >
-          <div className="pixel-frame p-1 md:contents">{header}</div>
+          <div className="surface rounded-2xl p-1 md:contents">{header}</div>
         </div>
       )}
       <div

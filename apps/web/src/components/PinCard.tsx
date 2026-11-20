@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 const ACTION =
-  "border-2 border-[var(--ink)] bg-primary px-3 py-1 text-primary-foreground shadow-[2px_2px_0_var(--ink)]";
+  "rounded-full bg-primary px-4 py-1 font-medium text-primary-foreground shadow-sm";
 
 /**
  * The card on a dropped pin (docs/ux/behaviour-cards.md BC-A1). In Google Maps a long-press
@@ -34,7 +34,7 @@ export function PinCard({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <fieldset className="pixel-frame relative flex flex-col gap-2 px-3 py-2 pr-9 text-sm">
+    <fieldset className="surface relative rounded-xl flex flex-col gap-2 px-3 py-2 pr-9 text-sm">
       {/* float: a legend otherwise sits on the frame's border line. The legend names the
           card, so ✕ stays outside it */}
       <legend className="float-left font-medium">{title}</legend>

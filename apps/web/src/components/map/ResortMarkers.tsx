@@ -45,7 +45,7 @@ export function ResortMarkers({
             aria-label={r.name.en}
             aria-pressed={selected}
             data-resort-marker={r.id}
-            className={`flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] ${
+            className={`flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] ${
               selected
                 ? "bg-primary text-primary-foreground"
                 : "bg-card text-card-foreground"

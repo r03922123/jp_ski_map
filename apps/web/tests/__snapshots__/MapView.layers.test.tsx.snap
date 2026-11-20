@@ -105,7 +105,7 @@ exports[`MapView draws (characterization) > empty: every route source stays moun
       <button
         aria-label="Hakuba Happo-One Snow Resort"
         aria-pressed="false"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-card text-card-foreground"
         data-resort-marker="happo-one"
         type="button"
       >
@@ -126,7 +126,7 @@ exports[`MapView draws (characterization) > empty: every route source stays moun
       <button
         aria-label="Hakuba Goryu Ski Resort"
         aria-pressed="true"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-primary text-primary-foreground"
         data-resort-marker="goryu"
         type="button"
       >
@@ -255,7 +255,7 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
       <button
         aria-label="Hakuba Happo-One Snow Resort"
         aria-pressed="false"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-card text-card-foreground"
         data-resort-marker="happo-one"
         type="button"
       >
@@ -276,7 +276,7 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
       <button
         aria-label="Hakuba Goryu Ski Resort"
         aria-pressed="true"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-primary text-primary-foreground"
         data-resort-marker="goryu"
         type="button"
       >
@@ -495,7 +495,7 @@ exports[`MapView draws (characterization) > planning by car: the active route is
       <button
         aria-label="Hakuba Happo-One Snow Resort"
         aria-pressed="false"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-card text-card-foreground"
         data-resort-marker="happo-one"
         type="button"
       >
@@ -516,7 +516,7 @@ exports[`MapView draws (characterization) > planning by car: the active route is
       <button
         aria-label="Hakuba Goryu Ski Resort"
         aria-pressed="true"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-primary text-primary-foreground"
         data-resort-marker="goryu"
         type="button"
       >
@@ -590,7 +590,7 @@ exports[`MapView draws (characterization) > planning by car: the active route is
       <button
         aria-label="Alternate route, 11 min"
         aria-pressed="false"
-        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        class="mb-1 whitespace-nowrap rounded-full border border-white px-2.5 py-1 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-card text-card-foreground"
         data-route-label="alternate"
         type="button"
       >
@@ -606,7 +606,7 @@ exports[`MapView draws (characterization) > planning by car: the active route is
       <button
         aria-label="Selected route, 14 min"
         aria-pressed="true"
-        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        class="mb-1 whitespace-nowrap rounded-full border border-white px-2.5 py-1 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-primary text-primary-foreground"
         data-route-label="active"
         type="button"
       >
@@ -756,7 +756,7 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
       <button
         aria-label="Hakuba Happo-One Snow Resort"
         aria-pressed="false"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-card text-card-foreground"
         data-resort-marker="happo-one"
         type="button"
       >
@@ -777,7 +777,7 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
       <button
         aria-label="Hakuba Goryu Ski Resort"
         aria-pressed="true"
-        class="flex items-center gap-1 border-2 border-[var(--ink)] py-0.5 pr-1.5 pl-0.5 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        class="flex items-center gap-1 rounded-full border border-white py-0.5 pr-2 pl-0.5 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-primary text-primary-foreground"
         data-resort-marker="goryu"
         type="button"
       >
@@ -851,7 +851,7 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
       <button
         aria-label="Selected route, 11 min"
         aria-pressed="true"
-        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-primary text-primary-foreground"
+        class="mb-1 whitespace-nowrap rounded-full border border-white px-2.5 py-1 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-primary text-primary-foreground"
         data-route-label="active"
         type="button"
       >
@@ -867,7 +867,7 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
       <button
         aria-label="Alternate route, 14 min"
         aria-pressed="false"
-        class="mb-1 whitespace-nowrap border-2 border-[var(--ink)] px-2 py-1 text-xs shadow-[2px_2px_0_var(--ink)] bg-card text-card-foreground"
+        class="mb-1 whitespace-nowrap rounded-full border border-white px-2.5 py-1 text-xs shadow-[0_1px_3px_rgb(60_64_67/0.45)] bg-card text-card-foreground"
         data-route-label="alternate"
         type="button"
       >

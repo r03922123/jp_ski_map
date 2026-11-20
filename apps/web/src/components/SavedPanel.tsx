@@ -110,7 +110,7 @@ export function SavedPanel({
           {state.places.some((p) => p.lists.includes(list.id)) && (
             <button
               type="button"
-              className="self-start text-sm text-blue-700 underline"
+              className="self-start text-sm text-primary underline"
               onClick={() => share(list.id, list.name)}
             >
               Share this list
@@ -253,7 +253,7 @@ function PlaceItem({
           type="button"
           disabled={!canGoHere}
           title={canGoHere ? undefined : "Switch to Drive or Walk"}
-          className="rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white disabled:opacity-50"
+          className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
           onClick={() => onGoHere(place)}
         >
           Go here

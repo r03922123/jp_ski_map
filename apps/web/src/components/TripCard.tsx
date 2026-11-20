@@ -106,7 +106,7 @@ export function AddDestinationButton({
     <button
       ref={ref}
       type="button"
-      className="flex items-center gap-1 rounded-full px-2 py-1 text-sm font-medium text-blue-700 hover:bg-muted"
+      className="flex items-center gap-1 rounded-full px-2 py-1 text-sm font-medium text-primary hover:bg-muted"
       onClick={onClick}
     >
       <Plus aria-hidden="true" className="size-4" /> Add destination

@@ -141,7 +141,7 @@ export function ListPicker({
 
         <button
           type="button"
-          className="rounded-full bg-blue-600 py-2 text-sm font-semibold text-white"
+          className="rounded-full bg-primary py-2 text-sm font-semibold text-primary-foreground"
           onClick={onClose}
         >
           Done
