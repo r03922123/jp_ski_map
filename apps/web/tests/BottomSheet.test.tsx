@@ -382,4 +382,44 @@ describe("BottomSheet", () => {
     fireEvent.touchCancel(body(), { changedTouches: [{ clientY: 400 }] });
     expect(sheet()).toHaveAttribute("data-state", "expanded");
   });
+
+  // v1.23 (BC-L2): from md up the side card collapses out of the way, as Google Maps' panel
+  describe("side panel collapse (laptop)", () => {
+    const toggle = (name: RegExp) => screen.getByRole("button", { name });
+
+    it("collapses and expands, with its label and aria-expanded following", () => {
+      renderSheet();
+      const b = toggle(/^Collapse side panel$/);
+      expect(b).toHaveAttribute("aria-expanded", "true");
+      expect(b).toHaveAttribute("aria-controls", sheet().id);
+      fireEvent.click(b);
+      expect(sheet()).toHaveAttribute("data-panel", "hidden");
+      expect(b).toHaveAccessibleName("Expand side panel");
+      expect(b).toHaveAttribute("aria-expanded", "false");
+      fireEvent.click(b);
+      expect(sheet()).not.toHaveAttribute("data-panel");
+      expect(b).toHaveAccessibleName("Collapse side panel");
+    });
+
+    it("leaves the phone sheet's height alone", () => {
+      renderSheet();
+      fireEvent.click(toggle(/^Collapse side panel$/));
+      expect(sheet()).toHaveAttribute("data-state", "collapsed");
+    });
+
+    it("a new destination brings a collapsed panel back", () => {
+      const view = render(
+        <BottomSheet label="Directions" collapseKey="happo-one">
+          <p>list</p>
+        </BottomSheet>,
+      );
+      fireEvent.click(toggle(/^Collapse side panel$/));
+      view.rerender(
+        <BottomSheet label="Directions" collapseKey="cortina">
+          <p>list</p>
+        </BottomSheet>,
+      );
+      expect(sheet()).not.toHaveAttribute("data-panel");
+    });
+  });
 });

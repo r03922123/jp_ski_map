@@ -478,3 +478,19 @@ by it; any other shortfall (a tab, a shorter window) gives 0. Measured again 1 s
   stays ≥ 63% (the docked sheet now covers the strip of map by the home bar). Owner's check
   on the real iPhone is the last part.
 - Open: the frosted strip behind the clock is drawn by iOS, not the app.
+
+## v1.23: Collapse the side panel on a laptop (2026-11-20, BC-L2)
+The owner asked for Google Maps' layout on the laptop too. Measured (BC-L2): Google's directions card is
+408 px wide and full height, like our 384 px card, so the split already matches; the gap is that Google's
+card can be collapsed and ours can't, so a trip always hides 400 px of map.
+- From `md` up, a "Collapse side panel" button (24 × 48) sits on the card's right edge, centred vertically,
+  `aria-expanded` and `aria-controls` set. Pressing it slides the card left out of the window and makes
+  its content `invisible` (so Tab skips it); the button stays, now "Expand side panel", at the window's left
+  edge. Pressing it again brings the card back. Focus stays on the button.
+- The camera doesn't move on either press (as Google's). A new destination (`collapseKey`), which can come
+  from the map while the card is out, brings the card back.
+- Phones (below `md`) are unchanged: the button is not rendered there (`hidden md:flex`).
+- Done when: BottomSheet unit tests cover the toggle, its labels and the reopen on a new destination;
+  `e2e/side-panel.spec.ts` at 1440×900 shows a tap at the card's old centre lands on the map after
+  collapsing, the expand tab is on screen and on top, the map's centre is unchanged, and expanding brings
+  the card back. Not done: durations on the mode tabs (cluster G).

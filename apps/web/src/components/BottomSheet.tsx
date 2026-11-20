@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const DRAG_THRESHOLD_PX = 30;
@@ -48,12 +48,16 @@ export function BottomSheet({
 }) {
   const [state, setState] = useState<SheetState>("collapsed");
   const expanded = state === "expanded";
+  // v1.23 (BC-L2): from md up the side card can be slid out, as Google Maps' side panel
+  const [panelHidden, setPanelHidden] = useState(false);
+  const sectionId = useId();
   const headerRef = useRef<HTMLDivElement>(null);
   const lastCollapseKey = useRef(collapseKey);
   useEffect(() => {
     if (collapseKey === lastCollapseKey.current) return;
     lastCollapseKey.current = collapseKey;
     setState("collapsed");
+    setPanelHidden(false);
   }, [collapseKey]);
   const lastRevealKey = useRef(revealKey);
   useEffect(() => {
@@ -192,6 +196,7 @@ export function BottomSheet({
   return (
     <section
       ref={sectionRef}
+      id={sectionId}
       aria-label={label}
       // a place to hand focus without raising a phone's keyboard (the title screen)
       data-sheet
@@ -199,10 +204,11 @@ export function BottomSheet({
       data-state={state}
       data-phone-hidden={hiddenOnPhone || undefined}
       data-slim={slim || undefined}
+      data-panel={panelHidden ? "hidden" : undefined}
       // v1.22: on phones the sheet sits on the bottom edge, as in Google Maps; its padding
       // keeps the content above the home bar, and each height adds that padding back
       className={cn(
-        "group/sheet pixel-frame fixed right-(--safe-right) bottom-[calc(0px-var(--viewport-gap,0px))] left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height] duration-200",
+        "group/sheet pixel-frame fixed right-(--safe-right) bottom-[calc(0px-var(--viewport-gap,0px))] left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate] duration-200 motion-reduce:transition-none",
         // expanded: never up under the trip card on top (132 px since v1.18's two rows, or 136 on a landscape
         // phone, where the card is 120 px), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
@@ -218,8 +224,22 @@ export function BottomSheet({
         "md:absolute md:inset-x-auto md:bottom-auto md:pb-0 md:top-[calc(1rem+var(--safe-top))] md:left-[calc(1rem+var(--safe-left))] md:h-auto md:max-h-[calc(100dvh-2.5rem-var(--safe-top)-var(--safe-bottom))] md:w-96",
         // invisible, not unmounted: the header inside stays visible, and taps reach the map
         hiddenOnPhone && "max-md:invisible",
+        // out past the window's left edge; invisible so Tab skips it. The toggle stays visible
+        panelHidden &&
+          "md:invisible md:-translate-x-[calc(100%+1rem+var(--safe-left))]",
       )}
     >
+      <button
+        type="button"
+        aria-label={panelHidden ? "Expand side panel" : "Collapse side panel"}
+        aria-expanded={!panelHidden}
+        aria-controls={sectionId}
+        // on the card's right edge, so it ends at the window's left edge when the card is out
+        className="pixel-frame visible absolute top-1/2 -right-7 hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
+        onClick={() => setPanelHidden((h) => !h)}
+      >
+        <span aria-hidden>{panelHidden ? "▸" : "◂"}</span>
+      </button>
       <button
         type="button"
         aria-label={expanded ? "Collapse directions" : "Expand directions"}
@@ -250,7 +270,7 @@ export function BottomSheet({
           data-trip-header
           // where the title screen hands focus while the sheet is hidden
           tabIndex={-1}
-          className="visible fixed top-[calc(0.5rem+var(--safe-top))] right-[max(0.5rem,var(--safe-right))] left-[max(0.5rem,var(--safe-left))] z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
+          className="max-md:visible fixed top-[calc(0.5rem+var(--safe-top))] right-[max(0.5rem,var(--safe-right))] left-[max(0.5rem,var(--safe-left))] z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
         >
           <div className="pixel-frame p-2 md:contents">{header}</div>
         </div>
