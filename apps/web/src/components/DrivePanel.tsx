@@ -14,12 +14,15 @@ export function DrivePanel({
   options,
   onOptionsChange,
   ranking,
+  fetching = false,
   selectedResortId,
   onSelectResort,
 }: {
   options: RankOptions;
   onOptionsChange: (next: RankOptions) => void;
   ranking: RankingState;
+  /** a new ranking is on its way (the list keeps showing the last one) */
+  fetching?: boolean;
   selectedResortId: string | null;
   onSelectResort: (resortId: string) => void;
 }) {
@@ -47,6 +50,7 @@ export function DrivePanel({
             selectedId={selectedResortId}
             onSelect={(id) => onSelectResort(id)}
             scrollKey={JSON.stringify(options)}
+            fetching={fetching}
           />
         ))}
     </div>
