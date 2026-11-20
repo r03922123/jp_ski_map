@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckInButton } from "@/components/CheckInButton";
 import { PixelSprite } from "@/components/PixelSprite";
 import { type RankedResort, resortsQuery } from "@/lib/api";
@@ -156,39 +156,39 @@ export function ResortList({
   selectedId,
   onSelect,
   scrollKey,
+  fetching = false,
 }: {
   resorts: RankedResort[];
   selectedId: string | null;
   onSelect: (resortId: string, accessPointId: string) => void;
   /** the user's sort and date: a new order that follows a change here is brought to the selection */
   scrollKey?: string;
+  /** the ranking is being fetched (for new options, the list still shows the old one) */
+  fetching?: boolean;
 }) {
   // SPEC-web-app v1.6 level select: each card is a world, numbered by geography
   const catalog = useQuery(resortsQuery);
   const worlds = worldNumbers(catalog.data ?? []);
   const rider = useRider();
   const now = useNow(60_000);
-  // T3: a re-sort or a new date must not hide the selection. Only the order that follows the
-  // user's change: a new start reorders the list too, and scrolling then could push the
-  // sheet's Start out of view (review of #116); never on mount or after a tap
+  // T3: a re-sort or a new date must not hide the selection: once the ranking for the user's
+  // new options has loaded, the selected row comes into view. Only then: a new start reorders
+  // the list too, and a scroll there could push the sheet's Start out of view; and a re-sort
+  // that kept the order must not leave a scroll waiting (reviews of #116)
   const listRef = useRef<HTMLOListElement>(null);
-  const order = resorts.map((r) => r.resortId).join();
-  const lastOrder = useRef(order);
   const lastKey = useRef(scrollKey);
-  const userChanged = useRef(false);
+  const [pending, setPending] = useState(false);
   if (scrollKey !== lastKey.current) {
     lastKey.current = scrollKey;
-    userChanged.current = true;
+    setPending(true);
   }
   useEffect(() => {
-    if (order === lastOrder.current) return;
-    lastOrder.current = order;
-    if (!userChanged.current) return;
-    userChanged.current = false;
+    if (!pending || fetching) return;
+    setPending(false);
     listRef.current
       ?.querySelector<HTMLElement>('button[aria-pressed="true"]')
       ?.scrollIntoView({ block: "nearest" });
-  }, [order]);
+  }, [pending, fetching]);
   return (
     <ol
       ref={listRef}
