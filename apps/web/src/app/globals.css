@@ -222,6 +222,13 @@
     .maplibregl-ctrl-attrib {
     transform: translateY(calc(-84px - 32px));
   }
+  /* T6: a short landscape phone has no room for both the zoom buttons and the risen credits
+     (the ⓘ covered zoom-out). Phones pinch to zoom, and Google Maps shows no zoom buttons there */
+  @media (pointer: coarse) and (height < 480px) {
+    .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+      display: none;
+    }
+  }
   /* a landscape phone with a route: the sheet is the 84 px ETA bar (BottomSheet slim) */
   @media (height < 480px) {
     :has(

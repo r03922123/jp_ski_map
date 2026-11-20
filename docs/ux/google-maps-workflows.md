@@ -85,4 +85,12 @@ to all working screens. Production release follows approval of the completed res
 - [x] T5 saved lists: an import says what it added ("Added 1 place to “Onsen trip”", a status line at
   the top of Saved until it closes). Already there and kept: lists → places with notes, Back to lists, 🏨
   and the My hotel row, Share with "Link copied"
-- [ ] T6 navigation, errors, desktop and landscape
+- [x] T6 navigation, errors, desktop and landscape: `e2e/workflow-fit.spec.ts` checks explore, drive, walk
+  and bus at 320, 390, 740×360, 768, 1024 and 1440 for horizontal overflow, actions clipped at the sides
+  and overlapping map controls. It found the credits' ⓘ covering zoom-out on short landscape phones
+  (already so before this work): touch screens under 480 px tall now hide the zoom buttons (pinch zooms,
+  as in Google Maps). Pilot, bus navigation, resilience and credits e2e pass (93/93); navigation needed no
+  change. Screenshots of every workflow went to the owner (not committed: the repo is public)
+- Open: on phones in Chromium emulation, focusing the search leaves a blank patch of map tiles below the
+  suggestions (also before this work; not seen on a device yet). Device acceptance: a cold Home Screen
+  launch (#113's black-translucent and the white clock), keyboard and rotation; then owner approval
