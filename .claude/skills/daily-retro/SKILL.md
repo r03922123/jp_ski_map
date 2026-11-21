@@ -12,16 +12,15 @@ never pushes. The owner turns accepted proposals into tasks.
 ## 1. Context
 
 `python3 scripts/daily_retro.py context` prints, for each role, `mode` (`retro` when its paths
-changed since the last run, else `ideate`), its commits with only its files, its specs and code
-paths, its rows of `docs/QUALITY_SCORE.md`, its Open debt, and its past proposals. `unassigned`
-lists commits that touched no role's paths (todo, CLAUDE.md, docs): the PM step reads those.
+changed since the last run, else `ideate`), its commits with only its files, the specs it owns, and
+its past proposals. `unassigned` lists commits that touched no role's paths (todo, CLAUDE.md, docs):
+the PM step reads those.
 
 ## 2. Roles (in parallel)
 
-Call the four agents in one message, each with its own slice of the JSON (not the whole thing):
-`role-applied-scientist`, `role-platform`, `role-fullstack`, `role-ux`. Add today's date and
-"read CLAUDE.md first". Don't call a role that is in `ideate` mode if it already ideated on each of
-the last 2 days with 0 accepted proposals; note it as skipped instead (saves cost on idle areas).
+Call the four agents (all on Opus) in one message, each with its own slice of the JSON, not the
+whole thing: `role-applied-scientist`, `role-platform`, `role-fullstack`, `role-ux`. Add today's
+date and "read CLAUDE.md first".
 
 ## 3. PM: verify, merge, pick
 
@@ -50,7 +49,7 @@ You are the PM: you did not write these proposals, and you check them before the
    ## Top 3
    1. **P-…** <title> — <role>, <effort>. Why: <one line, evidence>. Check: <one line>.
    ## By role
-   ### <role> (<retro: n commits | ideate | skipped>)
+   ### <role> (<retro: n commits | ideate>)
    <observations, condensed; proposals not in the top 3 under "Also proposed">
    ## Dropped
    <proposal — reason>

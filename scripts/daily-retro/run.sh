@@ -22,7 +22,7 @@ command -v claude >/dev/null || { echo "claude CLI not on PATH"; notify "jp_ski_
 mkdir -p .ops/reports
 git fetch --quiet --all --prune || echo "git fetch failed; using local refs"
 
-claude -p "Run the daily-retro skill for $TODAY. Write only under .ops/." \
+claude -p "Run the daily-retro skill for $TODAY. Write only under .ops/." --model opus \
   --allowedTools "Skill,Agent,Task,Read,Grep,Glob,WebSearch,WebFetch,Write(./.ops/**),Edit(./.ops/**),Bash(python3 scripts/daily_retro.py:*),Bash(git show:*),Bash(git log:*),Bash(git diff:*),Bash(grep:*),Bash(wc:*)" \
   --output-format text
 status=$?

@@ -977,3 +977,13 @@ each task is one PR, built in a fresh session from the spec.
   (`use-trip`, `use-view-url`, `trip-actions`, `trip-places`, `use-routes`, `use-bus-trip`, `use-lists`,
   `nav/use-pilot-session`, `nav/use-pilot-map`); 6 more MapShell tests first; screens unchanged
 - [x] W3 `web-shell` R3.2 for MapView (PR #89): 1,050 → 555 lines; layers and markers in `components/map/`, gestures and credits in `lib/` hooks
+
+## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
+Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.
+- D1 `place-search`: lodging and Overture snapshots aren't pinned (no Overpass `[date:]`; `latest_release` in
+  `services/api/src/hakuba_api/places/refresh_overture.py` takes the newest release). Plan: SPEC-pipeline pinning row
+- D2 `poi-destinations`: the POI Overpass query (`pois/refresh_pois.py`) isn't pinned to a date. Plan: same row
+- D3 `routing`: Valhalla tiles build from `chubu-latest` (`infra/valhalla/build-hakuba.sh:10`). Plan: same row
+- D4 all specs: acceptance checkboxes aren't maintained (51 of 184 ticked), so they can't show progress
+- D5 this file: 979 lines with 84 finished tasks between the open ones; proposal: move finished tasks to `tasks/done.md`
+  (needs the owner's OK, since it moves where status lives)
