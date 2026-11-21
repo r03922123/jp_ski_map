@@ -985,5 +985,7 @@ Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/
 - D2 `poi-destinations`: the POI Overpass query (`pois/refresh_pois.py`) isn't pinned to a date. Plan: same row
 - D3 `routing`: Valhalla tiles build from `chubu-latest` (`infra/valhalla/build-hakuba.sh:10`). Plan: same row
 - D4 all specs: acceptance checkboxes aren't maintained (51 of 184 ticked), so they can't show progress
+- D6 `place-search`: a repeated query word can match one name word twice ("tabi tabi" → ペンション 旅人), and
+  sound keys pair "yukinoso" with かにさわ館 and "Hakuba style Inn" with シャトレ山彦 (SPEC-place-search v1.5)
 - D5 this file: 979 lines with 84 finished tasks between the open ones; proposal: move finished tasks to `tasks/done.md`
   (needs the owner's OK, since it moves where status lives)

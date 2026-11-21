@@ -48,7 +48,8 @@ new_repo() {
     "$REPO/infra/valhalla/custom_files/hakuba" "$REPO/.vercel" "$REPO/services/api" "$REPO/.ux-evidence" "$REPO/.run"
   cp "$HERE/deploy-vercel.sh" "$REPO/scripts/"
   for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_overture.json \
-    poi_osm.json crowd_periods.json bus/stop_evidence.json bus/timetables/2025-26/line-a.json; do
+    lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json bus/stop_evidence.json \
+    bus/timetables/2025-26/line-a.json; do
     echo '[]' >"$REPO/data/$f"
   done
   echo 'pyproject' >"$REPO/services/api/pyproject.toml"

@@ -163,14 +163,16 @@ def test_a_photon_failure_is_logged_without_the_search_text(
 def test_malformed_photon_answer_still_returns_local_hits(
     api: TestClient, mock: respx.MockRouter, answer: dict[str, Any]
 ) -> None:
-    # "Pheonix" has one local hit, so Photon is asked
+    # "Pheonix" has fewer than three local hits (Grand Phenix, and Hotel Phoenix Wing by its
+    # reading), so Photon is asked
     call = mock.get(PHOTON_URL).respond(**answer)
 
     response = api.get("/api/places/suggest", params={"q": "Pheonix", "near": "36.70,137.845"})
 
     assert call.call_count == 1
     assert response.status_code == 200
-    assert [b["source"] for b in response.json()] == ["index"]
+    sources = [b["source"] for b in response.json()]
+    assert sources and set(sources) == {"index"}
 
 
 def test_short_queries_never_call_photon(api: TestClient, mock: respx.MockRouter) -> None:
