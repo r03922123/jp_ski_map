@@ -11,8 +11,9 @@ only; when the code is what's wrong, it records debt and leaves the fix to the o
 
 ## 0. Start clean
 
-1. `gh pr list --state open --search "Doc gardening in:title"`: if a gardening PR is still open,
-   stop and report its link. Runs must not pile up.
+1. If a gardening PR is still open, stop and report its link (runs must not pile up). Use the REST
+   API, which works in cloud sessions where `gh pr` (GraphQL) is refused:
+   `gh api "repos/r03922123/jp_ski_map/pulls?state=open" --jq '.[] | select(.title | startswith("Doc gardening")) | .html_url'`
 2. Branch from the newest main: `git fetch --depth=200 origin main && git switch -c
    chore/doc-gardening-$(date +%F) origin/main`. Commit with the repo-local noreply identity
    (CLAUDE.md).
@@ -57,7 +58,8 @@ Re-run `python3 scripts/check_docs.py --signals --write` so the table counts the
    PreToolUse hook guards the file, not your text).
 3. If nothing changed, open no PR: report "docs match, no changes" with the signals table.
 4. Otherwise push with `git -c push.negotiate=true push -u origin HEAD` and open a **draft** PR
-   titled `Doc gardening YYYY-MM-DD` whose body has: the two modules and their reviewed grades, a
+   with `gh api repos/r03922123/jp_ski_map/pulls -f title="Doc gardening $(date +%F)" -f head=<branch>
+   -f base=main -F draft=true -f body=@<file>`, titled `Doc gardening YYYY-MM-DD`, whose body has: the two modules and their reviewed grades, a
    table of every change with its evidence, new and closed debt rows, unverified claims, and
    anything you chose not to change and why.
 
