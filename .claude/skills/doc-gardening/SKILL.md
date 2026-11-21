@@ -59,7 +59,7 @@ Re-run `python3 scripts/check_docs.py --signals --write` so the table counts the
 3. If nothing changed, open no PR: report "docs match, no changes" with the signals table.
 4. Otherwise push with `git -c push.negotiate=true push -u origin HEAD` and open a **draft** PR
    with `gh api repos/r03922123/jp_ski_map/pulls -f title="Doc gardening $(date +%F)" -f head=<branch>
-   -f base=main -F draft=true -f body=@<file>`, titled `Doc gardening YYYY-MM-DD`, whose body has: the two modules and their reviewed grades, a
+   -f base=main -F draft=true -F body=@<file>` (`-F`, not `-f`: `-f` sends "@file" as text), titled `Doc gardening YYYY-MM-DD`, whose body has: the two modules and their reviewed grades, a
    table of every change with its evidence, new and closed debt rows, unverified claims, and
    anything you chose not to change and why.
 
