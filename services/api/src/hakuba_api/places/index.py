@@ -7,6 +7,7 @@ See SPEC-place-search.md v1.2.
 
 import re
 import unicodedata
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Literal
@@ -36,6 +37,9 @@ MIN_SOUND_KEY = 3
 # A reading approximates a name (unknown kanji dropped), so it stays below the
 # exact (100) and name-prefix (90) tiers: 乗鞍荘 reads "norikura" but isn't named it.
 READING_MAX = 85
+# ...and one point below a name that spells the query as well: "bar" is Endless Bar, not the
+# ホテル サニーバレー reading "sani bare" (SPEC-place-search v1.5).
+READING_PENALTY = 1
 # Area-only queries mean the well-known place: this clears the name-prefix tier, so
 # "goryu" gives the resort before the "Goryu Hon-dorinishi" bus stop.
 RESORT_PROMINENCE = 15
@@ -265,7 +269,7 @@ def rank(entries: list[Entry], query: str, near: Coord, limit: int) -> list[Hit]
         scores = [s for n in names if (s := _score_name(q, normalize(n))) is not None]
         # a reading approximates the name (unknown kanji dropped): never an exact/prefix hit
         scores += [
-            min(s, READING_MAX)
+            min(s, READING_MAX) - READING_PENALTY
             for r in e.readings
             if (s := _score_name(q, r, by_sound=True)) is not None
         ]
@@ -278,8 +282,17 @@ def rank(entries: list[Entry], query: str, near: Coord, limit: int) -> list[Hit]
 
 
 def build_index(
-    stops: list[BusStop], resorts: list[Resort], lodging: list[Place], pois: list[Poi]
+    stops: list[BusStop],
+    resorts: list[Resort],
+    lodging: list[Place],
+    pois: list[Poi],
+    readings: Mapping[str, Sequence[str]] | None = None,
+    aliases: Mapping[str, Sequence[str]] | None = None,
 ) -> list[Entry]:
+    """`readings` and `aliases` are the lodging extras by id (SPEC-place-search v1.5): the
+    generated readings join the `kana.to_romaji` one, and reviewed aliases match as names."""
+    readings = readings or {}
+    aliases = aliases or {}
     entries: list[Entry] = []
     for s in stops:
         if s.coord:
@@ -305,16 +318,17 @@ def build_index(
     for p in lodging:
         japanese = p.name_ja or (None if p.name.isascii() else p.name)
         reading = to_romaji(japanese) if japanese else ""
+        found = [reading, *(normalize(r) for r in readings.get(p.id, ()))]
         entries.append(
             Entry(
                 p.id,
                 "lodging",
                 p.name,
                 p.name_ja,
-                [],
+                list(aliases.get(p.id, ())),
                 p.coord,
                 p.kind.replace("_", " ").title(),
-                readings=(reading,) if reading else (),
+                readings=tuple(dict.fromkeys(r for r in found if r)),
             )
         )
     for poi in pois:

@@ -143,3 +143,28 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - **Next:** rebalance the synthetic pairs by kind and judge it on a *new* held-out query set, since this hard set has now been seen. Semantic search stays off in production until then.
 
 **Boundaries:** local models only ($0); the model and MLflow files are never committed; the app logger and the embedding server (access log off) never log query text. The production API's uvicorn access log already records `/api/places/suggest?q=…`, as before this change.
+
+## v1.5 — Readings for kanji names, and sourced aliases (2026-11-21)
+
+**Problem (found by the owner):** 雪の荘 (Hakuba Style Inn Yukinoso, 北城八方5221) is in the Overture snapshot under its Japanese name only. `kana.to_romaji` drops kanji it doesn't know, so the name reads "no": "yukinoso", "yuki no so" and ゆきのそう found nothing, and "yukinoso" answered with かにさわ館 by sound key (`kns`). Its English names live outside our data, and two sources disagree: Google Maps says "Hakuba style Inn YUKINOSO", LIVE JAPAN "Hakuba Hospitality Inn Yukinoso".
+
+**Decisions**
+1. **Generated readings, offline.** `places/refresh_readings.py` splits each Japanese lodging name into words with fugashi and the unidic-lite dictionary (both MIT; run with `uv run --with fugashi --with unidic-lite`, not project dependencies, like DuckDB for the Overture refresh), applies `KANA_OVERRIDES` (荘 → ソウ: the dictionary reads it "shou"), and romanises each word with `kana.to_romaji`, so loanwords and long vowels follow the v1.3 rules ("hakuba tokyu hotel"). Each name gets its kana, a spaced form and, for several words, a joined form ("yuki no so", "yukinoso"). Output: `data/lodging_readings.json` (612 names). pykakasi reads 雪の荘 right too but is GPL-3.0, so it isn't used.
+2. **A reading scores just below an equal spelled name.** Readings score `min(score, 85) − 1`: with the spelled-word tiers equal, "bar" is Endless Bar & Restaurant, not ホテル サニーバレー ("sani bare"). Coverage and sound penalties can still bring the two level (review: 7 ties in 1,355 queries, e.g. "abest hakuba"); distance then decides, as before. A rule that a spelled name wins every tie was tried and dropped: "Hotel Grace Hakuba" then gave Hakuba Grace Inn instead of ホテルグレース白馬 (booking_eval 26 → 25).
+3. **Aliases are sourced and reviewed.** `data/lodging_aliases.json` lists other names with the `https` page that gives each and a `status`; only `reviewed` ones reach the index, because a wrong alias is a confidently wrong answer. The snapshots stay untouched, so a refresh never erases an alias. Names from Google Maps are not stored (its terms limit caching). The first entry, LIVE JAPAN's name for 雪の荘, starts `unreviewed`.
+4. The validator checks that every reading and alias names a lodging we hold, that each alias has an `https` source, and that no lodging lists one alias twice.
+
+**Results (2026-11-21, local index, no Photon)**
+- 雪の荘: "yukinoso", "Yukinoso Hakuba", "yuki no so", ゆきのそう and ユキノソウ now put it first. "Hakuba style Inn YUKINOSO" still finds nothing, because "style" is a distinctive word no stored name has; "Hakuba Hospitality Inn Yukinoso" finds it once that alias is reviewed.
+- `booking_eval.json`: 26/26 present, 4/4 absent, 0 wrong (unchanged). The v1.4 hard set, lexical only: 6/40 hit@5 (unchanged; it is Chinese names and categories).
+- Sweep of 1,905 single-word and two-word queries built from index names: 12 top-1 changes. 10 swap between two places that share the word (Hotel Ogiya → 扇屋旅館, Pals Inn Raicho → ヴィラ雷鳥) or are better ("Pheonix" now also finds ホテルフェニックスウィング白馬の森, read "fenikkusu wingu"). 1 is noise ("s o"). 1 is worse: "tabi tabi" ranks ペンション 旅人 ("pension tabibito") above Tabi-Tabi lodge, because both query words match the one word "tabibito"; "Tabi-Tabi lodge" itself is unaffected.
+
+**Acceptance**
+- [x] "yukinoso", "yuki no so" and ゆきのそう find 雪の荘 first (unit test and shipped-data test).
+- [x] Only reviewed aliases reach the index (unit test).
+- [x] `booking_eval.json` unchanged; API gates green.
+- [ ] The owner reviews the 雪の荘 alias; the alias pilot (30 lodgings, each alias with its source) follows in its own PR.
+
+**Known, not fixed here:** a reading can tie a spelled name, and distance decides (Decision 2); a repeated query word can match one name word twice ("tabi tabi"); sound keys still pair "yukinoso" with かにさわ館 (second place now) and "Hakuba style Inn" with シャトレ山彦.
+
+**Next:** the alias pilot; then v1.4's open step, a new held-out query set to re-judge semantic search, which stays off in production.

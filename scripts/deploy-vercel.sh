@@ -61,7 +61,7 @@ mkdir -p "$API/data/bus" "$API/tiles"
 
 # Only what the API reads at runtime; data/bus/raw and stop_evidence.json stay out of the upload.
 for item in resorts.json bus_stops.json bus/timetables bus/sources.json lodging_osm.json \
-  lodging_overture.json poi_osm.json crowd_periods.json; do
+  lodging_overture.json lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json; do
   [[ -s $STAGE/data/$item ]] || die "runtime data missing or empty in this commit: data/$item"
   cp -R "$STAGE/data/$item" "$API/data/$item"
 done
