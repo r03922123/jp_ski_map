@@ -987,5 +987,9 @@ Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/
 - D4 all specs: acceptance checkboxes aren't maintained (51 of 184 ticked), so they can't show progress
 - D6 `place-search`: a repeated query word can match one name word twice ("tabi tabi" → ペンション 旅人), and
   sound keys pair "yukinoso" with かにさわ館 and "Hakuba style Inn" with シャトレ山彦 (SPEC-place-search v1.5)
+- D7 `place-search`: the readings validator checks ids only (not that each reading's name is still the lodging's
+  Japanese name, nor unique ids); aliases accept a bare `https://` and dedupe by casefold, not `normalize`;
+  38 readings are ASCII `name_ja` values; DATA-LICENSES says unidic-lite is MIT, but the UniDic data and MeCab
+  in fugashi may carry BSD/GPL/LGPL terms, unchecked (#123 review)
 - D5 this file: 979 lines with 84 finished tasks between the open ones; proposal: move finished tasks to `tasks/done.md`
   (needs the owner's OK, since it moves where status lives)

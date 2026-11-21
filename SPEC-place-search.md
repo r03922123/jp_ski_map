@@ -150,7 +150,7 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 
 **Decisions**
 1. **Generated readings, offline.** `places/refresh_readings.py` splits each Japanese lodging name into words with fugashi and the unidic-lite dictionary (both MIT; run with `uv run --with fugashi --with unidic-lite`, not project dependencies, like DuckDB for the Overture refresh), applies `KANA_OVERRIDES` (荘 → ソウ: the dictionary reads it "shou"), and romanises each word with `kana.to_romaji`, so loanwords and long vowels follow the v1.3 rules ("hakuba tokyu hotel"). Each name gets its kana, a spaced form and, for several words, a joined form ("yuki no so", "yukinoso"). Output: `data/lodging_readings.json` (612 names). pykakasi reads 雪の荘 right too but is GPL-3.0, so it isn't used.
-2. **A reading never ties a spelled name.** Readings score `min(score, 85) − 1`: with the spelled-word tiers equal, "bar" is Endless Bar & Restaurant, not ホテル サニーバレー ("sani bare").
+2. **A reading scores just below an equal spelled name.** Readings score `min(score, 85) − 1`: with the spelled-word tiers equal, "bar" is Endless Bar & Restaurant, not ホテル サニーバレー ("sani bare"). Coverage and sound penalties can still bring the two level (review: 7 ties in 1,355 queries, e.g. "abest hakuba"); distance then decides, as before. A rule that a spelled name wins every tie was tried and dropped: "Hotel Grace Hakuba" then gave Hakuba Grace Inn instead of ホテルグレース白馬 (booking_eval 26 → 25).
 3. **Aliases are sourced and reviewed.** `data/lodging_aliases.json` lists other names with the `https` page that gives each and a `status`; only `reviewed` ones reach the index, because a wrong alias is a confidently wrong answer. The snapshots stay untouched, so a refresh never erases an alias. Names from Google Maps are not stored (its terms limit caching). The first entry, LIVE JAPAN's name for 雪の荘, starts `unreviewed`.
 4. The validator checks that every reading and alias names a lodging we hold, that each alias has an `https` source, and that no lodging lists one alias twice.
 
@@ -165,6 +165,6 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - [x] `booking_eval.json` unchanged; API gates green.
 - [ ] The owner reviews the 雪の荘 alias; the alias pilot (30 lodgings, each alias with its source) follows in its own PR.
 
-**Known, not fixed here:** a repeated query word can match one name word twice ("tabi tabi"); sound keys still pair "yukinoso" with かにさわ館 (second place now) and "Hakuba style Inn" with シャトレ山彦.
+**Known, not fixed here:** a reading can tie a spelled name, and distance decides (Decision 2); a repeated query word can match one name word twice ("tabi tabi"); sound keys still pair "yukinoso" with かにさわ館 (second place now) and "Hakuba style Inn" with シャトレ山彦.
 
 **Next:** the alias pilot; then v1.4's open step, a new held-out query set to re-judge semantic search, which stays off in production.
