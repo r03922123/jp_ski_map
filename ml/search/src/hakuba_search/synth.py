@@ -3,8 +3,8 @@
 Each rule mimics a way people really type a place: dropped or added area words, typos,
 romaji readings, Chinese characters for Japanese words, and food or shop words. Rules like
 these regenerate test queries word for word ("ramen", 拉麵), so `make_pairs` drops every query
-equal to one in evals/hard_queries.json after normalising. Near-duplicates ("ramen hakuba")
-can remain.
+equal to one in a hand-written eval set (evals/hard_queries.json, evals/heldout_v2.json) after
+normalising. Near-duplicates ("ramen hakuba") can remain.
 """
 
 import hashlib
@@ -15,7 +15,8 @@ from pathlib import Path
 
 from hakuba_api.places.index import Entry, normalize
 
-HARD = Path(__file__).parents[2] / "evals" / "hard_queries.json"
+EVALS = Path(__file__).parents[2] / "evals"
+HELD_OUT = (EVALS / "hard_queries.json", EVALS / "heldout_v2.json")
 
 # Japanese → Chinese (traditional) words and characters a Chinese-speaking visitor would type
 ZH = {"スキー場": "滑雪場", "ホテル": "酒店", "温泉": "溫泉", "竜": "龍", "乗": "乘", "館": "館"}
@@ -100,8 +101,30 @@ def queries_for(e: Entry, rng: random.Random) -> list[str]:
 
 
 def held_out() -> frozenset[str]:
-    """Normalised hard-set queries: never a training or calibration query."""
-    return frozenset(normalize(c["q"]) for c in json.loads(HARD.read_text())["cases"])
+    """Normalised queries of every hand-written eval set: never a training or calibration query."""
+    return frozenset(
+        normalize(c["q"]) for f in HELD_OUT for c in json.loads(f.read_text())["cases"]
+    )
+
+
+def rebalance(
+    pairs: list[Pair], kind_of: dict[str, str], max_share: float, seed: int = 0
+) -> list[Pair]:
+    """Sample down any kind holding more than `max_share` of the pairs, so lodging names
+    (three quarters of the index) don't crowd out food, shop and resort words. Keeps order."""
+    if max_share >= 1:
+        return pairs
+    counts: dict[str, int] = {}
+    for p in pairs:
+        counts[kind_of[p.entry_id]] = counts.get(kind_of[p.entry_id], 0) + 1
+    rng = random.Random(seed)
+    keep: set[int] = set(range(len(pairs)))
+    for kind, n in counts.items():
+        cap = int(max_share / (1 - max_share) * (len(pairs) - n))
+        if n > cap:
+            idx = [i for i, p in enumerate(pairs) if kind_of[p.entry_id] == kind]
+            keep -= set(idx) - set(rng.sample(idx, cap))
+    return [p for i, p in enumerate(pairs) if i in keep]
 
 
 def make_pairs(
