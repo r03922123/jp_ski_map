@@ -137,7 +137,7 @@ on the Mac keeps serving until cutover.
    doesn't fail the build: an empty or junk file answers every route with `NoRouteError`, and a
    truncated one segfaults the process on the first route (reproduced 2026-11-09). The hash check
    in item 8 is the only guard, so it must land before any deploy.
-7. **`data/paths.py`:** resolve the repo root lazily. `parents[5]` runs at import and raises
+7. **`services/api/src/hakuba_api/data/paths.py`:** resolve the repo root lazily. `parents[5]` runs at import and raises
    `IndexError` on a shallow deployment path, even when `HAKUBA_DATA_DIR` is set.
 8. **`scripts/deploy-vercel.sh [--prod]`** is the only way to deploy:
    - `git archive HEAD` into a temp folder, so only committed files are uploaded. `.ux-evidence`,
