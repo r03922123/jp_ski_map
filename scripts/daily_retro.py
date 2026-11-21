@@ -5,9 +5,11 @@
     python3 scripts/daily_retro.py mark-done   # record this run (after the report is written)
     python3 scripts/daily_retro.py stats       # acceptance rate per role (the loop's eval)
 
-A role whose paths changed since the last run reviews those commits ("retro"); a role with no
-changes researches one improvement in its area ("ideate"). Commits come from every local ref, so
-unpushed and worktree commits count. State lives in the gitignored .ops/ folder on the owner's Mac.
+An engineering role whose paths changed since the last run reviews those commits ("retro"); one
+with no changes researches one improvement in its area ("ideate"). The tech writer proposes one
+story a day, or drafts the article for a story the owner accepted ("draft"). Commits come from
+every local ref, so unpushed and worktree commits count. State lives in the gitignored .ops/
+folder on the owner's Mac.
 """
 
 from __future__ import annotations
@@ -25,49 +27,69 @@ STATE = OPS / "state.json"
 PROPOSALS = OPS / "proposals.json"
 MAX_COMMITS = 60  # per role; beyond this the role gets subjects only
 
-# role -> (regex over changed paths that makes a commit this role's, the specs it owns)
-ROLES: dict[str, tuple[str, list[str]]] = {
-    "applied-scientist": (
-        r"^(ml/|services/mcp/|services/api/src/hakuba_api/(ranking|crowd|places)/"
-        r"|SPEC-(agent-tools|ask-maps|resort-ranking|crowd-level|place-search)\.md)",
-        [
-            "SPEC-place-search.md",
-            "SPEC-resort-ranking.md",
-            "SPEC-crowd-level.md",
-            "SPEC-agent-tools.md",
-            "SPEC-ask-maps.md",
-        ],
-    ),
-    "platform": (
-        r"^(pipeline/|infra/|scripts/|\.github/|vercel\.json|api/|data/|services/api/"
-        r"(pyproject\.toml|uv\.lock|src/hakuba_api/(bus|routing|data|common|snow|catalog|pois)/)"
-        r"|SPEC-(deploy|pipeline|routing|bus-schedules|snow-conditions|resort-catalog|poi-destinations)\.md)",
-        [
-            "SPEC-deploy.md",
+# role -> regex over changed paths that makes a commit the role's, and the specs it owns.
+# Engineering roles get their own files per commit; the tech writer gets every commit's subject.
+ROLES: dict[str, dict] = {
+    "mle": {
+        "pattern": r"^(ml/(search|timetable_vlm)/|pipeline/|infra/|data/|\.github/|vercel\.json"
+        r"|api/|scripts/(?!daily)|services/api/src/hakuba_api/(ranking|crowd)/"
+        r"|SPEC-(pipeline|deploy|routing|bus-schedules|resort-ranking|crowd-level|place-search)\.md)",
+        "specs": [
             "SPEC-pipeline.md",
+            "SPEC-deploy.md",
             "SPEC-routing.md",
             "SPEC-bus-schedules.md",
+            "SPEC-resort-ranking.md",
+            "SPEC-crowd-level.md",
+            "SPEC-place-search.md",
+        ],
+    },
+    "ai-engineer": {
+        "pattern": r"^(services/mcp/|\.claude/|docs/harness\.md|scripts/daily|"
+        r"SPEC-(agent-tools|ask-maps)\.md|docs/adr/0007)",
+        "specs": [
+            "SPEC-agent-tools.md",
+            "SPEC-ask-maps.md",
+            "docs/harness.md",
+            "docs/adr/0007-automated-verification-and-capped-llm.md",
+        ],
+    },
+    "fullstack": {
+        "pattern": r"^(apps/web/src/(lib|app)/|apps/web/tests/"
+        r"|apps/web/(package\.json|next\.config\.ts|tsconfig\.json)|services/api/(src/hakuba_api/(?!ranking|crowd)|tests/|pyproject\.toml|uv\.lock)"
+        r"|SPEC-(snow-conditions|resort-catalog|poi-destinations)\.md)",
+        "specs": [
+            "SPEC-web-app.md",
+            "SPEC-saved-places.md",
+            "SPEC-pilot.md",
+            "SPEC-progression.md",
             "SPEC-snow-conditions.md",
             "SPEC-resort-catalog.md",
             "SPEC-poi-destinations.md",
         ],
-    ),
-    "fullstack": (
-        r"^(apps/web/src/(lib|app)/|apps/web/(package\.json|next\.config\.ts|tsconfig\.json)"
-        r"|apps/web/tests/|services/api/src/hakuba_api/main\.py|services/api/tests/)",
-        ["SPEC-web-app.md", "SPEC-saved-places.md", "SPEC-pilot.md", "SPEC-progression.md"],
-    ),
-    "ux": (
-        r"^(apps/web/src/components/|apps/web/e2e/|apps/web/src/app/globals\.css|docs/ux/"
-        r"|SPEC-(web-app|maps-ios-ux|game-theme|pilot|saved-places|progression)\.md)",
-        [
+    },
+    "ux": {
+        "pattern": r"^(apps/web/src/components/|apps/web/e2e/|apps/web/src/app/globals\.css"
+        r"|docs/ux/|SPEC-(web-app|maps-ios-ux|game-theme|pilot|saved-places|progression)\.md)",
+        "specs": [
             "SPEC-web-app.md",
             "SPEC-maps-ios-ux.md",
             "SPEC-game-theme.md",
             "docs/ux/google-maps-workflows.md",
         ],
-    ),
+    },
 }
+WRITER_SOURCES = (
+    r"^(docs/adr/|docs/learning-log\.md|docs/harness\.md|SPEC.*\.md|.*evals?/|ml/.*README)"
+)
+WRITER_BACKLOG = [
+    "docs/adr/",
+    "docs/learning-log.md",
+    "services/mcp/evals/last_run.md",
+    "ml/search/README.md",
+    "ml/timetable_vlm/README.md",
+    "docs/harness.md",
+]
 
 
 def _load(path: Path, default):
@@ -116,31 +138,49 @@ def _commits(since: datetime) -> list[dict]:
     return commits
 
 
+def _past(proposals: list[dict], role: str) -> list[dict]:
+    keys = ("id", "title", "status")
+    return [{k: p.get(k) for k in keys} for p in proposals if p.get("role") == role][-30:]
+
+
 def context() -> dict:
     since = _last_run()
     seen = set(_load(STATE, {}).get("seen", []))
     commits = [c for c in _commits(since) if c["full"] not in seen]
     proposals = _load(PROPOSALS, [])
     roles = {}
-    for role, (pattern, specs) in ROLES.items():
-        rx = re.compile(pattern)
+    for role, spec in ROLES.items():
+        rx = re.compile(spec["pattern"])
         mine = [{**c, "files": [f for f in c["files"] if rx.match(f)]} for c in commits]
         mine = [c for c in mine if c["files"]]
         roles[role] = {
             "mode": "retro" if mine else "ideate",
             "commits": mine[:MAX_COMMITS],
             "more_commits": [f"{c['hash']} {c['subject']}" for c in mine[MAX_COMMITS:]],
-            "specs": specs,
-            "past_proposals": [
-                {k: p.get(k) for k in ("id", "title", "status")}
-                for p in proposals
-                if p.get("role") == role
-            ][-30:],
+            "specs": spec["specs"],
+            "past_proposals": _past(proposals, role),
         }
+    src = re.compile(WRITER_SOURCES)
+    drafts = [
+        p
+        for p in proposals
+        if p.get("role") == "tech-writer" and p.get("status") == "accepted" and not p.get("draft")
+    ]
+    roles["tech-writer"] = {
+        "mode": "draft" if drafts else "idea",
+        "commits": [f"{c['hash']} {c['date'][:10]} {c['subject']}" for c in commits],
+        "story_sources_changed": sorted({f for c in commits for f in c["files"] if src.match(f)}),
+        "backlog_sources": WRITER_BACKLOG,
+        "draft_requests": [
+            {k: p.get(k) for k in ("id", "title", "angle", "evidence")} for p in drafts[:1]
+        ],
+        "past_proposals": _past(proposals, "tech-writer"),
+    }
+    patterns = [re.compile(r["pattern"]) for r in ROLES.values()]
     unassigned = [
         f"{c['hash']} {c['subject']}"
         for c in commits
-        if not any(re.match(p, f) for p, _ in ROLES.values() for f in c["files"])
+        if not any(p.match(f) for p in patterns for f in c["files"])
     ]
     return {
         "since": since.isoformat(),
@@ -163,7 +203,7 @@ def stats() -> None:
     proposals = _load(PROPOSALS, [])
     print("| Role | Proposed | Accepted | Rejected | Acceptance |")
     print("|---|---|---|---|---|")
-    for role in ROLES:
+    for role in [*ROLES, "tech-writer"]:
         mine = [p for p in proposals if p.get("role") == role]
         acc = sum(p.get("status") in ("accepted", "done") for p in mine)
         rej = sum(p.get("status") == "rejected" for p in mine)

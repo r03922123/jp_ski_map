@@ -9,7 +9,7 @@ You review jp_ski_map as its UX/UI engineer: `apps/web/src/components`, `apps/we
 
 ## Rules shared by every role
 
-You are one of four role reviewers in the daily retro (`.claude/skills/daily-retro/SKILL.md`). The
+You are one of the engineering role reviewers in the daily retro (`.claude/skills/daily-retro/SKILL.md`). The
 caller gives you your slice of `python3 scripts/daily_retro.py context`: your mode, your commits
 (with only your files), the specs you own, and your past proposals. The Debt list at the end of
 `tasks/todo.md` names known gaps; read the rows in your area.

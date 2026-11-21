@@ -22,8 +22,8 @@ Takeover phase: tidy (next when: the remaining architecture follow-ups are compl
   GitHub deletes merged branches, so check the PR is still open before pushing to it.
 - Procedures are skills; invoke them with the Skill tool: `deploy` (Vercel preview or production, smoke test,
   `vercel` commands), `new-worktree` (dependencies, free ports, `API_URL`, `E2E_BASE_URL`, shared services),
-  and `daily-retro` (06:00 via launchd, `scripts/daily-retro/install.sh`: four role reviewers and a PM step, on Opus,
-  write proposals to the gitignored `.ops/`). Production runs only on
+  and `daily-retro` (06:00 via launchd, `scripts/daily-retro/install.sh`: MLE, AI-engineer, full-stack and UX reviewers,
+  a tech writer and a PM step, on Opus, write proposals and article drafts to the gitignored `.ops/`). Production runs only on
   Vercel; `scripts/serve-public.sh --funnel` makes the Mac public, so ask the owner first.
 - MCP for Claude chat: production serves the tools at `/mcp/<HAKUBA_MCP_TOKEN>` (SPEC-agent-tools v2). The token lives
   only in Vercel's env and the owner's `~/.config/jp_ski_map/mcp-connector-url.txt`; never commit or print it, nor the
