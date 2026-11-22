@@ -37,7 +37,7 @@ MIN_SOUND_KEY = 3
 # A reading approximates a name (unknown kanji dropped), so it stays below the
 # exact (100) and name-prefix (90) tiers: 乗鞍荘 reads "norikura" but isn't named it.
 READING_MAX = 85
-# ...and never ties a name that spells the query as well: "bar" is Endless Bar, not the
+# ...and one point below a name that spells the query as well: "bar" is Endless Bar, not the
 # ホテル サニーバレー reading "sani bare" (SPEC-place-search v1.5).
 READING_PENALTY = 1
 # Area-only queries mean the well-known place: this clears the name-prefix tier, so

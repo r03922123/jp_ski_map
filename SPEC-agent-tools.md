@@ -106,7 +106,7 @@ Results are as scored at the time; labels changed between runs, so read the rows
 - [ ] Owner check: the connector works in the phone app.
 
 ## Production tool traces in Langfuse (v3, 2026-11-16)
-**Goal:** see how the deployed tools are used: calls per tool, latency (p50/p95), error rate, and which optional arguments the agents pass. That is the step after the eval: the eval says whether an agent *can* pick the right tools on 12 fixed questions, production traces say what friends' agents actually do. Done when a tool call from claude.ai shows in the Langfuse project as a `tool` observation with its duration.
+**Goal:** see how the deployed tools are used: calls per tool, latency (p50/p95), error rate, and which optional arguments the agents pass. That is the step after the eval: the eval says whether an agent *can* pick the right tools on a fixed question set, production traces say what friends' agents actually do. Done when a tool call from claude.ai shows in the Langfuse project as a `tool` observation with its duration.
 
 **Decisions.**
 - Langfuse Cloud, Japan region (`https://jp.cloud.langfuse.com`, AWS Tokyo, next to Vercel `hnd1`), Hobby plan: $0, 50k units a month, 30 days of data, no card (langfuse.com/pricing, checked 2026-11-16). Dropped: self-hosting (Postgres, ClickHouse, Redis and blob storage for a handful of friends), and OpenTelemetry to a generic backend (no LLM-aware views).
