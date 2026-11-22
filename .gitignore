@@ -45,3 +45,8 @@ mlflow.db
 
 # Playwright MCP screenshots and snapshots (.mcp.json)
 .playwright-mcp/
+
+# Machine-local agent config: absolute home and scratchpad paths, and generated Codex copies of .claude/
+.claude/launch.json
+.codex/
+.agents/
