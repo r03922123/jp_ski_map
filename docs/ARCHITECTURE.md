@@ -138,7 +138,8 @@ flowchart TB
 
 **Production since 2026-11-10 is Vercel, not the Mac** ([ADR-0006](adr/0006-vercel-phase-b.md),
 SPEC-deploy Phase B). The diagram above is the Mac standby, stopped since 2026-11-13 (`scripts/serve-public.sh --funnel` restarts it, after the owner's OK). On Vercel, one project in `hnd1`
-runs two services from `vercel.json`: `web` (Next.js) and `api` (FastAPI as one Python Function).
+runs three services from `vercel.json`: `web` (Next.js), `api` (FastAPI as one Python Function) and `mcp`
+(the agent tools and `/ask`, SPEC-agent-tools v2).
 Vercel's rewrite, not `next.config.ts`, sends `/api/*` to the API. Valhalla isn't a network
 service there: `ValhallaClient` sees `VALHALLA_TILES` and runs `pyvalhalla` in process behind one
 lock (`routing/engine.py`). Deploys go only through `scripts/deploy-vercel.sh`, which uploads the
