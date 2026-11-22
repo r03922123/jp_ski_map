@@ -170,6 +170,52 @@ for (const device of DEVICES) {
   });
 }
 
+// a landscape phone left ~80 px of map between the panels: with a route, the collapsed
+// sheet is only its ETA + Start row (T77 keeps both in view), and expands as before
+for (const device of DEVICES.filter((d) => d.width > d.height && d.touch)) {
+  test.describe(`slim bar · ${device.name}`, () => {
+    test.use({
+      viewport: { width: device.width, height: device.height },
+      isMobile: true,
+      hasTouch: true,
+    });
+
+    test("a route leaves the map room above a slim ETA + Start bar", async ({
+      page,
+    }) => {
+      const out = await open(page, NORTH);
+      const sheet = page.locator("[data-sheet]");
+      const start = page.getByRole("button", {
+        name: /Start navigation|Preview route/,
+      });
+      await expect(start).toBeInViewport({ ratio: 1 });
+      await expect(page.getByText(/^ETA ~/)).toBeInViewport({ ratio: 1 });
+      await expect
+        .poll(async () => (await sheet.boundingBox())?.height ?? 0)
+        .toBeLessThanOrEqual(84); // route-geo SLIM_BAR_PX
+      const header = await page.locator("[data-trip-header]").boundingBox();
+      const box = await sheet.boundingBox();
+      if (!header || !box) throw new Error("missing panel");
+      expect(box.y - (header.y + header.height)).toBeGreaterThanOrEqual(120);
+      await expectClear(page, out.primary.geometry.coordinates);
+
+      await page.getByRole("button", { name: "Expand directions" }).click();
+      await expect
+        .poll(async () => (await sheet.boundingBox())?.height ?? 0)
+        .toBeGreaterThan(150);
+      await expect(page.getByRole("list", { name: "Steps" })).toBeVisible();
+
+      // collapsed again after scrolling down the steps: the bar shows ETA and Start
+      await page
+        .locator("[data-sheet-body]")
+        .evaluate((body) => body.scrollTo(0, body.scrollHeight));
+      await page.getByRole("button", { name: "Collapse directions" }).click();
+      await expect(start).toBeInViewport({ ratio: 1 });
+      await expect(page.getByText(/^ETA ~/)).toBeInViewport({ ratio: 1 });
+    });
+  });
+}
+
 test.describe("resizing", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -182,6 +228,38 @@ test.describe("resizing", () => {
     await page.setViewportSize({ width: 500, height: 800 });
 
     await expectClear(page, out.primary.geometry.coordinates);
+  });
+
+  // the slim bar's flag flips with Saved; only a short phone's fit may follow it
+  test("opening and closing Saved leaves a panned map where it is", async ({
+    page,
+  }) => {
+    const out = await open(page, NORTH);
+    await expectClear(page, out.primary.geometry.coordinates);
+    const centre = () =>
+      page.evaluate(() => {
+        const map = (
+          window as unknown as {
+            __hakubaMap: { getCenter(): { lat: number; lng: number } };
+          }
+        ).__hakubaMap;
+        const c = map.getCenter();
+        return `${c.lat.toFixed(5)},${c.lng.toFixed(5)}`;
+      });
+    await page.mouse.move(900, 400);
+    await page.mouse.down();
+    await page.mouse.move(1000, 300, { steps: 5 });
+    await page.mouse.up();
+    await page.waitForTimeout(500);
+    const panned = await centre();
+
+    const saved = page.getByRole("button", { name: "Saved places" });
+    await saved.click();
+    await page.waitForTimeout(1_000);
+    expect(await centre()).toBe(panned);
+    await saved.click();
+    await page.waitForTimeout(1_000);
+    expect(await centre()).toBe(panned);
   });
 
   test("a shorter window keeps everything clear", async ({ page }) => {
@@ -295,24 +373,76 @@ test.describe("turning a phone", () => {
     await expectClear(page, [], { start: false, end: true });
   });
 
-  test("with a finger on the map, the fit catches up when it lifts", async ({
-    page,
-  }) => {
-    const out = await open(page, NORTH);
-    await expectClear(page, out.primary.geometry.coordinates);
-    const cdp = await page.context().newCDPSession(page);
+  // only the touch the map turned under stops being a tap: not a later one that starts
+  // on the sheet, after a plain tap (its mousedown left the map "pressed") or a cancel
+  for (const [label, before] of [
+    ["after a tap on the map", "tap"],
+    ["after a touch the turn cancelled", "cancel"],
+  ] as const) {
+    test(`a sheet tap still works ${label}`, async ({ page }) => {
+      await open(page, NORTH);
+      await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+        timeout: 30_000,
+      });
+      const cdp = await page.context().newCDPSession(page);
+      const at = { x: 30, y: 200, id: 1 };
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [at],
+      });
+      if (before === "tap") {
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchEnd",
+          touchPoints: [],
+        });
+        await page.waitForTimeout(800);
+        await page.setViewportSize({ width: 667, height: 375 });
+      } else {
+        await page.setViewportSize({ width: 667, height: 375 });
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchCancel",
+          touchPoints: [],
+        });
+      }
+      await page.waitForTimeout(500);
 
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchStart",
-      touchPoints: [{ x: 30, y: 300, id: 1 }],
+      await page.getByRole("button", { name: "Expand directions" }).tap();
+      await expect(page.locator("[data-sheet]")).toHaveAttribute(
+        "data-state",
+        "expanded",
+      );
     });
-    await page.setViewportSize({ width: 667, height: 375 });
-    await page.waitForTimeout(500);
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchEnd",
-      touchPoints: [],
-    });
+  }
 
-    await expectClear(page, out.primary.geometry.coordinates);
-  });
+  // turned, y 350 is on the sheet's ETA text and y 200 still on the map. Lifted on the
+  // map, the tap's mousedown used to stop the fit (MapLibre takes it as a grab)
+  for (const [where, y] of [
+    ["on the sheet", 350],
+    ["on the map", 200],
+  ] as const) {
+    test(`with a finger on the map, the fit catches up when it lifts ${where}`, async ({
+      page,
+    }) => {
+      const out = await open(page, NORTH);
+      await expectClear(page, out.primary.geometry.coordinates);
+      const cdp = await page.context().newCDPSession(page);
+
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [{ x: 30, y, id: 1 }],
+      });
+      await page.setViewportSize({ width: 667, height: 375 });
+      await page.waitForTimeout(500);
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: [],
+      });
+
+      await expectClear(page, out.primary.geometry.coordinates);
+      // the map turned under the finger: its lift is no tap and no long-press
+      await expect(
+        page.getByRole("group", { name: "Dropped pin" }),
+      ).toHaveCount(0);
+    });
+  }
 });

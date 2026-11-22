@@ -145,18 +145,34 @@ def test_photon_failure_still_returns_local_hits(api: TestClient, mock: respx.Mo
     assert response.json()[0]["source"] == "index"
 
 
+def test_a_photon_failure_is_logged_without_the_search_text(
+    api: TestClient, mock: respx.MockRouter, caplog: pytest.LogCaptureFixture
+) -> None:
+    mock.get(PHOTON_URL).respond(503)
+
+    with caplog.at_level("WARNING"):
+        response = api.get("/api/places/suggest", params={"q": "secret-hotel-name"})
+
+    assert response.status_code == 200
+    # httpx's own message quotes the URL, and the URL holds what the user typed
+    assert "photon fallback failed: photon: HTTPStatusError 503" in caplog.text
+    assert "secret" not in caplog.text
+
+
 @pytest.mark.parametrize("answer", [{"json": {"oops": 1}}, {"text": "<html>"}])
 def test_malformed_photon_answer_still_returns_local_hits(
     api: TestClient, mock: respx.MockRouter, answer: dict[str, Any]
 ) -> None:
-    # "Pheonix" has one local hit, so Photon is asked
+    # "Pheonix" has fewer than three local hits (Grand Phenix, and Hotel Phoenix Wing by its
+    # reading), so Photon is asked
     call = mock.get(PHOTON_URL).respond(**answer)
 
     response = api.get("/api/places/suggest", params={"q": "Pheonix", "near": "36.70,137.845"})
 
     assert call.call_count == 1
     assert response.status_code == 200
-    assert [b["source"] for b in response.json()] == ["index"]
+    sources = [b["source"] for b in response.json()]
+    assert sources and set(sources) == {"index"}
 
 
 def test_short_queries_never_call_photon(api: TestClient, mock: respx.MockRouter) -> None:

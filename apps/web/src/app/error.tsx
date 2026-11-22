@@ -23,7 +23,7 @@ export default function ErrorPage({
       )}
       <button
         type="button"
-        className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white"
+        className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
         onClick={reset}
       >
         Try again

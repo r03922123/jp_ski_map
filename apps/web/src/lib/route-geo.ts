@@ -79,16 +79,21 @@ const PANEL_WIDTH_PX = 384; // BottomSheet md:w-96
 const PANEL_INSET_PX = 12; // md:left-3
 const SHEET_FRACTION = 0.4; // collapsed bottom sheet, h-[40dvh]
 export const MD_BREAKPOINT_PX = 768;
-// v1.13: the From/To card on top of the map on phones, plus a margin: 172 px to its
-// bottom edge with the Add destination row, its 4 px frame and 8 px. BottomSheet's
-// expanded height reserves the same 184 in a Tailwind class: change them together
-const TRIP_CARD_PX = 184;
-// the start and destination markers stand above their point (anchor "bottom")
-const MARKER_PX = 40;
-// a landscape phone: 120 px of card + its 4 px frame + 4 px + a 36 px marker, and the
+// v1.13, v1.18, v1.27: the From/To card on top of the map on phones, plus a margin: 106 px
+// to its bottom edge (two 44 px rows, a 2 px gap, 4 px padding, 8 px from the top), its
+// 4 px frame and 8 px. BottomSheet's expanded height reserves the same 118 (+48) in a
+// Tailwind class: change them together
+const TRIP_CARD_PX = 118;
+// the start marker (Hero at 2x, 48 px) stands above its point (anchor "bottom");
+// HeroMarker.test checks the sprite is this tall
+export const MARKER_PX = 48;
+// a landscape phone: 120 px of card (106 since v1.27: kept as an overestimate) + its 4 px frame + 4 px + a marker, and the
 // bottom margin shrinks, so the markers still fit between the panels
 const SHORT_SCREEN_PX = 480;
-const SHORT_SCREEN_TOP_PX = 164;
+const SHORT_SCREEN_TOP_PX = 120 + 4 + 4 + MARKER_PX;
+// a landscape phone with a route: the collapsed sheet is only its ETA + Start row
+// (BottomSheet's slim height: the 22 px handle and the 61 px row; change them together)
+export const SLIM_BAR_PX = 84;
 // a fit with no map left between its paddings does nothing at all
 const MIN_CLEAR_PX = 16;
 
@@ -101,21 +106,37 @@ const PIN_CARD_HALF_WIDTH_PX = 140; // its Popup's maxWidth is 280
  * reach under the trip card on top and below it stays clear of the sheet (v1.9 rule 7),
  * beside an edge keeping it on screen. Otherwise undefined: MapLibre picks the side.
  */
+/**
+ * The status bar's and home indicator's heights in px (v1.19): the page runs under them,
+ * so the trip card sits `top` lower and the sheet `bottom` higher. 0 outside the
+ * home-screen app.
+ */
+export type SafeInsets = {
+  top: number;
+  bottom: number;
+  /** a notched iPhone in landscape (≥ 812 px wide, so the side-card layout) */
+  left?: number;
+  right?: number;
+};
+const NO_INSETS: SafeInsets = { top: 0, bottom: 0 };
+
 export function pinCardAnchor({
   x,
   y,
   width,
   height,
+  safe = NO_INSETS,
 }: {
   x: number;
   y: number;
   width: number;
   height: number;
+  safe?: SafeInsets;
 }): "top" | "top-left" | "top-right" | undefined {
   if (width >= MD_BREAKPOINT_PX) return undefined;
   const opensBelow =
-    y - PIN_CARD_PX < TRIP_CARD_PX &&
-    y + PIN_CARD_PX <= height * (1 - SHEET_FRACTION);
+    y - PIN_CARD_PX < TRIP_CARD_PX + safe.top &&
+    y + PIN_CARD_PX <= height * (1 - SHEET_FRACTION) - safe.bottom;
   if (!opensBelow) return undefined;
   if (x < PIN_CARD_HALF_WIDTH_PX) return "top-left";
   if (x > width - PIN_CARD_HALF_WIDTH_PX) return "top-right";
@@ -129,15 +150,20 @@ export function pinCardAnchor({
 export function pinEaseOffsetY({
   width,
   height,
+  safe = NO_INSETS,
 }: {
   width: number;
   height: number;
+  safe?: SafeInsets;
 }) {
-  const pinY = TRIP_CARD_PX + PIN_CARD_PX;
+  const pinY = TRIP_CARD_PX + safe.top + PIN_CARD_PX;
   // no room for the pin above the sheet on a short screen: leave it in the middle
-  if (width >= MD_BREAKPOINT_PX || pinY > height * (1 - SHEET_FRACTION))
+  if (
+    width >= MD_BREAKPOINT_PX ||
+    pinY > height * (1 - SHEET_FRACTION) - safe.bottom
+  )
     return 0;
-  const { top, bottom } = mapPadding({ width, height });
+  const { top, bottom } = mapPadding({ width, height, safe });
   const centre = top + (height - top - bottom) / 2;
   return Math.max(0, pinY - centre);
 }
@@ -146,21 +172,30 @@ export function pinEaseOffsetY({
 export function mapPadding({
   width,
   height,
+  slimSheet = false,
+  safe = NO_INSETS,
 }: {
   width: number;
   height: number;
+  /** the sheet is a slim ETA + Start bar on a short screen (BottomSheet `slim`) */
+  slimSheet?: boolean;
+  safe?: SafeInsets;
 }) {
   if (width >= MD_BREAKPOINT_PX) {
     return {
-      top: 60,
-      right: 60,
-      bottom: 60,
-      left: PANEL_WIDTH_PX + PANEL_INSET_PX + 48,
+      top: 60 + safe.top,
+      right: 60 + (safe.right ?? 0),
+      bottom: 60 + safe.bottom,
+      left: PANEL_WIDTH_PX + PANEL_INSET_PX + 48 + (safe.left ?? 0),
     };
   }
   const short = height < SHORT_SCREEN_PX;
-  const bottom = Math.round(height * SHEET_FRACTION) + (short ? 12 : 32);
-  const top = short ? SHORT_SCREEN_TOP_PX : TRIP_CARD_PX + MARKER_PX;
+  const bottom =
+    (short && slimSheet
+      ? SLIM_BAR_PX + 12
+      : Math.round(height * SHEET_FRACTION) + (short ? 12 : 32)) + safe.bottom;
+  const top =
+    (short ? SHORT_SCREEN_TOP_PX : TRIP_CARD_PX + MARKER_PX) + safe.top;
   return {
     top: Math.min(top, Math.max(0, height - bottom - MIN_CLEAR_PX)),
     right: 32,

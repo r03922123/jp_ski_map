@@ -20,7 +20,7 @@ from sentence_transformers.losses import MultipleNegativesRankingLoss
 from sentence_transformers.training_args import BatchSamplers
 
 from hakuba_search.embed import BASE_MODEL, PASSAGE, QUERY, device, entry_text
-from hakuba_search.synth import Pair, make_pairs
+from hakuba_search.synth import Pair, make_pairs, rebalance
 
 ROOT = Path(__file__).parents[2]
 
@@ -49,11 +49,18 @@ def main() -> None:
     parser.add_argument("--batch", type=int, default=32)
     parser.add_argument("--lr", type=float, default=2e-5)
     parser.add_argument("--out", default=str(ROOT / "models" / "e5-hakuba"))
+    # 1.0 = no rebalancing (v1.4); the dev split is never rebalanced, so calibration compares
+    parser.add_argument("--max-kind-share", type=float, default=0.5)
     args = parser.parse_args()
+    # shortcut: rebalance caps one kind per pass, exact only at >= 0.5; loop it to go lower
+    if not 0.5 <= args.max_kind_share <= 1:
+        parser.error("--max-kind-share must be between 0.5 and 1")
 
     entries = load_index()
     texts = {e.id: entry_text(e) for e in entries}
     pairs = make_pairs(entries)
+    kind_of = {e.id: e.kind for e in entries}
+    pairs["train"] = rebalance(pairs["train"], kind_of, args.max_kind_share)
     print(f"pairs: train {len(pairs['train'])}, dev {len(pairs['dev'])}")
 
     model = SentenceTransformer(BASE_MODEL, device=device())

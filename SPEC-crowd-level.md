@@ -11,7 +11,8 @@ Estimate how crowded each resort will be on a given date. v1 is an **explainable
 // Happo-One on Sat 2026-02-14, with a snow report from that day showing 25 cm new
 { "resortId": "happo-one", "date": "2026-02-14", "level": "very_high", // low|medium|high|very_high
   "score": 0.95, "source": "heuristic", "isEstimate": true,
-  "reasons": ["Saturday", "Lunar New Year week", "Powder day (25 cm new)", "Large, popular resort"] }
+  "reasons": ["Saturday", "Lunar New Year week", "Powder day (25 cm new)", "Large, popular resort"],
+  "contributions": [{ "label": "Saturday", "weight": 0.3 }, …] } // same labels as reasons, each with its weight
 ```
 - The web app doesn't call `/api/crowd`. It reads each resort's crowd from `GET /api/rank` (the `crowd` field of each ranked resort), which builds it with the same `HeuristicCrowdSource` (`ranking/router.py` `get_crowd_for`). `/api/crowd` stays as this module's own, tested interface ([ADR-0001](docs/adr/0001-follow-ups-1-2-3-5.md)).
 - Python protocol: `class CrowdSource(Protocol): def estimate(self, resort, date, snow) -> CrowdEstimate`. v1 implements `HeuristicCrowdSource`.
@@ -30,6 +31,7 @@ Levels: < 0.3 low, < 0.55 medium, < 0.8 high, otherwise very_high.
 - [ ] Deterministic: the same inputs always give the same score. Every contributing factor appears in `reasons`.
 - [ ] Unit tests: a weekday in mid-Jan with no new snow at Jigatake → low; Saturday during Lunar New Year with a 30 cm powder day at Happo-One → very_high.
 - [ ] The UI always shows "estimated" and the reasons.
+- [ ] v1.1: `contributions` lists the weight of every term (see SPEC-resort-ranking v1.1).
 
 ## Boundaries
 - Never: scrape Google Popular Times or any source whose terms forbid it.

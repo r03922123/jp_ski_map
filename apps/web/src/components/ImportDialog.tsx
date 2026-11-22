@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef } from "react";
 import { useBackToClose } from "@/lib/back-close";
 import { savedStore } from "@/lib/saved-places";
-import { decodeImport, importList } from "@/lib/saved-share";
+import { decodeImport, importList, importSummary } from "@/lib/saved-share";
 
 const PREVIEW = 8;
 
@@ -13,14 +13,14 @@ export function ImportDialog({
   onDone,
 }: {
   code: string;
-  /** Called with whether the places were added. */
-  onDone: (imported: boolean) => void;
+  /** Called with what was added (T5: shown in Saved), or null when nothing was */
+  onDone: (added: string | null) => void;
 }) {
   const result = useMemo(() => decodeImport(code), [code]);
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => ref.current?.focus(), []);
-  useBackToClose(true, () => onDone(false));
+  useBackToClose(true, () => onDone(null));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 md:items-center">
@@ -30,9 +30,9 @@ export function ImportDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="flex max-h-[80dvh] w-full max-w-sm flex-col gap-3 overflow-y-auto rounded-t-2xl bg-background p-4 shadow-xl outline-none md:rounded-2xl"
+        className="flex max-h-[80dvh] w-full max-w-sm flex-col gap-3 overflow-y-auto rounded-t-2xl bg-background p-4 pb-[calc(1rem+var(--safe-bottom))] shadow-xl outline-none md:rounded-2xl md:pb-4"
         onKeyDown={(e) => {
-          if (e.key === "Escape") onDone(false);
+          if (e.key === "Escape") onDone(null);
         }}
       >
         {result.ok ? (
@@ -62,16 +62,23 @@ export function ImportDialog({
               <button
                 type="button"
                 className="rounded-full border px-4 py-1.5 text-sm"
-                onClick={() => onDone(false)}
+                onClick={() => onDone(null)}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white"
+                className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
                 onClick={() => {
+                  const before = savedStore.getSnapshot();
                   savedStore.update((s) => importList(s, result.list));
-                  onDone(true);
+                  onDone(
+                    importSummary(
+                      before,
+                      savedStore.getSnapshot(),
+                      result.list,
+                    ),
+                  );
                 }}
               >
                 Add to Saved
@@ -89,7 +96,7 @@ export function ImportDialog({
             <button
               type="button"
               className="self-end rounded-full border px-4 py-1.5 text-sm"
-              onClick={() => onDone(false)}
+              onClick={() => onDone(null)}
             >
               Close
             </button>

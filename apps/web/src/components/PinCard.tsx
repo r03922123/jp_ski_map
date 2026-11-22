@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
-const ACTION =
-  "border-2 border-[var(--ink)] bg-primary px-3 py-1 text-primary-foreground shadow-[2px_2px_0_var(--ink)]";
+// T2: one prominent action (Go here, Google's Directions; Start here in Bus), the rest outlined
+const PRIMARY =
+  "rounded-full bg-primary px-4 py-1 font-medium text-primary-foreground shadow-sm";
+const SECONDARY =
+  "rounded-full border bg-card px-4 py-1 font-medium text-primary hover:bg-muted";
 
 /**
  * The card on a dropped pin (docs/ux/behaviour-cards.md BC-A1). In Google Maps a long-press
@@ -17,24 +20,28 @@ export function PinCard({
   onGo,
   onAddStop,
   onClose,
+  save,
 }: {
   name: string | null;
   onStart: () => void;
   onGo?: () => void;
   onAddStop?: () => void;
   onClose: () => void;
+  /** the place's Save (☆) button, beside the actions */
+  save?: ReactNode;
 }) {
   const title = name ?? "Dropped pin";
   useEffect(() => {
     // Escape dismisses it, like the app's other pop-ups
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      // an Escape a dialog above it already handled (its Save list picker) is not ours
+      if (e.key === "Escape" && !e.defaultPrevented) onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <fieldset className="pixel-frame relative flex flex-col gap-2 px-3 py-2 pr-9 text-sm">
+    <fieldset className="surface relative rounded-[12px] flex flex-col gap-2 px-3 py-2 pr-9 text-sm">
       {/* float: a legend otherwise sits on the frame's border line. The legend names the
           card, so ✕ stays outside it */}
       <legend className="float-left font-medium">{title}</legend>
@@ -47,19 +54,35 @@ export function PinCard({
         ✕
       </button>
       <div className="clear-left flex flex-wrap gap-2">
-        <button type="button" onClick={onStart} className={ACTION}>
-          Start here
-        </button>
         {onGo && (
-          <button type="button" onClick={onGo} className={ACTION}>
+          <button
+            type="button"
+            onClick={onGo}
+            data-variant="primary"
+            className={PRIMARY}
+          >
             Go here
           </button>
         )}
+        <button
+          type="button"
+          onClick={onStart}
+          data-variant={onGo ? "secondary" : "primary"}
+          className={onGo ? SECONDARY : PRIMARY}
+        >
+          Start here
+        </button>
         {onAddStop && (
-          <button type="button" onClick={onAddStop} className={ACTION}>
+          <button
+            type="button"
+            onClick={onAddStop}
+            data-variant="secondary"
+            className={SECONDARY}
+          >
             Add stop
           </button>
         )}
+        {save}
       </div>
     </fieldset>
   );

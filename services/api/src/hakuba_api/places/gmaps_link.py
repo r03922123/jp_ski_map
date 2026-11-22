@@ -11,6 +11,7 @@ import httpx
 
 from hakuba_api.common.geo import Coord
 from hakuba_api.common.ratelimit import spend_upstream
+from hakuba_api.common.timing import timed
 from hakuba_api.common.upstream import USER_AGENT
 from hakuba_api.places.models import Place
 
@@ -75,12 +76,13 @@ def resolve_short_link(url: str, timeout_s: float = 5) -> str | None:
         return None
     spend_upstream("gmaps-link")
     try:
-        response = httpx.head(
-            url.strip(),
-            follow_redirects=False,
-            timeout=timeout_s,
-            headers={"User-Agent": USER_AGENT},
-        )
+        with timed("gmaps-link"):  # only the request: a refused or rejected link made none
+            response = httpx.head(
+                url.strip(),
+                follow_redirects=False,
+                timeout=timeout_s,
+                headers={"User-Agent": USER_AGENT},
+            )
     except httpx.HTTPError:
         return None
     if response.is_redirect:

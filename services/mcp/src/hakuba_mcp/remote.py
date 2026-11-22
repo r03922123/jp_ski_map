@@ -7,10 +7,12 @@ path is what keeps the server to the people who were sent the link.
 import hmac
 import os
 
+import anyio
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from starlette.responses import PlainTextResponse
 from starlette.types import Receive, Scope, Send
 
+from hakuba_mcp import ask, tracing
 from hakuba_mcp.server import mcp
 
 PREFIX = "/mcp/"
@@ -32,6 +34,9 @@ async def app(scope: Scope, receive: Receive, send: Send) -> None:
         return
     if scope["type"] != "http":
         return  # no websockets on Vercel
+    if scope["path"].rstrip("/") == "/ask":
+        await ask.app(scope, receive, send)
+        return
     if not _allowed(scope["path"]):
         await PlainTextResponse("Not Found", status_code=404)(scope, receive, send)
         return
@@ -51,3 +56,4 @@ async def app(scope: Scope, receive: Receive, send: Send) -> None:
     )
     async with manager.run():
         await manager.handle_request(scope, receive, send)
+    await anyio.to_thread.run_sync(tracing.flush)

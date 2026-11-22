@@ -86,4 +86,17 @@ describe("SaveButton", () => {
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  // review of #115: a pin card is a MapLibre popup, whose transform would trap a fixed
+  // dialog inside it, squeezed to the card and clipped by the map
+  it("opens the list picker at the page level, outside its container", () => {
+    render(
+      <div data-testid="popup">
+        <SaveButton place={hotel} />
+      </div>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Save Hotel Hakuba" }));
+    const dialog = screen.getByRole("dialog");
+    expect(screen.getByTestId("popup").contains(dialog)).toBe(false);
+  });
 });

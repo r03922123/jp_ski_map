@@ -1,0 +1,186 @@
+{
+ "aliases": [
+  {
+   "id": "overture:b0c9aede-1e85-423a-b3b4-07fa674b3b18",
+   "alias": "Hakuba Hospitality Inn Yukinoso",
+   "source": "https://livejapan.com/en/in-tokyo/in-pref-nagano/in-nagano-suburbs/spot-lj0140258",
+   "status": "unreviewed",
+   "note": "雪の荘, 北城八方5221; LIVE JAPAN lists it as 'Hakuba Hospitality Inn雪の荘'"
+  },
+  {
+   "id": "osm:node/14286786734",
+   "alias": "Hakuba Brownie Cottages",
+   "source": "https://www.jp-nagano.com/en/property/brownie-cottages-condominiums.html",
+   "status": "unreviewed",
+   "note": "コテージ＆コンドミニアム白馬ブラウニー; page links 白馬ブラウニーコテージ, Hokujo Misorano 2937-730 (jalan says 2937-52); medium"
+  },
+  {
+   "id": "overture:0e2bbc78-2992-4520-a47e-37cd489e7a0e",
+   "alias": "TSUGAIKE HUTTE",
+   "source": "https://hakubakan.com/en/lodge/tsugaikehutte/",
+   "status": "unreviewed",
+   "note": "栂池ヒュッテ; header TSUGAIKE HUTTE (栂池ヒュッテ) by Tsugaike Nature Park trailhead; no street address; medium"
+  },
+  {
+   "id": "overture:1617a9e5-479d-4f9c-9ff7-6dff35334403",
+   "alias": "Pension Sato",
+   "source": "https://www.japan47go.travel/en/detail/a39b845c-6756-493c-9b5a-90078f8c691a",
+   "status": "unreviewed",
+   "note": "ペンションサトウ; page: 6657 Toyosato, Nozawaonsen-mura = our address, but our pin is in Hakuba ~50 km away: check the pin; medium"
+  },
+  {
+   "id": "overture:378924d4-2a91-4b22-975e-6a6d4d5b5bc3",
+   "alias": "Hosono-kan",
+   "source": "https://www.japan47go.travel/en/detail/be3dc5f7-9638-4b02-8f79-5ffd6596fa4a",
+   "status": "unreviewed",
+   "note": "細野館; page: 5280 Hokujo, Hakuba-mura = our address; no Japanese name printed; medium"
+  },
+  {
+   "id": "overture:41d837a6-4d16-4e10-87fe-82d08dd720cf",
+   "alias": "Hakuba no Oyado Ichinokuraso",
+   "source": "https://www.tripbtoz.com/en-US/hotels/30358834",
+   "status": "unreviewed",
+   "note": "一の倉荘; page: 23930 Hokujo, Hakuba-Mura = our lot; high on address"
+  },
+  {
+   "id": "overture:41d837a6-4d16-4e10-87fe-82d08dd720cf",
+   "alias": "Ichinokurasou",
+   "source": "https://www.priceline.com/hotel-deals/en-us/P5000498050/H33809203/ichinokurasou.ssp",
+   "status": "unreviewed",
+   "note": "一の倉荘; page: Hokujo 23930, Hakuba; second spelling; medium"
+  },
+  {
+   "id": "overture:5718301b-6742-4e72-b87c-055d6fbe040d",
+   "alias": "Hotel Keyaki no Ki",
+   "source": "https://www.expedia.co.jp/en/Nagano-Hotels-Hotel-Keyaki-No-Ki.h3877055.Hotel-Information",
+   "status": "unreviewed",
+   "note": "けやきの樹; page: 4721 Hokujo Hakuba-mura, position matches; may now trade as Tabist More Resort Keyaki no Ki (snippet only); high"
+  },
+  {
+   "id": "overture:5f39ba9b-41fb-460e-9d9b-813e683df3d4",
+   "alias": "Pension Obergurgl",
+   "source": "https://www.rurubu.travel/hotel/japan/hakuba/pension-obergurgl",
+   "status": "unreviewed",
+   "note": "ペンション オーバーグルグル; page prints both names and 白馬村神城22203-67 = our address; high"
+  },
+  {
+   "id": "overture:6b1b8f50-bc19-434f-b316-f015c7e00b27",
+   "alias": "Hutte Nipopo",
+   "source": "https://www.airbnb.com/rooms/1040118156229853248",
+   "status": "unreviewed",
+   "note": "ヒュッテニポポ; listing in Wadano, map ~110 m from ours (blurred); no Japanese name printed; medium"
+  },
+  {
+   "id": "overture:7351c2c6-4152-4ad3-8083-8ee9ed70df43",
+   "alias": "Hakuba Tsugaike Ski Slope Side Espoir Misawa",
+   "source": "https://www.expedia.co.jp/en/Otari-Hotels-Hakuba-Tsugaike-Ski-Slope-Side-Espoir-Misawa.h15432239.Hotel-Information",
+   "status": "unreviewed",
+   "note": "栂池高原 エスポワール みさわ; address Tsugaike Kogen, position ~170 m from ours; medium"
+  },
+  {
+   "id": "overture:8be8828d-719c-44cc-87a8-fb174a2fd360",
+   "alias": "Hakuba Petite Hotel Zion",
+   "source": "https://travel.rakuten.com/usa/en-us/hotel_info_item/cnt_japan/sub_nagano_prefecture/cty_hakuba_village/10123456925263",
+   "status": "unreviewed",
+   "note": "白馬プチホテル シオン; page map 36.69078,137.83397 = ours; no Japanese name or street; medium"
+  },
+  {
+   "id": "overture:91498ef7-af86-4352-a6a0-7aeb4efb504b",
+   "alias": "Lodge Shosen",
+   "source": "https://www.booking.com/hotel/jp/lodge-shousen.en-gb.html",
+   "status": "unreviewed",
+   "note": "栂池高原 ロッヂ招仙; page: Otari, Chikuniotsu 489 = our address; high"
+  },
+  {
+   "id": "overture:91498ef7-af86-4352-a6a0-7aeb4efb504b",
+   "alias": "Tsugaike Kogen Lodge Shosen",
+   "source": "https://www.japanican.com/en/hotel/japan/hakuba/lodge-shosen",
+   "status": "unreviewed",
+   "note": "栂池高原 ロッヂ招仙; page: 489 Chikuniotsu, Otari-mura; high"
+  },
+  {
+   "id": "overture:98b3bc05-b221-4d0f-8486-799c07cdec50",
+   "alias": "Gensen no Yado Maruishi Ryokan",
+   "source": "https://www.expedia.co.jp/en/Nagano-Hotels-Gensen-No-Yado-Maruishi-Ryokan.h20349511.Hotel-Information",
+   "status": "unreviewed",
+   "note": "源泉の宿まるいし; page: 5061 Happo, position ~50 m from ours; high"
+  },
+  {
+   "id": "overture:98b3bc05-b221-4d0f-8486-799c07cdec50",
+   "alias": "Hakuba Happo Onsen Maruishi",
+   "source": "https://thejapanalps.com/en/hotel/happo/",
+   "status": "unreviewed",
+   "note": "源泉の宿まるいし; page: 5061 Hakuba, Hakuba-mura; high"
+  },
+  {
+   "id": "overture:9ce7ab28-91c2-4394-bca8-31d455235a35",
+   "alias": "Pension Roku",
+   "source": "https://www.expedia.co.jp/en/Hakuba-Hotels-Pension-Roku.h20348379.Hotel-Information",
+   "status": "unreviewed",
+   "note": "ペンション 麓; position matches ours; 麓 usually reads fumoto, so check it is the same place; medium"
+  },
+  {
+   "id": "overture:ab90d083-fea1-4ddf-a417-26580f08756c",
+   "alias": "Pension Tabibito",
+   "source": "https://ostrovok.ru/hotel/japan/hakuba/mid8378499/pension_tabibito",
+   "status": "unreviewed",
+   "note": "ペンション 旅人; page: Hokujo 9464-32, Hakuba = our lot; high"
+  },
+  {
+   "id": "overture:b18fe7e0-29c4-48a7-94fc-eb81e8d72c36",
+   "alias": "Hakuba no sato Schoendorf Youth Hostel",
+   "source": "https://jyh.jp/m/e/info.php?jyhno=3629",
+   "status": "unreviewed",
+   "note": "白馬の里シェーンドルフユースホステル; Hostelling International Japan, 小谷村栂池高原; high"
+  },
+  {
+   "id": "overture:b18fe7e0-29c4-48a7-94fc-eb81e8d72c36",
+   "alias": "Hakuba Village Schöndorf Youth Hostel",
+   "source": "https://www.japan47go.travel/en/detail/3f4f756a-679b-405a-808c-cddedb1a966a",
+   "status": "unreviewed",
+   "note": "白馬の里シェーンドルフユースホステル; second spelling; medium"
+  },
+  {
+   "id": "overture:c68a9206-48c7-4f59-9d5a-ebe93f496116",
+   "alias": "Pension Poem no mori",
+   "source": "https://www.laterooms.com/hotel/hakuba/-pension-poem-no-mori",
+   "status": "unreviewed",
+   "note": "ペンションポエムの森; page: 歩絵夢の森, Kamishiro 25705-2 = our lot; high"
+  },
+  {
+   "id": "overture:d529716c-a91b-4397-bca2-a3a970025bf6",
+   "alias": "Hotel Belle-Cour Inomata",
+   "source": "https://ph.trip.com/hotels/otari-hotel-detail-10748368/hotel-belle-cour-inomata",
+   "status": "unreviewed",
+   "note": "ホテル ベルクール イノマタ; page prints both names, 499 Chikuniotsu, Otari; high"
+  },
+  {
+   "id": "overture:ddd964c7-c1b5-4add-8766-1feb8ca8a420",
+   "alias": "Petit Hotel Peter Rabbit",
+   "source": "https://ca.trip.com/hotels/hakuba-hotel-detail-28338149/petit-hotel-peter-rabbit/",
+   "status": "unreviewed",
+   "note": "プチホテルピーターラビット; page prints both names, 9464-28 Hokujo; high"
+  },
+  {
+   "id": "overture:e5e2a63c-4e19-4fad-aa7f-ef49c6e707b7",
+   "alias": "Arisu no izumi",
+   "source": "https://thejapanalps.com/en/?p=199221",
+   "status": "unreviewed",
+   "note": "アリスの泉; Ochikura Plateau only, no lot number; a romanisation, not a brand; medium"
+  },
+  {
+   "id": "overture:ef19b975-8f42-4041-a236-e8be3817b720",
+   "alias": "Hakuba Hayashi Pension",
+   "source": "https://thejapanalps.com/en/?p=199475",
+   "status": "unreviewed",
+   "note": "林ペンション; page: 9464-13 Hokujo = our lot; high"
+  },
+  {
+   "id": "overture:f78d8598-6ba4-46f2-9af8-6b845923d371",
+   "alias": "Alpine Wind",
+   "source": "https://destinia.com/en/hotels/asia/japan/nagano-pref/hakuba/alpine-wind/ho-1809870",
+   "status": "unreviewed",
+   "note": "チロルの風; page: Hokujo Misorano 2455-2 = our address, but no page read shows チロルの風 beside it; medium"
+  }
+ ]
+}

@@ -1,6 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { facesLeft, Hero, heroPose } from "@/components/HeroMarker";
+import { MARKER_PX } from "@/lib/route-geo";
 
 function reducedMotion(on: boolean) {
   vi.stubGlobal(
@@ -21,6 +22,15 @@ afterEach(() => {
 });
 
 describe("Hero (SPEC-game-theme)", () => {
+  // the map's fit padding reserves MARKER_PX above the start point (route-geo.ts); a
+  // bigger sprite (1.5x to 2x, dcf0bb1) slid under the landscape trip card unnoticed
+  it("is as tall as the room the map's fit reserves for it", () => {
+    reducedMotion(false);
+    render(<Hero pose="idle" alt="Starting point" />);
+    const img = screen.getByRole("img", { name: "Starting point" });
+    expect(Number(img.getAttribute("height"))).toBe(MARKER_PX);
+  });
+
   it("animates its pose's frames", () => {
     reducedMotion(false);
     render(<Hero pose="walk" alt="Your position" />);

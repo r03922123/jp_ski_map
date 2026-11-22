@@ -47,9 +47,22 @@ def load_index() -> list[Entry]:
     from hakuba_api.bus.store import load_stops
     from hakuba_api.catalog.store import load_resorts
     from hakuba_api.places.lodging import load_lodging
+    from hakuba_api.places.lodging_extras import (
+        load_aliases_file,
+        load_readings_file,
+        readings_by_id,
+        reviewed_aliases,
+    )
     from hakuba_api.pois.store import load_pois
 
-    return build_index(load_stops(), load_resorts(), load_lodging(), load_pois())
+    return build_index(
+        load_stops(),
+        load_resorts(),
+        load_lodging(),
+        load_pois(),
+        readings=readings_by_id(load_readings_file()),
+        aliases=reviewed_aliases(load_aliases_file()),
+    )
 
 
 def _from_entry(e: Entry, match: tuple[int, int] | None = None) -> Suggestion:

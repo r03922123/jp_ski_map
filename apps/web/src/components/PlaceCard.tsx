@@ -37,7 +37,7 @@ export function PlaceCard({
     >
       <button
         type="button"
-        className="flex h-9 items-center gap-1 rounded-full bg-blue-700 px-3 text-xs font-semibold text-white shadow-sm hover:bg-blue-800"
+        className="flex h-9 items-center gap-1 rounded-full bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
         onClick={onDirections}
       >
         <CornerUpRight aria-hidden="true" className="size-4" />
@@ -49,7 +49,7 @@ export function PlaceCard({
             key={value}
             type="button"
             aria-pressed={category === value}
-            className="h-9 rounded-full border bg-background px-2.5 text-xs font-medium hover:bg-muted aria-pressed:border-blue-700 aria-pressed:bg-blue-50"
+            className="h-9 rounded-full border bg-background px-2.5 text-xs font-medium hover:bg-muted aria-pressed:border-primary aria-pressed:bg-blue-50"
             onClick={() => onCategory(value)}
           >
             {label}

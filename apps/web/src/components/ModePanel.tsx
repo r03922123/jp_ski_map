@@ -9,6 +9,18 @@ import { formatDistance, formatDuration } from "@/lib/format";
 
 export type PanelMode = Mode | "bus";
 
+/** "Drive" plus its time; on phones only the icon and time show, as in Google's mode row (v1.24) */
+const tabLabel = (word: string, seconds: number | undefined) =>
+  seconds === undefined ? (
+    word
+  ) : (
+    // spaces outside the spans: inside them, the tab's name reads "Drive8 min"
+    <>
+      <span className="max-sm:sr-only">{word}</span>{" "}
+      <span className="text-xs opacity-80">{formatDuration(seconds)}</span>
+    </>
+  );
+
 export type RouteState =
   | { status: "idle" }
   | { status: "loading" }
@@ -28,6 +40,10 @@ export type ModePanelProps = {
   activeRoute?: number;
   onSelectRoute?: (index: number) => void;
   onHighlightStep?: (range: [number, number] | null) => void;
+  /** v1.24: each mode's travel time in seconds, shown on its tab once known */
+  durations?: Partial<Record<Mode, number>>;
+  /** v1.26: the trip has stops, so its list (being edited) leads, above the answer */
+  tripFirst?: boolean;
   /** Departure used for "Arrive ~"; defaults to now. */
   departAt?: Date;
   /** Drive mode: ranked resort list replacing the plain picker. */
@@ -66,6 +82,8 @@ export function ModePanel({
   activeRoute = 0,
   onSelectRoute = () => {},
   onHighlightStep = () => {},
+  durations = {},
+  tripFirst = false,
   departAt,
   drivePanel,
   destinationPicker,
@@ -100,13 +118,24 @@ export function ModePanel({
           <TabsTrigger value="bus" disabled={!busPanel}>
             🚌 Bus
           </TabsTrigger>
-          <TabsTrigger value="drive">🚗 Drive</TabsTrigger>
-          <TabsTrigger value="walk">🚶 Walk</TabsTrigger>
+          <TabsTrigger value="drive">
+            🚗 {tabLabel("Drive", durations.drive)}
+          </TabsTrigger>
+          <TabsTrigger value="walk">
+            🚶 {tabLabel("Walk", durations.walk)}
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      {/* the trip stays listed while the start is being changed (its stops survive) */}
-      {placeStrip}
+      {/* v1.26: the answer comes first (Google's route preview); the trip list, pickers
+          and settings follow it */}
+      {/* the trip list keeps one place in the tree and the answer moves around it: a list
+          that moved would remount and lose its refocus after a stop is removed */}
+      {!tripFirst && hasOrigin && mode !== "bus" && directions}
+      {/* the trip stays listed while the start is being changed (its stops survive); it
+          holds the start's ★, so it stays, below the answer (v1.26; Bus: below its options) */}
+      {(mode !== "bus" || !hasOrigin || !busPanel) && placeStrip}
+      {tripFirst && hasOrigin && mode !== "bus" && directions}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
           Type a place above, or {touch ? "long-press" : "tap"} the map, to set
@@ -115,11 +144,11 @@ export function ModePanel({
       ) : mode === "bus" && busPanel ? (
         <>
           {busPanel}
+          {placeStrip}
           <RouteSummary mode="walk" route={route} />
         </>
       ) : mode === "drive" && drivePanel ? (
         <>
-          {directions}
           {destinationPicker}
           {poiPanel ?? drivePanel}
         </>
@@ -146,7 +175,6 @@ export function ModePanel({
               </select>
             </div>
           )}
-          {directions}
         </>
       )}
     </div>

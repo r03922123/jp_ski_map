@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from hakuba_api.catalog.store import get_resort
-from hakuba_api.crowd.heuristic import HeuristicCrowdSource, load_periods
+from hakuba_api.crowd.heuristic import CONFIG, HeuristicCrowdSource, load_periods
 from hakuba_api.crowd.router import get_snow_by_resort, get_today
 from hakuba_api.main import app
 from hakuba_api.snow.models import NewSnow, SnowDepth, SnowReport, SummitTemps
@@ -179,3 +179,52 @@ def test_crowd_endpoint_honours_the_date_parameter(api: TestClient) -> None:
     response = api.get("/api/crowd", params={"date": "2026-01-14"})
 
     assert response.json()[0]["date"] == "2026-01-14"
+
+
+def _rebuilt(estimate: Any) -> float:
+    return round(min(max(sum(c.weight for c in estimate.contributions), 0.0), 1.0), 2)
+
+
+@pytest.mark.parametrize(
+    ("resort_id", "day", "past24h"),
+    [("jigatake", date(2026, 1, 14), 0), ("happo-one", date(2026, 2, 21), 30)],
+)
+def test_contributions_add_up_to_the_score_and_match_reasons(
+    resort_id: str, day: date, past24h: float
+) -> None:
+    estimate = source.estimate(resort(resort_id), day, snow(resort_id, day, past24h=past24h))
+
+    assert _rebuilt(estimate) == estimate.score
+    assert [c.label for c in estimate.contributions] == estimate.reasons
+
+
+def test_contribution_weights_come_from_the_config() -> None:
+    day = date(2026, 2, 21)
+    estimate = source.estimate(resort("happo-one"), day, snow("happo-one", day, past24h=30))
+    weights = {c.label: c.weight for c in estimate.contributions}
+
+    assert weights["3-day weekend (Emperor's Birthday)"] == CONFIG.long_weekend
+    assert weights["Powder day (30 cm new)"] == CONFIG.powder
+    assert weights["Large, popular resort"] == CONFIG.resort_prior["happo-one"]
+    lunar = next(
+        p for p in load_periods() if p.name == "Lunar New Year week" and p.start <= day <= p.end
+    )
+    assert weights["Lunar New Year week"] == lunar.weight
+
+
+def test_only_the_largest_overlapping_period_counts() -> None:
+    estimate = source.estimate(resort("goryu"), date(2026, 1, 1), None)  # New Year + AU holidays
+    weights = {c.label: c.weight for c in estimate.contributions}
+
+    assert weights["New Year holidays"] == 0.35
+    assert weights["Australian summer school holidays"] == 0
+    assert _rebuilt(estimate) == estimate.score
+
+
+def test_a_zero_prior_and_season_edge_are_listed_honestly() -> None:
+    estimate = source.estimate(resort("jigatake"), date(2025, 12, 10), None)  # Wed, early season
+    weights = {c.label: c.weight for c in estimate.contributions}
+
+    assert not any("resort" in label for label in weights)
+    assert weights["Early/late season"] == CONFIG.season_edge
+    assert _rebuilt(estimate) == estimate.score == 0.0

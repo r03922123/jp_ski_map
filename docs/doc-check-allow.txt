@@ -1,0 +1,7 @@
+# Paths that SPECs name but a clean checkout does not have, one per line: `<path> <reason>`.
+# scripts/check_docs.py fails when a listed path appears in the repo or is no longer named, so this stays short.
+# Gitignored paths need no entry.
+services/api/data generated: scripts/deploy-vercel.sh copies data/ into the function bundle (SPEC-deploy)
+services/api/tiles generated: scripts/deploy-vercel.sh copies the Valhalla tiles into the function bundle (SPEC-deploy)
+ml/timetable_vlm/dataset.py planned: SPEC-pipeline step for rendering the PDFs
+services/mcp/evals/ask_questions.json planned: SPEC-ask-maps eval set (proposed 2026-11-18)

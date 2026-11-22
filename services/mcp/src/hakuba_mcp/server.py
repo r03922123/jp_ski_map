@@ -12,6 +12,8 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
+from hakuba_mcp import tracing
+
 API_URL = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8010").rstrip("/")
 TIMEOUT_S = 30.0  # a cold Valhalla matrix or Open-Meteo fetch can take several seconds
 
@@ -22,7 +24,22 @@ Mode = Literal["drive", "walk"]
 
 READ_ONLY = ToolAnnotations(read_only_hint=True)
 
-mcp = MCPServer(
+
+class TracedServer(MCPServer):
+    """MCPServer that wraps every tool call in a Langfuse span when tracing is on."""
+
+    async def call_tool(self, name: str, arguments: dict[str, Any], context: Any = None) -> Any:
+        tool = self._tool_manager.get_tool(name)
+        declared = set(tool.parameters.get("properties", {})) if tool else set[str]()
+        # declared names only: an agent could put anything, even a hotel name, in a key
+        # the name too: an unknown one is the client's string, so it is not kept either
+        with tracing.tool_span(
+            name if tool else "unknown_tool", sorted(declared & arguments.keys())
+        ):
+            return await super().call_tool(name, arguments, context)
+
+
+mcp = TracedServer(
     "hakuba",
     instructions=(
         "Tools for planning a ski day in Hakuba Valley, Japan (10 resorts). Places are passed "
@@ -60,16 +77,23 @@ def _min(seconds: float | None) -> float | None:
     return None if seconds is None else round(seconds / 60, 1)
 
 
+def _to_minute(iso: str | None) -> str | None:
+    """An ISO time cut to the minute, as the bus times are (local time, JST)."""
+    return iso[:16] if iso else None
+
+
 @mcp.tool(annotations=READ_ONLY)
 def search_place(query: str, limit: int = 5) -> list[dict[str, Any]]:
     """Find a hotel, station or any place in Hakuba by name (English or Japanese) or a
     Google Maps link. Use this first to turn the user's starting point into an origin.
 
-    Returns places with `coord` as a 'lat,lng' string to pass as `origin` to other tools.
+    Returns places with `coord` as a 'lat,lng' string to pass as `origin` to other tools,
+    and a stable `id`.
     """
     places = _get("/api/places/suggest", {"q": query, "limit": limit})
     return [
         {
+            "id": p["id"],
             "name": p["name"],
             "nameJa": p.get("nameJa"),
             "kind": p.get("kind"),
@@ -97,7 +121,9 @@ def rank_resorts(
     terrain_size (runs), vertical (m), price (cheapest day ticket, JPY).
     date: YYYY-MM-DD for the crowd estimate (default today, JST). Filters are optional.
     Each item gives resortId, driveMin, sortValue (in the sort's unit), snow in cm and
-    crowdLevel (low/medium/high/very_high).
+    crowdLevel (low/medium/high/very_high). snowAsOf is the local time (JST) the snow
+    figures are from: say that time when you quote them, because they can be a few hours
+    old when the weather service is unreachable.
     """
     ranked = _get(
         "/api/rank",
@@ -123,6 +149,7 @@ def rank_resorts(
                 "driveMin": _min(r.get("driveS")),
                 "summitDepthCm": _obj(snow.get("depthCm")).get("summit"),
                 "newSnow24hCm": _obj(snow.get("newSnowCm")).get("past24h"),
+                "snowAsOf": _to_minute(snow.get("asOf")),
                 "crowdLevel": crowd.get("level"),
             }
         )
@@ -143,8 +170,12 @@ def next_buses(
     Returns `status` (ok, no_service with `nextServiceDate` = first service day, or
     awaiting_review = timetable not checked yet),
     `basis` (published, or expected = projected from last season), and per resort the
-    earliest options: board stop, walkMin to it, departs/arrives (local time), rideMin.
-    Times are timetable estimates, not live positions.
+    earliest options: board stop and its stable boardStopId, walkMin to it, departs/arrives
+    (local time), rideMin.
+    When `timed` is false the timetable has no time at the boarding stop or at the resort:
+    `departs` is the time at `departsFrom`, which can be an earlier stop (the bus reaches the
+    boarding stop later, at an unpublished time), and arrives/rideMin are null; don't
+    estimate them, the stop order may vary. Times are timetable estimates, not live positions.
     """
     res = _get("/api/bus/options", {"from": origin, "at": at, "name": origin_name})
     return {
@@ -157,14 +188,18 @@ def next_buses(
                 "resortId": r["resortId"],
                 "options": [
                     {
+                        "boardStopId": o["boardStopId"],
                         "boardStop": o["boardStopName"],
                         "walkMin": _min(o["walkS"]),
-                        "departs": o["departsAt"][:16],
-                        "arrives": o["arrivesAt"][:16],
+                        "departs": _to_minute(o["departsAt"]),
+                        "arrives": _to_minute(o["arrivesAt"]),  # None when untimed
                         "rideMin": _min(o["rideS"]),
                         "route": o["routeName"],
                         "timed": o["timed"],
                     }
+                    # untimed only: firstStopName is spelled as in the timetable file, so on a
+                    # timed option it can differ from boardStop for the same stop
+                    | ({} if o["timed"] else {"departsFrom": o["firstStopName"]})
                     for o in r["options"][:per_resort]
                 ],
             }
@@ -177,10 +212,12 @@ def _resolve(place: str) -> str:
     """'lat,lng' passes through; a resort id becomes its main access point."""
     if "," in place:
         return place
-    for resort in _get("/api/resorts"):
+    resorts = _get("/api/resorts")
+    for resort in resorts:
         if resort["id"] == place:
             return _coord(resort["accessPoints"][0]["coord"])
-    raise ToolError(f"unknown place {place!r}: pass 'lat,lng' or a resort id like 'happo-one'")
+    ids = ", ".join(r["id"] for r in resorts)  # so the agent's retry needs no guess
+    raise ToolError(f"unknown place {place!r}: pass 'lat,lng' or a resort id: {ids}")
 
 
 @mcp.tool(annotations=READ_ONLY)
@@ -208,7 +245,7 @@ def nearby_pois(
 ) -> list[dict[str, Any]]:
     """Restaurants (food) or convenience stores near a place, closest by travel time first.
 
-    origin: 'lat,lng' or a resort id. Returns name, minutes away by `mode`, distanceM,
+    origin: 'lat,lng' or a resort id. Returns a stable id, name, minutes away by `mode`, distanceM,
     coord and opening hours when OpenStreetMap has them.
     """
     pois = _get(
@@ -217,6 +254,7 @@ def nearby_pois(
     )
     return [
         {
+            "id": p["id"],
             "name": p["name"],
             "nameJa": p.get("nameJa"),
             "minutes": _min(p.get("durationS")),
@@ -232,9 +270,11 @@ def nearby_pois(
 def crowd_and_snow(date: str | None = None) -> list[dict[str, Any]]:
     """Crowd estimate and snow for every resort. Use it to compare conditions before ranking.
 
-    date: YYYY-MM-DD for the crowd estimate (default today, JST). Snow is the current
-    model forecast (Open-Meteo), whatever the date. Units: cm for snow, crowdScore 0..1,
-    crowdLevel low/medium/high/very_high. Crowd is a heuristic estimate.
+    date: YYYY-MM-DD for the crowd estimate (default today, JST). Snow is the model
+    forecast (Open-Meteo) as of snowAsOf (local time, JST), whatever the date: say that
+    time when you quote snow figures, because they can be a few hours old when the weather
+    service is unreachable. Units: cm for snow, crowdScore 0..1, crowdLevel
+    low/medium/high/very_high. Crowd is a heuristic estimate.
     """
     crowd = _get("/api/crowd", {"date": date})
     snow = {s["resortId"]: s for s in _get("/api/snow")}
@@ -254,6 +294,7 @@ def crowd_and_snow(date: str | None = None) -> list[dict[str, Any]]:
                 "newSnowPast24hCm": new.get("past24h"),
                 "newSnowNext24hCm": new.get("next24h"),
                 "newSnowNext72hCm": new.get("next72h"),
+                "snowAsOf": _to_minute(s.get("asOf")),
             }
         )
     return out

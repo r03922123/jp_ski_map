@@ -138,7 +138,8 @@ flowchart TB
 
 **Production since 2026-11-10 is Vercel, not the Mac** ([ADR-0006](adr/0006-vercel-phase-b.md),
 SPEC-deploy Phase B). The diagram above is the Mac standby, stopped since 2026-11-13 (`scripts/serve-public.sh --funnel` restarts it, after the owner's OK). On Vercel, one project in `hnd1`
-runs two services from `vercel.json`: `web` (Next.js) and `api` (FastAPI as one Python Function).
+runs three services from `vercel.json`: `web` (Next.js), `api` (FastAPI as one Python Function) and `mcp`
+(the agent tools and `/ask`, SPEC-agent-tools v2).
 Vercel's rewrite, not `next.config.ts`, sends `/api/*` to the API. Valhalla isn't a network
 service there: `ValhallaClient` sees `VALHALLA_TILES` and runs `pyvalhalla` in process behind one
 lock (`routing/engine.py`). Deploys go only through `scripts/deploy-vercel.sh`, which uploads the
@@ -159,8 +160,17 @@ What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the
 
 4. On the public site the request goes Funnel → `next start`. `next.config.ts` rewrites `/api/*`
    to the FastAPI service, so the browser never sees another origin (no CORS).
-5. `main.py`: `BodyLimit` refuses large bodies, `limit_clients` applies the per-client rate limit
-   (429 with `Retry-After`), and the request reaches the ranking router.
+5. `main.py`: `ServerTiming` (`common/timing.py`) starts the clock, `BodyLimit` refuses large
+   bodies, `limit_clients` applies the per-client rate limit (429 with `Retry-After`), and the
+   request reaches the ranking router. The response carries a `Server-Timing` header listing each
+   upstream call that was really made (`open-meteo;dur=1106.5, valhalla;dur=120.2, total;dur=1239.6`
+   for a first request, `valhalla;dur=9.2, total;dur=10.5` once the snow is cached); browser dev
+   tools draw it in the Network tab. A request over 1 s or a 5xx is logged with the same breakdown.
+   Neither carries the query string. An entry means the request was really sent: a call our own
+   rate budget refused is not listed. `valhalla` is the one exception: it covers the whole routing
+   call, so a wait for the in-process engine's lock, or an engine that fails to start, counts too.
+   An unhandled error is logged, but its 500 has no header, because Starlette writes that answer
+   outside every middleware.
 
 **In the API** (`ranking/router.py` `get_rank`, three inputs gathered with FastAPI `Depends`)
 

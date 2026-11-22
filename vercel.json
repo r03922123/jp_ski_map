@@ -27,6 +27,7 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": { "service": "api" } },
     { "source": "/mcp/(.*)", "destination": { "service": "mcp" } },
+    { "source": "/ask", "destination": { "service": "mcp" } },
     { "source": "/(.*)", "destination": { "service": "web" } }
   ]
 }

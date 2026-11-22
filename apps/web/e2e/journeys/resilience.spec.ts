@@ -310,10 +310,15 @@ test.describe("an error offers a way out", () => {
 test.describe("offline mid-journey, then back online", () => {
   const cases = [
     {
-      name: "phone: switch to Walk",
+      // v1.24 (#106) asks for the Walk route up front for its tab time, so switching to Walk
+      // offline usually shows it from the cache with nothing to recover; Bus is never prefetched
+      name: "phone: switch to Bus",
       device: PHONE,
-      tab: /walk/i,
-      done: (page: Page) => eta(page),
+      tab: /bus/i,
+      done: (page: Page) =>
+        directions(page)
+          .getByText(/shuttle service|Board|→/)
+          .first(),
     },
     {
       name: "laptop: switch to Bus",

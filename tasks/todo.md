@@ -870,7 +870,16 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 ## Task J14: MCP tools in Claude chat (SPEC-agent-tools v2)
 - [x] PR #61: `/mcp/<token>` on Vercel (service `mcp`), stateless Streamable HTTP, GET → 405. Production 1d43e67 (2026-11-13): wrong token 404, initialize, 6 tools, search_place and next_buses live; site smoke 5/5
 - [ ] Owner: add the link from `~/.config/jp_ski_map/mcp-connector-url.txt` as a custom connector on claude.ai, ask a trip question from the phone app, then send the link to friends
-- [ ] Run the agent eval once (`services/mcp/evals/run_eval.py`) and save `last_run.md`. It uses the dev API on :8010 by default; set `HAKUBA_API_URL` to the production URL to test the deployed API
+- [x] Run the agent eval once and save `last_run.md` (PR #70, 2026-11-16, production API: 7/8; with `--mlflow` every run and per-question trace is in `services/mcp/mlflow.db`)
+
+## Task J15: Production habits around the ML parts (2026-11-16)
+Three small PRs, each test-first with a fresh-eyes review.
+- [ ] PR #67: `/api/snow` and `/api/rank` serve the last good snow report (up to 6 h, with its own `asOf`) when Open-Meteo fails, and remember a failure for 60 s (`snow/router.py`, `tests/snow/test_stale.py`)
+- [ ] PR #68: a `Server-Timing` header with one entry per upstream call, and a log line for a request over 1 s or a 5xx; never the query string (`common/timing.py`, `tests/test_timing.py`)
+- [ ] PR #69: the search eval prints n, standard error and the paired difference from lexical; the agent eval prints the pass rate with its standard error, cost per question and median seconds
+- Found by #72's eval, open: for the same trip `rank_resorts` gives `driveMin` 6.6 and `route` gives 7.7 min (matrix vs route cost); an agent that answers from either is "right"
+- Found by #68's first run, open: `/api/places/suggest?q=tokyu` took 1255 ms, 1231 ms of it waiting on Photon, whose timeout is 10 s. Search-as-you-type needs a short timeout on that fallback
+- Still open from J14: the agent eval has never been run, so there is no pass rate or cost number yet
 
 ## State at handoff (2026-11-01, after Phase 18)
 - v1.6 game redesign (T63–T72b) and Phase 18 device QA fixes (T73–T78) done; ~30 commits local, NOT pushed (the user hasn't OK'd the push).
@@ -878,3 +887,109 @@ Recorded exception to the takeover order, so the project stays in "tidy". Each P
 - Pushed 2026-11-01 (9a25e4a, CI green). T79 done after that, local.
 - Next: Checkpoint M once the user has installed Tailscale.
 - Open issue: pilot walk-drag flake (Task 67 note).
+
+## Task J16: MLflow eval loop and Langfuse production traces (SPEC-agent-tools v3, 2026-11-16)
+- [x] PR #70: `run_eval.py --mlflow` logs each eval run (metrics, report, table) and one trace per question (a `TOOL` span per call, a `passed` assessment) to `services/mcp/mlflow.db`; MLflow is the `eval` dependency group only
+- [x] PR #71: each production tool call → one Langfuse `tool` observation (name, duration, declared argument names, error summary; never values); off without keys; own tracer provider
+- [x] PR #72: the eval loop in practice: a wrong label fixed (`any_of`), `tool_errors`, 3 questions, the unknown-resort-id error lists the valid ids; a description change was reverted after its trace showed it moved agents to `rank_resorts`. Eval log in SPEC-agent-tools.md
+- [x] Production 16bee80 (2026-11-16): smoke 5/5; MCP initialize, 6 tools, search_place live, bad id lists the 10 ids, wrong token 404
+- [x] Owner: Langfuse Cloud, Japan region, Hobby ($0); keys in `~/.config/jp_ski_map/langfuse.env`
+- [x] Vercel Production env set and redeployed (2026-11-16). Checked: 6 `tools/call` → 6 `TOOL` observations (`production`), the bad one `ToolError; invalid arguments: destination`, input/output empty, no coordinate or query text stored. Warm `tools/call` median 0.29 s (max 0.42, n=12), `tools/list` 0.19 s; one 7.7 s call in an earlier batch of 5, not reproduced (likely a cold start, unverified). Read observations with `/api/public/v2/observations`
+- [x] PR #94 (eval v4, 2026-11-19): `trip_questions.json` 12 → 100 questions (35 en, 32 zh, 33 ja); each regex is unit-tested against a right answer, 2+ wrong ones, the question echo and a no-data reply. Broken-tools run 2/91 leaks (fixed); production run 97/100 (Wilson 0.92–0.99), 100/100 after 3 label fixes. Run store copy in `jp_ski_map_ml_artifacts/mcp-eval-v4/`
+- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; crowd heuristic ranks Jigatake quietest on every date (its "less-visited" reason raises the score)
+
+## Rebuild from the URL, and Ask Maps (2026-11-18; status at main 8485c47)
+Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../SPEC-ask-maps.md) (A0–A4),
+[ADR-0007](../docs/adr/0007-automated-verification-and-capped-llm.md) (Accepted: paid steps within the ~$100
+credit and a $5/month cap), [review](../docs/review/2026-11-18-codebase-review.md). Each task is one PR,
+built in a fresh session from its spec.
+- Decision (owner, 2026-11-18): the first version is $0. Build only the $0 tasks (P2, A3, P5's
+  parsers, P6, P7, and P3/P4 with the local extractor B only); every paid call (P3's hosted
+  comparison, P4's re-read with A, A2, A4) waits for a second version. ADR-0007's cap stays the bound then.
+- [ ] Owner, before the second version's first paid call: Console workspace spend limit $5/month,
+  auto-reload off, `ANTHROPIC_API_KEY` in Vercel env and Actions secrets.
+- [x] A0: ADR-0007 accepted (PR #80)
+- [x] P1 (PR #78): `pipeline/` (`hakuba_pipeline`): stage contract, stdlib runner, `pipeline.lock.json`, `fetch` → `snapshots/<sha256>` (gitignored; `--store` or `$HAKUBA_SNAPSHOTS`), `crawl` reusing `check_sources.parse_page`. CI job `pipeline`. Live crawl: 31 hashes equal `data/bus/sources.json`; two `--offline` replays byte-identical. Not done: the private snapshot repo, so `--offline` works only on the machine that crawled
+- [x] A1 (PR #79): `id` / `boardStopId` in search_place, nearby_pois and next_buses;
+  `services/mcp/src/hakuba_mcp/ask.py` serves `POST /ask` as one JSON response (fake-client tests, no real API call)
+- [ ] A1 leftovers: ~~agent-tools eval re-run with the new ids~~ done in T1 (12/12, 2026-11-18); SSE spike on a preview (folds into A4)
+- [ ] P2, split into slices (the spec's P2 is ~4 PRs of work):
+  - [x] P2a: `locate_stops --write` marks a rejected stop `not located yet: <why>` with no point, not
+    `unresolved: …` (review finding 1; `apply_results` + test)
+  - [ ] P2b `lines`, P2c `osm` pinned + cropped PBF → Valhalla, P2d `stops` without `MANUAL_MATCHES`
+- [ ] Next, $0: P2b, then A3 (web AskSheet with a stubbed `/ask`) once the refactor's W3 merges. Then the other $0 tasks in spec order.
+- Open, seen in P2a: `locate_stops` still geocodes with GSI and writes `gsi:…`, which ADR-0004 bans
+  for stops and `KNOWN_SOURCES` doesn't list; P2d drops GSI.
+- Open Dependabot PRs #64, #65, #76: not triaged.
+
+## Phone screen split, Google Maps iOS benchmark (2026-11-20, PRs #93, #96–#100)
+Spec: [SPEC-maps-ios-ux.md](../SPEC-maps-ios-ux.md); measured from the owner's two iPhone recordings (BC-L1 update).
+- [x] Sources & weights block in the ranked list (#93); full screen from the home screen: manifest + rider icons (#96)
+- [x] Study spec and `e2e/layout-share.spec.ts` (#97): `LAYOUT_VIEWPORT=390x797` is the home-screen app on a 390×844 iPhone
+- [x] G1 low sheet height, 84 px (#98, v1.17): directions preview map 35% → 64.5% of the page
+- [x] G2 two-row trip card (#99, v1.18): + Add destination above the sheet's Trip list; map 41.5% collapsed, 71% low (Google's place sheet: 71% of the screen)
+- [x] Map under the status bar in the home-screen app (#100, v1.19; production 2026-11-20): with simulated 47/34 px insets, 73.8% of the 390×844 screen is map with the sheet low
+- [x] No band below the map in the home-screen app (v1.20): iOS laid the page out 47 pt short; full-screen layers now reach the bottom edge
+- [ ] Owner: try both on the real iPhone (Safari tab and home-screen app); our numbers so far are Chromium emulation (v1.19: insets simulated; check the clock is readable and nothing sits under the notch or home bar)
+- [ ] `layout-share` L1 against production measures the first-visit title screen (0% map): set the `hakuba_title=seen` cookie in that state
+- [ ] Next.js 16.4.3 → 16.4.5+: two moderate advisories (`'use cache'`, unused here); `next dev` 16.4.3 exits on every other start to show an upgrade notice, so start it twice or point e2e at a running server
+- Open: the camera doesn't refit when the sheet goes low (the route stays where the 40% fit put it)
+
+## Google Maps route preview, second pass (2026-11-20, PRs #108–#110)
+From the owner's two screenshots (ours and Google Maps iPhone route preview): Google's map 422 pt (50%), ours 321 pt (38%), plus a 47 pt band at the bottom and a blurred strip behind the clock.
+- [x] #108, v1.25: ordinary status bar (`default` + theme-color `#eef3f7`), fade removed: ends the 47 pt band and the blur at their cause (black-translucent)
+- [x] #109, v1.26: the sheet shows the answer first (ETA, Start) after the mode tabs; the trip list follows it (with stops it leads); Bus puts "Leave after" beside its box
+- [x] #110, v1.27: slimmer trip card (112 → 98 px); L4 top chrome 14.1% → 12.4% at 393×852
+- [x] Production 6f841d9 (2026-11-20): e2e-prod smoke 5/5; status-bar, side-panel, mode-tabs and layout-share L4 e2e 10/10 against production
+- [ ] Owner, on the iPhone: reopen the home-screen app (re-add the icon if the old look stays); expect no band and a light bar. With USB connected, open /viewport-check from the icon so the agent can read safe top 0 and gap 0, then delete the gap code
+- Open: removing the last stop can leave keyboard focus on Add destination below the sheet's fold (review of #109, minor)
+- Local e2e on main: ~40 journey/sheet tests fail with and without these PRs (place-card trip-card tests, flaky camera-fit tests in route-clear-of-panels and route-option-visible, map-credits first display); resilience "switch to Walk" became timing-dependent with #106 and now uses Bus
+
+## Google Maps layout on the laptop, and real-iPhone numbers (2026-11-20, PRs #105, #106)
+- [x] Real iPhone, Safari tab (390×699 page on an 844 pt screen), production, via Web Inspector eval: map 556 pt idle (66%),
+  276 pt in route preview (33%; Google's app ≈320 pt, which loses no Safari bars). The low sheet wasn't reached
+  (a synthetic swipe doesn't move it); the start-set state read 192 and 276 pt on two runs
+- [x] Google Maps in desktop Chrome measured by the agent with the owner's OK (BC-L2); the driving rule now records
+  that exception (docs/ux/rea-benchmark-workflow.md, SPEC-maps-ios-ux.md)
+- [x] #105, v1.23: collapse the side panel on a laptop (tab beside the card, clear of a landscape notch; reopens on
+  a new destination, route, Saved or import)
+- [x] #106, v1.24: each mode tab shows its time ("🚗 Drive 8 min"), drive and walk; not for Food/Konbini, not on Bus
+- [x] Production 39d5ad5 (2026-11-20): e2e-prod smoke 5/5; side-panel and mode-tabs e2e 4/4 against production
+- Open: Google Maps iOS can't be driven from a Claude Code session (no computer-use tools here, no Xcode); the low
+  sheet and the start-set state still need a real-finger check on the iPhone. Bus tab time; the expand tab centres
+  on the card, not the window (review nit)
+- Local e2e: 15 tests fail on main and with these PRs alike (dev "1 Insight" badge, first-display credits, small-phone walk)
+
+## Landscape route bar (2026-11-19, PR #91)
+- [x] Landscape phones (< 480 px tall) with a walk or drive route: the collapsed sheet is a slim 84 px ETA + Start bar (owner's choice over hiding the sheet, which would drop Start, T77). The fit area goes from 28 px to 88 px at 740x360. A sheet whose route appears scrolls back to the top, which also fixes known bug F (L4, M5), "answer in view" (its 4 e2e tests no longer `test.fail`).
+- [x] Bug: a finger held on the map while the phone turns, then lifted on the map, left the route unfitted. Cause: the lift counted as a tap, and the browser follows a tap with a mousedown, which MapLibre takes as a grab and so stops the fit the lift had just started. Turning the phone also dropped a pin (the hold became a long-press). Now a resize under a finger cancels the long-press, and its lift sends no tap (`touchend` preventDefault). The e2e test lifts both on the sheet and on the map.
+- Still failing locally, also on main: the dev-only Next "1 Insight" badge covers the bottom-left (small-phone walk ×2, bus "Start in view" ×2, map-credits 360×740); "Start from Walk"; the off-season `test.fail` passes unexpectedly. Hiding the badge makes the small-phone tests pass.
+
+## Refactor for agent work (2026-11-18)
+Spec: [SPEC-refactor.md](../SPEC-refactor.md) (approved by the owner 2026-11-18). Behaviour-preserving;
+each task is one PR, built in a fresh session from the spec.
+- [x] H1 `harness`: `deploy` and `new-worktree` skills, MCP-token hook with a CI test, CLAUDE.md trimmed
+- [x] T1 `agent-tools`: eval/spec drift; eval re-run (closes the A1 leftover): 12/12, local API
+- [x] W1 `web-shell` R3.1 (PR #85): `apps/web/tests/MapShell.test.tsx`, 8 characterization tests for
+  MapShell's origin, destination, mode and pilot transitions (map stubbed via `next/dynamic`, API
+  fetchers mocked); 9 hand-made breaks each turn the intended test red. No production code changed
+- [x] W2 `web-shell` R3.2 for MapShell (PR #88): 1,386 → 497 lines; state and effects in `lib/` hooks
+  (`use-trip`, `use-view-url`, `trip-actions`, `trip-places`, `use-routes`, `use-bus-trip`, `use-lists`,
+  `nav/use-pilot-session`, `nav/use-pilot-map`); 6 more MapShell tests first; screens unchanged
+- [x] W3 `web-shell` R3.2 for MapView (PR #89): 1,050 → 555 lines; layers and markers in `components/map/`, gestures and credits in `lib/` hooks
+
+## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
+Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.
+- D1 `place-search`: lodging and Overture snapshots aren't pinned (no Overpass `[date:]`; `latest_release` in
+  `services/api/src/hakuba_api/places/refresh_overture.py` takes the newest release). Plan: SPEC-pipeline pinning row
+- D2 `poi-destinations`: the POI Overpass query (`pois/refresh_pois.py`) isn't pinned to a date. Plan: same row
+- D3 `routing`: Valhalla tiles build from `chubu-latest` (`infra/valhalla/build-hakuba.sh:10`). Plan: same row
+- D4 all specs: acceptance checkboxes aren't maintained (51 of 184 ticked), so they can't show progress
+- D6 `place-search`: a repeated query word can match one name word twice ("tabi tabi" → ペンション 旅人), and
+  sound keys pair "yukinoso" with かにさわ館 and "Hakuba style Inn" with シャトレ山彦 (SPEC-place-search v1.5)
+- D7 `place-search`: the readings validator checks ids only (not that each reading's name is still the lodging's
+  Japanese name, nor unique ids); aliases accept a bare `https://` and dedupe by casefold, not `normalize`;
+  38 readings are ASCII `name_ja` values; DATA-LICENSES says unidic-lite is MIT, but the UniDic data and MeCab
+  in fugashi may carry BSD/GPL/LGPL terms, unchecked (#123 review)
+- D5 this file: 979 lines with 84 finished tasks between the open ones; proposal: move finished tasks to `tasks/done.md`
+  (needs the owner's OK, since it moves where status lives)

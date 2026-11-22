@@ -4,7 +4,7 @@ import json
 import httpx
 import pytest
 
-from hakuba_mcp import remote
+from hakuba_mcp import remote, tracing
 
 TOKEN = "t" * 40
 HEADERS = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
@@ -69,6 +69,16 @@ def test_tools_list_with_token(token: str) -> None:
         "nearby_pois",
         "crowd_and_snow",
     }
+
+
+def test_each_answered_request_flushes_the_traces(
+    token: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    flushed: list[bool] = []
+    monkeypatch.setattr(tracing, "flush", lambda: flushed.append(True))
+    assert post(f"/mcp/{token}", INIT).status_code == 200
+    assert post("/mcp/" + "x" * 40, INIT).status_code == 404  # refused: nothing to send
+    assert flushed == [True]
 
 
 def request(method: str, path: str) -> httpx.Response:
