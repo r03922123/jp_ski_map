@@ -111,7 +111,7 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - `suggest()` builds the page as lexical hits, then Photon (still only when fewer than 3 lexical hits), then semantic hits, and cuts to the limit once, so semantic hits never push a name-checked Photon hit off the page. A semantic lodging or bus-stop hit must share a distinctive word with the query, and a query of only area and generic words names no place (`names_a_place`), because a look-alike hotel is a confidently wrong answer.
 - *Tried and dropped:* reciprocal rank fusion (RRF, k=60). It rewards items both lists rank high, which put Hakuba Grace Inn above the exact "Hotel Grace Hakuba" on `booking_eval.json` (26 → 25 hits). With only the kind filter, hybrid also turned all 4 absent hotels into wrong answers (4 → 0).
 - Fine-tuning (`ml/search`): synthetic (query, entry) pairs generated from the index (typos, dropped words, romaji readings, Chinese/variant characters, cuisine and shop words), contrastive training with in-batch negatives (MultipleNegativesRankingLoss) on the Mac's GPU (MPS). Entries are split 80/20 so the synthetic dev set has names the model never trained on.
-- Tracking: every eval run logs params and metrics to a local MLflow store (`ml/search/mlruns`, gitignored).
+- Tracking: every eval run logs params and metrics to a local MLflow store (`ml/search/mlflow.db`, gitignored).
 
 **Evaluation**
 - `ml/search/evals/hard_queries.json`: 40 hand-written queries in 4 groups. `synth.make_pairs` drops any training or dev query equal to one of them (a test checks it): the first fine-tune had 13 of the 40 word for word in its training pairs. Metric: hit@1 and hit@5 per mode (lexical, semantic, hybrid) and model (base, fine-tuned).
