@@ -47,16 +47,26 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* SPEC-game-theme: snowy overworld palette, values from src/lib/game/tokens.ts (tested) */
+/* The Maps look (docs/ux/google-maps-workflows.md T1; SPEC-game-theme v2): light surfaces,
+   blue primary actions. Values from src/lib/game/tokens.ts (tested for contrast) */
 :root {
+  /* the device's own sans-serif: readable, no download, and it covers Japanese names */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans",
+    "Noto Sans JP", sans-serif;
+  /* Hardware insets keep controls clear of the clock, notch and home indicator. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
   --background: #eef3f7;
   --foreground: #22223a;
-  --card: #fffaf0;
+  --card: #ffffff;
   --card-foreground: #22223a;
-  --popover: #fffaf0;
+  --popover: #ffffff;
   --popover-foreground: #22223a;
-  --primary: #2f5d50;
-  --primary-foreground: #fffaf0;
+  --primary: #185fc6;
+  --primary-foreground: #ffffff;
   --secondary: #e3ebf1;
   --secondary-foreground: #22223a;
   --muted: #e3ebf1;
@@ -66,15 +76,13 @@
   --destructive: #b3261e;
   --border: #b8c4ce;
   --input: #b8c4ce;
-  --ring: #8a5a00;
+  --ring: #185fc6;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  /* square corners: the pixel look (rounded-full chips stay round) */
-  --radius: 0rem;
-  --ink: #22223a;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -199,7 +207,7 @@
   }
 }
 
-/* Phones: the collapsed sheet (BottomSheet, 40dvh + 4px) covers the map's corner, so the
+/* Phones: the collapsed sheet (BottomSheet, 40dvh above the home bar) covers the map's corner, so the
    credits rise above it. 32px clears the handle's hit area, 22px above the sheet, and the
    ⓘ's own 10px below the pill. Only the credits move: the zoom buttons share this corner
    and stay put. Expanded, the sheet leaves no room; collapsing it brings them back.
@@ -209,19 +217,40 @@
     .maplibregl-ctrl-attrib {
     transform: translateY(calc(-40dvh - 32px));
   }
+  /* the low sheet (v1.17) is 84 px on any phone */
+  :has(> [data-sheet][data-state="low"]:not([data-phone-hidden]))
+    .maplibregl-ctrl-attrib {
+    transform: translateY(calc(-84px - 32px));
+  }
+  /* T6: a short landscape phone has no room for both the zoom buttons and the risen credits
+     (the ⓘ covered zoom-out). Phones pinch to zoom, and Google Maps shows no zoom buttons
+     there; the compass stays, the only way back to north (review of #119) */
+  @media (pointer: coarse) and (height < 480px) {
+    .maplibregl-ctrl-bottom-right
+      :is(.maplibregl-ctrl-zoom-in, .maplibregl-ctrl-zoom-out) {
+      display: none;
+    }
+  }
+  /* a landscape phone with a route: the sheet is the 84 px ETA bar (BottomSheet slim) */
+  @media (height < 480px) {
+    :has(
+        > [data-sheet][data-state="collapsed"][data-slim]:not(
+            [data-phone-hidden]
+          )
+      )
+      .maplibregl-ctrl-attrib {
+      transform: translateY(calc(-84px - 32px));
+    }
+  }
 }
 
-/* SPEC-game-theme: a stepped pixel border drawn with box-shadows (no images). The four
-   outer shadows leave the corners notched, like a sprite's frame. */
-.pixel-frame {
+/* T1: a raised map surface (cards, sheets, toasts): white with a soft two-layer shadow, as
+   Maps panels float over the map. Corners are set where it's used (a sheet rounds its top) */
+.surface {
   background: var(--card);
   box-shadow:
-    0 -4px 0 0 var(--ink),
-    0 4px 0 0 var(--ink),
-    -4px 0 0 0 var(--ink),
-    4px 0 0 0 var(--ink),
-    inset 0 0 0 2px #fff,
-    0 8px 0 0 rgb(34 34 58 / 0.25);
+    0 1px 2px rgb(60 64 67 / 0.3),
+    0 2px 6px 2px rgb(60 64 67 / 0.15);
 }
 
 /* SPEC-web-app v1.6 title screen: drifting snow and a blinking start, still with reduced motion */
@@ -247,5 +276,28 @@
   }
   .title-start {
     animation: none;
+  }
+}
+
+/* v1.19: MapLibre's corner controls (zoom, credits) stay out of the home indicator and,
+   in landscape, the notch. Scoped under .maplibregl-map: MapLibre's stylesheet loads after
+   this one (the map is lazy) and sets the same corners to 0 */
+.maplibregl-map .maplibregl-ctrl-bottom-right {
+  bottom: var(--safe-bottom);
+  right: var(--safe-right);
+}
+.maplibregl-map .maplibregl-ctrl-bottom-left {
+  bottom: var(--safe-bottom);
+  left: var(--safe-left);
+}
+
+/* v1.28: iOS 26+ lays a home-screen app out one top inset short of the screen and draws
+   nothing below that edge (WebKit 301108): the 47 pt band. A root taller by the inset makes
+   iOS size the page to the whole screen (owner's iPhone: innerHeight 797 → 844). Capped at
+   100lvh, so a device with no top inset doesn't scroll. Replaces v1.20's --viewport-gap, which moved
+   our layers below an edge iOS never draws past */
+@media (display-mode: standalone) {
+  html {
+    min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
   }
 }

@@ -175,7 +175,8 @@ function OptionButton({
       onClick={() => onSelect(option)}
       className={cn(
         "flex w-full items-start gap-2 rounded-lg p-2 text-left hover:bg-muted",
-        selected && "bg-muted",
+        // the same selected look as a resort row (T3)
+        selected && "bg-accent ring-1 ring-primary hover:bg-accent",
       )}
     >
       <span className="mt-0.5 rounded bg-teal-700 px-1.5 text-xs font-bold text-white">
@@ -250,7 +251,7 @@ function OptionRow({
             <button
               type="button"
               aria-label="Start bus journey"
-              className="mt-1 ml-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+              className="mt-1 ml-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90"
               onClick={onStart}
             >
               ▶ Start
@@ -457,8 +458,9 @@ export function BusPanel(props: BusPanelProps) {
   const range = departRange();
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end gap-3 text-sm">
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+        {/* v1.26: label beside the box, one row fewer before the options */}
+        <div className="flex items-center gap-2">
           <label htmlFor="depart-at" className="font-medium">
             Leave after
           </label>
@@ -475,7 +477,7 @@ export function BusPanel(props: BusPanelProps) {
             }
           />
         </div>
-        <label className="flex items-center gap-2 pb-1">
+        <label className="flex items-center gap-2">
           <input
             type="checkbox"
             checked={showNight}

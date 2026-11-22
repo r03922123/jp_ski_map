@@ -12,6 +12,7 @@ ORIGIN = "36.69830,137.86190"
 
 SNOW = {
     "resortId": "happo-one",
+    "asOf": "2026-12-27T07:00:00+09:00",
     "depthCm": {"base": 40, "summit": 120, "source": "model"},
     "newSnowCm": {"past24h": 12.0, "past72h": 20.0, "next24h": 5.0, "next72h": 9.0},
 }
@@ -60,6 +61,7 @@ def test_search_place_sends_query_and_returns_coord_string() -> None:
     assert route.calls.last.request.url.params == httpx.QueryParams(q="白馬駅", limit="3")
     assert out == [
         {
+            "id": "osm:node/1",
             "name": "JR Hakuba Station",
             "nameJa": "白馬駅",
             "kind": "station",
@@ -84,6 +86,7 @@ def test_rank_resorts_maps_params_drops_none_and_trims() -> None:
         "driveMin": 10.0,
         "summitDepthCm": 120,
         "newSnow24hCm": 12.0,
+        "snowAsOf": "2026-12-27T07:00",  # the API serves an older report in an outage
         "crowdLevel": "high",
     }
 
@@ -95,13 +98,16 @@ def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
     out = s.rank_resorts(ORIGIN)
     assert out[0]["driveMin"] is None
     assert out[0]["summitDepthCm"] is None
+    assert out[0]["snowAsOf"] is None
     assert out[0]["crowdLevel"] is None
 
 
 @respx.mock
 def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
     option = {
+        "boardStopId": "hotel-hakuba",
         "boardStopName": "Hotel Hakuba",
+        "firstStopName": "Hakuba Hotel",  # timetable spelling: must not leak as another stop
         "walkS": 652,
         "departsAt": "2026-12-20T08:14:00+09:00",
         "arrivesAt": "2026-12-20T08:19:00+09:00",
@@ -129,6 +135,7 @@ def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
     opts = out["resorts"][0]["options"]
     assert len(opts) == 2
     assert opts[0] == {
+        "boardStopId": "hotel-hakuba",
         "boardStop": "Hotel Hakuba",
         "walkMin": 10.9,
         "departs": "2026-12-20T08:14",
@@ -137,6 +144,46 @@ def test_next_buses_trims_options_to_minutes_and_local_times() -> None:
         "route": "From Misorano",
         "timed": True,
     }
+
+
+@respx.mock
+def test_next_buses_keeps_an_untimed_option_without_arrival() -> None:
+    # production 2026-11-16 09:36 UTC: JR Hakuba has no published time on this trip, so the API
+    # gives the last earlier one (at Iwatake) and arrivesAt/rideS null; [:16] on None crashed
+    untimed = {
+        "boardStopId": "jr-hakuba",
+        "boardStopName": "JR Hakuba Station",
+        "firstStopName": "Hakuba Iwatake Snow Field",
+        "walkS": 0,
+        "departsAt": "2026-12-20T15:18:00+09:00",
+        "arrivesAt": None,
+        "rideS": None,
+        "routeName": "Hakuba Valley Line",
+        "timed": False,
+    }
+    respx.get(f"{API}/api/bus/options").respond(
+        json={
+            "status": "ok",
+            "nextServiceDate": None,
+            "basis": "published",
+            "newerSourcePending": False,
+            "resorts": [{"resortId": "goryu", "options": [untimed]}],
+        }
+    )
+    out = s.next_buses(ORIGIN)
+    assert out["resorts"][0]["options"] == [
+        {
+            "boardStopId": "jr-hakuba",
+            "boardStop": "JR Hakuba Station",
+            "walkMin": 0.0,
+            "departs": "2026-12-20T15:18",
+            "departsFrom": "Hakuba Iwatake Snow Field",  # not the boarding stop: say so
+            "arrives": None,
+            "rideMin": None,
+            "route": "Hakuba Valley Line",
+            "timed": False,
+        }
+    ]
 
 
 @respx.mock
@@ -162,10 +209,14 @@ def test_route_resolves_resort_id_to_its_first_access_point() -> None:
 
 
 @respx.mock
-def test_route_unknown_resort_id_is_a_tool_error() -> None:
-    respx.get(f"{API}/api/resorts").respond(json=[])
-    with pytest.raises(ToolError, match="unknown place 'nowhere'"):
-        s.route("walk", "nowhere", ORIGIN)
+def test_route_unknown_resort_id_lists_the_valid_ids() -> None:
+    # an agent guessed 'hakuba47-goryu' in the eval; the error should say what to pass instead
+    respx.get(f"{API}/api/resorts").respond(json=[{"id": "goryu"}, {"id": "hakuba47"}])
+    with pytest.raises(ToolError) as e:
+        s.route("walk", "hakuba47-goryu", ORIGIN)
+    assert str(e.value) == (
+        "unknown place 'hakuba47-goryu': pass 'lat,lng' or a resort id: goryu, hakuba47"
+    )
 
 
 @respx.mock
@@ -195,6 +246,7 @@ def test_nearby_pois_params_and_trimming() -> None:
     }
     assert out == [
         {
+            "id": "osm:node/1",
             "name": "Lawson",
             "nameJa": "ローソン",
             "minutes": 18.8,
@@ -223,6 +275,7 @@ def test_crowd_and_snow_joins_by_resort() -> None:
             "newSnowPast24hCm": 12.0,
             "newSnowNext24hCm": 5.0,
             "newSnowNext72hCm": 9.0,
+            "snowAsOf": "2026-12-27T07:00",
         }
     ]
 

@@ -314,3 +314,288 @@ Success means:
 2. **The credits fold after five seconds.** They show on first display, as OSM's attribution guidelines require, then fold to the ⓘ, which reopens them. After that first display a new trip folds them again (J10); a shared trip link no longer folds them before it.
 
 **Success criteria.** `e2e/sheet-needs-start.spec.ts` and `e2e/map-credits.spec.ts` pass. Laptops are unchanged.
+
+## v1.16: Full screen on the phone, from the home screen (2026-11-20, the owner's ask)
+
+**Objective.** On a phone the app fills the whole screen, like a native app, with no browser address bar or
+tab bar taking map space.
+
+**Decision.** iPhone Safari never lets a page hide its own bars (the Fullscreen API works only on iPad and
+for video), so the only way on an iPhone is **Add to Home Screen**: the app then opens in its own window
+(`display: standalone`). Android Chrome does the same from "Install app" / "Add to Home screen". This adds a
+web app manifest and icons only: **no service worker and no offline mode** (that stays under "Ask first").
+`standalone`, not `fullscreen`: iOS ignores `fullscreen`, and keeping the phone's status bar (clock,
+battery) avoids putting the search bar under the notch, so no safe-area work is needed at the top.
+
+**What changes.** `app/manifest.ts` (name, `start_url: "/"`, `display: "standalone"`, title-screen navy as
+the splash background, PNG icons 192 and 512), `app/icon.tsx` and `app/apple-icon.tsx` drawing the idle rider
+sprite on navy, and `metadata.appleWebApp` so iOS opens the home-screen icon as an app.
+
+**Known limit.** iOS keeps a home-screen app's storage apart from Safari's, so saved places made in Safari
+don't appear in the home-screen app (and the reverse).
+
+**Done when.**
+- [ ] vitest: the manifest has `display: "standalone"`, `start_url: "/"` and a 192 and a 512 PNG icon whose
+  `src` the icon route serves.
+- [ ] On the dev server: `/manifest.webmanifest`, `/icon/192`, `/icon/512` and the apple icon return 200 with the
+  right content type and size; `<head>` has the manifest link, `apple-touch-icon` and
+  `mobile-web-app-capable`.
+- [ ] CI checks pass and the production smoke test passes after deploy.
+- Not checkable here: the real Add to Home Screen on the owner's iPhone.
+
+## v1.17: A low resting height for the sheet (2026-11-20, gap G1 in SPEC-maps-ios-ux)
+
+**Objective.** With a trip or the ranked list open on a phone, the user can drag the sheet down to a low
+height and get most of the screen for the map. Google Maps' place sheet rests at 143 pt of an 844 pt screen,
+leaving 71% for the map. Our lowest is 40dvh, which leaves 33–39% (BC-L1 update, 2026-11-20).
+
+**Rules** (phones only; from `md` up the sheet is a side card and nothing changes).
+- Three states, `data-state` = `low` | `collapsed` | `expanded`. A route or a new destination still opens
+  `collapsed`.
+- A downward drag or swipe (> 30 px) goes one step down: expanded → collapsed → low. An upward one goes one step
+  up: low → collapsed → expanded. A tap or Enter on the handle toggles collapsed ↔ expanded, and from low it
+  goes to collapsed.
+- `low` is 84 px: the handle and the first row. With a route (`slim`) that row is the ETA and Start, as on a
+  landscape phone, kept to one line; otherwise it is the top of the sheet's content (the mode tabs). The body
+  scrolls back to the top.
+- New content in the sheet (Saved opened, a category list, another mode) brings a low sheet up to collapsed
+  (`raiseKey`), so it never shows in an 84 px strip.
+- From `md` up (a touch tablet) touch drags don't change the side card's state.
+- Keyboard and screen-reader users don't reach `low`: it is a view convenience, and nothing lives only there.
+- The map credits sit above whichever height the sheet has (84 px + 32 px when low).
+- The handle in `low` reads "Expand directions", with `aria-expanded="false"`.
+- Recorded change: a downward drag on a collapsed sheet used to do nothing except keep Safari's pull-to-refresh
+  away (T79). It now lowers the sheet, and Safari still never sees it.
+
+**Not in this change:** refitting the camera to the larger map when the sheet goes low (the route stays where
+the 40% fit put it).
+
+**Done when.**
+- [ ] vitest (`tests/BottomSheet.test.tsx`): the transitions above for handle swipes, body drags and taps.
+- [ ] e2e `layout-share.spec.ts`: a new state, L4 with the sheet swiped low, shows map ≥ 60% of the page at
+  390×797 and 360×740, against 35% when collapsed, with the ETA on one line. The ETA and Start stay visible and on top (as in `small-phone.spec.ts`).
+- [ ] e2e `map-credits.spec.ts` and `small-phone.spec.ts` still pass. A phone-size screenshot of the low sheet.
+
+## v1.18: A two-row trip card (2026-11-20, gap G2 in SPEC-maps-ios-ux; the owner chose "Add destination in the sheet")
+
+**Objective.** The trip card on top ends higher, so the map gets the rows it used. In directions preview the
+card was 172 px against Google's ≈95 pt: a third row held "+ Add destination", the destination's ☆ and
+★ Saved.
+
+**Rules.**
+- Two bars: row 1 is the rail, the From box and **★ Saved**, the same place it has in the one-bar card. Row 2 is
+  the rail, the To box and the destination's **☆**. ⇅ stays to the right of both rows. No third row, on any
+  screen.
+- **"+ Add destination" moves into the sheet**, just above the Trip list (From, then the stops), which is
+  where the stop box it opens appears. Above, not under: at 360×740 two stops pushed it under the sticky ETA
+  row (measured in review: its bottom at 732 px, the ETA row's top at 676). Its focus handling (TripPanel hands focus back to it after an edit) is unchanged.
+- Recorded change: when the sheet is only its 84 px bar (a landscape phone with a route, or the low sheet of
+  v1.17) Add destination is one swipe up away; before it was in the card.
+- Recorded change: while Saved is open the sheet shows Saved, so Add destination isn't on screen. It comes
+  back when Saved closes (v1.13 had it in the top card, where it also closed Saved).
+- The expanded sheet's top limit follows the shorter card (`BottomSheet` 100dvh − 180 px, `route-geo`
+  `TRIP_CARD_PX` 132), so the strip of map above an expanded sheet sits at 120–176 px.
+- The To box's hint is "Where to?": "Search a destination" no longer fits the narrower box at 360 px.
+- Trade-off, recorded: ★ and ☆ each take a 44 px slot beside the boxes (the touch-target minimum), so the boxes
+  are 48 px narrower: 200 px at 360 px wide (was 248), 233 px at 393. Long names truncate sooner.
+
+**Done when.**
+- [ ] e2e `journeys/trip-card.spec.ts`: ★ Saved is right of the From box, ☆ right of the To box, and nothing in
+  the card is below the To box. Add destination is inside the sheet, opens Stop 1, and is hidden while Saved is
+  open. At 360×740 the To box is at least 200 px wide (was 220).
+- [ ] e2e `layout-share.spec.ts` L4 at 390×797: top chrome ≤ 16% of the page (it was 21.6%).
+- [ ] vitest: TripPanel shows the Add destination slot under the Trip list. The stops e2e and journeys still
+  pass, or fail on main the same way.
+
+## v1.19: The map runs under the status bar (2026-11-20, the owner's ask from an iPhone screenshot)
+
+**Objective.** In the home-screen app the map fills the whole screen, the status bar included, as in Google
+Maps. Today the page starts under an opaque status bar, which shows as a solid navy strip above the map.
+
+**Rules.**
+- `viewport-fit=cover` and `apple-mobile-web-app-status-bar-style: black-translucent`: the page draws under the
+  status bar and the home indicator. The clock is white, so a dark fade (the status bar's height, pointer
+  events off) keeps it readable over a light map.
+- One set of insets, `--safe-top|bottom|left|right` = `env(safe-area-inset-*)` on `:root`, keeps controls out of
+  the system areas:
+  - the trip card sits `--safe-top` lower and the sheet `--safe-bottom` higher, both with `--safe-left|right`
+    in landscape;
+  - the expanded sheet's limit, the credits' lift and the map controls follow the same insets;
+  - the navigation views pad their top bar by `--safe-top` (their bottom bars already pad by the bottom inset).
+- The camera fit (`route-geo`: `mapPadding`, `pinEaseOffsetY`, `pinCardAnchor`) takes the same insets in px,
+  read once from a probe element, so routes and pins stay clear of the moved panels.
+- In a Safari tab the insets are 0 in portrait, so nothing moves there. In landscape a notched iPhone has side
+  insets in Safari too, and is ≥ 812 px wide, so the md side card and its camera fit also take the insets.
+- MapLibre's corner controls are moved with a selector scoped under `.maplibregl-map`: MapLibre's own
+  stylesheet loads after ours and resets the corners to 0.
+- Phone dialogs pinned to the bottom (ImportDialog, ListPicker) pad their buttons above the home indicator.
+
+**Done when.**
+- [ ] vitest: route-geo with `safe = { top: 47, bottom: 34 }` moves the fit's top and bottom by those amounts,
+  and the pin rules use the moved edges.
+- [ ] e2e `layout-share.spec.ts`, iPhone insets simulated by setting `--safe-top: 47px; --safe-bottom: 34px` at
+  390×844: the rows behind the status bar (0–47) are map; the card's top is ≥ 47 px; the sheet's bottom is
+  ≤ 844 − 34 (and within 8 px of it); L4-low map ≥ 70% of the screen. Measured: 73.8% (Google's place sheet: 71%).
+- [ ] Owner's check on the real iPhone (home-screen app): map behind the clock, clock readable, nothing under
+  the notch or the home bar.
+
+## v1.20: No band below the map in the home-screen app (2026-11-20, the owner's iPhone screenshot)
+After v1.19, the owner's iPhone home-screen app showed the map behind the clock but a 47 pt
+band of page background below the sheet: iOS lays the page out one status bar (47 pt)
+shorter than the 844 pt screen, so every `fixed inset-0` layer stopped early.
+- `trackViewportGap` (lib/safe-insets) sets `--viewport-gap` on `<html>`: the screen's
+  height minus the page's, capped at the status bar's height, and only where
+  `navigator.standalone` is true (iOS home-screen apps; Android's screen also counts its nav
+  bar). One unlayered rule in globals.css extends every `.fixed.inset-0` layer by it.
+- Done when: unit tests for the gap; the e2e "home-screen viewport short by the status bar"
+  (797 px viewport on an 844 px screen) sees `main` 844 px tall, and fails without the fix.
+- The bottom sheet (its own `fixed` layer) moves down by the same gap, so it stays right above
+  the home bar and the credits stay above it. iPad Split View (window narrower than the
+  screen) gets no gap. Owner's check on the real iPhone is the last part of done.
+- Not ours: the frosted strip behind the clock is drawn by iOS; the app has no blur.
+
+## v1.21: A viewport check page for the owner's iPhone (2026-11-20)
+v1.20's fix didn't change the owner's phone: the 47 pt band stayed, so one of the numbers it
+relies on reads differently on the device, and Chromium can't show which. `/viewport-check`
+prints what iOS reports (standalone, screen, inner, visualViewport, safe insets, the gap)
+and draws one coloured column per CSS height (inset-0, 100vh/lvh/dvh/svh, inset-0 extended
+by the top inset), so a screenshot from the home screen shows which reaches the screen's
+bottom. A button hides the status-bar fade, to see whether the frosted strip is iOS's own.
+Diagnostic only; removed once the band and blur are fixed.
+
+## v1.22: The band, take two, and a sheet on the bottom edge (2026-11-20, the owner's iPhone)
+v1.20 changed nothing on the owner's iPhone. `/viewport-check`, read in a Safari tab, showed
+a tab's top inset is 0 (and its viewport 145 pt short, for its toolbars). Not measured in the
+home-screen app itself, so v1.20's `navigator.standalone` gate is the likely cause, not a
+proven one. The gate is now the shortfall itself: on Apple's WebKit (`navigator.vendor`),
+when the viewport is short of the screen by exactly the top inset (±1 px), the layers extend
+by it; any other shortfall (a tab, a shorter window) gives 0. Measured again 1 s after load.
+- Google Maps layout: on phones the sheet sits on the screen's bottom edge, full width
+  (inside the side insets); `pb-(--safe-bottom)` keeps its content above the home bar and
+  every phone height adds that padding back, so the sheet's top edge stays where it was.
+- Done when: the e2e sheet bottom is the screen's bottom (844) with 34 px padding, in the
+  notch simulation and in the short-viewport one; the unbroken map band with the sheet low
+  stays ≥ 63% (the docked sheet now covers the strip of map by the home bar). Owner's check
+  on the real iPhone is the last part.
+- Open: the frosted strip behind the clock is drawn by iOS, not the app.
+
+## v1.23: Collapse the side panel on a laptop (2026-11-20, BC-L2)
+The owner asked for Google Maps' layout on the laptop too. Measured (BC-L2): Google's directions card is
+408 px wide and full height, like our 384 px card, so the split already matches; the gap is that Google's
+card can be collapsed and ours can't, so a trip always hides 400 px of map.
+- From `md` up, a "Collapse side panel" button (24 × 48; 44 wide on touch screens, growing outward) sits
+  just outside the card's right edge, centred on the card,
+  `aria-expanded` and `aria-controls` set. Pressing it slides the card left out of the window and makes
+  its content `invisible` (so Tab skips it); the button stays, now "Expand side panel", at the window's left
+  edge, right of the safe-area line (a landscape iPhone's notch). Pressing it again brings the card back. Focus stays on the button.
+- The camera doesn't move on either press (as Google's). Whatever opens inside the card brings it back: a
+  new destination (`collapseKey`), a new route (`revealKey`, e.g. "Start here" from a pin), and new content
+  (`raiseKey`: Saved from a saved marker, an imported list).
+- Phones (below `md`) are unchanged: the button is not rendered there (`hidden md:flex`).
+- Done when: BottomSheet unit tests cover the toggle, its labels and the reopen on a new destination;
+  `e2e/side-panel.spec.ts` at 1440×900 shows a tap at the card's old centre lands on the map after
+  collapsing, the expand tab is on screen and on top, the map's centre is unchanged, and expanding brings
+  the card back; on a touch 844×390 screen with a 47 px notch the tab sits beside the card, and once
+  collapsed it rests right of the notch, on top. Not done: durations on the mode tabs (cluster G).
+
+## v1.24: Each mode tab shows its travel time (2026-11-20, BC-L1 + BC-L2)
+Google Maps' mode row shows every mode's duration, on the iPhone (BC-L1: 🚗 7 min · 🚌 23 min · 🚶 40 min)
+and on the laptop (BC-L2), so modes can be compared without switching. Ours showed a time only for the open
+tab. Cluster G's candidate, now taken for drive and walk.
+- With a start and a resort or pin destination, the Drive and Walk tabs read "🚗 Drive 8 min" and
+  "🚶 Walk 11 min" (`formatDuration` of the primary route, through the trip's stops when there are any).
+  Shown on every tab, Bus included (the drive and walk targets are the resort, not the bus stop). On
+  phones (below `sm`) the word is screen-reader only once a time shows, so "🚶 1 h 36 min" fits 320 px, as
+  Google's phone row shows icon and time.
+- Both routes are asked for with the route panel's own query key, so the open tab's route is one shared
+  request and switching tabs then shows its route at once, from the cache. Extra Valhalla requests (our own
+  server, no cost): one per trip in drive or walk mode, two in bus mode (drive and walk to the resort), and
+  the hidden mode refetches when the browser tab regains focus, as the panel's own route does.
+- Times need one place for every mode. Drive heads for the ranking's nearest entrance and the others use the
+  first until a ranking is cached, so a resort with several entrances (Happo-One, Goryu) shows times once the
+  ranking has loaded, which happens in drive mode (review of #106). Not shown: for such a resort before that, for a Food or Konbini list (the destination there is picked per mode, so another mode's time
+  would be to a different place), while loading, or after an error (the tab stays as it was). The Bus tab
+  keeps its plain label: its time depends on the timetable choice.
+- Done when: MapShell tests show both times on the tabs for a resort with one shared drive request, none for
+  a Food place, none for a two-entrance resort with no ranking; `e2e/mode-tabs.spec.ts` fits 320 px with a
+  walk over an hour, and the 384 px side card at 1280×800; a two-entrance resort hides the times again when
+  the start moves in Walk (the ranking's placeholder is the old start's); the route panel still asks for the
+  open mode's route.
+
+## v1.25: An ordinary status bar ends the band and the blur (2026-11-20, the owner's iPhone screenshots)
+After v1.20 and v1.22 the home-screen app still showed a 47 pt band below the sheet, and a blurred dark strip
+behind the clock. Both come from v1.19's `black-translucent` status bar: iOS lays that app out one status bar
+short (the band, which two measured patches didn't remove on the owner's phone), and draws the clock white
+over the map, so iOS's frosted strip and our dark fade sit over it (the blur). Google's app has a dark clock over
+a clear map; a web app can't (`black-translucent` is the only style that draws under the bar, and its clock is
+white).
+- `statusBarStyle: "default"`: the page starts below an ordinary, opaque status bar and reaches the screen's
+  bottom, as a Safari tab does. The fade behind the clock goes (nothing runs under the bar to fade). The map
+  no longer shows behind the clock, the 47 pt that the clock covered anyway.
+- The bar is a solid strip, so its colour is set: `theme-color` `#eef3f7`, the page's background and the
+  manifest's `theme_color`, with a dark clock. Before v1.19 this style showed a navy strip (the owner's
+  complaint then); whether iOS paints the bar from `theme-color` or from the manifest is unknown, so the
+  owner's phone decides (review of #108). If it is still navy, the next thing to change is the manifest's
+  `background_color` (the icon's navy; Android's splash screen uses it too).
+- `--viewport-gap` stays: it is 0 unless the shortfall equals a non-zero top inset, which this style shouldn't
+  produce. Removed once the owner's iPhone shows no band.
+- Done when: e2e reads `default` in the status-bar meta, `#eef3f7` in `theme-color`, and finds no fade; on the
+  owner's iPhone the home-screen app shows no band and a light bar, and `/viewport-check` opened from it reads
+  safe top 0 and `--viewport-gap 0px` (if iOS still reported a 47 pt top inset here, the gap code would push
+  every layer 47 pt past the bottom). Whether iOS re-reads the style at launch or only when the icon is added
+  is unknown: if the old look stays after closing and reopening the app, remove the icon and add it again.
+
+## v1.26: The sheet shows the answer first (2026-11-20, the owner's Google Maps screenshot, BC-L1)
+The owner's screenshot of Google Maps' iPhone route preview: under the mode row with times, the sheet shows
+the answer (time, arrival, distance) and Start, and nothing else above the fold; its map gets 422 pt (50%) of
+the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to planning controls: a second
+"Dropped pin" row, the date box with its label above it, Night bus and a notice; its map got 321 pt (38%).
+- Drive and Walk: the directions (ETA, arrival, Start, then steps) come right after the mode tabs, before the
+  trip list and the Resorts / Food / Konbini picker. Walk had them last.
+- The trip list (its From row, stops and "+ Add destination") follows the answer; in Bus it follows the
+  options. With stops it leads, above the answer: it is what the user is editing, and v1.18's "Add
+  destination in the collapsed sheet with two stops" holds. The answer moves, the list keeps its place in the
+  tree (a moved list remounts and loses its focus after a stop is removed). Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
+  hides the place card (review of #109), and the journey e2e specs use its ✕.
+- Bus: "Leave after" sits beside its date box, not above it (one row fewer before the options).
+- Not taken: Google's title row and its share/filter buttons; Start, Add stops and Save as one button row
+  (our Start sits in the sticky ETA row, ★ beside the top card's To).
+- Done when: ModePanel tests put the ETA before the picker in Walk and before the trip list in Drive, and
+  Bus's options before the trip list; e2e journeys, saved, stops, bus, sheet-needs-start and small-phone
+  fail only where main does.
+
+## v1.27: A slimmer trip card (2026-11-20, the owner's Google Maps screenshot)
+Google's From/To card in the owner's screenshot is ≈95 pt: two rows with a divider and no gap. Ours was 112 px:
+8 padding, a 44 px box, an 8 px gap, a 44 px box, 8 padding. The boxes stay 44 px (touch targets, T75), so the
+padding goes to 4 and the gap to 2: 98 px, 14 px more map in every phone state with a trip.
+- `TRIP_CARD_PX` (route-geo, the card's bottom plus frame and margin) 132 → 118, and the expanded sheet's
+  reserve 180 → 166 px with it. Landscape constants stay (an overestimate only leaves more room).
+- Done when: layout-share L4 top chrome ≤ 13.5% at 393×852 (it was ≤ 16, measured ≈14.6%); route-geo tests
+  use 118; the From/To connector dots still sit between the two markers.
+
+## v1.28: The home-screen app fills the screen (2026-11-20, read on the owner's iPhone)
+v1.25's `default` status bar didn't end the band. Read through Web Inspector from the re-added home-screen
+icon (iOS 27.2.1, iPhone 12, 390×844): `standalone` true, status-bar meta `default`, yet safe-area top 47 px
+and `innerHeight` 797. iOS still runs the app under the clock and lays it out one top inset short, and it
+draws nothing below that edge, so v1.20/v1.22's `--viewport-gap` (which moved our layers to 844) could never
+show there. Field reports name it WebKit 301108 (iOS 26+ home-screen apps).
+- `@media (display-mode: standalone) { html { min-height: min(100lvh, calc(100% + env(safe-area-inset-top))) } }`:
+  a root taller by the top inset makes iOS size the page to the screen. Injected live on the owner's phone:
+  `innerHeight` 797 → 844, `main` 0–844 and the sheet 472–844 once the gap was 0. The `100lvh` cap keeps a
+  device with no top inset from scrolling.
+- `--viewport-gap` (v1.20/v1.22) is deleted: it never showed on the device, and iOS can grow the page
+  without a `resize` event, so a stale 47 px gap would push the sheet below the screen (review of #112).
+  The sheet sits at `bottom-0`; the Chromium simulation of the short viewport goes with it.
+- Done when: `e2e/standalone-height.spec.ts` finds the rule with a value the browser accepts (Chromium can't
+  emulate standalone); after deploy, the phone's home-screen app reads `innerHeight` 844 and `scrollHeight`
+  equal to it (`/viewport-check`) on a cold launch, after rotating, and after coming back from the
+  background, and shows no band.
+- Open: the blur behind the clock. With iOS keeping the app under the clock whatever the meta says, the strip
+  is iOS's; next step is a screenshot from the phone to see what it is.
+
+## v1.29: Extend the live map behind the Home Screen clock
+
+Request a translucent iOS status bar and draw the live map up to the top edge. Keep the
+search box 8 px below the reported safe area and retain v1.28 root sizing. Pass when
+the pixels behind the clock change with the canvas and the search stays at its original
+position. Verify native blur, clock readability and the bottom edge on a cold iPhone launch.

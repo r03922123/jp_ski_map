@@ -111,7 +111,7 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - `suggest()` builds the page as lexical hits, then Photon (still only when fewer than 3 lexical hits), then semantic hits, and cuts to the limit once, so semantic hits never push a name-checked Photon hit off the page. A semantic lodging or bus-stop hit must share a distinctive word with the query, and a query of only area and generic words names no place (`names_a_place`), because a look-alike hotel is a confidently wrong answer.
 - *Tried and dropped:* reciprocal rank fusion (RRF, k=60). It rewards items both lists rank high, which put Hakuba Grace Inn above the exact "Hotel Grace Hakuba" on `booking_eval.json` (26 → 25 hits). With only the kind filter, hybrid also turned all 4 absent hotels into wrong answers (4 → 0).
 - Fine-tuning (`ml/search`): synthetic (query, entry) pairs generated from the index (typos, dropped words, romaji readings, Chinese/variant characters, cuisine and shop words), contrastive training with in-batch negatives (MultipleNegativesRankingLoss) on the Mac's GPU (MPS). Entries are split 80/20 so the synthetic dev set has names the model never trained on.
-- Tracking: every eval run logs params and metrics to a local MLflow store (`ml/search/mlruns`, gitignored).
+- Tracking: every eval run logs params and metrics to a local MLflow store (`ml/search/mlflow.db`, gitignored).
 
 **Evaluation**
 - `ml/search/evals/hard_queries.json`: 40 hand-written queries in 4 groups. `synth.make_pairs` drops any training or dev query equal to one of them (a test checks it): the first fine-tune had 13 of the 40 word for word in its training pairs. Metric: hit@1 and hit@5 per mode (lexical, semantic, hybrid) and model (base, fine-tuned).
@@ -139,6 +139,62 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 - Calibrated on dev, the base model keeps almost nothing (its top-1 is rarely 90% right), so the 0.65 row relied on an untested threshold. Fine-tuning made the model usable at a calibrated threshold, and lifted English resort names, but scored lower on food and shop categories than the guessed-threshold base model (0.75 → 0.45): 82% of the training pairs are lodging names.
 - The eval patches `semantic_ids` in process, so its hit and latency numbers skip the HTTP hop and the 300 ms timeout; live, a loaded Mac falls back to lexical more often (seen: two `ReadTimeout`s on a cold server).
 - Latency on the loaded Mac (load average 25–40): embedding server 30–56 ms warm; `suggest()` hybrid p50 49 ms, p95 81 ms, against lexical p50 33 ms, p95 78 ms.
+- Error bars (2026-11-16, same fine-tuned model and threshold, re-run): `evaluate` now prints `n`, the standard error of hit@5 (sample sd / √n; ± one standard error covers about 68%, so a 95% range is roughly double), and each mode's difference from lexical on the same 40 queries. Lexical 0.15 ± 0.057, hybrid 0.55 ± 0.080, semantic only 0.60 ± 0.078; hybrid − lexical = +0.40 ± 0.078 paired (16 queries gained, none lost; as two separate samples it would be ± 0.098), about 5 standard errors, so that gain is real. The step between the two fine-tunes above (0.475 → 0.55), compared the same way from their logged misses: 3 queries gained, none lost, +0.075 ± 0.042, about 1.8 standard errors, so it is suggestive and not established. A standard error of 0 (every query hit, or none) means no spread was seen, not certainty.
 - **Next:** rebalance the synthetic pairs by kind and judge it on a *new* held-out query set, since this hard set has now been seen. Semantic search stays off in production until then.
 
 **Boundaries:** local models only ($0); the model and MLflow files are never committed; the app logger and the embedding server (access log off) never log query text. The production API's uvicorn access log already records `/api/places/suggest?q=…`, as before this change.
+
+## v1.5 — Readings for kanji names, and sourced aliases (2026-11-21)
+
+**Problem (found by the owner):** 雪の荘 (Hakuba Style Inn Yukinoso, 北城八方5221) is in the Overture snapshot under its Japanese name only. `kana.to_romaji` drops kanji it doesn't know, so the name reads "no": "yukinoso", "yuki no so" and ゆきのそう found nothing, and "yukinoso" answered with かにさわ館 by sound key (`kns`). Its English names live outside our data, and two sources disagree: Google Maps says "Hakuba style Inn YUKINOSO", LIVE JAPAN "Hakuba Hospitality Inn Yukinoso".
+
+**Decisions**
+1. **Generated readings, offline.** `places/refresh_readings.py` splits each Japanese lodging name into words with fugashi and the unidic-lite dictionary (both MIT; run with `uv run --with fugashi --with unidic-lite`, not project dependencies, like DuckDB for the Overture refresh), applies `KANA_OVERRIDES` (荘 → ソウ: the dictionary reads it "shou"), and romanises each word with `kana.to_romaji`, so loanwords and long vowels follow the v1.3 rules ("hakuba tokyu hotel"). Each name gets its kana, a spaced form and, for several words, a joined form ("yuki no so", "yukinoso"). Output: `data/lodging_readings.json` (612 names). pykakasi reads 雪の荘 right too but is GPL-3.0, so it isn't used.
+2. **A reading scores just below an equal spelled name.** Readings score `min(score, 85) − 1`: with the spelled-word tiers equal, "bar" is Endless Bar & Restaurant, not ホテル サニーバレー ("sani bare"). Coverage and sound penalties can still bring the two level (review: 7 ties in 1,355 queries, e.g. "abest hakuba"); distance then decides, as before. A rule that a spelled name wins every tie was tried and dropped: "Hotel Grace Hakuba" then gave Hakuba Grace Inn instead of ホテルグレース白馬 (booking_eval 26 → 25).
+3. **Aliases are sourced and reviewed.** `data/lodging_aliases.json` lists other names with the `https` page that gives each and a `status`; only `reviewed` ones reach the index, because a wrong alias is a confidently wrong answer. The snapshots stay untouched, so a refresh never erases an alias. Names from Google Maps are not stored (its terms limit caching). The first entry, LIVE JAPAN's name for 雪の荘, starts `unreviewed`.
+4. The validator checks that every reading and alias names a lodging we hold, that each alias has an `https` source, and that no lodging lists one alias twice.
+
+**Results (2026-11-21, local index, no Photon)**
+- 雪の荘: "yukinoso", "Yukinoso Hakuba", "yuki no so", ゆきのそう and ユキノソウ now put it first. "Hakuba style Inn YUKINOSO" still finds nothing, because "style" is a distinctive word no stored name has; "Hakuba Hospitality Inn Yukinoso" finds it once that alias is reviewed.
+- `booking_eval.json`: 26/26 present, 4/4 absent, 0 wrong (unchanged). The v1.4 hard set, lexical only: 6/40 hit@5 (unchanged; it is Chinese names and categories).
+- Sweep of 1,905 single-word and two-word queries built from index names: 12 top-1 changes. 10 swap between two places that share the word (Hotel Ogiya → 扇屋旅館, Pals Inn Raicho → ヴィラ雷鳥) or are better ("Pheonix" now also finds ホテルフェニックスウィング白馬の森, read "fenikkusu wingu"). 1 is noise ("s o"). 1 is worse: "tabi tabi" ranks ペンション 旅人 ("pension tabibito") above Tabi-Tabi lodge, because both query words match the one word "tabibito"; "Tabi-Tabi lodge" itself is unaffected.
+
+**Acceptance**
+- [x] "yukinoso", "yuki no so" and ゆきのそう find 雪の荘 first (unit test and shipped-data test).
+- [x] Only reviewed aliases reach the index (unit test).
+- [x] `booking_eval.json` unchanged; API gates green.
+- [ ] The owner reviews the 雪の荘 alias; the alias pilot (30 lodgings, each alias with its source) follows in its own PR.
+
+**Known, not fixed here:** a reading can tie a spelled name, and distance decides (Decision 2); a repeated query word can match one name word twice ("tabi tabi"); sound keys still pair "yukinoso" with かにさわ館 (second place now) and "Hakuba style Inn" with シャトレ山彦.
+
+**Next:** the alias pilot; then v1.4's open step, a new held-out query set to re-judge semantic search, which stays off in production.
+
+## v1.6 — Semantic search re-judged on a new held-out set (experiment, 2026-11-21)
+
+**Why:** v1.4's hard set has been seen while tuning, and 82% of the training pairs were lodging names, so v1.4's Next asked for a rebalanced fine-tune judged on a *new* set. Production stays off (`HAKUBA_SEMANTIC_URL` unset).
+
+**Done**
+- `ml/search/evals/heldout_v2.json`: 55 hand-written queries (23 category, 13 resort, 8 stop, 11 lodging; Simplified Chinese, translated hotel names, misspellings), committed (b036e92) before any semantic result on them. Every case has a target in the index; two Korean cases were dropped beforehand because their only target is an izakaya tagged korean. `synth.held_out()` bans both sets from training (95 queries, tested), and `evaluate --cases` picks the set.
+- `synth.rebalance`: any kind above `--max-kind-share` of the train pairs is sampled down (default 0.5; 1.0 = v1.4). The dev split is left as it is, so calibration compares.
+- Two fine-tunes on the v1.5 index, one after the other, one epoch each: **A** unbalanced (4,835 pairs, 75% lodging, 69 s), **B** rebalanced (2,398 pairs, 37 s). Each threshold calibrated on dev before the new set was run: base 0.9129, A 0.5566, B 0.6128.
+
+**Results (hit@5, ± one standard error; differences paired on the same queries)**
+
+| Model | Set | Lexical | Semantic only | Hybrid | Hybrid − lexical |
+|---|---|---|---|---|---|
+| Base e5-small | new, n=55 | 0.145 | 0.000 | 0.145 | 0 |
+| A unbalanced | new, n=55 | 0.145 ± 0.048 | 0.255 ± 0.059 | 0.182 ± 0.052 | +0.036 ± 0.025 (2 gained, 0 lost) |
+| B rebalanced | new, n=55 | 0.145 | 0.127 ± 0.045 | 0.164 ± 0.050 | +0.018 ± 0.018 (1 gained) |
+| A unbalanced | v1.4 set, n=40 | 0.15 | 0.475 | 0.45 | +0.30 ± 0.073 |
+| B rebalanced | v1.4 set, n=40 | 0.15 | 0.275 | 0.30 | +0.15 ± 0.057 |
+
+- `booking_eval.json` 26/26 present, 4/4 absent, 0 wrong in every run.
+- A on the v1.4 set gives hybrid 0.45, not v1.4's 0.55: A trained on the v1.5 index (readings: 3,604 → 4,835 pairs) with both held-out sets banned, so it is a different model; which change cost the 4 queries is not isolated.
+- Dev split (77% lodging): recall@1 0.565 → A 0.749, B 0.706.
+- **On the new set hybrid barely beats lexical** (+0.036, 1.4 standard errors: not established). v1.4's +0.40 on the old set does not carry over: part of it was that set's overlap with the synthetic rules (v1.4 caveat).
+- **Rebalancing by sampling down did not help.** Category hit@5 stayed 0.087 in every mode and model; B lost 7 semantic hits to A and gained none (−0.127 ± 0.045). Halving the pairs cost more than the better mix gained, and B's higher threshold keeps fewer hits.
+- **Hybrid drops most of A's semantic wins:** semantic alone found 白馬車站, 白马站, 神城車站, Misorano roundabout, 扇屋飯店 and Cortina ski, hybrid did not. By design (v1.4) a semantic stop or lodging hit must share a distinctive word with the query, and semantic is skipped when lexical fills the page; which rule dropped each query is not yet checked.
+
+**Decision:** semantic search stays off in production. The model and MLflow runs stay local (`ml/search/models/`, `mlflow.db`, gitignored).
+
+**Next (not started):** check which guard drops each lost query before relaxing anything; to rebalance, add category pairs (more cuisine and shop phrasings) rather than remove lodging ones. Any change is judged on a third set, since this one has now been seen.

@@ -23,6 +23,8 @@ type Props = {
   canGoHere: boolean;
   /** Open straight to this place (a saved marker tapped on the map). */
   focusId?: string | null;
+  /** T5: a one-line status at the top, e.g. what an import added */
+  notice?: string | null;
 };
 
 /** Google's "Saved" tab: lists → places → start from / go here. */
@@ -32,6 +34,7 @@ export function SavedPanel({
   onClose,
   canGoHere,
   focusId = null,
+  notice = null,
 }: Props) {
   const state = useSaved();
   const [openList, setOpenList] = useState<string | null>(null);
@@ -81,6 +84,12 @@ export function SavedPanel({
         </button>
       </div>
 
+      {notice && (
+        <output className="block rounded-lg bg-accent px-3 py-2 text-sm">
+          {notice}
+        </output>
+      )}
+
       {focused && openList === null && (
         <ul>
           <PlaceItem place={focused} {...actions} />
@@ -110,7 +119,7 @@ export function SavedPanel({
           {state.places.some((p) => p.lists.includes(list.id)) && (
             <button
               type="button"
-              className="self-start text-sm text-blue-700 underline"
+              className="self-start text-sm text-primary underline"
               onClick={() => share(list.id, list.name)}
             >
               Share this list
@@ -253,7 +262,7 @@ function PlaceItem({
           type="button"
           disabled={!canGoHere}
           title={canGoHere ? undefined : "Switch to Drive or Walk"}
-          className="rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white disabled:opacity-50"
+          className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
           onClick={() => onGoHere(place)}
         >
           Go here

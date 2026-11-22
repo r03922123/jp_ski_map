@@ -30,6 +30,9 @@ Production also serves these tools over Streamable HTTP at `https://<production 
 
 On claude.ai: Settings → Connectors → Add custom connector → paste the full link, no OAuth settings. Connectors added on the web also work in the desktop and phone apps. A Free plan allows one custom connector.
 
+## Production traces (Langfuse)
+With `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` set (Vercel only), every tool call is sent to Langfuse as a `tool` observation: name, duration, argument names, and on failure the error type, the invalid argument names and the API status. Argument values, results and error messages are never sent. Without the keys nothing is sent. Details: SPEC-agent-tools v3.
+
 ## Checks
 ```bash
 uvx --from 'uv==0.9.30' uv run pytest -q
@@ -39,7 +42,7 @@ uvx --from 'uv==0.9.30' uv run pyright
 ```
 
 ## Eval
-`evals/trip_questions.json` has 8 questions (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
+`evals/trip_questions.json` has 100 questions (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
 
 ```bash
 uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --out evals/last_run.md
@@ -48,4 +51,12 @@ uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --out evals/last_run.md
 - It uses your Claude Code subscription login (run `claude` and `/login` once if it says "Login expired"). It removes `ANTHROPIC_*` variables first, so it never bills API credit.
 - The API must be answering: `curl -s "$HAKUBA_API_URL/api/health"`.
 
-Last run: not yet recorded (the headless CLI's login had expired when this was built; see `evals/last_run.md` once it runs).
+To compare runs in MLflow (each question also gets a trace of its tool calls, with its pass/fail):
+
+```bash
+uvx --from 'uv==0.9.30' uv sync --group eval
+HAKUBA_API_URL=<API URL> uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --mlflow --out evals/last_run.md
+uvx --from 'uv==0.9.30' uv run mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001
+```
+
+Last run: [evals/last_run.md](evals/last_run.md) (2026-11-19, deployed API, 100 questions: 97 of 100 passed, 100 of 100 after the label fixes in SPEC-agent-tools Eval v4).

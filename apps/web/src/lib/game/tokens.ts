@@ -1,16 +1,17 @@
 /**
- * The snowy overworld palette (SPEC-game-theme). globals.css `:root` uses exactly these
- * values (a test checks), so the contrast test covers what the page really shows.
+ * The Maps look's palette (docs/ux/google-maps-workflows.md T1; SPEC-game-theme v2): light
+ * surfaces and blue primary actions. globals.css `:root` uses exactly these values (a test
+ * checks), so the contrast test covers what the page really shows.
  */
 export const TOKENS = {
   background: "#eef3f7", // snowfield
   foreground: "#22223a", // ink
-  card: "#fffaf0", // cream panel
+  card: "#ffffff",
   "card-foreground": "#22223a",
-  popover: "#fffaf0",
+  popover: "#ffffff",
   "popover-foreground": "#22223a",
-  primary: "#2f5d50", // pine
-  "primary-foreground": "#fffaf0",
+  primary: "#185fc6", // blue primary actions (≥ 4.5:1 on muted too, review of #114)
+  "primary-foreground": "#ffffff",
   secondary: "#e3ebf1",
   "secondary-foreground": "#22223a",
   muted: "#e3ebf1",
@@ -20,8 +21,7 @@ export const TOKENS = {
   destructive: "#b3261e",
   border: "#b8c4ce",
   input: "#b8c4ce",
-  ring: "#8a5a00", // dark amber: focus rings need ≥ 3:1 on panels
-  ink: "#22223a", // pixel frames
+  ring: "#185fc6", // focus rings need ≥ 3:1 on panels
 } as const;
 
 export type Token = keyof typeof TOKENS;
@@ -39,6 +39,9 @@ export const TEXT_PAIRS: [Token, Token][] = [
   ["accent-foreground", "accent"],
   ["destructive", "card"],
   ["primary", "card"],
+  // review of #114: blue text and links also sit on muted (hover) and the page background
+  ["primary", "muted"],
+  ["primary", "background"],
 ];
 
 /** Non-text pairs (WCAG 1.4.11): focus rings need 3:1 against what they sit on. */

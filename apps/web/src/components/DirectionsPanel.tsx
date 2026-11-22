@@ -46,7 +46,8 @@ export function DirectionsPanel({
   return (
     <>
       <div className="sticky bottom-0 z-10 -mx-4 flex items-center justify-between gap-2 border-t bg-card px-4 py-2">
-        <p className="text-lg font-semibold">
+        {/* one line in the 84 px bars: the landscape one (BottomSheet slim) and the low sheet (v1.17) */}
+        <p className="min-w-0 text-lg font-semibold max-md:[@media(max-height:479px)]:truncate max-md:group-data-[state=low]/sheet:truncate">
           ETA ~ {formatDuration(route.durationS)} ·{" "}
           {formatDistance(route.distanceM)}
         </p>
@@ -56,7 +57,7 @@ export function DirectionsPanel({
             aria-label={
               startKind === "preview" ? "Preview route" : "Start navigation"
             }
-            className="flex shrink-0 items-center gap-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow hover:bg-blue-700"
+            className="flex shrink-0 items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90"
             onClick={onStart}
           >
             {startKind === "preview" ? (
@@ -103,7 +104,7 @@ export function DirectionsPanel({
                 className={cn(
                   "flex cursor-pointer items-baseline justify-between rounded-md border px-3 py-2 text-sm has-[:focus-visible]:ring-2",
                   i === activeRoute
-                    ? "border-blue-600 bg-blue-50"
+                    ? "border-primary bg-blue-50"
                     : "hover:bg-muted",
                 )}
               >

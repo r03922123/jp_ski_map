@@ -34,11 +34,13 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `poi-destinations` | Restaurant & convenience-store destinations (OSM snapshot) + nearby-by-ETA query *(added v1.1, 2026-10-30)* | `routing` |
 | `saved-places` | Starred/saved places and lists in browser storage, "My hotel" label, share links *(added v1.3, 2026-10-30)* | — (browser only) |
 | `pilot` | Turn-by-turn navigation from live GPS: snapping, progress/ETA, off-route reroute, bus journey guidance *(added v1.3, 2026-10-30)* | `routing`, `bus-schedules` |
-| `game-theme` | Original game look and sound: game-styled map, pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio), DotGothic16 *(added v1.6, 2026-10-31)* | — (browser only) |
+| `game-theme` | Original game look and sound: game-styled map, pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio); UI in the Maps look since 2026-11-20 (system font) *(added v1.6, 2026-10-31)* | — (browser only) |
 | `progression` | Rider profile on the device: resort stamps from real visits, daily powder quests, ride stats, rider card share link *(added v1.6, 2026-10-31)* | `resort-catalog`, `snow-conditions`, `pilot` |
 | `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels; from v1.6 presented as the adventure | all of the above (via HTTP API only) |
 | `deploy` | Zero-cost hosting: Phase A this Mac + Tailscale Funnel, Phase B Vercel Hobby with Valhalla in the API (live 2026-11-10, ADR-0006) *(added v1.5, 2026-10-31)* | hosts every server module |
 | `agent-tools` | Read-only MCP server so an LLM agent can plan a ski day with the API's tools (`services/mcp`) *(added 2026-11-11)* | all server modules (via HTTP API only) |
+| `pipeline` | Rebuild every data artifact from the shuttle-bus URL with no human step: stage DAG, snapshot store, lock file, automatic verification *(proposed 2026-11-18, ADR-0007)* | every data-producing module |
+| `ask-maps` | Ask the map a question: a bounded tool loop over the agent-tools, cited answers, cited places pinned *(proposed 2026-11-18, ADR-0007)* | `agent-tools` |
 
 **Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
 **v1.6 build order:** `game-theme` → `progression` → `web-app` wiring
@@ -51,7 +53,7 @@ Dependency arrows point one way. `web-app` talks only to the HTTP API and never 
 |---|---|
 | Frontend | Next.js (App Router, latest stable, version pinned at scaffold) + TypeScript (strict), MapLibre GL JS via `react-map-gl/maplibre`, Tailwind CSS + shadcn/ui, TanStack Query |
 | Base map | OpenFreeMap vector tiles (`https://tiles.openfreemap.org/styles/liberty`); Protomaps PMTiles is the fallback |
-| Game theme (v1.6) | DotGothic16 (OFL) via `next/font/google`, self-hosted at build; sprites, map restyle and chiptune effects written in code (no game engine, no asset files) |
+| Game theme (v1.6) | The device's sans-serif since 2026-11-20 (was DotGothic16); sprites, map restyle and chiptune effects written in code (no game engine, no asset files) |
 | Backend | Python 3.12+, FastAPI, Pydantic v2, httpx; managed with `uv` |
 | Routing | Valhalla (Docker `ghcr.io/valhalla/valhalla-scripted:3.9.1`) built from the Geofabrik `asia/japan/chubu-latest.osm.pbf` extract, cropped to the Hakuba valley (`infra/valhalla/build-hakuba.sh`, v1.5) |
 | Geocoding / POI | Photon (komoot) for text search, Overpass API for `tourism=hotel|guest_house|hostel|apartment` |
@@ -178,7 +180,7 @@ export function ResortList({ resorts, onSelect }: { resorts: RankedResort[]; onS
 | Level | Tool | What |
 |---|---|---|
 | Unit | pytest | Pure logic: ranking scores, crowd heuristic, bus query, timetable validator, coordinate conversion |
-| Contract | pytest + recorded fixtures (`respx`) | Adapters for Valhalla, Photon, Overpass, Open-Meteo against recorded responses. **No live network in the default test run.** |
+| Contract | pytest + recorded fixtures (`respx`) | Adapters for Valhalla, Photon, Overpass, Open-Meteo against recorded responses. **No live network in the default test run**: in the API's tests a call nobody faked fails its test (`tests/conftest.py`). |
 | Data | pytest | Every file in `data/` passes Pydantic validation and cross-reference checks (stop ids exist, resort ids exist) |
 | Integration | pytest, marker `@pytest.mark.live` | Real Valhalla container + real upstream APIs; run on demand: `pytest -m live` |
 | Component | Vitest + Testing Library | Panels and list rendering, mode switching |
@@ -202,7 +204,8 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
   - Changing a module boundary or the capability map.
 - **Never:**
   - Commit secrets or the Valhalla tiles / raw timetable downloads.
-  - Call the Claude API from code (the API credit is reserved; SPEC-agent-tools).
+  - Call the Claude API from code, except the two capped uses in ADR-0007 (timetable extractor A,
+    Ask Maps): $5 a month, ~$100 credit in total, key only in Vercel env and Actions secrets.
   - Scrape Google Maps or Google Popular Times, or any source whose terms forbid it.
   - Publish bus timetable JSON that hasn't passed the validator and human review.
   - Skip or delete failing tests to get green.

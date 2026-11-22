@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { PinCard } from "@/components/PinCard";
+import { SaveButton } from "@/components/SaveButton";
 
 // BC-A1: a long-press drops a pin with a card; only a button on the card edits the trip.
 // Ours offers Start here (where am I staying), Go here and Add stop when they apply.
@@ -39,5 +40,63 @@ describe("PinCard", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     fireEvent.keyDown(document, { key: "Escape" });
     expect(h.onClose).toHaveBeenCalledTimes(2);
+  });
+
+  // T2: Directions (Go here) is the one prominent action; Save sits beside the others
+  it("makes Go here the prominent action and shows the Save slot", () => {
+    render(
+      <PinCard
+        name={null}
+        onStart={() => {}}
+        onGo={() => {}}
+        onClose={() => {}}
+        save={<button type="button">Save Dropped pin</button>}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Go here" })).toHaveAttribute(
+      "data-variant",
+      "primary",
+    );
+    expect(screen.getByRole("button", { name: "Start here" })).toHaveAttribute(
+      "data-variant",
+      "secondary",
+    );
+    expect(
+      screen.getByRole("button", { name: "Save Dropped pin" }),
+    ).toBeInTheDocument();
+  });
+
+  it("with no Go here (Bus), Start here is the prominent one", () => {
+    render(<PinCard name={null} onStart={() => {}} onClose={() => {}} />);
+    expect(screen.getByRole("button", { name: "Start here" })).toHaveAttribute(
+      "data-variant",
+      "primary",
+    );
+  });
+
+  // review of #115: Escape closes the list picker only, not the pin card under it
+  it("Escape in its Save dialog leaves the pin card open", () => {
+    const onClose = vi.fn();
+    render(
+      <PinCard
+        name={null}
+        onStart={() => {}}
+        onClose={onClose}
+        save={
+          <SaveButton
+            place={{
+              id: "pt:36.68000,137.86000",
+              name: "Dropped pin",
+              coord: { lat: 36.68, lng: 137.86 },
+              kind: "pin",
+            }}
+          />
+        }
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Save Dropped pin" }));
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
   });
 });

@@ -1,0 +1,5487 @@
+{
+ "generator": "fugashi 1.5.2 + unidic-lite 1.0.8",
+ "readings": [
+  {
+   "id": "osm:node/11491090969",
+   "name": "Hakuba Downtown Apartments",
+   "kana": "HakubaDowntownApartments",
+   "romaji": [
+    "hakuba downtown apartments",
+    "hakubadowntownapartments"
+   ]
+  },
+  {
+   "id": "osm:node/13615928501",
+   "name": "北原館",
+   "kana": "キタハラカン",
+   "romaji": [
+    "kitahara kan",
+    "kitaharakan"
+   ]
+  },
+  {
+   "id": "osm:node/14286786734",
+   "name": "コテージ＆コンドミニアム白馬ブラウニー",
+   "kana": "コテージ＆コンドミニアムハクバブラウニー",
+   "romaji": [
+    "cottage kondominiamu hakuba burauni",
+    "cottagekondominiamuhakubaburauni"
+   ]
+  },
+  {
+   "id": "osm:node/14286786737",
+   "name": "鬼無里の湯コテージ",
+   "kana": "キナサノユコテージ",
+   "romaji": [
+    "kinasa no yu cottage",
+    "kinasanoyucottage"
+   ]
+  },
+  {
+   "id": "osm:node/14286796337",
+   "name": "パウダーロッジコルチナキャンプ場",
+   "kana": "パウダーロッジコルチナキャンプバ",
+   "romaji": [
+    "pauda lodge koruchinakyanpu ba",
+    "paudalodgekoruchinakyanpuba"
+   ]
+  },
+  {
+   "id": "osm:node/14286796363",
+   "name": "温宿 田舎家",
+   "kana": "オンシュクイナカヤ",
+   "romaji": [
+    "on shuku inakaya",
+    "onshukuinakaya"
+   ]
+  },
+  {
+   "id": "osm:node/14286796365",
+   "name": "ロッジはくばファミリーキャンプ場",
+   "kana": "ロッジハクバファミリーキャンプジョウ",
+   "romaji": [
+    "lodge ha ku ba famiri kyanpu jo",
+    "lodgehakubafamirikyanpujo"
+   ]
+  },
+  {
+   "id": "osm:node/2191861996",
+   "name": "マウントサイド ヨーデル",
+   "kana": "マウントサイドヨーデル",
+   "romaji": [
+    "maunto saido yoderu",
+    "mauntosaidoyoderu"
+   ]
+  },
+  {
+   "id": "osm:node/2433752034",
+   "name": "あるむ",
+   "kana": "アルム",
+   "romaji": [
+    "aru mu",
+    "arumu"
+   ]
+  },
+  {
+   "id": "osm:node/2701936141",
+   "name": "Hotel Cultured",
+   "kana": "HotelCultured",
+   "romaji": [
+    "hotel cultured",
+    "hotelcultured"
+   ]
+  },
+  {
+   "id": "osm:node/3147396597",
+   "name": "大下旅館",
+   "kana": "オオシタリョカン",
+   "romaji": [
+    "oshita ryokan",
+    "oshitaryokan"
+   ]
+  },
+  {
+   "id": "osm:node/3521080820",
+   "name": "ゲストハウス もりおの家 白馬店",
+   "kana": "ゲストハウスモリオノイエハクバテン",
+   "romaji": [
+    "guesthouse mori o no ie hakuba ten",
+    "guesthousemorionoiehakubaten"
+   ]
+  },
+  {
+   "id": "osm:node/357218472",
+   "name": "B&B サンタナ 白馬",
+   "kana": "B&Bサンタナハクバ",
+   "romaji": [
+    "b b santana hakuba",
+    "bbsantanahakuba"
+   ]
+  },
+  {
+   "id": "osm:node/4594155190",
+   "name": "白馬アルパインのコンドミニアム",
+   "kana": "ハクバアルパインノコンドミニアム",
+   "romaji": [
+    "hakuba arupa inn no kondominiamu",
+    "hakubaarupainnnokondominiamu"
+   ]
+  },
+  {
+   "id": "osm:node/4605652274",
+   "name": "ブロッケンヒュッテ",
+   "kana": "ブロッケンヒュッテ",
+   "romaji": [
+    "burokken hutte",
+    "burokkenhutte"
+   ]
+  },
+  {
+   "id": "osm:node/4797577367",
+   "name": "リゾートインマリオンシナノ",
+   "kana": "リゾートインマリオンシナノ",
+   "romaji": [
+    "resort inmarionshinano",
+    "resortinmarionshinano"
+   ]
+  },
+  {
+   "id": "osm:node/4814669721",
+   "name": "Camp Site",
+   "kana": "CampSite",
+   "romaji": [
+    "camp site",
+    "campsite"
+   ]
+  },
+  {
+   "id": "osm:node/4938582419",
+   "name": "ケイズハウス白馬アルプス",
+   "kana": "ケイズハウスハクバアルプス",
+   "romaji": [
+    "keizu house hakuba arupusu",
+    "keizuhousehakubaarupusu"
+   ]
+  },
+  {
+   "id": "osm:node/4938669189",
+   "name": "Hakuba Alps Backpackers",
+   "kana": "HakubaAlpsBackpackers",
+   "romaji": [
+    "hakuba alps backpackers",
+    "hakubaalpsbackpackers"
+   ]
+  },
+  {
+   "id": "osm:node/4938731318",
+   "name": "Mt Hakuba Backpackers",
+   "kana": "MtHakubaBackpackers",
+   "romaji": [
+    "mt hakuba backpackers",
+    "mthakubabackpackers"
+   ]
+  },
+  {
+   "id": "osm:node/4938778427",
+   "name": "Hakuba Today Guesthouse",
+   "kana": "HakubaTodayGuesthouse",
+   "romaji": [
+    "hakuba today guesthouse",
+    "hakubatodayguesthouse"
+   ]
+  },
+  {
+   "id": "osm:node/5050932833",
+   "name": "The Phat House",
+   "kana": "ThePhatHouse",
+   "romaji": [
+    "the phat house",
+    "thephathouse"
+   ]
+  },
+  {
+   "id": "osm:node/5062658199",
+   "name": "Snowbeds B&B",
+   "kana": "SnowbedsB&B",
+   "romaji": [
+    "snowbeds b b",
+    "snowbedsbb"
+   ]
+  },
+  {
+   "id": "osm:node/5811894856",
+   "name": "立山山荘",
+   "kana": "タテヤマサンソウ",
+   "romaji": [
+    "tateyama sanso",
+    "tateyamasanso"
+   ]
+  },
+  {
+   "id": "osm:node/5811894870",
+   "name": "昇盛館",
+   "kana": "ショウセイカン",
+   "romaji": [
+    "sho sei kan",
+    "shoseikan"
+   ]
+  },
+  {
+   "id": "osm:node/5811894872",
+   "name": "白馬赤たすき",
+   "kana": "ハクバアカタスキ",
+   "romaji": [
+    "hakuba aka tasuki",
+    "hakubaakatasuki"
+   ]
+  },
+  {
+   "id": "osm:node/5825474997",
+   "name": "Hakuba Powder Lodge",
+   "kana": "HakubaPowderLodge",
+   "romaji": [
+    "hakuba powder lodge",
+    "hakubapowderlodge"
+   ]
+  },
+  {
+   "id": "osm:node/5825523667",
+   "name": "Share and Guest House Hakuba Share",
+   "kana": "ShareandGuestHouseHakubaShare",
+   "romaji": [
+    "share and guest house hakuba share",
+    "shareandguesthousehakubashare"
+   ]
+  },
+  {
+   "id": "osm:node/5825599907",
+   "name": "The Bohemians' Shelter",
+   "kana": "TheBohemians'Shelter",
+   "romaji": [
+    "the bohemians shelter",
+    "thebohemiansshelter"
+   ]
+  },
+  {
+   "id": "osm:node/5825603730",
+   "name": "Hakuba Cortina Backpackers",
+   "kana": "HakubaCortinaBackpackers",
+   "romaji": [
+    "hakuba cortina backpackers",
+    "hakubacortinabackpackers"
+   ]
+  },
+  {
+   "id": "osm:node/5925676685",
+   "name": "白馬丸金旅館",
+   "kana": "ハクバマルキンリョカン",
+   "romaji": [
+    "hakuba maru kin ryokan",
+    "hakubamarukinryokan"
+   ]
+  },
+  {
+   "id": "osm:node/6045635937",
+   "name": "鬼無里の湯",
+   "kana": "キナサノユ",
+   "romaji": [
+    "kinasa no yu",
+    "kinasanoyu"
+   ]
+  },
+  {
+   "id": "osm:node/6141025785",
+   "name": "White Hill Lodge",
+   "kana": "WhiteHillLodge",
+   "romaji": [
+    "white hill lodge",
+    "whitehilllodge"
+   ]
+  },
+  {
+   "id": "osm:node/6312753047",
+   "name": "Hotel Hakuba",
+   "kana": "HotelHakuba",
+   "romaji": [
+    "hotel hakuba",
+    "hotelhakuba"
+   ]
+  },
+  {
+   "id": "osm:node/6312797205",
+   "name": "Shakespeare",
+   "kana": "Shakespeare",
+   "romaji": [
+    "shakespeare"
+   ]
+  },
+  {
+   "id": "osm:node/6312802600",
+   "name": "Hakuba Echo Hotel",
+   "kana": "HakubaEchoHotel",
+   "romaji": [
+    "hakuba echo hotel",
+    "hakubaechohotel"
+   ]
+  },
+  {
+   "id": "osm:node/6312819128",
+   "name": "紀屋旅館",
+   "kana": "キヤリョカン",
+   "romaji": [
+    "ki ya ryokan",
+    "kiyaryokan"
+   ]
+  },
+  {
+   "id": "osm:node/6312846500",
+   "name": "Hakuba Snowdrift Lodge",
+   "kana": "HakubaSnowdriftLodge",
+   "romaji": [
+    "hakuba snowdrift lodge",
+    "hakubasnowdriftlodge"
+   ]
+  },
+  {
+   "id": "osm:node/6332386326",
+   "name": "栂池観光ホテル",
+   "kana": "ツガイケカンコウホテル",
+   "romaji": [
+    "tsugaike kanko hotel",
+    "tsugaikekankohotel"
+   ]
+  },
+  {
+   "id": "osm:node/6482099943",
+   "name": "高山館",
+   "kana": "コウザンカン",
+   "romaji": [
+    "kozan kan",
+    "kozankan"
+   ]
+  },
+  {
+   "id": "osm:node/6762335036",
+   "name": "Hakuba Cortina Lodge",
+   "kana": "HakubaCortinaLodge",
+   "romaji": [
+    "hakuba cortina lodge",
+    "hakubacortinalodge"
+   ]
+  },
+  {
+   "id": "osm:node/6762555200",
+   "name": "Petit Hotel Schanze",
+   "kana": "PetitHotelSchanze",
+   "romaji": [
+    "petit hotel schanze",
+    "petithotelschanze"
+   ]
+  },
+  {
+   "id": "osm:node/6763838348",
+   "name": "Oak Forest",
+   "kana": "OakForest",
+   "romaji": [
+    "oak forest",
+    "oakforest"
+   ]
+  },
+  {
+   "id": "osm:node/6763857972",
+   "name": "AGS Chalet",
+   "kana": "AGSChalet",
+   "romaji": [
+    "ags chalet",
+    "agschalet"
+   ]
+  },
+  {
+   "id": "osm:node/6763917635",
+   "name": "Chalet Strickland",
+   "kana": "ChaletStrickland",
+   "romaji": [
+    "chalet strickland",
+    "chaletstrickland"
+   ]
+  },
+  {
+   "id": "osm:node/6763931364",
+   "name": "megève",
+   "kana": "megève",
+   "romaji": [
+    "meg ve",
+    "megve"
+   ]
+  },
+  {
+   "id": "osm:node/6763932912",
+   "name": "シルクウッド",
+   "kana": "シルクウッド",
+   "romaji": [
+    "shiruku uddo",
+    "shirukuuddo"
+   ]
+  },
+  {
+   "id": "osm:node/6763949166",
+   "name": "Powder Peak Hakuba",
+   "kana": "PowderPeakHakuba",
+   "romaji": [
+    "powder peak hakuba",
+    "powderpeakhakuba"
+   ]
+  },
+  {
+   "id": "osm:node/6763960416",
+   "name": "Powder Temple",
+   "kana": "PowderTemple",
+   "romaji": [
+    "powder temple",
+    "powdertemple"
+   ]
+  },
+  {
+   "id": "osm:node/6763966726",
+   "name": "ヴィラ・エヴィアン",
+   "kana": "ヴィラ・エヴィアン",
+   "romaji": [
+    "villa evian",
+    "villaevian"
+   ]
+  },
+  {
+   "id": "osm:node/6763972917",
+   "name": "ペンション白馬通信",
+   "kana": "ペンションハクバツウシン",
+   "romaji": [
+    "pension hakuba tsushin",
+    "pensionhakubatsushin"
+   ]
+  },
+  {
+   "id": "osm:node/6763991388",
+   "name": "ハーブの宿　檪",
+   "kana": "ハーブノヤド　檪",
+   "romaji": [
+    "habu no yado",
+    "habunoyado"
+   ]
+  },
+  {
+   "id": "osm:node/6764025236",
+   "name": "Chalet Hinata",
+   "kana": "ChaletHinata",
+   "romaji": [
+    "chalet hinata",
+    "chalethinata"
+   ]
+  },
+  {
+   "id": "osm:node/6764029457",
+   "name": "Monkey Rider",
+   "kana": "MonkeyRider",
+   "romaji": [
+    "monkey rider",
+    "monkeyrider"
+   ]
+  },
+  {
+   "id": "osm:node/6764035464",
+   "name": "ホテルそよ風",
+   "kana": "ホテルソヨカゼ",
+   "romaji": [
+    "hotel soyokaze",
+    "hotelsoyokaze"
+   ]
+  },
+  {
+   "id": "osm:node/6764050363",
+   "name": "Petit Hotel Enchante",
+   "kana": "PetitHotelEnchante",
+   "romaji": [
+    "petit hotel enchante",
+    "petithotelenchante"
+   ]
+  },
+  {
+   "id": "osm:node/6764076253",
+   "name": "Four season",
+   "kana": "Fourseason",
+   "romaji": [
+    "four season",
+    "fourseason"
+   ]
+  },
+  {
+   "id": "osm:node/7006958859",
+   "name": "Kokoro Hotel Hakuba ココロホテル白馬",
+   "kana": "KokoroHotelHakubaココロホテルハクバ",
+   "romaji": [
+    "kokoro hotel hakuba kokoro hotel hakuba",
+    "kokorohotelhakubakokorohotelhakuba"
+   ]
+  },
+  {
+   "id": "osm:node/7953926627",
+   "name": "リンデンバウム",
+   "kana": "リンデンバウム",
+   "romaji": [
+    "rindenbaumu"
+   ]
+  },
+  {
+   "id": "osm:node/8308634426",
+   "name": "白馬の森 ペンション＆コテージ アッサム",
+   "kana": "ハクバノモリペンション＆コテージアッサム",
+   "romaji": [
+    "hakuba no mori pension cottage assamu",
+    "hakubanomoripensioncottageassamu"
+   ]
+  },
+  {
+   "id": "osm:node/8308634428",
+   "name": "ペンション 悠々舎",
+   "kana": "ペンションユウユウシャ",
+   "romaji": [
+    "pension yuyu sha",
+    "pensionyuyusha"
+   ]
+  },
+  {
+   "id": "osm:node/8308634430",
+   "name": "貸別荘 白馬ロイヤルコテージ",
+   "kana": "カシベッソウハクバロイヤルコテージ",
+   "romaji": [
+    "kashi besso hakuba roiyaru cottage",
+    "kashibessohakubaroiyarucottage"
+   ]
+  },
+  {
+   "id": "osm:node/8308634433",
+   "name": "ＳＵＮＮＹ ＳＩＤＥ ＨＵＴ",
+   "kana": "サンエヌワイサイドＨＵＴ",
+   "romaji": [
+    "san enuwai saido hut",
+    "sanenuwaisaidohut"
+   ]
+  },
+  {
+   "id": "osm:node/8542882480",
+   "name": "ホテル丸大",
+   "kana": "ホテルマルダイ",
+   "romaji": [
+    "hotel marudai",
+    "hotelmarudai"
+   ]
+  },
+  {
+   "id": "osm:way/1065062205",
+   "name": "ホテルモンブラン白馬",
+   "kana": "ホテルモンブランハクバ",
+   "romaji": [
+    "hotel mon buran hakuba",
+    "hotelmonburanhakuba"
+   ]
+  },
+  {
+   "id": "osm:way/1203979898",
+   "name": "白馬アルプスホテル",
+   "kana": "ハクバアルプスホテル",
+   "romaji": [
+    "hakuba arupusu hotel",
+    "hakubaarupusuhotel"
+   ]
+  },
+  {
+   "id": "osm:way/1203979940",
+   "name": "乗鞍荘",
+   "kana": "ノリクラソウ",
+   "romaji": [
+    "norikura so",
+    "norikuraso"
+   ]
+  },
+  {
+   "id": "osm:way/1258950283",
+   "name": "ホテルグリーンプラザ白馬",
+   "kana": "ホテルグリーンプラザハクバ",
+   "romaji": [
+    "hotel gurin puraza hakuba",
+    "hotelgurinpurazahakuba"
+   ]
+  },
+  {
+   "id": "osm:way/1359022412",
+   "name": "サンダーバード コテージ",
+   "kana": "サンダーバードコテージ",
+   "romaji": [
+    "sandabado cottage",
+    "sandabadocottage"
+   ]
+  },
+  {
+   "id": "osm:way/1359036293",
+   "name": "鳥の巣",
+   "kana": "トリノス",
+   "romaji": [
+    "tori no su",
+    "torinosu"
+   ]
+  },
+  {
+   "id": "osm:way/1359435220",
+   "name": "ペンション野風増",
+   "kana": "ペンションノカゼゾウ",
+   "romaji": [
+    "pension nokaze zo",
+    "pensionnokazezo"
+   ]
+  },
+  {
+   "id": "osm:way/1359440025",
+   "name": "ハーモニー",
+   "kana": "ハーモニー",
+   "romaji": [
+    "hamoni"
+   ]
+  },
+  {
+   "id": "osm:way/229615958",
+   "name": "ブルーマウント",
+   "kana": "ブルーマウント",
+   "romaji": [
+    "buru maunto",
+    "burumaunto"
+   ]
+  },
+  {
+   "id": "osm:way/329614785",
+   "name": "Hotel Weisser Hof Happei",
+   "kana": "HotelWeisserHofHappei",
+   "romaji": [
+    "hotel weisser hof happei",
+    "hotelweisserhofhappei"
+   ]
+  },
+  {
+   "id": "osm:way/329615315",
+   "name": "White Horse Hakuba",
+   "kana": "WhiteHorseHakuba",
+   "romaji": [
+    "white horse hakuba",
+    "whitehorsehakuba"
+   ]
+  },
+  {
+   "id": "osm:way/330316913",
+   "name": "みやま荘",
+   "kana": "ミヤマソウ",
+   "romaji": [
+    "mi yama so",
+    "miyamaso"
+   ]
+  },
+  {
+   "id": "osm:way/330316914",
+   "name": "サンプラザ栂池",
+   "kana": "サンプラザツガイケ",
+   "romaji": [
+    "san puraza tsugaike",
+    "sanpurazatsugaike"
+   ]
+  },
+  {
+   "id": "osm:way/330316915",
+   "name": "ホテルベルハート",
+   "kana": "ホテルベルハート",
+   "romaji": [
+    "hotel beru hato",
+    "hotelberuhato"
+   ]
+  },
+  {
+   "id": "osm:way/330316916",
+   "name": "ホテル・ラ・ブランシュ",
+   "kana": "ホテル・ラ・ブランシュ",
+   "romaji": [
+    "hotel ra buranshu",
+    "hotelraburanshu"
+   ]
+  },
+  {
+   "id": "osm:way/330316917",
+   "name": "ラ・シュミエール",
+   "kana": "ラ・シュミエール",
+   "romaji": [
+    "ra shumieru",
+    "rashumieru"
+   ]
+  },
+  {
+   "id": "osm:way/330316919",
+   "name": "ロッジ高原荘",
+   "kana": "ロッジコウゲンソウ",
+   "romaji": [
+    "lodge kogen so",
+    "lodgekogenso"
+   ]
+  },
+  {
+   "id": "osm:way/330316941",
+   "name": "ひよどり山荘",
+   "kana": "ヒヨドリサンソウ",
+   "romaji": [
+    "hiyodori sanso",
+    "hiyodorisanso"
+   ]
+  },
+  {
+   "id": "osm:way/330316944",
+   "name": "栂池グランドロッジ",
+   "kana": "ツガイケグランドロッジ",
+   "romaji": [
+    "tsugaike gurando lodge",
+    "tsugaikegurandolodge"
+   ]
+  },
+  {
+   "id": "osm:way/330360147",
+   "name": "Front Stage",
+   "kana": "FrontStage",
+   "romaji": [
+    "front stage",
+    "frontstage"
+   ]
+  },
+  {
+   "id": "osm:way/330360148",
+   "name": "Hai Lodge",
+   "kana": "HaiLodge",
+   "romaji": [
+    "hai lodge",
+    "hailodge"
+   ]
+  },
+  {
+   "id": "osm:way/330482794",
+   "name": "プチホテル・コットンスノー",
+   "kana": "プチホテル・コットンスノー",
+   "romaji": [
+    "puchi hotel kotton suno",
+    "puchihotelkottonsuno"
+   ]
+  },
+  {
+   "id": "osm:way/331661907",
+   "name": "ホテル白馬ベルグランド",
+   "kana": "ホテルハクバベルグランド",
+   "romaji": [
+    "hotel hakuba beru gurando",
+    "hotelhakubaberugurando"
+   ]
+  },
+  {
+   "id": "osm:way/375409889",
+   "name": "栂池山荘",
+   "kana": "ツガイケサンソウ",
+   "romaji": [
+    "tsugaike sanso",
+    "tsugaikesanso"
+   ]
+  },
+  {
+   "id": "osm:way/463433046",
+   "name": "白馬ハイランドホテル",
+   "kana": "ハクバハイランドホテル",
+   "romaji": [
+    "hakuba hairando hotel",
+    "hakubahairandohotel"
+   ]
+  },
+  {
+   "id": "osm:way/575114639",
+   "name": "Belle Cour inomata",
+   "kana": "BelleCourinomata",
+   "romaji": [
+    "belle cour inomata",
+    "bellecourinomata"
+   ]
+  },
+  {
+   "id": "osm:way/575114656",
+   "name": "丘の上ホテル宮川",
+   "kana": "オカノウエホテルミヤガワ",
+   "romaji": [
+    "oka no ue hotel miyagawa",
+    "okanouehotelmiyagawa"
+   ]
+  },
+  {
+   "id": "osm:way/575114659",
+   "name": "エスポワールみさわ",
+   "kana": "エスポワールミサワ",
+   "romaji": [
+    "esupowaru mi sawa",
+    "esupowarumisawa"
+   ]
+  },
+  {
+   "id": "osm:way/575114664",
+   "name": "Tsugaike Kogen Hotel Hakuba Berghaus",
+   "kana": "TsugaikeKogenHotelHakubaBerghaus",
+   "romaji": [
+    "tsugaike kogen hotel hakuba berghaus",
+    "tsugaikekogenhotelhakubaberghaus"
+   ]
+  },
+  {
+   "id": "osm:way/575114667",
+   "name": "Highland Lodge",
+   "kana": "HighlandLodge",
+   "romaji": [
+    "highland lodge",
+    "highlandlodge"
+   ]
+  },
+  {
+   "id": "osm:way/575114677",
+   "name": "Conntry Joe",
+   "kana": "ConntryJoe",
+   "romaji": [
+    "conntry joe",
+    "conntryjoe"
+   ]
+  },
+  {
+   "id": "osm:way/575114714",
+   "name": "ホテルメリベル栂池",
+   "kana": "ホテルメリベルツガイケ",
+   "romaji": [
+    "hotel meriberu tsugaike",
+    "hotelmeriberutsugaike"
+   ]
+  },
+  {
+   "id": "osm:way/673847158",
+   "name": "白馬アルプスホテル",
+   "kana": "ハクバアルプスホテル",
+   "romaji": [
+    "hakuba arupusu hotel",
+    "hakubaarupusuhotel"
+   ]
+  },
+  {
+   "id": "osm:way/690859434",
+   "name": "岩岳ロッジやまじう館",
+   "kana": "イワタケロッジヤマジウヤカタ",
+   "romaji": [
+    "iwa take lodge ya majiu yakata",
+    "iwatakelodgeyamajiuyakata"
+   ]
+  },
+  {
+   "id": "osm:way/771617336",
+   "name": "フルハウス",
+   "kana": "フルハウス",
+   "romaji": [
+    "furu house",
+    "furuhouse"
+   ]
+  },
+  {
+   "id": "osm:way/771617345",
+   "name": "Konayuki Cabin Hakuba",
+   "kana": "KonayukiCabinHakuba",
+   "romaji": [
+    "konayuki cabin hakuba",
+    "konayukicabinhakuba"
+   ]
+  },
+  {
+   "id": "osm:way/771633890",
+   "name": "B&B えん",
+   "kana": "B&Bエン",
+   "romaji": [
+    "b b e n",
+    "bben"
+   ]
+  },
+  {
+   "id": "osm:way/771633893",
+   "name": "リッキーハウス白馬",
+   "kana": "リッキーハウスハクバ",
+   "romaji": [
+    "rikki house hakuba",
+    "rikkihousehakuba"
+   ]
+  },
+  {
+   "id": "osm:way/771658761",
+   "name": "The Lab",
+   "kana": "TheLab",
+   "romaji": [
+    "the lab",
+    "thelab"
+   ]
+  },
+  {
+   "id": "osm:way/838394997",
+   "name": "プチホテルぴー坊",
+   "kana": "プチホテルピイボウ",
+   "romaji": [
+    "puchi hotel pii bo",
+    "puchihotelpiibo"
+   ]
+  },
+  {
+   "id": "osm:way/843563403",
+   "name": "山田屋旅館",
+   "kana": "ヤマダヤリョカン",
+   "romaji": [
+    "yamada ya ryokan",
+    "yamadayaryokan"
+   ]
+  },
+  {
+   "id": "osm:way/843974306",
+   "name": "旅館丸屋",
+   "kana": "リョカンマルヤ",
+   "romaji": [
+    "ryokan maru ya",
+    "ryokanmaruya"
+   ]
+  },
+  {
+   "id": "overture:00a8e40f-be3a-4130-b534-05b52e7d6a65",
+   "name": "モンモン栂池",
+   "kana": "モンモンツガイケ",
+   "romaji": [
+    "monmon tsugaike",
+    "monmontsugaike"
+   ]
+  },
+  {
+   "id": "overture:00f97c88-eccc-4cd3-af25-5c0ec1bb665b",
+   "name": "リゾートペンション きんこん館",
+   "kana": "リゾートペンションキンコンヤカタ",
+   "romaji": [
+    "resort pension kinko n yakata",
+    "resortpensionkinkonyakata"
+   ]
+  },
+  {
+   "id": "overture:0106e06d-3b96-4ef5-8adb-243597a492fe",
+   "name": "白馬 八方尾根 リゾート ホテル",
+   "kana": "ハクバハッポウオネリゾートホテル",
+   "romaji": [
+    "hakuba happo one resort hotel",
+    "hakubahappooneresorthotel"
+   ]
+  },
+  {
+   "id": "overture:014e9e44-bff7-4209-b31b-ebfb83725348",
+   "name": "あっぷるはうす",
+   "kana": "アップルハウス",
+   "romaji": [
+    "appuru house",
+    "appuruhouse"
+   ]
+  },
+  {
+   "id": "overture:01cff481-1102-4b44-aadd-b9b9699e53dc",
+   "name": "橋場館",
+   "kana": "ハシバカン",
+   "romaji": [
+    "hashiba kan",
+    "hashibakan"
+   ]
+  },
+  {
+   "id": "overture:01f4af6b-2561-49ea-986f-ef556f20d7ed",
+   "name": "前田館",
+   "kana": "マエダカン",
+   "romaji": [
+    "maeda kan",
+    "maedakan"
+   ]
+  },
+  {
+   "id": "overture:022cdde7-0896-4d84-87b0-c8f2fe7a5083",
+   "name": "アルペン山荘",
+   "kana": "アルペンサンソウ",
+   "romaji": [
+    "arupen sanso",
+    "arupensanso"
+   ]
+  },
+  {
+   "id": "overture:02bb8dd9-0236-42d1-b056-2358c9e1f652",
+   "name": "白馬ベルグハウス",
+   "kana": "シロウマベルグハウス",
+   "romaji": [
+    "shiroma berugu house",
+    "shiromaberuguhouse"
+   ]
+  },
+  {
+   "id": "overture:03b01dfb-6f93-4f1a-aaec-1b8fd1c7866d",
+   "name": "ラ シュミエール",
+   "kana": "ラシュミエール",
+   "romaji": [
+    "ra shumieru",
+    "rashumieru"
+   ]
+  },
+  {
+   "id": "overture:042276bb-fb3e-43f0-b24e-6036cb89554c",
+   "name": "白馬サンバレーホテル",
+   "kana": "ハクバサンバレーホテル",
+   "romaji": [
+    "hakuba san bare hotel",
+    "hakubasanbarehotel"
+   ]
+  },
+  {
+   "id": "overture:0580b768-a8ac-45cc-bf99-5c3fe6875bd9",
+   "name": "やまこ旅館",
+   "kana": "ヤマコリョカン",
+   "romaji": [
+    "yama ko ryokan",
+    "yamakoryokan"
+   ]
+  },
+  {
+   "id": "overture:05b0e7d9-017b-4436-a865-ce96298155a3",
+   "name": "まるしち",
+   "kana": "マルシチ",
+   "romaji": [
+    "maru shichi",
+    "marushichi"
+   ]
+  },
+  {
+   "id": "overture:060852e4-3c3e-479d-a142-64c50fbdf91c",
+   "name": "ホテルフェニックスウィング白馬の森",
+   "kana": "ホテルフェニックスウィングハクバノモリ",
+   "romaji": [
+    "hotel fenikkusu wingu hakuba no mori",
+    "hotelfenikkusuwinguhakubanomori"
+   ]
+  },
+  {
+   "id": "overture:06115058-3f0f-4467-a90d-ad4eb6f186fe",
+   "name": "グリーングラス",
+   "kana": "グリーングラス",
+   "romaji": [
+    "gurin gurasu",
+    "guringurasu"
+   ]
+  },
+  {
+   "id": "overture:07fa9715-b9cb-40df-a9e4-dec407e3f8e1",
+   "name": "白馬八方温泉 エルドベール白馬",
+   "kana": "シロウマハッポウオンセンエルドベールハクバ",
+   "romaji": [
+    "shiroma happo onsen erudoberu hakuba",
+    "shiromahappoonsenerudoberuhakuba"
+   ]
+  },
+  {
+   "id": "overture:0809bfd6-e421-4436-86d2-ca7920618673",
+   "name": "白馬山荘",
+   "kana": "ハクバサンソウ",
+   "romaji": [
+    "hakuba sanso",
+    "hakubasanso"
+   ]
+  },
+  {
+   "id": "overture:08176252-85d5-491b-927c-cf6a85a42f9f",
+   "name": "かにさわ館",
+   "kana": "カニサワカン",
+   "romaji": [
+    "ka ni sawa kan",
+    "kanisawakan"
+   ]
+  },
+  {
+   "id": "overture:08280673-f97c-4ad1-a986-4cc08b36cdb0",
+   "name": "ホテルジェーンウァルト",
+   "kana": "ホテルジェーンウァルト",
+   "romaji": [
+    "hotel jenuaruto",
+    "hoteljenuaruto"
+   ]
+  },
+  {
+   "id": "overture:083d91c3-d619-4380-abc2-34d534ac7d06",
+   "name": "白馬アルパインホテル",
+   "kana": "ハクバアルパインホテル",
+   "romaji": [
+    "hakuba arupa inn hotel",
+    "hakubaarupainnhotel"
+   ]
+  },
+  {
+   "id": "overture:08d1d257-04d8-48e9-a658-b6fcbc0953fc",
+   "name": "まるご荘",
+   "kana": "マルゴソウ",
+   "romaji": [
+    "maru go so",
+    "marugoso"
+   ]
+  },
+  {
+   "id": "overture:09b0678c-44c8-4fc0-821c-dff0410d10c4",
+   "name": "トロイメライ",
+   "kana": "トロイメライ",
+   "romaji": [
+    "toroimerai"
+   ]
+  },
+  {
+   "id": "overture:09c50c9c-d01a-4480-80fd-1991c601964b",
+   "name": "白馬八方温泉 まるいし",
+   "kana": "シロウマハッポウオンセンマルイシ",
+   "romaji": [
+    "shiroma happo onsen marui shi",
+    "shiromahappoonsenmaruishi"
+   ]
+  },
+  {
+   "id": "overture:09f43efa-c316-467f-8fab-94f30d87a004",
+   "name": "切久保館",
+   "kana": "セツクボカン",
+   "romaji": [
+    "setsu kubo kan",
+    "setsukubokan"
+   ]
+  },
+  {
+   "id": "overture:0a782a2f-1525-42a4-a512-a1876c89a04c",
+   "name": "ロッジ つらら",
+   "kana": "ロッジツララ",
+   "romaji": [
+    "lodge tsurara",
+    "lodgetsurara"
+   ]
+  },
+  {
+   "id": "overture:0a9f7599-ddd5-4b2f-9e67-e1fad3ce8c32",
+   "name": "和田野の森in白馬",
+   "kana": "ワデンヤノモリinハクバ",
+   "romaji": [
+    "wa denya no mori in hakuba",
+    "wadenyanomoriinhakuba"
+   ]
+  },
+  {
+   "id": "overture:0ad58915-7be9-4ce1-86d2-2ff128863679",
+   "name": "波紋",
+   "kana": "ハモン",
+   "romaji": [
+    "hamon"
+   ]
+  },
+  {
+   "id": "overture:0ae3d0ea-985f-4b80-aea4-5fdde5419f35",
+   "name": "白馬荘",
+   "kana": "ハクバソウ",
+   "romaji": [
+    "hakuba so",
+    "hakubaso"
+   ]
+  },
+  {
+   "id": "overture:0b00d274-d882-484a-8393-b8cef863dfbf",
+   "name": "ホビー白馬乗鞍",
+   "kana": "ホビーハクバノリクラ",
+   "romaji": [
+    "hobi hakuba norikura",
+    "hobihakubanorikura"
+   ]
+  },
+  {
+   "id": "overture:0b09b668-cf0e-48f3-9a28-87deb84e61ab",
+   "name": "白馬岩岳スキー場よこや別館",
+   "kana": "ハクバイワタケスキーバヨコヤベッカン",
+   "romaji": [
+    "hakuba iwa take ski ba yoko ya bekkan",
+    "hakubaiwatakeskibayokoyabekkan"
+   ]
+  },
+  {
+   "id": "overture:0b7c099e-d244-455b-ba64-9573b337f241",
+   "name": "ファミーユ若田",
+   "kana": "ファミーユワカタ",
+   "romaji": [
+    "famiyu wakata",
+    "famiyuwakata"
+   ]
+  },
+  {
+   "id": "overture:0bc21641-59c7-471c-b261-0fbb467c367f",
+   "name": "マルナカ旅館",
+   "kana": "マルナカリョカン",
+   "romaji": [
+    "marunaka ryokan",
+    "marunakaryokan"
+   ]
+  },
+  {
+   "id": "overture:0cd1133e-d186-4ce9-9afd-e3eb89cdf3ca",
+   "name": "山の郷ホテル白馬ひふみ",
+   "kana": "ヤマノゴウホテルハクバヒフミ",
+   "romaji": [
+    "yama no go hotel hakuba hifu mi",
+    "yamanogohotelhakubahifumi"
+   ]
+  },
+  {
+   "id": "overture:0cd4c731-1a29-4e2c-80ea-225b7c25d840",
+   "name": "信濃荘",
+   "kana": "シナノソウ",
+   "romaji": [
+    "shinano so",
+    "shinanoso"
+   ]
+  },
+  {
+   "id": "overture:0d8fd8f0-fbbe-4a7c-a40b-9e6bf5816c0a",
+   "name": "ミーディア&ブラウニー",
+   "kana": "ミーディア&ブラウニー",
+   "romaji": [
+    "midia burauni",
+    "midiaburauni"
+   ]
+  },
+  {
+   "id": "overture:0e2bbc78-2992-4520-a47e-37cd489e7a0e",
+   "name": "栂池ヒュッテ",
+   "kana": "ツガイケヒュッテ",
+   "romaji": [
+    "tsugaike hutte",
+    "tsugaikehutte"
+   ]
+  },
+  {
+   "id": "overture:0eb0f0ce-3c45-4f81-a182-afe6dbacf638",
+   "name": "ボクル",
+   "kana": "ボクル",
+   "romaji": [
+    "boku ru",
+    "bokuru"
+   ]
+  },
+  {
+   "id": "overture:103a5cc8-5b1d-4ad7-a565-bdc5ae54706a",
+   "name": "東上館",
+   "kana": "トウジョウカン",
+   "romaji": [
+    "tojo kan",
+    "tojokan"
+   ]
+  },
+  {
+   "id": "overture:114a5f68-2f68-4c47-95c3-fc5219b038ad",
+   "name": "ペンションアンの家",
+   "kana": "ペンションアンノイエ",
+   "romaji": [
+    "pension an no ie",
+    "pensionannoie"
+   ]
+  },
+  {
+   "id": "overture:11f591b9-1e54-44a3-b245-a7dfe83ed5dc",
+   "name": "アンデス",
+   "kana": "アンデス",
+   "romaji": [
+    "andesu"
+   ]
+  },
+  {
+   "id": "overture:12576da7-682e-43a3-86a0-b44949f2e425",
+   "name": "ペンションちゃうちゃう",
+   "kana": "ペンションチャウチャウ",
+   "romaji": [
+    "pension chau chau",
+    "pensionchauchau"
+   ]
+  },
+  {
+   "id": "overture:125910e1-1aae-4511-b1fc-4000e3824f28",
+   "name": "八方リーゼン小屋",
+   "kana": "ハッポウリーゼンコヤ",
+   "romaji": [
+    "happo rizen koya",
+    "happorizenkoya"
+   ]
+  },
+  {
+   "id": "overture:127c87e0-607f-4f48-9c89-58da33823b1e",
+   "name": "温泉民宿 あさひや",
+   "kana": "オンセンミンシュクアサヒヤ",
+   "romaji": [
+    "onsen minshuku asahi ya",
+    "onsenminshukuasahiya"
+   ]
+  },
+  {
+   "id": "overture:13411270-e396-4502-9b42-6a74933e4a10",
+   "name": "ペンション白馬るんびにー",
+   "kana": "ペンションハクバルンビニー",
+   "romaji": [
+    "pension hakuba ru n bi ni",
+    "pensionhakubarunbini"
+   ]
+  },
+  {
+   "id": "overture:13bc8958-209d-4d03-98b1-a9054d7ab27f",
+   "name": "ペンション暖家",
+   "kana": "ペンションダンカ",
+   "romaji": [
+    "pension dan ka",
+    "pensiondanka"
+   ]
+  },
+  {
+   "id": "overture:14396ed0-eff9-430f-a3bc-c6c42bbdd772",
+   "name": "ロッジ池田屋",
+   "kana": "ロッジイケダヤ",
+   "romaji": [
+    "lodge ikeda ya",
+    "lodgeikedaya"
+   ]
+  },
+  {
+   "id": "overture:153b5304-0aca-40dd-92cc-db380acc3f66",
+   "name": "白馬スプリングスホテル",
+   "kana": "ハクバスプリングスホテル",
+   "romaji": [
+    "hakuba supuringu su hotel",
+    "hakubasupuringusuhotel"
+   ]
+  },
+  {
+   "id": "overture:15614bec-cf4a-4efc-accb-96d7ca1b4f2d",
+   "name": "ミニヨンホテル・ドゥ・ノエル",
+   "kana": "ミニヨンホテル・ドゥ・ノエル",
+   "romaji": [
+    "miniyon hotel du noeru",
+    "miniyonhoteldunoeru"
+   ]
+  },
+  {
+   "id": "overture:15a3917a-0121-4efe-ba4e-e43a32f4a225",
+   "name": "あたらしや旅館",
+   "kana": "アタラシヤリョカン",
+   "romaji": [
+    "atarashi ya ryokan",
+    "atarashiyaryokan"
+   ]
+  },
+  {
+   "id": "overture:15bccf72-301f-4709-b4af-a6b640a376a4",
+   "name": "リゾートイン白馬",
+   "kana": "リゾートインハクバ",
+   "romaji": [
+    "resort in hakuba",
+    "resortinhakuba"
+   ]
+  },
+  {
+   "id": "overture:1617a9e5-479d-4f9c-9ff7-6dff35334403",
+   "name": "ペンションサトウ",
+   "kana": "ペンションサトウ",
+   "romaji": [
+    "pension sato",
+    "pensionsato"
+   ]
+  },
+  {
+   "id": "overture:16188c30-e4f9-4913-9536-f4321639403a",
+   "name": "天狗山荘",
+   "kana": "テングサンソウ",
+   "romaji": [
+    "tengu sanso",
+    "tengusanso"
+   ]
+  },
+  {
+   "id": "overture:16214342-9d7e-4a1e-9758-2895f17126de",
+   "name": "白馬岩岳 アルベルゴ宮田荘",
+   "kana": "ハクバイワタケアルベルゴミヤタソウ",
+   "romaji": [
+    "hakuba iwa take aruberugo miyata so",
+    "hakubaiwatakearuberugomiyataso"
+   ]
+  },
+  {
+   "id": "overture:16526f7b-54ba-468e-9b74-64fd3ccfa7fc",
+   "name": "山荘",
+   "kana": "サンソウ",
+   "romaji": [
+    "sanso"
+   ]
+  },
+  {
+   "id": "overture:170042a6-ba8f-472d-a254-5642ccd8729e",
+   "name": "犬と泊まれるペンション・ピレモン",
+   "kana": "イヌトトマレルペンション・ピレモン",
+   "romaji": [
+    "inu to tomareru pension piremon",
+    "inutotomarerupensionpiremon"
+   ]
+  },
+  {
+   "id": "overture:171ef990-0e64-4a54-8fdb-885a8d6be8fe",
+   "name": "シルクウッドホテル",
+   "kana": "シルクウッドホテル",
+   "romaji": [
+    "shiruku uddo hotel",
+    "shirukuuddohotel"
+   ]
+  },
+  {
+   "id": "overture:17a04409-6a30-40f9-96b0-3eb565200cdc",
+   "name": "ホテルモンテローザ白馬",
+   "kana": "ホテルモンテローザハクバ",
+   "romaji": [
+    "hotel monteroza hakuba",
+    "hotelmonterozahakuba"
+   ]
+  },
+  {
+   "id": "overture:184c63b2-7e38-4200-86f2-11521bcb43d1",
+   "name": "ホテルさいとう",
+   "kana": "ホテルサイトウ",
+   "romaji": [
+    "hotel saito",
+    "hotelsaito"
+   ]
+  },
+  {
+   "id": "overture:193187f7-8b9d-4352-8698-b46112b79a74",
+   "name": "白馬 咲花山荘",
+   "kana": "ハクバサキハナヤマソウ",
+   "romaji": [
+    "hakuba saki hanayama so",
+    "hakubasakihanayamaso"
+   ]
+  },
+  {
+   "id": "overture:1953a4e2-2f30-4069-bde9-06255bc738d1",
+   "name": "シャトレ山彦",
+   "kana": "シャトレヤマビコ",
+   "romaji": [
+    "shatore yamabiko",
+    "shatoreyamabiko"
+   ]
+  },
+  {
+   "id": "overture:19b7c391-09dd-414e-8cc1-de18d9d908f1",
+   "name": "落倉高原",
+   "kana": "オチソウタカハラ",
+   "romaji": [
+    "ochi so takahara",
+    "ochisotakahara"
+   ]
+  },
+  {
+   "id": "overture:19caaaf9-fd14-483d-bf35-b777a4c2a73c",
+   "name": "エターナルフレーム",
+   "kana": "エターナルフレーム",
+   "romaji": [
+    "etanaru furemu",
+    "etanarufuremu"
+   ]
+  },
+  {
+   "id": "overture:1a35ae1a-7ac9-44df-ac37-7e60d3f5e67d",
+   "name": "（エスオーワンダー ノース）",
+   "kana": "（エスオーワンダーノース）",
+   "romaji": [
+    "esuowanda nosu",
+    "esuowandanosu"
+   ]
+  },
+  {
+   "id": "overture:1a6bbbaa-2f8b-4208-99b9-3f070a2ab5be",
+   "name": "八方池山荘",
+   "kana": "ハッポウイケサンソウ",
+   "romaji": [
+    "happo ike sanso",
+    "happoikesanso"
+   ]
+  },
+  {
+   "id": "overture:1b44a9d1-25dc-49cf-a174-472ec914d227",
+   "name": "大根館",
+   "kana": "ダイコンカン",
+   "romaji": [
+    "daikon kan",
+    "daikonkan"
+   ]
+  },
+  {
+   "id": "overture:1b53f830-c1af-4e10-a04c-3d66f1b896a8",
+   "name": "ロッヂケルン",
+   "kana": "ロッヂケルン",
+   "romaji": [
+    "lodge kerun",
+    "lodgekerun"
+   ]
+  },
+  {
+   "id": "overture:1bdaa815-9acf-4744-aaeb-617f39a9ca3d",
+   "name": "レディ・ダイアナ",
+   "kana": "レディ・ダイアナ",
+   "romaji": [
+    "redi daiana",
+    "redidaiana"
+   ]
+  },
+  {
+   "id": "overture:1befa681-3117-4351-9a24-1d2665312c55",
+   "name": "白馬アルプスオートキャンプ場",
+   "kana": "ハクバアルプスオートキャンプジョウ",
+   "romaji": [
+    "hakuba arupusu oto kyanpu jo",
+    "hakubaarupusuotokyanpujo"
+   ]
+  },
+  {
+   "id": "overture:1c1025d2-e64d-4cfb-9016-07a19bf37630",
+   "name": "ロッヂ加根久",
+   "kana": "ロッヂカコンヒサシ",
+   "romaji": [
+    "lodge ka kon hisashi",
+    "lodgekakonhisashi"
+   ]
+  },
+  {
+   "id": "overture:1e966ba4-630e-45fe-89cb-ecba50be2964",
+   "name": "高原荘",
+   "kana": "コウゲンソウ",
+   "romaji": [
+    "kogen so",
+    "kogenso"
+   ]
+  },
+  {
+   "id": "overture:1f36eaaf-7483-4d10-ab2b-11ef4cc75793",
+   "name": "ペンション フォレスト イン",
+   "kana": "ペンションフォレストイン",
+   "romaji": [
+    "pension foresuto in",
+    "pensionforesutoin"
+   ]
+  },
+  {
+   "id": "overture:1fd5499a-3525-45ab-a4a3-a7b29c07af9c",
+   "name": "グレイシャーホテル",
+   "kana": "グレイシャーホテル",
+   "romaji": [
+    "gureisha hotel",
+    "gureishahotel"
+   ]
+  },
+  {
+   "id": "overture:2155820c-b52e-45ae-8731-e366d3098464",
+   "name": "いりなか",
+   "kana": "イリナカ",
+   "romaji": [
+    "irinaka"
+   ]
+  },
+  {
+   "id": "overture:21e000be-8872-4b31-9270-c3e5fd992e1d",
+   "name": "山八旅館",
+   "kana": "ヤマハチリョカン",
+   "romaji": [
+    "yama hachi ryokan",
+    "yamahachiryokan"
+   ]
+  },
+  {
+   "id": "overture:22db01dd-b194-414c-83f8-9022903acfc8",
+   "name": "パンシオンベルネージュ",
+   "kana": "パンシオンベルネージュ",
+   "romaji": [
+    "panshionberuneju"
+   ]
+  },
+  {
+   "id": "overture:230755a2-bd59-4f4f-984d-d83227e2de99",
+   "name": "六拾刈旅館",
+   "kana": "ロクジュウガリリョカン",
+   "romaji": [
+    "roku ju gari ryokan",
+    "rokujugariryokan"
+   ]
+  },
+  {
+   "id": "overture:237f06e7-31f2-423c-874c-374818c2d965",
+   "name": "ロッヂかめや",
+   "kana": "ロッヂカメヤ",
+   "romaji": [
+    "lodge kame ya",
+    "lodgekameya"
+   ]
+  },
+  {
+   "id": "overture:238c3217-e38f-4940-8e31-7d2511050916",
+   "name": "しろうま神城山荘",
+   "kana": "シロウマカミシロサンソウ",
+   "romaji": [
+    "shiro ma kamishiro sanso",
+    "shiromakamishirosanso"
+   ]
+  },
+  {
+   "id": "overture:23edfb61-4eb4-401b-b33c-fff19e2e11e0",
+   "name": "民宿 まるじう館",
+   "kana": "ミンシュクマルジウカン",
+   "romaji": [
+    "minshuku maru ji u kan",
+    "minshukumarujiukan"
+   ]
+  },
+  {
+   "id": "overture:241061f9-2f40-4cc4-b981-e7f941df34c5",
+   "name": "旅館 木塵",
+   "kana": "リョカンモクジン",
+   "romaji": [
+    "ryokan moku jin",
+    "ryokanmokujin"
+   ]
+  },
+  {
+   "id": "overture:241cb789-f673-4ba6-aa9e-9078ca9151e8",
+   "name": "マウンテンリゾート Pao 白馬",
+   "kana": "マウンテンリゾートPaoハクバ",
+   "romaji": [
+    "maunten resort pao hakuba",
+    "mauntenresortpaohakuba"
+   ]
+  },
+  {
+   "id": "overture:2536c483-fae3-4a7e-b6ff-8ef1583fa0c3",
+   "name": "コテージ ボカージュ",
+   "kana": "コテージボカージュ",
+   "romaji": [
+    "cottage bokaju",
+    "cottagebokaju"
+   ]
+  },
+  {
+   "id": "overture:26224c00-ec32-43a7-8b32-09d8375a6ab2",
+   "name": "ロッジやまじう",
+   "kana": "ロッジヤマジウ",
+   "romaji": [
+    "lodge ya majiu",
+    "lodgeyamajiu"
+   ]
+  },
+  {
+   "id": "overture:2669cb63-3b07-499f-894f-cfa58d5368e5",
+   "name": "うめのや旅館",
+   "kana": "ウメノヤリョカン",
+   "romaji": [
+    "ume no ya ryokan",
+    "umenoyaryokan"
+   ]
+  },
+  {
+   "id": "overture:26a11b35-00a2-4452-a390-4bab2f142fee",
+   "name": "シェラリゾート白馬",
+   "kana": "シェラリゾートハクバ",
+   "romaji": [
+    "shera resort hakuba",
+    "sheraresorthakuba"
+   ]
+  },
+  {
+   "id": "overture:26b5bde9-af39-447e-b166-19d7fa1d0b3b",
+   "name": "ペンション500マイル",
+   "kana": "ペンション500マイル",
+   "romaji": [
+    "pension mairu",
+    "pensionmairu"
+   ]
+  },
+  {
+   "id": "overture:26f5525f-0cff-4212-a07b-927f19e43323",
+   "name": "白馬マホロバ",
+   "kana": "ハクバマホロバ",
+   "romaji": [
+    "hakuba mahoroba",
+    "hakubamahoroba"
+   ]
+  },
+  {
+   "id": "overture:27e358a3-fc8d-4490-acbd-29aff779f363",
+   "name": "白馬尻小屋",
+   "kana": "ハクバシリコヤ",
+   "romaji": [
+    "hakuba shiri koya",
+    "hakubashirikoya"
+   ]
+  },
+  {
+   "id": "overture:28068943-9f2d-4b21-a361-08609eb03089",
+   "name": "ライジングフィールド白馬",
+   "kana": "ライジングフィールドハクバ",
+   "romaji": [
+    "raijingu firudo hakuba",
+    "raijingufirudohakuba"
+   ]
+  },
+  {
+   "id": "overture:286292e4-6229-4f84-b890-745ac7f81e64",
+   "name": "ペンション早起き鳥",
+   "kana": "ペンションハヤオキトリ",
+   "romaji": [
+    "pension hayaoki tori",
+    "pensionhayaokitori"
+   ]
+  },
+  {
+   "id": "overture:29586459-1d1f-4cf3-b945-9d71324392f7",
+   "name": "ペンションノンネル",
+   "kana": "ペンションノンネル",
+   "romaji": [
+    "pension non neru",
+    "pensionnonneru"
+   ]
+  },
+  {
+   "id": "overture:2972f917-3eca-4075-8443-183ae6c7453b",
+   "name": "ファミリーペンション　ドレミの森",
+   "kana": "ファミリーペンション　ドレミノモリ",
+   "romaji": [
+    "famiri pension doremi no mori",
+    "famiripensiondoreminomori"
+   ]
+  },
+  {
+   "id": "overture:2ac30449-2aa4-41db-a1da-c1f81d09c25c",
+   "name": "リゾートホテルラフォーレ白馬",
+   "kana": "リゾートホテルラフォーレハクバ",
+   "romaji": [
+    "resort hotel rafore hakuba",
+    "resorthotelraforehakuba"
+   ]
+  },
+  {
+   "id": "overture:2b422cc3-aada-4ef6-a0ae-1c36c1a060df",
+   "name": "武田館",
+   "kana": "タケダカン",
+   "romaji": [
+    "takeda kan",
+    "takedakan"
+   ]
+  },
+  {
+   "id": "overture:2dd7b3f7-8dd5-40ac-9334-272867a28e9b",
+   "name": "愛犬と泊まれる宿 白馬パウダーマウンテン",
+   "kana": "アイケントトマレルヤドハクバパウダーマウンテン",
+   "romaji": [
+    "aiken to tomareru yado hakuba pauda maunten",
+    "aikentotomareruyadohakubapaudamaunten"
+   ]
+  },
+  {
+   "id": "overture:2e930f9b-288b-4e37-a543-3f991f357ce1",
+   "name": "白馬 The Lodge シオン",
+   "kana": "ハクバTheLodgeシオン",
+   "romaji": [
+    "hakuba the lodge shion",
+    "hakubathelodgeshion"
+   ]
+  },
+  {
+   "id": "overture:2eed426d-8cda-49b1-9cdf-86a8e8a8abc7",
+   "name": "きん・こん・館",
+   "kana": "キン・コン・ヤカタ",
+   "romaji": [
+    "kin kon yakata",
+    "kinkonyakata"
+   ]
+  },
+  {
+   "id": "overture:2f0395d8-c2e1-49ec-9dee-444a50a2334f",
+   "name": "古家荘",
+   "kana": "フルヤソウ",
+   "romaji": [
+    "furuya so",
+    "furuyaso"
+   ]
+  },
+  {
+   "id": "overture:2fdb89e4-945f-43a9-a56e-11fd575cf5bb",
+   "name": "ロッジ 基",
+   "kana": "ロッジモト",
+   "romaji": [
+    "lodge moto",
+    "lodgemoto"
+   ]
+  },
+  {
+   "id": "overture:2ff04f44-2f4f-4934-aee7-ff0151b40c7f",
+   "name": "かくひら館",
+   "kana": "カクヒラカン",
+   "romaji": [
+    "kaku hira kan",
+    "kakuhirakan"
+   ]
+  },
+  {
+   "id": "overture:302841d4-d55d-4eff-afac-b96dd016190c",
+   "name": "山楽荘",
+   "kana": "サンラクソウ",
+   "romaji": [
+    "sanraku so",
+    "sanrakuso"
+   ]
+  },
+  {
+   "id": "overture:30e2572c-a6ca-44e6-877d-50ef1348eaf3",
+   "name": "深雪",
+   "kana": "ミユキ",
+   "romaji": [
+    "miyuki"
+   ]
+  },
+  {
+   "id": "overture:319bea11-5962-4bad-9894-00083fa270d8",
+   "name": "ワーケーション白馬",
+   "kana": "ワーケーションハクバ",
+   "romaji": [
+    "wakeshon hakuba",
+    "wakeshonhakuba"
+   ]
+  },
+  {
+   "id": "overture:31c0b2bb-4a42-4e4c-92b3-fefbe657e76f",
+   "name": "ロッジくるま",
+   "kana": "ロッジクルマ",
+   "romaji": [
+    "lodge kuruma",
+    "lodgekuruma"
+   ]
+  },
+  {
+   "id": "overture:31c925bb-e096-473b-a9cb-3dd0ff575a84",
+   "name": "旅館 あづみ館",
+   "kana": "リョカンアヅミカン",
+   "romaji": [
+    "ryokan azumi kan",
+    "ryokanazumikan"
+   ]
+  },
+  {
+   "id": "overture:3309f073-2c9a-456c-85c4-6a08c7301fa6",
+   "name": "ロッジ かぜのおと",
+   "kana": "ロッジカゼノオト",
+   "romaji": [
+    "lodge kaze no oto",
+    "lodgekazenooto"
+   ]
+  },
+  {
+   "id": "overture:344a14d3-a97d-482a-935e-21ad78bed11c",
+   "name": "エルモンテ",
+   "kana": "エルモンテ",
+   "romaji": [
+    "erumonte"
+   ]
+  },
+  {
+   "id": "overture:34e0302c-f4fa-42f8-a8e3-e0ada71d7ab6",
+   "name": "やまきち",
+   "kana": "ヤマキチ",
+   "romaji": [
+    "yama kichi",
+    "yamakichi"
+   ]
+  },
+  {
+   "id": "overture:35e3cfad-85f9-4da5-8959-93eb6cca861d",
+   "name": "ホテル・ボーネン",
+   "kana": "ホテル・ボーネン",
+   "romaji": [
+    "hotel bonen",
+    "hotelbonen"
+   ]
+  },
+  {
+   "id": "overture:37148e5a-a1d7-4f59-b64b-54764fb10f06",
+   "name": "モアリゾートホテルけやきの樹",
+   "kana": "モアリゾートホテルケヤキノキ",
+   "romaji": [
+    "moa resort hotel keyaki no ki",
+    "moaresorthotelkeyakinoki"
+   ]
+  },
+  {
+   "id": "overture:374e330b-618d-4a41-b758-5e5fad4639bb",
+   "name": "白馬メルヘンハウス",
+   "kana": "ハクバメルヘンハウス",
+   "romaji": [
+    "hakuba meruhen house",
+    "hakubameruhenhouse"
+   ]
+  },
+  {
+   "id": "overture:378924d4-2a91-4b22-975e-6a6d4d5b5bc3",
+   "name": "細野館",
+   "kana": "ホソノカン",
+   "romaji": [
+    "hosono kan",
+    "hosonokan"
+   ]
+  },
+  {
+   "id": "overture:37cebf7a-07f0-4b71-abef-84d86aae6e9b",
+   "name": "ベルクヒュッテ",
+   "kana": "ベルクヒュッテ",
+   "romaji": [
+    "beruku hutte",
+    "berukuhutte"
+   ]
+  },
+  {
+   "id": "overture:37d8702e-d21b-4010-a447-05a86e7cb3e0",
+   "name": "信州白馬八方温泉 しろうま荘",
+   "kana": "シンシュウハクバハッポウオンセンシロウマソウ",
+   "romaji": [
+    "shinshu hakuba happo onsen shiro uma so",
+    "shinshuhakubahappoonsenshiroumaso"
+   ]
+  },
+  {
+   "id": "overture:38018a96-1121-4ff8-a303-8edefbe79b6d",
+   "name": "涼亭 川 Ryoutei Kawa",
+   "kana": "リョウテイカワRyouteiKawa",
+   "romaji": [
+    "ryo tei kawa ryoutei kawa",
+    "ryoteikawaryouteikawa"
+   ]
+  },
+  {
+   "id": "overture:381584a3-2164-414d-ba60-addbaba5ef5b",
+   "name": "美麻オリザファーム",
+   "kana": "ミアサオリザファーム",
+   "romaji": [
+    "miasa oriza famu",
+    "miasaorizafamu"
+   ]
+  },
+  {
+   "id": "overture:38fc1f31-1063-4285-adc8-130688d6a58e",
+   "name": "ペンション塩の道",
+   "kana": "ペンションシオノミチ",
+   "romaji": [
+    "pension shio no michi",
+    "pensionshionomichi"
+   ]
+  },
+  {
+   "id": "overture:393a71f8-75e4-4bcd-8db3-6dd02e2499b0",
+   "name": "田園詩",
+   "kana": "デンエンシ",
+   "romaji": [
+    "denen shi",
+    "denenshi"
+   ]
+  },
+  {
+   "id": "overture:39a53a9d-831f-4619-8959-2bb1fdb292f3",
+   "name": "栂池グランドロッヂ",
+   "kana": "ツガイケグランドロッヂ",
+   "romaji": [
+    "tsugaike gurando lodge",
+    "tsugaikegurandolodge"
+   ]
+  },
+  {
+   "id": "overture:3a55557d-9f2c-408a-be89-ea2953f3a675",
+   "name": "堂屋敷館",
+   "kana": "ドウヤシキカン",
+   "romaji": [
+    "do yashiki kan",
+    "doyashikikan"
+   ]
+  },
+  {
+   "id": "overture:3acac49f-1131-4fb6-8661-768b1a5bde5c",
+   "name": "ヴィラ八方",
+   "kana": "ヴィラハッポウ",
+   "romaji": [
+    "villa happo",
+    "villahappo"
+   ]
+  },
+  {
+   "id": "overture:3b8e8ab6-4527-45d0-b6dc-40da4d9eee99",
+   "name": "あぜくら山荘",
+   "kana": "アゼクラサンソウ",
+   "romaji": [
+    "azekura sanso",
+    "azekurasanso"
+   ]
+  },
+  {
+   "id": "overture:3b9ad5be-73a9-4f4c-a298-18680d32a697",
+   "name": "マルハン爺ヶ岳ロッジ",
+   "kana": "マルハンジイガタケロッジ",
+   "romaji": [
+    "maruhan jiigatake lodge",
+    "maruhanjiigatakelodge"
+   ]
+  },
+  {
+   "id": "overture:3c223840-b5bb-45f5-9564-7ce8dbd637e0",
+   "name": "ビラビレッジ 岳美",
+   "kana": "ビラビレッジタケビ",
+   "romaji": [
+    "villa birejji take bi",
+    "villabirejjitakebi"
+   ]
+  },
+  {
+   "id": "overture:3d4c7cf9-e38e-45d6-b2e8-dc39b8897805",
+   "name": "ペンションコミニュティハウスチロリアン",
+   "kana": "ペンションコミニュティハウスチロリアン",
+   "romaji": [
+    "pension kominyuti house chirorian",
+    "pensionkominyutihousechirorian"
+   ]
+  },
+  {
+   "id": "overture:409ede5c-e000-4c9e-b33d-05dbffe20475",
+   "name": "花乃郷",
+   "kana": "ハナノサト",
+   "romaji": [
+    "hana no sato",
+    "hananosato"
+   ]
+  },
+  {
+   "id": "overture:4104ea25-460f-457f-a283-a3eee8ea2848",
+   "name": "清美山荘",
+   "kana": "キヨハルサンソウ",
+   "romaji": [
+    "kiyoharu sanso",
+    "kiyoharusanso"
+   ]
+  },
+  {
+   "id": "overture:4142e8e3-71f2-4220-8fb0-04f42e7030f3",
+   "name": "グリーンバレー白馬 Green Valley Hakuba",
+   "kana": "グリーンバレーハクバGreenValleyHakuba",
+   "romaji": [
+    "gurin bare hakuba green valley hakuba",
+    "gurinbarehakubagreenvalleyhakuba"
+   ]
+  },
+  {
+   "id": "overture:41a16fa1-091a-487e-96ee-8e235c243260",
+   "name": "ホテルセルリアンアルペン",
+   "kana": "ホテルセルリアンアルペン",
+   "romaji": [
+    "hotel serurian arupen",
+    "hotelserurianarupen"
+   ]
+  },
+  {
+   "id": "overture:41d837a6-4d16-4e10-87fe-82d08dd720cf",
+   "name": "一の倉荘",
+   "kana": "イチノクラソウ",
+   "romaji": [
+    "ichi no kura so",
+    "ichinokuraso"
+   ]
+  },
+  {
+   "id": "overture:41fbfa39-dd1b-40fc-af03-749a77c92d41",
+   "name": "白馬岩岳　岳園荘",
+   "kana": "ハクバイワタケ　タケエンソウ",
+   "romaji": [
+    "hakuba iwa take take en so",
+    "hakubaiwataketakeenso"
+   ]
+  },
+  {
+   "id": "overture:4210cfea-c6b4-4f93-91fd-9a854aae0d4e",
+   "name": "ペンション あさねぼう",
+   "kana": "ペンションアサネボウ",
+   "romaji": [
+    "pension asa nebo",
+    "pensionasanebo"
+   ]
+  },
+  {
+   "id": "overture:42162f67-cb1e-40cb-9fe2-37c57c95d4fb",
+   "name": "パルズイン雷鳥",
+   "kana": "パルズインライチョウ",
+   "romaji": [
+    "paruzu in raicho",
+    "paruzuinraicho"
+   ]
+  },
+  {
+   "id": "overture:42897674-a860-4459-a306-a22f10be2054",
+   "name": "白馬サンバレーホテルアネックス Hakuba Sun Valley Hotel Annex",
+   "kana": "ハクバサンバレーホテルアネックスHakubaSunValleyHotelAnnex",
+   "romaji": [
+    "hakuba san bare hotel anekkusu hakuba sun valley hotel annex",
+    "hakubasanbarehotelanekkusuhakubasunvalleyhotelannex"
+   ]
+  },
+  {
+   "id": "overture:44030c80-1ac9-41f5-98a4-0950fa4c9673",
+   "name": "リゾートホテル栂池",
+   "kana": "リゾートホテルツガイケ",
+   "romaji": [
+    "resort hotel tsugaike",
+    "resorthoteltsugaike"
+   ]
+  },
+  {
+   "id": "overture:445fd886-4350-4be0-b62e-e33033c4241e",
+   "name": "シェルパ",
+   "kana": "シェルパ",
+   "romaji": [
+    "sherupa"
+   ]
+  },
+  {
+   "id": "overture:468f9e6c-70a0-40d3-bc1a-9931d6113141",
+   "name": "白馬アルプスオートキャンプ場",
+   "kana": "ハクバアルプスオートキャンプジョウ",
+   "romaji": [
+    "hakuba arupusu oto kyanpu jo",
+    "hakubaarupusuotokyanpujo"
+   ]
+  },
+  {
+   "id": "overture:470deeb2-ae53-44e8-928e-2e8476cf4b42",
+   "name": "ロッヂつばき",
+   "kana": "ロッヂツバキ",
+   "romaji": [
+    "lodge tsubaki",
+    "lodgetsubaki"
+   ]
+  },
+  {
+   "id": "overture:47409a86-0c90-4b98-9810-cb10abfac522",
+   "name": "ペンション ラァステカ",
+   "kana": "ペンションラァステカ",
+   "romaji": [
+    "pension raasuteka",
+    "pensionraasuteka"
+   ]
+  },
+  {
+   "id": "overture:47720a0d-d0d9-4e7e-bb13-19d61cca8d7b",
+   "name": "マウンテンロッジＷｉｚ （ウィズ）",
+   "kana": "マウンテンロッジＷｉｚ（ウィズ）",
+   "romaji": [
+    "maunten lodge wiz wizu",
+    "mauntenlodgewizwizu"
+   ]
+  },
+  {
+   "id": "overture:47c6c496-e84b-430e-b896-f8c1799f9417",
+   "name": "ホテルニューベルニナ",
+   "kana": "ホテルニューベルニナ",
+   "romaji": [
+    "hotel nyu berunina",
+    "hotelnyuberunina"
+   ]
+  },
+  {
+   "id": "overture:48031935-b3b7-4441-9bed-3667e1f8fbe9",
+   "name": "アルプ",
+   "kana": "アルプ",
+   "romaji": [
+    "arupu"
+   ]
+  },
+  {
+   "id": "overture:496820c8-9416-401b-9ef0-3477a231d456",
+   "name": "長野県白馬村どんぐり村",
+   "kana": "ナガノケンハクバムラドングリムラ",
+   "romaji": [
+    "nagano ken hakuba mura donguri mura",
+    "naganokenhakubamuradongurimura"
+   ]
+  },
+  {
+   "id": "overture:49cdf126-bc30-4564-b646-834874f21f0f",
+   "name": "新雪荘",
+   "kana": "シンセツソウ",
+   "romaji": [
+    "shinsetsu so",
+    "shinsetsuso"
+   ]
+  },
+  {
+   "id": "overture:4a133738-aa34-449a-819f-0cd3587f2a55",
+   "name": "やまこし旅館",
+   "kana": "ヤマコシリョカン",
+   "romaji": [
+    "yama koshi ryokan",
+    "yamakoshiryokan"
+   ]
+  },
+  {
+   "id": "overture:4aebfd13-ccc6-4541-bfe6-b884283fa055",
+   "name": "カントリーハウス アールグレイ",
+   "kana": "カントリーハウスアールグレイ",
+   "romaji": [
+    "kantori house aru gurei",
+    "kantorihousearugurei"
+   ]
+  },
+  {
+   "id": "overture:4b7dfe22-2986-4b0e-99ff-2d864bd52037",
+   "name": "古民家ゲストハウス　「楽・多っ田」",
+   "kana": "コミンカゲストハウス　「ラク・タッタ」",
+   "romaji": [
+    "ko minka guesthouse raku ta ta",
+    "kominkaguesthouserakutata"
+   ]
+  },
+  {
+   "id": "overture:4bf3c463-5f1f-4231-a8ef-887e7ed4dcc4",
+   "name": "大向キャンプ場",
+   "kana": "オオムカイキャンプジョウ",
+   "romaji": [
+    "omukai kyanpu jo",
+    "omukaikyanpujo"
+   ]
+  },
+  {
+   "id": "overture:4c3304d6-aa09-4484-832c-9a82e131bd97",
+   "name": "サンライズ・タンネ",
+   "kana": "サンライズ・タンネ",
+   "romaji": [
+    "sanraizu tanne",
+    "sanraizutanne"
+   ]
+  },
+  {
+   "id": "overture:4d01fcbe-4448-4869-8592-558359f71689",
+   "name": "マル七",
+   "kana": "マルナナ",
+   "romaji": [
+    "maru nana",
+    "marunana"
+   ]
+  },
+  {
+   "id": "overture:4df25e59-d275-4f3b-aa9b-6114f454c84a",
+   "name": "ホテルベルナーオーバーラント",
+   "kana": "ホテルベルナーオーバーラント",
+   "romaji": [
+    "hotel berunaobaranto",
+    "hotelberunaobaranto"
+   ]
+  },
+  {
+   "id": "overture:4e6f7d89-b373-49ff-b5be-a0112361c89d",
+   "name": "リゾートインやまひら",
+   "kana": "リゾートインヤマヒラ",
+   "romaji": [
+    "resort in ya ma hira",
+    "resortinyamahira"
+   ]
+  },
+  {
+   "id": "overture:4f7de9cb-dd30-4600-bc7d-35f41af24aba",
+   "name": "民宿 かじや",
+   "kana": "ミンシュクカジヤ",
+   "romaji": [
+    "minshuku kaji ya",
+    "minshukukajiya"
+   ]
+  },
+  {
+   "id": "overture:500856c4-fcee-40d4-b49b-4656661f51dc",
+   "name": "中京大学青木湖セミナーハウス",
+   "kana": "チュウキョウダイガクアオキコセミナーハウス",
+   "romaji": [
+    "chukyo daigaku aoki ko semina house",
+    "chukyodaigakuaokikoseminahouse"
+   ]
+  },
+  {
+   "id": "overture:517aed0b-03b3-447e-b169-a83390cf7516",
+   "name": "白馬エスキーナ",
+   "kana": "ハクバエスキーナ",
+   "romaji": [
+    "hakuba e ski na",
+    "hakubaeskina"
+   ]
+  },
+  {
+   "id": "overture:51939ceb-e71c-4057-b92b-c56a2c09fca6",
+   "name": "ペンション安曇野",
+   "kana": "ペンションアヅミノ",
+   "romaji": [
+    "pension azumino",
+    "pensionazumino"
+   ]
+  },
+  {
+   "id": "overture:52d0ee51-1462-402b-a418-94865b28f130",
+   "name": "ラフォーレ倶楽部 ホテル白馬八方",
+   "kana": "ラフォーレクラブホテルシロウマハッポウ",
+   "romaji": [
+    "rafore kurabu hotel shiroma happo",
+    "raforekurabuhotelshiromahappo"
+   ]
+  },
+  {
+   "id": "overture:535116ef-c3d7-4fd4-9242-4e9c1179fc7c",
+   "name": "ザ・リッジリゾート白馬",
+   "kana": "ザ・リッジリゾートハクバ",
+   "romaji": [
+    "za rijji resort hakuba",
+    "zarijjiresorthakuba"
+   ]
+  },
+  {
+   "id": "overture:536cb629-3c7e-4cc8-b765-34b440090cdb",
+   "name": "白馬リゾートホテルラネージュ",
+   "kana": "ハクバリゾートホテルラネージュ",
+   "romaji": [
+    "hakuba resort hotel raneju",
+    "hakubaresorthotelraneju"
+   ]
+  },
+  {
+   "id": "overture:540ffd43-5809-410b-865e-4f81d0a2646e",
+   "name": "丸山館 Maruyamakan",
+   "kana": "マルヤマカンMaruyamakan",
+   "romaji": [
+    "maruyama kan maruyamakan",
+    "maruyamakanmaruyamakan"
+   ]
+  },
+  {
+   "id": "overture:54291d71-018f-47b3-96a4-5163b7d91122",
+   "name": "ペンションミーティア",
+   "kana": "ペンションミーティア",
+   "romaji": [
+    "pension mitia",
+    "pensionmitia"
+   ]
+  },
+  {
+   "id": "overture:54f5de8f-006c-4f4f-b2bd-9ff37ca71cd1",
+   "name": "古民家noie 梢乃雪",
+   "kana": "コミンカnoieコズエノユキ",
+   "romaji": [
+    "ko minka noie kozue no yuki",
+    "kominkanoiekozuenoyuki"
+   ]
+  },
+  {
+   "id": "overture:5686c21e-6cef-481a-9b7f-9fad963fc536",
+   "name": "ロッジ欅",
+   "kana": "ロッジケヤキ",
+   "romaji": [
+    "lodge keyaki",
+    "lodgekeyaki"
+   ]
+  },
+  {
+   "id": "overture:56895c60-f3a5-471a-ae5b-9a963b26a0bf",
+   "name": "ペンション カルナージュ",
+   "kana": "ペンションカルナージュ",
+   "romaji": [
+    "pension karunaju",
+    "pensionkarunaju"
+   ]
+  },
+  {
+   "id": "overture:5718301b-6742-4e72-b87c-055d6fbe040d",
+   "name": "けやきの樹",
+   "kana": "ケヤキノキ",
+   "romaji": [
+    "keyaki no ki",
+    "keyakinoki"
+   ]
+  },
+  {
+   "id": "overture:58aa0331-9950-4fe4-a150-74e156558095",
+   "name": "ロッジＬａｉｄＢａｃｋ",
+   "kana": "ロッジＬａｉｄＢａｃｋ",
+   "romaji": [
+    "lodge laidback",
+    "lodgelaidback"
+   ]
+  },
+  {
+   "id": "overture:59f41037-502e-481f-8b44-858177ce9d13",
+   "name": "はくば荘",
+   "kana": "ハクバソウ",
+   "romaji": [
+    "haku ba so",
+    "hakubaso"
+   ]
+  },
+  {
+   "id": "overture:59fdccd3-6e77-4c35-8010-ead1e5967c86",
+   "name": "入山登",
+   "kana": "イリヤマノボル",
+   "romaji": [
+    "iriyama noboru",
+    "iriyamanoboru"
+   ]
+  },
+  {
+   "id": "overture:5a8409be-81b0-473a-837c-65808b57487a",
+   "name": "はちいち荘",
+   "kana": "ハチイチソウ",
+   "romaji": [
+    "hachi ichi so",
+    "hachiichiso"
+   ]
+  },
+  {
+   "id": "overture:5ac7af03-8db9-4a6e-943c-385d8fbf0bf9",
+   "name": "白馬村観光局 宿紹介",
+   "kana": "ハクバムラカンコウキョクシュクショウカイ",
+   "romaji": [
+    "hakuba mura kanko kyoku shuku shokai",
+    "hakubamurakankokyokushukushokai"
+   ]
+  },
+  {
+   "id": "overture:5bf45dac-e83a-4c34-a552-e1e247832285",
+   "name": "深山荘",
+   "kana": "フカヤマソウ",
+   "romaji": [
+    "fukayama so",
+    "fukayamaso"
+   ]
+  },
+  {
+   "id": "overture:5ca6af33-6a36-42ec-bb9e-8baf558c8666",
+   "name": "白い小屋",
+   "kana": "シロイコヤ",
+   "romaji": [
+    "shiroi koya",
+    "shiroikoya"
+   ]
+  },
+  {
+   "id": "overture:5db2642d-3c67-4c1c-8995-99f5305460c7",
+   "name": "白馬山荘",
+   "kana": "ハクバサンソウ",
+   "romaji": [
+    "hakuba sanso",
+    "hakubasanso"
+   ]
+  },
+  {
+   "id": "overture:5dcb6e27-0c44-47a1-bed6-2341eae27aa6",
+   "name": "ホテル白馬",
+   "kana": "ホテルハクバ",
+   "romaji": [
+    "hotel hakuba",
+    "hotelhakuba"
+   ]
+  },
+  {
+   "id": "overture:5dd631de-dbac-435d-950b-b2f5ece7dad5",
+   "name": "ホテル雪倉",
+   "kana": "ホテルユキクラ",
+   "romaji": [
+    "hotel yukikura",
+    "hotelyukikura"
+   ]
+  },
+  {
+   "id": "overture:5ddc7001-44dd-48c9-a545-22d69d2d967b",
+   "name": "民宿ますや",
+   "kana": "ミンシュクマスヤ",
+   "romaji": [
+    "minshuku masu ya",
+    "minshukumasuya"
+   ]
+  },
+  {
+   "id": "overture:5df68d1d-b1ee-4f67-abfc-a12bcdc28fe1",
+   "name": "与兵衛倶楽部",
+   "kana": "ヨヘエクラブ",
+   "romaji": [
+    "yohee kurabu",
+    "yoheekurabu"
+   ]
+  },
+  {
+   "id": "overture:5ee96bf5-1ce5-4e18-9233-76c1bb3a539e",
+   "name": "シャルムいなば",
+   "kana": "シャルムイナバ",
+   "romaji": [
+    "sharumu inaba",
+    "sharumuinaba"
+   ]
+  },
+  {
+   "id": "overture:5ef8ebb8-a2fd-4065-bdec-08b22252a158",
+   "name": "ペンションコムパス",
+   "kana": "ペンションコムパス",
+   "romaji": [
+    "pension komu pasu",
+    "pensionkomupasu"
+   ]
+  },
+  {
+   "id": "overture:5f39ba9b-41fb-460e-9d9b-813e683df3d4",
+   "name": "ペンション オーバーグルグル",
+   "kana": "ペンションオーバーグルグル",
+   "romaji": [
+    "pension obaguruguru",
+    "pensionobaguruguru"
+   ]
+  },
+  {
+   "id": "overture:5fc46ce4-5f60-44b8-ac63-86508a9a278d",
+   "name": "ホテル サニーバレー",
+   "kana": "ホテルサニーバレー",
+   "romaji": [
+    "hotel sani bare",
+    "hotelsanibare"
+   ]
+  },
+  {
+   "id": "overture:600c15b9-ec28-40b7-8382-4b58cd5aaef0",
+   "name": "プチホテル グラスハウス",
+   "kana": "プチホテルグラスハウス",
+   "romaji": [
+    "puchi hotel gurasu house",
+    "puchihotelgurasuhouse"
+   ]
+  },
+  {
+   "id": "overture:6034b5ff-728e-41ad-b5eb-bb16c77397f1",
+   "name": "わかた館平林延彦",
+   "kana": "ワカタカンヒラバヤシノブヒコ",
+   "romaji": [
+    "wa kata kan hirabayashi nobuhiko",
+    "wakatakanhirabayashinobuhiko"
+   ]
+  },
+  {
+   "id": "overture:6047d6b2-3834-4472-9942-6d300c88fe89",
+   "name": "村のHOTEL信屋",
+   "kana": "ムラノHOTELシンヤ",
+   "romaji": [
+    "mura no hotel shin ya",
+    "muranohotelshinya"
+   ]
+  },
+  {
+   "id": "overture:608ce531-5ae6-4c52-9df6-50033dd5f3a2",
+   "name": "パーク白馬",
+   "kana": "パークハクバ",
+   "romaji": [
+    "park hakuba",
+    "parkhakuba"
+   ]
+  },
+  {
+   "id": "overture:62ec9639-8dde-4387-84f8-c02efa404a71",
+   "name": "白馬姬川溫泉",
+   "kana": "ハクバ姬川オンセン",
+   "romaji": [
+    "hakuba onsen",
+    "hakubaonsen"
+   ]
+  },
+  {
+   "id": "overture:64358f98-37ac-4850-a0bf-ac97569a83ad",
+   "name": "グランジャム栂池",
+   "kana": "グランジャムツガイケ",
+   "romaji": [
+    "guran jamu tsugaike",
+    "guranjamutsugaike"
+   ]
+  },
+  {
+   "id": "overture:6454e741-e32c-41a5-87d2-5414d725dacf",
+   "name": "ホテルグレース白馬",
+   "kana": "ホテルグレースハクバ",
+   "romaji": [
+    "hotel guresu hakuba",
+    "hotelguresuhakuba"
+   ]
+  },
+  {
+   "id": "overture:65f7cba3-9cf3-49f2-a6f3-22b24d98b92f",
+   "name": "栂池高原味なお宿松ノ木亭",
+   "kana": "ツガイケコウゲンミナオヤドマツノキテイ",
+   "romaji": [
+    "tsugaike kogen mi na o yado matsunoki tei",
+    "tsugaikekogenminaoyadomatsunokitei"
+   ]
+  },
+  {
+   "id": "overture:660fa379-62a0-48ac-beef-14ddbcbf985e",
+   "name": "ローゼンハイム白馬",
+   "kana": "ローゼンハイムハクバ",
+   "romaji": [
+    "rozen haimu hakuba",
+    "rozenhaimuhakuba"
+   ]
+  },
+  {
+   "id": "overture:66705e2f-af80-4652-b137-0d63155b0998",
+   "name": "ペンションあるふぁべっと",
+   "kana": "ペンションアルフぁベット",
+   "romaji": [
+    "pension aru fu a be to",
+    "pensionarufuabeto"
+   ]
+  },
+  {
+   "id": "overture:6705166d-f6b1-485f-b627-ae286d55a374",
+   "name": "白馬ホテル扇屋",
+   "kana": "ハクバホテルセンヤ",
+   "romaji": [
+    "hakuba hotel sen ya",
+    "hakubahotelsenya"
+   ]
+  },
+  {
+   "id": "overture:674ff1f2-1edf-4d5d-aa6f-86c2132c56db",
+   "name": "コーボルト ヒュッテ",
+   "kana": "コーボルトヒュッテ",
+   "romaji": [
+    "koboruto hutte",
+    "koborutohutte"
+   ]
+  },
+  {
+   "id": "overture:6772a8f1-9a3d-49d3-b53d-3eca31285a91",
+   "name": "山正",
+   "kana": "ヤマセイ",
+   "romaji": [
+    "yama sei",
+    "yamasei"
+   ]
+  },
+  {
+   "id": "overture:67c25ce4-ea21-49ef-ad46-0bf8669a8e58",
+   "name": "雪花シャレー",
+   "kana": "セッカシャレー",
+   "romaji": [
+    "sekka chalet",
+    "sekkachalet"
+   ]
+  },
+  {
+   "id": "overture:699413b0-475a-4542-974c-668758445bc0",
+   "name": "若松荘",
+   "kana": "ワカマツソウ",
+   "romaji": [
+    "wakamatsu so",
+    "wakamatsuso"
+   ]
+  },
+  {
+   "id": "overture:6a8822b5-cf80-437c-8d6c-da81650b2d0a",
+   "name": "ＡｑｕａＡｌｐｉｎｅＨｏｔｅｌ",
+   "kana": "ＡｑｕａＡｌｐｉｎｅＨｏｔｅｌ",
+   "romaji": [
+    "aquaalpinehotel"
+   ]
+  },
+  {
+   "id": "overture:6b1b8f50-bc19-434f-b316-f015c7e00b27",
+   "name": "ヒュッテニポポ",
+   "kana": "ヒュッテニポポ",
+   "romaji": [
+    "hutte nipopo",
+    "huttenipopo"
+   ]
+  },
+  {
+   "id": "overture:6c286fb6-63de-4151-b9c8-dc355aaedf32",
+   "name": "バ・ブロー",
+   "kana": "バ・ブロー",
+   "romaji": [
+    "ba buro",
+    "baburo"
+   ]
+  },
+  {
+   "id": "overture:6d382bcf-4a13-425b-acfd-3e6b01cc5b07",
+   "name": "白馬ピエモン・ヤマジュウ",
+   "kana": "ハクバピエモン・ヤマジュウ",
+   "romaji": [
+    "hakuba piemon yamaju",
+    "hakubapiemonyamaju"
+   ]
+  },
+  {
+   "id": "overture:6d948992-3dc1-4305-b771-4912640cc2ba",
+   "name": "ペンション リンデンハット",
+   "kana": "ペンションリンデンハット",
+   "romaji": [
+    "pension rinden hatto",
+    "pensionrindenhatto"
+   ]
+  },
+  {
+   "id": "overture:6ddbc91c-312c-40d8-9403-7f8dc82b4477",
+   "name": "民宿久平荘",
+   "kana": "ミンシュクキュウヘイソウ",
+   "romaji": [
+    "minshuku kyuhei so",
+    "minshukukyuheiso"
+   ]
+  },
+  {
+   "id": "overture:6e28e261-1746-40e0-b52e-e3ab0f610bf9",
+   "name": "千 山 舎 Thousand Mountain Inn (Sen Zan So)",
+   "kana": "センサンシャThousandMountainInn(SenZanSo)",
+   "romaji": [
+    "sen san sha thousand mountain inn sen zan so",
+    "sensanshathousandmountaininnsenzanso"
+   ]
+  },
+  {
+   "id": "overture:6e7b293c-8a1c-4ba5-ad4d-9ad878236559",
+   "name": "松沢荘",
+   "kana": "マツザワソウ",
+   "romaji": [
+    "matsuzawa so",
+    "matsuzawaso"
+   ]
+  },
+  {
+   "id": "overture:6eefde36-d013-4189-9415-35b9c141632c",
+   "name": "たかね荘",
+   "kana": "タカネソウ",
+   "romaji": [
+    "takane so",
+    "takaneso"
+   ]
+  },
+  {
+   "id": "overture:6ff398b5-54a7-4447-9f4c-68d314599135",
+   "name": "大阪市立大学白馬セミナーハウス",
+   "kana": "オオサカシリツダイガクハクバセミナーハウス",
+   "romaji": [
+    "osaka shi ritsu daigaku hakuba semina house",
+    "osakashiritsudaigakuhakubaseminahouse"
+   ]
+  },
+  {
+   "id": "overture:7037ec72-39a9-4871-bd2f-83c9f71c1861",
+   "name": "あたらし屋",
+   "kana": "アタラシヤ",
+   "romaji": [
+    "atarashi ya",
+    "atarashiya"
+   ]
+  },
+  {
+   "id": "overture:7129e8c6-c5f3-429d-9a65-2ba530bfb611",
+   "name": "プチホテル バク",
+   "kana": "プチホテルバク",
+   "romaji": [
+    "puchi hotel baku",
+    "puchihotelbaku"
+   ]
+  },
+  {
+   "id": "overture:7172359d-b620-46f7-8e33-4a5592048608",
+   "name": "古民家の宿 ゆるり/Hakuba Youluri",
+   "kana": "コミンカノヤドユルリ/HakubaYouluri",
+   "romaji": [
+    "ko minka no yado yururi hakuba youluri",
+    "kominkanoyadoyururihakubayouluri"
+   ]
+  },
+  {
+   "id": "overture:7240078a-83ce-49f7-8645-ce10d9ced7c0",
+   "name": "ペンション ウルル",
+   "kana": "ペンションウルル",
+   "romaji": [
+    "pension ururu",
+    "pensionururu"
+   ]
+  },
+  {
+   "id": "overture:7244dafb-3265-4017-bbd7-d793a795758b",
+   "name": "野いちごペンション",
+   "kana": "ノイチゴペンション",
+   "romaji": [
+    "noichigo pension",
+    "noichigopension"
+   ]
+  },
+  {
+   "id": "overture:72977497-ba8b-4664-8dcc-9d6b5f3356ed",
+   "name": "きぬがさ荘",
+   "kana": "キヌガサソウ",
+   "romaji": [
+    "kinugasa so",
+    "kinugasaso"
+   ]
+  },
+  {
+   "id": "overture:72e9aac0-d0f3-42e7-95f5-ee7dc7778d68",
+   "name": "あすなろ小舎",
+   "kana": "アスナロショウシャ",
+   "romaji": [
+    "asunaro shosha",
+    "asunaroshosha"
+   ]
+  },
+  {
+   "id": "overture:73393d26-74ed-4b51-baa6-c50270d30f72",
+   "name": "ゆきわり草",
+   "kana": "ユキワリソウ",
+   "romaji": [
+    "yuki wari so",
+    "yukiwariso"
+   ]
+  },
+  {
+   "id": "overture:7351c2c6-4152-4ad3-8083-8ee9ed70df43",
+   "name": "栂池高原 エスポワール みさわ",
+   "kana": "ツガイケコウゲンエスポワールミサワ",
+   "romaji": [
+    "tsugaike kogen esupowaru mi sawa",
+    "tsugaikekogenesupowarumisawa"
+   ]
+  },
+  {
+   "id": "overture:7422a82f-6dfd-4136-b99f-cf6aaca25381",
+   "name": "ペンションハスキー",
+   "kana": "ペンションハスキー",
+   "romaji": [
+    "pension ha ski",
+    "pensionhaski"
+   ]
+  },
+  {
+   "id": "overture:74982ac4-2508-4766-8ecb-5fcd6ca62d83",
+   "name": "かねかく",
+   "kana": "カネカク",
+   "romaji": [
+    "ka ne kaku",
+    "kanekaku"
+   ]
+  },
+  {
+   "id": "overture:751a7e80-db81-4a75-84b0-42ccb8ffb9fd",
+   "name": "丸滝館",
+   "kana": "マルタキカン",
+   "romaji": [
+    "maru taki kan",
+    "marutakikan"
+   ]
+  },
+  {
+   "id": "overture:756769c2-ab15-4407-8a76-ab4bdf237823",
+   "name": "八峰キレット小屋",
+   "kana": "ハッポウキレットコヤ",
+   "romaji": [
+    "happo kiretto koya",
+    "happokirettokoya"
+   ]
+  },
+  {
+   "id": "overture:767b5afa-e845-4c53-9d0b-77b2001f267c",
+   "name": "フェルゼイン岳水",
+   "kana": "フェルゼインタケミズ",
+   "romaji": [
+    "feruze inn take mizu",
+    "feruzeinntakemizu"
+   ]
+  },
+  {
+   "id": "overture:77973e4e-3093-4f6d-bf0b-d2020ef66a24",
+   "name": "ウル・シャイク",
+   "kana": "ウル・シャイク",
+   "romaji": [
+    "uru sha iku",
+    "urushaiku"
+   ]
+  },
+  {
+   "id": "overture:779a190b-177d-4654-8cf6-965c8ca58bad",
+   "name": "白馬東急ホテル",
+   "kana": "ハクバトウキュウホテル",
+   "romaji": [
+    "hakuba tokyu hotel",
+    "hakubatokyuhotel"
+   ]
+  },
+  {
+   "id": "overture:77addb2c-8177-4a4c-9cf1-0bd3d466b376",
+   "name": "ホテル ベルコート白馬",
+   "kana": "ホテルベルコートハクバ",
+   "romaji": [
+    "hotel beru koto hakuba",
+    "hotelberukotohakuba"
+   ]
+  },
+  {
+   "id": "overture:78325220-972c-4241-9d22-a862bd5ac982",
+   "name": "ホテルくらや",
+   "kana": "ホテルクラヤ",
+   "romaji": [
+    "hotel kura ya",
+    "hotelkuraya"
+   ]
+  },
+  {
+   "id": "overture:78d55e29-0462-4675-a2fc-7c52418f0082",
+   "name": "白馬コテージ・グラム",
+   "kana": "ハクバコテージ・グラム",
+   "romaji": [
+    "hakuba cottage guramu",
+    "hakubacottageguramu"
+   ]
+  },
+  {
+   "id": "overture:79a96409-678c-4118-8ee0-b52158c61095",
+   "name": "古民家ゲストハウス 梢乃雪",
+   "kana": "コミンカゲストハウスコズエノユキ",
+   "romaji": [
+    "ko minka guesthouse kozue no yuki",
+    "kominkaguesthousekozuenoyuki"
+   ]
+  },
+  {
+   "id": "overture:7a1ac0bb-ca12-4f67-b44e-74e21f57cc69",
+   "name": "ヴィラ雷鳥",
+   "kana": "ヴィラライチョウ",
+   "romaji": [
+    "villa raicho",
+    "villaraicho"
+   ]
+  },
+  {
+   "id": "overture:7a5cd2f1-07ba-4a0e-858d-41d11bd7610a",
+   "name": "白馬旅籠丸八弐番館",
+   "kana": "ハクバハタゴマルハチニバンカン",
+   "romaji": [
+    "hakuba hatago maru hachi ni ban kan",
+    "hakubahatagomaruhachinibankan"
+   ]
+  },
+  {
+   "id": "overture:7b303f7d-0ab9-444a-82fa-98275b67e14d",
+   "name": "ユースビラ白馬とおみ",
+   "kana": "ユースビラハクバトオミ",
+   "romaji": [
+    "yusu villa hakuba to o mi",
+    "yusuvillahakubatoomi"
+   ]
+  },
+  {
+   "id": "overture:7ba6d3c0-ec9e-4028-b4f3-33c1ceef196a",
+   "name": "大わで荘",
+   "kana": "オオワデソウ",
+   "romaji": [
+    "o wa de so",
+    "owadeso"
+   ]
+  },
+  {
+   "id": "overture:7bc75b66-989a-4501-be4f-0d09de50dd1b",
+   "name": "しろうま荘",
+   "kana": "シロウマソウ",
+   "romaji": [
+    "shiro uma so",
+    "shiroumaso"
+   ]
+  },
+  {
+   "id": "overture:7c15faf6-bd99-4e8e-a30f-71fae48fcf97",
+   "name": "ペンション 風見鶏",
+   "kana": "ペンションカザミニワトリ",
+   "romaji": [
+    "pension kazami niwatori",
+    "pensionkazaminiwatori"
+   ]
+  },
+  {
+   "id": "overture:7cb64238-7076-4484-b0a4-e58a7572afc0",
+   "name": "ペンション カウベル",
+   "kana": "ペンションカウベル",
+   "romaji": [
+    "pension kauberu",
+    "pensionkauberu"
+   ]
+  },
+  {
+   "id": "overture:7d0df9ed-501f-493c-b4e9-d172fb6ae360",
+   "name": "太田旅館",
+   "kana": "オオタリョカン",
+   "romaji": [
+    "ota ryokan",
+    "otaryokan"
+   ]
+  },
+  {
+   "id": "overture:7e62f7ad-eb70-4c86-9362-437b4a390f38",
+   "name": "ペンション 星の家",
+   "kana": "ペンションセイノイエ",
+   "romaji": [
+    "pension sei no ie",
+    "pensionseinoie"
+   ]
+  },
+  {
+   "id": "overture:7e64e4ee-3a42-47c3-8e7a-651a574e1cfb",
+   "name": "むじなざわ",
+   "kana": "ムジナザワ",
+   "romaji": [
+    "mujina zawa",
+    "mujinazawa"
+   ]
+  },
+  {
+   "id": "overture:7f3229ad-2896-48b6-9c85-77b4cb63c1a2",
+   "name": "ペンションブラン・エ・ヴェール",
+   "kana": "ペンションブラン・エ・ヴェール",
+   "romaji": [
+    "pension buran e veru",
+    "pensionburaneveru"
+   ]
+  },
+  {
+   "id": "overture:7ff5771a-4a83-4478-a2da-791536691648",
+   "name": "フロントステージ ロビー",
+   "kana": "フロントステージロビー",
+   "romaji": [
+    "furonto suteji robi",
+    "furontosutejirobi"
+   ]
+  },
+  {
+   "id": "overture:807399ec-2ecc-4077-abb9-6860ab586e61",
+   "name": "ホテルサンプラザ栂池",
+   "kana": "ホテルサンプラザツガイケ",
+   "romaji": [
+    "hotel san puraza tsugaike",
+    "hotelsanpurazatsugaike"
+   ]
+  },
+  {
+   "id": "overture:8156b450-1b6b-4559-b696-e989615d72c0",
+   "name": "白馬姫川温泉 ペンショントマト",
+   "kana": "ハクバヒメカワオンセンペンショントマト",
+   "romaji": [
+    "hakuba himekawa onsen pension tomato",
+    "hakubahimekawaonsenpensiontomato"
+   ]
+  },
+  {
+   "id": "overture:81ac365b-ced3-4325-9621-b291527d424b",
+   "name": "ペンション ファニーイン",
+   "kana": "ペンションファニーイン",
+   "romaji": [
+    "pension fani in",
+    "pensionfaniin"
+   ]
+  },
+  {
+   "id": "overture:81eaecf7-b794-474a-8b8b-fd0644876ad6",
+   "name": "鍛治倉商店",
+   "kana": "カジソウショウテン",
+   "romaji": [
+    "kaji so shoten",
+    "kajisoshoten"
+   ]
+  },
+  {
+   "id": "overture:82d30395-84a7-4e9b-94a1-05c2c8f4aa9e",
+   "name": "マウントサイドヨーデル",
+   "kana": "マウントサイドヨーデル",
+   "romaji": [
+    "maunto saido yoderu",
+    "mauntosaidoyoderu"
+   ]
+  },
+  {
+   "id": "overture:82e59346-d760-45d0-a643-eb41963fe08a",
+   "name": "ロッジ銀嶺 銀嶺寮",
+   "kana": "ロッジギンレイギンレイリョウ",
+   "romaji": [
+    "lodge ginrei ginrei ryo",
+    "lodgeginreiginreiryo"
+   ]
+  },
+  {
+   "id": "overture:83216515-8500-4888-84af-e721acd68f0f",
+   "name": "三山荘",
+   "kana": "サンサンソウ",
+   "romaji": [
+    "san sanso",
+    "sansanso"
+   ]
+  },
+  {
+   "id": "overture:834e1366-1ed9-4190-973c-a27fa79d4cd8",
+   "name": "リスの小屋",
+   "kana": "リスノコヤ",
+   "romaji": [
+    "risu no koya",
+    "risunokoya"
+   ]
+  },
+  {
+   "id": "overture:837f2015-d049-4bc9-9de9-a1b6d57f9dce",
+   "name": "白馬森のわさび農園オートキャンプ場 - Tent",
+   "kana": "ハクバモリノワサビノウエンオートキャンプジョウ-Tent",
+   "romaji": [
+    "hakuba mori no wasabi noen oto kyanpu jo tent",
+    "hakubamorinowasabinoenotokyanpujotent"
+   ]
+  },
+  {
+   "id": "overture:842d0ac7-405f-455b-95d6-9abf5bb474ef",
+   "name": "ペンションセレナーデ",
+   "kana": "ペンションセレナーデ",
+   "romaji": [
+    "pension serenade",
+    "pensionserenade"
+   ]
+  },
+  {
+   "id": "overture:84b33e1d-f835-49d2-8ad7-3cea285fd3c8",
+   "name": "ロッジ 加根二",
+   "kana": "ロッジカネニ",
+   "romaji": [
+    "lodge ka ne ni",
+    "lodgekaneni"
+   ]
+  },
+  {
+   "id": "overture:8513bbde-b185-48ee-860f-7dcdbf5d0432",
+   "name": "ペンションこもれび",
+   "kana": "ペンションコモレビ",
+   "romaji": [
+    "pension komorebi",
+    "pensionkomorebi"
+   ]
+  },
+  {
+   "id": "overture:8597e296-2056-4d11-bb38-c183a91aaf3f",
+   "name": "ホテル・ラ・ブランシェ",
+   "kana": "ホテル・ラ・ブランシェ",
+   "romaji": [
+    "hotel ra buranshe",
+    "hotelraburanshe"
+   ]
+  },
+  {
+   "id": "overture:86639a11-f86c-4160-84fb-81e998c1e0cb",
+   "name": "木戸花荘",
+   "kana": "キドハナソウ",
+   "romaji": [
+    "kido hana so",
+    "kidohanaso"
+   ]
+  },
+  {
+   "id": "overture:86c5186b-fa8a-4faa-8602-6afed1348587",
+   "name": "やまいち旅館",
+   "kana": "ヤマイチリョカン",
+   "romaji": [
+    "yama ichi ryokan",
+    "yamaichiryokan"
+   ]
+  },
+  {
+   "id": "overture:86d6e2c0-ef9a-4e2c-a10a-dcce92b96044",
+   "name": "ラビスタちくに",
+   "kana": "ラビスタチクニ",
+   "romaji": [
+    "rabi suta chi ku ni",
+    "rabisutachikuni"
+   ]
+  },
+  {
+   "id": "overture:86e76233-e0c1-4604-9a42-1be595736b13",
+   "name": "ペンション&コテージ サンセットイン",
+   "kana": "ペンション&コテージサンセットイン",
+   "romaji": [
+    "pension cottage sansetto in",
+    "pensioncottagesansettoin"
+   ]
+  },
+  {
+   "id": "overture:86f0d72c-8a0d-4304-977e-b6ddbee3b315",
+   "name": "いげた屋旅館",
+   "kana": "イゲタヤリョカン",
+   "romaji": [
+    "i geta ya ryokan",
+    "igetayaryokan"
+   ]
+  },
+  {
+   "id": "overture:87486395-6188-442e-9ce6-4358cb47ce1b",
+   "name": "ロッジユースビラ白馬とおみ",
+   "kana": "ロッジユースビラハクバトオミ",
+   "romaji": [
+    "lodge yusu villa hakuba to o mi",
+    "lodgeyusuvillahakubatoomi"
+   ]
+  },
+  {
+   "id": "overture:88083050-6667-47d2-aaf9-3d5809feac9a",
+   "name": "プチホテル葡萄屋",
+   "kana": "プチホテルブドウヤ",
+   "romaji": [
+    "puchi hotel budo ya",
+    "puchihotelbudoya"
+   ]
+  },
+  {
+   "id": "overture:8840521f-3362-4428-8084-79dae44c55d0",
+   "name": "囲炉裏の宿民宿東屋",
+   "kana": "イロリノヤドミンシュクアズマヤ",
+   "romaji": [
+    "irori no yado minshuku azumaya",
+    "irorinoyadominshukuazumaya"
+   ]
+  },
+  {
+   "id": "overture:88e34a74-765f-4759-ae1d-09ec87186bc0",
+   "name": "ペンション ランドポイント",
+   "kana": "ペンションランドポイント",
+   "romaji": [
+    "pension rando pointo",
+    "pensionrandopointo"
+   ]
+  },
+  {
+   "id": "overture:8982aae1-884a-46d3-a4d6-380e98e438b6",
+   "name": "（マトカ オタリ）",
+   "kana": "（マトカオタリ）",
+   "romaji": [
+    "ma to ka o ta ri",
+    "matokaotari"
+   ]
+  },
+  {
+   "id": "overture:8a772054-4792-4dfd-8c41-344ab922670f",
+   "name": "エリカ山荘",
+   "kana": "エリカサンソウ",
+   "romaji": [
+    "erika sanso",
+    "erikasanso"
+   ]
+  },
+  {
+   "id": "overture:8a7745eb-17c2-46f2-8404-8f143746fb62",
+   "name": "松葉山荘",
+   "kana": "マツバサンソウ",
+   "romaji": [
+    "matsuba sanso",
+    "matsubasanso"
+   ]
+  },
+  {
+   "id": "overture:8b6c51c2-5c0a-4f68-bc4d-fd3aa56357e3",
+   "name": "五竜山荘",
+   "kana": "ゴリュウサンソウ",
+   "romaji": [
+    "goryu sanso",
+    "goryusanso"
+   ]
+  },
+  {
+   "id": "overture:8b708bae-d368-44fe-b7a5-21bc9384be3f",
+   "name": "ホテルヴァイサーホフ八平",
+   "kana": "ホテルヴァイサーホフハチヒョウ",
+   "romaji": [
+    "hotel vaisahofu hachi hyo",
+    "hotelvaisahofuhachihyo"
+   ]
+  },
+  {
+   "id": "overture:8b9f9c26-3922-4704-997d-fec9ec57c955",
+   "name": "ヴィラ スコーレ 白馬",
+   "kana": "ヴィラスコーレハクバ",
+   "romaji": [
+    "villa sukore hakuba",
+    "villasukorehakuba"
+   ]
+  },
+  {
+   "id": "overture:8be8828d-719c-44cc-87a8-fb174a2fd360",
+   "name": "白馬プチホテル シオン",
+   "kana": "ハクバプチホテルシオン",
+   "romaji": [
+    "hakuba puchi hotel shion",
+    "hakubapuchihotelshion"
+   ]
+  },
+  {
+   "id": "overture:8c77d2b8-9943-4e55-9525-6f3230d8dc8b",
+   "name": "ペンション アンデルセン",
+   "kana": "ペンションアンデルセン",
+   "romaji": [
+    "pension anderusen",
+    "pensionanderusen"
+   ]
+  },
+  {
+   "id": "overture:8c904e25-af33-4173-a783-d3e6c751f953",
+   "name": "パノラマ山荘",
+   "kana": "パノラマサンソウ",
+   "romaji": [
+    "panorama sanso",
+    "panoramasanso"
+   ]
+  },
+  {
+   "id": "overture:8ce64f3c-da0d-4dd1-b10f-acb3835973e9",
+   "name": "リゾートインヤマイチ",
+   "kana": "リゾートインヤマイチ",
+   "romaji": [
+    "resort inyamaichi",
+    "resortinyamaichi"
+   ]
+  },
+  {
+   "id": "overture:8d07307e-36c6-4b90-9602-2563dbb91e6d",
+   "name": "プチホテル おはよう",
+   "kana": "プチホテルオハヨウ",
+   "romaji": [
+    "puchi hotel ohayo",
+    "puchihotelohayo"
+   ]
+  },
+  {
+   "id": "overture:8d62c014-953b-4e2a-bd41-a68dbef801ef",
+   "name": "ホテルサンライズタンネ",
+   "kana": "ホテルサンライズタンネ",
+   "romaji": [
+    "hotel sanraizu tanne",
+    "hotelsanraizutanne"
+   ]
+  },
+  {
+   "id": "overture:8e151c7c-f1de-4e2a-be31-d0a4b41b1f86",
+   "name": "ペンション シルバーファーン",
+   "kana": "ペンションシルバーファーン",
+   "romaji": [
+    "pension shiruba fan",
+    "pensionshirubafan"
+   ]
+  },
+  {
+   "id": "overture:8e58790e-829a-44ff-8c30-68bb83736a43",
+   "name": "五竜ドライブステーション",
+   "kana": "ゴリュウドライブステーション",
+   "romaji": [
+    "goryu doraibu suteshon",
+    "goryudoraibusuteshon"
+   ]
+  },
+  {
+   "id": "overture:8ea20690-5a60-41aa-a13e-64ed00e24fca",
+   "name": "岳栄館",
+   "kana": "タケサカエカン",
+   "romaji": [
+    "take sakae kan",
+    "takesakaekan"
+   ]
+  },
+  {
+   "id": "overture:8ea7824a-a7ab-4f27-8c4e-9a3f712e063d",
+   "name": "ペンションかむるーぷす",
+   "kana": "ペンションカムループス",
+   "romaji": [
+    "pension kamuru pu su",
+    "pensionkamurupusu"
+   ]
+  },
+  {
+   "id": "overture:8f06b863-3a8b-4640-bd29-f4082d2bab23",
+   "name": "わらび平山荘",
+   "kana": "ワラビヒラヤマソウ",
+   "romaji": [
+    "warabi hirayama so",
+    "warabihirayamaso"
+   ]
+  },
+  {
+   "id": "overture:8f2fa836-3170-45cb-a9fb-d64ade8eb724",
+   "name": "ホテル シェーンヴァルト",
+   "kana": "ホテルシェーンヴァルト",
+   "romaji": [
+    "hotel shenvaruto",
+    "hotelshenvaruto"
+   ]
+  },
+  {
+   "id": "overture:8f6d1620-b0b1-4be6-9f2f-0e5bd980e589",
+   "name": "民宿 中綱館",
+   "kana": "ミンシュクチュウツナカン",
+   "romaji": [
+    "minshuku chu tsuna kan",
+    "minshukuchutsunakan"
+   ]
+  },
+  {
+   "id": "overture:8fd1b37b-ddf8-411d-abe6-4e785ca783d8",
+   "name": "猿倉荘",
+   "kana": "サルクラソウ",
+   "romaji": [
+    "sarukura so",
+    "sarukuraso"
+   ]
+  },
+  {
+   "id": "overture:906c1c62-653a-42fa-bc59-ceca27f0bcb4",
+   "name": "やまた旅館",
+   "kana": "ヤマタリョカン",
+   "romaji": [
+    "yama ta ryokan",
+    "yamataryokan"
+   ]
+  },
+  {
+   "id": "overture:91498ef7-af86-4352-a6a0-7aeb4efb504b",
+   "name": "栂池高原 ロッヂ招仙",
+   "kana": "ツガイケコウゲンロッヂ招仙",
+   "romaji": [
+    "tsugaike kogen lodge",
+    "tsugaikekogenlodge"
+   ]
+  },
+  {
+   "id": "overture:91867f9a-befc-4419-aaa6-d5ea19e8c2b0",
+   "name": "ウィンズ白馬",
+   "kana": "ウィンズハクバ",
+   "romaji": [
+    "winzu hakuba",
+    "winzuhakuba"
+   ]
+  },
+  {
+   "id": "overture:9195d2ce-e6a8-43b0-b7d4-f15a7fa7da1d",
+   "name": "カナメノイエ（旧名称  ゲストハウスカナメ）",
+   "kana": "カナメノイエ（キュウメイショウゲストハウスカナメ）",
+   "romaji": [
+    "kaname noie kyu meisho guesthouse kaname",
+    "kanamenoiekyumeishoguesthousekaname"
+   ]
+  },
+  {
+   "id": "overture:91e09d69-247a-406f-bf3b-5116398b7641",
+   "name": "ロッヂつばき",
+   "kana": "ロッヂツバキ",
+   "romaji": [
+    "lodge tsubaki",
+    "lodgetsubaki"
+   ]
+  },
+  {
+   "id": "overture:92004300-4156-442d-bc96-63744e61a637",
+   "name": "ホテル国富翠泉閣",
+   "kana": "ホテルクニトミスイセンカク",
+   "romaji": [
+    "hotel kunitomi suisen kaku",
+    "hotelkunitomisuisenkaku"
+   ]
+  },
+  {
+   "id": "overture:926b7654-ed7d-4b8c-bd0e-0dae62aff1d9",
+   "name": "ロッジ 岳友荘",
+   "kana": "ロッジタケトモソウ",
+   "romaji": [
+    "lodge take tomo so",
+    "lodgetaketomoso"
+   ]
+  },
+  {
+   "id": "overture:93be4ca8-a2b0-40e1-a2be-bbcc957e86ee",
+   "name": "ペンション・あるかん・しぇる",
+   "kana": "ペンション・アルカン・シェル",
+   "romaji": [
+    "pension aru kan she ru",
+    "pensionarukansheru"
+   ]
+  },
+  {
+   "id": "overture:93ec3092-c458-4cfd-8b41-9e548d291981",
+   "name": "山水荘",
+   "kana": "サンスイソウ",
+   "romaji": [
+    "sansui so",
+    "sansuiso"
+   ]
+  },
+  {
+   "id": "overture:9430eb0c-6777-46c2-a5b4-4539d4b1a8e9",
+   "name": "ペンション パンセ",
+   "kana": "ペンションパンセ",
+   "romaji": [
+    "pension panse",
+    "pensionpanse"
+   ]
+  },
+  {
+   "id": "overture:95665688-a56c-408c-a993-8caf6a97c5b3",
+   "name": "ペンション星の家",
+   "kana": "ペンションセイノイエ",
+   "romaji": [
+    "pension sei no ie",
+    "pensionseinoie"
+   ]
+  },
+  {
+   "id": "overture:95d903ac-afa8-42b8-994c-13dbd1fce719",
+   "name": "わかくりロッヂ",
+   "kana": "ワガクリロッヂ",
+   "romaji": [
+    "waga kuri lodge",
+    "wagakurilodge"
+   ]
+  },
+  {
+   "id": "overture:964c3e01-8eb6-4a7f-b815-db518570e9f3",
+   "name": "パウダーロッジコルチナ)",
+   "kana": "パウダーロッジコルチナ)",
+   "romaji": [
+    "pauda lodge koruchina",
+    "paudalodgekoruchina"
+   ]
+  },
+  {
+   "id": "overture:96687ac7-02d0-4728-8f9a-04fd9bdc33d9",
+   "name": "山湖荘",
+   "kana": "ヤマコソウ",
+   "romaji": [
+    "yama ko so",
+    "yamakoso"
+   ]
+  },
+  {
+   "id": "overture:97b09cce-2fab-4a67-83e0-b09cbd9cd1c4",
+   "name": "リゾート イン 静観",
+   "kana": "リゾートインセイカン",
+   "romaji": [
+    "resort in seikan",
+    "resortinseikan"
+   ]
+  },
+  {
+   "id": "overture:983f9d1a-a2ad-4c06-9a1c-14bf27ec5c86",
+   "name": "モン・シャレ・コパン",
+   "kana": "モン・シャレ・コパン",
+   "romaji": [
+    "mon share kopan",
+    "monsharekopan"
+   ]
+  },
+  {
+   "id": "overture:98b3bc05-b221-4d0f-8486-799c07cdec50",
+   "name": "源泉の宿まるいし",
+   "kana": "ゲンセンノヤドマルイシ",
+   "romaji": [
+    "gensen no yado marui shi",
+    "gensennoyadomaruishi"
+   ]
+  },
+  {
+   "id": "overture:98c71bca-ecf1-4d1b-9dac-6d001fc0c491",
+   "name": "カントリーインかしわばら",
+   "kana": "カントリーインカシワバラ",
+   "romaji": [
+    "kantori in kashiwa bara",
+    "kantoriinkashiwabara"
+   ]
+  },
+  {
+   "id": "overture:98d70b2f-53e6-47c6-be3a-54924609adf2",
+   "name": "白馬マホロバ",
+   "kana": "ハクバマホロバ",
+   "romaji": [
+    "hakuba mahoroba",
+    "hakubamahoroba"
+   ]
+  },
+  {
+   "id": "overture:993876f1-bb10-41c7-94a2-8b50f477a1c6",
+   "name": "ホテル イブプラザ",
+   "kana": "ホテルイブプラザ",
+   "romaji": [
+    "hotel ibu puraza",
+    "hotelibupuraza"
+   ]
+  },
+  {
+   "id": "overture:9983682a-0fe5-4ae5-a9f3-4edb94878f2e",
+   "name": "カントリージョー",
+   "kana": "カントリージョー",
+   "romaji": [
+    "kantori jo",
+    "kantorijo"
+   ]
+  },
+  {
+   "id": "overture:999c088e-6400-4dd4-ad11-5ba28ba74cd3",
+   "name": "ペンションマウントパイン",
+   "kana": "ペンションマウントパイン",
+   "romaji": [
+    "pension maunto pa inn",
+    "pensionmauntopainn"
+   ]
+  },
+  {
+   "id": "overture:99a830a9-d016-42a2-b2c1-1a907247b57d",
+   "name": "ホテルサンマルテ",
+   "kana": "ホテルサンマルテ",
+   "romaji": [
+    "hotel san marute",
+    "hotelsanmarute"
+   ]
+  },
+  {
+   "id": "overture:99e7b233-2da7-4ff1-b5c2-d94146bbf246",
+   "name": "リゾートインアコースティック",
+   "kana": "リゾートインアコースティック",
+   "romaji": [
+    "resort in akosutikku",
+    "resortinakosutikku"
+   ]
+  },
+  {
+   "id": "overture:99f9d5ad-5d7f-4403-a0f6-3e0e07457388",
+   "name": "からまつ荘",
+   "kana": "カラマツソウ",
+   "romaji": [
+    "karamatsu so",
+    "karamatsuso"
+   ]
+  },
+  {
+   "id": "overture:9a2287f3-5fd4-4a72-98d4-cbcd74b6c8da",
+   "name": "白馬龍神温泉 なごみの湯宿",
+   "kana": "ハクバリュウジンオンセンナゴミノユヤド",
+   "romaji": [
+    "hakuba ryujin onsen na gomi no yuyado",
+    "hakubaryujinonsennagominoyuyado"
+   ]
+  },
+  {
+   "id": "overture:9a5ca62f-3750-4446-b9fa-b733571b9c76",
+   "name": "ワイスホルン",
+   "kana": "ワイスホルン",
+   "romaji": [
+    "waisu horun",
+    "waisuhorun"
+   ]
+  },
+  {
+   "id": "overture:9b08324d-1e67-49e5-9089-da0ef41a6eb9",
+   "name": "ルポゼ白馬",
+   "kana": "ルポゼハクバ",
+   "romaji": [
+    "rupoze hakuba",
+    "rupozehakuba"
+   ]
+  },
+  {
+   "id": "overture:9b2261f4-0c83-4747-885b-d91823bf4a1a",
+   "name": "プチホテル アッサム",
+   "kana": "プチホテルアッサム",
+   "romaji": [
+    "puchi hotel assamu",
+    "puchihotelassamu"
+   ]
+  },
+  {
+   "id": "overture:9bacb0d3-da4f-47da-9877-16a1ed29c1a2",
+   "name": "ペンション シルバプラナ",
+   "kana": "ペンションシルバプラナ",
+   "romaji": [
+    "pension shirubapurana",
+    "pensionshirubapurana"
+   ]
+  },
+  {
+   "id": "overture:9c5a9c43-e292-463e-8d26-185e902e891e",
+   "name": "山荘 やまびこ",
+   "kana": "サンソウヤマビコ",
+   "romaji": [
+    "sanso yamabiko",
+    "sansoyamabiko"
+   ]
+  },
+  {
+   "id": "overture:9cc0c3f7-60b0-4915-8ad2-a24b505f0a14",
+   "name": "ペンション むぎわらぼうし",
+   "kana": "ペンションムギワラボウシ",
+   "romaji": [
+    "pension mugiwara boshi",
+    "pensionmugiwaraboshi"
+   ]
+  },
+  {
+   "id": "overture:9ce7ab28-91c2-4394-bca8-31d455235a35",
+   "name": "ペンション 麓",
+   "kana": "ペンションロク",
+   "romaji": [
+    "pension roku",
+    "pensionroku"
+   ]
+  },
+  {
+   "id": "overture:9cfca26e-2b24-4462-88db-c5f6b67d032b",
+   "name": "木崎湖ＰＯＷ ＷＯＷ キャンプ場＆アウトドアクラブ",
+   "kana": "キザキコＰＯＷＷＯＷキャンプジョウ＆アウトドアクラブ",
+   "romaji": [
+    "kizaki ko pow wow kyanpu jo autodoa kurabu",
+    "kizakikopowwowkyanpujoautodoakurabu"
+   ]
+  },
+  {
+   "id": "overture:9d1b394f-5bce-4640-b3d4-48812f256770",
+   "name": "大下館",
+   "kana": "オオシタカン",
+   "romaji": [
+    "oshita kan",
+    "oshitakan"
+   ]
+  },
+  {
+   "id": "overture:9d468841-d4e3-4c72-8798-a1d5b26078fe",
+   "name": "ホテル・ラ・モンターニュ・フルハタ",
+   "kana": "ホテル・ラ・モンターニュ・フルハタ",
+   "romaji": [
+    "hotel ra montanyu furuhata",
+    "hotelramontanyufuruhata"
+   ]
+  },
+  {
+   "id": "overture:9da7beb7-cfe1-490f-85ac-934ef88cc61a",
+   "name": "落倉高原",
+   "kana": "オチソウタカハラ",
+   "romaji": [
+    "ochi so takahara",
+    "ochisotakahara"
+   ]
+  },
+  {
+   "id": "overture:9db2d883-8201-4cf6-a2ff-d27fa8c4bbcf",
+   "name": "栂池高原　ロッヂフリーラン",
+   "kana": "ツガイケコウゲン　ロッヂフリーラン",
+   "romaji": [
+    "tsugaike kogen lodge furi ran",
+    "tsugaikekogenlodgefuriran"
+   ]
+  },
+  {
+   "id": "overture:9ea09a06-f3f1-4b05-ad11-9be498b6dc5c",
+   "name": "ペンションぼくんち",
+   "kana": "ペンションボクンチ",
+   "romaji": [
+    "pension boku n chi",
+    "pensionbokunchi"
+   ]
+  },
+  {
+   "id": "overture:9efe5390-ec02-45b0-9894-bd1681047902",
+   "name": "ロッジやまき",
+   "kana": "ロッジヤマキ",
+   "romaji": [
+    "lodge ya maki",
+    "lodgeyamaki"
+   ]
+  },
+  {
+   "id": "overture:9f8c465f-1309-4290-8c8d-1c33f400d0da",
+   "name": "ペンション・シーナッツ",
+   "kana": "ペンション・シーナッツ",
+   "romaji": [
+    "pension shi nattsu",
+    "pensionshinattsu"
+   ]
+  },
+  {
+   "id": "overture:9fa32a8b-5985-42f8-bdbc-22fe70a784cb",
+   "name": "白馬大池山荘",
+   "kana": "ハクバオオイケサンソウ",
+   "romaji": [
+    "hakuba oike sanso",
+    "hakubaoikesanso"
+   ]
+  },
+  {
+   "id": "overture:9fc3a865-66ce-4e69-b532-a7fa562cd65b",
+   "name": "オーベルジュちくに",
+   "kana": "オーベルジュチクニ",
+   "romaji": [
+    "oberuju chi ku ni",
+    "oberujuchikuni"
+   ]
+  },
+  {
+   "id": "overture:a014402d-ba03-4229-a7ed-313c7362c050",
+   "name": "ハイランドロッヂ",
+   "kana": "ハイランドロッヂ",
+   "romaji": [
+    "hairando lodge",
+    "hairandolodge"
+   ]
+  },
+  {
+   "id": "overture:a1503c84-8ab3-4688-b857-90da54c92958",
+   "name": "白馬パークホテル",
+   "kana": "ハクバパークホテル",
+   "romaji": [
+    "hakuba park hotel",
+    "hakubaparkhotel"
+   ]
+  },
+  {
+   "id": "overture:a251c6d1-28a5-4cac-b991-d3a71aa3394a",
+   "name": "昭屋",
+   "kana": "アキラヤ",
+   "romaji": [
+    "akira ya",
+    "akiraya"
+   ]
+  },
+  {
+   "id": "overture:a2572e6e-3e6f-4d9a-a2ed-6aabbd919239",
+   "name": "山腰旅館",
+   "kana": "サンヨウリョカン",
+   "romaji": [
+    "sanyo ryokan",
+    "sanyoryokan"
+   ]
+  },
+  {
+   "id": "overture:a294d1ea-fee3-4e34-a6cd-7c320c5ff713",
+   "name": "リバーサイドやまや",
+   "kana": "リバーサイドヤマヤ",
+   "romaji": [
+    "riba saido yama ya",
+    "ribasaidoyamaya"
+   ]
+  },
+  {
+   "id": "overture:a2f32d90-18b0-4dfd-9385-e06a653c50df",
+   "name": "ペンション南十字星",
+   "kana": "ペンションミナミジュウジセイ",
+   "romaji": [
+    "pension minami juji sei",
+    "pensionminamijujisei"
+   ]
+  },
+  {
+   "id": "overture:a39b8791-7e1b-4a8b-974b-356855f52091",
+   "name": "扇屋旅館",
+   "kana": "オウギヤリョカン",
+   "romaji": [
+    "ogi ya ryokan",
+    "ogiyaryokan"
+   ]
+  },
+  {
+   "id": "overture:a4015f1f-75e8-422a-9584-e06e95444059",
+   "name": "しみず",
+   "kana": "シミズ",
+   "romaji": [
+    "shimizu"
+   ]
+  },
+  {
+   "id": "overture:a4466312-837c-4aa2-aa08-01b28ed92491",
+   "name": "ホテルペンション アルピーヌ",
+   "kana": "ホテルペンションアルピーヌ",
+   "romaji": [
+    "hotel pension arupinu",
+    "hotelpensionarupinu"
+   ]
+  },
+  {
+   "id": "overture:a5056304-acd9-43cb-9dac-4340f8b5573f",
+   "name": "白馬パノラマホテル",
+   "kana": "ハクバパノラマホテル",
+   "romaji": [
+    "hakuba panorama hotel",
+    "hakubapanoramahotel"
+   ]
+  },
+  {
+   "id": "overture:a53f6e8a-c8eb-44ed-a100-6079e60586ec",
+   "name": "ダンクルネッツ",
+   "kana": "ダンクルネッツ",
+   "romaji": [
+    "dankuru nettsu",
+    "dankurunettsu"
+   ]
+  },
+  {
+   "id": "overture:a63a9005-84ab-4428-ad94-23b2d4b19e6c",
+   "name": "ウッディハート",
+   "kana": "ウッディハート",
+   "romaji": [
+    "uddi hato",
+    "uddihato"
+   ]
+  },
+  {
+   "id": "overture:a731e55b-201c-4732-a960-630b2641e9a3",
+   "name": "せせらぎ",
+   "kana": "セセラギ",
+   "romaji": [
+    "seseragi"
+   ]
+  },
+  {
+   "id": "overture:a748c951-962b-47b3-867c-53571e6787fd",
+   "name": "水車小屋",
+   "kana": "スイシャコヤ",
+   "romaji": [
+    "suisha koya",
+    "suishakoya"
+   ]
+  },
+  {
+   "id": "overture:a8b95fcb-6e30-48d7-bbd0-641bc6a1ef20",
+   "name": "ペンション ボーゲン",
+   "kana": "ペンションボーゲン",
+   "romaji": [
+    "pension bogen",
+    "pensionbogen"
+   ]
+  },
+  {
+   "id": "overture:a8bfdf42-0e15-43b0-92c1-167f8b42aa62",
+   "name": "ロッジ北林",
+   "kana": "ロッジキタバヤシ",
+   "romaji": [
+    "lodge kitabayashi",
+    "lodgekitabayashi"
+   ]
+  },
+  {
+   "id": "overture:a8e1faf0-6f78-4aa4-aedd-1a3e128fc284",
+   "name": "山の御宿 アルプ",
+   "kana": "ヤマノオンジュクアルプ",
+   "romaji": [
+    "yama no onjuku arupu",
+    "yamanoonjukuarupu"
+   ]
+  },
+  {
+   "id": "overture:a8f68eda-cbf0-4a12-bb2e-41499fbfab65",
+   "name": "ハウス・オブ・軽井沢",
+   "kana": "ハウス・オブ・カルイザワ",
+   "romaji": [
+    "house obu karuizawa",
+    "houseobukaruizawa"
+   ]
+  },
+  {
+   "id": "overture:a93f5c0c-b1ae-4d48-b266-767faf5989f2",
+   "name": "ホテルアベスト白馬リゾート",
+   "kana": "ホテルアベストハクバリゾート",
+   "romaji": [
+    "hotel a besuto hakuba resort",
+    "hotelabesutohakubaresort"
+   ]
+  },
+  {
+   "id": "overture:a96e8be7-727c-40c0-8339-ed4b1948ade2",
+   "name": "カントリーイン・キャンプ",
+   "kana": "カントリーイン・キャンプ",
+   "romaji": [
+    "kantori in kyanpu",
+    "kantoriinkyanpu"
+   ]
+  },
+  {
+   "id": "overture:a97f817d-1ed7-42d3-8761-7d511930fd84",
+   "name": "コテージ白馬 フィールドデイ",
+   "kana": "コテージハクバフィールドデイ",
+   "romaji": [
+    "cottage hakuba firudo dei",
+    "cottagehakubafirudodei"
+   ]
+  },
+  {
+   "id": "overture:aac113a6-7c5e-4e3c-9f09-4567fca82a6c",
+   "name": "ラ・ネージュ東館",
+   "kana": "ラ・ネージュヒガシカン",
+   "romaji": [
+    "ra neju higashikan",
+    "ranejuhigashikan"
+   ]
+  },
+  {
+   "id": "overture:ab219775-5cb7-4abf-984f-9833e53f3c9a",
+   "name": "善林荘 Zenrinso",
+   "kana": "ゼンリンソウZenrinso",
+   "romaji": [
+    "zen rin so zenrinso",
+    "zenrinsozenrinso"
+   ]
+  },
+  {
+   "id": "overture:ab410cba-e6da-48d5-95f9-4b90846fb75d",
+   "name": "岩岳セブンロッジ",
+   "kana": "イワタケセブンロッジ",
+   "romaji": [
+    "iwa take sebun lodge",
+    "iwatakesebunlodge"
+   ]
+  },
+  {
+   "id": "overture:ab869a40-1c44-4cca-aa3d-746c363f047c",
+   "name": "キレット小屋",
+   "kana": "キレットコヤ",
+   "romaji": [
+    "kiretto koya",
+    "kirettokoya"
+   ]
+  },
+  {
+   "id": "overture:ab90d083-fea1-4ddf-a417-26580f08756c",
+   "name": "ペンション 旅人",
+   "kana": "ペンションタビビト",
+   "romaji": [
+    "pension tabibito",
+    "pensiontabibito"
+   ]
+  },
+  {
+   "id": "overture:ac31e6ca-622e-40f8-9f03-5e34f15c5e21",
+   "name": "白樺荘",
+   "kana": "シラカバソウ",
+   "romaji": [
+    "shirakaba so",
+    "shirakabaso"
+   ]
+  },
+  {
+   "id": "overture:ac6732a8-ba03-4306-b739-6ca480a99045",
+   "name": "テントキーパー",
+   "kana": "テントキーパー",
+   "romaji": [
+    "tento kipa",
+    "tentokipa"
+   ]
+  },
+  {
+   "id": "overture:ac88723c-034b-4ae3-8192-cb771219cdb2",
+   "name": "アニスガーデン",
+   "kana": "アニスガーデン",
+   "romaji": [
+    "anisu gaden",
+    "anisugaden"
+   ]
+  },
+  {
+   "id": "overture:ac8ced3e-69ab-4124-b45d-578e32ba44b8",
+   "name": "ペンション リスの小屋",
+   "kana": "ペンションリスノコヤ",
+   "romaji": [
+    "pension risu no koya",
+    "pensionrisunokoya"
+   ]
+  },
+  {
+   "id": "overture:ad7c1e0f-6245-4909-bf37-b946ec20995a",
+   "name": "ホテル&レストラン マリレン",
+   "kana": "ホテル&レストランマリレン",
+   "romaji": [
+    "hotel restaurant mariren",
+    "hotelrestaurantmariren"
+   ]
+  },
+  {
+   "id": "overture:adc27502-8f2d-4483-b9a6-01417ad33d0b",
+   "name": "プチホテル志鷹",
+   "kana": "プチホテルシタカ",
+   "romaji": [
+    "puchi hotel shi taka",
+    "puchihotelshitaka"
+   ]
+  },
+  {
+   "id": "overture:adf620c9-6602-4d14-9d60-e7e034497c6f",
+   "name": "ペンション森の風",
+   "kana": "ペンションモリノカゼ",
+   "romaji": [
+    "pension mori no kaze",
+    "pensionmorinokaze"
+   ]
+  },
+  {
+   "id": "overture:ae63bdcc-4288-48da-8354-d606e95ff830",
+   "name": "山万旅館",
+   "kana": "ヤママンリョカン",
+   "romaji": [
+    "yamaman ryokan",
+    "yamamanryokan"
+   ]
+  },
+  {
+   "id": "overture:af2acd3b-f23f-4351-98ea-2f624b7f8c43",
+   "name": "細野館",
+   "kana": "ホソノカン",
+   "romaji": [
+    "hosono kan",
+    "hosonokan"
+   ]
+  },
+  {
+   "id": "overture:af8df53c-fc6e-4880-90c4-c3948db3c440",
+   "name": "白馬五竜ペンションあうる",
+   "kana": "ハクバゴリュウペンションアウル",
+   "romaji": [
+    "hakuba goryu pension a uru",
+    "hakubagoryupensionauru"
+   ]
+  },
+  {
+   "id": "overture:b0091d30-f6f0-4e45-8970-731f53b5ed50",
+   "name": "上屋敷",
+   "kana": "カミヤシキ",
+   "romaji": [
+    "kamiyashiki"
+   ]
+  },
+  {
+   "id": "overture:b02c79a0-45b5-43e0-aa50-3e8be44b77f3",
+   "name": "大向旅館丸山虎男",
+   "kana": "オオムカイリョカンマルヤマトラオ",
+   "romaji": [
+    "omukai ryokan maruyama torao",
+    "omukairyokanmaruyamatorao"
+   ]
+  },
+  {
+   "id": "overture:b0c9aede-1e85-423a-b3b4-07fa674b3b18",
+   "name": "雪の荘",
+   "kana": "ユキノソウ",
+   "romaji": [
+    "yuki no so",
+    "yukinoso"
+   ]
+  },
+  {
+   "id": "overture:b1309ee8-97ce-43ce-8622-67f3bdfabf7a",
+   "name": "栂池温泉元湯栂の森荘",
+   "kana": "ツガイケオンセンモトユツガノモリソウ",
+   "romaji": [
+    "tsugaike onsen motoyu tsuga no mori so",
+    "tsugaikeonsenmotoyutsuganomoriso"
+   ]
+  },
+  {
+   "id": "overture:b18fe7e0-29c4-48a7-94fc-eb81e8d72c36",
+   "name": "白馬の里シェーンドルフユースホステル",
+   "kana": "ハクバノサトシェーンドルフユースホステル",
+   "romaji": [
+    "hakuba no sato shendorufuyusu hostel",
+    "hakubanosatoshendorufuyusuhostel"
+   ]
+  },
+  {
+   "id": "overture:b1a246f6-165f-4d62-982f-27ad0cd3372b",
+   "name": "白馬シンフォニー",
+   "kana": "ハクバシンフォニー",
+   "romaji": [
+    "hakuba shinfoni",
+    "hakubashinfoni"
+   ]
+  },
+  {
+   "id": "overture:b1d1b8b7-9a84-460c-bfa2-32cd6ef25028",
+   "name": "民宿くりた",
+   "kana": "ミンシュククリタ",
+   "romaji": [
+    "minshuku kuri ta",
+    "minshukukurita"
+   ]
+  },
+  {
+   "id": "overture:b2c44649-ff7d-41d4-bfd9-83113261183c",
+   "name": "長野県　白馬　ゲストハウス　もりおの家　Guesthouse　Morio's　House",
+   "kana": "ナガノケン　シロウマ　ゲストハウス　モリオノイエ　Guesthouse　Morio's　House",
+   "romaji": [
+    "nagano ken shiroma guesthouse mori o no ie guesthouse morio s house",
+    "naganokenshiromaguesthousemorionoieguesthousemorioshouse"
+   ]
+  },
+  {
+   "id": "overture:b2c85d1b-bef3-4b01-b8d3-6d6618436215",
+   "name": "樹湖里荘",
+   "kana": "キコサトソウ",
+   "romaji": [
+    "ki ko sato so",
+    "kikosatoso"
+   ]
+  },
+  {
+   "id": "overture:b4066461-9b6c-4231-9415-94728f8a2f12",
+   "name": "Lodge＊Chamingo",
+   "kana": "Lodge＊Chamingo",
+   "romaji": [
+    "lodge chamingo",
+    "lodgechamingo"
+   ]
+  },
+  {
+   "id": "overture:b43ac61b-bb42-426a-9b21-047c14d957ee",
+   "name": "ペンションスターライトあずみ",
+   "kana": "ペンションスターライトアズミ",
+   "romaji": [
+    "pension suta raito azumi",
+    "pensionsutaraitoazumi"
+   ]
+  },
+  {
+   "id": "overture:b470fbf7-f292-47cc-81fa-984ab2f31118",
+   "name": "丸大旅館",
+   "kana": "マルダイリョカン",
+   "romaji": [
+    "marudai ryokan",
+    "marudairyokan"
+   ]
+  },
+  {
+   "id": "overture:b4c609fb-e544-4fa0-a807-306b6ca93735",
+   "name": "ﾊｰﾄﾗﾝﾄﾞ",
+   "kana": "ﾊｰﾄﾗﾝﾄﾞ",
+   "romaji": [
+    "hatorando"
+   ]
+  },
+  {
+   "id": "overture:b4d9dc6c-0345-40b8-a378-5d3fa3775d08",
+   "name": "横山館",
+   "kana": "ヨコヤマカン",
+   "romaji": [
+    "yokoyama kan",
+    "yokoyamakan"
+   ]
+  },
+  {
+   "id": "overture:b5a4c68d-949f-463a-8f15-a3e4a0f3f48c",
+   "name": "はばうえ",
+   "kana": "ハバウエ",
+   "romaji": [
+    "haba ue",
+    "habaue"
+   ]
+  },
+  {
+   "id": "overture:b65e21a5-1a3b-4056-9cfb-ee9ed1da9b32",
+   "name": "白馬ブランシェ",
+   "kana": "ハクバブランシェ",
+   "romaji": [
+    "hakuba buranshe",
+    "hakubaburanshe"
+   ]
+  },
+  {
+   "id": "overture:b80f1ad1-d501-4ff3-932f-730b47fc8a80",
+   "name": "インナービレッジミヤマ",
+   "kana": "インナービレッジミヤマ",
+   "romaji": [
+    "innabirejjimiyama"
+   ]
+  },
+  {
+   "id": "overture:b8abc7fb-cce3-4bdb-9fab-5ea7f78dca04",
+   "name": "ポッポのお宿",
+   "kana": "ポッポノオヤド",
+   "romaji": [
+    "poppo no o yado",
+    "popponooyado"
+   ]
+  },
+  {
+   "id": "overture:b9569ca9-293e-49e7-8211-10c498a18c19",
+   "name": "五竜山荘",
+   "kana": "ゴリュウサンソウ",
+   "romaji": [
+    "goryu sanso",
+    "goryusanso"
+   ]
+  },
+  {
+   "id": "overture:b9a30b7f-ab00-48e8-aefb-899746cbf2ec",
+   "name": "白馬村",
+   "kana": "ハクバムラ",
+   "romaji": [
+    "hakuba mura",
+    "hakubamura"
+   ]
+  },
+  {
+   "id": "overture:b9b76731-308a-4f31-9a10-3331d3b107bd",
+   "name": "栂池高原の宿やまきゅう荘",
+   "kana": "ツガイケコウゲンノヤドヤマキュウソウ",
+   "romaji": [
+    "tsugaike kogen no yado ya ma kyu so",
+    "tsugaikekogennoyadoyamakyuso"
+   ]
+  },
+  {
+   "id": "overture:b9d25992-edc9-41a0-925a-2f27598c5eb7",
+   "name": "白馬ベルグランド",
+   "kana": "ハクバベルグランド",
+   "romaji": [
+    "hakuba beru gurando",
+    "hakubaberugurando"
+   ]
+  },
+  {
+   "id": "overture:ba8e9cec-0f3f-433f-9fa3-a8adf8bea72f",
+   "name": "まるや旅館",
+   "kana": "マルヤリョカン",
+   "romaji": [
+    "maruya ryokan",
+    "maruyaryokan"
+   ]
+  },
+  {
+   "id": "overture:bbb8fde9-6f61-43dd-ab99-26f9b57ee7c2",
+   "name": "エンダラジップ",
+   "kana": "エンダラジップ",
+   "romaji": [
+    "endarajippu"
+   ]
+  },
+  {
+   "id": "overture:bcb0e324-4f4e-4f54-8386-2289a9874233",
+   "name": "ラ・ネージュ本館",
+   "kana": "ラ・ネージュホンカン",
+   "romaji": [
+    "ra neju honkan",
+    "ranejuhonkan"
+   ]
+  },
+  {
+   "id": "overture:bcd1e8d4-6dac-4b27-8087-c1c48df8940c",
+   "name": "ビラ白馬",
+   "kana": "ビラハクバ",
+   "romaji": [
+    "villa hakuba",
+    "villahakuba"
+   ]
+  },
+  {
+   "id": "overture:bd4abb11-399a-46be-bdcf-29f8db3c1976",
+   "name": "ペンションシャモニール白馬",
+   "kana": "ペンションシャモニールハクバ",
+   "romaji": [
+    "pension shamoniru hakuba",
+    "pensionshamoniruhakuba"
+   ]
+  },
+  {
+   "id": "overture:bd6af726-b8f9-48eb-b112-b24776016f8b",
+   "name": "ときわ亭",
+   "kana": "トキワテイ",
+   "romaji": [
+    "tokiwa tei",
+    "tokiwatei"
+   ]
+  },
+  {
+   "id": "overture:be8bbdd2-f68d-47a8-be3b-5b9c138565a0",
+   "name": "ペンション ハーシ",
+   "kana": "ペンションハーシ",
+   "romaji": [
+    "pension hashi",
+    "pensionhashi"
+   ]
+  },
+  {
+   "id": "overture:bef39670-2518-4d31-bb55-ba8410d98867",
+   "name": "宿 にしざわ",
+   "kana": "ヤドニシザワ",
+   "romaji": [
+    "yado ni shi zawa",
+    "yadonishizawa"
+   ]
+  },
+  {
+   "id": "overture:bf56bdd3-3de7-415c-80c7-a31c61549161",
+   "name": "高嶺荘",
+   "kana": "タカネソウ",
+   "romaji": [
+    "takane so",
+    "takaneso"
+   ]
+  },
+  {
+   "id": "overture:c048c016-995c-4bd2-8781-86550fd960e7",
+   "name": "旅館ごお津",
+   "kana": "リョカンゴオツ",
+   "romaji": [
+    "ryokan go o tsu",
+    "ryokangootsu"
+   ]
+  },
+  {
+   "id": "overture:c04c780f-6315-4edc-84d2-78db52e8e0a6",
+   "name": "ペンションクヌルプ",
+   "kana": "ペンションクヌルプ",
+   "romaji": [
+    "pension kunurupu",
+    "pensionkunurupu"
+   ]
+  },
+  {
+   "id": "overture:c0cd846a-62d5-4264-a615-cd6d92efa601",
+   "name": "スキーハウス ウルル",
+   "kana": "スキーハウスウルル",
+   "romaji": [
+    "ski house ururu",
+    "skihouseururu"
+   ]
+  },
+  {
+   "id": "overture:c1ac354d-e043-40c5-a0b3-1e818df46898",
+   "name": "ステイフルハウスなかまち",
+   "kana": "ステイフルハウスナカマチ",
+   "romaji": [
+    "sutei furu house na kamachi",
+    "suteifuruhousenakamachi"
+   ]
+  },
+  {
+   "id": "overture:c1d49c44-df35-4549-ad6c-60d44c746e0b",
+   "name": "セジュールミント",
+   "kana": "セジュールミント",
+   "romaji": [
+    "sejuruminto"
+   ]
+  },
+  {
+   "id": "overture:c1e067cc-dc9e-4fed-913f-a7988ea493ad",
+   "name": "朝日荘",
+   "kana": "アサヒソウ",
+   "romaji": [
+    "asahi so",
+    "asahiso"
+   ]
+  },
+  {
+   "id": "overture:c352cf6a-f50e-484f-8a29-b5885eff6d9d",
+   "name": "白馬の小さな ペンションあぎ",
+   "kana": "ハクバノチイサナペンションアギ",
+   "romaji": [
+    "hakuba no chiisana pension a gi",
+    "hakubanochiisanapensionagi"
+   ]
+  },
+  {
+   "id": "overture:c3656949-81b8-47ba-b044-cba3ba5601dc",
+   "name": "大下館",
+   "kana": "オオシタカン",
+   "romaji": [
+    "oshita kan",
+    "oshitakan"
+   ]
+  },
+  {
+   "id": "overture:c3cee316-f142-4d3b-b324-f0e595700a7b",
+   "name": "旅館FURUYA",
+   "kana": "リョカンFURUYA",
+   "romaji": [
+    "ryokan furuya",
+    "ryokanfuruya"
+   ]
+  },
+  {
+   "id": "overture:c3e5b401-fcf7-4064-b97b-af09e6d6ef84",
+   "name": "かんてら",
+   "kana": "カンテラ",
+   "romaji": [
+    "kantera"
+   ]
+  },
+  {
+   "id": "overture:c53075ed-17ec-4d07-8913-83031d19409f",
+   "name": "ペンションロケーション",
+   "kana": "ペンションロケーション",
+   "romaji": [
+    "pension rokeshon",
+    "pensionrokeshon"
+   ]
+  },
+  {
+   "id": "overture:c59a67b1-5e0c-46d0-baf4-2be1e444110f",
+   "name": "ロッジしろがね",
+   "kana": "ロッジシロガネ",
+   "romaji": [
+    "lodge shirogane",
+    "lodgeshirogane"
+   ]
+  },
+  {
+   "id": "overture:c68a9206-48c7-4f59-9d5a-ebe93f496116",
+   "name": "ペンションポエムの森",
+   "kana": "ペンションポエムノモリ",
+   "romaji": [
+    "pension poemu no mori",
+    "pensionpoemunomori"
+   ]
+  },
+  {
+   "id": "overture:c74ecad6-45f4-4e4a-86a1-753c359d87a9",
+   "name": "ペンション ミンティー",
+   "kana": "ペンションミンティー",
+   "romaji": [
+    "pension minti",
+    "pensionminti"
+   ]
+  },
+  {
+   "id": "overture:c8839014-8493-4e56-9a8c-5dba020717a7",
+   "name": "白馬hershi",
+   "kana": "ハクバhershi",
+   "romaji": [
+    "hakuba hershi",
+    "hakubahershi"
+   ]
+  },
+  {
+   "id": "overture:c932a998-2608-4407-b934-a9ea81a7b368",
+   "name": "ロッジホリホック",
+   "kana": "ロッジホリホック",
+   "romaji": [
+    "lodge horihokku",
+    "lodgehorihokku"
+   ]
+  },
+  {
+   "id": "overture:c937bb98-5b95-4cc6-91aa-7f8b4bd362fa",
+   "name": "ロッヂ大樹",
+   "kana": "ロッヂタイジュ",
+   "romaji": [
+    "lodge taiju",
+    "lodgetaiju"
+   ]
+  },
+  {
+   "id": "overture:c9e77ae3-05e8-4444-8929-05eda0b70f0a",
+   "name": "愛徳",
+   "kana": "アイトク",
+   "romaji": [
+    "aitoku"
+   ]
+  },
+  {
+   "id": "overture:ca67b11e-32cc-46c9-813b-cc4dcb4b0b07",
+   "name": "手作り料理の宿四季",
+   "kana": "テヅクリリョウリノヤドシキ",
+   "romaji": [
+    "tezukuri ryori no yado shiki",
+    "tezukuriryorinoyadoshiki"
+   ]
+  },
+  {
+   "id": "overture:ca873067-26fc-4442-af7a-af27ef850219",
+   "name": "ペンション アルプス白馬",
+   "kana": "ペンションアルプスハクバ",
+   "romaji": [
+    "pension arupusu hakuba",
+    "pensionarupusuhakuba"
+   ]
+  },
+  {
+   "id": "overture:cb58ab4c-745f-4545-ae42-3cedcb4b914c",
+   "name": "志も",
+   "kana": "ココロザシモ",
+   "romaji": [
+    "kokorozashi mo",
+    "kokorozashimo"
+   ]
+  },
+  {
+   "id": "overture:cb8e1f34-af27-49fe-9266-fdd45b90566d",
+   "name": "グレイスイン栂池",
+   "kana": "グレイスインツガイケ",
+   "romaji": [
+    "gureisu in tsugaike",
+    "gureisuintsugaike"
+   ]
+  },
+  {
+   "id": "overture:cbeaadae-8192-424d-9567-0e18f508411e",
+   "name": "プチホテルアイリス",
+   "kana": "プチホテルアイリス",
+   "romaji": [
+    "puchi hotel airisu",
+    "puchihotelairisu"
+   ]
+  },
+  {
+   "id": "overture:cd24acd2-7924-4991-b46b-077e1cd34ac6",
+   "name": "貸別荘 ハイドコテージ",
+   "kana": "カシベッソウハイドコテージ",
+   "romaji": [
+    "kashi besso haido cottage",
+    "kashibessohaidocottage"
+   ]
+  },
+  {
+   "id": "overture:cf727201-2d8a-4d01-acc4-c7fa6c4d7d5c",
+   "name": "あらや",
+   "kana": "アラヤ",
+   "romaji": [
+    "ara ya",
+    "araya"
+   ]
+  },
+  {
+   "id": "overture:cf982a73-cc2a-438a-9721-4dfffd0d84aa",
+   "name": "喜多店旅館",
+   "kana": "キタテンリョカン",
+   "romaji": [
+    "kita ten ryokan",
+    "kitatenryokan"
+   ]
+  },
+  {
+   "id": "overture:cfd43b9b-1848-4612-9da7-922f8b418fc0",
+   "name": "白馬村",
+   "kana": "ハクバムラ",
+   "romaji": [
+    "hakuba mura",
+    "hakubamura"
+   ]
+  },
+  {
+   "id": "overture:d04d5444-c010-4f85-b8bd-9fa8c9d2a775",
+   "name": "丸八館",
+   "kana": "マルハチカン",
+   "romaji": [
+    "maruhachi kan",
+    "maruhachikan"
+   ]
+  },
+  {
+   "id": "overture:d2426149-bfb6-47e4-aa41-ec9d37bf0c40",
+   "name": "ロッヂかどや",
+   "kana": "ロッヂカドヤ",
+   "romaji": [
+    "lodge ka doya",
+    "lodgekadoya"
+   ]
+  },
+  {
+   "id": "overture:d24c5bf3-32ca-4e80-8bfc-467698d9dcff",
+   "name": "ペンション ひがしやま 白馬",
+   "kana": "ペンションヒガシヤマハクバ",
+   "romaji": [
+    "pension higashi ya ma hakuba",
+    "pensionhigashiyamahakuba"
+   ]
+  },
+  {
+   "id": "overture:d529716c-a91b-4397-bca2-a3a970025bf6",
+   "name": "ホテル ベルクール イノマタ",
+   "kana": "ホテルベルクールイノマタ",
+   "romaji": [
+    "hotel beru kuru inomata",
+    "hotelberukuruinomata"
+   ]
+  },
+  {
+   "id": "overture:d57000bd-d21c-4305-8665-7e8c8ea48440",
+   "name": "若栗温泉 乗鞍荘",
+   "kana": "ワカグリオンセンノリクラソウ",
+   "romaji": [
+    "wakaguri onsen norikura so",
+    "wakagurionsennorikuraso"
+   ]
+  },
+  {
+   "id": "overture:d587ba2a-dae2-433b-81ac-16dd6f8aec07",
+   "name": "山荘 ピトン",
+   "kana": "サンソウピトン",
+   "romaji": [
+    "sanso piton",
+    "sansopiton"
+   ]
+  },
+  {
+   "id": "overture:d61c6c06-d19f-4400-98e5-68537aa34057",
+   "name": "ペンションピンクポピンズ",
+   "kana": "ペンションピンクポピンズ",
+   "romaji": [
+    "pension pinkupopinzu",
+    "pensionpinkupopinzu"
+   ]
+  },
+  {
+   "id": "overture:d7345ea1-582f-47b4-a6e7-18427c4f357b",
+   "name": "大向キャンプ場",
+   "kana": "オオムカイキャンプジョウ",
+   "romaji": [
+    "omukai kyanpu jo",
+    "omukaikyanpujo"
+   ]
+  },
+  {
+   "id": "overture:d7796e40-5d04-4a6a-9989-03ef77af6fe2",
+   "name": "よこや別館",
+   "kana": "ヨコヤベッカン",
+   "romaji": [
+    "yoko ya bekkan",
+    "yokoyabekkan"
+   ]
+  },
+  {
+   "id": "overture:d7876896-689e-45cd-b04c-0ae26f811d2e",
+   "name": "エンバーロッジ",
+   "kana": "エンバーロッジ",
+   "romaji": [
+    "enba lodge",
+    "enbalodge"
+   ]
+  },
+  {
+   "id": "overture:d818c25d-38de-4cb4-96bf-847aa3988a5f",
+   "name": "ミーティア",
+   "kana": "ミーティア",
+   "romaji": [
+    "miti a",
+    "mitia"
+   ]
+  },
+  {
+   "id": "overture:d8ad6ef4-f30d-4368-a934-418df14dff86",
+   "name": "大網農山村体験交流施設・つちのいえ",
+   "kana": "オオアミノウサンソンタイケンコウリュウシセツ・ツチノイエ",
+   "romaji": [
+    "oami nosanson taiken koryu shisetsu tsuchi no ie",
+    "oaminosansontaikenkoryushisetsutsuchinoie"
+   ]
+  },
+  {
+   "id": "overture:d8cdfe79-84ba-42f9-9b80-4b6143a7005e",
+   "name": "温泉ロッジ白馬あっぷるはうす",
+   "kana": "オンセンロッジハクバアップルハウス",
+   "romaji": [
+    "onsen lodge hakuba appuru house",
+    "onsenlodgehakubaappuruhouse"
+   ]
+  },
+  {
+   "id": "overture:da3055f3-be8a-4601-840f-223c32d0df58",
+   "name": "白馬ペンションありえすか",
+   "kana": "ハクバペンションアリエスカ",
+   "romaji": [
+    "hakuba pension ari e su ka",
+    "hakubapensionariesuka"
+   ]
+  },
+  {
+   "id": "overture:da3b6729-1617-4b91-9b7d-415a924557f7",
+   "name": "カンパーニュ白馬",
+   "kana": "カンパーニュハクバ",
+   "romaji": [
+    "kanpanyu hakuba",
+    "kanpanyuhakuba"
+   ]
+  },
+  {
+   "id": "overture:da9e0709-2621-41cc-898f-963237926a02",
+   "name": "ホテル対岳館",
+   "kana": "ホテルタイタケカン",
+   "romaji": [
+    "hotel tai take kan",
+    "hoteltaitakekan"
+   ]
+  },
+  {
+   "id": "overture:db783afe-02e7-4f39-9823-56db790da790",
+   "name": "雪花菜山荘",
+   "kana": "オカラサンソウ",
+   "romaji": [
+    "okara sanso",
+    "okarasanso"
+   ]
+  },
+  {
+   "id": "overture:dc3b3ad0-9524-4fe8-8fe8-a83baa02c97c",
+   "name": "アルペンブリック入山登",
+   "kana": "アルペンブリックイリヤマノボル",
+   "romaji": [
+    "arupen burikku iriyama noboru",
+    "arupenburikkuiriyamanoboru"
+   ]
+  },
+  {
+   "id": "overture:dc3cf569-b6eb-47ad-a2e9-dee45854d31c",
+   "name": "白馬グローリアス",
+   "kana": "ハクバグローリアス",
+   "romaji": [
+    "hakuba guro riasu",
+    "hakubaguroriasu"
+   ]
+  },
+  {
+   "id": "overture:dc54184e-09e8-472d-9d55-3c0b0dda0638",
+   "name": "みずほ山荘",
+   "kana": "ミズホサンソウ",
+   "romaji": [
+    "mizuho sanso",
+    "mizuhosanso"
+   ]
+  },
+  {
+   "id": "overture:dc73a28b-8586-45c1-ad3b-475ed712da83",
+   "name": "プチホテル ホワイトアベニュー",
+   "kana": "プチホテルホワイトアベニュー",
+   "romaji": [
+    "puchi hotel howaito abenyu",
+    "puchihotelhowaitoabenyu"
+   ]
+  },
+  {
+   "id": "overture:ddd964c7-c1b5-4add-8766-1feb8ca8a420",
+   "name": "プチホテルピーターラビット",
+   "kana": "プチホテルピーターラビット",
+   "romaji": [
+    "puchi hotel pita rabitto",
+    "puchihotelpitarabitto"
+   ]
+  },
+  {
+   "id": "overture:de8852c7-4b55-4123-85fd-020788479aa4",
+   "name": "中山高原キャンプ場",
+   "kana": "ナカヤマコウゲンキャンプジョウ",
+   "romaji": [
+    "nakayama kogen kyanpu jo",
+    "nakayamakogenkyanpujo"
+   ]
+  },
+  {
+   "id": "overture:de8bf053-7f14-49c7-96cc-958b861f6d9d",
+   "name": "オーベルジュ白馬",
+   "kana": "オーベルジュハクバ",
+   "romaji": [
+    "oberuju hakuba",
+    "oberujuhakuba"
+   ]
+  },
+  {
+   "id": "overture:dee0fe25-6daf-490e-8365-30092788cb6f",
+   "name": "にしざわ",
+   "kana": "ニシザワ",
+   "romaji": [
+    "ni shi zawa",
+    "nishizawa"
+   ]
+  },
+  {
+   "id": "overture:df75dbff-5cf6-4c20-a4f2-f6f4cda92165",
+   "name": "白馬五竜ペンション くるみ",
+   "kana": "ハクバゴリュウペンションクルミ",
+   "romaji": [
+    "hakuba goryu pension kurumi",
+    "hakubagoryupensionkurumi"
+   ]
+  },
+  {
+   "id": "overture:df839b15-418f-40e0-9f72-c848613603b3",
+   "name": "白馬 ホテルパイプのけむり",
+   "kana": "ハクバホテルパイプノケムリ",
+   "romaji": [
+    "hakuba hotel paipu no kemuri",
+    "hakubahotelpaipunokemuri"
+   ]
+  },
+  {
+   "id": "overture:e1381d7f-9010-4399-b9bb-72d0adb992ac",
+   "name": "ペンション熊さん",
+   "kana": "ペンションクマサン",
+   "romaji": [
+    "pension kuma san",
+    "pensionkumasan"
+   ]
+  },
+  {
+   "id": "overture:e2b2eefc-26a0-4a34-b431-e46eeb36d039",
+   "name": "アルペンブリック入山登",
+   "kana": "アルペンブリックイリヤマノボル",
+   "romaji": [
+    "arupen burikku iriyama noboru",
+    "arupenburikkuiriyamanoboru"
+   ]
+  },
+  {
+   "id": "overture:e3c6f8f6-f58f-43a9-b79f-c76d83d896fb",
+   "name": "白馬風の子",
+   "kana": "ハクバカゼノコ",
+   "romaji": [
+    "hakuba kazenoko",
+    "hakubakazenoko"
+   ]
+  },
+  {
+   "id": "overture:e3cc3bb0-d5d3-4c43-9d77-23c43cb86abb",
+   "name": "シャレー岩岳",
+   "kana": "シャレーイワタケ",
+   "romaji": [
+    "chalet iwa take",
+    "chaletiwatake"
+   ]
+  },
+  {
+   "id": "overture:e3cf363d-988c-40f0-91fe-6dc4cdab117a",
+   "name": "ＧＳロッヂ",
+   "kana": "ジーエスロッヂ",
+   "romaji": [
+    "jiesu lodge",
+    "jiesulodge"
+   ]
+  },
+  {
+   "id": "overture:e40e5b35-396b-4b19-8ff5-a6a0ecf76899",
+   "name": "青木湖キャンプ場",
+   "kana": "アオキコキャンプジョウ",
+   "romaji": [
+    "aoki ko kyanpu jo",
+    "aokikokyanpujo"
+   ]
+  },
+  {
+   "id": "overture:e41e885d-b8f6-4bf9-bcb5-78e8cf4b09f1",
+   "name": "ペンション クック",
+   "kana": "ペンションクック",
+   "romaji": [
+    "pension kukku",
+    "pensionkukku"
+   ]
+  },
+  {
+   "id": "overture:e42ebe8b-cff8-4df3-aa7a-83635183d444",
+   "name": "大屋家伊藤俊晴",
+   "kana": "オオヤカイトウトシハル",
+   "romaji": [
+    "oya ka ito toshiharu",
+    "oyakaitotoshiharu"
+   ]
+  },
+  {
+   "id": "overture:e51aada3-8439-47b3-a91d-da5abeac8ecf",
+   "name": "フォレストイン上手屋",
+   "kana": "フォレストインカミテヤ",
+   "romaji": [
+    "foresuto in kamite ya",
+    "foresutoinkamiteya"
+   ]
+  },
+  {
+   "id": "overture:e5909167-7c65-4c36-89ca-0676865f00d3",
+   "name": "おもや",
+   "kana": "オモヤ",
+   "romaji": [
+    "o moya",
+    "omoya"
+   ]
+  },
+  {
+   "id": "overture:e5a45891-a20e-4591-938a-e5e79f232383",
+   "name": "コートヤード･バイ･マリオット 白馬",
+   "kana": "コートヤード･バイ･マリオットハクバ",
+   "romaji": [
+    "koto yado bai mariotto hakuba",
+    "kotoyadobaimariottohakuba"
+   ]
+  },
+  {
+   "id": "overture:e5e2a63c-4e19-4fad-aa7f-ef49c6e707b7",
+   "name": "アリスの泉",
+   "kana": "アリスノイズミ",
+   "romaji": [
+    "arisu no izumi",
+    "arisunoizumi"
+   ]
+  },
+  {
+   "id": "overture:e644e279-c7ca-46be-ab14-c749886fbc3e",
+   "name": "久保田荘",
+   "kana": "クボタソウ",
+   "romaji": [
+    "kubota so",
+    "kubotaso"
+   ]
+  },
+  {
+   "id": "overture:e6a24365-8792-4c29-9213-9691e7a6a1cf",
+   "name": "白馬森林オートキャンプ場",
+   "kana": "ハクバシンリンオートキャンプジョウ",
+   "romaji": [
+    "hakuba shinrin oto kyanpu jo",
+    "hakubashinrinotokyanpujo"
+   ]
+  },
+  {
+   "id": "overture:e764bbd3-eb1a-4480-8ccc-7590a0da777a",
+   "name": "白馬岩岳【シーハイル】",
+   "kana": "ハクバイワタケ【シーハイル】",
+   "romaji": [
+    "hakuba iwa take shi hairu",
+    "hakubaiwatakeshihairu"
+   ]
+  },
+  {
+   "id": "overture:e87dcdde-01f3-4141-b0ed-c303fb87556e",
+   "name": "ペンション雪割草",
+   "kana": "ペンションユキワリクサ",
+   "romaji": [
+    "pension yukiwari kusa",
+    "pensionyukiwarikusa"
+   ]
+  },
+  {
+   "id": "overture:e89d4c0b-db46-442f-8413-1861a9935043",
+   "name": "岳園荘",
+   "kana": "タケエンソウ",
+   "romaji": [
+    "take en so",
+    "takeenso"
+   ]
+  },
+  {
+   "id": "overture:e8a600d5-ce0f-4f1c-a612-99bbf4bb3352",
+   "name": "ペンション神戸っ子",
+   "kana": "ペンションコウベッコ",
+   "romaji": [
+    "pension kobe kko",
+    "pensionkobekko"
+   ]
+  },
+  {
+   "id": "overture:ea1e8c9c-0961-40a9-910a-22dbe4d7495b",
+   "name": "水車小屋",
+   "kana": "スイシャコヤ",
+   "romaji": [
+    "suisha koya",
+    "suishakoya"
+   ]
+  },
+  {
+   "id": "overture:ea1f9203-443b-42c9-92dd-7b7174d40a82",
+   "name": "丸金旅館",
+   "kana": "マルキンリョカン",
+   "romaji": [
+    "maru kin ryokan",
+    "marukinryokan"
+   ]
+  },
+  {
+   "id": "overture:ebbbdd27-2882-432a-9159-27f13cd0655c",
+   "name": "ヒュッテかもしか",
+   "kana": "ヒュッテカモシカ",
+   "romaji": [
+    "hutte kamoshika",
+    "huttekamoshika"
+   ]
+  },
+  {
+   "id": "overture:ebe42542-0517-4e4d-8c59-95a436ae8cde",
+   "name": "ヴィラ ブライトホーン",
+   "kana": "ヴィラブライトホーン",
+   "romaji": [
+    "villa buraito hon",
+    "villaburaitohon"
+   ]
+  },
+  {
+   "id": "overture:ebe58310-adc5-4c9b-9a5b-5327ab090512",
+   "name": "スポーツロッジつらら",
+   "kana": "スポーツロッジツララ",
+   "romaji": [
+    "supotsu lodge tsurara",
+    "supotsulodgetsurara"
+   ]
+  },
+  {
+   "id": "overture:ec913f7c-f2c8-48e2-85f2-82338965ab35",
+   "name": "白馬尻小屋",
+   "kana": "ハクバシリコヤ",
+   "romaji": [
+    "hakuba shiri koya",
+    "hakubashirikoya"
+   ]
+  },
+  {
+   "id": "overture:ecb0cdf4-c10c-43e6-b5c8-87693efbdbfe",
+   "name": "旅籠丸八",
+   "kana": "ハタゴマルハチ",
+   "romaji": [
+    "hatago maruhachi",
+    "hatagomaruhachi"
+   ]
+  },
+  {
+   "id": "overture:ecd93fd1-5b8f-4eb6-8d0a-48b4e787de88",
+   "name": "唐松岳頂上山荘北館",
+   "kana": "カラマツタケチョウジョウサンソウキタダテ",
+   "romaji": [
+    "karamatsu take chojo sanso kitadate",
+    "karamatsutakechojosansokitadate"
+   ]
+  },
+  {
+   "id": "overture:ed0cf5a1-3cec-4349-9b68-40402f379b66",
+   "name": "旅館山屋",
+   "kana": "リョカンヤマヤ",
+   "romaji": [
+    "ryokan yamaya",
+    "ryokanyamaya"
+   ]
+  },
+  {
+   "id": "overture:edb54a76-7bbb-4633-8d71-a9e831c02ea2",
+   "name": "旅館木塵",
+   "kana": "リョカンモクジン",
+   "romaji": [
+    "ryokan moku jin",
+    "ryokanmokujin"
+   ]
+  },
+  {
+   "id": "overture:edc17d77-e365-481f-91e8-72ccf3922ced",
+   "name": "ペンション植物誌",
+   "kana": "ペンションショクブツシ",
+   "romaji": [
+    "pension shokubutsu shi",
+    "pensionshokubutsushi"
+   ]
+  },
+  {
+   "id": "overture:edfb8690-f66a-4efa-a781-29f7befb2cec",
+   "name": "三千呎",
+   "kana": "サンゼン呎",
+   "romaji": [
+    "sanzen"
+   ]
+  },
+  {
+   "id": "overture:ee18440b-8f5a-42d5-acd2-c9485fdce052",
+   "name": "ホテルステラベラ",
+   "kana": "ホテルステラベラ",
+   "romaji": [
+    "hotel suterabera",
+    "hotelsuterabera"
+   ]
+  },
+  {
+   "id": "overture:ef19b975-8f42-4041-a236-e8be3817b720",
+   "name": "林ペンション",
+   "kana": "ハヤシペンション",
+   "romaji": [
+    "hayashi pension",
+    "hayashipension"
+   ]
+  },
+  {
+   "id": "overture:efa929ff-830b-4d78-9310-baf0406a6f63",
+   "name": "星降る高原の小さなホテル",
+   "kana": "ホシフルコウゲンノチイサナホテル",
+   "romaji": [
+    "hoshi furu kogen no chiisana hotel",
+    "hoshifurukogennochiisanahotel"
+   ]
+  },
+  {
+   "id": "overture:f0412e75-d653-446b-8926-c03b43244fef",
+   "name": "秀山荘",
+   "kana": "シュウザンソウ",
+   "romaji": [
+    "shuzan so",
+    "shuzanso"
+   ]
+  },
+  {
+   "id": "overture:f0c7c9e6-1b45-4f9b-b1ae-a192cdab9ca1",
+   "name": "ル・ボカージュ 白馬エコーランドシャレー",
+   "kana": "ル・ボカージュハクバエコーランドシャレー",
+   "romaji": [
+    "ru bokaju hakuba eko rando chalet",
+    "rubokajuhakubaekorandochalet"
+   ]
+  },
+  {
+   "id": "overture:f1865c09-cbea-4eb5-b4d1-ca8ad0e68ada",
+   "name": "やまなか館",
+   "kana": "ヤマナカカン",
+   "romaji": [
+    "yama naka kan",
+    "yamanakakan"
+   ]
+  },
+  {
+   "id": "overture:f1a1af5d-be31-4dff-9522-b3366455106c",
+   "name": "プチホテル ぴー坊",
+   "kana": "プチホテルピイボウ",
+   "romaji": [
+    "puchi hotel pii bo",
+    "puchihotelpiibo"
+   ]
+  },
+  {
+   "id": "overture:f1e37a92-93e6-4e24-948a-b863b8a2df1a",
+   "name": "MUSKOKA HOUSE—2 bedroom 2 bathroom sleeps 6",
+   "kana": "MUSKOKAHOUSE—2bedroom2bathroomsleeps6",
+   "romaji": [
+    "muskoka house bedroom bathroom sleeps",
+    "muskokahousebedroombathroomsleeps"
+   ]
+  },
+  {
+   "id": "overture:f2fe32ac-bc2c-4b5c-a637-f17467448d23",
+   "name": "赤だすき　別邸",
+   "kana": "アカダスキ　ベッテイ",
+   "romaji": [
+    "aka da suki bettei",
+    "akadasukibettei"
+   ]
+  },
+  {
+   "id": "overture:f3335f1c-d717-4a2c-aca6-0ec94ac2d41f",
+   "name": "《白馬》",
+   "kana": "《ハクバ》",
+   "romaji": [
+    "hakuba"
+   ]
+  },
+  {
+   "id": "overture:f351a580-c151-4194-9cd4-692069a4f478",
+   "name": "来馬温泉風吹荘",
+   "kana": "ライウマオンセンフブキソウ",
+   "romaji": [
+    "rai uma onsen fubuki so",
+    "raiumaonsenfubukiso"
+   ]
+  },
+  {
+   "id": "overture:f35381d6-b83f-473c-856c-1f5894f244af",
+   "name": "ひじくらアッチ",
+   "kana": "ヒジクラアッチ",
+   "romaji": [
+    "hiji kura atchi",
+    "hijikuraatchi"
+   ]
+  },
+  {
+   "id": "overture:f390a4ec-8420-42ae-8572-e95d84151272",
+   "name": "ペンション林檎の樹",
+   "kana": "ペンションリンゴノキ",
+   "romaji": [
+    "pension ringo no ki",
+    "pensionringonoki"
+   ]
+  },
+  {
+   "id": "overture:f402a28a-222f-4732-a047-6bb6a6fc3e21",
+   "name": "旅館白馬粉雪共和国",
+   "kana": "リョカンハクバコナユキキョウワコク",
+   "romaji": [
+    "ryokan hakuba konayuki kyowa koku",
+    "ryokanhakubakonayukikyowakoku"
+   ]
+  },
+  {
+   "id": "overture:f4df736c-d51e-4c3f-b541-6a9afe1d28ca",
+   "name": "グラードイン えびすや",
+   "kana": "グラードインエビスヤ",
+   "romaji": [
+    "gurado in ebisu ya",
+    "guradoinebisuya"
+   ]
+  },
+  {
+   "id": "overture:f625588d-b0a8-4e85-bd27-bb123f001209",
+   "name": "ひまわり",
+   "kana": "ヒマワリ",
+   "romaji": [
+    "himawari"
+   ]
+  },
+  {
+   "id": "overture:f6361b4e-cde5-425c-9ddf-ebf1878a9e58",
+   "name": "ロッジ 木彫り小舎",
+   "kana": "ロッジキボリショウシャ",
+   "romaji": [
+    "lodge kibori shosha",
+    "lodgekiborishosha"
+   ]
+  },
+  {
+   "id": "overture:f7791cea-a89f-4d2b-8bfc-614d5dd053c7",
+   "name": "セントラルイン白馬",
+   "kana": "セントラルインハクバ",
+   "romaji": [
+    "sentoraru in hakuba",
+    "sentoraruinhakuba"
+   ]
+  },
+  {
+   "id": "overture:f78d8598-6ba4-46f2-9af8-6b845923d371",
+   "name": "チロルの風",
+   "kana": "チロルノカゼ",
+   "romaji": [
+    "chiroru no kaze",
+    "chirorunokaze"
+   ]
+  },
+  {
+   "id": "overture:f8374847-8246-408b-ad27-87f011549b4e",
+   "name": "ロッジなかや",
+   "kana": "ロッジナカヤ",
+   "romaji": [
+    "lodge naka ya",
+    "lodgenakaya"
+   ]
+  },
+  {
+   "id": "overture:f877fcc0-2d94-4aa9-bbd6-670fc324b6dc",
+   "name": "山の宿オリファン",
+   "kana": "ヤマノヤドオリファン",
+   "romaji": [
+    "yama no yado ori fan",
+    "yamanoyadoorifan"
+   ]
+  },
+  {
+   "id": "overture:f9af8c56-32a3-4b29-9c69-9396d79bba33",
+   "name": "ボン・ネージュ",
+   "kana": "ボン・ネージュ",
+   "romaji": [
+    "bon neju",
+    "bonneju"
+   ]
+  },
+  {
+   "id": "overture:fa24fd2e-3c81-46ff-8da7-4ca8dab36ba6",
+   "name": "咲花ロッヂ",
+   "kana": "サキハナロッヂ",
+   "romaji": [
+    "saki hana lodge",
+    "sakihanalodge"
+   ]
+  },
+  {
+   "id": "overture:fb4d2204-50dc-488d-9867-79e408bd46e7",
+   "name": "流星花園 Villa",
+   "kana": "リュウセイハナゾノVilla",
+   "romaji": [
+    "ryusei hanazono villa",
+    "ryuseihanazonovilla"
+   ]
+  },
+  {
+   "id": "overture:fb75bda6-bd25-40e2-848e-73bdd2335ff6",
+   "name": "サンテインおたり",
+   "kana": "サンテインオタリ",
+   "romaji": [
+    "sante in o tari",
+    "santeinotari"
+   ]
+  },
+  {
+   "id": "overture:fb8e389d-1407-405f-a176-71c110dffa05",
+   "name": "ロッヂ五竜",
+   "kana": "ロッヂゴリュウ",
+   "romaji": [
+    "lodge goryu",
+    "lodgegoryu"
+   ]
+  },
+  {
+   "id": "overture:fc109b52-9fe7-420b-9b77-d92a46914ff0",
+   "name": "ペンションフォーシーズン",
+   "kana": "ペンションフォーシーズン",
+   "romaji": [
+    "pension fo shizun",
+    "pensionfoshizun"
+   ]
+  },
+  {
+   "id": "overture:fc468492-c686-4dce-bc4d-9787ca50d39a",
+   "name": "リゾートインマリオンシナノ",
+   "kana": "リゾートインマリオンシナノ",
+   "romaji": [
+    "resort inmarionshinano",
+    "resortinmarionshinano"
+   ]
+  },
+  {
+   "id": "overture:fd0eaac7-62cf-479a-96c9-7d6007fed232",
+   "name": "ベルクトール丸北",
+   "kana": "ベルクトールマルキタ",
+   "romaji": [
+    "beruku toru maru kita",
+    "berukutorumarukita"
+   ]
+  },
+  {
+   "id": "overture:fd148028-df67-4815-b730-ac02a14802fe",
+   "name": "ロッヂ幸",
+   "kana": "ロッヂコウ",
+   "romaji": [
+    "lodge ko",
+    "lodgeko"
+   ]
+  },
+  {
+   "id": "overture:fe2c6f42-b7b8-4b7b-a314-3fb9126d3c3a",
+   "name": "フォーシーズンズホテル&リゾートおはるかの湯",
+   "kana": "フォーシーズンズホテル&リゾートオハルカノユ",
+   "romaji": [
+    "fo shizunzu hotel resort o haruka no yu",
+    "foshizunzuhotelresortoharukanoyu"
+   ]
+  },
+  {
+   "id": "overture:fe8238ad-8e7b-47fc-b4d6-77c87399041f",
+   "name": "やまきゅう荘",
+   "kana": "ヤマキュウソウ",
+   "romaji": [
+    "yama kyu so",
+    "yamakyuso"
+   ]
+  },
+  {
+   "id": "overture:ffde004c-70fc-42d7-afd8-1a157120369e",
+   "name": "光陽館",
+   "kana": "コウヨウカン",
+   "romaji": [
+    "koyo kan",
+    "koyokan"
+   ]
+  }
+ ]
+}

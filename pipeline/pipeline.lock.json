@@ -1,0 +1,45 @@
+{
+  "stages": {
+    "crawl": {
+      "fetches": {
+        "https://www.google.com/maps/d/kml?mid=144X0iy2GSeAtFg9rREDXomNDGtz_zTk&forcekml=1": "0ce1e7566ecbabb24edb58238250399a0201e05362183ad62112941141f97fdd",
+        "https://www.google.com/maps/d/kml?mid=19jzQZl8XKTir1wGYB0FNQoOFMdXCMxc&forcekml=1": "bd453412bcf22fda50ee458319b3ed7153fb2d49fa79bcd614dfc6329195d48e",
+        "https://www.google.com/maps/d/kml?mid=1LHPZpjIUkbonvbey3lR1nlnFQqElmbQ&forcekml=1": "61a2faadf3a69caf5d7320d33eb58493e829d4c9e619eea774cc103ba45f0dc5",
+        "https://www.google.com/maps/d/kml?mid=1LKLOnrZghy-dyKSJpoI6UKpzqwfh2oc&forcekml=1": "91b9e8519a4067c286ef22890b982ef77d9e616e46b7a27199e436ba440a32d9",
+        "https://www.google.com/maps/d/kml?mid=1Os0l98DaldhLrlz2doPvccGukN6qgaU&forcekml=1": "91805bd885cd66481d814ce6d891416beb429ec5dc6f6eb317b2d85b2b418253",
+        "https://www.google.com/maps/d/kml?mid=1XTI6T2PS_dvncAdvb7U1EeJ1BVwVvrA&forcekml=1": "98b267e9c8fcecea1666e2f5f3fdd69cd3a947acc84a8ea5103a270b7e96a100",
+        "https://www.google.com/maps/d/kml?mid=1_EOV2ZXFvBmxKWgsMi03d4ydOCtopps&forcekml=1": "818002da34dffe81aef239826b0bffaf357aade5883d74156cb6b59f0ead2984",
+        "https://www.google.com/maps/d/kml?mid=1azoPm13yPOO8rDWiTCvGPMacLBp4tMc&forcekml=1": "5ee91814b5bd06d7297fd6f0cde51f6bae7226fd4348b3f9d636b1246dcfb2e3",
+        "https://www.google.com/maps/d/kml?mid=1emBV1AbmmRF1Jwr4jaN5A4CovUT7H84&forcekml=1": "b7857c66c9007f66a6c4db48052e8bcc24f29e5685b30ec0d817a3755b00221e",
+        "https://www.google.com/maps/d/kml?mid=1l0L1JCykPT9AGMFB8gXc31vUkIBlzVg&forcekml=1": "f8383bb349f16d790032444f0cedd8c23c06f0533bc12ec3d5060ffaaa2c7f77",
+        "https://www.google.com/maps/d/kml?mid=1tpTjEGykN_dPnJ9wt72pKbaIofEe15U&forcekml=1": "7d4c2ff49b6070bba7c9cc72cb55feb3dd82344950885aa4e625e00590b8fc6c",
+        "https://www.google.com/maps/d/kml?mid=1ukUFrg55fWfTmp3f9jivhpNpzp7I_9Y&forcekml=1": "45586b2e9efe52dc8dd7b64d0d0e78cba169870afac719e18ed7e810d6db19d1",
+        "https://www.google.com/maps/d/kml?mid=1yduAPDNxPBZHo-7A2APVQi_2xC_1GYY&forcekml=1": "371787e4205591f85b736cb3cd43ed0fa20f5e4940b571e17d8d8739d836ee94",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2025/11/2025-2026-Low-season.pdf": "908454d0a16e8525596cc6f7307aac9c9ecc81507881f7973b17920fb865a5d9",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2025/11/2025-2026-Shoulder-season.pdf": "5301936b55c26256ffc7c93cc57421437b24a06facdb96b72da330b97fc721a2",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2025/12/2025-2026-Shuttle-Bus-Map.pdf": "af7970ca2d53c3c350a57e6cdef045cac05ecafea1430d7f02364689f49a4274",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2025/12/2025-2026-Shuttle-Bus-Timetable.pdf": "944b9c0a542251e27c3ca24815a48efad1b7a99b35fe5dd99b96d58712ca2cb2",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/E.jpg": "eb4f30c2910956ce44aec281718ff9e0903a8ce7ec3c7ec14d249acf5eb9550a",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/F.jpg": "306f817af2a1e7e1d4b277fa4e0423c039ca98d55f9a501a58148b30124ce6c8",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/G1-6.jpg": "7dd20811dbc7d8948da8a1aa5a6ca410ba14ed1c5fc017887a73b8031dfabdb7",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/G7-10.jpg": "573584878e5a11181a73e21ec4f257d5663f70e5622432dd15df2941e43003b2",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/H.jpg": "8e6d393adb9400122d4e019f52b34bad9b226b259eaf518359ab6cef773e90e7",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/I.jpg": "95bd6f6e740d3b41c874dce5d2b1d97efb42dc556b46751e5e2c354bc608c609",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/L.jpg": "e9f23cd47bface68fc8b87ba615f470c9e2f4c10ee9ef08c7cb8d8dfa486839e",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/N.jpg": "18e2e0c97d0563dad3d44bb32b01db498d2e8523d3e2f5064db987b6beb02bb2",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/O.jpg": "a74110c6886ad9987bb7588961983c983ae10036de707daef2ceeda10f684cc3",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/R.jpg": "460d912e9852d39b05bf4d81f6dd7eee6c84efe95a68301cb58b9d20290d06e6",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/T.jpg": "ee258726d4dc65c1008a07ce175368ad67bbb1a079472c4f084861bb79114cd4",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/V1.jpg": "894ff62cec08c6be15817efc190aa433a90541899c6c9ec0d5dfa4e6972e17d4",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/VN-1.jpg": "aa78a23fbaaec737be9fc99aa309005d85680893d13e00b7f642e55c656f0078",
+        "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg": "91023ef04ba157c7a00c19474078fc79383fe9a44f2eb57e740c49c5ceacde12",
+        "https://www.hakubavalley.com/en/access_en/shuttlebus_en/": "ae24ab7000ba749ffdb63de00208220e5f72979434d0715215aed9e5786c7e23"
+      },
+      "key": "0db15ce48282ec1c7bd4e737bcb5f30bc367f6cbe298aa895ee3798af581a060",
+      "outputs": {
+        "sources.json": "fc68adc9ee4af27e4c56e8658e5a418ebee494a8e0a4fb94631fd3c1ea3d8b23"
+      },
+      "version": "1"
+    }
+  }
+}

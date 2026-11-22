@@ -75,7 +75,7 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 
 ## Boundaries
 - Always: link the original timetable image in the UI ("Source: Hakuba Valley"), and show "timetable may change without notice; buses can be full".
-- Never: call the Claude API or any paid OCR from code. Never serve `reviewed: false` data.
+- Never: call the Claude API or any paid OCR from code, except extractor A in SPEC-pipeline (ADR-0007). Never serve `reviewed: false` data (until SPEC-pipeline P7 replaces it with verification).
 - Ask first: adding a local OCR/vision model (e.g. PaddleOCR) as a draft generator. It is a possible later addition.
 
 ## Open Questions

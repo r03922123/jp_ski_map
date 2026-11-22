@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   type LngLat,
   labelAnchor,
+  MARKER_PX,
   mapPadding,
   pinCardAnchor,
   pinEaseOffsetY,
   pointAlong,
   routeBounds,
+  SLIM_BAR_PX,
   segment,
 } from "@/lib/route-geo";
 
@@ -81,13 +83,36 @@ describe("mapPadding", () => {
 
   it("leaves room on phones for a marker standing above its point", () => {
     expect(mapPadding({ width: 390, height: 699 }).top).toBeGreaterThanOrEqual(
-      184 + 40,
+      118 + MARKER_PX, // v1.27: the slimmer card (v1.18: 132, before it 184)
     );
   });
 
-  it("keeps marker room on a landscape phone", () => {
-    expect(mapPadding({ width: 740, height: 360 }).top).toBeGreaterThanOrEqual(
-      160,
+  // the landscape trip card is 120 px tall with a 4 px frame; the start marker stands
+  // MARKER_PX above its point, so a point on the padding line must clear 124 + MARKER_PX
+  it.each([
+    [740, 360],
+    [667, 375],
+  ])("keeps a whole marker's room on a %ix%i landscape phone", (width, height) => {
+    expect(mapPadding({ width, height }).top).toBeGreaterThanOrEqual(
+      120 + 4 + MARKER_PX,
+    );
+  });
+
+  // a landscape phone with a route: the sheet is only its ETA + Start row, so the
+  // route gets the height the 40 % sheet took (28 px left to fit into at 740x360 before)
+  it.each([
+    [740, 360],
+    [667, 375],
+  ])("fits above the slim ETA bar on a %ix%i landscape phone", (width, height) => {
+    const p = mapPadding({ width, height, slimSheet: true });
+    expect(p.bottom).toBeGreaterThanOrEqual(SLIM_BAR_PX);
+    expect(p.bottom).toBeLessThanOrEqual(SLIM_BAR_PX + 16);
+    expect(height - p.top - p.bottom).toBeGreaterThanOrEqual(3 * 28);
+  });
+
+  it("keeps the 40 % sheet's room on a tall phone, slim or not", () => {
+    expect(mapPadding({ width: 390, height: 699, slimSheet: true })).toEqual(
+      mapPadding({ width: 390, height: 699 }),
     );
   });
 
@@ -146,7 +171,7 @@ describe("pinEaseOffsetY", () => {
 
     expect(y).toBeLessThanOrEqual(height * 0.6);
     expect(pinCardAnchor({ x: 200, y, width, height })).toBeUndefined();
-    expect(y - 190).toBeGreaterThanOrEqual(184);
+    expect(y - 190).toBeGreaterThanOrEqual(118); // v1.27 (v1.18: 132, before it 184)
   });
 
   it("doesn't shift a laptop", () => {
@@ -156,8 +181,64 @@ describe("pinEaseOffsetY", () => {
   it.each([
     [667, 375],
     [740, 360],
-    [375, 553],
   ])("doesn't push the pin into the sheet at %ix%i", (width, height) => {
     expect(pinEaseOffsetY({ width, height })).toBe(0);
+  });
+
+  // v1.18 (recorded change; 375x553 was in the list above): with the two-row card a pin and
+  // its 190 px card fit between card and sheet (118 + 190 = 308 < 332 since v1.27; 132 + 190 = 322 in v1.18), so it moves, and
+  // stays above the sheet
+  it("at 375x553 the pin now fits above the sheet, and stays out of it", () => {
+    const size = { width: 375, height: 553 };
+    const { top, bottom } = mapPadding(size);
+    const centre = top + (size.height - top - bottom) / 2;
+    const y = centre + pinEaseOffsetY(size);
+
+    expect(pinEaseOffsetY(size)).toBeGreaterThan(0);
+    expect(y).toBeLessThanOrEqual(size.height * 0.6);
+  });
+});
+
+// v1.19: the page runs under the status bar and home indicator; the panels move by the insets
+describe("safe-area insets (SPEC-web-app v1.19)", () => {
+  const phone = { width: 390, height: 844 };
+  const safe = { top: 47, bottom: 34 };
+
+  it("moves the fit's top and bottom by the insets", () => {
+    const flat = mapPadding(phone);
+    const notched = mapPadding({ ...phone, safe });
+    expect(notched.top).toBe(flat.top + 47);
+    expect(notched.bottom).toBe(flat.bottom + 34);
+  });
+
+  it("eases a pin lower by the top inset, and still not into the moved sheet", () => {
+    const flat = pinEaseOffsetY(phone);
+    const notched = pinEaseOffsetY({ ...phone, safe });
+    const { top, bottom } = mapPadding({ ...phone, safe });
+    const y = top + (phone.height - top - bottom) / 2 + notched;
+    expect(notched).toBeGreaterThanOrEqual(flat);
+    expect(y).toBeLessThanOrEqual(phone.height * 0.6 - 34);
+  });
+
+  it("opens a pin's card below it when the moved trip card leaves no room above", () => {
+    // 390×1000: 190 px above y = 340 is 150, clear of the flat card (118) but not of
+    // 118 + 47; below it, 340 + 190 = 530 still fits above the moved sheet (600 − 34)
+    const tall = { width: 390, height: 1000 };
+    expect(pinCardAnchor({ x: 200, y: 340, ...tall })).toBeUndefined();
+    expect(pinCardAnchor({ x: 200, y: 340, ...tall, safe })).toBe("top");
+  });
+});
+
+describe("safe-area insets from md up (v1.19 review: a notched iPhone in landscape is ≥ 812 px wide)", () => {
+  it("moves the side card's fit by the left and top insets", () => {
+    const flat = mapPadding({ width: 844, height: 390 });
+    const notched = mapPadding({
+      width: 844,
+      height: 390,
+      safe: { top: 0, bottom: 21, left: 47, right: 47 },
+    });
+    expect(notched.left).toBe(flat.left + 47);
+    expect(notched.right).toBe(flat.right + 47);
+    expect(notched.bottom).toBe(flat.bottom + 21);
   });
 });

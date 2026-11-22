@@ -67,7 +67,7 @@ export function CheckInButton({ resortId }: { resortId: string }) {
         type="button"
         onClick={locate}
         disabled={status === "locating"}
-        className="border-2 border-[var(--ink)] bg-card px-2 py-0.5 shadow-[2px_2px_0_var(--ink)] active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+        className="rounded-full border bg-card px-3 py-0.5 shadow-sm active:shadow-none disabled:opacity-60"
       >
         Check in
       </button>

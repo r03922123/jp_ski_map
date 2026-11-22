@@ -45,7 +45,7 @@ export function BusPilotView({
     <div
       data-testid="bus-pilot"
       data-bus-phase={state.phase}
-      className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-between"
+      className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-between pt-(--safe-top)"
     >
       <section
         aria-label="Bus journey"

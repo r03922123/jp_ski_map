@@ -6,6 +6,8 @@ import time
 
 import httpx
 
+from hakuba_api.common.timing import timed
+
 log = logging.getLogger(__name__)
 
 TIMEOUT_S = 0.3  # typing must stay responsive; lexical results stand on their own
@@ -18,7 +20,8 @@ def semantic_ids(query: str, k: int) -> list[str]:
         return []
     start = time.perf_counter()
     try:
-        resp = httpx.get(f"{base}/search", params={"q": query, "k": k}, timeout=TIMEOUT_S)
+        with timed("semantic"):
+            resp = httpx.get(f"{base}/search", params={"q": query, "k": k}, timeout=TIMEOUT_S)
         resp.raise_for_status()
         ids = [str(hit["id"]) for hit in resp.json()]
     except (httpx.HTTPError, ValueError, TypeError, KeyError) as e:
