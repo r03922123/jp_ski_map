@@ -107,3 +107,84 @@ Reference observations for [rea-benchmark-workflow.md](rea-benchmark-workflow.md
 - Candidate for later: durations on the mode tabs, as Google's mode row has (cluster G).
 
 **What we don't take:** Google's card styling, icons, or the Street View thumbnail.
+
+---
+
+### BC-L1, update 2026-11-20: L1 and the place sheet's low height, in points (Google Maps iOS app)
+
+**Setup.** Two new recordings by the owner (`.ux-evidence/ios-layout/rec1.mp4`, 22 s, and `rec2.mp4`, 27 s;
+1170×2532, so a 390×844 pt screen). rec1 is the app opened with nothing searched, plus the sheet dragged up.
+rec2 is a search typed with the keyboard up, then a Hakuba guest house picked and its sheet lowered. Frames
+are at 10/s in `.ux-evidence/ios-layout/rec*/`. Edges come from scanning pixel columns at x = 8, 195 and
+380 pt (±3 pt). No Google page or app was scripted. Account, location and saved-place details in the frames
+are not copied here.
+
+**Observed** (pt of the whole 844 pt screen; "map" = between the bottom of the top chrome and the top of the sheet):
+
+| State (frame) | Top chrome ends | Sheet starts | Map |
+|---|---|---|---|
+| L1 opened (rec1/0040) | 147: a floating search bar (55–103) and a chip row (115–147) over the map | 701 (a 53 pt peek, then a 90 pt tab bar) | 554 pt, 65.6% |
+| L1, sheet dragged up (rec1/0140) | — | ≈55: the sheet covers nearly the whole screen | ≈0 |
+| L3 place card, first height (rec2/0210) | 103: search bar only | 460 | 357 pt, 42.3% |
+| L3 place card, lowered (rec2/0250) | 103 | 701: title row and actions only, 143 pt | 598 pt, 70.9% |
+
+- The map runs under the status bar and the floating bars. Only the bars' own pixels hide it.
+- The place sheet opens at about half the screen, like BC-L1's ≈46%. **A drag down leaves it resting at a
+  low height** that keeps the place's name and its three actions (Directions, Availability, Call), and the
+  map gets 71% of the screen.
+- L2 (keyboard up) fills the screen with suggestions and the keyboard; no map shows.
+
+**Ours at the same size** (`LAYOUT_VIEWPORT=390x797 pnpm e2e e2e/layout-share.spec.ts`: the home-screen
+app's page under a 47 pt status bar; Chromium emulation, not yet a real iPhone):
+
+| State | Top chrome ends | Sheet starts | Map |
+|---|---|---|---|
+| L1 opened, no start | 47 + 68 = 115 | none (hidden until a start is set) | 728 pt, 86.2% |
+| L1b start set, ranked list (nearest to Google's L3) | 47 + 120 = 167 | 498 | 331 pt, 39.2% |
+| L4 directions preview | 47 + 172 = 219 | 498 | 279 pt, 33.0% (Google ≈320 pt, BC-L1) |
+
+**Inferred:**
+- Google's sheet has three resting heights (low, half, full). Ours has two: 40% and expanded. So with a
+  place or trip open, our map can never get past about 40% of the screen, where Google's reaches 71%.
+- In directions preview, our sheet is about as tall as Google's. The 41 pt we lose is in the top card
+  (172 pt vs Google's ≈95 pt), which has a third row for "Add destination" and the star.
+- With nothing open, ours already shows more map than Google, which spends ≈90 pt on chips and ≈90 pt on a tab bar.
+
+**Unknown:** the low height's exact behaviour on a fling vs a slow drag; our numbers on the real iPhone (Safari
+tab and home-screen app).
+
+**What we take:** a low resting height for the sheet that keeps only the answer row (title or ETA and its main
+action), reached by dragging down; and a shorter trip card.
+**What we don't take:** Google's chips, tab bar, Street View thumbnail, colours and card styling.
+
+---
+
+### BC-L2 The side panel on a laptop (Google Maps in desktop Chrome, 2026-11-20)
+
+**Setup.** The owner's Chrome, 1440×722 viewport, signed in (so no screenshot is kept: it showed saved
+places). The agent opened directions Hakuba Station → Happo-One with the owner's go-ahead and read element
+boxes from the page's DOM (`aria-label`s and `getBoundingClientRect`), plus two screenshots it looked at and
+did not save. No script source, network or storage was read.
+
+**Observed** (CSS px):
+
+| State | Panel | Map |
+|---|---|---|
+| Opened, nothing searched | none: a floating search box (x 88–464, y 12, 48 tall) and a row of category chips beside it, right of a 72 px icon rail | the whole window behind them |
+| Directions preview | a card at x 72, y 8, 408 × 706 (the window's height less 8 px above and below) | the route framed to the right of the card |
+| After "Collapse side panel" | gone, the icon rail too; an "Expand side panel" tab, 23 × 48, at x 0, centred vertically | **unchanged**: the camera doesn't move, the route stays where it was |
+
+- The collapse tab is 23 × 48 on the card's right edge, centred vertically (y 337–385 of 722).
+- The mode row at the top of the card shows each mode's duration (🚗 7 min · 🚌 40 min · 🚶 40 min).
+- Zoom and locate buttons are 29 px, bottom right; the layers tile is bottom left.
+
+**Inferred:** the panel is a fixed-width column, so a wider window gives every extra pixel to the map; the
+collapse tab is the one control that hands the whole window to the map while a trip is open.
+
+**Unknown:** whether a new search or destination reopens a collapsed panel (searching needs the panel, so the
+question only arises from the map); keyboard focus after collapsing.
+
+**What we take** (SPEC-web-app v1.23): a collapse tab on the side card's right edge from `md` up; collapsing
+slides the card out, leaves an expand tab at the window's left edge, and doesn't move the camera.
+**What we don't take:** the icon rail, the category chips, Google's icons and styling. Durations on the mode
+tabs stay a candidate (cluster G, BC-L1).

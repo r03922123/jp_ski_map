@@ -7,16 +7,21 @@ import {
   within,
 } from "@testing-library/react";
 import type { ReactElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ResortList } from "@/components/ResortList";
 import { SortControls } from "@/components/SortControls";
 import type { RankedResort } from "@/lib/api";
 
 // resort cards carry a Check in button, which reads the resort catalog
-const render = (ui: ReactElement) =>
-  rtlRender(
-    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
-  );
+// a wrapper (not a wrapped element), so rerender keeps the provider
+const render = (ui: ReactElement) => {
+  const client = new QueryClient();
+  return rtlRender(ui, {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    ),
+  });
+};
 
 function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
   return {
@@ -31,7 +36,7 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       driveTime: 368,
       freshSnow: 46.8,
       snowDepth: 299,
-      crowd: 0.62,
+      crowd: 0.6,
       terrainSize: 16,
       vertical: 1071,
       price: null,
@@ -47,11 +52,18 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       resortId: "happo-one",
       date: "2026-01-12",
       level: "high",
-      score: 0.62,
+      score: 0.6,
       source: "heuristic",
       isEstimate: true,
       reasons: ["3-day weekend (Coming of Age Day)", "Large, popular resort"],
+      contributions: [
+        { label: "3-day weekend (Coming of Age Day)", weight: 0.35 },
+        { label: "Large, popular resort", weight: 0.25 },
+      ],
     },
+    statsSource:
+      "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://www.happo-one.jp/price/ (checked 2026-11-06)",
+    website: "https://www.happo-one.jp/",
     ...overrides,
   };
 }
@@ -86,6 +98,56 @@ describe("ResortList", () => {
     );
   });
 
+  // T3 (docs/ux/google-maps-workflows.md): re-sorting or a new date must not hide the
+  // selection. Reviews of #116: a new start reorders the list too and must not scroll it, and
+  // a re-sort that keeps the order must not leave a scroll waiting for the next reorder
+  describe("brings the selected resort into view after the user re-sorts", () => {
+    const original = Element.prototype.scrollIntoView;
+    const scroll = vi.fn();
+    beforeEach(() => {
+      scroll.mockClear();
+      Element.prototype.scrollIntoView = scroll;
+    });
+    afterEach(() => {
+      Element.prototype.scrollIntoView = original;
+    });
+    const a = ranked();
+    const b = ranked({ resortId: "goryu", name: "Goryu", rank: 2 });
+    const list = (order: RankedResort[], key: string, fetching: boolean) => (
+      <ResortList
+        resorts={order}
+        selectedId="goryu"
+        onSelect={vi.fn()}
+        scrollKey={key}
+        fetching={fetching}
+      />
+    );
+
+    it("once the ranking for the new options has loaded", () => {
+      const view = render(list([a, b], "drive", false));
+      view.rerender(list([a, b], "snow", true));
+      expect(scroll).not.toHaveBeenCalled();
+      view.rerender(list([b, a], "snow", false));
+      expect(scroll).toHaveBeenCalledTimes(1);
+      expect(scroll).toHaveBeenCalledWith({ block: "nearest" });
+      expect(scroll.mock.contexts[0]).toBe(
+        screen.getByRole("button", { name: /Goryu/ }),
+      );
+    });
+
+    it("not for a new start, nor later after a re-sort that kept the order", () => {
+      const view = render(list([a, b], "drive", false));
+      view.rerender(list([b, a], "drive", false)); // a new start
+      expect(scroll).not.toHaveBeenCalled();
+      view.rerender(list([b, a], "date", true)); // a new date, same order
+      view.rerender(list([b, a], "date", false));
+      scroll.mockClear();
+      view.rerender(list([a, b], "date", true)); // then a new start
+      view.rerender(list([a, b], "date", false));
+      expect(scroll).not.toHaveBeenCalled();
+    });
+  });
+
   it("expands to every factor, crowd reasons and the snow timestamp", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
@@ -96,10 +158,121 @@ describe("ResortList", () => {
     expect(screen.getByText("Vertical drop")).toBeInTheDocument();
     expect(screen.getByText("1071 m")).toBeInTheDocument();
     expect(screen.getByText("Ticket price").nextSibling).toHaveTextContent("—");
-    expect(screen.getByText(/Coming of Age Day/)).toBeInTheDocument();
+    expect(screen.getByText(/Crowd estimate:/)).toHaveTextContent(
+      /Coming of Age Day/,
+    );
     expect(
       screen.getByText(/snow model as of 01\/12 07:00/i),
     ).toBeInTheDocument();
+  });
+
+  it("keeps sources and weights closed until asked", () => {
+    render(
+      <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
+    );
+
+    const sources = screen.getByText("Sources & weights").closest("details");
+    expect(sources).not.toHaveAttribute("open");
+  });
+
+  it("links every stats URL and the data sources, and shows each crowd weight", () => {
+    render(
+      <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
+    );
+    fireEvent.click(screen.getByText("Sources & weights"));
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+    const hrefs = block.getAllByRole("link").map((a) => a.getAttribute("href"));
+
+    expect(hrefs).toEqual([
+      "https://www.openstreetmap.org/copyright",
+      "https://open-meteo.com/",
+      "https://www.hakubavalley.com/en/ski_resort_info_en/",
+      "https://www.happo-one.jp/price/",
+      "https://www.happo-one.jp/",
+    ]);
+    for (const a of block.getAllByRole("link")) {
+      expect(a).toHaveAttribute("target", "_blank");
+      expect(a).toHaveAttribute("rel", "noopener noreferrer");
+    }
+    expect(block.getByText("+0.35")).toBeInTheDocument();
+    expect(block.getByText("+0.25")).toBeInTheDocument();
+    expect(block.getByText("0.60")).toBeInTheDocument();
+  });
+
+  it("shows a negative weight and says when the sum was capped", () => {
+    render(
+      <ResortList
+        resorts={[
+          ranked({
+            crowd: {
+              ...(ranked().crowd as NonNullable<RankedResort["crowd"]>),
+              score: 0,
+              reasons: ["Early/late season"],
+              contributions: [{ label: "Early/late season", weight: -0.15 }],
+            },
+          }),
+        ]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+
+    expect(block.getByText("−0.15")).toBeInTheDocument();
+    expect(block.getByText(/capped to 0–1/)).toBeInTheDocument();
+  });
+
+  it("never turns a non-web URL in the stats source into a link", () => {
+    render(
+      <ResortList
+        resorts={[
+          ranked({ statsSource: "javascript:alert(1) and nothing else" }),
+        ]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+
+    expect(block.getByText(/javascript:alert\(1\)/)).toBeInTheDocument();
+    expect(
+      block
+        .getAllByRole("link", { hidden: true })
+        .every((a) => a.getAttribute("href")?.startsWith("https://")),
+    ).toBe(true);
+  });
+
+  it("only links an http(s) website and drops trailing punctuation", () => {
+    render(
+      <ResortList
+        resorts={[
+          ranked({
+            website: "data:text/html,<b>x</b>",
+            statsSource: "Price: https://x.jp/price. Checked.",
+          }),
+        ]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+    const block = within(
+      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+    );
+    const hrefs = block
+      .getAllByRole("link", { hidden: true })
+      .map((a) => a.getAttribute("href"));
+
+    expect(hrefs).not.toContain("data:text/html,<b>x</b>");
+    expect(hrefs).toContain("https://x.jp/price");
+    expect(block.getAllByText("(opens in a new tab)").length).toBe(
+      hrefs.length,
+    );
   });
 
   it("says on the card when the snow is from, once the report is over 90 minutes old", () => {

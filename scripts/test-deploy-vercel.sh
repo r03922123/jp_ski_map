@@ -7,6 +7,9 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 export PATH="$WORK/bin:/usr/bin:/bin"
+# The script falls back to ~/.npm/_npx, so HOME is a throwaway too: the real npx copy can't be reached.
+export HOME="$WORK/home"
+mkdir "$HOME"
 export VERCEL_STUB_LOG="$WORK/vercel.log"
 REPO="$WORK/repo"
 OUT="$WORK/out"
@@ -45,7 +48,8 @@ new_repo() {
     "$REPO/infra/valhalla/custom_files/hakuba" "$REPO/.vercel" "$REPO/services/api" "$REPO/.ux-evidence" "$REPO/.run"
   cp "$HERE/deploy-vercel.sh" "$REPO/scripts/"
   for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_overture.json \
-    poi_osm.json crowd_periods.json bus/stop_evidence.json bus/timetables/2025-26/line-a.json; do
+    lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json bus/stop_evidence.json \
+    bus/timetables/2025-26/line-a.json; do
     echo '[]' >"$REPO/data/$f"
   done
   echo 'pyproject' >"$REPO/services/api/pyproject.toml"
@@ -93,7 +97,8 @@ deploy
 expect_args "deploy --environment preview"
 grep -q "$(git_q rev-parse HEAD)" "$OUT" || fail "commit not printed"
 for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_overture.json \
-  poi_osm.json crowd_periods.json bus/timetables/2025-26/line-a.json; do
+  lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json \
+  bus/timetables/2025-26/line-a.json; do
   uploaded "services/api/data/$f" || fail "not uploaded: services/api/data/$f"
 done
 uploaded services/api/tiles/valhalla_tiles.tar || fail "tiles not uploaded"
@@ -128,7 +133,7 @@ deploy --prod extra
 expect_stop "extra argument" "usage:"
 
 for item in resorts.json bus_stops.json bus/timetables bus/sources.json lodging_osm.json \
-  lodging_overture.json poi_osm.json crowd_periods.json; do
+  lodging_overture.json lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json; do
   new_repo
   rm -rf "${REPO:?}/data/$item"
   commit_all
@@ -209,6 +214,18 @@ VERCEL_ORG_ID=team_test deploy
 expect_stop "only VERCEL_ORG_ID set" "project link incomplete"
 VERCEL_PROJECT_ID=prj_test deploy
 expect_stop "only VERCEL_PROJECT_ID set" "project link incomplete"
+
+echo "uses the npx copy when vercel is not on PATH"
+new_repo
+NPX_BIN="$HOME/.npm/_npx/abc123/node_modules/.bin"
+mkdir -p "$NPX_BIN"
+mv "$WORK/bin/vercel" "$NPX_BIN/vercel"
+deploy
+expect_args "deploy --environment preview"
+
+rm -rf "$HOME/.npm"
+deploy
+expect_stop "no vercel CLI anywhere" "vercel CLI not found"
 
 echo "committed deploy config is well formed"
 REAL="$HERE/.."

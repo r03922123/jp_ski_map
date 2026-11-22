@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { CheckInButton } from "@/components/CheckInButton";
 import { PixelSprite } from "@/components/PixelSprite";
 import { type RankedResort, resortsQuery } from "@/lib/api";
@@ -63,6 +64,83 @@ function formatAsOf(iso: string): string {
 // the API serves its last good report while Open-Meteo is down, and a list left open ages.
 const SNOW_OLD_MS = 90 * 60 * 1000;
 
+// Only http(s) URLs become links; any other text, e.g. "javascript:…", stays plain
+// A URL never ends in . : or ' here: that's the sentence around it
+const WEB_URL = /(https?:\/\/[^\s;,()]*[^\s;,().:'])/;
+
+function SourceLink({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="break-all underline"
+    >
+      {href}
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
+  );
+}
+
+function linkify(text: string) {
+  return text.split(WEB_URL).map((part, i) =>
+    // biome-ignore lint/suspicious/noArrayIndexKey: the same URL can appear twice; parts never reorder
+    i % 2 ? <SourceLink key={part + i} href={part} /> : part,
+  );
+}
+
+const signed = (w: number) => `${w < 0 ? "−" : "+"}${Math.abs(w).toFixed(2)}`;
+
+function SourcesAndWeights({ r }: { r: RankedResort }) {
+  const sum = r.crowd?.contributions.reduce((s, c) => s + c.weight, 0) ?? 0;
+  return (
+    <details className="mt-1">
+      <summary className="cursor-pointer text-muted-foreground">
+        Sources &amp; weights
+      </summary>
+      <dl className="mt-1 space-y-1 text-muted-foreground">
+        <dt className="font-medium">Drive time</dt>
+        <dd>
+          OpenStreetMap roads, Valhalla router:{" "}
+          <SourceLink href="https://www.openstreetmap.org/copyright" />
+        </dd>
+        <dt className="font-medium">Fresh snow, snow depth</dt>
+        <dd>
+          {r.snow?.depthCm.source === "reported"
+            ? "Reported by the resort; forecast from Open-Meteo"
+            : "Open-Meteo model"}
+          : <SourceLink href="https://open-meteo.com/" />
+        </dd>
+        {r.crowd && (
+          <>
+            <dt className="font-medium">Crowd (heuristic estimate)</dt>
+            <dd>
+              <ul>
+                {r.crowd.contributions.map((c) => (
+                  <li key={c.label} className="flex justify-between gap-3">
+                    <span>{c.label}</span>
+                    <span className="tabular-nums">{signed(c.weight)}</span>
+                  </li>
+                ))}
+                <li className="flex justify-between gap-3 font-medium">
+                  <span>Sum</span>
+                  <span className="tabular-nums">{sum.toFixed(2)}</span>
+                </li>
+              </ul>
+              {(sum < 0 || sum > 1) && <p>The sum is capped to 0–1.</p>}
+              <p>Levels: below 0.30 low, below 0.55 medium, below 0.80 high.</p>
+            </dd>
+          </>
+        )}
+        <dt className="font-medium">Runs, vertical drop, ticket price</dt>
+        <dd>{linkify(r.statsSource)}</dd>
+        <dt className="font-medium">Resort website</dt>
+        <dd>{linkify(r.website)}</dd>
+      </dl>
+    </details>
+  );
+}
+
 function snowSummary(r: RankedResort): string | null {
   const fresh = r.snow?.newSnowCm.past24h;
   const depth = r.snow?.depthCm.summit;
@@ -77,18 +155,46 @@ export function ResortList({
   resorts,
   selectedId,
   onSelect,
+  scrollKey,
+  fetching = false,
 }: {
   resorts: RankedResort[];
   selectedId: string | null;
   onSelect: (resortId: string, accessPointId: string) => void;
+  /** the user's sort and date: a new order that follows a change here is brought to the selection */
+  scrollKey?: string;
+  /** the ranking is being fetched (for new options, the list still shows the old one) */
+  fetching?: boolean;
 }) {
   // SPEC-web-app v1.6 level select: each card is a world, numbered by geography
   const catalog = useQuery(resortsQuery);
   const worlds = worldNumbers(catalog.data ?? []);
   const rider = useRider();
   const now = useNow(60_000);
+  // T3: a re-sort or a new date must not hide the selection: once the ranking for the user's
+  // new options has loaded, the selected row comes into view. Only then: a new start reorders
+  // the list too, and a scroll there could push the sheet's Start out of view; and a re-sort
+  // that kept the order must not leave a scroll waiting (reviews of #116)
+  const listRef = useRef<HTMLOListElement>(null);
+  const lastKey = useRef(scrollKey);
+  const [pending, setPending] = useState(false);
+  if (scrollKey !== lastKey.current) {
+    lastKey.current = scrollKey;
+    setPending(true);
+  }
+  useEffect(() => {
+    if (!pending || fetching) return;
+    setPending(false);
+    listRef.current
+      ?.querySelector<HTMLElement>('button[aria-pressed="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [pending, fetching]);
   return (
-    <ol aria-label="Ranked resorts" className="flex flex-col divide-y">
+    <ol
+      ref={listRef}
+      aria-label="Ranked resorts"
+      className="flex flex-col divide-y"
+    >
       {resorts.map((r) => {
         const snow = snowSummary(r);
         const snowIsOld =
@@ -102,7 +208,8 @@ export function ResortList({
               onClick={() => onSelect(r.resortId, r.accessPointId)}
               className={cn(
                 "flex w-full items-start gap-3 rounded-lg p-2 text-left hover:bg-muted",
-                r.resortId === selectedId && "bg-muted",
+                r.resortId === selectedId &&
+                  "bg-accent ring-1 ring-primary hover:bg-accent",
               )}
             >
               <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
@@ -178,6 +285,7 @@ export function ResortList({
                   Snow model as of {formatAsOf(r.snow.asOf)} (Open-Meteo)
                 </p>
               )}
+              <SourcesAndWeights r={r} />
             </details>
           </li>
         );

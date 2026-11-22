@@ -1,0 +1,3 @@
+# Every source the pipeline may read (SPEC-pipeline.md, Seeds). P1 has the shuttle page only.
+[shuttle]
+url = "https://www.hakubavalley.com/en/access_en/shuttlebus_en/"

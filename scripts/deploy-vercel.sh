@@ -28,6 +28,14 @@ else
   die "usage: scripts/deploy-vercel.sh [--prod]"
 fi
 
+# This Mac has the CLI only as an npx copy, not on PATH.
+# shortcut: takes the first npx copy found; pin a version here if two different ones ever exist.
+if ! command -v vercel >/dev/null; then
+  npx_vercel=$(ls "$HOME"/.npm/_npx/*/node_modules/.bin/vercel 2>/dev/null | head -1 || true)
+  [[ -n $npx_vercel ]] || die "vercel CLI not found on PATH or in ~/.npm/_npx (run 'npx vercel --version' once)"
+  PATH="$(dirname "$npx_vercel"):$PATH"
+fi
+
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 git -C "$ROOT" archive HEAD | tar -x -C "$STAGE"
@@ -53,7 +61,7 @@ mkdir -p "$API/data/bus" "$API/tiles"
 
 # Only what the API reads at runtime; data/bus/raw and stop_evidence.json stay out of the upload.
 for item in resorts.json bus_stops.json bus/timetables bus/sources.json lodging_osm.json \
-  lodging_overture.json poi_osm.json crowd_periods.json; do
+  lodging_overture.json lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json; do
   [[ -s $STAGE/data/$item ]] || die "runtime data missing or empty in this commit: data/$item"
   cp -R "$STAGE/data/$item" "$API/data/$item"
 done

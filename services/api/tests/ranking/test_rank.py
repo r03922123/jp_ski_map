@@ -46,6 +46,7 @@ def crowd(score: float) -> CrowdEstimate:
         score=score,
         source="heuristic",
         reasons=[],
+        contributions=[],
     )
 
 
@@ -231,3 +232,13 @@ def test_live_rank_returns_all_resorts_quickly() -> None:
     assert response.status_code == 200
     assert len(response.json()) == 10
     assert time.perf_counter() - started < 1.0
+
+
+def test_rank_endpoint_carries_each_resorts_sources(api: TestClient) -> None:
+    body = api.get("/api/rank", params={"from": "36.7,137.86"}).json()
+
+    for row in body:
+        resort = get_resort(row["resortId"])
+        assert resort is not None
+        assert row["statsSource"] == resort.stats_source
+        assert row["website"] == resort.website

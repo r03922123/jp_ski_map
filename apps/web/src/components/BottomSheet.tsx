@@ -1,18 +1,27 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const DRAG_THRESHOLD_PX = 30;
 const SWIPE_CLICK_MS = 400;
 
-/** Bottom sheet on phones (collapsed / expanded), floating card from `md` up. */
+/** Phones' resting heights (SPEC-web-app v1.17): 84 px, 40dvh, nearly full. */
+type SheetState = "low" | "collapsed" | "expanded";
+const stepDown = (s: SheetState): SheetState =>
+  s === "expanded" ? "collapsed" : "low";
+const stepUp = (s: SheetState): SheetState =>
+  s === "low" ? "collapsed" : "expanded";
+
+/** Bottom sheet on phones (low / collapsed / expanded), floating card from `md` up. */
 export function BottomSheet({
   label,
   header,
   collapseKey,
   revealKey,
+  raiseKey,
   hiddenOnPhone = false,
+  slim = false,
   children,
 }: {
   label: string;
@@ -26,24 +35,47 @@ export function BottomSheet({
   collapseKey?: string;
   /** The route on screen; "" when there is none. Only a route appearing collapses the sheet. */
   revealKey?: string;
+  /** New content (Saved, a category list, a mode): a low sheet comes up to collapsed. */
+  raiseKey?: string;
   /** Phones: only the header shows (the sheet would hold nothing yet). It comes back collapsed. */
   hiddenOnPhone?: boolean;
+  /**
+   * A route with its ETA + Start row (DirectionsPanel). On a landscape phone the
+   * collapsed sheet is only that row, so the route has room (route-geo SLIM_BAR_PX).
+   */
+  slim?: boolean;
   children: ReactNode;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [state, setState] = useState<SheetState>("collapsed");
+  const expanded = state === "expanded";
+  // v1.23 (BC-L2): from md up the side card can be slid out, as Google Maps' side panel
+  const [panelHidden, setPanelHidden] = useState(false);
+  const sectionId = useId();
   const headerRef = useRef<HTMLDivElement>(null);
   const lastCollapseKey = useRef(collapseKey);
   useEffect(() => {
     if (collapseKey === lastCollapseKey.current) return;
     lastCollapseKey.current = collapseKey;
-    setExpanded(false);
+    setState("collapsed");
+    setPanelHidden(false);
   }, [collapseKey]);
   const lastRevealKey = useRef(revealKey);
   useEffect(() => {
     if (revealKey === lastRevealKey.current) return;
     lastRevealKey.current = revealKey;
-    if (revealKey) setExpanded(false);
+    if (revealKey) {
+      setState("collapsed");
+      setPanelHidden(false);
+    }
   }, [revealKey]);
+  const lastRaiseKey = useRef(raiseKey);
+  useEffect(() => {
+    if (raiseKey === lastRaiseKey.current) return;
+    lastRaiseKey.current = raiseKey;
+    setState((s) => (s === "low" ? "collapsed" : s));
+    // Saved or an imported list opens inside the card: a collapsed one comes back
+    setPanelHidden(false);
+  }, [raiseKey]);
   const dragStartY = useRef<number | null>(null);
   // a mouse drag still sends a click afterwards; it must not undo the swipe. (A moving
   // touch on Android sends none, so the swipe acts on pointerup, not on click.)
@@ -52,11 +84,19 @@ export function BottomSheet({
   const bodyRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!hiddenOnPhone) return;
-    setExpanded(false);
+    setState("collapsed");
     // focus left in the hidden body (the ✕ that cleared the start) would drop to <body>
     if (bodyRef.current?.contains(document.activeElement))
       headerRef.current?.focus();
   }, [hiddenOnPhone]);
+
+  // the ETA row sticks to the bottom only while it is below the fold: a sheet collapsed
+  // after scrolling past it would show steps, not ETA and Start (T77). Any screen: a
+  // route that appears (slim turns on) also scrolls back to its answer (bug F)
+  useEffect(() => {
+    if ((slim || state === "low") && !expanded && bodyRef.current)
+      bodyRef.current.scrollTop = 0;
+  }, [slim, state, expanded]);
 
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
@@ -82,6 +122,11 @@ export function BottomSheet({
       resizes: boolean;
     } | null = null;
     const onStart = (e: TouchEvent) => {
+      // from md up the sheet is a side card with no heights to step through (a tablet)
+      if (window.matchMedia?.("(width >= 48rem)").matches) {
+        gesture = null;
+        return;
+      }
       const target = e.target as Element;
       if (target.closest("[data-touch-exempt]")) {
         gesture = null; // the handle has its own swipe
@@ -117,8 +162,8 @@ export function BottomSheet({
     const onEnd = () => {
       if (gesture?.owned && gesture.resizes) {
         const dy = gesture.lastY - gesture.startY;
-        if (dy > DRAG_THRESHOLD_PX) setExpanded(false);
-        else if (dy < -DRAG_THRESHOLD_PX) setExpanded(true);
+        if (dy > DRAG_THRESHOLD_PX) setState(stepDown);
+        else if (dy < -DRAG_THRESHOLD_PX) setState(stepUp);
       }
       gesture = null;
     };
@@ -143,35 +188,51 @@ export function BottomSheet({
     if (start === null) return;
     const dy = clientY - start;
     if (Math.abs(dy) <= DRAG_THRESHOLD_PX) return; // a tap: its click toggles
-    setExpanded(dy < 0);
+    setState(dy < 0 ? stepUp : stepDown);
     swipedAt.current = performance.now();
   }
 
   function onHandleClick() {
     if (performance.now() - swipedAt.current < SWIPE_CLICK_MS) return;
-    setExpanded((e) => !e); // tap or keyboard
+    // tap or keyboard: collapsed <-> expanded; a low sheet comes back to collapsed
+    setState((s) => (s === "collapsed" ? "expanded" : "collapsed"));
   }
 
   return (
     <section
       ref={sectionRef}
+      id={sectionId}
       aria-label={label}
       // a place to hand focus without raising a phone's keyboard (the title screen)
       data-sheet
       tabIndex={-1}
-      data-state={expanded ? "expanded" : "collapsed"}
+      data-state={state}
       data-phone-hidden={hiddenOnPhone || undefined}
+      data-slim={slim || undefined}
+      data-panel={panelHidden ? "hidden" : undefined}
+      // v1.22: on phones the sheet sits on the bottom edge, as in Google Maps; its padding
+      // keeps the content above the home bar, and each height adds that padding back
       className={cn(
-        "pixel-frame fixed inset-x-1 outline-none bottom-1 z-10 flex flex-col transition-[height] duration-200",
-        // expanded: never up under the trip card on top (184 px, or 136 on a landscape
-        // phone, where its third row sits beside the boxes), so the handle stays
+        "group/sheet surface rounded-t-[16px] md:rounded-[16px] fixed right-(--safe-right) bottom-0 left-(--safe-left) pb-(--safe-bottom) outline-none z-10 flex flex-col transition-[height,translate,visibility] duration-200 motion-reduce:transition-none",
+        // expanded: never up under the trip card on top (118 px since v1.27's slimmer card, or 136 on a landscape
+        // phone, where 120 px overestimates the 106 px card), so the handle stays
         // reachable. 48 px more leaves a strip of map: an open stop box says "tap the map"
-        expanded
-          ? "h-[min(80dvh,calc(100dvh-232px))] max-md:[@media(max-height:479px)]:h-[min(80dvh,calc(100dvh-136px))]"
-          : "h-[40dvh]",
-        "md:absolute md:inset-x-auto md:bottom-auto md:top-4 md:left-4 md:h-auto md:max-h-[calc(100dvh-2.5rem)] md:w-96",
+        state === "low"
+          ? // v1.17: the 22 px handle and the first row (with a route, its 61 px ETA row), +1
+            "h-[calc(84px+var(--safe-bottom))]"
+          : expanded
+            ? "h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-166px-var(--safe-top)))] max-md:[@media(max-height:479px)]:h-[min(calc(80dvh+var(--safe-bottom)),calc(100dvh-136px))]"
+            : slim
+              ? // the 22 px handle and the 61 px sticky ETA row (its 44 px Start, py-2 and border), +1
+                "h-[calc(40dvh+var(--safe-bottom))] max-md:[@media(max-height:479px)]:h-[calc(84px+var(--safe-bottom))]"
+              : "h-[calc(40dvh+var(--safe-bottom))]",
+        "md:absolute md:inset-x-auto md:bottom-auto md:pb-0 md:top-[calc(1rem+var(--safe-top))] md:left-[calc(1rem+var(--safe-left))] md:h-auto md:max-h-[calc(100dvh-2.5rem-var(--safe-top)-var(--safe-bottom))] md:w-96",
         // invisible, not unmounted: the header inside stays visible, and taps reach the map
         hiddenOnPhone && "max-md:invisible",
+        // out past the window's left edge; invisible so Tab skips it. The toggle stays visible
+        panelHidden &&
+          // its right edge rests on the safe-area line, so the tab beside it clears a notch
+          "md:invisible md:-translate-x-[calc(100%+1rem)]",
       )}
     >
       <button
@@ -192,6 +253,13 @@ export function BottomSheet({
           dragStartY.current = null;
         }}
         onClick={onHandleClick}
+        // T2: the three heights without a swipe (keyboard, switch control)
+        aria-keyshortcuts="ArrowUp ArrowDown"
+        onKeyDown={(e) => {
+          if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+          e.preventDefault();
+          setState(e.key === "ArrowUp" ? stepUp : stepDown);
+        }}
       >
         <span className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
       </button>
@@ -204,15 +272,20 @@ export function BottomSheet({
           data-trip-header
           // where the title screen hands focus while the sheet is hidden
           tabIndex={-1}
-          className="visible fixed inset-x-2 top-2 z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
+          className="max-md:visible fixed top-[calc(0.5rem+var(--safe-top))] right-[max(0.5rem,var(--safe-right))] left-[max(0.5rem,var(--safe-left))] z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
         >
-          <div className="pixel-frame p-2 md:contents">{header}</div>
+          <div className="surface rounded-[16px] p-1 md:contents">{header}</div>
         </div>
       )}
       <div
         ref={bodyRef}
         data-sheet-body
-        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4"
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4",
+          // the sticky ETA row sits on the bar's bottom edge, the rest scrolled behind it
+          slim && !expanded && "max-md:[@media(max-height:479px)]:pb-0",
+          slim && state === "low" && "max-md:pb-0",
+        )}
         // a search box down here (a trip stop) needs room for its suggestions. Only a box
         // you type in: a tapped checkbox or date field that grew the sheet moved out from
         // under the finger, and the tap was lost (v1.9)
@@ -222,11 +295,25 @@ export function BottomSheet({
             t instanceof HTMLInputElement &&
             (t.type === "search" || t.type === "text")
           )
-            setExpanded(true);
+            setState("expanded");
         }}
       >
         {children}
       </div>
+      {/* last in the card: the search box stays the first Tab stop (T78); absolute, so its
+          place on screen doesn't change */}
+      <button
+        type="button"
+        aria-label={panelHidden ? "Expand side panel" : "Collapse side panel"}
+        aria-expanded={!panelHidden}
+        aria-controls={sectionId}
+        // just outside the card's right edge (past its 4 px frame), so a touch screen's 44 px
+        // minimum grows it outward, not over the card
+        className="surface visible absolute top-1/2 left-full rounded-r-lg hidden h-12 w-6 -translate-y-1/2 items-center justify-center text-sm md:flex"
+        onClick={() => setPanelHidden((h) => !h)}
+      >
+        <span aria-hidden>{panelHidden ? "▸" : "◂"}</span>
+      </button>
     </section>
   );
 }

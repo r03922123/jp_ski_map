@@ -1,6 +1,7 @@
 """Compare lexical, semantic and hybrid search on the hard set and the booking regression set.
 
-Run: `uv run python -m hakuba_search.evaluate [--model models/e5-hakuba] --min-score <calibrated>`
+Run: `uv run python -m hakuba_search.evaluate [--model models/e5-hakuba] --min-score <calibrated>
+[--cases heldout_v2.json]`
 Every run is logged to the local MLflow store (`mlflow ui --backend-store-uri sqlite:///mlflow.db`).
 """
 
@@ -20,7 +21,7 @@ from hakuba_api.places.suggest import load_index, suggest
 
 from hakuba_search.embed import BASE_MODEL, Embedder
 
-HARD = Path(__file__).parents[2] / "evals" / "hard_queries.json"
+EVALS = Path(__file__).parents[2] / "evals"
 NEAR = Coord(lat=36.70, lng=137.86)
 K = 5
 
@@ -76,9 +77,9 @@ def searcher(mode: str, emb: Embedder | None, min_score: float) -> Callable[[str
     return lambda q: list(suggest(q, NEAR, K, use_photon=False))
 
 
-def run(mode: str, emb: Embedder | None, min_score: float) -> dict[str, Any]:
+def run(mode: str, emb: Embedder | None, min_score: float, cases_file: Path) -> dict[str, Any]:
     search = searcher(mode, emb, min_score)
-    cases = json.loads(HARD.read_text())["cases"]
+    cases = json.loads(cases_file.read_text())["cases"]
     rows, ms = [], []
     for case in cases:
         start = time.perf_counter()
@@ -115,21 +116,24 @@ def main() -> None:
     # each model's own value from hakuba_search.calibrate: a shared one silently filters all
     parser.add_argument("--min-score", type=float, required=True)
     parser.add_argument("--modes", default="lexical,semantic,hybrid")
+    parser.add_argument("--cases", default="hard_queries.json", help="a file in evals/")
     args = parser.parse_args()
+    cases_file = EVALS / args.cases
     emb = Embedder(load_index(), args.model)
     mlflow.set_tracking_uri(f"sqlite:///{Path(__file__).parents[2] / 'mlflow.db'}")
     mlflow.set_experiment("place-search")
-    print(f"model={args.model} min_score={args.min_score}")
+    print(f"model={args.model} min_score={args.min_score} cases={args.cases}")
     lexical: list[bool] | None = None
     # lexical first, whatever order was asked for: it is the baseline of the paired difference
     for mode in sorted(args.modes.split(","), key=lambda m: m != "lexical"):
-        res = run(mode, emb if mode != "lexical" else None, args.min_score)
+        res = run(mode, emb if mode != "lexical" else None, args.min_score, cases_file)
         if mode == "lexical":
             lexical = res["hits5"]
         elif lexical is not None:
             res["hit5_vs_lexical"], res["hit5_vs_lexical_se"] = paired_diff(lexical, res["hits5"])
         with mlflow.start_run(run_name=f"{mode}:{Path(args.model).name}"):
-            mlflow.log_params({"mode": mode, "model": args.model, "min_score": args.min_score})
+            params = {"mode": mode, "model": args.model, "min_score": args.min_score}
+            mlflow.log_params(params | {"cases": args.cases})
             mlflow.log_metrics({k: v for k, v in res.items() if isinstance(v, int | float)})
             mlflow.log_dict({"misses": res["misses"]}, "misses.json")
         nums = {k: round(v, 3) for k, v in res.items() if isinstance(v, int | float)}

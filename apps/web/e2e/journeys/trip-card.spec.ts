@@ -1,8 +1,9 @@
 import { expect, type Page, test } from "@playwright/test";
 
 /**
- * Journey: THE TRIP CARD (SPEC-web-app v1.13). Two equal boxes joined by a rail, with ⇅
- * beside them and "Add destination" under them. Needs the API and Valhalla running.
+ * Journey: THE TRIP CARD (SPEC-web-app v1.13, v1.18). Two equal boxes joined by a rail, ★ Saved
+ * beside From, the destination's ☆ beside To, ⇅ to their right, and "Add destination" in the
+ * sheet under the Trip list. Needs the API and Valhalla running.
  */
 
 test.describe.configure({ retries: 1, timeout: 60_000 });
@@ -96,22 +97,37 @@ for (const device of DEVICES) {
       ).toBeVisible();
     });
 
-    test("Add destination, the destination's star and ★ Saved sit under the boxes", async ({
+    // v1.18 (recorded change; was "Add destination, the destination's star and ★ Saved sit
+    // under the boxes"): the card has two rows, as Google's route preview does (BC-L1)
+    test("★ Saved sits beside From, the destination's star beside To, nothing under them", async ({
       page,
     }) => {
       await page.goto(TRIP);
       await routeReady(page);
+      const from = await boxOf(page, "from");
       const to = await boxOf(page, "to");
       const star = await boxOf(page, "saved");
-      const add = await addDestination(page).boundingBox();
       const save = await page
         .getByRole("button", { name: /^Save(d:)? .*Happo-One/ })
         .boundingBox();
-      if (!add || !save) throw new Error("the row is not laid out");
+      const card = await page.locator("[data-trip-header]").boundingBox();
+      if (!save || !card) throw new Error("the card is not laid out");
 
-      expect(add.y).toBeGreaterThanOrEqual(to.y + to.height);
-      expect(save.y).toBeGreaterThanOrEqual(to.y + to.height);
-      expect(star.y).toBeGreaterThanOrEqual(to.y + to.height);
+      expect(star.x).toBeGreaterThan(from.x + from.width - 1);
+      expect(
+        Math.abs(star.y + star.height / 2 - (from.y + from.height / 2)),
+      ).toBeLessThan(8);
+      expect(save.x).toBeGreaterThan(to.x + to.width - 1);
+      expect(
+        Math.abs(save.y + save.height / 2 - (to.y + to.height / 2)),
+      ).toBeLessThan(8);
+      // the card ends just under the To box: its padding and frame, no third row
+      expect(card.y + card.height).toBeLessThan(to.y + to.height + 24);
+      await expect(
+        page.locator("[data-sheet-body]").getByRole("button", {
+          name: "Add destination",
+        }),
+      ).toBeVisible();
     });
 
     test("⊕ Add destination opens the empty stop box", async ({ page }) => {
@@ -128,17 +144,21 @@ for (const device of DEVICES) {
       );
     });
 
-    test("Add destination works while Saved is open: it closes Saved", async ({
+    // v1.18 (recorded change; was "Add destination works while Saved is open: it closes
+    // Saved"): it lives in the sheet now, which Saved replaces while open
+    test("while Saved is open Add destination is hidden; closing Saved brings it back", async ({
       page,
     }) => {
       await page.goto(TRIP);
       await routeReady(page);
       await saved(page).click();
       await expect(saved(page)).toHaveAttribute("aria-pressed", "true");
+      await expect(addDestination(page)).toHaveCount(0);
 
-      await addDestination(page).click();
+      await saved(page).click();
 
       await expect(saved(page)).toHaveAttribute("aria-pressed", "false");
+      await addDestination(page).click();
       await expect(
         page.getByRole("combobox", { name: "Stop 1" }),
       ).toBeFocused();
@@ -177,7 +197,9 @@ test.describe("phone 360x740", () => {
 
     expect(to.x + to.width).toBeLessThanOrEqual(360);
     expect(to.y + to.height).toBeLessThanOrEqual(740);
-    expect(to.width).toBeGreaterThanOrEqual(220);
+    // v1.18 (recorded change; was ≥ 220): the 44 px ★/☆ slot beside each box replaces the
+    // third row, so at 360 px the box is 328 − 76 (rail, gaps, slot) − 52 (⇅) = 200
+    expect(to.width).toBeGreaterThanOrEqual(200);
   });
 
   test("the expanded sheet stops below the taller card, so its handle can be reached", async ({
@@ -426,3 +448,51 @@ for (const device of DEVICES) {
     });
   });
 }
+
+// v1.18 review: Add destination lives in the sheet now, under the Trip list
+test.describe("Add destination in the sheet", () => {
+  test.describe("phone 360x740 with two stops", () => {
+    test.use({
+      viewport: { width: 360, height: 740 },
+      isMobile: true,
+      hasTouch: true,
+    });
+
+    test("the collapsed sheet shows it above the sticky ETA row, without scrolling", async ({
+      page,
+    }) => {
+      await page.goto(`${TRIP}&stops=36.6955,137.8590;36.6940,137.8520`);
+      await routeReady(page);
+      const add = await addDestination(page).boundingBox();
+      // v1.18 review: two stops pushed it under the ETA row when it sat below the list
+      const eta = await page
+        .getByText(/^ETA ~ \d+/)
+        .first()
+        .boundingBox();
+      if (!add || !eta) throw new Error("not laid out");
+
+      expect(add.y + add.height).toBeLessThanOrEqual(eta.y);
+    });
+  });
+
+  test.describe("landscape phone 740x360", () => {
+    test.use({
+      viewport: { width: 740, height: 360 },
+      isMobile: true,
+      hasTouch: true,
+    });
+
+    // recorded trade-off: the slim 84 px bar shows only ETA and Start; one swipe up reaches it
+    test("after expanding the sheet, Add destination opens the stop box", async ({
+      page,
+    }) => {
+      await page.goto(TRIP);
+      await routeReady(page);
+      await page.getByRole("button", { name: "Expand directions" }).click();
+      await addDestination(page).tap();
+      await expect(
+        page.getByRole("combobox", { name: "Stop 1" }),
+      ).toBeFocused();
+    });
+  });
+});

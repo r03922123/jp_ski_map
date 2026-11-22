@@ -41,6 +41,7 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
     onRemoveStop: vi.fn(),
     onFillStop: vi.fn(),
     onClearFrom: vi.fn(),
+    onMoveStop: vi.fn(),
   };
   render(
     <QueryClientProvider client={new QueryClient()}>
@@ -110,6 +111,85 @@ describe("TripPanel", () => {
     expect(
       screen.getByRole("button", { name: "Remove stop 1" }),
     ).toBeInTheDocument();
+  });
+
+  // T4 (docs/ux/google-maps-workflows.md): stops can be reordered without a drag. Review of
+  // #117: the ends keep both buttons (one marked disabled), so a move to an end never removes
+  // the button that has focus
+  it("moves a stop up or down; at the ends that way is disabled, not removed", () => {
+    const second = { ...konbini, id: "k2", name: "Lawson Hakuba" };
+    const handlers = renderTrip({
+      stops: [
+        { key: "s1", place: konbini },
+        { key: "s2", place: second },
+      ],
+    });
+    const firstUp = screen.getByRole("button", { name: "Move stop 1 up" });
+    expect(firstUp).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(firstUp);
+    expect(handlers.onMoveStop).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: "Move stop 2 down" }),
+    ).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Move stop 1 down" }));
+    expect(handlers.onMoveStop).toHaveBeenCalledWith("s1", 1);
+    fireEvent.click(screen.getByRole("button", { name: "Move stop 2 up" }));
+    expect(handlers.onMoveStop).toHaveBeenCalledWith("s2", -1);
+  });
+
+  // re-review of #117: React moves the focused row on Move down, and a moved element loses
+  // focus; it goes back to the moved stop's button
+  it("keeps focus on the moved stop's button after a real Move down", () => {
+    const second = { ...konbini, id: "k2", name: "Lawson Hakuba" };
+    function Reorderable() {
+      const [stops, setStops] = useState<TripStop[]>([
+        { key: "s1", place: konbini },
+        { key: "s2", place: second },
+      ]);
+      return (
+        <QueryClientProvider client={new QueryClient()}>
+          <TripPanel
+            from={hotel}
+            stops={stops}
+            addStopRef={{ current: null }}
+            near={null}
+            onRemoveStop={() => {}}
+            onFillStop={() => {}}
+            onClearFrom={() => {}}
+            onMoveStop={(key, by) =>
+              setStops((list) => {
+                const i = list.findIndex((st) => st.key === key);
+                const next = [...list];
+                [next[i], next[i + by]] = [next[i + by], next[i]];
+                return next;
+              })
+            }
+          />
+        </QueryClientProvider>
+      );
+    }
+    render(<Reorderable />);
+    const down = screen.getByRole("button", { name: "Move stop 1 down" });
+    down.focus();
+    fireEvent.click(down);
+    expect(document.activeElement).toHaveAccessibleName("Move stop 2 down");
+  });
+
+  // review of #117: an open stop box is not a neighbour (it would renumber the list only)
+  it("offers no reorder while a stop box is open", () => {
+    renderTrip({
+      stops: [
+        { key: "s1", place: konbini },
+        { key: "s2", place: { ...konbini, id: "k2", name: "Lawson" } },
+        { key: "s3", place: null },
+      ],
+    });
+    expect(screen.queryByRole("button", { name: /Move stop/ })).toBeNull();
+  });
+
+  it("offers no reorder for a single stop", () => {
+    renderTrip({ stops: [{ key: "s1", place: konbini }] });
+    expect(screen.queryByRole("button", { name: /Move stop/ })).toBeNull();
   });
 });
 
@@ -187,6 +267,41 @@ describe("TripPanel with its state (add → type → pick)", () => {
     expect(
       screen.getByRole("button", { name: "Add destination" }),
     ).toHaveFocus();
+  });
+});
+
+describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
+  it("shows the slot above the Trip list, where any number of stops can't push it under the ETA row", () => {
+    const addStopRef = { current: null };
+    const props = {
+      stops: [],
+      addStopRef,
+      near: null,
+      onRemoveStop: () => {},
+      onFillStop: () => {},
+      onClearFrom: () => {},
+      addDestination: <button type="button">Add destination</button>,
+    };
+    const { rerender } = render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TripPanel from={hotel} {...props} />
+      </QueryClientProvider>,
+    );
+    const list = screen.getByRole("list", { name: "Trip" });
+    const add = screen.getByRole("button", { name: "Add destination" });
+    expect(
+      add.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    // the slot alone is enough to render the panel (a start being retyped keeps the stops)
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <TripPanel from={null} {...props} />
+      </QueryClientProvider>,
+    );
+    expect(
+      screen.getByRole("button", { name: "Add destination" }),
+    ).toBeVisible();
   });
 });
 
@@ -348,7 +463,7 @@ describe("DestinationBox (the To box)", () => {
     const { onClearTo } = renderToBox(resort);
     const box = screen.getByRole("combobox", { name: "To" });
     expect(box).toHaveValue("Happo-One");
-    expect(box).toHaveAttribute("placeholder", "Search a destination");
+    expect(box).toHaveAttribute("placeholder", "Where to?"); // v1.18 (was "Search a destination")
     fireEvent.click(screen.getByRole("button", { name: "Remove destination" }));
     expect(onClearTo).toHaveBeenCalled();
   });
