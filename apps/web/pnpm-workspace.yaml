@@ -1,3 +1,7 @@
 allowBuilds:
   sharp: false
   unrs-resolver: false
+overrides:
+  # minimatch <11.0.1 has a ReDoS (Dependabot alert 2); shadcn 4.23 still pins @ts-morph/common 0.27,
+  # whose ^10 range can't reach the fix. Drop this once shadcn moves to ts-morph 28+.
+  "@ts-morph/common>minimatch": "^11.0.1"
