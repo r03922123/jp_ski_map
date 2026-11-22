@@ -42,3 +42,6 @@ mlflow.db
 
 # daily role retro: reports, proposals and state (scripts/daily_retro.py, .claude/skills/daily-retro)
 .ops/
+
+# Playwright MCP screenshots and snapshots (.mcp.json)
+.playwright-mcp/

@@ -20,6 +20,8 @@ Takeover phase: tidy (next when: the remaining architecture follow-ups are compl
   rewrites the whole lock.
 - main is protected: changes land through a PR with CI green, committed with the repo-local noreply identity.
   GitHub deletes merged branches, so check the PR is still open before pushing to it.
+- Playwright MCP (`.mcp.json`, pinned, isolated, headless, phone viewport) is for looking at your own dev server after a
+  UI change; screenshots go to the gitignored `.playwright-mcp/`. Use Claude in Chrome only for other sites.
 - Procedures are skills; invoke them with the Skill tool: `deploy` (Vercel preview or production, smoke test,
   `vercel` commands), `new-worktree` (dependencies, free ports, `API_URL`, `E2E_BASE_URL`, shared services),
   and `daily-retro` (06:00 via launchd, `scripts/daily-retro/install.sh`: MLE, AI-engineer, full-stack and UX reviewers,
