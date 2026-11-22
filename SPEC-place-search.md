@@ -168,3 +168,33 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 **Known, not fixed here:** a reading can tie a spelled name, and distance decides (Decision 2); a repeated query word can match one name word twice ("tabi tabi"); sound keys still pair "yukinoso" with かにさわ館 (second place now) and "Hakuba style Inn" with シャトレ山彦.
 
 **Next:** the alias pilot; then v1.4's open step, a new held-out query set to re-judge semantic search, which stays off in production.
+
+## v1.6 — Semantic search re-judged on a new held-out set (experiment, 2026-11-21)
+
+**Why:** v1.4's hard set has been seen while tuning, and 82% of the training pairs were lodging names, so v1.4's Next asked for a rebalanced fine-tune judged on a *new* set. Production stays off (`HAKUBA_SEMANTIC_URL` unset).
+
+**Done**
+- `ml/search/evals/heldout_v2.json`: 55 hand-written queries (23 category, 13 resort, 8 stop, 11 lodging; Simplified Chinese, translated hotel names, misspellings), committed (b036e92) before any semantic result on them. Every case has a target in the index; two Korean cases were dropped beforehand because their only target is an izakaya tagged korean. `synth.held_out()` bans both sets from training (95 queries, tested), and `evaluate --cases` picks the set.
+- `synth.rebalance`: any kind above `--max-kind-share` of the train pairs is sampled down (default 0.5; 1.0 = v1.4). The dev split is left as it is, so calibration compares.
+- Two fine-tunes on the v1.5 index, one after the other, one epoch each: **A** unbalanced (4,835 pairs, 75% lodging, 69 s), **B** rebalanced (2,398 pairs, 37 s). Each threshold calibrated on dev before the new set was run: base 0.9129, A 0.5566, B 0.6128.
+
+**Results (hit@5, ± one standard error; differences paired on the same queries)**
+
+| Model | Set | Lexical | Semantic only | Hybrid | Hybrid − lexical |
+|---|---|---|---|---|---|
+| Base e5-small | new, n=55 | 0.145 | 0.000 | 0.145 | 0 |
+| A unbalanced | new, n=55 | 0.145 ± 0.048 | 0.255 ± 0.059 | 0.182 ± 0.052 | +0.036 ± 0.025 (2 gained, 0 lost) |
+| B rebalanced | new, n=55 | 0.145 | 0.127 ± 0.045 | 0.164 ± 0.050 | +0.018 ± 0.018 (1 gained) |
+| A unbalanced | v1.4 set, n=40 | 0.15 | 0.475 | 0.45 | +0.30 ± 0.073 |
+| B rebalanced | v1.4 set, n=40 | 0.15 | 0.275 | 0.30 | +0.15 ± 0.057 |
+
+- `booking_eval.json` 26/26 present, 4/4 absent, 0 wrong in every run.
+- A on the v1.4 set gives hybrid 0.45, not v1.4's 0.55: A trained on the v1.5 index (readings: 3,604 → 4,835 pairs) with both held-out sets banned, so it is a different model; which change cost the 4 queries is not isolated.
+- Dev split (77% lodging): recall@1 0.565 → A 0.749, B 0.706.
+- **On the new set hybrid barely beats lexical** (+0.036, 1.4 standard errors: not established). v1.4's +0.40 on the old set does not carry over: part of it was that set's overlap with the synthetic rules (v1.4 caveat).
+- **Rebalancing by sampling down did not help.** Category hit@5 stayed 0.087 in every mode and model; B lost 7 semantic hits to A and gained none (−0.127 ± 0.045). Halving the pairs cost more than the better mix gained, and B's higher threshold keeps fewer hits.
+- **Hybrid drops most of A's semantic wins:** semantic alone found 白馬車站, 白马站, 神城車站, Misorano roundabout, 扇屋飯店 and Cortina ski, hybrid did not. By design (v1.4) a semantic stop or lodging hit must share a distinctive word with the query, and semantic is skipped when lexical fills the page; which rule dropped each query is not yet checked.
+
+**Decision:** semantic search stays off in production. The model and MLflow runs stay local (`ml/search/models/`, `mlflow.db`, gitignored).
+
+**Next (not started):** check which guard drops each lost query before relaxing anything; to rebalance, add category pairs (more cuisine and shop phrasings) rather than remove lodging ones. Any change is judged on a third set, since this one has now been seen.

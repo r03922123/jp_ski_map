@@ -7,7 +7,7 @@ from hakuba_api.common.geo import Coord
 from hakuba_api.places.index import Entry
 
 from hakuba_search.evaluate import hit_at, matches, mean_se, paired_diff
-from hakuba_search.synth import make_pairs, queries_for, split_of, to_zh, typo
+from hakuba_search.synth import Pair, make_pairs, queries_for, rebalance, split_of, to_zh, typo
 
 AT = Coord(lat=36.7, lng=137.86)
 
@@ -93,7 +93,21 @@ def test_no_hard_query_is_a_training_or_dev_query() -> None:
 
     pairs = make_pairs(load_index())
     seen = {normalize(p.query) for split in pairs.values() for p in split}
-    assert len(held_out()) == 40 and not seen & held_out()
+    # both hand-written sets: the v1.4 hard set (40) and the 2026-11-21 held-out set (55)
+    assert len(held_out()) == 95 and not seen & held_out()
+
+
+def test_rebalance_caps_the_largest_kind_and_keeps_the_rest() -> None:
+    kind = {"h": "lodging", "f": "food", "s": "stop"}
+    pairs = [Pair(f"q{i}", "h") for i in range(90)] + [
+        *(Pair(f"f{i}", "f") for i in range(6)),
+        *(Pair(f"s{i}", "s") for i in range(4)),
+    ]
+    out = rebalance(pairs, kind, max_share=0.5, seed=0)
+    by = [kind[p.entry_id] for p in out]
+    assert by.count("lodging") == 10 and by.count("food") == 6 and by.count("stop") == 4
+    assert rebalance(pairs, kind, max_share=0.5, seed=0) == out  # reproducible
+    assert rebalance(pairs, kind, max_share=1.0, seed=0) == pairs  # 1.0 turns it off
 
 
 def test_mean_and_its_standard_error() -> None:
