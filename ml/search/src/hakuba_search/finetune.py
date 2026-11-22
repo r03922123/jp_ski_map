@@ -52,6 +52,9 @@ def main() -> None:
     # 1.0 = no rebalancing (v1.4); the dev split is never rebalanced, so calibration compares
     parser.add_argument("--max-kind-share", type=float, default=0.5)
     args = parser.parse_args()
+    # shortcut: rebalance caps one kind per pass, exact only at >= 0.5; loop it to go lower
+    if not 0.5 <= args.max_kind_share <= 1:
+        parser.error("--max-kind-share must be between 0.5 and 1")
 
     entries = load_index()
     texts = {e.id: entry_text(e) for e in entries}

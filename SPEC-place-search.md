@@ -189,6 +189,7 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 | B rebalanced | v1.4 set, n=40 | 0.15 | 0.275 | 0.30 | +0.15 ± 0.057 |
 
 - `booking_eval.json` 26/26 present, 4/4 absent, 0 wrong in every run.
+- A on the v1.4 set gives hybrid 0.45, not v1.4's 0.55: A trained on the v1.5 index (readings: 3,604 → 4,835 pairs) with both held-out sets banned, so it is a different model; which change cost the 4 queries is not isolated.
 - Dev split (77% lodging): recall@1 0.565 → A 0.749, B 0.706.
 - **On the new set hybrid barely beats lexical** (+0.036, 1.4 standard errors: not established). v1.4's +0.40 on the old set does not carry over: part of it was that set's overlap with the synthetic rules (v1.4 caveat).
 - **Rebalancing by sampling down did not help.** Category hit@5 stayed 0.087 in every mode and model; B lost 7 semantic hits to A and gained none (−0.127 ± 0.045). Halving the pairs cost more than the better mix gained, and B's higher threshold keeps fewer hits.
