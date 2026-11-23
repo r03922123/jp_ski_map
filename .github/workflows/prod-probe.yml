@@ -5,7 +5,7 @@ name: Production probe
 # A failed scheduled run emails the repo owner. The URL is the PROD_URL repo secret.
 on:
   schedule:
-    - cron: "0 19 * * *" # 04:00 JST: no friends on the app, so the first request is a cold start
+    - cron: "17 19 * * *" # 04:17 JST: no friends on the app, so the first request is a cold start; off the busy :00
   workflow_dispatch:
 
 permissions:
