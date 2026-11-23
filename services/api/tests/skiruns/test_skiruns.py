@@ -10,12 +10,16 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from hakuba_api.catalog.store import load_resorts
+from hakuba_api.data.paths import data_dir
 from hakuba_api.main import app
-from hakuba_api.skiruns.models import LineString, SkiLines
+from hakuba_api.skiruns import refresh
+from hakuba_api.skiruns.models import LineString, Polygon, SkiLines
 from hakuba_api.skiruns.refresh import API, OPENSKIMAP_NAMES, build, fetch
 from hakuba_api.skiruns.validate import validate_ski_lines
 
 FIXTURES = Path(__file__).parent / "fixtures"
+REPO_DATA = data_dir()
+NORDIC_RUN = "5890df0eda76e657e30aded013c6283c7ec83a37"
 RESORT_IDS = [r.id for r in load_resorts()]
 
 
@@ -45,31 +49,59 @@ def test_fetch_asks_for_one_kind_in_the_hakuba_bbox_as_west_south_east_north() -
 
 
 def test_the_fixtures_build_a_file_the_validator_accepts() -> None:
-    lines, _ = build(answer("run"), answer("lift"))
+    lines = build(answer("run"), answer("lift"))
 
     assert validate_ski_lines(lines, RESORT_IDS) == []
     assert {f.properties.resort_id for f in lines.features} == set(RESORT_IDS)
 
 
 def test_a_happo_one_run_gets_its_resort_id() -> None:
-    lines, _ = build(answer("run"), answer("lift"))
+    lines = build(answer("run"), answer("lift"))
 
     run = by_name(lines)["リーゼングラートコース"]
     assert run == "happo-one"
 
 
 def test_drops_a_run_with_no_ski_area_a_nordic_run_and_a_disused_lift() -> None:
-    lines, _ = build(answer("run"), answer("lift"))
+    lines = build(answer("run"), answer("lift"))
 
     names = by_name(lines)
     assert "黒菱ゲレンデ, Kurobishi" not in names  # no ski area in OpenSkiMap
     assert "Tsuga No.1 Pair" not in names  # disused
+    ids = {f.properties.id for f in lines.features}
+    assert NORDIC_RUN not in ids  # its ski area (Happo One) matches, so only `uses` drops it
     kept_runs = [f for f in lines.features if f.properties.kind == "run"]
-    assert len(kept_runs) == 3  # downhill + snow_park + the area run; nordic and no-area dropped
+    assert len(kept_runs) == 3  # downhill + snow_park + the area run
+
+
+def test_a_run_that_is_not_operating_is_dropped() -> None:
+    runs = answer("run")
+    runs["features"][0]["properties"]["status"] = "abandoned"
+
+    names = by_name(build(runs, answer("lift")))
+
+    assert "リーゼングラートコース" not in names
+
+
+def test_main_writes_a_file_the_store_loads_and_the_validator_accepts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(refresh, "fetch", answer)
+    monkeypatch.setenv("HAKUBA_DATA_DIR", str(tmp_path))
+    (tmp_path / "resorts.json").write_bytes((REPO_DATA / "resorts.json").read_bytes())
+    load_resorts.cache_clear()
+    try:
+        refresh.main()
+    finally:
+        load_resorts.cache_clear()
+
+    written = SkiLines.model_validate_json((tmp_path / "ski_lines.json").read_bytes())
+    assert written == build(answer("run"), answer("lift"))
+    assert validate_ski_lines(written, RESORT_IDS) == []
 
 
 def test_coordinates_are_rounded_to_5_decimals() -> None:
-    lines, _ = build(answer("run"), answer("lift"))
+    lines = build(answer("run"), answer("lift"))
 
     first = lines.features[0].geometry.model_dump()["coordinates"][0]
     assert list(first) == [round(c, 5) for c in first]
@@ -90,15 +122,45 @@ def test_a_renamed_ski_area_fails_the_refresh_instead_of_dropping_the_resort() -
             if a["properties"]["name"] == "白馬五竜, Hakuba Goryu":
                 a["properties"]["name"] = "Hakuba Goryu"
 
-    with pytest.raises(ValueError, match="白馬五竜"):
+    with pytest.raises(ValueError, match="unknown OpenSkiMap ski area 'Hakuba Goryu'"):
         build(answer("run"), lifts)
+
+
+def test_cortina_is_not_matched_to_iwatake_although_its_name_contains_it() -> None:
+    lines = build(answer("run"), answer("lift"))
+
+    assert by_name(lines)["コルチナ第１ペアリフト, Cortina Number 1 Pair Lift"] == "cortina"
+
+
+def test_a_ski_area_without_a_name_is_dropped() -> None:
+    runs = answer("run")
+    happo = runs["features"][0]
+    happo["properties"]["skiAreas"][0]["properties"]["name"] = None
+
+    names = by_name(build(runs, answer("lift")))
+
+    assert happo["properties"]["name"] not in names
+
+
+def test_elevation_is_stripped_from_every_coordinate() -> None:
+    runs = answer("run")
+    runs["features"][0]["geometry"]["coordinates"] = [
+        [137.8, 36.7, 1234.5],
+        [137.81, 36.71, 1200.0],
+    ]
+
+    lines = build(runs, answer("lift"))
+
+    for f in lines.features:
+        rings = f.geometry.coordinates if f.geometry.type == "Polygon" else [f.geometry.coordinates]
+        assert all(len(point) == 2 for ring in rings for point in ring)
 
 
 # --- validator ---------------------------------------------------------------------
 
 
 def test_validator_names_each_broken_rule() -> None:
-    lines, _ = build(answer("run"), answer("lift"))
+    lines = build(answer("run"), answer("lift"))
     good = lines.features[0]
     dup = copy.deepcopy(good)
     outside = copy.deepcopy(good)
@@ -110,8 +172,14 @@ def test_validator_names_each_broken_rule() -> None:
     dot = copy.deepcopy(good)
     dot.properties.id = "dot"
     dot.geometry = LineString(type="LineString", coordinates=[(137.85, 36.7)])
+    open_ring = copy.deepcopy(good)
+    open_ring.properties.id = "open-ring"
+    open_ring.geometry = Polygon(
+        type="Polygon",
+        coordinates=[[(137.85, 36.7), (137.86, 36.7), (137.86, 36.71), (137.85, 36.71)]],
+    )
     no_goryu = [f for f in lines.features if f.properties.resort_id != "goryu"]
-    broken = SkiLines(features=[*no_goryu, dup, outside, stray, dot])
+    broken = SkiLines(features=[*no_goryu, dup, outside, stray, dot, open_ring])
 
     errors = validate_ski_lines(broken, RESORT_IDS)
 
@@ -120,6 +188,7 @@ def test_validator_names_each_broken_rule() -> None:
         "ski_lines.json: outside leaves the Hakuba bbox",
         "ski_lines.json: stray has unknown resortId nowhere",
         "ski_lines.json: dot has fewer than 2 points",
+        "ski_lines.json: open-ring has a ring that is not closed with >= 4 points",
         "ski_lines.json: goryu has no lift",
     ]
 
@@ -131,7 +200,7 @@ def test_endpoint_serves_the_snapshot_as_cached_geojson() -> None:
     response = TestClient(app).get("/api/ski-lines")
 
     assert response.status_code == 200
-    assert response.headers["cache-control"] == "public, max-age=86400"
+    assert response.headers["cache-control"] == "public, max-age=3600"
     body = response.json()
     assert body["type"] == "FeatureCollection"
     kinds = [f["properties"]["kind"] for f in body["features"]]

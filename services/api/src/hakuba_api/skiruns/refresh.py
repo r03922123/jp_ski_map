@@ -22,7 +22,8 @@ API = "https://api.openskimap.org/features.geojson"
 Kind = Literal["run", "lift"]
 
 # OpenSkiMap ski-area name → our resort id. Typed out, not fuzzy-matched, so a renamed area
-# fails the refresh instead of silently dropping a resort (Sakka's runs sit under Happo One).
+# fails the refresh instead of silently dropping a resort. Exact match only: Cortina's name
+# contains 白馬岩岳, which is Iwatake's. (Sakka's runs sit under Happo One.)
 OPENSKIMAP_NAMES = {
     "爺ガ岳スキー場, Jiigatake Snow Resort": "jigatake",
     "鹿島槍スキー場, Kashimayari Snow Resort": "kashimayari",
@@ -85,25 +86,25 @@ def fetch(kind: Kind) -> dict[str, Any]:
 
 
 def _round(coords: Any) -> Any:
+    """Round to 5 dp (~1 m) and drop OpenSkiMap's third value, elevation."""
     if isinstance(coords[0], float | int):
         return [round(c, 5) for c in coords[:2]]
     return [_round(c) for c in coords]
 
 
-def _resort(areas: list[_Area], unmatched: Counter[str]) -> str | None:
-    for a in areas:
-        if a.properties.name in OPENSKIMAP_NAMES:
-            return OPENSKIMAP_NAMES[a.properties.name]
-    for a in areas:
-        unmatched[str(a.properties.name)] += 1
-    return None
+def _resort(areas: list[_Area]) -> str | None:
+    """The resort of the first ski area: None when there is none or it has no name."""
+    name = areas[0].properties.name if areas else None
+    if name is None:
+        return None
+    if name not in OPENSKIMAP_NAMES:
+        raise ValueError(f"unknown OpenSkiMap ski area {name!r}: add it to OPENSKIMAP_NAMES")
+    return OPENSKIMAP_NAMES[name]
 
 
-def build(runs: dict[str, Any], lifts: dict[str, Any]) -> tuple[SkiLines, Counter[str]]:
-    """Trim the two OpenSkiMap answers to SkiLines; also return the ski areas we dropped."""
+def build(runs: dict[str, Any], lifts: dict[str, Any]) -> SkiLines:
+    """Trim the two OpenSkiMap answers to the lines we draw."""
     lines: list[SkiLine] = []
-    unmatched: Counter[str] = Counter()
-    seen_areas: set[str | None] = set()
     for kind, answer in (("run", runs), ("lift", lifts)):
         for f in _Answer.model_validate(answer).features:
             if kind == "run":
@@ -114,8 +115,7 @@ def build(runs: dict[str, Any], lifts: dict[str, Any]) -> tuple[SkiLines, Counte
                 p = _LiftProps.model_validate(f.properties)
                 keep = p.status == "operating"
                 difficulty, lift_type = None, p.liftType
-            seen_areas |= {a.properties.name for a in p.skiAreas}
-            resort_id = _resort(p.skiAreas, unmatched) if keep else None
+            resort_id = _resort(p.skiAreas) if keep else None
             if resort_id is None:
                 continue
             props = {
@@ -131,15 +131,12 @@ def build(runs: dict[str, Any], lifts: dict[str, Any]) -> tuple[SkiLines, Counte
                 "coordinates": _round(f.geometry["coordinates"]),
             }
             lines.append(SkiLine.model_validate({"properties": props, "geometry": geometry}))
-    missing = sorted(set(OPENSKIMAP_NAMES) - seen_areas)
-    if missing:
-        raise ValueError(f"OpenSkiMap has no ski area named {missing}: update OPENSKIMAP_NAMES")
     lines.sort(key=lambda line: (line.properties.kind, line.properties.id))
-    return SkiLines(features=lines), unmatched
+    return SkiLines(features=lines)
 
 
 def main() -> None:
-    lines, unmatched = build(fetch("run"), fetch("lift"))
+    lines = build(fetch("run"), fetch("lift"))
     errors = validate_ski_lines(lines, [r.id for r in load_resorts()])
     if errors:
         raise SystemExit("\n".join(errors))
@@ -147,11 +144,13 @@ def main() -> None:
     rows = [f.model_dump(by_alias=True) for f in lines.features]
     # one feature per line: a refresh diff shows which runs changed
     body = ",\n".join(json.dumps(r, ensure_ascii=False, separators=(",", ":")) for r in rows)
-    path.write_text('{"type":"FeatureCollection","features":[\n' + body + "\n]}\n")
+    path.write_text(
+        '{"type":"FeatureCollection","features":[\n' + body + "\n]}\n", encoding="utf-8"
+    )
     counts = Counter((f.properties.resort_id, f.properties.kind) for f in lines.features)
     for resort_id in sorted({r for r, _ in counts}):
         print(f"{resort_id}: {counts[resort_id, 'run']} runs, {counts[resort_id, 'lift']} lifts")
-    print(f"wrote {len(rows)} lines to {path}; dropped ski areas: {dict(unmatched)}")
+    print(f"wrote {len(rows)} lines to {path}")
 
 
 if __name__ == "__main__":

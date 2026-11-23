@@ -93,8 +93,8 @@
      {
       "type": "Feature",
       "properties": {
-       "id": "21183b7e-0d70-4172-b166-5760f3bf3085",
-       "name": null,
+       "id": "fixture-happo",
+       "name": "白馬八方尾根, Hakuba Happo One",
        "type": "skiArea",
        "status": "operating"
       }

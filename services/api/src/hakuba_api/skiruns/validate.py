@@ -13,9 +13,16 @@ def validate_ski_lines(lines: SkiLines, resort_ids: list[str]) -> list[str]:
     for f in lines.features:
         p = f.properties
         g = f.geometry
-        rings = [g.coordinates] if isinstance(g, LineString) else g.coordinates
-        if not rings or any(len(ring) < 2 for ring in rings):
-            errors.append(f"ski_lines.json: {p.id} has fewer than 2 points")
+        if isinstance(g, LineString):
+            rings = [g.coordinates]
+            if len(g.coordinates) < 2:
+                errors.append(f"ski_lines.json: {p.id} has fewer than 2 points")
+        else:
+            rings = g.coordinates
+            if not rings or any(len(r) < 4 or r[0] != r[-1] for r in rings):
+                errors.append(
+                    f"ski_lines.json: {p.id} has a ring that is not closed with >= 4 points"
+                )
         if not all(in_hakuba(Coord(lat=lat, lng=lng)) for ring in rings for lng, lat in ring):
             errors.append(f"ski_lines.json: {p.id} leaves the Hakuba bbox")
         if p.resort_id not in resort_ids:
