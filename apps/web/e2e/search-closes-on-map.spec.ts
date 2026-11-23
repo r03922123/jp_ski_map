@@ -1,5 +1,13 @@
 import { type CDPSession, expect, type Page, test } from "@playwright/test";
 
+// the dev-only map handle, as much of it as the bare-map finder reads
+type SkiHitMap = {
+  queryRenderedFeatures(
+    p: [number, number],
+    o: { layers: string[] },
+  ): unknown[];
+};
+
 // Owner's report 2026-11-23: focus the search box (its Recent list opens), then click or
 // long-press the map. The pin landed and the box read "Dropped pin", but the list stayed
 // open over the panel. Google Maps: any touch on the map closes the suggestions and lets
@@ -41,7 +49,13 @@ async function mapPoint(page: Page, y: number) {
         )) {
           const py = near + dy;
           const hit = document.elementFromPoint(x, py);
-          if (hit?.classList.contains("maplibregl-canvas")) return { x, y: py };
+          // a run or lift there takes the tap (SPEC-ski-runs v1.1): not bare map
+          const map = (window as { __hakubaMap?: SkiHitMap }).__hakubaMap;
+          const onRun = map?.queryRenderedFeatures([x, py], {
+            layers: ["ski-lines-hit"],
+          }).length;
+          if (hit?.classList.contains("maplibregl-canvas") && !onRun)
+            return { x, y: py };
         }
       return null;
     }, y);

@@ -506,7 +506,11 @@ export function MapShell() {
         flyTo={flyTo}
         onLoad={() => setLoaded(true)}
         onViewChange={setView}
-        onPickOrigin={actions.pickOnMap}
+        onPickOrigin={(coord) => {
+          // a mouse click elsewhere closes the card, as a finger's tap does
+          setPicked(null);
+          actions.pickOnMap(coord);
+        }}
         stops={
           mode === "bus"
             ? []
@@ -521,7 +525,9 @@ export function MapShell() {
         onMapTap={() => setPicked(null)}
         droppedPin={piloting ? null : droppedPin}
         onSelectSkiLine={(line) => setPicked({ kind: "line", line })}
-        selectedSkiLineId={picked?.kind === "line" ? picked.line.id : null}
+        selectedSkiLineId={
+          !piloting && picked?.kind === "line" ? picked.line.id : null
+        }
         onSelectResort={actions.selectResortOnMap}
         saved={savedMarkers}
         onSelectSaved={actions.selectSaved}

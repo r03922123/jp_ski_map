@@ -30,7 +30,7 @@ export function MapCard({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <fieldset className="surface fixed right-(--safe-right) bottom-0 left-(--safe-left) z-30 m-0 flex min-w-0 flex-col gap-2 rounded-t-[16px] border-0 px-4 pt-3 pb-[calc(0.75rem+var(--safe-bottom))] md:right-auto md:bottom-[calc(1rem+var(--safe-bottom))] md:left-[calc(26rem+var(--safe-left))] md:w-96 md:rounded-[16px] md:pb-3">
+    <fieldset className="surface fixed right-(--safe-right) bottom-0 left-(--safe-left) z-30 m-0 flex min-w-0 flex-col gap-2 rounded-t-[16px] border-0 px-4 pt-3 pb-[calc(0.75rem+var(--safe-bottom))] md:bottom-[calc(1rem+var(--safe-bottom))] md:right-[calc(1rem+var(--safe-right))] md:left-[calc(26rem+var(--safe-left))] md:max-w-96 md:rounded-[16px] md:pb-3">
       {/* float: a legend otherwise sits on the frame's border line. The legend names the
           card, so ✕ stays outside it */}
       <legend className="float-left pr-10 text-lg leading-tight font-semibold">

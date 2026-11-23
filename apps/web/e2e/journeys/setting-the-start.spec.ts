@@ -131,7 +131,7 @@ async function bareMapPoint(page: Page, region: { x: number[]; y: number[] }) {
                 [px + 10, py + 10],
               ])
               .filter((f: { layer: { id: string } }) =>
-                /lodging|route|stop|saved/.test(f.layer.id),
+                /lodging|route|stop|saved|ski/.test(f.layer.id),
               );
             if (near.length) continue;
           }

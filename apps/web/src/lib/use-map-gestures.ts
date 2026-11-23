@@ -124,14 +124,20 @@ export function useMapGestures({
     }
     // the second click of a double-click: it zooms, nothing is picked
     if (cancelPick() || e.originalEvent.detail > 1) return;
-    // a run or lift says what it is, by finger or mouse (SPEC-ski-runs v1.1); an open
-    // stop box still takes the point
+    const byFinger = Date.now() - lastTouch.current < TOUCH_CLICK_MS;
+    // a run or lift says what it is (SPEC-ski-runs v1.1); an open stop box still takes
+    // the point. A finger looks at once; a mouse waits out a double-click, which zooms
     const line =
       feature?.layer.id === SKI_HIT_LAYER && !placingStop
         ? skiLineOf(feature.properties)
         : null;
     if (line && onSelectSkiLine) {
-      onSelectSkiLine(line);
+      if (byFinger) onSelectSkiLine(line);
+      else
+        pendingPick.current = setTimeout(() => {
+          pendingPick.current = null;
+          onSelectSkiLine(line);
+        }, DOUBLE_CLICK_MS);
       return;
     }
     // a lodging pin snaps the origin onto the hotel itself
@@ -142,7 +148,6 @@ export function useMapGestures({
         : { lat: e.lngLat.lat, lng: e.lngLat.lng };
     // a finger looks, it doesn't edit (BC-A1): a hotel pin opens its card, empty map
     // closes one. An open stop box is the exception: the user asked for a point.
-    const byFinger = Date.now() - lastTouch.current < TOUCH_CLICK_MS;
     if (byFinger && onDropPin && !placingStop) {
       if (pin?.type === "Point")
         onDropPin(at, (feature?.properties?.name as string) ?? null);

@@ -408,6 +408,22 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
     expect(pick).not.toHaveBeenCalled();
   });
 
+  // a mouse double-click zooms; in a resort most land on a run's 16 px band
+  it("a mouse double-click on a run zooms and opens no card", () => {
+    const line = vi.fn();
+    render(view(null, () => {}, {}, { onSelectSkiLine: line }));
+    act(() => click([LIFT]));
+    act(() =>
+      h.props.onClick({
+        features: [LIFT],
+        lngLat: at,
+        originalEvent: { detail: 2 },
+      }),
+    );
+    act(() => vi.advanceTimersByTime(800));
+    expect(line).not.toHaveBeenCalled();
+  });
+
   it("a long-press on a run drops a pin; its lift-off opens no run card", () => {
     const drop = vi.fn();
     const line = vi.fn();
