@@ -92,7 +92,7 @@ Choices: game skin + progression; the real map, game-styled; original art and so
 Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats: [SPEC-progression.md](SPEC-progression.md).
 
 **Screens**
-- **Title screen**, first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: press start" (a tap, click or Enter; on a touch screen focus then lands on the sheet, not the search box, so no keyboard rises; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
+- ~~**Title screen**~~ Removed in v1.30 (a bare visit opens on the map). It was: first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: press start" (a tap, click or Enter; on a touch screen focus then lands on the sheet, not the search box, so no keyboard rises; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
 - ~~**HUD** (top bar): rider name and title, stamps n/10, a quest-log button with a badge for active quests, and the sound toggle.~~ Removed in v1.14.
 - **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow, crowd...). The sort controls and the order work as today.
 - **Directions and navigation:** steps in dialog boxes. The hero sprite replaces the position puck; pose by mode, facing the direction of travel. Navigation keeps high-contrast banners.
@@ -101,7 +101,7 @@ Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats:
 
 **Acceptance**
 - [ ] The existing e2e suite passes unchanged: roles, names and behaviour are untouched.
-- [ ] Title screen once per session; skipped for shared links and with `?skip-title`; keyboard-operable.
+- [ ] ~~Title screen once per session; skipped for shared links and with `?skip-title`; keyboard-operable.~~ Removed in v1.30.
 - [ ] ~~HUD shows the title and stamps n/10 from the rider store, and updates when a stamp is earned.~~ Replaced by v1.14: the level card shows ★ stamped.
 - [ ] Level cards show the fixed world number and stamp state in any sort order.
 - [ ] While navigating, the hero sprite shows the right pose per mode and faces the direction of travel.
@@ -599,3 +599,27 @@ Request a translucent iOS status bar and draw the live map up to the top edge. K
 search box 8 px below the reported safe area and retain v1.28 root sizing. Pass when
 the pixels behind the clock change with the canvas and the search stays at its original
 position. Verify native blur, clock readability and the bottom edge on a cold iPhone launch.
+
+## v1.30: The Maps look, deletion first (2026-11-23, the owner's call after the 2026-11-23 UX review)
+The UX review found game pieces that break [docs/ux/google-maps-workflows.md](docs/ux/google-maps-workflows.md)
+(the "Immediate map" rule) or fight the map. Google Maps stays the interaction model. Three small PRs, in this
+order, so the ski-runs layer (SPEC-ski-runs) is tuned once on the final basemap and route colours:
+1. **No title screen.** A bare visit opens on the map: no dialog, no cookie (`hakuba_title` and `?skip-title`
+   go), and focus starts at the top of the page, so the first Tab reaches the search box. Retires v1.6's title
+   screen here and in SPEC-game-theme.
+2. **A plain basemap.** MapLibre loads OpenFreeMap's style URL directly: the `gameStyle` recolour
+   (`lib/game/map-style.ts`, `use-game-style.ts`) goes, and with it the extra style fetch before the map draws.
+   Liberty, unless its green woods clash with our pins and labels in before/after screenshots at 375×812 and
+   1366×850; then Positron. Retires SPEC-game-theme "Map style" (the recolour).
+3. **A blue route line.** The chosen drive route is solid `#185fc6` (the app's primary blue) over a darker blue
+   casing; walking is a dotted line in the same blue; alternates stay dashed grey; the covered part and the
+   highlighted step are unchanged. Retires SPEC-game-theme's "dotted trails" route lines.
+
+Out of scope here (a later batch, `tasks/todo.md`): stamps as "Visited ✓", the hero sprite, the flag, world
+badges and sprites, a new app icon.
+
+**Acceptance**
+- [ ] e2e: a bare visit shows the map with no dialog, and the first Tab focuses the search box.
+- [ ] No `TitleScreen`, `hakuba_title`, `skip-title`, `gameStyle` or `useGameStyle` left in `apps/web`.
+- [ ] Before/after screenshots at 375×812 and 1366×850 in the basemap PR, with the style picked from them.
+- [ ] The route layers' snapshot shows the blue line and casing; `route.spec`, `pilot.spec` and a screenshot pass.
