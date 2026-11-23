@@ -4,6 +4,7 @@ import {
   type SkiLine,
   SkiLineCard,
   skiLineFacts,
+  skiLineFrom,
 } from "@/components/SkiLineCard";
 
 // the Kamo 1 lift in data/ski_lines.json; OpenSkiMap shows 890 m, 282 m (751–1033 m), 19° (34%)
@@ -53,6 +54,29 @@ describe("skiLineFacts (SPEC-ski-runs v2)", () => {
     expect(
       skiLineFacts({ ...KAMO_1, minEleM: null, maxEleM: null }).facts,
     ).toEqual(["Distance 839 m"]);
+  });
+});
+
+describe("skiLineFrom", () => {
+  it("turns the keys MapLibre drops (null properties) back into null", () => {
+    expect(
+      skiLineFrom({
+        id: "r1",
+        kind: "run",
+        resortId: "jigatake",
+        maxEleM: 900,
+      }),
+    ).toEqual({
+      id: "r1",
+      kind: "run",
+      name: null,
+      difficulty: null,
+      liftType: null,
+      resortId: "jigatake",
+      lengthM: null,
+      minEleM: null,
+      maxEleM: 900,
+    });
   });
 });
 

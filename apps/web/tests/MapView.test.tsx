@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Resort } from "@/lib/api";
@@ -379,6 +379,34 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
       { lat: 36.71, lng: 137.86 },
       "Hotel Hakuba",
     );
+  });
+
+  // SPEC-ski-runs v2. MapLibre drops null properties from a tapped feature, so this area
+  // run arrives without lengthM, liftType and name (the Jigatake one in data/ski_lines.json)
+  it("a tap on a run opens its card, closes the pin card and picks nothing", () => {
+    const pick = vi.fn();
+    const mapTap = vi.fn();
+    render(view(null, pick, {}, { onDropPin: () => {}, onMapTap: mapTap }));
+    const run = {
+      layer: { id: "ski-hit" },
+      geometry: { type: "Polygon", coordinates: [] },
+      properties: {
+        id: "r1",
+        kind: "run",
+        difficulty: "easy",
+        resortId: "happo-one",
+        minEleM: 900,
+        maxEleM: 950,
+      },
+    };
+    act(() => tapMap([run]));
+    act(() => vi.advanceTimersByTime(800));
+    const card = screen.getByRole("region", { name: "Unnamed run" });
+    expect(card.textContent).toContain("Easy run");
+    expect(card.textContent).toContain("Vertical 50 m (900–950 m)");
+    expect(card.textContent).not.toContain("NaN");
+    expect(mapTap).toHaveBeenCalledTimes(1);
+    expect(pick).not.toHaveBeenCalled();
   });
 
   it("an open stop box still takes a tap: the user asked for a point", () => {

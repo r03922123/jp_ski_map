@@ -233,6 +233,10 @@ export default function MapView({
     )
     .join("|")}`;
   const piloting = pilot !== null;
+  // a run's card from before navigation must not come back after it
+  useEffect(() => {
+    if (piloting) setSkiLine(null);
+  }, [piloting]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
   useEffect(() => {
     const map = mapRef.current;
@@ -531,7 +535,7 @@ export default function MapView({
           {pinCard}
         </Popup>
       )}
-      {skiLine && !piloting && (
+      {skiLine && (
         <Popup
           longitude={skiLine.at.lng}
           latitude={skiLine.at.lat}
@@ -565,9 +569,7 @@ export default function MapView({
         />
       </Source>
       <LodgingLayer lodging={lodging} />
-      <SkiLinesLayer
-        selectedId={skiLine && !piloting ? skiLine.line.id : null}
-      />
+      <SkiLinesLayer selectedId={skiLine?.line.id ?? null} />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or

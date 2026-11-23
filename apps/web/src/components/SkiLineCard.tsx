@@ -17,6 +17,28 @@ export type SkiLine = {
   maxEleM: number | null;
 };
 
+/**
+ * A tapped feature's properties as a SkiLine. MapLibre drops null properties from tiled
+ * GeoJSON, so a missing key is turned back into null here.
+ */
+export function skiLineFrom(p: Record<string, unknown>): SkiLine {
+  const text = (k: string) =>
+    typeof p[k] === "string" ? (p[k] as string) : null;
+  const metres = (k: string) =>
+    typeof p[k] === "number" ? (p[k] as number) : null;
+  return {
+    id: String(p.id),
+    kind: p.kind === "lift" ? "lift" : "run",
+    name: text("name"),
+    difficulty: text("difficulty"),
+    liftType: text("liftType"),
+    resortId: String(p.resortId),
+    lengthM: metres("lengthM"),
+    minEleM: metres("minEleM"),
+    maxEleM: metres("maxEleM"),
+  };
+}
+
 const LIFT_LABELS: Record<string, string> = {
   cable_car: "Cable car",
   gondola: "Gondola",

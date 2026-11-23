@@ -172,8 +172,9 @@ the map read and answer like OpenSkiMap, still from our snapshot (its vector til
    OpenSkiMap shows it, and its slope is `atan(vertical / length)`. Checked on the Kamo 1 lift: OpenSkiMap shows 890 m,
    282 m (751–1033 m), 19° (34%); ours gives 885 m, 282 m (751–1033 m), 19° (34%).
 
-**Checks:** API unit tests for the three numbers from a hand-made line; web unit test for the card text; the e2e
-zoom checks move from 12 to 10; an e2e tap on a Happo-One run opens its card; a phone screenshot at Happo-One.
+**Checks:** API unit tests for the three numbers from a hand-made line; web unit test for the card text; a MapView unit test for a
+finger tap on a run whose null keys MapLibre dropped (no NaN, the pin card closes); the e2e zoom checks move from 12
+to 10; an e2e click on Happo-One's Adam gondola opens its card; a phone screenshot at Happo-One.
 
 **Not in v2:** contour lines (need the `maplibre-contour` package), a resort summary with run kilometres per
 difficulty and lift counts (OpenSkiMap's ski-area panel), elevation profiles, 3D terrain.

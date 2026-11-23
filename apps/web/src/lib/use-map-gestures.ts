@@ -4,7 +4,7 @@ import type { MapLayerMouseEvent, MapTouchEvent } from "react-map-gl/maplibre";
 import { ALT_HIT_LAYER } from "@/components/map/AlternateRoutes";
 import { LODGING_LAYER } from "@/components/map/LodgingLayer";
 import { SKI_HIT_LAYER } from "@/components/map/SkiLinesLayer";
-import type { SkiLine } from "@/components/SkiLineCard";
+import { type SkiLine, skiLineFrom } from "@/components/SkiLineCard";
 import type { Coord } from "@/lib/api";
 
 // MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
@@ -122,6 +122,7 @@ export function useMapGestures({
     }
     // the second click of a double-click: it zooms, nothing is picked
     if (cancelPick() || e.originalEvent.detail > 1) return;
+    const byFinger = Date.now() - lastTouch.current < TOUCH_CLICK_MS;
     // a run or lift opens its card, by mouse or finger (SPEC-ski-runs v2); a stop box
     // keeps the tap for its point
     if (
@@ -129,7 +130,8 @@ export function useMapGestures({
       onSelectSkiLine &&
       !placingStop
     ) {
-      onSelectSkiLine(feature.properties as SkiLine, {
+      if (byFinger) onMapTap?.(); // the tap left the pin card, as an empty-map tap does
+      onSelectSkiLine(skiLineFrom(feature.properties), {
         lat: e.lngLat.lat,
         lng: e.lngLat.lng,
       });
@@ -143,7 +145,6 @@ export function useMapGestures({
         : { lat: e.lngLat.lat, lng: e.lngLat.lng };
     // a finger looks, it doesn't edit (BC-A1): a hotel pin opens its card, empty map
     // closes one. An open stop box is the exception: the user asked for a point.
-    const byFinger = Date.now() - lastTouch.current < TOUCH_CLICK_MS;
     if (byFinger && onDropPin && !placingStop) {
       if (pin?.type === "Point")
         onDropPin(at, (feature?.properties?.name as string) ?? null);
