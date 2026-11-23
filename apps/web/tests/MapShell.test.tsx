@@ -643,4 +643,18 @@ describe("MapShell keyboard focus", () => {
     expect(start).toHaveValue("");
     expect(start).toHaveFocus();
   });
+
+  it("the start box takes focus once: it stays unfocused when it returns after navigation", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
+    (document.activeElement as HTMLElement).blur();
+    act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /start navigation/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
+    expect(
+      await screen.findByRole("combobox", { name: "Search hotel or place" }),
+    ).not.toHaveFocus();
+  });
 });
