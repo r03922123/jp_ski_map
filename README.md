@@ -12,6 +12,8 @@ It also has stops along the way, saved places (kept in your browser only), turn-
 
 > Status: a personal project, built for the author and friends planning Hakuba trips, and open to anyone as a demo. It covers only Hakuba Valley, but the data model doesn't hard-code the region.
 
+**ML or AI engineer?** Start with [docs/ml-tour.md](docs/ml-tour.md): where the models sit, what each is judged on, and six decisions with runnable toy examples.
+
 ## Try it
 
 Live at **https://jp-ski-map.vercel.app** (free hosting, best on a phone). Each link below starts from a hotel in Hakuba:

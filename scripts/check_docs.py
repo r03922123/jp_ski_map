@@ -5,7 +5,7 @@
 
 Fails when:
 1. a relative markdown link points nowhere (fenced and inline code are skipped);
-2. a SPEC or docs/ARCHITECTURE.md names a repo path, in backticks, that doesn't exist, unless the
+2. a SPEC, docs/ARCHITECTURE.md or docs/ml-tour.md names a repo path, in backticks, that doesn't exist, unless the
    path is gitignored or docs/doc-check-allow.txt lists it with a reason (planned or generated);
 3. CLAUDE.md (AGENTS.md links to it) grows past MAX_CLAUDE_LINES: it is a map, not a manual.
 """
@@ -60,7 +60,7 @@ def _allowed() -> dict[str, str]:
 
 def missing_paths() -> list[str]:
     allow, used, bad = _allowed(), set(), []
-    for doc in sorted(ROOT.glob("SPEC*.md")) + [ROOT / "docs" / "ARCHITECTURE.md"]:
+    for doc in sorted(ROOT.glob("SPEC*.md")) + [ROOT / "docs" / f for f in ("ARCHITECTURE.md", "ml-tour.md")]:
         for p in sorted(set(PATH_RE.findall(doc.read_text()))):
             if any(c in p for c in "*<{"):
                 continue
