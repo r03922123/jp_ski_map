@@ -1,0 +1,22 @@
+name: Production probe
+
+# Vercel Hobby keeps function logs for 1 hour, so a slow or broken production goes unseen.
+# Once a day, time a cold and a warm request (SPEC-deploy.md, "Daily production probe").
+# A failed scheduled run emails the repo owner. The URL is the PROD_URL repo secret.
+on:
+  schedule:
+    - cron: "0 19 * * *" # 04:00 JST: no friends on the app, so the first request is a cold start
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/probe-production.sh
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}

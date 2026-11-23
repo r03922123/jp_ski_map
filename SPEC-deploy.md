@@ -339,6 +339,18 @@ Not verified: the live check from a phone on mobile data with the Mac's lid clos
 criterion 2, the owner's step); warm latency from a phone network; `serve-public.sh` on the new
 code; a real iPhone.
 
+#### Daily production probe
+Hobby keeps function logs for 1 hour, so `.github/workflows/prod-probe.yml` runs
+`scripts/probe-production.sh` every day at 04:00 JST (and on `workflow_dispatch`). It sends, in order:
+`/api/health` (a cold boot when the instance was idle), `/api/route` for a fixed hotel to Happo-One
+drive (the first route loads Valhalla), then both again warm. It fails on any non-200 answer, any
+request over 5 s, or a cold start (first health + first route) over 5 s (Assumption 2). A failed
+scheduled run emails the repo owner; the table is in the run's summary for 90 days.
+- The production origin is the `PROD_URL` repo secret, not the workflow file.
+- 04:00 JST has no friends on the app, so the first request is cold almost every day, but the probe
+  can't prove it: Vercel shows no instance id. A first health under 1 s means it hit a warm instance.
+- Run it by hand: `PROD_URL=<origin> scripts/probe-production.sh`; `LIMIT_S=0.05` makes every row fail.
+
 #### Open questions
 1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL
    isn't written in this public repo; friends get it from the owner.
