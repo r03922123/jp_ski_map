@@ -11,6 +11,7 @@
 > network, and the Mac standby was only partly rehearsed (results under "Probe P and Checkpoint S"). Funnel stays on until friends have moved their saved lists; the owner turns it off.
 > **Status 2026-11-13:** at the owner's word, Funnel is off and the Mac standby and its Valhalla container are stopped;
 > production runs on Vercel only, now with the MCP service (SPEC-agent-tools v2). Criterion 2 is still the owner's check.
+> **Accepted 2026-11-23:** Phase C deploys each green merge to main from CI (ADR-0009). Until its PR and the owner steps land, deploy by hand.
 
 ## Objective
 Let the author's friends open the planner from their own phones, over HTTPS (needed for GPS),
@@ -342,6 +343,81 @@ code; a real iPhone.
 #### Open questions
 1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL
    isn't written in this public repo; friends get it from the owner.
+
+### Phase C: deploy from CI (accepted 2026-11-23, ADR-0009)
+
+The owner accepted [ADR-0009](docs/adr/0009-deploy-from-ci.md) on 2026-11-23. Until the changes below
+land, Phase B's rules hold, including "deploy only through the script".
+
+#### Objective
+Each push to main that passes CI reaches production with no one at the Mac. A build reaches users
+only after the smoke suite passes against that same build.
+
+#### Flow
+The `deploy` job in `.github/workflows/ci.yml` runs these steps:
+
+1. Run on `push` to main only, after `needs:` every other job, in environment `production`, with
+   `concurrency: production`, `cancel-in-progress: false`, `permissions: contents: read`, and
+   `if: vars.DEPLOY_PAUSED != 'true'`.
+2. Set up Node 24 and pnpm, run `pnpm install --frozen-lockfile` in `apps/web`, install a pinned Vercel
+   CLI (`npm i -g vercel@<version>`), and run `pnpm exec playwright install --with-deps chromium`.
+3. Read the hash from `infra/valhalla/hakuba-tiles.sha256` and download `valhalla_tiles.tar` from
+   release `tiles-<first 12 hex>` into `infra/valhalla/custom_files/hakuba/`.
+4. Run `scripts/deploy-vercel.sh --staged` with `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`
+   in this step's `env:` only. It does what `--prod` does, but calls
+   `vercel deploy --prod --skip-domain --json` and prints the deployment URL read from the JSON.
+5. Run the smoke suite in `apps/web` with `PROD_URL` set to that URL and
+   `VERCEL_AUTOMATION_BYPASS_SECRET` in this step's `env:` only.
+6. Promote only if the run's commit is still the tip of main (`git ls-remote origin refs/heads/main`
+   equals `github.sha`). Otherwise stop with a notice: a newer push deploys its own commit. This
+   also makes a rerun of an old run safe.
+7. Run `vercel promote <url> --yes`, then check that `vercel inspect` on the production domain names
+   the staged deployment. Retry for up to 60 s, because Vercel assigns domains in a background job.
+
+A failed step stops the job, and the production domain keeps its last good build. GitHub cancels a
+waiting run when a newer push replaces it, so main's newest commit is the one that deploys.
+
+#### Changes to the repo
+1. `scripts/deploy-vercel.sh`: add `--staged`. `scripts/test-deploy-vercel.sh` checks that it passes
+   `--prod --skip-domain --json`, prints the URL from the JSON, and stops on the same bad input as
+   `--prod`.
+2. `.github/workflows/ci.yml`: the `deploy` job. Every third-party action is pinned to a commit SHA.
+3. `apps/web/e2e-prod/playwright.config.ts`: `trace: "off"` when `CI` is set. A trace holds the
+   bypass header, and GitHub masks secrets in logs but not inside uploaded files.
+4. `DATA-LICENSES.md`: the "Road network for routing" row names the `tiles-<hash>` release instead
+   of "not committed".
+5. Phase B rules change:
+   - "deploy only through the script" becomes "deploy through the script, run by CI or by hand";
+   - "commit or publish tiles" becomes "commit tiles, or publish them anywhere other than a
+     `tiles-<hash>` release with the ODbL notice";
+   - the rollback runbook gains a step: after `vercel rollback`, run
+     `gh variable set DEPLOY_PAUSED --body true`, because the next green push would otherwise
+     promote past the rollback. Unset it once the fix is on main.
+6. ADR-0006's status line names ADR-0009. The `deploy` skill says a merge to main deploys
+   production, so a report that announces a merge says so, and that the script is for a hotfix.
+
+#### Owner steps (the owner does these)
+- Create a Vercel token, scoped to this project if Hobby offers that scope.
+- Create environment `production` (deployment branches: `main`) with secrets `VERCEL_TOKEN`,
+  `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` and `VERCEL_AUTOMATION_BYPASS_SECRET`.
+- Publish release `tiles-3ecc1a50b85c` with the current tar. The release text names ODbL 1.0 and
+  "© OpenStreetMap contributors". A new tiles build needs its release before the PR that commits its
+  hash merges, or that merge's deploy fails at the download.
+
+#### Success criteria
+1. The first run after the PR lands leaves `/api/ski-lines` answering 200 on the production domain.
+2. A run whose smoke suite fails leaves the production domain on the previous deployment. Promote and
+   its check run only after every earlier step passed (GitHub's default for a step with no `if:`).
+3. A pull request run never reaches the `deploy` job, and a fork's run gets no secrets.
+4. `scripts/test-deploy-vercel.sh` and the other CI jobs stay green.
+
+#### Boundaries
+- **Always:** stage, test, then promote. Keep the tile hash check. Pin third-party actions and the
+  Vercel CLI. Give each secret to the one step that needs it.
+- **Ask first:** anything that puts the token outside the `production` environment; turning on
+  Vercel's Git integration.
+- **Never:** deploy from a pull request run; print the token or the bypass secret in a log; upload
+  `test-results/` or a Playwright trace as an artifact.
 
 ## Changes to the repo (both phases)
 1. **Hakuba-only Valhalla tiles, reproducible.** `infra/valhalla/build-hakuba.sh`: download Geofabrik
