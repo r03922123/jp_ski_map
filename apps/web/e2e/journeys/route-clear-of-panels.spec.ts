@@ -101,7 +101,12 @@ const routesAnswer = (page: Page, predicate = (_: URL) => true) =>
   });
 
 async function open(page: Page, path: string) {
-  const answer = routesAnswer(page);
+  // the mode row also fetches the other modes' times; wait for the trip's own mode
+  const mode = new URL(path, "http://e2e").searchParams.get("mode");
+  const answer = routesAnswer(
+    page,
+    (url) => url.searchParams.get("mode") === mode,
+  );
   await page.goto(path);
   const body = await (await answer).json();
   await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
