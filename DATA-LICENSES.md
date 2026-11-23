@@ -5,6 +5,7 @@ The code in this repository is MIT-licensed (see [LICENSE](LICENSE)). The data b
 | Data | Where | Source | Licence | Attribution |
 |---|---|---|---|---|
 | Lodging and POI snapshots | `data/lodging_osm.json`, `data/poi_osm.json` | [OpenStreetMap](https://www.openstreetmap.org) via Overpass | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) | © OpenStreetMap contributors |
+| Ski runs and lifts | `data/ski_lines.json` | [OpenSkiMap](https://openskimap.org) API ([OpenSkiData](https://openskidata.org)), built on OpenStreetMap | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) | Data from OpenSkiData / OpenSkiMap.org, © OpenStreetMap contributors (ODbL), Skimap.org, Who's On First, © Mapterhorn |
 | Lodging places | `data/lodging_overture.json` (`.meta.json` records the release) | [Overture Maps Foundation](https://overturemaps.org) Places | [CDLA-Permissive-2.0](https://cdla.dev/permissive-2-0/) for most records; [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) for Foursquare's; [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) for AllThePlaces' (see below) | Overture Maps Foundation; © Foursquare Labs, Inc. |
 | Road network for routing | built into `infra/valhalla` tiles at setup (not committed) | OpenStreetMap | ODbL 1.0 | © OpenStreetMap contributors |
 | Map tiles (shown in the app) | fetched at runtime | [OpenFreeMap](https://openfreemap.org) / OpenMapTiles | OpenStreetMap data, ODbL | © OpenMapTiles, © OpenStreetMap contributors |
