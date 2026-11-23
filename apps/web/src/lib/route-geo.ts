@@ -97,15 +97,6 @@ export const SLIM_BAR_PX = 84;
 // a fit with no map left between its paddings does nothing at all
 const MIN_CLEAR_PX = 16;
 
-// a dropped pin's card with its three actions, on a phone
-const PIN_CARD_PX = 190;
-const PIN_CARD_HALF_WIDTH_PX = 140; // its Popup's maxWidth is 280
-
-/**
- * Where a dropped pin's card hangs from on a phone. Below the pin when above it would
- * reach under the trip card on top and below it stays clear of the sheet (v1.9 rule 7),
- * beside an edge keeping it on screen. Otherwise undefined: MapLibre picks the side.
- */
 /**
  * The status bar's and home indicator's heights in px (v1.19): the page runs under them,
  * so the trip card sits `top` lower and the sheet `bottom` higher. 0 outside the
@@ -119,54 +110,6 @@ export type SafeInsets = {
   right?: number;
 };
 const NO_INSETS: SafeInsets = { top: 0, bottom: 0 };
-
-export function pinCardAnchor({
-  x,
-  y,
-  width,
-  height,
-  safe = NO_INSETS,
-}: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  safe?: SafeInsets;
-}): "top" | "top-left" | "top-right" | undefined {
-  if (width >= MD_BREAKPOINT_PX) return undefined;
-  const opensBelow =
-    y - PIN_CARD_PX < TRIP_CARD_PX + safe.top &&
-    y + PIN_CARD_PX <= height * (1 - SHEET_FRACTION) - safe.bottom;
-  if (!opensBelow) return undefined;
-  if (x < PIN_CARD_HALF_WIDTH_PX) return "top-left";
-  if (x > width - PIN_CARD_HALF_WIDTH_PX) return "top-right";
-  return "top";
-}
-
-/**
- * How far below the middle of the clear map to ease a phone's dropped pin, so its card
- * then fits above it, under the trip card on top.
- */
-export function pinEaseOffsetY({
-  width,
-  height,
-  safe = NO_INSETS,
-}: {
-  width: number;
-  height: number;
-  safe?: SafeInsets;
-}) {
-  const pinY = TRIP_CARD_PX + safe.top + PIN_CARD_PX;
-  // no room for the pin above the sheet on a short screen: leave it in the middle
-  if (
-    width >= MD_BREAKPOINT_PX ||
-    pinY > height * (1 - SHEET_FRACTION) - safe.bottom
-  )
-    return 0;
-  const { top, bottom } = mapPadding({ width, height, safe });
-  const centre = top + (height - top - bottom) / 2;
-  return Math.max(0, pinY - centre);
-}
 
 /** fitBounds padding that keeps the route and its end markers clear of the panels. */
 export function mapPadding({

@@ -3,7 +3,7 @@ export const HAKUBA_VIEW = { latitude: 36.7, longitude: 137.86, zoom: 11 };
 export const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 
 /**
- * Terrain for the hillshade (SPEC-ski-runs v2); Japan at 1–10 m, free for app use per its FAQ.
+ * Terrain for the hillshade (SPEC-ski-runs v1.3); Japan at 1–10 m, free for app use per its FAQ.
  * The tiles directly, not its TileJSON: that would put its credit first, ahead of OpenStreetMap's.
  */
 export const TERRAIN_TILES = "https://tiles.mapterhorn.com/{z}/{x}/{y}.webp";

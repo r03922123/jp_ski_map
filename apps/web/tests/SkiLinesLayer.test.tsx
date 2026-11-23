@@ -5,8 +5,10 @@ import { LODGING_LAYER } from "@/components/map/LodgingLayer";
 import {
   LIFT_COLOR,
   runColor,
+  SKI_HIT_LAYER,
   SKI_LAYERS,
   SkiLinesLayer,
+  skiLineOf,
 } from "@/components/map/SkiLinesLayer";
 
 vi.mock("react-map-gl/maplibre", () => ({
@@ -19,6 +21,34 @@ vi.mock("react-map-gl/maplibre", () => ({
 const GREEN = "hsl(125,100%,33%)";
 const RED = "hsl(359,94%,53%)";
 const ORANGE = "hsl(34,100%,50%)";
+
+// the tap boundary: MapLibre hands over untyped properties
+describe("skiLineOf", () => {
+  it("keeps the measured numbers and nulls what isn't a number", () => {
+    expect(
+      skiLineOf({
+        id: "a",
+        kind: "lift",
+        name: "Adam",
+        liftType: "gondola",
+        resortId: "happo-one",
+        distanceM: 2044,
+        minElevationM: 768,
+        maxElevationM: 1391,
+        slopePct: 32.3,
+        durationS: "480",
+      }),
+    ).toMatchObject({
+      distanceM: 2044,
+      minElevationM: 768,
+      maxElevationM: 1391,
+      slopePct: 32.3,
+      durationS: null,
+      difficulty: null,
+    });
+    expect(skiLineOf({ kind: "road" })).toBeNull();
+  });
+});
 
 describe("run colours (SPEC-ski-runs, Japan convention)", () => {
   it.each([
@@ -35,7 +65,7 @@ describe("run colours (SPEC-ski-runs, Japan convention)", () => {
   });
 
   it("the run layer draws from the same table, grey when unknown", () => {
-    const { container } = render(<SkiLinesLayer selectedId={null} />);
+    const { container } = render(<SkiLinesLayer />);
     const style = (id: string) =>
       JSON.parse(
         container
@@ -51,7 +81,7 @@ describe("run colours (SPEC-ski-runs, Japan convention)", () => {
   });
 
   it("every layer sits under the lodging pins, lines from zoom 10, names from 14", () => {
-    const { container } = render(<SkiLinesLayer selectedId={null} />);
+    const { container } = render(<SkiLinesLayer />);
     const layers = [...container.querySelectorAll("[data-layer]")].map(
       (el) => ({
         id: el.getAttribute("data-layer"),
@@ -61,5 +91,19 @@ describe("run colours (SPEC-ski-runs, Japan convention)", () => {
     expect(layers.map((l) => l.id)).toEqual(SKI_LAYERS);
     for (const l of layers) expect(l.beforeId).toBe(LODGING_LAYER);
     expect(layers.map((l) => l.minzoom)).toEqual([10, 10, 10, 10, 14, 10]);
+  });
+
+  // the card's line stands out, as Google outlines a selected place
+  it("outlines only the selected line, and a finger-wide invisible target takes taps", () => {
+    const { container } = render(<SkiLinesLayer selectedId="r1" />);
+    const style = (id: string) =>
+      JSON.parse(
+        container
+          .querySelector(`[data-layer="${id}"]`)
+          ?.getAttribute("data-style") ?? "{}",
+      );
+    expect(style("ski-selected").filter).toEqual(["==", ["get", "id"], "r1"]);
+    expect(style(SKI_HIT_LAYER).paint["line-opacity"]).toBe(0);
+    expect(style(SKI_HIT_LAYER).paint["line-width"]).toBeGreaterThanOrEqual(16);
   });
 });

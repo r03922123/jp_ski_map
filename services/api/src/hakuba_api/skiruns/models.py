@@ -42,9 +42,13 @@ class SkiLineProps(ApiModel):
     difficulty: Difficulty | None  # runs only
     lift_type: LiftType | None  # lifts only
     resort_id: str
-    length_m: int | None  # horizontal; None for an area run (Polygon)
-    min_ele_m: int | None  # None when a point has no elevation
-    max_ele_m: int | None
+    # measured from OpenSkiMap's 3D line at refresh (SPEC-ski-runs v1.2); null for an area
+    # (Polygon) or a line without elevations
+    distance_m: int | None  # along the slope
+    min_elevation_m: int | None
+    max_elevation_m: int | None
+    slope_pct: float | None  # average: vertical / ground length, 1 dp
+    duration_s: int | None  # lifts only: ride time, from OSM's `duration`
 
 
 class SkiLine(ApiModel):

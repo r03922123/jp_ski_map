@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Resort } from "@/lib/api";
@@ -47,11 +47,6 @@ vi.mock("react-map-gl/maplibre", async () => {
     return <div>{p.children}</div>;
   });
   const Nothing = () => null;
-  const Popup = (p: { children?: ReactNode; style?: React.CSSProperties }) => (
-    <div data-popup style={p.style}>
-      {p.children}
-    </div>
-  );
   const Marker = (p: { onClick?: (e: unknown) => void }) =>
     p.onClick ? (
       <button
@@ -68,7 +63,6 @@ vi.mock("react-map-gl/maplibre", async () => {
     Layer: Nothing,
     Marker,
     NavigationControl: Nothing,
-    Popup,
     Source: Nothing,
   };
 });
@@ -381,32 +375,84 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
     );
   });
 
-  // SPEC-ski-runs v2. MapLibre drops null properties from a tapped feature, so this area
-  // run arrives without lengthM, liftType and name (the Jigatake one in data/ski_lines.json)
-  it("a tap on a run opens its card, closes the pin card and picks nothing", () => {
+  // SPEC-ski-runs v1.1: a run or lift says what it is, by finger or mouse
+  const LIFT = {
+    layer: { id: "ski-lines-hit" },
+    geometry: { type: "LineString", coordinates: [] },
+    properties: {
+      id: "l1",
+      kind: "lift",
+      name: "Alpen Quad",
+      liftType: "chair_lift",
+      resortId: "happo-one",
+    },
+  };
+  it("a tap or click on a run or lift opens its card and picks nothing", () => {
     const pick = vi.fn();
-    const mapTap = vi.fn();
-    render(view(null, pick, {}, { onDropPin: () => {}, onMapTap: mapTap }));
-    const run = {
-      layer: { id: "ski-hit" },
-      geometry: { type: "Polygon", coordinates: [] },
-      properties: {
-        id: "r1",
-        kind: "run",
-        difficulty: "easy",
-        resortId: "happo-one",
-        minEleM: 900,
-        maxEleM: 950,
-      },
-    };
-    act(() => tapMap([run]));
+    const line = vi.fn();
+    render(
+      view(null, pick, {}, { onDropPin: () => {}, onSelectSkiLine: line }),
+    );
+    act(() => tapMap([LIFT]));
+    act(() => click([LIFT]));
     act(() => vi.advanceTimersByTime(800));
-    const card = screen.getByRole("region", { name: "Unnamed run" });
-    expect(card.textContent).toContain("Easy run");
-    expect(card.textContent).toContain("Vertical 50 m (900–950 m)");
-    expect(card.textContent).not.toContain("NaN");
-    expect(mapTap).toHaveBeenCalledTimes(1);
+    expect(line).toHaveBeenCalledTimes(2);
+    expect(line).toHaveBeenCalledWith({
+      id: "l1",
+      kind: "lift",
+      name: "Alpen Quad",
+      difficulty: null,
+      liftType: "chair_lift",
+      resortId: "happo-one",
+      distanceM: null,
+      minElevationM: null,
+      maxElevationM: null,
+      slopePct: null,
+      durationS: null,
+    });
     expect(pick).not.toHaveBeenCalled();
+  });
+
+  // a mouse double-click zooms; in a resort most land on a run's 16 px band
+  it("a mouse double-click on a run zooms and opens no card", () => {
+    const line = vi.fn();
+    render(view(null, () => {}, {}, { onSelectSkiLine: line }));
+    act(() => click([LIFT]));
+    act(() =>
+      h.props.onClick({
+        features: [LIFT],
+        lngLat: at,
+        originalEvent: { detail: 2 },
+      }),
+    );
+    act(() => vi.advanceTimersByTime(800));
+    expect(line).not.toHaveBeenCalled();
+  });
+
+  it("a long-press on a run drops a pin; its lift-off opens no run card", () => {
+    const drop = vi.fn();
+    const line = vi.fn();
+    render(
+      view(null, () => {}, {}, { onDropPin: drop, onSelectSkiLine: line }),
+    );
+    act(() => touch("onTouchStart"));
+    act(() => vi.advanceTimersByTime(500));
+    act(() => {
+      touch("onTouchEnd");
+      click([LIFT]);
+    });
+    expect(drop).toHaveBeenCalledTimes(1);
+    expect(line).not.toHaveBeenCalled();
+  });
+
+  it("an open stop box takes a tap on a run as the stop's point", () => {
+    const pick = vi.fn();
+    const line = vi.fn();
+    render(view(null, pick, {}, { placingStop: true, onSelectSkiLine: line }));
+    act(() => click([LIFT]));
+    act(() => vi.advanceTimersByTime(400));
+    expect(line).not.toHaveBeenCalled();
+    expect(pick).toHaveBeenCalledWith(at);
   });
 
   it("an open stop box still takes a tap: the user asked for a point", () => {
@@ -430,10 +476,7 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
   // ours does too, once the finger is up (an ease inside a press cancels gestures, T67)
   it("a dropped pin brings the camera to it, clear of the top card and the sheet, after the finger lifts", () => {
     h.map.easeTo.mockClear();
-    const extra = {
-      droppedPin: { coord: at, name: null },
-      pinCard: <p>card</p>,
-    };
+    const extra = { droppedPin: { coord: at, name: null } };
     const { rerender } = render(view(null, () => {}, {}, {}));
     act(() => h.props.onLoad({ target: h.map }));
     act(() => touch("onTouchStart"));
@@ -450,39 +493,9 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
     expect(opts.padding.top).toBeGreaterThanOrEqual(120); // the trip card
     expect(opts.padding.bottom).toBeGreaterThanOrEqual(0.4 * 800); // the sheet
     // the same pin doesn't pull the camera again on later renders
-    rerender(view(null, () => {}, {}, { ...extra, pinCard: <p>card 2</p> }));
+    rerender(
+      view(null, () => {}, {}, { droppedPin: { coord: at, name: "x" } }),
+    );
     expect(h.map.easeTo).toHaveBeenCalledTimes(1);
-  });
-
-  // found on a real iPad: a resort marker (z-index 1–5) painted over the pin card's
-  // middle, so a tap there would choose that resort instead of a card button
-  it("the dropped pin's card is drawn above every map marker", () => {
-    render(
-      view(
-        null,
-        () => {},
-        {},
-        { droppedPin: { coord: at, name: null }, pinCard: <p>card</p> },
-      ),
-    );
-    const popup = document.querySelector<HTMLElement>("[data-popup]");
-    expect(Number(popup?.style.zIndex)).toBeGreaterThan(5);
-  });
-
-  it("the dropped pin's card is drawn at the pin", () => {
-    render(
-      view(
-        null,
-        () => {},
-        {},
-        {
-          droppedPin: { coord: at, name: null },
-          pinCard: <p>card body</p>,
-        },
-      ),
-    );
-    expect(document.querySelector("[data-popup]")?.textContent).toBe(
-      "card body",
-    );
   });
 });

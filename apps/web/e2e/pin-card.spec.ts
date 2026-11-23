@@ -1,5 +1,13 @@
 import { type CDPSession, expect, type Page, test } from "@playwright/test";
 
+// the dev-only map handle, as much of it as the bare-map finder reads
+type SkiHitMap = {
+  queryRenderedFeatures(
+    p: [number, number],
+    o: { layers: string[] },
+  ): unknown[];
+};
+
 // Cluster A (docs/ux/2026-11-03-ux-review.md): on a phone one tap on the map replaced the
 // start with "Dropped pin". Google Maps (docs/ux/behaviour-cards.md BC-A1): a tap changes
 // nothing; a long-press drops a pin whose card offers the edits. Real touch events (CDP),
@@ -23,18 +31,27 @@ async function openTrip(page: Page) {
  * A point on bare map (no marker, label or panel over it) near `y`, by hit test, once
  * the camera has settled on the route.
  */
-async function mapPoint(page: Page, y: number) {
+async function mapPoint(page: Page, y: number, xs = [200, 120, 280, 80, 320]) {
   let found: { x: number; y: number } | null = null;
   await expect(async () => {
-    found = await page.evaluate((near) => {
-      for (let dy = 0; dy <= 120; dy += 20)
-        for (const x of [200, 120, 280, 80, 320]) {
-          const py = near + dy;
-          const hit = document.elementFromPoint(x, py);
-          if (hit?.classList.contains("maplibregl-canvas")) return { x, y: py };
-        }
-      return null;
-    }, y);
+    found = await page.evaluate(
+      ([near, xs]) => {
+        for (let dy = 0; dy <= 120; dy += 20)
+          for (const x of xs) {
+            const py = near + dy;
+            const hit = document.elementFromPoint(x, py);
+            // a run or lift there takes the tap (SPEC-ski-runs v1.1): not bare map
+            const map = (window as { __hakubaMap?: SkiHitMap }).__hakubaMap;
+            const onRun = map?.queryRenderedFeatures([x, py], {
+              layers: ["ski-lines-hit"],
+            }).length;
+            if (hit?.classList.contains("maplibregl-canvas") && !onRun)
+              return { x, y: py };
+          }
+        return null;
+      },
+      [y, xs] as const,
+    );
     expect(found, `bare map near y=${y}`).not.toBeNull();
   }).toPass({ timeout: 10_000 });
   return found as unknown as { x: number; y: number };
@@ -78,6 +95,8 @@ test("a long-press drops a pin; Start here makes it the start", async ({
   await touch(cdp, await mapPoint(page, 220), 700);
   const card = page.getByRole("group", { name: "Dropped pin" });
   await expect(card).toBeVisible();
+  // Google's red pin marks the spot (BC-A1)
+  await expect(page.locator("[data-dropped-pin]")).toBeVisible();
   // the press alone edits nothing
   expect(fromParam(page)).toBe(before);
   await card.getByRole("button", { name: "Start here" }).tap();
@@ -98,8 +117,8 @@ test("a long-press then a tap elsewhere closes the card, start unchanged", async
   expect(fromParam(page)).toBe(before);
 });
 
-// review of #115: the card is a MapLibre popup (transformed); a fixed dialog opened from it
-// was laid out inside the popup, squeezed to the card's width and clipped by the map
+// review of #115: when the card was a MapLibre popup (transformed), a fixed dialog opened
+// from it was laid out inside the popup, squeezed to the card's width and clipped by the map
 test("the pin's Save dialog opens over the screen, not inside the card", async ({
   page,
 }) => {
@@ -117,5 +136,20 @@ test("the pin's Save dialog opens over the screen, not inside the card", async (
   expect(box?.width ?? 0).toBeGreaterThanOrEqual(360);
   await page.screenshot({
     path: test.info().outputPath("pin-save-dialog.png"),
+  });
+});
+
+// review: from md the card sits beside the side panel; on a 768 px iPad it must still fit
+test.describe("iPad portrait", () => {
+  test.use({ viewport: { width: 768, height: 1024 } });
+  test("the pin card is fully on screen, ✕ included", async ({ page }) => {
+    await openTrip(page);
+    const cdp = await page.context().newCDPSession(page);
+    await touch(cdp, await mapPoint(page, 300, [600, 500, 700]), 700);
+    const card = page.getByRole("group", { name: "Dropped pin" });
+    await expect(card).toBeInViewport({ ratio: 1 });
+    await expect(card.getByRole("button", { name: "Close" })).toBeInViewport({
+      ratio: 1,
+    });
   });
 });

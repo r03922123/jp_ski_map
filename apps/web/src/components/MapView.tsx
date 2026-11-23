@@ -2,13 +2,12 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MapGL, {
   Layer,
   type MapRef,
   Marker,
   NavigationControl,
-  Popup,
   Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
@@ -27,11 +26,14 @@ import { LODGING_LAYER, LodgingLayer } from "@/components/map/LodgingLayer";
 import { ResortMarkers } from "@/components/map/ResortMarkers";
 import { RouteLabels } from "@/components/map/RouteLabels";
 import { SavedMarkers } from "@/components/map/SavedMarkers";
-import { SKI_HIT_LAYER, SkiLinesLayer } from "@/components/map/SkiLinesLayer";
+import {
+  SKI_HIT_LAYER,
+  type SkiLine,
+  SkiLinesLayer,
+} from "@/components/map/SkiLinesLayer";
 import { TrailLayers } from "@/components/map/TrailLayers";
 import { TripStopMarkers } from "@/components/map/TripStopMarkers";
 import { PixelSprite } from "@/components/PixelSprite";
-import { type SkiLine, SkiLineCard } from "@/components/SkiLineCard";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
 import { ICONS, type Pose } from "@/lib/game/sprites";
 import {
@@ -47,8 +49,6 @@ import {
   type LngLat,
   MD_BREAKPOINT_PX,
   mapPadding,
-  pinCardAnchor,
-  pinEaseOffsetY,
   routeBounds,
 } from "@/lib/route-geo";
 import { safeInsets } from "@/lib/safe-insets";
@@ -96,9 +96,12 @@ export type MapViewProps = {
   onDropPin?: (coord: Coord, name: string | null) => void;
   /** Touch: a tap on the map that edits nothing (it closes the pin card). */
   onMapTap?: () => void;
-  /** The dropped pin, with its card (`pinCard`) drawn at it. */
+  /** The dropped pin, drawn as Google's red pin (its card is MapShell's). */
   droppedPin?: { coord: Coord; name: string | null } | null;
-  pinCard?: ReactNode;
+  /** A tap or click on a run or lift (SPEC-ski-runs v1.1). */
+  onSelectSkiLine?: (line: SkiLine) => void;
+  /** The run or lift whose card is open: outlined on the map. */
+  selectedSkiLineId?: string | null;
   /** The sheet is a slim ETA + Start bar on a landscape phone (BottomSheet `slim`). */
   slimSheet?: boolean;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
@@ -187,17 +190,14 @@ export default function MapView({
   onDropPin,
   onMapTap,
   droppedPin = null,
-  pinCard,
+  onSelectSkiLine,
+  selectedSkiLineId = null,
   slimSheet = false,
   pilot = null,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
-  // the tapped run or lift, with its card at the tapped spot (SPEC-ski-runs v2)
-  const [skiLine, setSkiLine] = useState<{ line: SkiLine; at: Coord } | null>(
-    null,
-  );
   const gestures = useMapGestures({
     piloting: pilot !== null,
     placingStop,
@@ -205,7 +205,7 @@ export default function MapView({
     onPickOrigin,
     onDropPin,
     onMapTap,
-    onSelectSkiLine: (line, at) => setSkiLine({ line, at }),
+    onSelectSkiLine,
   });
 
   // Fit the whole route set once per new search or picked option, clear of the directions
@@ -233,10 +233,6 @@ export default function MapView({
     )
     .join("|")}`;
   const piloting = pilot !== null;
-  // a run's card from before navigation must not come back after it
-  useEffect(() => {
-    if (piloting) setSkiLine(null);
-  }, [piloting]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
   useEffect(() => {
     const map = mapRef.current;
@@ -396,34 +392,11 @@ export default function MapView({
     easedPin.current = pinKey;
     map.easeTo({
       center: [droppedPin.coord.lng, droppedPin.coord.lat],
+      // the pin card covers less than the sheet's share, so the clear map's middle is clear
       padding: paddingOf(map),
-      offset: [
-        0,
-        pinEaseOffsetY({
-          width: map.getCanvas().clientWidth,
-          height: map.getCanvas().clientHeight,
-          safe: safeInsets(),
-        }),
-      ],
       duration: prefersReducedMotion() ? 0 : 600,
     });
   }, [pinKey, pressing, mapReady]);
-
-  const pinMap = mapRef.current;
-  const pinAt =
-    pinMap && droppedPin
-      ? pinMap.project([droppedPin.coord.lng, droppedPin.coord.lat])
-      : null;
-  const pinAnchor =
-    pinMap && pinAt
-      ? pinCardAnchor({
-          x: pinAt.x,
-          y: pinAt.y,
-          width: pinMap.getCanvas().clientWidth,
-          height: pinMap.getCanvas().clientHeight,
-          safe: safeInsets(),
-        })
-      : undefined;
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
   // and an identity-keyed effect would re-ease after each of its own moveend reports.
@@ -510,53 +483,20 @@ export default function MapView({
       onTouchMove={gestures.moveHold}
       onTouchEnd={gestures.touchEnd}
       onTouchCancel={gestures.endHold}
-      onClick={(e) => {
-        setSkiLine(null); // a tap elsewhere closes the card; a tap on a line reopens it
-        gestures.click(e);
-      }}
+      onClick={gestures.click}
       onDblClick={() => gestures.cancelPick()}
     >
       <NavigationControl position="bottom-right" />
       {droppedPin && (
-        <Popup
+        <Marker
           longitude={droppedPin.coord.lng}
           latitude={droppedPin.coord.lat}
-          // no fixed anchor: MapLibre puts the card on whichever side of the pin keeps
-          // it inside the map, so a pin near an edge never cuts off ✕ or Go here (S6).
-          // Except under the trip card on top, which MapLibre doesn't know about
-          anchor={pinAnchor}
-          closeButton={false}
-          closeOnClick={false}
-          maxWidth="280px"
-          // above every marker (they use z-index 1–5): on a real iPad a resort marker
-          // painted over the card's middle, where a tap would choose that resort
-          style={{ zIndex: 10 }}
+          anchor="bottom"
+          // above every other marker (they use z-index 1–5); a tap on it reaches the map
+          style={{ zIndex: 6, pointerEvents: "none" }}
         >
-          {pinCard}
-        </Popup>
-      )}
-      {skiLine && (
-        <Popup
-          longitude={skiLine.at.lng}
-          latitude={skiLine.at.lat}
-          closeButton={false}
-          closeOnClick={false}
-          maxWidth="280px"
-          style={{ zIndex: 10 }} // above the markers, like the pin card
-        >
-          <SkiLineCard
-            line={skiLine.line}
-            resortName={
-              resorts.find((r) => r.id === skiLine.line.resortId)?.name.en ??
-              skiLine.line.resortId
-            }
-            onSelectResort={() => {
-              setSkiLine(null);
-              onSelectResort(skiLine.line.resortId);
-            }}
-            onClose={() => setSkiLine(null)}
-          />
-        </Popup>
+          <DroppedPin />
+        </Marker>
       )}
       {/* relief, as OpenSkiMap draws it: above land cover, under water, roads and labels */}
       <Source
@@ -577,7 +517,7 @@ export default function MapView({
         />
       </Source>
       <LodgingLayer lodging={lodging} />
-      <SkiLinesLayer selectedId={skiLine?.line.id ?? null} />
+      <SkiLinesLayer selectedId={selectedSkiLineId} />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or
@@ -661,5 +601,26 @@ export default function MapView({
         </Marker>
       )}
     </MapGL>
+  );
+}
+
+/** Google's red dropped pin, at its size (27 × 43 px), its tip on the spot. */
+function DroppedPin() {
+  return (
+    <svg
+      data-dropped-pin
+      aria-hidden="true"
+      width="27"
+      height="43"
+      viewBox="0 0 27 43"
+      className="drop-shadow-md"
+    >
+      <path
+        d="M13.5 0C6 0 0 6 0 13.4 0 23.5 13.5 43 13.5 43S27 23.5 27 13.4C27 6 21 0 13.5 0Z"
+        fill="#EA4335"
+        stroke="#B31412"
+      />
+      <circle cx="13.5" cy="13.5" r="5" fill="#B31412" />
+    </svg>
   );
 }

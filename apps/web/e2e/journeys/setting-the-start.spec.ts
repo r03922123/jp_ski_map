@@ -131,7 +131,7 @@ async function bareMapPoint(page: Page, region: { x: number[]; y: number[] }) {
                 [px + 10, py + 10],
               ])
               .filter((f: { layer: { id: string } }) =>
-                /lodging|route|stop|saved/.test(f.layer.id),
+                /lodging|route|stop|saved|ski/.test(f.layer.id),
               );
             if (near.length) continue;
           }
@@ -354,7 +354,7 @@ for (const dev of DEVICES) {
     test("Back after changing the start returns to the previous start", async ({
       page,
     }) => {
-      // known: B — planning uses replaceState, so Back leaves the app (about:blank)
+      // known: B — changing the start is no Back step (SPEC-web-app v1.32), so Back leaves the app
       test.fail();
       await open(page, "/?mode=drive");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);

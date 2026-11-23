@@ -23,12 +23,7 @@ export const LIFT_COLOR = "hsl(0,82%,42%)";
 export const runColor = (difficulty: string | null) =>
   (difficulty && RUN_COLORS[difficulty]) || UNKNOWN_RUN_COLOR;
 
-/** The wide invisible line a tap on a run or lift hits (MapView's `interactiveLayerIds`). */
-export const SKI_HIT_LAYER = "ski-hit";
-// the tapped line, under its run or lift, as OpenSkiMap marks a selection
-const SELECTED_COLOR = "hsl(55,100%,50%)";
-const MINZOOM = 10; // the valley overview (zoom 11) shows every resort's lines
-
+export const SKI_HIT_LAYER = "ski-lines-hit";
 export const SKI_LAYERS = [
   "ski-selected",
   "ski-runs",
@@ -38,12 +33,53 @@ export const SKI_LAYERS = [
   SKI_HIT_LAYER,
 ];
 
+/** One run or lift, as `/api/ski-lines` serves it (SPEC-ski-runs "Data"). */
+export type SkiLine = {
+  id: string;
+  kind: "run" | "lift";
+  name: string | null;
+  difficulty: string | null;
+  liftType: string | null;
+  resortId: string;
+  /** measured at refresh (SPEC-ski-runs v1.2): along the slope, m */
+  distanceM: number | null;
+  minElevationM: number | null;
+  maxElevationM: number | null;
+  /** average: vertical / ground length × 100 */
+  slopePct: number | null;
+  /** lifts only: ride time, s */
+  durationS: number | null;
+};
+
+/** A tapped feature's properties (untyped, from MapLibre) as a SkiLine, or null. */
+export function skiLineOf(p: Record<string, unknown> | null | undefined) {
+  if (!p || (p.kind !== "run" && p.kind !== "lift")) return null;
+  const text = (v: unknown) => (typeof v === "string" ? v : null);
+  const num = (v: unknown) => (typeof v === "number" ? v : null);
+  return {
+    id: String(p.id),
+    kind: p.kind,
+    name: text(p.name),
+    difficulty: text(p.difficulty),
+    liftType: text(p.liftType),
+    resortId: String(p.resortId),
+    distanceM: num(p.distanceM),
+    minElevationM: num(p.minElevationM),
+    maxElevationM: num(p.maxElevationM),
+    slopePct: num(p.slopePct),
+    durationS: num(p.durationS),
+  } satisfies SkiLine;
+}
+
 const RUN_COLOR_BY_DIFFICULTY = [
   "match",
   ["get", "difficulty"],
   ...Object.entries(RUN_COLORS).flat(),
   UNKNOWN_RUN_COLOR,
 ] as unknown as ExpressionSpecification; // spread entries: TS can't see the label/value pairs
+
+// the valley overview (zoom 11) shows every resort's lines (v1.3)
+const MINZOOM = 10;
 
 const width = (at10: number, at16: number): ExpressionSpecification => [
   "interpolate",
@@ -57,9 +93,14 @@ const width = (at10: number, at16: number): ExpressionSpecification => [
 
 /**
  * Runs and lifts from the snapshot, under every route and pin: each layer sits below the
- * lodging pins, whatever order MapLibre adds them in. A tap opens the line's card (SPEC-ski-runs v2).
+ * lodging pins, whatever order MapLibre adds them in. A tap on one opens its card
+ * (SPEC-ski-runs v1.1); `selectedId` outlines that line.
  */
-export function SkiLinesLayer({ selectedId }: { selectedId: string | null }) {
+export function SkiLinesLayer({
+  selectedId = null,
+}: {
+  selectedId?: string | null;
+}) {
   return (
     // MapLibre fetches and parses the URL in its worker; cached an hour by the API
     <Source id="ski-lines" type="geojson" data="/api/ski-lines">
@@ -71,8 +112,9 @@ export function SkiLinesLayer({ selectedId }: { selectedId: string | null }) {
         filter={["==", ["get", "id"], selectedId ?? ""]}
         layout={{ "line-cap": "round", "line-join": "round" }}
         paint={{
-          "line-color": SELECTED_COLOR,
-          "line-width": width(6, 12),
+          "line-color": "hsl(48,100%,55%)",
+          "line-opacity": 0.8,
+          "line-width": width(8, 14),
         }}
       />
       <Layer
@@ -127,12 +169,17 @@ export function SkiLinesLayer({ selectedId }: { selectedId: string | null }) {
           "text-halo-width": 1.5,
         }}
       />
+      {/* invisible, finger-sized tap target: a run is 1.5–4 px wide */}
       <Layer
         id={SKI_HIT_LAYER}
         type="line"
         beforeId={LODGING_LAYER}
         minzoom={MINZOOM}
-        paint={{ "line-color": "#000000", "line-opacity": 0, "line-width": 16 }}
+        paint={{
+          "line-color": "#000000",
+          "line-opacity": 0,
+          "line-width": 16,
+        }}
       />
     </Source>
   );

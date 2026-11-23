@@ -46,7 +46,7 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - Found by #68's first run, open: `/api/places/suggest?q=tokyu` took 1255 ms, 1231 ms of it waiting on Photon, whose timeout is 10 s. Search-as-you-type needs a short timeout on that fallback
 
 ## Task J16: MLflow eval loop and Langfuse production traces (SPEC-agent-tools v3, 2026-11-16)
-- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; crowd heuristic ranks Jigatake quietest on every date (its "less-visited" reason raises the score)
+- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; crowd heuristic ranks Jigatake quietest on every date (its prior is 0 and every date term applies to all resorts alike, so only snow changes the crowd ranking)
 
 ## Rebuild from the URL, and Ask Maps (2026-11-18; status at main 8485c47)
 Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../SPEC-ask-maps.md) (A0–A4),
@@ -96,6 +96,12 @@ Basemap and route colours land before the ski-runs layer (SPEC-ski-runs), so run
 Build [SPEC-ski-runs.md](../SPEC-ski-runs.md): refresh module and snapshot, validator, `GET /api/ski-lines`, the map
 layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API slice, then web slice: two PRs)
 - [ ] Freeride and extreme runs draw solid orange, not dashed (none in the 2026-11-23 snapshot)
+- [x] v1.1 (owner's request, 2026-11-23): a tap on a run or lift opens its card (name, difficulty or lift type,
+  resort), and the dropped pin is Google's red pin with a bottom card (`MapCard`), replacing the popup and its
+  placement maths (`pinCardAnchor`, `pinEaseOffsetY`)
+- [x] v1.2 (2026-11-23): the card shows OpenSkiMap's numbers (distance, vertical, slope; speed and ride time for
+  the 7 lifts OSM times), measured at refresh
+- [ ] The lift a run starts from on its card
 
 ## Task J18: Deploy every green merge from CI (ADR-0009, accepted 2026-11-23)
 Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of
@@ -117,3 +123,7 @@ Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/
   Japanese name, nor unique ids); aliases accept a bare `https://` and dedupe by casefold, not `normalize`;
   38 readings are ASCII `name_ja` values; DATA-LICENSES says unidic-lite is MIT, but the UniDic data and MeCab
   in fugashi may carry BSD/GPL/LGPL terms, unchecked (#123 review)
+- D8 UX panel 2026-11-23 (`docs/ux/2026-11-23-ux-panel.md`): 4 fixed (#143–#145, #147), 2 owner decisions
+  and about 20 follow-ups listed there, most severe first (Back leaves the app, `at=` in the bus link, category search)
+- D9 `services/api`: the great-circle distance is written three times: `common/geo.py` `km` (2026-11-23) and private
+  `_km` copies in `pois/query.py` and `places/index.py`; move both callers to `km` and delete the copies (a refactor PR)

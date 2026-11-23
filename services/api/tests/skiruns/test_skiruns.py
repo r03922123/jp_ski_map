@@ -156,40 +156,88 @@ def test_elevation_is_stripped_from_every_coordinate() -> None:
         assert all(len(point) == 2 for ring in rings for point in ring)
 
 
-def test_length_and_elevation_come_from_the_3d_coordinates_before_they_are_dropped() -> None:
+# 1000 m due north on the ground (1 degree of latitude is 111,195 m on a 6,371 km sphere)
+NORTH_1KM = 1000 / 111_195
+
+
+def test_a_lift_keeps_its_length_elevations_slope_and_ride_time_like_openskimap() -> None:
+    # OpenSkiMap's card for Gondola Adam: distance along the slope, vertical between the
+    # lowest and highest point, average slope = vertical / ground length, ride time
+    lifts = answer("lift")
+    lift = lifts["features"][0]
+    lift["geometry"]["coordinates"] = [
+        [137.8, 36.7, 1000.0],
+        [137.8, 36.7 + NORTH_1KM / 2, 1150.0],
+        [137.8, 36.7 + NORTH_1KM, 1300.0],
+    ]
+    lift["properties"]["duration"] = 240
+
+    p = next(
+        f.properties
+        for f in build(answer("run"), lifts).features
+        if f.properties.id == lift["properties"]["id"]
+    )
+
+    assert p.distance_m == 1044  # hypot(1000, 300)
+    assert (p.min_elevation_m, p.max_elevation_m) == (1000, 1300)
+    assert p.slope_pct == 30
+    assert p.duration_s == 240
+
+
+def test_a_run_keeps_its_stats_and_has_no_ride_time() -> None:
     runs = answer("run")
-    first = runs["features"][0]
-    first["geometry"] = {
-        "type": "LineString",
-        "coordinates": [[137.8, 36.7, 1234.6], [137.81, 36.71, 1200.0]],
+    runs["features"][0]["geometry"]["coordinates"] = [
+        [137.8, 36.7 + NORTH_1KM, 1300.0],
+        [137.8, 36.7, 1100.0],
+    ]
+
+    p = build(runs, answer("lift")).features
+    run = next(
+        f.properties for f in p if f.properties.id == runs["features"][0]["properties"]["id"]
+    )
+
+    assert (run.distance_m, run.min_elevation_m, run.max_elevation_m) == (1020, 1100, 1300)
+    assert run.slope_pct == 20
+    assert run.duration_s is None
+
+
+def test_slope_has_one_decimal_and_agrees_with_the_rounded_vertical() -> None:
+    # review: a whole percent turned into degrees drifts 1 deg from OpenSkiMap, and a slope
+    # from raw heights read "Vertical 0 m" next to "Slope 2%" on a 17 m run
+    runs = answer("run")
+    runs["features"][0]["geometry"]["coordinates"] = [
+        [137.8, 36.7 + NORTH_1KM, 1305.4],
+        [137.8, 36.7, 1099.6],
+    ]
+
+    run = next(
+        f.properties
+        for f in build(runs, answer("lift")).features
+        if f.properties.id == runs["features"][0]["properties"]["id"]
+    )
+
+    # (1305 - 1100) / 1000, from the heights the card shows; raw heights give 20.6, and a
+    # whole percent 20 or 21
+    assert run.slope_pct == 20.5
+
+
+def test_an_unknown_geometry_type_fails_with_its_name() -> None:
+    runs = answer("run")
+    runs["features"][0]["geometry"] = {
+        "type": "MultiLineString",
+        "coordinates": [[[137.8, 36.7, 1.0], [137.81, 36.71, 2.0], [137.82, 36.72, 3.0]]],
     }
 
-    lines = build(runs, answer("lift")).features
-    p = next(f.properties for f in lines if f.properties.id == first["properties"]["id"])
-
-    # 0.01 deg north (1112 m) and 0.01 deg east at 36.7 N (892 m): 1425 m apart
-    assert p.length_m == pytest.approx(1425, abs=2)
-    assert (p.min_ele_m, p.max_ele_m) == (1200, 1235)
+    with pytest.raises(ValidationError, match="MultiLineString"):
+        build(runs, answer("lift"))
 
 
-def test_an_area_run_has_no_length_and_a_point_without_elevation_none() -> None:
-    runs = answer("run")
-    area, flat = runs["features"][0], runs["features"][1]
-    area["geometry"] = {
-        "type": "Polygon",
-        "coordinates": [
-            [[137.8, 36.7, 900], [137.81, 36.7, 950], [137.81, 36.71, 1000], [137.8, 36.7, 900]]
-        ],
-    }
-    flat["geometry"] = {"type": "LineString", "coordinates": [[137.8, 36.7, 900], [137.81, 36.71]]}
-    flat["properties"]["skiAreas"] = area["properties"]["skiAreas"]
+def test_a_lift_missing_duration_fails_the_refresh_with_the_field_name() -> None:
+    lifts = answer("lift")
+    del lifts["features"][0]["properties"]["duration"]
 
-    props = {f.properties.id: f.properties for f in build(runs, answer("lift")).features}
-    a, b = props[area["properties"]["id"]], props[flat["properties"]["id"]]
-
-    assert (a.length_m, a.min_ele_m, a.max_ele_m) == (None, 900, 1000)
-    assert b.length_m is not None
-    assert (b.min_ele_m, b.max_ele_m) == (None, None)
+    with pytest.raises(ValidationError, match="duration"):
+        build(answer("run"), lifts)
 
 
 # --- validator ---------------------------------------------------------------------
@@ -214,8 +262,19 @@ def test_validator_names_each_broken_rule() -> None:
         type="Polygon",
         coordinates=[[(137.85, 36.7), (137.86, 36.7), (137.86, 36.71), (137.85, 36.71)]],
     )
+    upside_down = copy.deepcopy(good)
+    upside_down.properties.id = "upside-down"
+    upside_down.properties.min_elevation_m, upside_down.properties.max_elevation_m = 1300, 1000
+    timed_run = copy.deepcopy(next(f for f in lines.features if f.properties.kind == "run"))
+    timed_run.properties.id = "timed-run"
+    timed_run.properties.duration_s = 300
+    stopped = copy.deepcopy(good)
+    stopped.properties.id = "stopped"
+    stopped.properties.duration_s = 0
     no_goryu = [f for f in lines.features if f.properties.resort_id != "goryu"]
-    broken = SkiLines(features=[*no_goryu, dup, outside, stray, dot, open_ring])
+    broken = SkiLines(
+        features=[*no_goryu, dup, outside, stray, dot, open_ring, upside_down, timed_run, stopped]
+    )
 
     errors = validate_ski_lines(broken, RESORT_IDS)
 
@@ -225,6 +284,9 @@ def test_validator_names_each_broken_rule() -> None:
         "ski_lines.json: stray has unknown resortId nowhere",
         "ski_lines.json: dot has fewer than 2 points",
         "ski_lines.json: open-ring has a ring that is not closed with >= 4 points",
+        "ski_lines.json: upside-down has minElevationM above maxElevationM",
+        "ski_lines.json: timed-run is a run with a ride time",
+        "ski_lines.json: stopped has a ride time of 0 s or less",
         "ski_lines.json: goryu has no lift",
     ]
 
@@ -250,7 +312,9 @@ def test_endpoint_serves_the_snapshot_as_cached_geojson() -> None:
         "difficulty",
         "liftType",
         "resortId",
-        "lengthM",
-        "minEleM",
-        "maxEleM",
+        "distanceM",
+        "minElevationM",
+        "maxElevationM",
+        "slopePct",
+        "durationS",
     }

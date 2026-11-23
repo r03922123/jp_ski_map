@@ -32,12 +32,11 @@ const map = () => {
   return mapProps;
 };
 
-// MapShell loads MapView through next/dynamic (WebGL); a stub records its props instead,
-// and shows the pin card MapView would anchor to the pin
+// MapShell loads MapView through next/dynamic (WebGL); a stub records its props instead
 vi.mock("next/dynamic", () => ({
   default: () => (props: MapProps) => {
     mapProps = props;
-    return props.pinCard ?? null;
+    return null;
   },
 }));
 
@@ -210,6 +209,35 @@ describe("MapShell destination", () => {
     expect(
       within(card).getByRole("button", { name: "Saved: Hotel Hakuba" }),
     ).toBeInTheDocument();
+  });
+
+  // SPEC-ski-runs v1.1: one card at a time; a mouse click elsewhere closes a run's card
+  it("a run's card replaces the pin card, and a click elsewhere on the map closes it", async () => {
+    renderShell("?mode=drive");
+    await waitFor(() => expect(mapProps).not.toBeNull());
+    act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
+    expect(screen.getByRole("group", { name: "Dropped pin" })).toBeTruthy();
+    act(() =>
+      map().onSelectSkiLine?.({
+        id: "r1",
+        kind: "run",
+        name: "Skyline",
+        difficulty: "easy",
+        liftType: null,
+        resortId: "happo-one",
+        distanceM: null,
+        minElevationM: null,
+        maxElevationM: null,
+        slopePct: null,
+        durationS: null,
+      }),
+    );
+    expect(screen.queryByRole("group", { name: "Dropped pin" })).toBeNull();
+    expect(screen.getByRole("group", { name: "Skyline" })).toBeTruthy();
+    expect(map().selectedSkiLineId).toBe("r1");
+    act(() => map().onPickOrigin({ lat: 36.69, lng: 137.84 }));
+    expect(screen.queryByRole("group", { name: "Skyline" })).toBeNull();
+    expect(map().selectedSkiLineId).toBeNull();
   });
 
   // T2: a dropped pin can be saved from its card, like any place

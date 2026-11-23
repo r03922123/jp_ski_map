@@ -54,6 +54,10 @@ far more than a 31 KB crop needs.
 | `liftType` | `properties.liftType` (lifts) | `cable_car\|gondola\|chair_lift\|mixed_lift\|drag_lift\|t-bar\|j-bar\|platter\|rope_tow\|magic_carpet\|funicular\|railway` |
 | `resortId` | `skiAreas[0].properties.name`, by exact match in the table below | no ski area, or a ski area with `name: null`, is dropped |
 | `geometry` | `geometry` | LineString or Polygon; longitude and latitude only (OpenSkiMap's third value, elevation, is dropped), 5 dp |
+| `distanceM` | measured from the 3D line (v1.2) | length along the slope, m; null for a Polygon or a point with no elevation |
+| `minElevationM`, `maxElevationM` | the coordinates' third value (v1.2) | m |
+| `slopePct` | measured (v1.2) | average: (highest − lowest, both rounded to m) / length on the ground × 100, 1 dp; null like `distanceM` |
+| `durationS` | `properties.duration` (lifts, v1.2) | ride time, s; null when OSM has none (85 of 92 lifts on 2026-11-23) |
 
 Ski-area names, matched by **exact string equality** (live names, 2026-11-23). Substring matching is wrong here:
 Cortina's name contains 白馬岩岳, which is Iwatake. A named ski area missing from this table fails the refresh
@@ -79,7 +83,7 @@ OpenSkiMap warns its format may change (attributes added, renamed or removed). T
 fails loudly on a missing field; the app only ever reads the committed snapshot, so a format change can break the
 refresh, never the site.
 
-**Validator** (joins `hakuba_api.data.validate`): unique ids; every coordinate inside `HAKUBA_BBOX`; each line has
+**Validator** (joins `hakuba_api.data.validate`): `minElevationM` ≤ `maxElevationM`; no ride time on a run; unique ids; every coordinate inside `HAKUBA_BBOX`; each line has
 ≥ 2 points (a Polygon ring ≥ 4, closed); `difficulty` and `liftType` in their enums; every `resortId` exists in `resorts.json`; each of the
 10 resorts has ≥ 1 lift.
 
@@ -96,7 +100,32 @@ No query parameters: the whole valley is 31 KB gzipped.
   fetches and parses it in its worker (no TanStack Query, no `JSON.parse` on the main thread). Mount order alone doesn't
   set the stacking: react-map-gl adds a layer when its source is ready. Each run and lift layer passes
   `beforeId={LODGING_LAYER}`, which keeps routes, markers and pins above it whenever it arrives.
-- Tappable since v2 (see "v2: the OpenSkiMap look" below); in v1 a tap on a run was a tap on the map.
+- **v1.1 (owner's request, 2026-11-23): a tap or click on a run or lift opens its card.** An invisible 16 px
+  `ski-lines-hit` layer joins `interactiveLayerIds` (a run is 1.5–4 px wide). The card takes the dropped pin's
+  place at the bottom (`SkiLineCard` on the shared `MapCard`): the name's first language as the title, the others
+  under it, then a colour swatch and "Intermediate run · Hakuba Happo-One Snow Resort" or "Chair lift · …". The
+  `ski-selected` layer outlines that line. An open stop box still takes the tap as the stop's point, and a
+  long-press on a run still drops a pin. Out of v1.1: the run's length (MapLibre hands back the tile-clipped
+  geometry, not the whole line) and the lift it starts from.
+- **v1.2 (owner's request, 2026-11-23): the card shows OpenSkiMap's numbers.** Distance, vertical with its lowest and
+  highest point, average slope, and for a lift with a ride time its speed, ride time and vertical speed
+  (`lib/ski-stats.ts`). The refresh measures them before it drops the elevations, so a tap reads them from the
+  feature's properties, which MapLibre keeps whole while it clips the geometry. Checked against OpenSkiMap's card
+  for Gondola Adam: 2.04 km, 623 m (768–1391 m), 4.3 m/s, 8 min, 78 m/min, 18° (32%). A ski-area card is out:
+  the resort's Details already shows its vertical, lifts and terrain mix from the resort's own site, and a second
+  set of numbers from OpenSkiMap would disagree with it. The slope-aspect rose is out too (OpenSkiStats, another
+  dataset and licence).
+- **v1.3 (owner's request, 2026-11-24: "render the map as openskimap. I still can not get resort or line
+  information").** Runs and lifts draw from zoom 10, so the valley overview (zoom 11) shows every resort's lines
+  instead of bare resort chips. The base map gets OpenSkiMap's relief: a hillshade from
+  [Mapterhorn](https://mapterhorn.com) terrain tiles (the source OpenSkiMap credits; its FAQ allows app and
+  commercial use of `tiles.mapterhorn.com`, no rate limit), above land cover and under water, roads and labels. The
+  source stops at z12 (about 19 m a pixel): Hakuba has no tile past z16, and each tile is about 190 KB. The tiles are
+  named directly, not through Mapterhorn's TileJSON, whose credit would come first and push the OpenStreetMap link
+  under the route's time chip on a landscape phone; `Terrain: Mapterhorn` comes last instead, and
+  `DATA-LICENSES.md` has a row for it. Checks: the unit and e2e zoom checks move from 12 to 10 (lifts drawn at 11,
+  nothing at 9), the credits e2e, and a phone screenshot. Out of v1.3: contour lines (the `maplibre-contour`
+  package), 3D terrain.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |
@@ -108,7 +137,7 @@ No query parameters: the whole valley is 31 KB gzipped.
   | null | grey `hsl(0,0%,35%)` |
 
   Lifts: `hsl(0,82%,42%)`, thinner than runs, with a white casing so they read over a red run.
-- `minzoom` 10 since v2 (v1: 12); line names from zoom 14, along the line, Japanese name as
+- `minzoom` 10 since v1.3 (v1: 12); line names from zoom 14, along the line, Japanese name as
   given.
 - Both phone and laptop. Shown in every mode; while navigating (pilot) the runs stay under the route line.
 - Credits: `MAP_ATTRIBUTION` (`apps/web/src/lib/map-config.ts`) gains `Runs: OpenSkiMap` linking to
@@ -135,7 +164,9 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
       returns features; at zoom 11 it returns none. The name label layer returns features at zoom 14, none at 13.
 - [ ] e2e: in `getStyle().layers` every run and lift layer comes before `lodging-pins` and the route layers, as
       `pilot.spec.ts` checks layer order today.
-- [ ] Unit (web): `interactiveLayerIds` stays `[LODGING_LAYER, ALT_HIT_LAYER]` (v1; v2 adds `SKI_HIT_LAYER`).
+- [x] Unit (web): `interactiveLayerIds` is `[LODGING_LAYER, ALT_HIT_LAYER, SKI_HIT_LAYER]` (v1.1).
+- [x] v1.1 unit: a tap or click on a run opens its card and picks no start; a long-press's lift-off and an open
+      stop box don't open one. e2e: a click on a lift at Happo-One opens its card, `from` unchanged.
 - [ ] `scripts/test-deploy-vercel.sh` passes with `ski_lines.json` in its list.
 - [ ] Screenshot on a 390 × 844 phone and a 1366 × 850 laptop at Happo-One, zoom 14, checked by eye: runs under
       the route line and markers, the credits line shows OpenSkiMap.
@@ -144,40 +175,9 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 ## Boundaries
 
 - Always: read the snapshot, never OpenSkiMap, per user request.
-- Ask first: lift-status or grooming data,
-  nordic runs, 3D terrain.
+- Ask first: the lift a run starts from, lift-status or grooming data, nordic runs, 3D terrain.
 - Never: use `tiles.openskimap.org` vector tiles in the app (their terms forbid it); download the world files on a
   schedule.
-
-## v2: the OpenSkiMap look
-
-Asked 2026-11-24: "I still can not get resort or line information from the current map". v1 drew the lines from
-zoom 12 only, a tap on one did nothing, and the base map had no relief, so the mountain read as flat green. v2 makes
-the map read and answer like OpenSkiMap, still from our snapshot (its vector tiles stay out, see Boundaries).
-
-**Done means:**
-
-1. Runs and lifts draw from zoom 10, so the valley overview (zoom 11) shows every resort's lines.
-2. The base map has hillshade relief from [Mapterhorn](https://mapterhorn.com) terrain tiles (the source OpenSkiMap
-   credits; its FAQ allows app and commercial use of `tiles.mapterhorn.com`, no rate limit), under water, roads and
-   labels. The credits line names Mapterhorn last, after OpenStreetMap.
-3. A tap or click on a run or lift (a wide invisible hit line, `SKI_HIT_LAYER`) opens a card at that spot and draws the
-   line in yellow under it, as OpenSkiMap does. The card shows the name, the kind ("Intermediate run", "Chairlift"),
-   the resort (a button that opens the resort card), the length, the vertical with its bottom and top elevation, and
-   the average slope. ✕, or a tap anywhere else on the map, closes it. While navigating, or with a stop box open, a
-   tap keeps its v1 meaning.
-4. The snapshot keeps three numbers per line, computed at refresh from OpenSkiMap's 3D coordinates before elevation
-   is dropped: `lengthM` (horizontal, rounded to the metre; null for an area run), `minEleM` and `maxEleM` (null when
-   a point has no elevation). The card's distance is the length along the slope, `hypot(length, vertical)`, as
-   OpenSkiMap shows it, and its slope is `atan(vertical / length)`. Checked on the Kamo 1 lift: OpenSkiMap shows 890 m,
-   282 m (751–1033 m), 19° (34%); ours gives 885 m, 282 m (751–1033 m), 19° (34%).
-
-**Checks:** API unit tests for the three numbers from a hand-made line; web unit test for the card text; a MapView unit test for a
-finger tap on a run whose null keys MapLibre dropped (no NaN, the pin card closes); the e2e zoom checks move from 12
-to 10; an e2e click on Happo-One's Adam gondola opens its card; a phone screenshot at Happo-One.
-
-**Not in v2:** contour lines (need the `maplibre-contour` package), a resort summary with run kilometres per
-difficulty and lift counts (OpenSkiMap's ski-area panel), elevation profiles, 3D terrain.
 
 ## Open questions
 

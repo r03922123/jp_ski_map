@@ -1,12 +1,17 @@
 "use client";
 
-import { type ReactNode, useEffect } from "react";
+import { CircleDot, CornerUpRight, Plus } from "lucide-react";
+import type { ReactNode } from "react";
+import { MapCard } from "@/components/MapCard";
+import type { Coord } from "@/lib/api";
 
-// T2: one prominent action (Go here, Google's Directions; Start here in Bus), the rest outlined
-const PRIMARY =
-  "rounded-full bg-primary px-4 py-1 font-medium text-primary-foreground shadow-sm";
-const SECONDARY =
-  "rounded-full border bg-card px-4 py-1 font-medium text-primary hover:bg-muted";
+// T2: one prominent action (Go here, Google's Directions; Start here in Bus), the rest
+// outlined. Google's pills: an icon and a word, in one row that scrolls sideways
+const PILL =
+  "flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium";
+const PRIMARY = `${PILL} bg-primary text-primary-foreground shadow-sm hover:bg-primary/90`;
+const SECONDARY = `${PILL} border bg-background text-primary hover:bg-muted`;
+const ICON = "size-4";
 
 /**
  * The card on a dropped pin (docs/ux/behaviour-cards.md BC-A1). In Google Maps a long-press
@@ -16,6 +21,7 @@ const SECONDARY =
  */
 export function PinCard({
   name,
+  coord,
   onStart,
   onGo,
   onAddStop,
@@ -23,6 +29,7 @@ export function PinCard({
   save,
 }: {
   name: string | null;
+  coord: Coord;
   onStart: () => void;
   onGo?: () => void;
   onAddStop?: () => void;
@@ -30,30 +37,13 @@ export function PinCard({
   /** the place's Save (☆) button, beside the actions */
   save?: ReactNode;
 }) {
-  const title = name ?? "Dropped pin";
-  useEffect(() => {
-    // Escape dismisses it, like the app's other pop-ups
-    const onKey = (e: KeyboardEvent) => {
-      // an Escape a dialog above it already handled (its Save list picker) is not ours
-      if (e.key === "Escape" && !e.defaultPrevented) onClose();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
   return (
-    <fieldset className="surface relative rounded-[12px] flex flex-col gap-2 px-3 py-2 pr-9 text-sm">
-      {/* float: a legend otherwise sits on the frame's border line. The legend names the
-          card, so ✕ stays outside it */}
-      <legend className="float-left font-medium">{title}</legend>
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute top-1 right-1 px-2"
-      >
-        ✕
-      </button>
-      <div className="clear-left flex flex-wrap gap-2">
+    <MapCard
+      title={name ?? "Dropped pin"}
+      subtitle={`${coord.lat.toFixed(5)}, ${coord.lng.toFixed(5)}`}
+      onClose={onClose}
+    >
+      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-0.5">
         {onGo && (
           <button
             type="button"
@@ -61,6 +51,7 @@ export function PinCard({
             data-variant="primary"
             className={PRIMARY}
           >
+            <CornerUpRight aria-hidden="true" className={ICON} />
             Go here
           </button>
         )}
@@ -70,6 +61,7 @@ export function PinCard({
           data-variant={onGo ? "secondary" : "primary"}
           className={onGo ? SECONDARY : PRIMARY}
         >
+          <CircleDot aria-hidden="true" className={ICON} />
           Start here
         </button>
         {onAddStop && (
@@ -79,11 +71,12 @@ export function PinCard({
             data-variant="secondary"
             className={SECONDARY}
           >
+            <Plus aria-hidden="true" className={ICON} />
             Add stop
           </button>
         )}
         {save}
       </div>
-    </fieldset>
+    </MapCard>
   );
 }

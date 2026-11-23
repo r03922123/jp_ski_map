@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import { devOnly } from "./dev-only";
 
-// SPEC-ski-runs "Map" and v2: runs and lifts from zoom 10, names from 14, under every route and pin
+// SPEC-ski-runs "Map" and v1.3: runs and lifts from zoom 10, names from 14, under every route and pin
 const HAPPO_ONE = { lng: 137.8215, lat: 36.7028 }; // middle of its runs in data/ski_lines.json
 const RUN_LAYERS = ["ski-runs", "ski-lifts-casing", "ski-lifts"];
 const NAME_LAYER = "ski-names";
@@ -10,8 +10,15 @@ const TRIP = "/?from=36.69711,137.85393&mode=walk&dest=pt:36.69877,137.86197";
 
 type DevMap = {
   getStyle(): { layers: { id: string }[] };
-  queryRenderedFeatures(o: { layers: string[] }): unknown[];
-  project(at: [number, number]): { x: number; y: number };
+  queryRenderedFeatures(
+    a: { layers: string[] } | [number, number],
+    o?: { layers: string[] },
+  ): {
+    layer: { id: string };
+    geometry: { type: string; coordinates: [number, number][] };
+    properties: { name?: string; kind?: string };
+  }[];
+  project(c: [number, number]): { x: number; y: number };
   jumpTo(o: { center: [number, number]; zoom: number }): void;
   once(event: "idle", done: () => void): void;
 };
@@ -61,7 +68,7 @@ test("every run and lift layer sits under the lodging pins and the route", async
   page,
 }) => {
   await openMap(page, TRIP);
-  const ours = [...RUN_LAYERS, NAME_LAYER];
+  const ours = ["ski-selected", ...RUN_LAYERS, NAME_LAYER, "ski-lines-hit"];
   const above = ["lodging-pins", "ride-line", "route-active-line"];
   await expect
     .poll(() =>
@@ -77,28 +84,45 @@ test("every run and lift layer sits under the lodging pins and the route", async
     .toEqual([...ours, ...above]);
 });
 
-test("a tap on a lift opens its card, and its resort name opens the resort", async ({
+// SPEC-ski-runs v1.1: a click on a lift opens its card, and picks no start
+test("a click on a lift opens its card, the start unchanged", async ({
   page,
 }) => {
   await openMap(page);
-  // the middle of Happo-One's gondola, Adam (its first and last points in data/ski_lines.json)
-  const at = await page.evaluate(() => {
+  expect(await drawnAt(page, 15, ["ski-lifts"])).toBeGreaterThan(0);
+  const hit = await page.evaluate(() => {
     const map = (window as unknown as { __hakubaMap: DevMap }).__hakubaMap;
-    const idle = new Promise<void>((done) => map.once("idle", done));
-    const mid: [number, number] = [
-      (137.83683 + 137.81584) / 2,
-      (36.70179 + 36.6975) / 2,
-    ];
-    map.jumpTo({ center: mid, zoom: 15 });
-    return idle.then(() => map.project(mid));
+    const taps = ["lodging-pins", "route-alts-hit", "ski-lines-hit"];
+    for (const f of map.queryRenderedFeatures({ layers: ["ski-lifts"] })) {
+      if (f.geometry.type !== "LineString") continue;
+      // a lift is a straight line whose ends may be off screen: try points along it
+      const [a, b] = f.geometry.coordinates;
+      for (let t = 0.05; t < 1; t += 0.05) {
+        const p = map.project([
+          a[0] + (b[0] - a[0]) * t,
+          a[1] + (b[1] - a[1]) * t,
+        ]);
+        // bare map there (no panel or marker), and a lift is the top tap target
+        const el = document.elementFromPoint(p.x, p.y);
+        const top = map.queryRenderedFeatures([p.x, p.y], { layers: taps })[0];
+        if (
+          el?.classList.contains("maplibregl-canvas") &&
+          top?.layer.id === "ski-lines-hit" &&
+          top.properties.kind === "lift"
+        )
+          return { x: p.x, y: p.y, name: top.properties.name ?? null };
+      }
+    }
+    return null;
   });
-  await page.locator(".maplibregl-canvas").click({ position: at });
-  const card = page.getByRole("region", { name: /Adam/ });
+  expect(hit, "a lift on bare map").not.toBeNull();
+  if (!hit) return;
+  await page.mouse.click(hit.x, hit.y);
+  const title = hit.name?.split(", ")[0] || "Unnamed lift";
+  const card = page.getByRole("group", { name: title });
   await expect(card).toBeVisible();
-  await expect(card).toContainText("Gondola");
-  await expect(card).toContainText(/Vertical \d+ m/);
-  await card
-    .getByRole("button", { name: "Hakuba Happo-One Snow Resort" })
-    .click();
-  await expect(card).toBeHidden();
+  await expect(card).toContainText("lift");
+  expect(new URL(page.url()).searchParams.get("from")).toBeNull();
+  await card.getByRole("button", { name: "Close" }).click();
+  await expect(card).toHaveCount(0);
 });
