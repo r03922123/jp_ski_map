@@ -94,7 +94,8 @@ if [[ ${1:-} != --staged ]]; then
 fi
 # The smoke step reads the URL from the last line. shortcut: takes `url` or `deployment.url` from the
 # CLI's JSON; the first CI run checks that shape, and a missing URL stops the job here.
-json=$(vercel deploy "${TARGET[@]}")
+# With --json, a failed build's reason is in this output only.
+json=$(vercel deploy "${TARGET[@]}") || die "vercel deploy failed: $json"
 url=$(python3 -c 'import json, sys
 d = json.load(sys.stdin)
 u = d.get("deployment", d)["url"]

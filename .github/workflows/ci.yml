@@ -113,7 +113,9 @@ jobs:
   # SPEC-deploy Phase C (ADR-0009): stage a production build, smoke-test it, then point the domain at
   # it. A failed step leaves production on its last good build. Pull requests never get here.
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_PAUSED != 'true'
+    if: >-
+      github.repository == 'r03922123/jp_ski_map' && github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' && vars.DEPLOY_PAUSED != 'true'
     needs: [api, mcp, pipeline, web, deploy-script, claude-hooks, docs]
     runs-on: ubuntu-latest
     environment: production
@@ -153,7 +155,12 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: echo "url=$(scripts/deploy-vercel.sh --staged | tail -n 1)" >>"$GITHUB_OUTPUT"
+        shell: bash
+        # an assignment of its own, so the script's exit status fails this step (-eo pipefail)
+        run: |
+          url=$(scripts/deploy-vercel.sh --staged | tail -n 1)
+          [[ $url == https://* ]] || { echo "no staged URL: $url" >&2; exit 1; }
+          echo "url=$url" >>"$GITHUB_OUTPUT"
       - name: Smoke-test the staged build
         working-directory: apps/web
         env:

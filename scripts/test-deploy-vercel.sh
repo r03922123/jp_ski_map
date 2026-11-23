@@ -241,7 +241,15 @@ echo "--staged stages a production build and prints its URL last"
 new_repo
 deploy --staged
 expect_args "deploy --prod --skip-domain --json"
-[[ $(tail -1 "$OUT") == https://jp-ski-abc.vercel.app ]] || fail "last line: $(tail -1 "$OUT")"
+# CI reads stdout only, so check stdout on its own
+staged_url=$("$REPO/scripts/deploy-vercel.sh" --staged 2>/dev/null | tail -n 1)
+[[ $staged_url == https://jp-ski-abc.vercel.app ]] || fail "last stdout line: $staged_url"
+
+new_repo
+VERCEL_STUB_JSON='{"error":{"name":"BUILD_ERROR"}}' VERCEL_STUB_EXIT=1 deploy --staged
+echo "stops: --staged when vercel deploy fails, with its JSON"
+[[ $STATUS -ne 0 ]] || fail "exit status was 0"
+grep -q "vercel deploy failed: .*BUILD_ERROR" "$OUT" || fail "expected the JSON error in: $(cat "$OUT")"
 
 new_repo
 VERCEL_STUB_JSON='{"url":"https://jp-ski-def.vercel.app"}' deploy --staged

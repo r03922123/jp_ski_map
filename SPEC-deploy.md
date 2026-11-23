@@ -211,7 +211,8 @@ class InProcessEngine:
 - **Rollback reaches only the previous deployment**, and it stops domains auto-assigning until
   `vercel promote <deployment>` is run. Right after `vercel rollback`, run
   `gh variable set DEPLOY_PAUSED --body true`, or the next green push to main promotes past the
-  rollback (Phase C). Delete the variable once the fix is on main.
+  rollback (Phase C). Delete the variable once the fix is on main, then push or deploy by hand:
+  the fix's own run was skipped while paused.
 - **Kill switch:** publish a firewall rule that denies path prefix `/` (`vercel firewall rules add`,
   then `vercel firewall publish`); the site answers 403 within seconds. Remove the rule and publish
   again to undo. `vercel project pause` also works, but only typed by a person in a terminal.

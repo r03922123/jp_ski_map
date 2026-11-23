@@ -54,7 +54,8 @@ PATH="$(dirname "$(ls ~/.npm/_npx/*/node_modules/.bin/vercel | head -1)"):$PATH"
 ## After a rollback
 
 `vercel rollback` turns off domain auto-assignment, and the next green push would promote past it.
-Pause the job first: `gh variable set DEPLOY_PAUSED --body true`. Delete it once the fix is on main.
+Pause the job first: `gh variable set DEPLOY_PAUSED --body true`. Delete it once the fix is on main,
+then push or deploy by hand: the fix's own run was skipped while paused.
 
 ## Don't
 
