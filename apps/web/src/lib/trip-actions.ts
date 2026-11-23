@@ -106,6 +106,9 @@ export function tripActions(
     setOriginName(null);
     setOriginSource(null);
     setSearchLabel(null);
+    // the bus was for the old start, but its resort stays the destination
+    const busResort = point ? null : storedBusChoice?.resortId;
+    if (busResort) setChosenResortId((id) => id ?? busResort);
     setBusChoice(null);
     // an empty stop box would take the next tap, which is meant for the new start
     setStops((list) => list.filter((st) => st.place !== null));

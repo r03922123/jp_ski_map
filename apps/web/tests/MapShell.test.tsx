@@ -396,6 +396,25 @@ describe("MapShell mode", () => {
     await waitFor(() => expect(query().get("from")).toBeNull());
     expect(query().get("resort")).toBe(happo.id);
   });
+
+  it("a tapped bus doesn't narrow the Bus list to its resort (v1.13 rule 6)", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue(
+      busFixture as api.BusResult,
+    );
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    const boards = () => screen.getAllByRole("button", { name: /Board/ });
+    await waitFor(() => expect(boards().length).toBeGreaterThan(3));
+    const listed = boards().length;
+    const [happoBus] = within(
+      screen.getByRole("region", { name: happo.name.en }),
+    ).getAllByRole("button", { name: /Board/ });
+    fireEvent.click(happoBus);
+    expect(await screen.findByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+    // one resort has 3 options in the fixture: narrowed, the other resorts' buses would go
+    expect(boards().length).toBeGreaterThanOrEqual(listed - 1);
+  });
 });
 
 describe("MapShell pilot", () => {
