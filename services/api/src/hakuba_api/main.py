@@ -16,6 +16,7 @@ from hakuba_api.pois.router import router as pois_router
 from hakuba_api.ranking.router import router as ranking_router
 from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
 from hakuba_api.routing.router import router as routing_router
+from hakuba_api.skiruns.router import router as skiruns_router
 from hakuba_api.snow.router import router as snow_router
 
 # The app's biggest request is a 25-point path (~2 KB); anything far over it is refused
@@ -79,6 +80,7 @@ app.include_router(snow_router)
 app.include_router(crowd_router)
 app.include_router(ranking_router)
 app.include_router(bus_router)
+app.include_router(skiruns_router)
 
 
 @app.middleware("http")
