@@ -138,4 +138,5 @@ def test_only_e5_models_get_the_e5_prefixes() -> None:
     e5 = ("query: ", "passage: ")
     assert prefixes("intfloat/multilingual-e5-small") == e5
     assert prefixes("models/e5-hakuba-v15") == e5  # a fine-tune of it keeps them
+    assert prefixes("models/hakuba-v16") == e5  # whatever --out named it
     assert prefixes("BAAI/bge-m3") == ("", "")  # plain text, as Workers AI's bge-m3 takes it

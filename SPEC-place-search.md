@@ -201,12 +201,12 @@ Let the user find their hotel (or any place) in Hakuba and turn it into an origi
 
 ## v1.7 — Embedding bakeoff: is a hosted bge-m3 worth trying? (experiment, 2026-11-23)
 
-**Why:** fine-tune A (470.6 MB) doesn't fit Vercel's 500 MB function bundle beside the API, and a scale-to-zero GPU host would be cold on almost every search (300 ms timeout in `places/semantic.py`). Cloudflare Workers AI serves `BAAI/bge-m3` always warm. Its open weights were run here, locally, to decide whether trying the hosted copy is worth it. No account was created and no query left the Mac.
+**Why:** fine-tune A (487.7 MB as a folder, 470.6 MB of weights) doesn't fit Vercel's 500 MB function bundle beside the API, and a scale-to-zero GPU host would be cold on almost every search (300 ms timeout in `places/semantic.py`). Cloudflare Workers AI serves `BAAI/bge-m3` always warm. Its open weights were run here, locally, to decide whether trying the hosted copy is worth it. No account was created and no query left the Mac.
 
 **Done**
 - `embed.prefixes(model)`: e5 models and their fine-tunes keep `query: ` / `passage: `; other models (bge-m3) get plain text, as Workers AI takes it. `calibrate` and `evaluate` use it through the existing `--model` option (unit test).
 - Three models, each calibrated on the dev split before any test run (90% top-1 precision): base `intfloat/multilingual-e5-small` 0.9129 (keeps 18% of dev), fine-tune A (`e5-hakuba-v15`, v1.6) 0.5566 (70%), base `BAAI/bge-m3` 0.7490 (44%). Base and A match v1.6, so the index and the setup are unchanged, and A's rows below repeat v1.6 exactly.
-- Runs one at a time on the Mac (load average 2–3), logged to `ml/search/mlflow.db`. Differences are paired on the same queries; ± is one standard error.
+- Runs one at a time on the Mac (load average 2–5). `evaluate` runs are logged to `ml/search/mlflow.db` (copied to `jp_ski_map_ml_artifacts/search/bakeoff-2026-11-23/` with the raw outputs); `calibrate` logs nothing, so its thresholds are only in those outputs. Differences are paired on the same queries; ± is one standard error.
 
 **Results (hit@5)**
 
@@ -227,10 +227,10 @@ Lexical alone is 0.145 ± 0.048 (heldout_v2) and 0.15 ± 0.057 (hard set). `book
 | Semantic, calibrated | −0.236 ± 0.058 (0 gained, 13 lost) | −0.325 ± 0.083 (1 gained, 14 lost) |
 | Semantic, no threshold | +0.018 ± 0.080 (10 gained, 9 lost) | −0.075 ± 0.055 (1 gained, 4 lost) |
 
-- **bge-m3 ranks about as well as fine-tune A, without any fine-tuning:** with no threshold, 0.691 vs 0.673 on heldout_v2 (difference +0.018 ± 0.080, no difference shown).
+- **With no threshold, no difference from fine-tune A is shown, without any fine-tuning:** 0.691 vs 0.673 on heldout_v2 (+0.018 ± 0.080; a 95% range of about −0.14 to +0.18, so a gap of up to 7 queries either way is still possible). On the hard set bge-m3 trails: 0.85 vs 0.925 (−0.075 ± 0.055).
 - **Its calibrated threshold throws that away.** At 0.7490 its semantic search finds 1 of the 55 heldout_v2 targets, so hybrid equals lexical (0 gained). The threshold comes from the synthetic dev split (77% lodging names), and bge-m3's scores on hand-written queries sit below it. Setting the threshold on a test set instead would be tuning on the test.
 - The no-threshold column is a diagnostic only: without a threshold every search returns 5 places, so absent hotels get wrong answers (the reason for the v1.4 threshold).
 
-**Verdict: not worth trying a hosted bge-m3 yet.** On the production path (hybrid, calibrated) it adds nothing over lexical on the new set and is 2 to 10 queries worse than fine-tune A. It would become worth trying if a calibration that transfers to hand-written queries (for example a dev split with real query phrasings, judged on a third set) gave bge-m3's hybrid a paired gain over lexical. Until then semantic search stays off, and the Workers AI latency against the 300 ms timeout stays unmeasured.
+**Verdict: not worth trying a hosted bge-m3 yet.** Calibration is the first blocker. On the production path (hybrid, calibrated) it adds nothing over lexical on the new set and is 2 to 10 queries worse than fine-tune A. It would become worth trying if a calibration that transfers to hand-written queries (for example a dev split with real query phrasings, judged on a third set) gave bge-m3's hybrid a paired gain over lexical. Until then semantic search stays off, and the Workers AI latency against the 300 ms timeout stays unmeasured.
 
-**Limits:** base bge-m3 ran in fp32 on the Mac's GPU; Workers AI may run it at lower precision, so scores can shift slightly. Both sets have now been seen several times (v1.6 caveat). Local p50 latency (bge-m3 semantic 43 ms, A 12 ms) says nothing about the hosted service.
+**Limits:** base bge-m3 ran in fp32 on the Mac's GPU; Workers AI may run it at lower precision, so scores can shift slightly. Both sets have now been seen several times (v1.6 caveat). Local p50 latency (bge-m3 semantic 43–56 ms, A 10–12 ms) says nothing about the hosted service.

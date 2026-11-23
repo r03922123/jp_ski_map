@@ -14,9 +14,10 @@ QUERY, PASSAGE = "query: ", "passage: "
 
 
 def prefixes(model: str) -> tuple[str, str]:
-    """(query, passage) prefixes for a model: e5 and its fine-tunes need them; other models,
-    such as BAAI/bge-m3 (the weights Workers AI serves), take plain text."""
-    return (QUERY, PASSAGE) if "e5" in Path(model).name.lower() else ("", "")
+    """(query, passage) prefixes for a model: bge models, such as BAAI/bge-m3 (the weights
+    Workers AI serves), take plain text; e5 and every fine-tune of it (any `--out` name)
+    need them."""
+    return ("", "") if "bge" in Path(model).name.lower() else (QUERY, PASSAGE)
 
 
 def entry_text(e: Entry) -> str:
