@@ -992,8 +992,9 @@ Build [SPEC-ski-runs.md](../SPEC-ski-runs.md): refresh module and snapshot, vali
 layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API slice, then web slice: two PRs)
 - [x] API slice (2026-11-23): `hakuba_api.skiruns` (refresh, models, validator in `data.validate`, `GET /api/ski-lines`),
   snapshot of 217 runs + 92 lifts from all 10 resorts (182 KB, 43 KB gzipped), `DATA-LICENSES.md` row
-- [ ] Web slice: `SkiLinesLayer`, the OpenSkiMap credit and the spec's e2e and screenshot checks (after the basemap
-  and route-line PRs land)
+- [x] Web slice (2026-11-23): `SkiLinesLayer` (runs, lifts, names under the lodging pins), the OpenSkiMap credit,
+  unit and e2e checks (`e2e/ski-lines.spec.ts`), screenshots at 390×844 and 1366×850: pins don't bury the runs
+- [ ] Freeride and extreme runs draw solid orange, not dashed (none in the 2026-11-23 snapshot)
 
 ## Task J18: Deploy every green merge from CI (ADR-0009, accepted 2026-11-23)
 Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of

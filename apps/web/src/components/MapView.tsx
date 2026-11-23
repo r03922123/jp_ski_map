@@ -25,6 +25,7 @@ import { LODGING_LAYER, LodgingLayer } from "@/components/map/LodgingLayer";
 import { ResortMarkers } from "@/components/map/ResortMarkers";
 import { RouteLabels } from "@/components/map/RouteLabels";
 import { SavedMarkers } from "@/components/map/SavedMarkers";
+import { SkiLinesLayer } from "@/components/map/SkiLinesLayer";
 import { TrailLayers } from "@/components/map/TrailLayers";
 import { TripStopMarkers } from "@/components/map/TripStopMarkers";
 import { PixelSprite } from "@/components/PixelSprite";
@@ -510,6 +511,7 @@ export default function MapView({
         </Popup>
       )}
       <LodgingLayer lodging={lodging} />
+      <SkiLinesLayer />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or

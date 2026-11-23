@@ -92,9 +92,10 @@ No query parameters: the whole valley is 31 KB gzipped.
 
 ## Map (web-app)
 
-- New `components/map/SkiLinesLayer.tsx`, fetched with TanStack Query. Mount order alone doesn't set the stacking:
-  react-map-gl adds a layer when its source is ready, so a layer that waits for its fetch lands on top. Each run and
-  lift layer passes `beforeId={LODGING_LAYER}`, which keeps routes, markers and pins above it whenever it arrives.
+- New `components/map/SkiLinesLayer.tsx`: a GeoJSON source whose `data` is the URL `/api/ski-lines`, so MapLibre
+  fetches and parses it in its worker (no TanStack Query, no main-thread parse of 182 KB). Mount order alone doesn't
+  set the stacking: react-map-gl adds a layer when its source is ready. Each run and lift layer passes
+  `beforeId={LODGING_LAYER}`, which keeps routes, markers and pins above it whenever it arrives.
 - Not interactive in v1: it stays out of `interactiveLayerIds` (`MapView.tsx:460`), so a tap on a run is a tap on
   the map.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):

@@ -250,6 +250,20 @@ describe("MapView draws (characterization)", () => {
   });
 });
 
+describe("MapView taps", () => {
+  it("only lodging pins and alternate routes take a tap; runs and lifts don't (SPEC-ski-runs v1)", () => {
+    const { container } = render(<MapView {...base} />);
+    expect(
+      JSON.parse(
+        container
+          .querySelector("[data-map]")
+          ?.getAttribute("data-interactive") ?? "null",
+      ),
+    ).toEqual(["lodging-pins", "route-alts-hit"]);
+    expect(container.querySelector('[data-layer="ski-runs"]')).not.toBeNull();
+  });
+});
+
 describe("MapView phone credits", () => {
   beforeEach(() => {
     vi.useFakeTimers();

@@ -38,6 +38,10 @@ describe("map attribution", () => {
     );
   });
 
+  it("credits OpenSkiMap for the runs and lifts (SPEC-ski-runs)", () => {
+    expect(hrefOf("OpenSkiMap")).toBe("https://openskimap.org/");
+  });
+
   it("still credits the snow and shuttle sources", () => {
     expect(hrefOf("Open-Meteo")).toBe("https://open-meteo.com/");
     expect(hrefOf("Hakuba Valley")).toContain("hakubavalley.com");
