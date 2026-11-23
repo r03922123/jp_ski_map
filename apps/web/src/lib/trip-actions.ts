@@ -58,7 +58,9 @@ export function tripActions(
     setOriginName,
     setOriginSource,
     setSearchLabel,
+    searchKey,
     setSearchKey,
+    setFocusedSearchKey,
     setChosenResortId,
     setCategory,
     setPoiId,
@@ -165,7 +167,9 @@ export function tripActions(
         kind: fromPlace.kind === "resort" ? "resort" : "place",
       });
       clearOrigin();
-      setSearchKey((k) => k + 1);
+      // the new, empty From box takes focus: the Directions button that had it is gone
+      setSearchKey(searchKey + 1);
+      setFocusedSearchKey(searchKey + 1);
     },
     // Back to the lodging in one tap (SPEC-web-app v1.10)
     swapTrip: () => {

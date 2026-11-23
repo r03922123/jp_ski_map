@@ -24,6 +24,8 @@ export function useTrip() {
   const [searchLabel, setSearchLabel] = useState<string | null>(null);
   // bumped to remount (empty) the From box
   const [searchKey, setSearchKey] = useState(0);
+  // the remount whose box takes focus (Directions: the start is what is typed next)
+  const [focusedSearchKey, setFocusedSearchKey] = useState<number | null>(null);
   // the resort chosen as the destination: in a list, the To box, on the map or in the link
   const [chosenResortId, setChosenResortId] = useState<string | null>(null);
   const [category, setCategory] = useState<DestinationCategory>("resorts");
@@ -67,6 +69,8 @@ export function useTrip() {
     setSearchLabel,
     searchKey,
     setSearchKey,
+    focusedSearchKey,
+    setFocusedSearchKey,
     selectedResortId,
     chosenResortId,
     setChosenResortId,

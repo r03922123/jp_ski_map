@@ -9,7 +9,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
 2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link, or clicking (long-pressing on mobile) the map, also sets the origin. When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
-   - 🚗 **Drive:** sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows drive ETA, snow (24 h / depth), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the drive route and step list.
+   - 🚗 **Drive:** sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows drive ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the drive route and step list.
    - 🚶 **Walk:** pick a resort or a bus stop, and see the walking route and ETA. It warns when the walk is > 45 min.
    - 🚌 **Bus:** for each resort, the walk to the stop, the next 3 departures (line badge, depart → arrive, wait), and a link to the source image. Selecting an option draws the walk leg and highlights the boarding stop. A departure time picker defaults to now. A separate "Night bus" toggle shows Line VN departures from the nearest stop.
 4. URL state: `?from=lat,lng&mode=drive&resort=happo-one&sort=drive_time&date=…`, so the view can be shared and reloaded.
@@ -623,3 +623,24 @@ badges and sprites, a new app icon.
 - [x] No `TitleScreen`, `hakuba_title`, `skip-title`, `gameStyle` or `useGameStyle` left in `apps/web`.
 - [x] Before/after screenshots at 375×812 and 1366×850 in the basemap PR, with the style picked from them (#133: Liberty).
 - [x] The route layers' snapshot shows the blue line and casing; `route.spec`, `pilot.spec` and a screenshot pass.
+
+## v1.31: A keyboard pick lands on its answer (2026-11-23, a11y review of the UX panel)
+A keyboard user who pressed Enter on a ranked resort saw the sheet scroll up to the new ETA while focus stayed
+on the card, now below the window; nothing was announced, and the route options were 41 Shift+Tabs back.
+- **The ETA line is the sheet's answer.** When the sheet scrolls back to it (a route appears, or a phone
+  sheet comes down) and focus was below it inside the sheet (a ranked card, a food row, a route option), focus
+  moves to the ETA line, which a screen reader then reads. Focus above it (a mode tab, a stop box) or outside
+  the sheet (a tap on the map) stays where it is. The line is a polite live region, so a route that changes in
+  place (another option, a mode from the cache) is announced too.
+- **Directions** (amends v1.13 rule 3): the empty From box takes focus, since the start is what is typed next.
+  Which box the place moves to is unchanged.
+- **Mode tabs:** the tablist is named "Travel mode", and the emoji are hidden from screen readers, so a tab
+  reads "Drive 8 min" (v1.24's visible labels are unchanged). The times are full strength: 6.0:1 on the open
+  tab and 6.6:1 on the others, from 4.0:1 and 4.2:1.
+
+**Acceptance**
+- [x] MapShell tests: a ranked card picked by keyboard hands focus to the ETA, a live region; a resort tapped
+  on the map leaves focus alone; a mode tab keeps focus when its route appears; Directions focuses the empty
+  start box. ModePanel test: a tablist "Travel mode" with tabs "Bus", "Drive 8 min", "Walk 11 min".
+- [x] e2e (`side-panel.spec.ts`, 1440×900): Enter on the Iwatake card focuses the ETA, in view, and the next Tab
+  reaches the route options.
