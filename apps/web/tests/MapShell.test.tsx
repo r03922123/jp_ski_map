@@ -416,6 +416,25 @@ describe("MapShell mode", () => {
     // one resort has 3 options in the fixture: narrowed, the other resorts' buses would go
     expect(boards().length).toBeGreaterThanOrEqual(listed - 1);
   });
+
+  it("Directions after a tapped bus makes the start the only destination", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    // with the Food list open, Drive has no destination, so the start's card offers Directions
+    renderShell("?from=36.69736,137.85393&mode=bus&cat=food");
+    const [option] = await screen.findAllByRole("button", { name: /Board/ });
+    fireEvent.click(option);
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
+    await waitFor(() => expect(query().get("dest")).toMatch(/^pt:/));
+    expect(query().get("resort")).toBeNull();
+  });
 });
 
 describe("MapShell pilot", () => {
