@@ -51,6 +51,7 @@ export function DrivePanel({
             onSelect={(id) => onSelectResort(id)}
             scrollKey={JSON.stringify(options)}
             fetching={fetching}
+            sort={options.sort}
           />
         ))}
     </div>
