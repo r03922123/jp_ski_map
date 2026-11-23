@@ -4,10 +4,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import MapGL, {
+  Layer,
   type MapRef,
   Marker,
   NavigationControl,
   Popup,
+  Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import { facesLeft, Hero } from "@/components/HeroMarker";
@@ -25,10 +27,11 @@ import { LODGING_LAYER, LodgingLayer } from "@/components/map/LodgingLayer";
 import { ResortMarkers } from "@/components/map/ResortMarkers";
 import { RouteLabels } from "@/components/map/RouteLabels";
 import { SavedMarkers } from "@/components/map/SavedMarkers";
-import { SkiLinesLayer } from "@/components/map/SkiLinesLayer";
+import { SKI_HIT_LAYER, SkiLinesLayer } from "@/components/map/SkiLinesLayer";
 import { TrailLayers } from "@/components/map/TrailLayers";
 import { TripStopMarkers } from "@/components/map/TripStopMarkers";
 import { PixelSprite } from "@/components/PixelSprite";
+import { type SkiLine, SkiLineCard } from "@/components/SkiLineCard";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
 import { ICONS, type Pose } from "@/lib/game/sprites";
 import {
@@ -36,6 +39,7 @@ import {
   MAP_ATTRIBUTION,
   MAP_STYLE_URL,
   MAPLIBRE_WORKER_URL,
+  TERRAIN_TILEJSON_URL,
 } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
 import type { RideStopMark } from "@/lib/ride-stops";
@@ -190,6 +194,10 @@ export default function MapView({
   const mapRef = useRef<MapRef>(null);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
+  // the tapped run or lift, with its card at the tapped spot (SPEC-ski-runs v2)
+  const [skiLine, setSkiLine] = useState<{ line: SkiLine; at: Coord } | null>(
+    null,
+  );
   const gestures = useMapGestures({
     piloting: pilot !== null,
     placingStop,
@@ -197,6 +205,7 @@ export default function MapView({
     onPickOrigin,
     onDropPin,
     onMapTap,
+    onSelectSkiLine: (line, at) => setSkiLine({ line, at }),
   });
 
   // Fit the whole route set once per new search or picked option, clear of the directions
@@ -464,7 +473,7 @@ export default function MapView({
         // MapLibre's own cut-off is 640 px, but the sheet covers the corner up to `md`
         compact: window.innerWidth < MD_BREAKPOINT_PX || undefined,
       }}
-      interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER]}
+      interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER, SKI_HIT_LAYER]}
       onLoad={(e) => {
         // e2e checks what is actually drawn (layer order, rendered stop dots)
         if (process.env.NODE_ENV !== "production") {
@@ -497,7 +506,10 @@ export default function MapView({
       onTouchMove={gestures.moveHold}
       onTouchEnd={gestures.touchEnd}
       onTouchCancel={gestures.endHold}
-      onClick={gestures.click}
+      onClick={(e) => {
+        setSkiLine(null); // a tap elsewhere closes the card; a tap on a line reopens it
+        gestures.click(e);
+      }}
       onDblClick={() => gestures.cancelPick()}
     >
       <NavigationControl position="bottom-right" />
@@ -519,8 +531,43 @@ export default function MapView({
           {pinCard}
         </Popup>
       )}
+      {skiLine && !piloting && (
+        <Popup
+          longitude={skiLine.at.lng}
+          latitude={skiLine.at.lat}
+          closeButton={false}
+          closeOnClick={false}
+          maxWidth="280px"
+          style={{ zIndex: 10 }} // above the markers, like the pin card
+        >
+          <SkiLineCard
+            line={skiLine.line}
+            resortName={
+              resorts.find((r) => r.id === skiLine.line.resortId)?.name.en ??
+              skiLine.line.resortId
+            }
+            onSelectResort={() => {
+              setSkiLine(null);
+              onSelectResort(skiLine.line.resortId);
+            }}
+            onClose={() => setSkiLine(null)}
+          />
+        </Popup>
+      )}
+      {/* relief, as OpenSkiMap draws it: above land cover, under water, roads and labels.
+          The tiles credit Mapterhorn themselves (their TileJSON attribution). */}
+      <Source id="terrain" type="raster-dem" url={TERRAIN_TILEJSON_URL}>
+        <Layer
+          id="hillshade"
+          type="hillshade"
+          beforeId="waterway_tunnel"
+          paint={{ "hillshade-exaggeration": 0.3 }}
+        />
+      </Source>
       <LodgingLayer lodging={lodging} />
-      <SkiLinesLayer />
+      <SkiLinesLayer
+        selectedId={skiLine && !piloting ? skiLine.line.id : null}
+      />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or

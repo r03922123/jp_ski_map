@@ -251,7 +251,7 @@ describe("MapView draws (characterization)", () => {
 });
 
 describe("MapView taps", () => {
-  it("only lodging pins and alternate routes take a tap; runs and lifts don't (SPEC-ski-runs v1)", () => {
+  it("lodging pins, alternate routes and the runs' and lifts' hit line take a tap (SPEC-ski-runs v2)", () => {
     const { container } = render(<MapView {...base} />);
     expect(
       JSON.parse(
@@ -259,8 +259,8 @@ describe("MapView taps", () => {
           .querySelector("[data-map]")
           ?.getAttribute("data-interactive") ?? "null",
       ),
-    ).toEqual(["lodging-pins", "route-alts-hit"]);
-    expect(container.querySelector('[data-layer="ski-runs"]')).not.toBeNull();
+    ).toEqual(["lodging-pins", "route-alts-hit", "ski-hit"]);
+    expect(container.querySelector('[data-layer="ski-hit"]')).not.toBeNull();
   });
 });
 

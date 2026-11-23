@@ -23,11 +23,19 @@ export const LIFT_COLOR = "hsl(0,82%,42%)";
 export const runColor = (difficulty: string | null) =>
   (difficulty && RUN_COLORS[difficulty]) || UNKNOWN_RUN_COLOR;
 
+/** The wide invisible line a tap on a run or lift hits (MapView's `interactiveLayerIds`). */
+export const SKI_HIT_LAYER = "ski-hit";
+// the tapped line, under its run or lift, as OpenSkiMap marks a selection
+const SELECTED_COLOR = "hsl(55,100%,50%)";
+const MINZOOM = 10; // the valley overview (zoom 11) shows every resort's lines
+
 export const SKI_LAYERS = [
+  "ski-selected",
   "ski-runs",
   "ski-lifts-casing",
   "ski-lifts",
   "ski-names",
+  SKI_HIT_LAYER,
 ];
 
 const RUN_COLOR_BY_DIFFICULTY = [
@@ -37,29 +45,41 @@ const RUN_COLOR_BY_DIFFICULTY = [
   UNKNOWN_RUN_COLOR,
 ] as unknown as ExpressionSpecification; // spread entries: TS can't see the label/value pairs
 
-const width = (at12: number, at16: number): ExpressionSpecification => [
+const width = (at10: number, at16: number): ExpressionSpecification => [
   "interpolate",
   ["linear"],
   ["zoom"],
-  12,
-  at12,
+  MINZOOM,
+  at10,
   16,
   at16,
 ];
 
 /**
  * Runs and lifts from the snapshot, under every route and pin: each layer sits below the
- * lodging pins, whatever order MapLibre adds them in. Not interactive (SPEC-ski-runs v1).
+ * lodging pins, whatever order MapLibre adds them in. A tap opens the line's card (SPEC-ski-runs v2).
  */
-export function SkiLinesLayer() {
+export function SkiLinesLayer({ selectedId }: { selectedId: string | null }) {
   return (
     // MapLibre fetches and parses the URL in its worker; cached an hour by the API
     <Source id="ski-lines" type="geojson" data="/api/ski-lines">
       <Layer
+        id="ski-selected"
+        type="line"
+        beforeId={LODGING_LAYER}
+        minzoom={MINZOOM}
+        filter={["==", ["get", "id"], selectedId ?? ""]}
+        layout={{ "line-cap": "round", "line-join": "round" }}
+        paint={{
+          "line-color": SELECTED_COLOR,
+          "line-width": width(6, 12),
+        }}
+      />
+      <Layer
         id="ski-runs"
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         filter={["==", ["get", "kind"], "run"]}
         layout={{ "line-cap": "round", "line-join": "round" }}
         paint={{
@@ -71,7 +91,7 @@ export function SkiLinesLayer() {
         id="ski-lifts-casing"
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         filter={["==", ["get", "kind"], "lift"]}
         paint={{
           "line-color": "#ffffff",
@@ -82,7 +102,7 @@ export function SkiLinesLayer() {
         id="ski-lifts"
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         filter={["==", ["get", "kind"], "lift"]}
         paint={{
           "line-color": LIFT_COLOR,
@@ -106,6 +126,13 @@ export function SkiLinesLayer() {
           "text-halo-color": "#ffffff",
           "text-halo-width": 1.5,
         }}
+      />
+      <Layer
+        id={SKI_HIT_LAYER}
+        type="line"
+        beforeId={LODGING_LAYER}
+        minzoom={MINZOOM}
+        paint={{ "line-color": "#000000", "line-opacity": 0, "line-width": 16 }}
       />
     </Source>
   );
