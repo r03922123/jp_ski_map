@@ -11,7 +11,7 @@
 > network, and the Mac standby was only partly rehearsed (results under "Probe P and Checkpoint S"). Funnel stays on until friends have moved their saved lists; the owner turns it off.
 > **Status 2026-11-13:** at the owner's word, Funnel is off and the Mac standby and its Valhalla container are stopped;
 > production runs on Vercel only, now with the MCP service (SPEC-agent-tools v2). Criterion 2 is still the owner's check.
-> **Accepted 2026-11-23:** Phase C deploys each green merge to main from CI (ADR-0009). Until its PR and the owner steps land, deploy by hand.
+> **Accepted 2026-11-23, live 2026-11-24:** Phase C deploys each green merge to main from CI (ADR-0009). The first CI deploy promoted `1d02c8b`. Deploy by hand only for a hotfix or while the job is paused.
 
 ## Objective
 Let the author's friends open the planner from their own phones, over HTTPS (needed for GPS),
@@ -414,8 +414,8 @@ first request after each deploy (6.70 s with, 3.18 s without) is left out as a f
 ### Phase C: deploy from CI (accepted 2026-11-23, ADR-0009)
 
 The owner accepted [ADR-0009](docs/adr/0009-deploy-from-ci.md) on 2026-11-23, and the changes below
-are built. The job stays off (repository variable `DEPLOY_PAUSED` is `true`) until the owner steps
-are done; until then, deploy by hand.
+are built. The owner steps were done on 2026-11-24 and `DEPLOY_PAUSED` was deleted, so the job runs on
+every push to main; set the variable to `true` to pause it.
 
 #### Objective
 Each push to main that passes CI reaches production with no one at the Mac. A build reaches users
@@ -467,7 +467,9 @@ waiting run when a newer push replaces it, so main's newest commit is the one th
    production, so a report that announces a merge says so, and that the script is for a hotfix.
 
 #### Owner steps (the owner does these)
-- Create a Vercel token, scoped to this project if Hobby offers that scope.
+- Create a Vercel token scoped to the team that owns the project. A token scoped to the project alone
+  stages the build, but `vercel promote` then fails with `Error: User not found. (404)` (CI run
+  45241517699, 2026-11-24).
 - Create environment `production` (deployment branches: `main`) with secrets `VERCEL_TOKEN`,
   `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` and `VERCEL_AUTOMATION_BYPASS_SECRET`.
 - Publish release `tiles-3ecc1a50b85c` with the current tar (`gh release create`). The release text names ODbL 1.0 and
