@@ -741,7 +741,7 @@ test.describe("destination survives · laptop 1440x900", () => {
     const link = page.url();
     let other: BrowserContext | null = null;
     try {
-      // a stranger's browser: no title cookie, no saved places
+      // a stranger's browser: no saved places
       other = await browser.newContext({
         ignoreHTTPSErrors: true,
         viewport: { width: 1440, height: 900 },

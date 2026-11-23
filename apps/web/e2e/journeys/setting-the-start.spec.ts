@@ -628,14 +628,15 @@ test.describe(`${LAPTOP.name}: saved place twice`, () => {
 for (const dev of DEVICES) {
   test.describe(`${dev.name} first visit`, () => {
     test.use({ ...dev.use, storageState: { cookies: [], origins: [] } });
-    test("title → Press start → the first useful action is clear", async ({
+    // SPEC-web-app v1.30: no title screen; a bare visit opens on the map
+    test("a bare visit opens on the map; the first useful action is clear", async ({
       page,
     }) => {
       await page.goto("/");
-      const title = page.getByRole("dialog", { name: /Hakuba Valley/i });
-      await expect(title).toBeVisible({ timeout: 30_000 });
-      await press(dev, page.getByRole("button", { name: "Press start" }));
-      await expect(title).toHaveCount(0);
+      await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+        timeout: 30_000,
+      });
+      await expect(page.getByRole("dialog")).toHaveCount(0);
       await expect(searchBox(page)).toBeInViewport();
       await expect(
         page.getByText(
@@ -644,9 +645,10 @@ for (const dev of DEVICES) {
             : /tap the map, to set\s+your starting point/,
         ),
       ).toBeInViewport();
-      // touch: no keyboard pops over the map (focus on the sheet); laptop: ready to type
-      if (dev.touch) await expect(searchBox(page)).not.toBeFocused();
-      else await expect(searchBox(page)).toBeFocused();
+      // nothing grabs focus (no keyboard pops over the map); the first Tab is the search box
+      await expect(searchBox(page)).not.toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(searchBox(page)).toBeFocused();
     });
   });
 }
