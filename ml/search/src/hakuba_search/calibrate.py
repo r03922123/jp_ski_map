@@ -11,7 +11,7 @@ import numpy as np
 from hakuba_api.places.suggest import load_index
 from sentence_transformers import SentenceTransformer
 
-from hakuba_search.embed import BASE_MODEL, PASSAGE, QUERY, device, entry_text
+from hakuba_search.embed import BASE_MODEL, device, entry_text, prefixes
 from hakuba_search.synth import make_pairs
 
 
@@ -36,8 +36,9 @@ def main() -> None:
     ids = [e.id for e in entries]
     dev = make_pairs(entries)["dev"]
     model = SentenceTransformer(args.model, device=device())
-    docs = model.encode([PASSAGE + entry_text(e) for e in entries], normalize_embeddings=True)
-    qs = model.encode([QUERY + p.query for p in dev], normalize_embeddings=True)
+    query, passage = prefixes(args.model)
+    docs = model.encode([passage + entry_text(e) for e in entries], normalize_embeddings=True)
+    qs = model.encode([query + p.query for p in dev], normalize_embeddings=True)
     sims = qs @ docs.T
     top = sims.argmax(axis=1)
     scores = [float(sims[r, j]) for r, j in enumerate(top)]

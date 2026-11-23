@@ -6,6 +6,7 @@ import pytest
 from hakuba_api.common.geo import Coord
 from hakuba_api.places.index import Entry
 
+from hakuba_search.embed import prefixes
 from hakuba_search.evaluate import hit_at, matches, mean_se, paired_diff
 from hakuba_search.synth import Pair, make_pairs, queries_for, rebalance, split_of, to_zh, typo
 
@@ -131,3 +132,11 @@ def test_a_paired_difference_is_tighter_than_an_unpaired_one() -> None:
 def test_paired_lists_must_cover_the_same_queries() -> None:
     with pytest.raises(ValueError):
         paired_diff([True, False], [True])
+
+
+def test_only_e5_models_get_the_e5_prefixes() -> None:
+    e5 = ("query: ", "passage: ")
+    assert prefixes("intfloat/multilingual-e5-small") == e5
+    assert prefixes("models/e5-hakuba-v15") == e5  # a fine-tune of it keeps them
+    assert prefixes("models/hakuba-v16") == e5  # whatever --out named it
+    assert prefixes("BAAI/bge-m3") == ("", "")  # plain text, as Workers AI's bge-m3 takes it
