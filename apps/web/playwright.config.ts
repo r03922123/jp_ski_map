@@ -15,7 +15,16 @@ export default defineConfig({
     // a failure that shows only under load (Task 88) leaves a full trace to read
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    // iPhones run WebKit, which sizes form controls its own way (it ignores min-height on a
+    // <select>), so the touch-target check runs there too
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+      testMatch: "touch-targets.spec.ts",
+    },
+  ],
   webServer: [
     {
       command: `uv run --project ../../services/api uvicorn hakuba_api.main:app --port ${API_PORT} --host 127.0.0.1`,
