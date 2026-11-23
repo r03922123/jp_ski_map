@@ -362,6 +362,41 @@ scheduled run emails the repo owner; the table is in the run's summary for 90 da
 - GitHub turns off scheduled workflows after 60 days without repo activity, so a quiet off-season
   can stop the probe silently: check the Actions tab after a long pause.
 - Run it by hand: `PROD_URL=<origin> scripts/probe-production.sh`; `LIMIT_S=0.05` makes the first rows fail.
+- First `workflow_dispatch` runs, 2026-11-23: on a warm instance, every request 0.37–0.43 s (the
+  runner's round trip); after 17 idle minutes, a real cold start: health 4.59 s, first route 0.41 s,
+  cold start 4.80 s, passed. That is n=1, in line with Checkpoint S's median of 4.75 s.
+
+#### Valhalla's share of the cold start (measured 2026-11-23)
+Two protected previews of `main` at `30dd056`, deployed from branches that never merge: one as is,
+one without `pyvalhalla` (so `/api/route` answers 503). Both added a temporary `x-boot-id` and
+`x-import-s` header. Every 12 minutes, each got a first `/api/health`, a first `/api/route`, then both
+again, from the owner's home network; all 5 rounds landed on a new instance (new `x-boot-id`). The
+first request after each deploy (6.70 s with, 3.18 s without) is left out as a first-ever start.
+
+| Part (n=5 cold starts each) | Median | Mean ± SE | Range |
+|---|---|---|---|
+| Cold start with Valhalla (first health + first route − warm health) | 3.31 s | 3.27 ± 0.09 s | 2.94–3.48 s |
+| First health, with Valhalla | 3.11 s | 3.11 ± 0.10 s | 2.84–3.40 s |
+| First health, without Valhalla | 1.78 s | 1.99 ± 0.24 s | 1.67–2.95 s |
+| **Bundle penalty:** with − without, paired by round | 1.26 s | 1.12 ± 0.27 s | 0.16–1.73 s |
+| **Engine load:** first route − warm route, measured in the function | 0.113 s | 0.116 ± 0.002 s | 0.112–0.122 s |
+| App import (`x-import-s`), with / without | 0.60 / 0.57 s | 0.64 / 0.64 s | 0.54–0.92 s |
+
+- **Valhalla costs about 1.2 s of a 3.3 s cold start (about a third), and almost all of it is bundle
+  size, not loading Valhalla.** The bundle with `pyvalhalla` is 324.07 MB and the build says it
+  "exceeds the standard size; optimizing dependencies", so packages install when an instance starts.
+  Without it the build prints no such line (Vercel doesn't print the size then). Importing Valhalla,
+  building the Actor and the first route add only 0.12 s in the function (0.093 s on the Mac:
+  import 44 ms, Actor 3.5 ms, first route 46 ms, medians of 10).
+- The rest, about 2 s, is the platform starting the instance, the app's own import (0.6 s; on the Mac
+  `fastapi` alone is 0.34 s of 0.89 s) and one round trip (0.19 s warm).
+- **Limits:** n=5 per arm, one evening, one network. One round (20:07) showed only 0.16 s of
+  penalty. Previews start faster than production: production's cold start was 4.80 s today (n=1) and
+  4.75 s at Checkpoint S (n=5); why isn't known, so the 1.1 s is a preview number.
+- **Hosted routing (Stadia Maps):** it would cut roughly 1.1 s off a cold start, by bringing the
+  bundle under Vercel's size limit rather than by skipping the 0.12 s load. That is real room under
+  the 5 s target, but every route would then pay a network hop and a quota. Getting the bundle under
+  the limit another way would bring the same gain without a new dependency (untested).
 
 #### Open questions
 1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL
