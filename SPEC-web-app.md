@@ -281,7 +281,7 @@ Success means:
 5. **Under the boxes**, a row with ⊕ "Add destination" (Drive and Walk; it replaces "Add stop" in the sheet and opens the same empty stop box), the destination's Save star, and ★ Saved. On a landscape phone (under 480 px tall) the row sits beside the boxes, since a third row would leave no map. A pin card that would reach under this taller card opens below its pin.
 6. **Bus's To box** shows the lodging or place, else the chosen bus's resort, else the resort that is selected or was sent there from Saved.
    - A place chosen there asks `/api/bus/to-place`, as a swap does.
-   - A resort chosen there narrows the list to that resort. A bus tapped in the full list names its resort in the box but doesn't narrow the list.
+   - A resort chosen there narrows the list to that resort. A bus tapped in the full list names its resort in the box but doesn't narrow the list. That resort is still the trip's destination: Drive and Walk go there and the link holds it (2026-11-23).
    - Any new pick drops the chosen bus, because it was chosen for the old destination.
    - ✕ and the "Shuttles to resorts" link both clear the destination and the chosen bus, and show every resort.
 7. Bus's read-only To row in the trip list goes, because it would contradict the box.

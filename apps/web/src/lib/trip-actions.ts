@@ -61,7 +61,7 @@ export function tripActions(
     searchKey,
     setSearchKey,
     setFocusedSearchKey,
-    setSelectedResortId,
+    setChosenResortId,
     setCategory,
     setPoiId,
     setPoint,
@@ -75,7 +75,7 @@ export function tripActions(
   const selectResort = (id: string) => {
     // the To box and the Bus list follow the resort, so a bus to another one can't stay
     if (storedBusChoice?.resortId !== id) setBusChoice(null);
-    setSelectedResortId(id);
+    setChosenResortId(id);
     setPoint(null);
   };
   // The To box (SPEC-web-app v1.8, BC-T1): a pick there changes only the destination. A
@@ -92,14 +92,14 @@ export function tripActions(
     } else {
       // the place replaces whatever was chosen: no resort card or food row stays pressed,
       // and the link holds only the point (the same gap in Go here is D5, cluster J)
-      setSelectedResortId(null);
+      setChosenResortId(null);
       setPoiId(null);
       setPoint({ coord: place.coord, name: place.name });
     }
   };
   const clearTo = () => {
     setBusChoice(null);
-    setSelectedResortId(null);
+    setChosenResortId(null);
     setPoiId(null);
     setPoint(null);
   };
@@ -108,6 +108,9 @@ export function tripActions(
     setOriginName(null);
     setOriginSource(null);
     setSearchLabel(null);
+    // the bus was for the old start, but its resort stays the destination
+    const busResort = point ? null : storedBusChoice?.resortId;
+    if (busResort) setChosenResortId((id) => id ?? busResort);
     setBusChoice(null);
     // an empty stop box would take the next tap, which is meant for the new start
     setStops((list) => list.filter((st) => st.place !== null));
@@ -156,6 +159,8 @@ export function tripActions(
     // Directions: the start becomes the destination, and From waits to be filled (rule 3)
     directionsTo: () => {
       if (!fromPlace) return;
+      // first: clearOrigin keeps a tapped bus's resort, which the new To then replaces
+      clearOrigin();
       chooseTo({
         id: fromPlace.id,
         name: fromPlace.name,
@@ -163,7 +168,6 @@ export function tripActions(
         // a resort stays a resort; anything else is a named point
         kind: fromPlace.kind === "resort" ? "resort" : "place",
       });
-      clearOrigin();
       // the new, empty From box takes focus: the Directions button that had it is gone
       setSearchKey(searchKey + 1);
       setFocusedSearchKey(searchKey + 1);
@@ -185,10 +189,10 @@ export function tripActions(
         resorts?.some((r) => r.id === fromPlace.id)
       ) {
         setCategory("resorts");
-        setSelectedResortId(fromPlace.id);
+        setChosenResortId(fromPlace.id);
         setPoint(null);
       } else {
-        setSelectedResortId(null);
+        setChosenResortId(null);
         setPoint({ coord: fromPlace.coord, name: fromPlace.name });
       }
       setStops((list) => [...list].reverse());

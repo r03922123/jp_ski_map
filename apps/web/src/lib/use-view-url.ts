@@ -60,7 +60,7 @@ export function useViewUrl({
       })),
     );
     setImportCode(readImportHash(window.location.hash));
-    trip.setSelectedResortId(view.resortId);
+    trip.setChosenResortId(view.resortId);
     trip.setCategory(view.category);
     trip.setPoiId(view.poiId);
     setRankOptions(view.rank);

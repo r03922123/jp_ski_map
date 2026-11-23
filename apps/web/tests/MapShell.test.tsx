@@ -20,6 +20,7 @@ import type MapView from "@/components/MapView";
 import type { Resort, Route } from "@/lib/api";
 import * as api from "@/lib/api";
 import { emptyState, savedStore, toggleInList } from "@/lib/saved-places";
+import busFixture from "../e2e/fixtures/bus-options-2026-03-20.json";
 import driveFixture from "./fixtures/route-drive.json";
 import walkFixture from "./fixtures/route-walk.json";
 
@@ -360,6 +361,79 @@ describe("MapShell mode", () => {
     expect(
       await screen.findByText("No more departures after this time today."),
     ).toBeInTheDocument();
+  });
+
+  // UX panel 2026-11-23: a bus tapped with no destination set named Happo-One in the To
+  // box, but the link had no resort and Drive and Walk had no destination
+  it("a tapped bus's resort stays the destination in the link and on Drive", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    const [option] = await screen.findAllByRole("button", { name: /Board/ });
+    fireEvent.click(option);
+    expect(await screen.findByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
+    await waitFor(() => expect(query().get("mode")).toBe("drive"));
+    await waitFor(() =>
+      expect(map().destination).toEqual(happo.accessPoints[0].coord),
+    );
+    expect(
+      await screen.findByRole("tab", { name: /Drive 8 min/ }),
+    ).toBeInTheDocument();
+
+    // a new start keeps the destination listed (SPEC-web-app "the stops and the destination stay")
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear starting point" }),
+    );
+    await waitFor(() => expect(query().get("from")).toBeNull());
+    expect(query().get("resort")).toBe(happo.id);
+  });
+
+  it("a tapped bus doesn't narrow the Bus list to its resort (v1.13 rule 6)", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue(
+      busFixture as api.BusResult,
+    );
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    const boards = () => screen.getAllByRole("button", { name: /Board/ });
+    await waitFor(() => expect(boards().length).toBeGreaterThan(3));
+    const listed = boards().length;
+    const [happoBus] = within(
+      screen.getByRole("region", { name: happo.name.en }),
+    ).getAllByRole("button", { name: /Board/ });
+    fireEvent.click(happoBus);
+    expect(await screen.findByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+    // one resort has 3 options in the fixture: narrowed, the other resorts' buses would go
+    expect(boards().length).toBeGreaterThanOrEqual(listed - 1);
+  });
+
+  it("Directions after a tapped bus makes the start the only destination", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    // with the Food list open, Drive has no destination, so the start's card offers Directions
+    renderShell("?from=36.69736,137.85393&mode=bus&cat=food");
+    const [option] = await screen.findAllByRole("button", { name: /Board/ });
+    fireEvent.click(option);
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
+    await waitFor(() => expect(query().get("dest")).toMatch(/^pt:/));
+    expect(query().get("resort")).toBeNull();
   });
 });
 
