@@ -35,8 +35,9 @@ export default defineConfig({
       ],
       origins: [],
     },
-    // a failed run's trace (gitignored test-results/) can hold the bypass header: never share it
-    trace: "retain-on-failure",
+    // a failed run's trace (gitignored test-results/) can hold the bypass header: never share it.
+    // Off in CI, where GitHub masks secrets in logs but not inside files (SPEC-deploy Phase C).
+    trace: process.env.CI ? "off" : "retain-on-failure",
   },
   // Desktop Chrome, like the main suite: the flows and selectors below are the ones it proves
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
