@@ -998,7 +998,9 @@ layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API sli
 - [x] v1.1 (owner's request, 2026-11-23): a tap on a run or lift opens its card (name, difficulty or lift type,
   resort), and the dropped pin is Google's red pin with a bottom card (`MapCard`), replacing the popup and its
   placement maths (`pinCardAnchor`, `pinEaseOffsetY`)
-- [ ] A run's length and the lift it starts from on its card (needs the whole line, not MapLibre's tile-clipped one)
+- [x] v1.2 (2026-11-23): the card shows OpenSkiMap's numbers (distance, vertical, slope; speed and ride time for
+  the 7 lifts OSM times), measured at refresh
+- [ ] The lift a run starts from on its card
 
 ## Task J18: Deploy every green merge from CI (ADR-0009, accepted 2026-11-23)
 Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of
@@ -1024,3 +1026,5 @@ Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/
   in fugashi may carry BSD/GPL/LGPL terms, unchecked (#123 review)
 - D5 this file: 979 lines with 84 finished tasks between the open ones; proposal: move finished tasks to `tasks/done.md`
   (needs the owner's OK, since it moves where status lives)
+- D8 `services/api`: the great-circle distance is written three times: `common/geo.py` `km` (2026-11-23) and private
+  `_km` copies in `pois/query.py` and `places/index.py`; move both callers to `km` and delete the copies (a refactor PR)

@@ -41,12 +41,21 @@ export type SkiLine = {
   difficulty: string | null;
   liftType: string | null;
   resortId: string;
+  /** measured at refresh (SPEC-ski-runs v1.2): along the slope, m */
+  distanceM: number | null;
+  minElevationM: number | null;
+  maxElevationM: number | null;
+  /** average: vertical / ground length × 100 */
+  slopePct: number | null;
+  /** lifts only: ride time, s */
+  durationS: number | null;
 };
 
 /** A tapped feature's properties (untyped, from MapLibre) as a SkiLine, or null. */
 export function skiLineOf(p: Record<string, unknown> | null | undefined) {
   if (!p || (p.kind !== "run" && p.kind !== "lift")) return null;
   const text = (v: unknown) => (typeof v === "string" ? v : null);
+  const num = (v: unknown) => (typeof v === "number" ? v : null);
   return {
     id: String(p.id),
     kind: p.kind,
@@ -54,6 +63,11 @@ export function skiLineOf(p: Record<string, unknown> | null | undefined) {
     difficulty: text(p.difficulty),
     liftType: text(p.liftType),
     resortId: String(p.resortId),
+    distanceM: num(p.distanceM),
+    minElevationM: num(p.minElevationM),
+    maxElevationM: num(p.maxElevationM),
+    slopePct: num(p.slopePct),
+    durationS: num(p.durationS),
   } satisfies SkiLine;
 }
 

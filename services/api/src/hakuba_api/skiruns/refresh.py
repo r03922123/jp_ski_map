@@ -5,6 +5,7 @@ never reach OpenSkiMap: the app reads this snapshot. See SPEC-ski-runs.md.
 """
 
 import json
+import math
 from collections import Counter
 from typing import Any, Literal
 
@@ -12,7 +13,7 @@ import httpx
 from pydantic import BaseModel
 
 from hakuba_api.catalog.store import load_resorts
-from hakuba_api.common.geo import HAKUBA_BBOX
+from hakuba_api.common.geo import HAKUBA_BBOX, Coord, km
 from hakuba_api.common.upstream import USER_AGENT
 from hakuba_api.data.paths import data_dir
 from hakuba_api.skiruns.models import Difficulty, LiftType, SkiLine, SkiLines
@@ -63,6 +64,7 @@ class _LiftProps(BaseModel):
     name: str | None
     status: str
     liftType: LiftType  # noqa: N815
+    duration: float | None  # seconds, OSM's `duration`
     skiAreas: list[_Area]  # noqa: N815
 
 
@@ -92,6 +94,33 @@ def _round(coords: Any) -> Any:
     return [_round(c) for c in coords]
 
 
+def _stats(geometry: dict[str, Any]) -> dict[str, int | None]:
+    """OpenSkiMap's numbers for a line: length along the slope, lowest and highest point,
+    average slope. Measured before rounding drops the elevations."""
+    rings = geometry["coordinates"] if geometry["type"] == "Polygon" else [geometry["coordinates"]]
+    heights = [p[2] for ring in rings for p in ring if len(p) > 2]
+    low = round(min(heights)) if heights else None
+    high = round(max(heights)) if heights else None
+    stats: dict[str, int | None] = {
+        "distanceM": None,
+        "minElevationM": low,
+        "maxElevationM": high,
+        "slopePct": None,
+    }
+    line = geometry["coordinates"]
+    if geometry["type"] != "LineString" or len(heights) != len(line):
+        return stats  # an area, or a line with a point missing its elevation
+    ground = [
+        km(Coord(lat=a[1], lng=a[0]), Coord(lat=b[1], lng=b[0])) * 1000
+        for a, b in zip(line, line[1:], strict=False)
+    ]
+    rises = [b[2] - a[2] for a, b in zip(line, line[1:], strict=False)]
+    stats["distanceM"] = round(sum(map(math.hypot, ground, rises)))
+    if sum(ground) > 0 and low is not None and high is not None:
+        stats["slopePct"] = round(100 * (max(heights) - min(heights)) / sum(ground))
+    return stats
+
+
 def _resort(areas: list[_Area]) -> str | None:
     """The resort of the first ski area: None when there is none or it has no name."""
     name = areas[0].properties.name if areas else None
@@ -110,11 +139,12 @@ def build(runs: dict[str, Any], lifts: dict[str, Any]) -> SkiLines:
             if kind == "run":
                 p = _RunProps.model_validate(f.properties)
                 keep = p.status == "operating" and bool(RUN_USES & set(p.uses))
-                difficulty, lift_type = p.difficulty, None
+                difficulty, lift_type, duration = p.difficulty, None, None
             else:
                 p = _LiftProps.model_validate(f.properties)
                 keep = p.status == "operating"
                 difficulty, lift_type = None, p.liftType
+                duration = round(p.duration) if p.duration is not None else None
             resort_id = _resort(p.skiAreas) if keep else None
             if resort_id is None:
                 continue
@@ -125,6 +155,8 @@ def build(runs: dict[str, Any], lifts: dict[str, Any]) -> SkiLines:
                 "difficulty": difficulty,
                 "liftType": lift_type,
                 "resortId": resort_id,
+                **_stats(f.geometry),
+                "durationS": duration,
             }
             geometry = {
                 "type": f.geometry["type"],

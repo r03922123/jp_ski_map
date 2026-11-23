@@ -11,6 +11,11 @@ const run: SkiLine = {
   difficulty: "intermediate",
   liftType: null,
   resortId: "happo-one",
+  distanceM: 1355,
+  minElevationM: 1256,
+  maxElevationM: 1672,
+  slopePct: 32,
+  durationS: null,
 };
 
 describe("SkiLineCard", () => {
@@ -58,6 +63,19 @@ describe("SkiLineCard", () => {
     expect(
       screen.getByText("Run, difficulty unknown · Happo-One"),
     ).toBeInTheDocument();
+  });
+
+  // SPEC-ski-runs v1.2: OpenSkiMap's numbers, as label and value
+  it("lists the run's distance, vertical and slope", () => {
+    render(
+      <SkiLineCard line={run} resortName="Happo-One" onClose={() => {}} />,
+    );
+    const value = (label: string) =>
+      screen.getByText(label).nextElementSibling?.textContent;
+    expect(value("Distance")).toBe("1.36 km");
+    expect(value("Vertical")).toBe("416 m (1256–1672 m)");
+    expect(value("Slope (average)")).toBe("18° (32%)");
+    expect(screen.queryByText("Ride time")).toBeNull();
   });
 
   it("closes with ✕ or Escape", () => {

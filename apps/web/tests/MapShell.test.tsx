@@ -223,6 +223,11 @@ describe("MapShell destination", () => {
         difficulty: "easy",
         liftType: null,
         resortId: "happo-one",
+        distanceM: null,
+        minElevationM: null,
+        maxElevationM: null,
+        slopePct: null,
+        durationS: null,
       }),
     );
     expect(screen.queryByRole("group", { name: "Dropped pin" })).toBeNull();
