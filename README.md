@@ -57,6 +57,7 @@ pnpm --dir apps/web e2e   # Playwright; needs the API and Valhalla running
 
 - **Unit:** pytest for the API (ranking, the bus query, validators, adapters on recorded fixtures); Vitest + Testing Library for the web app.
 - **End to end:** about 330 Playwright tests, organised by user goal (set the start, reach a destination, plan a bus trip, stops and navigation, resilience to failing endpoints) on phone and laptop sizes, with real touch events. Known bugs are kept as `test.fail()` with an id, so a fix shows up as "expected to fail, but passed".
+- **WebKit in the default run:** `touch-targets.spec.ts` also runs on WebKit (it sizes form controls its own way), so a full `pnpm e2e` needs `pnpm --dir apps/web exec playwright install webkit` once.
 - **iPhone (WebKit):** `npx playwright test -c playwright.iphone.config.ts` runs key journeys on WebKit with iPhone emulation, the engine every iOS browser uses.
 - **CI** (GitHub Actions) runs lint, type checks, unit tests, data validation and the production build on every push.
 

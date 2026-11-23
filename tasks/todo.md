@@ -1018,5 +1018,7 @@ Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/
   Japanese name, nor unique ids); aliases accept a bare `https://` and dedupe by casefold, not `normalize`;
   38 readings are ASCII `name_ja` values; DATA-LICENSES says unidic-lite is MIT, but the UniDic data and MeCab
   in fugashi may carry BSD/GPL/LGPL terms, unchecked (#123 review)
+- D8 UX panel 2026-11-23 (`docs/ux/2026-11-23-ux-panel.md`): 4 fixed (#143–#145, #147), 2 owner decisions
+  and about 20 follow-ups listed there, most severe first (Back leaves the app, `at=` in the bus link, category search)
 - D5 this file: 979 lines with 84 finished tasks between the open ones; proposal: move finished tasks to `tasks/done.md`
   (needs the owner's OK, since it moves where status lives)
