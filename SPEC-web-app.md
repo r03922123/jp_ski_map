@@ -300,7 +300,7 @@ Success means:
 2. **No sound.** The app makes no sound and never creates an AudioContext. A stored `hakuba:sound` is ignored.
 3. **No quests.** No daily quests are made or completed. A stored rider keeps its `quests` field so old saves still load.
 4. **A `#rider=` link** opens the app with no dialog. Like other shared links, it still skips the title screen.
-5. **Kept:** the pixel look, the title screen, stamps (the ★ in the resort list and the stamp moment), check-in, and the trip stats in storage.
+5. **Kept:** the pixel look, the title screen (until v1.30), stamps (the ★ in the resort list and the stamp moment), check-in, and the trip stats in storage.
 
 **Success criteria.** `e2e/hud-removed.spec.ts` passes: none of the three buttons exists on a phone (sheet expanded) or a laptop; on a laptop, taps create no AudioContext even with `hakuba:sound` saved as on, and a `#rider=` link shows no dialog. The code that made sound or opened the card is deleted, so screen size can't bring either back.
 

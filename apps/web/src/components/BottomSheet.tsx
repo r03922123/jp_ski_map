@@ -203,9 +203,7 @@ export function BottomSheet({
       ref={sectionRef}
       id={sectionId}
       aria-label={label}
-      // a place to hand focus without raising a phone's keyboard (the title screen)
       data-sheet
-      tabIndex={-1}
       data-state={state}
       data-phone-hidden={hiddenOnPhone || undefined}
       data-slim={slim || undefined}
@@ -270,7 +268,7 @@ export function BottomSheet({
         <div
           ref={headerRef}
           data-trip-header
-          // where the title screen hands focus while the sheet is hidden
+          // where focus goes when the hidden sheet body held it (the effect above)
           tabIndex={-1}
           className="max-md:visible fixed top-[calc(0.5rem+var(--safe-top))] right-[max(0.5rem,var(--safe-right))] left-[max(0.5rem,var(--safe-left))] z-20 outline-none md:relative md:inset-auto md:top-auto md:px-4 md:pt-4 md:pb-3"
         >

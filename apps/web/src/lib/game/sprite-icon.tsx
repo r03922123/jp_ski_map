@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { HERO } from "@/lib/game/sprites";
 
-export const ICON_BACKGROUND = "#2c3e6b"; // the title screen's navy
+export const ICON_BACKGROUND = "#2c3e6b"; // navy (it was the title screen's, removed in web-app v1.30)
 
 /** The idle rider on navy, as a square PNG for the home screen (SPEC-web-app v1.16). */
 export function spriteIcon(size: number): ImageResponse {

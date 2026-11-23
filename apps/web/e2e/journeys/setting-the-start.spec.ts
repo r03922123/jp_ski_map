@@ -646,7 +646,9 @@ for (const dev of DEVICES) {
         ),
       ).toBeInViewport();
       // nothing grabs focus (no keyboard pops over the map); the first Tab is the search box
-      await expect(searchBox(page)).not.toBeFocused();
+      expect(
+        await page.evaluate(() => document.activeElement === document.body),
+      ).toBe(true);
       await page.keyboard.press("Tab");
       await expect(searchBox(page)).toBeFocused();
     });
