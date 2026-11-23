@@ -388,6 +388,13 @@ describe("MapShell mode", () => {
     expect(
       await screen.findByRole("tab", { name: /Drive 8 min/ }),
     ).toBeInTheDocument();
+
+    // a new start keeps the destination listed (SPEC-web-app "the stops and the destination stay")
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear starting point" }),
+    );
+    await waitFor(() => expect(query().get("from")).toBeNull());
+    expect(query().get("resort")).toBe(happo.id);
   });
 });
 
