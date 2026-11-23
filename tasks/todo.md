@@ -981,9 +981,9 @@ each task is one PR, built in a fresh session from the spec.
 ## The Maps look, deletion first (SPEC-web-app v1.30, 2026-11-23)
 From the 2026-11-23 UX review: Google Maps stays the interaction model; game pieces go or are restyled.
 Basemap and route colours land before the ski-runs layer (SPEC-ski-runs), so run colours are tuned once.
-- [ ] PR 1: no title screen; a bare visit opens on the map
-- [ ] PR 2: plain OpenFreeMap basemap (no `gameStyle`), before/after screenshots at 375×812 and 1366×850
-- [ ] PR 3: blue route line (`#185fc6` over a darker casing, dotted walk, dashed grey alternates)
+- [x] PR 1 (#132): no title screen; a bare visit opens on the map
+- [x] PR 2 (#133): plain OpenFreeMap basemap (Liberty kept) (no `gameStyle`), before/after screenshots at 375×812 and 1366×850
+- [x] PR 3 (#134): blue route line (`#185fc6` over a darker casing, dotted walk, dashed grey alternates)
 - [ ] Next batch (needs its own spec lines): stamps restyled as "Visited ✓" (keep the stamp data); remove the
   hero sprite, the destination flag, world badges and other sprites; lucide icons in their place; a new app icon
 

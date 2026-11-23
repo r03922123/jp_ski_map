@@ -46,8 +46,9 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
   - Konbini and food icons.
   - Saved places: a star.
   - The destination: a flag.
-- **Route lines:** dotted trails, like an overworld path. The active route is a thick dashed line, and
-  the alternates are thin and grey. The walk legs of a bus journey use footprint dots.
+- **Route lines** follow Maps since web-app v1.30: the chosen route is solid blue `#185fc6` over a darker
+  casing `#0e3f8c`, walking is a dotted line in the same blue, and alternates stay dashed grey. (They were
+  overworld trails: an ink track with gold dashes, and ink footprint dots.)
 - **Navigation stays plain-readable.** Off-route and arrival states keep strong colour contrast.
 
 ## World numbers

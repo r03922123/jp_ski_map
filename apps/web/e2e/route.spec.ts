@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { devOnly } from "./dev-only";
 
 // Needs the API (started by playwright.config) and Valhalla (docker compose) running.
 test("click map → choose resort → drive then walk route with ETA", async ({
@@ -76,4 +77,24 @@ test("drive route is fitted, labelled, and alternates can be chosen", async ({
   await alternate.click();
   await expect(main).toHaveAttribute("data-route-layers", "alternate,primary");
   await expect(selected).not.toHaveText(before ?? "");
+});
+
+// SPEC-web-app v1.30: walking is dotted blue, driving solid; the dots must not stay behind after a switch
+test("walk then drive: the route line drops its dots", async ({ page }) => {
+  devOnly("reads paint through the dev map handle");
+  const dashes = () =>
+    page.evaluate(() =>
+      (
+        window as unknown as {
+          __hakubaMap: { getPaintProperty(l: string, p: string): unknown };
+        }
+      ).__hakubaMap.getPaintProperty("route-active-line", "line-dasharray"),
+    );
+  await page.goto("/?from=36.69711,137.85393&mode=walk&resort=happo-one");
+  await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
+    timeout: 15_000,
+  });
+  await expect.poll(dashes, { timeout: 15_000 }).toEqual([0, 1.6]);
+  await page.getByRole("tab", { name: /Drive/ }).click();
+  await expect.poll(dashes, { timeout: 15_000 }).toBeUndefined();
 });
