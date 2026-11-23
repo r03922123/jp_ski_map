@@ -1,0 +1,451 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "38118e715d7ce66ac3ded06d0690eb2773a571cc",
+    "name": "アルプス第5高速ペアリフト, Alps Number 5 High Speed Pair Lift",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "9e9a84ef97c366ed523b405845fa42051c9d578d",
+       "name": "白馬乗鞍スキー場, Hakuba Norikura Onsen Ski Resort, はくばのりくらスキーじょう",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8769085,
+      36.7655981,
+      865.3
+     ],
+     [
+      137.8765435,
+      36.7657698,
+      868.5
+     ],
+     [
+      137.8759458,
+      36.766051,
+      876
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "9a983acfda6a9b5b03641c9e4325efbe17e874f6",
+    "name": "チャンピオンクワッド, Champion Quad",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "0cbcc6a3e3481cdc6750911f4cfe7c412563905f",
+       "name": "栂池高原, Tsugaike Kogen",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8629906,
+      36.7566314,
+      944.7
+     ],
+     [
+      137.862531,
+      36.7569712,
+      954.6
+     ],
+     [
+      137.862046,
+      36.7573298,
+      962.6
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "ff431197c5c50f36f211bc299fa14d902837b07f",
+    "name": "ペアリフト Line D, Chair Lift Line D",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "6d8c8a9a4114428e603d1c434b147d1217879f85",
+       "name": "白馬47, Hakuba 47",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8280643,
+      36.6842146,
+      819.7
+     ],
+     [
+      137.8278015,
+      36.6837643,
+      847.1
+     ],
+     [
+      137.8274943,
+      36.6832379,
+      878.3
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "ffc19ab7af5e864eb0482b0851a897dc222b7584",
+    "name": "かも１, Kamo 1",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "18cba9125586b2701f80908d351556655f8f6c80",
+       "name": "白馬白馬岩岳, Hakuba Iwatake, 白馬岩岳",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.856894,
+      36.7156621,
+      750.9
+     ],
+     [
+      137.8562607,
+      36.7156762,
+      763.7
+     ],
+     [
+      137.8558208,
+      36.7156894,
+      771.5
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "310d57ee9b696b40d03b832c92ad9511df3ec8c2",
+    "name": "兎平ペア, UsagiDaira",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "2badaaea50fcf2640ddea5311798bbd7e2c17b7c",
+       "name": "白馬八方尾根, Hakuba Happo One",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8145131,
+      36.6981616,
+      1386.6
+     ],
+     [
+      137.8140852,
+      36.6981807,
+      1390.1
+     ],
+     [
+      137.8136573,
+      36.6981998,
+      1398.3
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "47d139098880e2d21e431e6eb37775a58a958a65",
+    "name": "コルチナ第１ペアリフト, Cortina Number 1 Pair Lift",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "b602362c1e045f1cdc1c5aa731c1ee2224205518",
+       "name": "白馬コルチナ, Hakuba Cortina, 白馬岩岳コルチナ",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8872302,
+      36.7763059,
+      872.3
+     ],
+     [
+      137.8871293,
+      36.7763115,
+      872.4
+     ],
+     [
+      137.886867,
+      36.7763259,
+      880.1
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "5551eeb9346b0fc51ec4fa6bba1d462b64785e84",
+    "name": "第１クワッドリフト, 1st Quad Lift",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "351e73f443295e581a711c45d697a82006f24352",
+       "name": "鹿島槍スキー場, Kashimayari Snow Resort",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8249048,
+      36.5981225,
+      1131.1
+     ],
+     [
+      137.825023,
+      36.5985805,
+      1137.4
+     ],
+     [
+      137.8251503,
+      36.599092,
+      1147.1
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "65c7570ac96fcc33d857349f03ad3e126d869e04",
+    "name": "スノーエスカレーター, Snow Escalator",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "magic_carpet",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "a49c1598156961b75dba1bdd98423521965cfe64",
+       "name": "爺ガ岳スキー場, Jiigatake Snow Resort",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8031728,
+      36.5588019,
+      925.5
+     ],
+     [
+      137.8028667,
+      36.559026,
+      928.4
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "70137116d154093b26fde54b27a201e5c39c4270",
+    "name": "五竜テレキャビン, Goryu Telecabine",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "gondola",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "c841118d2b5eed99ac5e30f569bb0f2e6ba7892a",
+       "name": "白馬五竜, Hakuba Goryu",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8349765,
+      36.6636694,
+      832.9
+     ],
+     [
+      137.8344688,
+      36.6636671,
+      842.4
+     ],
+     [
+      137.8325962,
+      36.6636592,
+      873.6
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "656a5c29c76ad2b7e0b09f7a3579c8e2d604fe26",
+    "name": "第３クワッド, Number 3 Quad",
+    "type": "lift",
+    "status": "operating",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "ece5006c66d60ddde5df1f6ccf9d2f6a3e8bcb52",
+       "name": "白馬さのさか, Hakuba Sanosaka Snow Resort",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8408899,
+      36.6210252,
+      893.9
+     ],
+     [
+      137.840209,
+      36.6208788,
+      906
+     ],
+     [
+      137.8387319,
+      36.6205612,
+      931.3
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "753846e62ab52d1b486a6826626fa300535ad5c8",
+    "name": "Tsuga No.1 Pair",
+    "type": "lift",
+    "status": "disused",
+    "liftType": "chair_lift",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "0cbcc6a3e3481cdc6750911f4cfe7c412563905f",
+       "name": "栂池高原, Tsugaike Kogen",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ]
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8320828,
+      36.7666864,
+      1571.4
+     ],
+     [
+      137.8327773,
+      36.7667907,
+      1573.8
+     ],
+     [
+      137.8333369,
+      36.7668747,
+      1583.2
+     ]
+    ]
+   }
+  }
+ ]
+}

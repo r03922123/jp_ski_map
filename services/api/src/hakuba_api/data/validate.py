@@ -12,6 +12,8 @@ from hakuba_api.places.lodging_extras import load_aliases_file, load_readings_fi
 from hakuba_api.places.validate import validate_extras, validate_lodging
 from hakuba_api.pois.store import load_pois
 from hakuba_api.pois.validate import validate_pois
+from hakuba_api.skiruns.store import load_ski_lines
+from hakuba_api.skiruns.validate import validate_ski_lines
 
 
 def collect_errors() -> list[str]:
@@ -35,7 +37,12 @@ def collect_errors() -> list[str]:
         lodging_errors += validate_extras(load_lodging(), load_readings_file(), load_aliases_file())
     except ValidationError as e:
         lodging_errors.append(f"lodging readings/aliases: {e}")
-    return validate_resorts(resorts) + bus_errors + poi_errors + lodging_errors
+    try:
+        ski_errors = validate_ski_lines(load_ski_lines(), [r.id for r in resorts])
+    except (ValidationError, FileNotFoundError) as e:
+        ski_errors = [f"ski_lines.json: {e}"]
+    errors = validate_resorts(resorts) + bus_errors + poi_errors + lodging_errors
+    return errors + ski_errors
 
 
 def main() -> int:
