@@ -20,6 +20,8 @@ Users: the author and friends planning a day in Hakuba, on a phone or a laptop.
 3. From zoom 12 the map draws runs coloured by difficulty and lifts as dark red lines, under the routes and
    markers; names appear from zoom 14.
 4. The map credits name OpenSkiMap, and `DATA-LICENSES.md` has a row for the file.
+5. Production serves it: `scripts/deploy-vercel.sh` copies only the data files it lists (line 63), so
+   `ski_lines.json` joins that list and the matching list in `scripts/test-deploy-vercel.sh`.
 
 ## Data
 
@@ -50,8 +52,25 @@ far more than a 31 KB crop needs.
 | `name` | `properties.name` | may be null; OpenSkiMap names are mostly Japanese |
 | `difficulty` | `properties.difficulty` (runs) | `novice\|easy\|intermediate\|advanced\|expert\|freeride\|extreme\|null` |
 | `liftType` | `properties.liftType` (lifts) | `cable_car\|gondola\|chair_lift\|mixed_lift\|drag_lift\|t-bar\|j-bar\|platter\|rope_tow\|magic_carpet\|funicular\|railway` |
-| `resortId` | matched from `skiAreas[].properties.name` to `data/resorts.json` names | features that match no resort are dropped |
-| `geometry` | `geometry` | LineString or Polygon, 5 dp |
+| `resortId` | `skiAreas[0].properties.name`, by exact match in the table below | no ski area, or a ski area with `name: null`, is dropped |
+| `geometry` | `geometry` | LineString or Polygon; longitude and latitude only (OpenSkiMap's third value, elevation, is dropped), 5 dp |
+
+Ski-area names, matched by **exact string equality** (live names, 2026-11-23). Substring matching is wrong here:
+Cortina's name contains 白馬岩岳, which is Iwatake. A named ski area missing from this table fails the refresh
+with its name, so a renamed area can't silently drop a resort.
+
+| `resortId` | OpenSkiMap ski-area name |
+|---|---|
+| `happo-one` | `白馬八方尾根, Hakuba Happo One` |
+| `tsugaike` | `栂池高原, Tsugaike Kogen` |
+| `goryu` | `白馬五竜, Hakuba Goryu` |
+| `iwatake` | `白馬白馬岩岳, Hakuba Iwatake, 白馬岩岳` |
+| `norikura` | `白馬乗鞍スキー場, Hakuba Norikura Onsen Ski Resort, はくばのりくらスキーじょう` |
+| `hakuba47` | `白馬47, Hakuba 47` |
+| `cortina` | `白馬コルチナ, Hakuba Cortina, 白馬岩岳コルチナ` |
+| `kashimayari` | `鹿島槍スキー場, Kashimayari Snow Resort` |
+| `jigatake` | `爺ガ岳スキー場, Jiigatake Snow Resort` |
+| `sanosaka` | `白馬さのさか, Hakuba Sanosaka Snow Resort` |
 
 It keeps runs whose `uses` include `downhill` or `snow_park`, and lifts whose `status` is `operating`
 (one lift in the bbox is `disused`). Nordic and connection paths are out (v1). It prints a count per resort.
@@ -61,19 +80,23 @@ fails loudly on a missing field; the app only ever reads the committed snapshot,
 refresh, never the site.
 
 **Validator** (joins `hakuba_api.data.validate`): unique ids; every coordinate inside `HAKUBA_BBOX`; each line has
-≥ 2 points; `difficulty` and `liftType` in their enums; every `resortId` exists in `resorts.json`; each of the
+≥ 2 points (a Polygon ring ≥ 4, closed); `difficulty` and `liftType` in their enums; every `resortId` exists in `resorts.json`; each of the
 10 resorts has ≥ 1 lift.
 
 ## Interface
 
 `GET /api/ski-lines` → GeoJSON `FeatureCollection`; each feature's properties are the table above minus
-`geometry`. Read once at startup, served with `Cache-Control: public, max-age=86400`. No query parameters: the
-whole valley is 31 KB gzipped.
+`geometry`. Loaded lazily once per process with `@cache`, like `pois/store.py`, and served with the shared
+`STATIC_CACHE` header (`catalog/router.py:8`, one hour), so a refreshed snapshot shows within an hour of a deploy.
+No query parameters: the whole valley is 31 KB gzipped.
 
 ## Map (web-app)
 
-- New `components/map/SkiLinesLayer.tsx`, fetched with TanStack Query, mounted in `MapView` before
-  `LodgingLayer` so routes, markers and pins draw on top. Not interactive in v1 (taps pass through to the map).
+- New `components/map/SkiLinesLayer.tsx`, fetched with TanStack Query. Mount order alone doesn't set the stacking:
+  react-map-gl adds a layer when its source is ready, so a layer that waits for its fetch lands on top. Each run and
+  lift layer passes `beforeId={LODGING_LAYER}`, which keeps routes, markers and pins above it whenever it arrives.
+- Not interactive in v1: it stays out of `interactiveLayerIds` (`MapView.tsx:460`), so a tap on a run is a tap on
+  the map.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |
@@ -105,9 +128,15 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 - [ ] Unit: a run with no ski area, a `nordic`-only run and a `disused` lift are dropped; a Happo One run gets
       `resortId: "happo-one"`.
 - [ ] `GET /api/ski-lines` returns ≥ 200 runs and ≥ 90 lifts from the live snapshot, every resort present.
+- [ ] Unit: a Cortina ski area is not matched to Iwatake; an unknown named ski area fails the refresh; a
+      `name: null` ski area is dropped; elevation is stripped from every coordinate.
+- [ ] Unit (web): each difficulty, and `null`, maps to the colour in the table above.
 - [ ] e2e (dev, `window.__hakubaMap`): at Happo-One, zoom 14, `queryRenderedFeatures` on the run and lift layers
-      returns features; at zoom 11 it returns none.
-- [ ] e2e: a tap on a run where no marker is opens the same thing a tap on the map opens (the layer takes no taps).
+      returns features; at zoom 11 it returns none. The name label layer returns features at zoom 14, none at 13.
+- [ ] e2e: in `getStyle().layers` every run and lift layer comes before `lodging-pins` and the route layers, as
+      `pilot.spec.ts` checks layer order today.
+- [ ] Unit (web): `interactiveLayerIds` stays `[LODGING_LAYER, ALT_HIT_LAYER]`.
+- [ ] `scripts/test-deploy-vercel.sh` passes with `ski_lines.json` in its list.
 - [ ] Screenshot on a 390 × 844 phone and a 1366 × 850 laptop at Happo-One, zoom 14, checked by eye: runs under
       the route line and markers, the credits line shows OpenSkiMap.
 - [ ] API and web gates green; `python3 scripts/check_docs.py` passes.
@@ -122,8 +151,5 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 
 ## Open questions
 
-- Matching `skiAreas[].properties.name` to our resort ids: the names differ in script and wording
-  ("白馬白馬岩岳, Hakuba Iwatake"). Proposed: an explicit `openskimapNames` list per resort in the refresh module,
-  so a mismatch fails the refresh instead of dropping a resort.
 - Whether the lodging pins (purple, hundreds at zoom 13–14) need thinning once runs share the map: check on the
   phone screenshot; if they hide the runs, that is its own task.
