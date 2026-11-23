@@ -986,12 +986,12 @@ layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API sli
 - [ ] Web slice: `SkiLinesLayer`, the OpenSkiMap credit and the spec's e2e and screenshot checks (after the basemap
   and route-line PRs land)
 
-## Task J18: Deploy every green merge from CI (ADR-0009, proposed 2026-11-23)
-Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C once the owner accepts
-[ADR-0009](../docs/adr/0009-deploy-from-ci.md) and does its owner steps (Vercel token, `production` environment
+## Task J18: Deploy every green merge from CI (ADR-0009, accepted 2026-11-23)
+Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of
+[ADR-0009](../docs/adr/0009-deploy-from-ci.md); the job runs once the owner does its owner steps (Vercel token, `production` environment
 secrets, tiles release). Until then, deploy by hand: J17's API slice merged 2026-11-23 but production still
 answers 404 on `/api/ski-lines`. **Scope:** S (one PR: `--staged`, the `deploy` job, docs)
-- [ ] Owner decision on ADR-0009
+- [x] Owner accepted ADR-0009 (2026-11-23)
 - [ ] Owner steps, then the PR; the first run leaves `/api/ski-lines` at 200
 
 ## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)

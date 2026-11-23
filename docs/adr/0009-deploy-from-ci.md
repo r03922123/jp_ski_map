@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed 2026-11-23. Waits for the owner. If accepted, it replaces three parts of
+Accepted by the owner on 2026-11-23 ("Accept ADR-0009"). It replaces three parts of
 [ADR-0006](0006-vercel-phase-b.md): the Decision's "Deploys are explicit, through one script", the
 rejected alternative "Automatic deploys, with tiles as a GitHub Release asset", and the consequence
 "only a machine that has run `infra/valhalla/build-hakuba.sh` can deploy". The rest of ADR-0006
@@ -130,7 +130,7 @@ later deploy until someone runs `vercel promote`.
 
 ## Next steps
 
-1. The owner accepts or rejects this ADR.
+1. Done 2026-11-23: the owner accepted this ADR.
 2. The owner creates the Vercel token and adds the four secrets to the `production` environment.
 3. The owner publishes release `tiles-3ecc1a50b85c` with the current tar and the ODbL notice.
 4. One PR makes the changes listed in SPEC-deploy Phase C, "Changes to the repo".

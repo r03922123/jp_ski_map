@@ -11,7 +11,7 @@
 > network, and the Mac standby was only partly rehearsed (results under "Probe P and Checkpoint S"). Funnel stays on until friends have moved their saved lists; the owner turns it off.
 > **Status 2026-11-13:** at the owner's word, Funnel is off and the Mac standby and its Valhalla container are stopped;
 > production runs on Vercel only, now with the MCP service (SPEC-agent-tools v2). Criterion 2 is still the owner's check.
-> **Proposed 2026-11-23:** Phase C deploys each green merge to main from CI (ADR-0009, waits for the owner).
+> **Accepted 2026-11-23:** Phase C deploys each green merge to main from CI (ADR-0009). Until its PR and the owner steps land, deploy by hand.
 
 ## Objective
 Let the author's friends open the planner from their own phones, over HTTPS (needed for GPS),
@@ -344,10 +344,10 @@ code; a real iPhone.
 1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL
    isn't written in this public repo; friends get it from the owner.
 
-### Phase C: deploy from CI (proposed 2026-11-23, ADR-0009)
+### Phase C: deploy from CI (accepted 2026-11-23, ADR-0009)
 
-Waits for the owner's decision on [ADR-0009](docs/adr/0009-deploy-from-ci.md). Until then, Phase B's
-rules hold, including "deploy only through the script".
+The owner accepted [ADR-0009](docs/adr/0009-deploy-from-ci.md) on 2026-11-23. Until the changes below
+land, Phase B's rules hold, including "deploy only through the script".
 
 #### Objective
 Each push to main that passes CI reaches production with no one at the Mac. A build reaches users
