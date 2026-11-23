@@ -2,7 +2,8 @@
 
 ## Status
 
-Decision 1 was accepted by the owner on 2026-11-09. Decision 2 is proposed: it replaces an earlier
+Decision 1 was accepted by the owner on 2026-11-09; [ADR-0008](0008-public-demo-link.md) lets the
+production URL into the repo as a portfolio demo (2026-11-23). Decision 2 is proposed: it replaces an earlier
 recommendation to go private, which a fresh review disproved, and the owner confirms it at merge.
 
 ## Date

@@ -6,7 +6,7 @@ description: Deploy jp_ski_map to Vercel (a preview, or production with --prod) 
 # Deploy to Vercel
 
 Production is Vercel Hobby, region `hnd1` (SPEC-deploy Phase B). The repo is public, so never write
-the production URL or the MCP token into a file, commit, PR or report.
+the MCP token into a file, commit, PR or report. The production URL is public (ADR-0008).
 
 ## 1. Deploy
 

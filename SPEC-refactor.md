@@ -122,7 +122,7 @@ checked with its eval, not only unit tests, because a docstring change can chang
 - **Ask first:** renaming an MCP tool or API field; any change to Ask's caps or model; touching
   files the pipeline or Ask Maps sessions have open.
 - **Never:** edit a test's assertion to make a move pass; change behaviour inside a refactor
-  commit; print or commit the MCP token or the production URL.
+  commit; print or commit the MCP token.
 
 ## Open questions
 
