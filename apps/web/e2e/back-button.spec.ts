@@ -14,11 +14,9 @@ async function open(page: Page, url = TRIP) {
 
 const back = (page: Page) => page.evaluate(() => history.back());
 const entries = (page: Page) => page.evaluate(() => history.length);
-/** A step's history entry is pushed in an effect, a frame after it shows: wait for it. */
 async function stepPushed(page: Page, before: number) {
   await expect.poll(() => entries(page)).toBe(before + 1);
 }
-/** Closing in the app takes the entry back a tick later; resolves on that pop. */
 const nextPop = (page: Page) =>
   page.evaluate(
     () =>
@@ -64,7 +62,6 @@ test("closing with Done leaves no extra Back step behind", async ({ page }) => {
   await expect(page).toHaveURL(/robots\.txt$/);
 });
 
-// UX panel 2026-11-23 (cluster B): Back undoes the last panel step instead of leaving.
 test("Back closes the Saved panel and keeps the trip", async ({ page }) => {
   await open(page);
   const before = await entries(page);
@@ -76,7 +73,6 @@ test("Back closes the Saved panel and keeps the trip", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Saved" })).toBeHidden();
   await expect(page).toHaveURL(/resort=happo-one/);
 
-  // the panel's entry is gone: the next Back leaves the app
   await back(page);
   await expect(page).toHaveURL(/robots\.txt$/);
 });
@@ -91,7 +87,6 @@ test("Back steps back from a first-chosen destination, once", async ({
     .getByRole("button", { name: /Happo-One/ })
     .click({ timeout: 15_000 });
   await expect(page).toHaveURL(/resort=happo-one/);
-  // later edits to the same trip add no Back steps
   await page.getByRole("tab", { name: /walk/i }).click();
   await expect(page).toHaveURL(/mode=walk/);
   await stepPushed(page, before);
@@ -100,6 +95,26 @@ test("Back steps back from a first-chosen destination, once", async ({
   await expect(page).not.toHaveURL(/resort=/);
   await expect(page).toHaveURL(/from=36\.694/);
   await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible();
+
+  await back(page);
+  await expect(page).toHaveURL(/robots\.txt$/);
+});
+
+test("removing the destination in the app leaves no extra Back step", async ({
+  page,
+}) => {
+  await open(page, "/?from=36.69400,137.86900&mode=drive");
+  const before = await entries(page);
+  await page
+    .getByRole("list", { name: "Ranked resorts" })
+    .getByRole("button", { name: /Happo-One/ })
+    .click({ timeout: 15_000 });
+  await stepPushed(page, before);
+
+  const tookBack = nextPop(page);
+  await page.getByRole("button", { name: "Remove destination" }).click();
+  await tookBack;
+  await expect(page).not.toHaveURL(/resort=/);
 
   await back(page);
   await expect(page).toHaveURL(/robots\.txt$/);
@@ -135,7 +150,6 @@ test("Go here in Saved leaves one Back step, which clears the destination", asyn
   await open(page, "/?from=36.69400,137.86900&mode=walk");
   await page.getByRole("button", { name: "Saved places" }).click();
   await page.getByRole("button", { name: /Starred/ }).click();
-  // the panel closes and the destination is set in one step
   const before = await entries(page);
   const tookBack = nextPop(page);
   await page
@@ -156,18 +170,18 @@ test("Go here in Saved leaves one Back step, which clears the destination", asyn
 });
 
 test.describe("navigating on a phone", () => {
-  const FROM = { latitude: 36.69711, longitude: 137.85393 }; // Hotel Hakuba
+  const HOTEL_HAKUBA = { latitude: 36.69711, longitude: 137.85393 };
   test.use({
     isMobile: true,
     hasTouch: true,
     permissions: ["geolocation"],
-    geolocation: FROM,
+    geolocation: HOTEL_HAKUBA,
   });
 
   test("Back ends navigation and keeps the trip", async ({ page }) => {
     await open(
       page,
-      `/?from=${FROM.latitude},${FROM.longitude}&mode=walk&dest=pt:36.69877,137.86197`,
+      `/?from=${HOTEL_HAKUBA.latitude},${HOTEL_HAKUBA.longitude}&mode=walk&dest=pt:36.69877,137.86197`,
     );
     const before = await entries(page);
     await page

@@ -267,12 +267,13 @@ export function MapShell() {
     setSavedFocus,
     setDroppedPin,
   });
-  // Back undoes the last panel step (UX panel 2026-11-23): it ends navigation, closes Saved
-  // and steps back from a destination chosen here; a linked one is where Back leaves the app
-  const hasTo = selectedResortId !== null || poiId !== null || point !== null;
-  const toWasEmpty = useRef(false);
-  if (linkRead && !hasTo) toWasEmpty.current = true;
-  useBackToClose(hasTo && toWasEmpty.current, actions.clearTo);
+  const shownTo = point ?? (poiCategory ? poiId : selectedResortId);
+  const toEmptiedSinceLink = useRef(false);
+  if (linkRead && shownTo === null) toEmptiedSinceLink.current = true;
+  useBackToClose(
+    shownTo !== null && toEmptiedSinceLink.current,
+    actions.clearTo,
+  );
   useBackToClose(savedOpen, () => setSavedOpen(false));
   useBackToClose(piloting, session.exitPilot);
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
