@@ -10,7 +10,15 @@ const TRIP = "/?from=36.69711,137.85393&mode=walk&dest=pt:36.69877,137.86197";
 
 type DevMap = {
   getStyle(): { layers: { id: string }[] };
-  queryRenderedFeatures(o: { layers: string[] }): unknown[];
+  queryRenderedFeatures(
+    a: { layers: string[] } | [number, number],
+    o?: { layers: string[] },
+  ): {
+    layer: { id: string };
+    geometry: { type: string; coordinates: [number, number][] };
+    properties: { name?: string; kind?: string };
+  }[];
+  project(c: [number, number]): { x: number; y: number };
   jumpTo(o: { center: [number, number]; zoom: number }): void;
   once(event: "idle", done: () => void): void;
 };
@@ -59,7 +67,7 @@ test("every run and lift layer sits under the lodging pins and the route", async
   page,
 }) => {
   await openMap(page, TRIP);
-  const ours = [...RUN_LAYERS, NAME_LAYER];
+  const ours = ["ski-selected", ...RUN_LAYERS, NAME_LAYER, "ski-lines-hit"];
   const above = ["lodging-pins", "ride-line", "route-active-line"];
   await expect
     .poll(() =>
@@ -73,4 +81,47 @@ test("every run and lift layer sits under the lodging pins and the route", async
       ),
     )
     .toEqual([...ours, ...above]);
+});
+
+// SPEC-ski-runs v1.1: a click on a lift opens its card, and picks no start
+test("a click on a lift opens its card, the start unchanged", async ({
+  page,
+}) => {
+  await openMap(page);
+  expect(await drawnAt(page, 15, ["ski-lifts"])).toBeGreaterThan(0);
+  const hit = await page.evaluate(() => {
+    const map = (window as unknown as { __hakubaMap: DevMap }).__hakubaMap;
+    const taps = ["lodging-pins", "route-alts-hit", "ski-lines-hit"];
+    for (const f of map.queryRenderedFeatures({ layers: ["ski-lifts"] })) {
+      if (f.geometry.type !== "LineString") continue;
+      // a lift is a straight line whose ends may be off screen: try points along it
+      const [a, b] = f.geometry.coordinates;
+      for (let t = 0.05; t < 1; t += 0.05) {
+        const p = map.project([
+          a[0] + (b[0] - a[0]) * t,
+          a[1] + (b[1] - a[1]) * t,
+        ]);
+        // bare map there (no panel or marker), and a lift is the top tap target
+        const el = document.elementFromPoint(p.x, p.y);
+        const top = map.queryRenderedFeatures([p.x, p.y], { layers: taps })[0];
+        if (
+          el?.classList.contains("maplibregl-canvas") &&
+          top?.layer.id === "ski-lines-hit" &&
+          top.properties.kind === "lift"
+        )
+          return { x: p.x, y: p.y, name: top.properties.name ?? null };
+      }
+    }
+    return null;
+  });
+  expect(hit, "a lift on bare map").not.toBeNull();
+  if (!hit) return;
+  await page.mouse.click(hit.x, hit.y);
+  const title = hit.name?.split(", ")[0] || "Unnamed lift";
+  const card = page.getByRole("group", { name: title });
+  await expect(card).toBeVisible();
+  await expect(card).toContainText("lift");
+  expect(new URL(page.url()).searchParams.get("from")).toBeNull();
+  await card.getByRole("button", { name: "Close" }).click();
+  await expect(card).toHaveCount(0);
 });

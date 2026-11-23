@@ -5,7 +5,17 @@ import { SaveButton } from "@/components/SaveButton";
 
 // BC-A1: a long-press drops a pin with a card; only a button on the card edits the trip.
 // Ours offers Start here (where am I staying), Go here and Add stop when they apply.
+const AT = { lat: 36.698501, lng: 137.837612 };
+
 describe("PinCard", () => {
+  // Google's dropped-pin sheet (BC-A1) shows where the pin is under its title
+  it("shows the pin's coordinates under its name", () => {
+    render(
+      <PinCard name={null} coord={AT} onStart={() => {}} onClose={() => {}} />,
+    );
+    expect(screen.getByText("36.69850, 137.83761")).toBeInTheDocument();
+  });
+
   const handlers = () => ({
     onStart: vi.fn(),
     onGo: vi.fn(),
@@ -15,7 +25,7 @@ describe("PinCard", () => {
 
   it("names the place, or says Dropped pin, and each button does its one thing", () => {
     const h = handlers();
-    const { rerender } = render(<PinCard name={null} {...h} />);
+    const { rerender } = render(<PinCard name={null} coord={AT} {...h} />);
     expect(screen.getByRole("group", { name: "Dropped pin" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Start here" }));
     fireEvent.click(screen.getByRole("button", { name: "Go here" }));
@@ -23,12 +33,14 @@ describe("PinCard", () => {
     expect(h.onStart).toHaveBeenCalledTimes(1);
     expect(h.onGo).toHaveBeenCalledTimes(1);
     expect(h.onAddStop).toHaveBeenCalledTimes(1);
-    rerender(<PinCard name="Hotel Hakuba" {...h} />);
+    rerender(<PinCard name="Hotel Hakuba" coord={AT} {...h} />);
     expect(screen.getByRole("group", { name: "Hotel Hakuba" })).toBeTruthy();
   });
 
   it("offers only what applies: no Go here in Bus, no Add stop without a destination", () => {
-    render(<PinCard name={null} onStart={() => {}} onClose={() => {}} />);
+    render(
+      <PinCard name={null} coord={AT} onStart={() => {}} onClose={() => {}} />,
+    );
     expect(screen.getByRole("button", { name: "Start here" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Go here" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Add stop" })).toBeNull();
@@ -36,7 +48,7 @@ describe("PinCard", () => {
 
   it("closes with ✕ or Escape", () => {
     const h = handlers();
-    render(<PinCard name={null} {...h} />);
+    render(<PinCard name={null} coord={AT} {...h} />);
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     fireEvent.keyDown(document, { key: "Escape" });
     expect(h.onClose).toHaveBeenCalledTimes(2);
@@ -47,6 +59,7 @@ describe("PinCard", () => {
     render(
       <PinCard
         name={null}
+        coord={AT}
         onStart={() => {}}
         onGo={() => {}}
         onClose={() => {}}
@@ -67,7 +80,9 @@ describe("PinCard", () => {
   });
 
   it("with no Go here (Bus), Start here is the prominent one", () => {
-    render(<PinCard name={null} onStart={() => {}} onClose={() => {}} />);
+    render(
+      <PinCard name={null} coord={AT} onStart={() => {}} onClose={() => {}} />,
+    );
     expect(screen.getByRole("button", { name: "Start here" })).toHaveAttribute(
       "data-variant",
       "primary",
@@ -80,6 +95,7 @@ describe("PinCard", () => {
     render(
       <PinCard
         name={null}
+        coord={AT}
         onStart={() => {}}
         onClose={onClose}
         save={

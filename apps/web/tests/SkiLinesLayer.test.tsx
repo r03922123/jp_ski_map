@@ -5,6 +5,7 @@ import { LODGING_LAYER } from "@/components/map/LodgingLayer";
 import {
   LIFT_COLOR,
   runColor,
+  SKI_HIT_LAYER,
   SKI_LAYERS,
   SkiLinesLayer,
 } from "@/components/map/SkiLinesLayer";
@@ -60,6 +61,20 @@ describe("run colours (SPEC-ski-runs, Japan convention)", () => {
     );
     expect(layers.map((l) => l.id)).toEqual(SKI_LAYERS);
     for (const l of layers) expect(l.beforeId).toBe(LODGING_LAYER);
-    expect(layers.map((l) => l.minzoom)).toEqual([12, 12, 12, 14]);
+    expect(layers.map((l) => l.minzoom)).toEqual([12, 12, 12, 12, 14, 12]);
+  });
+
+  // the card's line stands out, as Google outlines a selected place
+  it("outlines only the selected line, and a finger-wide invisible target takes taps", () => {
+    const { container } = render(<SkiLinesLayer selectedId="r1" />);
+    const style = (id: string) =>
+      JSON.parse(
+        container
+          .querySelector(`[data-layer="${id}"]`)
+          ?.getAttribute("data-style") ?? "{}",
+      );
+    expect(style("ski-selected").filter).toEqual(["==", ["get", "id"], "r1"]);
+    expect(style(SKI_HIT_LAYER).paint["line-opacity"]).toBe(0);
+    expect(style(SKI_HIT_LAYER).paint["line-width"]).toBeGreaterThanOrEqual(16);
   });
 });

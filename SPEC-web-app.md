@@ -131,7 +131,7 @@ From the [2026-11-03 UX review](docs/ux/2026-11-03-ux-review.md), cluster A: on 
 **Acceptance:**
 - [x] Unit tests:
   - MapView: tap, long-press, pan/pinch/early lift, wobble ≤ 10 px, hotel pin, stop box, navigating.
-  - PinCard: actions shown only when they apply, ✕/Escape.
+  - PinCard: actions shown only when they apply, ✕/Escape; the pin's coordinates under its title (2026-11-23).
   - Hints on touch.
 - [x] e2e (`e2e/pin-card.spec.ts`, real CDP touch): a tap keeps the start; long-press → Start here moves it; a tap elsewhere closes the card.
 - [x] REA laptop before/after (`ev_fe286f…` → `ev_1ef036…`): the mouse click still picks a start (the URL changes in both; only the clicked coordinate differs).
@@ -222,7 +222,7 @@ Success means:
 - With a route shown on 390×699, the unobstructed map is at least Google's route-preview share (≈38 %), the To box is fully visible, and ETA/Start are in the peek.
 - Full e2e green, the iPhone WebKit suite green, and a real-iPhone check on the public link.
 
-7. **Dropped pins and choices stay in the clear area.** A dropped pin eases the camera to it (BC-A1), so its card never opens under the top card. A chosen bus trip and its Start scroll into view. The expanded sheet never reaches under the top card: `min(80dvh, 100dvh − 136px)`.
+7. **Dropped pins and choices stay in the clear area.** A dropped pin eases the camera to it (BC-A1), into the middle of the clear map. *Amended 2026-11-23:* the pin is Google's red pin and its card slides up at the bottom, over the sheet (from `md`, beside the side panel), as BC-A1 recorded, so the card can no longer open under the top card. A chosen bus trip and its Start scroll into view. The expanded sheet never reaches under the top card: `min(80dvh, 100dvh − 136px)`.
 8. **The top card's suggestion lists scroll by finger.** A drag on them scrolls them, except a pull down from their top, which stays away from Safari's pull-to-refresh (T79).
 
 **Boundaries.** *Always:* tests first; keep T77 (ETA/Start in the peek) and T75 (touch targets). *Never:* a second copy of a search box (one instance, positioned per breakpoint).
@@ -422,7 +422,7 @@ Maps. Today the page starts under an opaque status bar, which shows as a solid n
     in landscape;
   - the expanded sheet's limit, the credits' lift and the map controls follow the same insets;
   - the navigation views pad their top bar by `--safe-top` (their bottom bars already pad by the bottom inset).
-- The camera fit (`route-geo`: `mapPadding`, `pinEaseOffsetY`, `pinCardAnchor`) takes the same insets in px,
+- The camera fit (`route-geo`: `mapPadding`) takes the same insets in px,
   read once from a probe element, so routes and pins stay clear of the moved panels.
 - In a Safari tab the insets are 0 in portrait, so nothing moves there. In landscape a notched iPhone has side
   insets in Safari too, and is ≥ 812 px wide, so the md side card and its camera fit also take the insets.

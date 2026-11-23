@@ -2,12 +2,11 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MapGL, {
   type MapRef,
   Marker,
   NavigationControl,
-  Popup,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import { facesLeft, Hero } from "@/components/HeroMarker";
@@ -25,7 +24,11 @@ import { LODGING_LAYER, LodgingLayer } from "@/components/map/LodgingLayer";
 import { ResortMarkers } from "@/components/map/ResortMarkers";
 import { RouteLabels } from "@/components/map/RouteLabels";
 import { SavedMarkers } from "@/components/map/SavedMarkers";
-import { SkiLinesLayer } from "@/components/map/SkiLinesLayer";
+import {
+  SKI_HIT_LAYER,
+  type SkiLine,
+  SkiLinesLayer,
+} from "@/components/map/SkiLinesLayer";
 import { TrailLayers } from "@/components/map/TrailLayers";
 import { TripStopMarkers } from "@/components/map/TripStopMarkers";
 import { PixelSprite } from "@/components/PixelSprite";
@@ -43,8 +46,6 @@ import {
   type LngLat,
   MD_BREAKPOINT_PX,
   mapPadding,
-  pinCardAnchor,
-  pinEaseOffsetY,
   routeBounds,
 } from "@/lib/route-geo";
 import { safeInsets } from "@/lib/safe-insets";
@@ -92,9 +93,12 @@ export type MapViewProps = {
   onDropPin?: (coord: Coord, name: string | null) => void;
   /** Touch: a tap on the map that edits nothing (it closes the pin card). */
   onMapTap?: () => void;
-  /** The dropped pin, with its card (`pinCard`) drawn at it. */
+  /** The dropped pin, drawn as Google's red pin (its card is MapShell's). */
   droppedPin?: { coord: Coord; name: string | null } | null;
-  pinCard?: ReactNode;
+  /** A tap or click on a run or lift (SPEC-ski-runs v1.1). */
+  onSelectSkiLine?: (line: SkiLine) => void;
+  /** The run or lift whose card is open: outlined on the map. */
+  selectedSkiLineId?: string | null;
   /** The sheet is a slim ETA + Start bar on a landscape phone (BottomSheet `slim`). */
   slimSheet?: boolean;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
@@ -183,7 +187,8 @@ export default function MapView({
   onDropPin,
   onMapTap,
   droppedPin = null,
-  pinCard,
+  onSelectSkiLine,
+  selectedSkiLineId = null,
   slimSheet = false,
   pilot = null,
 }: MapViewProps) {
@@ -197,6 +202,7 @@ export default function MapView({
     onPickOrigin,
     onDropPin,
     onMapTap,
+    onSelectSkiLine,
   });
 
   // Fit the whole route set once per new search or picked option, clear of the directions
@@ -383,34 +389,11 @@ export default function MapView({
     easedPin.current = pinKey;
     map.easeTo({
       center: [droppedPin.coord.lng, droppedPin.coord.lat],
+      // the pin card covers less than the sheet's share, so the clear map's middle is clear
       padding: paddingOf(map),
-      offset: [
-        0,
-        pinEaseOffsetY({
-          width: map.getCanvas().clientWidth,
-          height: map.getCanvas().clientHeight,
-          safe: safeInsets(),
-        }),
-      ],
       duration: prefersReducedMotion() ? 0 : 600,
     });
   }, [pinKey, pressing, mapReady]);
-
-  const pinMap = mapRef.current;
-  const pinAt =
-    pinMap && droppedPin
-      ? pinMap.project([droppedPin.coord.lng, droppedPin.coord.lat])
-      : null;
-  const pinAnchor =
-    pinMap && pinAt
-      ? pinCardAnchor({
-          x: pinAt.x,
-          y: pinAt.y,
-          width: pinMap.getCanvas().clientWidth,
-          height: pinMap.getCanvas().clientHeight,
-          safe: safeInsets(),
-        })
-      : undefined;
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
   // and an identity-keyed effect would re-ease after each of its own moveend reports.
@@ -464,7 +447,7 @@ export default function MapView({
         // MapLibre's own cut-off is 640 px, but the sheet covers the corner up to `md`
         compact: window.innerWidth < MD_BREAKPOINT_PX || undefined,
       }}
-      interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER]}
+      interactiveLayerIds={[LODGING_LAYER, ALT_HIT_LAYER, SKI_HIT_LAYER]}
       onLoad={(e) => {
         // e2e checks what is actually drawn (layer order, rendered stop dots)
         if (process.env.NODE_ENV !== "production") {
@@ -502,25 +485,18 @@ export default function MapView({
     >
       <NavigationControl position="bottom-right" />
       {droppedPin && (
-        <Popup
+        <Marker
           longitude={droppedPin.coord.lng}
           latitude={droppedPin.coord.lat}
-          // no fixed anchor: MapLibre puts the card on whichever side of the pin keeps
-          // it inside the map, so a pin near an edge never cuts off ✕ or Go here (S6).
-          // Except under the trip card on top, which MapLibre doesn't know about
-          anchor={pinAnchor}
-          closeButton={false}
-          closeOnClick={false}
-          maxWidth="280px"
-          // above every marker (they use z-index 1–5): on a real iPad a resort marker
-          // painted over the card's middle, where a tap would choose that resort
-          style={{ zIndex: 10 }}
+          anchor="bottom"
+          // above every other marker (they use z-index 1–5); a tap on it reaches the map
+          style={{ zIndex: 6, pointerEvents: "none" }}
         >
-          {pinCard}
-        </Popup>
+          <DroppedPin />
+        </Marker>
       )}
       <LodgingLayer lodging={lodging} />
-      <SkiLinesLayer />
+      <SkiLinesLayer selectedId={selectedSkiLineId} />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or
@@ -604,5 +580,26 @@ export default function MapView({
         </Marker>
       )}
     </MapGL>
+  );
+}
+
+/** Google's red dropped pin, at its size (27 × 43 px), its tip on the spot. */
+function DroppedPin() {
+  return (
+    <svg
+      data-dropped-pin
+      aria-hidden="true"
+      width="27"
+      height="43"
+      viewBox="0 0 27 43"
+      className="drop-shadow-md"
+    >
+      <path
+        d="M13.5 0C6 0 0 6 0 13.4 0 23.5 13.5 43 13.5 43S27 23.5 27 13.4C27 6 21 0 13.5 0Z"
+        fill="#EA4335"
+        stroke="#B31412"
+      />
+      <circle cx="13.5" cy="13.5" r="5" fill="#B31412" />
+    </svg>
   );
 }

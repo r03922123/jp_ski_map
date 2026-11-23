@@ -10,6 +10,7 @@ import { DrivePanel } from "@/components/DrivePanel";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ModePanel } from "@/components/ModePanel";
+import type { SkiLine } from "@/components/map/SkiLinesLayer";
 import { PilotScreens } from "@/components/PilotScreens";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
@@ -17,6 +18,7 @@ import { PoiList } from "@/components/PoiList";
 import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
+import { SkiLineCard } from "@/components/SkiLineCard";
 import { StampMoment } from "@/components/StampMoment";
 import {
   AddDestinationButton,
@@ -59,9 +61,15 @@ export function MapShell() {
     filledStops,
     fillStop,
   } = trip;
-  // A long-pressed point (or tapped hotel pin) and its card: touch edits the trip only
-  // through the card's buttons (docs/ux/behaviour-cards.md BC-A1)
-  const [droppedPin, setDroppedPin] = useState<TripPoint | null>(null);
+  // What the map's card at the bottom is about, one at a time: a long-pressed point (or
+  // tapped hotel pin), whose buttons are touch's only way to edit the trip
+  // (docs/ux/behaviour-cards.md BC-A1), or a tapped run or lift (SPEC-ski-runs v1.1)
+  const [picked, setPicked] = useState<
+    { kind: "pin"; pin: TripPoint } | { kind: "line"; line: SkiLine } | null
+  >(null);
+  const droppedPin = picked?.kind === "pin" ? picked.pin : null;
+  const setDroppedPin = (pin: TripPoint | null) =>
+    setPicked(pin && { kind: "pin", pin });
   // Saved panel: open, and optionally focused on one place (a tapped saved marker)
   const [savedOpen, setSavedOpen] = useState(false);
   const [savedFocus, setSavedFocus] = useState<string | null>(null);
@@ -259,6 +267,7 @@ export function MapShell() {
   const pinCard = droppedPin && (
     <PinCard
       name={droppedPin.name}
+      coord={droppedPin.coord}
       onClose={() => setDroppedPin(null)}
       onStart={() => actions.pinStart(droppedPin)}
       onGo={
@@ -509,9 +518,10 @@ export function MapShell() {
         }
         placingStop={placingStop}
         onDropPin={(coord, name) => setDroppedPin({ coord, name })}
-        onMapTap={() => setDroppedPin(null)}
+        onMapTap={() => setPicked(null)}
         droppedPin={piloting ? null : droppedPin}
-        pinCard={pinCard}
+        onSelectSkiLine={(line) => setPicked({ kind: "line", line })}
+        selectedSkiLineId={picked?.kind === "line" ? picked.line.id : null}
         onSelectResort={actions.selectResortOnMap}
         saved={savedMarkers}
         onSelectSaved={actions.selectSaved}
@@ -527,6 +537,17 @@ export function MapShell() {
               setSavedOpen(true);
             }
           }}
+        />
+      )}
+      {!piloting && pinCard}
+      {!piloting && picked?.kind === "line" && (
+        <SkiLineCard
+          line={picked.line}
+          resortName={
+            resorts.data?.find((r) => r.id === picked.line.resortId)?.name.en ??
+            picked.line.resortId
+          }
+          onClose={() => setPicked(null)}
         />
       )}
       <StampMoment />

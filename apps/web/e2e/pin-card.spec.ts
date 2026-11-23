@@ -78,6 +78,8 @@ test("a long-press drops a pin; Start here makes it the start", async ({
   await touch(cdp, await mapPoint(page, 220), 700);
   const card = page.getByRole("group", { name: "Dropped pin" });
   await expect(card).toBeVisible();
+  // Google's red pin marks the spot (BC-A1)
+  await expect(page.locator("[data-dropped-pin]")).toBeVisible();
   // the press alone edits nothing
   expect(fromParam(page)).toBe(before);
   await card.getByRole("button", { name: "Start here" }).tap();
@@ -98,8 +100,8 @@ test("a long-press then a tap elsewhere closes the card, start unchanged", async
   expect(fromParam(page)).toBe(before);
 });
 
-// review of #115: the card is a MapLibre popup (transformed); a fixed dialog opened from it
-// was laid out inside the popup, squeezed to the card's width and clipped by the map
+// review of #115: when the card was a MapLibre popup (transformed), a fixed dialog opened
+// from it was laid out inside the popup, squeezed to the card's width and clipped by the map
 test("the pin's Save dialog opens over the screen, not inside the card", async ({
   page,
 }) => {

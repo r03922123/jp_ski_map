@@ -3,6 +3,11 @@ import { useEffect, useRef } from "react";
 import type { MapLayerMouseEvent, MapTouchEvent } from "react-map-gl/maplibre";
 import { ALT_HIT_LAYER } from "@/components/map/AlternateRoutes";
 import { LODGING_LAYER } from "@/components/map/LodgingLayer";
+import {
+  SKI_HIT_LAYER,
+  type SkiLine,
+  skiLineOf,
+} from "@/components/map/SkiLinesLayer";
 import type { Coord } from "@/lib/api";
 
 // MapLibre's own double-click needs both clicks well inside this; OSes default to ~500 ms,
@@ -16,7 +21,7 @@ const TOUCH_CLICK_MS = 700;
 
 /**
  * What a click, double-click, tap or long-press on the map means (MapView's props of the
- * same names): pick the start, select a route, drop a pin, or nothing.
+ * same names): pick the start, select a route, drop a pin, open a run's card, or nothing.
  */
 export function useMapGestures({
   piloting,
@@ -25,6 +30,7 @@ export function useMapGestures({
   onPickOrigin,
   onDropPin,
   onMapTap,
+  onSelectSkiLine,
 }: {
   piloting: boolean;
   placingStop: boolean;
@@ -32,6 +38,7 @@ export function useMapGestures({
   onPickOrigin: (coord: Coord) => void;
   onDropPin?: (coord: Coord, name: string | null) => void;
   onMapTap?: () => void;
+  onSelectSkiLine?: (line: SkiLine) => void;
 }) {
   // A double-click (double-tap) zooms; its first click must not also move the start.
   // A pick waits out the double-click window, and a second click inside it cancels it.
@@ -117,6 +124,16 @@ export function useMapGestures({
     }
     // the second click of a double-click: it zooms, nothing is picked
     if (cancelPick() || e.originalEvent.detail > 1) return;
+    // a run or lift says what it is, by finger or mouse (SPEC-ski-runs v1.1); an open
+    // stop box still takes the point
+    const line =
+      feature?.layer.id === SKI_HIT_LAYER && !placingStop
+        ? skiLineOf(feature.properties)
+        : null;
+    if (line && onSelectSkiLine) {
+      onSelectSkiLine(line);
+      return;
+    }
     // a lodging pin snaps the origin onto the hotel itself
     const pin = feature?.geometry;
     const at: Coord =

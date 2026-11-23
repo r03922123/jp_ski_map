@@ -31,12 +31,11 @@ const map = () => {
   return mapProps;
 };
 
-// MapShell loads MapView through next/dynamic (WebGL); a stub records its props instead,
-// and shows the pin card MapView would anchor to the pin
+// MapShell loads MapView through next/dynamic (WebGL); a stub records its props instead
 vi.mock("next/dynamic", () => ({
   default: () => (props: MapProps) => {
     mapProps = props;
-    return props.pinCard ?? null;
+    return null;
   },
 }));
 

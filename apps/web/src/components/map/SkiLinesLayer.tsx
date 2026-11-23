@@ -23,12 +23,39 @@ export const LIFT_COLOR = "hsl(0,82%,42%)";
 export const runColor = (difficulty: string | null) =>
   (difficulty && RUN_COLORS[difficulty]) || UNKNOWN_RUN_COLOR;
 
+export const SKI_HIT_LAYER = "ski-lines-hit";
 export const SKI_LAYERS = [
+  "ski-selected",
   "ski-runs",
   "ski-lifts-casing",
   "ski-lifts",
   "ski-names",
+  SKI_HIT_LAYER,
 ];
+
+/** One run or lift, as `/api/ski-lines` serves it (SPEC-ski-runs "Data"). */
+export type SkiLine = {
+  id: string;
+  kind: "run" | "lift";
+  name: string | null;
+  difficulty: string | null;
+  liftType: string | null;
+  resortId: string;
+};
+
+/** A tapped feature's properties (untyped, from MapLibre) as a SkiLine, or null. */
+export function skiLineOf(p: Record<string, unknown> | null | undefined) {
+  if (!p || (p.kind !== "run" && p.kind !== "lift")) return null;
+  const text = (v: unknown) => (typeof v === "string" ? v : null);
+  return {
+    id: String(p.id),
+    kind: p.kind,
+    name: text(p.name),
+    difficulty: text(p.difficulty),
+    liftType: text(p.liftType),
+    resortId: String(p.resortId),
+  } satisfies SkiLine;
+}
 
 const RUN_COLOR_BY_DIFFICULTY = [
   "match",
@@ -49,12 +76,30 @@ const width = (at12: number, at16: number): ExpressionSpecification => [
 
 /**
  * Runs and lifts from the snapshot, under every route and pin: each layer sits below the
- * lodging pins, whatever order MapLibre adds them in. Not interactive (SPEC-ski-runs v1).
+ * lodging pins, whatever order MapLibre adds them in. A tap on one opens its card
+ * (SPEC-ski-runs v1.1); `selectedId` outlines that line.
  */
-export function SkiLinesLayer() {
+export function SkiLinesLayer({
+  selectedId = null,
+}: {
+  selectedId?: string | null;
+}) {
   return (
     // MapLibre fetches and parses the URL in its worker; cached an hour by the API
     <Source id="ski-lines" type="geojson" data="/api/ski-lines">
+      <Layer
+        id="ski-selected"
+        type="line"
+        beforeId={LODGING_LAYER}
+        minzoom={12}
+        filter={["==", ["get", "id"], selectedId ?? ""]}
+        layout={{ "line-cap": "round", "line-join": "round" }}
+        paint={{
+          "line-color": "hsl(48,100%,55%)",
+          "line-opacity": 0.8,
+          "line-width": width(8, 14),
+        }}
+      />
       <Layer
         id="ski-runs"
         type="line"
@@ -105,6 +150,18 @@ export function SkiLinesLayer() {
           "text-color": "#1f2937",
           "text-halo-color": "#ffffff",
           "text-halo-width": 1.5,
+        }}
+      />
+      {/* invisible, finger-sized tap target: a run is 1.5–4 px wide */}
+      <Layer
+        id={SKI_HIT_LAYER}
+        type="line"
+        beforeId={LODGING_LAYER}
+        minzoom={12}
+        paint={{
+          "line-color": "#000000",
+          "line-opacity": 0,
+          "line-width": 16,
         }}
       />
     </Source>

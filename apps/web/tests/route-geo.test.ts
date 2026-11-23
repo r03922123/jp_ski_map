@@ -4,8 +4,6 @@ import {
   labelAnchor,
   MARKER_PX,
   mapPadding,
-  pinCardAnchor,
-  pinEaseOffsetY,
   pointAlong,
   routeBounds,
   SLIM_BAR_PX,
@@ -122,83 +120,6 @@ describe("mapPadding", () => {
   });
 });
 
-// v1.9 rule 7: a dropped pin's card never opens under the trip card on top
-describe("pinCardAnchor", () => {
-  const phone = { width: 393, height: 852 };
-
-  it("opens below a pin whose card would reach under the top card", () => {
-    expect(pinCardAnchor({ x: 200, y: 220, ...phone })).toBe("top");
-    expect(pinCardAnchor({ x: 200, y: 220, width: 390, height: 699 })).toBe(
-      "top",
-    );
-    expect(pinCardAnchor({ x: 180, y: 220, width: 360, height: 740 })).toBe(
-      "top",
-    );
-  });
-
-  it("keeps the card on screen beside either edge", () => {
-    expect(pinCardAnchor({ x: 370, y: 220, ...phone })).toBe("top-right");
-    expect(pinCardAnchor({ x: 20, y: 220, ...phone })).toBe("top-left");
-  });
-
-  it("leaves a pin lower down to MapLibre, where the card fits above it", () => {
-    expect(pinCardAnchor({ x: 200, y: 450, ...phone })).toBeUndefined();
-  });
-
-  it("doesn't open down into the sheet", () => {
-    expect(
-      pinCardAnchor({ x: 200, y: 340, width: 393, height: 699 }),
-    ).toBeUndefined();
-  });
-
-  it("leaves a laptop to MapLibre: its trip card is in a side panel", () => {
-    expect(
-      pinCardAnchor({ x: 900, y: 100, width: 1440, height: 900 }),
-    ).toBeUndefined();
-  });
-});
-
-// the ease brings the pin low enough that its card fits above it, under the top card
-describe("pinEaseOffsetY", () => {
-  it.each([
-    [393, 852],
-    [360, 740],
-    [390, 699],
-  ])("at %ix%i the pin ends where its card fits above it", (width, height) => {
-    const { top, bottom } = mapPadding({ width, height });
-    const centre = top + (height - top - bottom) / 2;
-    const y = centre + pinEaseOffsetY({ width, height });
-
-    expect(y).toBeLessThanOrEqual(height * 0.6);
-    expect(pinCardAnchor({ x: 200, y, width, height })).toBeUndefined();
-    expect(y - 190).toBeGreaterThanOrEqual(118); // v1.27 (v1.18: 132, before it 184)
-  });
-
-  it("doesn't shift a laptop", () => {
-    expect(pinEaseOffsetY({ width: 1440, height: 900 })).toBe(0);
-  });
-
-  it.each([
-    [667, 375],
-    [740, 360],
-  ])("doesn't push the pin into the sheet at %ix%i", (width, height) => {
-    expect(pinEaseOffsetY({ width, height })).toBe(0);
-  });
-
-  // v1.18 (recorded change; 375x553 was in the list above): with the two-row card a pin and
-  // its 190 px card fit between card and sheet (118 + 190 = 308 < 332 since v1.27; 132 + 190 = 322 in v1.18), so it moves, and
-  // stays above the sheet
-  it("at 375x553 the pin now fits above the sheet, and stays out of it", () => {
-    const size = { width: 375, height: 553 };
-    const { top, bottom } = mapPadding(size);
-    const centre = top + (size.height - top - bottom) / 2;
-    const y = centre + pinEaseOffsetY(size);
-
-    expect(pinEaseOffsetY(size)).toBeGreaterThan(0);
-    expect(y).toBeLessThanOrEqual(size.height * 0.6);
-  });
-});
-
 // v1.19: the page runs under the status bar and home indicator; the panels move by the insets
 describe("safe-area insets (SPEC-web-app v1.19)", () => {
   const phone = { width: 390, height: 844 };
@@ -209,23 +130,6 @@ describe("safe-area insets (SPEC-web-app v1.19)", () => {
     const notched = mapPadding({ ...phone, safe });
     expect(notched.top).toBe(flat.top + 47);
     expect(notched.bottom).toBe(flat.bottom + 34);
-  });
-
-  it("eases a pin lower by the top inset, and still not into the moved sheet", () => {
-    const flat = pinEaseOffsetY(phone);
-    const notched = pinEaseOffsetY({ ...phone, safe });
-    const { top, bottom } = mapPadding({ ...phone, safe });
-    const y = top + (phone.height - top - bottom) / 2 + notched;
-    expect(notched).toBeGreaterThanOrEqual(flat);
-    expect(y).toBeLessThanOrEqual(phone.height * 0.6 - 34);
-  });
-
-  it("opens a pin's card below it when the moved trip card leaves no room above", () => {
-    // 390×1000: 190 px above y = 340 is 150, clear of the flat card (118) but not of
-    // 118 + 47; below it, 340 + 190 = 530 still fits above the moved sheet (600 − 34)
-    const tall = { width: 390, height: 1000 };
-    expect(pinCardAnchor({ x: 200, y: 340, ...tall })).toBeUndefined();
-    expect(pinCardAnchor({ x: 200, y: 340, ...tall, safe })).toBe("top");
   });
 });
 
