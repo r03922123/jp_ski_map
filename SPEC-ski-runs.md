@@ -54,6 +54,10 @@ far more than a 31 KB crop needs.
 | `liftType` | `properties.liftType` (lifts) | `cable_car\|gondola\|chair_lift\|mixed_lift\|drag_lift\|t-bar\|j-bar\|platter\|rope_tow\|magic_carpet\|funicular\|railway` |
 | `resortId` | `skiAreas[0].properties.name`, by exact match in the table below | no ski area, or a ski area with `name: null`, is dropped |
 | `geometry` | `geometry` | LineString or Polygon; longitude and latitude only (OpenSkiMap's third value, elevation, is dropped), 5 dp |
+| `distanceM` | measured from the 3D line (v1.2) | length along the slope, m; null for a Polygon or a point with no elevation |
+| `minElevationM`, `maxElevationM` | the coordinates' third value (v1.2) | m |
+| `slopePct` | measured (v1.2) | average: (highest − lowest, both rounded to m) / length on the ground × 100, 1 dp; null like `distanceM` |
+| `durationS` | `properties.duration` (lifts, v1.2) | ride time, s; null when OSM has none (85 of 92 lifts on 2026-11-23) |
 
 Ski-area names, matched by **exact string equality** (live names, 2026-11-23). Substring matching is wrong here:
 Cortina's name contains 白馬岩岳, which is Iwatake. A named ski area missing from this table fails the refresh
@@ -79,7 +83,7 @@ OpenSkiMap warns its format may change (attributes added, renamed or removed). T
 fails loudly on a missing field; the app only ever reads the committed snapshot, so a format change can break the
 refresh, never the site.
 
-**Validator** (joins `hakuba_api.data.validate`): unique ids; every coordinate inside `HAKUBA_BBOX`; each line has
+**Validator** (joins `hakuba_api.data.validate`): `minElevationM` ≤ `maxElevationM`; no ride time on a run; unique ids; every coordinate inside `HAKUBA_BBOX`; each line has
 ≥ 2 points (a Polygon ring ≥ 4, closed); `difficulty` and `liftType` in their enums; every `resortId` exists in `resorts.json`; each of the
 10 resorts has ≥ 1 lift.
 
@@ -103,6 +107,14 @@ No query parameters: the whole valley is 31 KB gzipped.
   `ski-selected` layer outlines that line. An open stop box still takes the tap as the stop's point, and a
   long-press on a run still drops a pin. Out of v1.1: the run's length (MapLibre hands back the tile-clipped
   geometry, not the whole line) and the lift it starts from.
+- **v1.2 (owner's request, 2026-11-23): the card shows OpenSkiMap's numbers.** Distance, vertical with its lowest and
+  highest point, average slope, and for a lift with a ride time its speed, ride time and vertical speed
+  (`lib/ski-stats.ts`). The refresh measures them before it drops the elevations, so a tap reads them from the
+  feature's properties, which MapLibre keeps whole while it clips the geometry. Checked against OpenSkiMap's card
+  for Gondola Adam: 2.04 km, 623 m (768–1391 m), 4.3 m/s, 8 min, 78 m/min, 18° (32%). A ski-area card is out:
+  the resort's Details already shows its vertical, lifts and terrain mix from the resort's own site, and a second
+  set of numbers from OpenSkiMap would disagree with it. The slope-aspect rose is out too (OpenSkiStats, another
+  dataset and licence).
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |

@@ -404,6 +404,11 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
       difficulty: null,
       liftType: "chair_lift",
       resortId: "happo-one",
+      distanceM: null,
+      minElevationM: null,
+      maxElevationM: null,
+      slopePct: null,
+      durationS: null,
     });
     expect(pick).not.toHaveBeenCalled();
   });

@@ -27,6 +27,13 @@ def validate_ski_lines(lines: SkiLines, resort_ids: list[str]) -> list[str]:
             errors.append(f"ski_lines.json: {p.id} leaves the Hakuba bbox")
         if p.resort_id not in resort_ids:
             errors.append(f"ski_lines.json: {p.id} has unknown resortId {p.resort_id}")
+        low, high = p.min_elevation_m, p.max_elevation_m
+        if low is not None and high is not None and low > high:
+            errors.append(f"ski_lines.json: {p.id} has minElevationM above maxElevationM")
+        if p.kind == "run" and p.duration_s is not None:
+            errors.append(f"ski_lines.json: {p.id} is a run with a ride time")
+        if p.duration_s is not None and p.duration_s <= 0:
+            errors.append(f"ski_lines.json: {p.id} has a ride time of 0 s or less")
     with_lift = {f.properties.resort_id for f in lines.features if f.properties.kind == "lift"}
     errors += [f"ski_lines.json: {r} has no lift" for r in resort_ids if r not in with_lift]
     return errors

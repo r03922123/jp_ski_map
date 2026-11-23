@@ -8,6 +8,7 @@
     "name": "アルプス第5高速ペアリフト, Alps Number 5 High Speed Pair Lift",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -49,6 +50,7 @@
     "name": "チャンピオンクワッド, Champion Quad",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -90,6 +92,7 @@
     "name": "ペアリフト Line D, Chair Lift Line D",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -131,6 +134,7 @@
     "name": "かも１, Kamo 1",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -172,6 +176,7 @@
     "name": "兎平ペア, UsagiDaira",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -213,6 +218,7 @@
     "name": "コルチナ第１ペアリフト, Cortina Number 1 Pair Lift",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -254,6 +260,7 @@
     "name": "第１クワッドリフト, 1st Quad Lift",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -295,6 +302,7 @@
     "name": "スノーエスカレーター, Snow Escalator",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "magic_carpet",
     "skiAreas": [
      {
@@ -331,6 +339,7 @@
     "name": "五竜テレキャビン, Goryu Telecabine",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "gondola",
     "skiAreas": [
      {
@@ -372,6 +381,7 @@
     "name": "第３クワッド, Number 3 Quad",
     "type": "lift",
     "status": "operating",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
@@ -413,6 +423,7 @@
     "name": "Tsuga No.1 Pair",
     "type": "lift",
     "status": "disused",
+    "duration": null,
     "liftType": "chair_lift",
     "skiAreas": [
      {
