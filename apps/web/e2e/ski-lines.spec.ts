@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import { devOnly } from "./dev-only";
 
-// SPEC-ski-runs "Map": runs and lifts from zoom 12, names from 14, under every route and pin
+// SPEC-ski-runs "Map" and v1.3: runs and lifts from zoom 10, names from 14, under every route and pin
 const HAPPO_ONE = { lng: 137.8215, lat: 36.7028 }; // middle of its runs in data/ski_lines.json
 const RUN_LAYERS = ["ski-runs", "ski-lifts-casing", "ski-lifts"];
 const NAME_LAYER = "ski-names";
@@ -45,14 +45,15 @@ function drawnAt(page: Page, zoom: number, layers: string[]) {
   );
 }
 
-test("runs and lifts show from zoom 12: drawn at 14, none at 11", async ({
+test("runs and lifts show from zoom 10: drawn at 14 and 11, none at 9", async ({
   page,
 }) => {
   await openMap(page);
   // each on its own: a broken run filter must not hide behind the lifts' count
   expect(await drawnAt(page, 14, ["ski-runs"])).toBeGreaterThan(0);
   expect(await drawnAt(page, 14, ["ski-lifts"])).toBeGreaterThan(0);
-  expect(await drawnAt(page, 11, RUN_LAYERS)).toBe(0);
+  expect(await drawnAt(page, 11, ["ski-lifts"])).toBeGreaterThan(0);
+  expect(await drawnAt(page, 9, RUN_LAYERS)).toBe(0);
 });
 
 test("run and lift names show from zoom 14: drawn at 14, none at 13", async ({

@@ -78,12 +78,15 @@ const RUN_COLOR_BY_DIFFICULTY = [
   UNKNOWN_RUN_COLOR,
 ] as unknown as ExpressionSpecification; // spread entries: TS can't see the label/value pairs
 
-const width = (at12: number, at16: number): ExpressionSpecification => [
+// the valley overview (zoom 11) shows every resort's lines (v1.3)
+const MINZOOM = 10;
+
+const width = (at10: number, at16: number): ExpressionSpecification => [
   "interpolate",
   ["linear"],
   ["zoom"],
-  12,
-  at12,
+  MINZOOM,
+  at10,
   16,
   at16,
 ];
@@ -105,7 +108,7 @@ export function SkiLinesLayer({
         id="ski-selected"
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         filter={["==", ["get", "id"], selectedId ?? ""]}
         layout={{ "line-cap": "round", "line-join": "round" }}
         paint={{
@@ -118,7 +121,7 @@ export function SkiLinesLayer({
         id="ski-runs"
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         filter={["==", ["get", "kind"], "run"]}
         layout={{ "line-cap": "round", "line-join": "round" }}
         paint={{
@@ -130,7 +133,7 @@ export function SkiLinesLayer({
         id="ski-lifts-casing"
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         filter={["==", ["get", "kind"], "lift"]}
         paint={{
           "line-color": "#ffffff",
@@ -141,7 +144,7 @@ export function SkiLinesLayer({
         id="ski-lifts"
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         filter={["==", ["get", "kind"], "lift"]}
         paint={{
           "line-color": LIFT_COLOR,
@@ -171,7 +174,7 @@ export function SkiLinesLayer({
         id={SKI_HIT_LAYER}
         type="line"
         beforeId={LODGING_LAYER}
-        minzoom={12}
+        minzoom={MINZOOM}
         paint={{
           "line-color": "#000000",
           "line-opacity": 0,

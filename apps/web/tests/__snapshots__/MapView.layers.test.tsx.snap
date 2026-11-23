@@ -3,13 +3,21 @@
 exports[`MapView draws (characterization) > empty: every route source stays mounted, empty 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-lines-hit"]"
     data-map="true"
   >
     <div
       data-nav-control="true"
     />
+    <div
+      data-source="terrain"
+    >
+      <i
+        data-layer="hillshade"
+        data-style="{"type":"hillshade","beforeId":"waterway_tunnel","paint":{"hillshade-exaggeration":0.3}}"
+      />
+    </div>
     <div
       data-data="{"type":"FeatureCollection","features":[]}"
       data-source="lodging"
@@ -29,19 +37,19 @@ exports[`MapView draws (characterization) > empty: every route source stays moun
     >
       <i
         data-layer="ski-selected"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],12,8,16,14]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],10,8,16,14]}}"
       />
       <i
         data-layer="ski-runs"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],12,1.5,16,4]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],10,1.5,16,4]}}"
       />
       <i
         data-layer="ski-lifts-casing"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],12,2.5,16,5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],10,2.5,16,5]}}"
       />
       <i
         data-layer="ski-lifts"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],12,1,16,2.5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],10,1,16,2.5]}}"
       />
       <i
         data-layer="ski-names"
@@ -49,7 +57,7 @@ exports[`MapView draws (characterization) > empty: every route source stays moun
       />
       <i
         data-layer="ski-lines-hit"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
       />
     </div>
     <div
@@ -175,7 +183,7 @@ exports[`MapView draws (characterization) > empty: every route source stays moun
 exports[`MapView draws (characterization) > navigating: the covered part, the rider puck, the start dot, no time chips 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-lines-hit"]"
     data-map="true"
   >
@@ -209,6 +217,14 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
       </svg>
     </div>
     <div
+      data-source="terrain"
+    >
+      <i
+        data-layer="hillshade"
+        data-style="{"type":"hillshade","beforeId":"waterway_tunnel","paint":{"hillshade-exaggeration":0.3}}"
+      />
+    </div>
+    <div
       data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Hotel Hakuba"},"geometry":{"type":"Point","coordinates":[137.854,36.697]}},{"type":"Feature","properties":{"name":"Starfall Lodge"},"geometry":{"type":"Point","coordinates":[137.856,36.7]}}]}"
       data-source="lodging"
     >
@@ -227,19 +243,19 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
     >
       <i
         data-layer="ski-selected"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],12,8,16,14]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],10,8,16,14]}}"
       />
       <i
         data-layer="ski-runs"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],12,1.5,16,4]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],10,1.5,16,4]}}"
       />
       <i
         data-layer="ski-lifts-casing"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],12,2.5,16,5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],10,2.5,16,5]}}"
       />
       <i
         data-layer="ski-lifts"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],12,1,16,2.5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],10,1,16,2.5]}}"
       />
       <i
         data-layer="ski-names"
@@ -247,7 +263,7 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
       />
       <i
         data-layer="ski-lines-hit"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
       />
     </div>
     <div
@@ -463,7 +479,7 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
 exports[`MapView draws (characterization) > planning by car: the active route is the gold-dashed track 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-lines-hit"]"
     data-map="true"
   >
@@ -497,6 +513,14 @@ exports[`MapView draws (characterization) > planning by car: the active route is
       </svg>
     </div>
     <div
+      data-source="terrain"
+    >
+      <i
+        data-layer="hillshade"
+        data-style="{"type":"hillshade","beforeId":"waterway_tunnel","paint":{"hillshade-exaggeration":0.3}}"
+      />
+    </div>
+    <div
       data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Hotel Hakuba"},"geometry":{"type":"Point","coordinates":[137.854,36.697]}},{"type":"Feature","properties":{"name":"Starfall Lodge"},"geometry":{"type":"Point","coordinates":[137.856,36.7]}}]}"
       data-source="lodging"
     >
@@ -515,19 +539,19 @@ exports[`MapView draws (characterization) > planning by car: the active route is
     >
       <i
         data-layer="ski-selected"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],12,8,16,14]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],10,8,16,14]}}"
       />
       <i
         data-layer="ski-runs"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],12,1.5,16,4]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],10,1.5,16,4]}}"
       />
       <i
         data-layer="ski-lifts-casing"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],12,2.5,16,5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],10,2.5,16,5]}}"
       />
       <i
         data-layer="ski-lifts"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],12,1,16,2.5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],10,1,16,2.5]}}"
       />
       <i
         data-layer="ski-names"
@@ -535,7 +559,7 @@ exports[`MapView draws (characterization) > planning by car: the active route is
       />
       <i
         data-layer="ski-lines-hit"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
       />
     </div>
     <div
@@ -772,7 +796,7 @@ exports[`MapView draws (characterization) > planning by car: the active route is
 exports[`MapView draws (characterization) > planning on foot: routes, alternates, ride, lodging, markers and labels 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-lines-hit"]"
     data-map="true"
   >
@@ -806,6 +830,14 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
       </svg>
     </div>
     <div
+      data-source="terrain"
+    >
+      <i
+        data-layer="hillshade"
+        data-style="{"type":"hillshade","beforeId":"waterway_tunnel","paint":{"hillshade-exaggeration":0.3}}"
+      />
+    </div>
+    <div
       data-data="{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Hotel Hakuba"},"geometry":{"type":"Point","coordinates":[137.854,36.697]}},{"type":"Feature","properties":{"name":"Starfall Lodge"},"geometry":{"type":"Point","coordinates":[137.856,36.7]}}]}"
       data-source="lodging"
     >
@@ -824,19 +856,19 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
     >
       <i
         data-layer="ski-selected"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],12,8,16,14]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","id"],""],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"hsl(48,100%,55%)","line-opacity":0.8,"line-width":["interpolate",["linear"],["zoom"],10,8,16,14]}}"
       />
       <i
         data-layer="ski-runs"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],12,1.5,16,4]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"run"],"layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":["match",["get","difficulty"],"novice","hsl(125,100%,33%)","easy","hsl(125,100%,33%)","intermediate","hsl(359,94%,53%)","advanced","#000000","expert","#000000","freeride","hsl(34,100%,50%)","extreme","hsl(34,100%,50%)","hsl(0,0%,35%)"],"line-width":["interpolate",["linear"],["zoom"],10,1.5,16,4]}}"
       />
       <i
         data-layer="ski-lifts-casing"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],12,2.5,16,5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"#ffffff","line-width":["interpolate",["linear"],["zoom"],10,2.5,16,5]}}"
       />
       <i
         data-layer="ski-lifts"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],12,1,16,2.5]}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"filter":["==",["get","kind"],"lift"],"paint":{"line-color":"hsl(0,82%,42%)","line-width":["interpolate",["linear"],["zoom"],10,1,16,2.5]}}"
       />
       <i
         data-layer="ski-names"
@@ -844,7 +876,7 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
       />
       <i
         data-layer="ski-lines-hit"
-        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":12,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
+        data-style="{"type":"line","beforeId":"lodging-pins","minzoom":10,"paint":{"line-color":"#000000","line-opacity":0,"line-width":16}}"
       />
     </div>
     <div

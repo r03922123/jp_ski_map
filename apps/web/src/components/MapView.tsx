@@ -4,9 +4,11 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import MapGL, {
+  Layer,
   type MapRef,
   Marker,
   NavigationControl,
+  Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import { facesLeft, Hero } from "@/components/HeroMarker";
@@ -39,6 +41,7 @@ import {
   MAP_ATTRIBUTION,
   MAP_STYLE_URL,
   MAPLIBRE_WORKER_URL,
+  TERRAIN_TILES,
 } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
 import type { RideStopMark } from "@/lib/ride-stops";
@@ -495,6 +498,24 @@ export default function MapView({
           <DroppedPin />
         </Marker>
       )}
+      {/* relief, as OpenSkiMap draws it: above land cover, under water, roads and labels */}
+      <Source
+        id="terrain"
+        type="raster-dem"
+        tiles={[TERRAIN_TILES]}
+        encoding="terrarium"
+        tileSize={512}
+        // Hakuba has no tile past z16 (404s); z12 (~19 m a pixel) is detail enough for
+        // shading, and each tile is ~190 KB
+        maxzoom={12}
+      >
+        <Layer
+          id="hillshade"
+          type="hillshade"
+          beforeId="waterway_tunnel"
+          paint={{ "hillshade-exaggeration": 0.3 }}
+        />
+      </Source>
       <LodgingLayer lodging={lodging} />
       <SkiLinesLayer selectedId={selectedSkiLineId} />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />

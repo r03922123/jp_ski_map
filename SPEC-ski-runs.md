@@ -115,6 +115,17 @@ No query parameters: the whole valley is 31 KB gzipped.
   the resort's Details already shows its vertical, lifts and terrain mix from the resort's own site, and a second
   set of numbers from OpenSkiMap would disagree with it. The slope-aspect rose is out too (OpenSkiStats, another
   dataset and licence).
+- **v1.3 (owner's request, 2026-11-24: "render the map as openskimap. I still can not get resort or line
+  information").** Runs and lifts draw from zoom 10, so the valley overview (zoom 11) shows every resort's lines
+  instead of bare resort chips. The base map gets OpenSkiMap's relief: a hillshade from
+  [Mapterhorn](https://mapterhorn.com) terrain tiles (the source OpenSkiMap credits; its FAQ allows app and
+  commercial use of `tiles.mapterhorn.com`, no rate limit), above land cover and under water, roads and labels. The
+  source stops at z12 (about 19 m a pixel): Hakuba has no tile past z16, and each tile is about 190 KB. The tiles are
+  named directly, not through Mapterhorn's TileJSON, whose credit would come first and push the OpenStreetMap link
+  under the route's time chip on a landscape phone; `Terrain: Mapterhorn` comes last instead, and
+  `DATA-LICENSES.md` has a row for it. Checks: the unit and e2e zoom checks move from 12 to 10 (lifts drawn at 11,
+  nothing at 9), the credits e2e, and a phone screenshot. Out of v1.3: contour lines (the `maplibre-contour`
+  package), 3D terrain.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |
@@ -126,7 +137,7 @@ No query parameters: the whole valley is 31 KB gzipped.
   | null | grey `hsl(0,0%,35%)` |
 
   Lifts: `hsl(0,82%,42%)`, thinner than runs, with a white casing so they read over a red run.
-- `minzoom` 12 (the valley overview stays clean); line names from zoom 14, along the line, Japanese name as
+- `minzoom` 10 since v1.3 (v1: 12); line names from zoom 14, along the line, Japanese name as
   given.
 - Both phone and laptop. Shown in every mode; while navigating (pilot) the runs stay under the route line.
 - Credits: `MAP_ATTRIBUTION` (`apps/web/src/lib/map-config.ts`) gains `Runs: OpenSkiMap` linking to

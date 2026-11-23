@@ -80,7 +80,7 @@ describe("run colours (SPEC-ski-runs, Japan convention)", () => {
     expect(style("ski-lifts").paint["line-color"]).toBe(LIFT_COLOR);
   });
 
-  it("every layer sits under the lodging pins, runs from zoom 12, names from 14", () => {
+  it("every layer sits under the lodging pins, lines from zoom 10, names from 14", () => {
     const { container } = render(<SkiLinesLayer />);
     const layers = [...container.querySelectorAll("[data-layer]")].map(
       (el) => ({
@@ -90,7 +90,7 @@ describe("run colours (SPEC-ski-runs, Japan convention)", () => {
     );
     expect(layers.map((l) => l.id)).toEqual(SKI_LAYERS);
     for (const l of layers) expect(l.beforeId).toBe(LODGING_LAYER);
-    expect(layers.map((l) => l.minzoom)).toEqual([12, 12, 12, 12, 14, 12]);
+    expect(layers.map((l) => l.minzoom)).toEqual([10, 10, 10, 10, 14, 10]);
   });
 
   // the card's line stands out, as Google outlines a selected place
