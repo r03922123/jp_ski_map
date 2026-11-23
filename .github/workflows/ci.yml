@@ -109,3 +109,68 @@ jobs:
       - uses: actions/checkout@v4
       - name: Docs stay a true map (links, paths named in SPECs, CLAUDE.md length)
         run: python3 scripts/check_docs.py
+
+  # SPEC-deploy Phase C (ADR-0009): stage a production build, smoke-test it, then point the domain at
+  # it. A failed step leaves production on its last good build. Pull requests never get here.
+  deploy:
+    if: >-
+      github.repository == 'r03922123/jp_ski_map' && github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' && vars.DEPLOY_PAUSED != 'true'
+    needs: [api, mcp, pipeline, web, deploy-script, claude-hooks, docs]
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      PROD_DOMAIN: jp-ski-map.vercel.app
+    steps:
+      # Third-party code runs next to the token, so actions are pinned to a commit and the CLI to a version.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          package_json_file: apps/web/package.json
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - name: Install the smoke suite, Chromium and the Vercel CLI
+        run: |
+          pnpm --dir apps/web install --frozen-lockfile
+          pnpm --dir apps/web exec playwright install --with-deps chromium
+          npm install -g vercel@65.14.0
+      - name: Download the tiles this commit names
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          hash=$(cut -d' ' -f1 infra/valhalla/hakuba-tiles.sha256)
+          gh release download "tiles-${hash:0:12}" --pattern valhalla_tiles.tar \
+            --dir infra/valhalla/custom_files/hakuba
+      - name: Stage a production build
+        id: stage
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        shell: bash
+        # an assignment of its own, so the script's exit status fails this step (-eo pipefail)
+        run: |
+          url=$(scripts/deploy-vercel.sh --staged | tail -n 1)
+          [[ $url == https://* ]] || { echo "no staged URL: $url" >&2; exit 1; }
+          echo "url=$url" >>"$GITHUB_OUTPUT"
+      - name: Smoke-test the staged build
+        working-directory: apps/web
+        env:
+          PROD_URL: ${{ steps.stage.outputs.url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: pnpm exec playwright test -c e2e-prod/playwright.config.ts
+      - name: Promote it if this commit is still main's tip
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          STAGED_URL: ${{ steps.stage.outputs.url }}
+        run: scripts/promote-vercel.sh "$STAGED_URL" "$PROD_DOMAIN"

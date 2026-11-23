@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Tests scripts/deploy-vercel.sh in a throwaway git repo against a stub `vercel` (SPEC-deploy, Testing).
+# Tests scripts/deploy-vercel.sh and scripts/promote-vercel.sh in a throwaway git repo against a stub
+# `vercel` (SPEC-deploy, Testing).
 # PATH holds only the stub folder and the system folders, with the stub first, so nothing can deploy.
 set -euo pipefail
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_TOKEN
@@ -23,10 +24,17 @@ if [ "$1" = --version ]; then
   echo 0.0.0-stub
   exit 0
 fi
+# inspect isn't recorded: the staged build is dpl_staged, and STUB_DOMAIN serves STUB_DOMAIN_ID.
+if [ "$1" = inspect ]; then
+  if [ "$2" = "${STUB_DOMAIN:-}" ]; then echo "{\"id\":\"$STUB_DOMAIN_ID\"}"; else echo '{"id":"dpl_staged"}'; fi
+  exit 0
+fi
 printf '%s\n' "$*" >>"$VERCEL_STUB_LOG"
 printf '%s %s\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" >"$VERCEL_STUB_LOG.link"
 pwd >"$VERCEL_STUB_LOG.cwd"
 find . -type f | sort >"$VERCEL_STUB_LOG.files"
+staged='{"deployment":{"url":"jp-ski-abc.vercel.app"}}'
+case " $* " in *" --json "*) printf '%s\n' "${VERCEL_STUB_JSON:-$staged}" ;; esac
 exit "${VERCEL_STUB_EXIT:-0}"
 STUB
 chmod +x "$WORK/bin/vercel"
@@ -46,7 +54,7 @@ new_repo() {
   rm -rf "$REPO"
   mkdir -p "$REPO/scripts" "$REPO/data/bus/timetables/2025-26" "$REPO/data/bus/raw" \
     "$REPO/infra/valhalla/custom_files/hakuba" "$REPO/.vercel" "$REPO/services/api" "$REPO/.ux-evidence" "$REPO/.run"
-  cp "$HERE/deploy-vercel.sh" "$REPO/scripts/"
+  cp "$HERE/deploy-vercel.sh" "$HERE/promote-vercel.sh" "$REPO/scripts/"
   for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_overture.json \
     lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json ski_lines.json bus/stop_evidence.json \
     bus/timetables/2025-26/line-a.json; do
@@ -90,6 +98,20 @@ expect_args() {
 }
 
 uploaded() { grep -qx "./$1" "$VERCEL_STUB_LOG.files"; }
+
+promote() {
+  rm -f "$VERCEL_STUB_LOG" "$VERCEL_STUB_LOG".*
+  STATUS=0
+  PROMOTE_POLL_S=0 "$REPO/scripts/promote-vercel.sh" "$@" >"$OUT" 2>&1 || STATUS=$?
+}
+
+# A bare repo as origin whose main is the fixture commit.
+with_origin() {
+  rm -rf "$WORK/origin.git"
+  git init -q --bare "$WORK/origin.git"
+  git_q remote add origin "$WORK/origin.git"
+  git_q push -q origin HEAD:main
+}
 
 echo "preview by default, from committed files only"
 new_repo
@@ -214,6 +236,70 @@ VERCEL_ORG_ID=team_test deploy
 expect_stop "only VERCEL_ORG_ID set" "project link incomplete"
 VERCEL_PROJECT_ID=prj_test deploy
 expect_stop "only VERCEL_PROJECT_ID set" "project link incomplete"
+
+echo "--staged stages a production build and prints its URL last"
+new_repo
+deploy --staged
+expect_args "deploy --prod --skip-domain --json"
+# CI reads stdout only, so check stdout on its own
+staged_url=$("$REPO/scripts/deploy-vercel.sh" --staged 2>/dev/null | tail -n 1)
+[[ $staged_url == https://jp-ski-abc.vercel.app ]] || fail "last stdout line: $staged_url"
+
+new_repo
+VERCEL_STUB_JSON='{"error":{"name":"BUILD_ERROR"}}' VERCEL_STUB_EXIT=1 deploy --staged
+echo "stops: --staged when vercel deploy fails, with its JSON"
+[[ $STATUS -ne 0 ]] || fail "exit status was 0"
+grep -q "vercel deploy failed: .*BUILD_ERROR" "$OUT" || fail "expected the JSON error in: $(cat "$OUT")"
+
+new_repo
+VERCEL_STUB_JSON='{"url":"https://jp-ski-def.vercel.app"}' deploy --staged
+[[ $(tail -1 "$OUT") == https://jp-ski-def.vercel.app ]] || fail "top-level url, last line: $(tail -1 "$OUT")"
+
+new_repo
+VERCEL_STUB_JSON='{"status":"ok"}' deploy --staged
+echo "stops: --staged without a URL in vercel's JSON"
+[[ $STATUS -ne 0 ]] || fail "exit status was 0"
+grep -q "no deployment URL" "$OUT" || fail "expected 'no deployment URL' in: $(cat "$OUT")"
+
+new_repo
+rm "$REPO/infra/valhalla/custom_files/hakuba/valhalla_tiles.tar"
+deploy --staged
+expect_stop "--staged without tiles" "tiles missing"
+
+echo "promote moves the domain when HEAD is main's tip, and checks it"
+new_repo
+with_origin
+STUB_DOMAIN=prod.example STUB_DOMAIN_ID=dpl_staged promote https://jp-ski-abc.vercel.app prod.example
+expect_args "promote https://jp-ski-abc.vercel.app --yes"
+grep -q "prod.example now serves" "$OUT" || fail "no domain check in: $(cat "$OUT")"
+
+echo "promote skips when main has moved on"
+new_repo
+with_origin
+git_q commit -q --allow-empty -m newer
+git_q push -q origin HEAD:main
+git_q reset -q --hard HEAD~1
+promote https://jp-ski-abc.vercel.app prod.example
+[[ $STATUS -eq 0 ]] || fail "exit status $STATUS: $(cat "$OUT")"
+[[ ! -e $VERCEL_STUB_LOG ]] || fail "vercel was called: $(cat "$VERCEL_STUB_LOG")"
+grep -q "not promoting" "$OUT" || fail "expected 'not promoting' in: $(cat "$OUT")"
+
+echo "promote fails when the domain never serves the staged build"
+new_repo
+with_origin
+STUB_DOMAIN=prod.example STUB_DOMAIN_ID=dpl_old promote https://jp-ski-abc.vercel.app prod.example
+[[ $STATUS -ne 0 ]] || fail "exit status was 0"
+grep -q "still doesn't serve" "$OUT" || fail "expected 'still doesn't serve' in: $(cat "$OUT")"
+
+echo "promote fails when vercel promote fails"
+VERCEL_STUB_EXIT=7 promote https://jp-ski-abc.vercel.app prod.example
+[[ $STATUS -eq 7 ]] || fail "status $STATUS, want 7"
+
+new_repo
+promote https://jp-ski-abc.vercel.app prod.example
+expect_stop "promote with no origin" "fatal"
+promote https://jp-ski-abc.vercel.app
+expect_stop "promote with one argument" "usage:"
 
 echo "uses the npx copy when vercel is not on PATH"
 new_repo

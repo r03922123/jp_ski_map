@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Deploy the committed code to Vercel (SPEC-deploy Phase B, Changes item 8). The only way to deploy.
+# Deploy the committed code to Vercel (SPEC-deploy Phase B item 8, Phase C). CI runs it on main.
 #
-#   scripts/deploy-vercel.sh          preview
-#   scripts/deploy-vercel.sh --prod   production: say so in the report
+#   scripts/deploy-vercel.sh            preview
+#   scripts/deploy-vercel.sh --prod     production: say so in the report
+#   scripts/deploy-vercel.sh --staged   production build the domain doesn't point at yet; prints its
+#                                       URL last (CI, SPEC-deploy Phase C; then scripts/promote-vercel.sh)
 #
 # Uploads a temp folder built from `git archive HEAD`, so uncommitted files (.env, .ux-evidence,
 # .run) can't leave this machine. Every check runs before the first `vercel` call.
@@ -24,8 +26,10 @@ if [[ $# -eq 0 ]]; then
   TARGET=(--environment preview)
 elif [[ $# -eq 1 && $1 == --prod ]]; then
   TARGET=(--prod)
+elif [[ $# -eq 1 && $1 == --staged ]]; then
+  TARGET=(--prod --skip-domain --json)
 else
-  die "usage: scripts/deploy-vercel.sh [--prod]"
+  die "usage: scripts/deploy-vercel.sh [--prod | --staged]"
 fi
 
 # This Mac has the CLI only as an npx copy, not on PATH.
@@ -84,4 +88,16 @@ actual=$(shasum -a 256 "$API/tiles/valhalla_tiles.tar" | cut -d' ' -f1)
 cd "$STAGE"
 echo "deploy-vercel: deploying commit $(git -C "$ROOT" rev-parse HEAD) with: ${TARGET[*]}"
 echo "deploy-vercel: vercel CLI $(vercel --version 2>/dev/null)"
-vercel deploy "${TARGET[@]}"
+if [[ ${1:-} != --staged ]]; then
+  vercel deploy "${TARGET[@]}"
+  exit
+fi
+# The smoke step reads the URL from the last line. shortcut: takes `url` or `deployment.url` from the
+# CLI's JSON; the first CI run checks that shape, and a missing URL stops the job here.
+# With --json, a failed build's reason is in this output only.
+json=$(vercel deploy "${TARGET[@]}") || die "vercel deploy failed: $json"
+url=$(python3 -c 'import json, sys
+d = json.load(sys.stdin)
+u = d.get("deployment", d)["url"]
+print(u if u.startswith("https://") else "https://" + u)' <<<"$json") || die "no deployment URL in: $json"
+echo "$url"

@@ -10,8 +10,14 @@ the MCP token into a file, commit, PR or report. The production URL is public (A
 
 ## 1. Deploy
 
-Deploy only with the script: it uploads a temp folder built from `git archive HEAD`, so
-uncommitted files (`.env`, `.ux-evidence`, `.run`) can't leave the machine.
+A push to main deploys production through CI's `deploy` job (SPEC-deploy Phase C, ADR-0009), unless
+the repository variable `DEPLOY_PAUSED` is `true`. So a report that announces a merge to main says it
+deploys production. The job stages a build, runs the smoke suite on it, and promotes it only on a pass.
+A failed job leaves production on its last good build: read the job log, fix on main, or rerun.
+
+By hand (a hotfix, a GitHub outage, or while the job is paused), deploy only with the script: it
+uploads a temp folder built from `git archive HEAD`, so uncommitted files (`.env`, `.ux-evidence`,
+`.run`) can't leave the machine.
 
 ```bash
 scripts/deploy-vercel.sh          # preview
@@ -44,6 +50,12 @@ PATH="$(dirname "$(ls ~/.npm/_npx/*/node_modules/.bin/vercel | head -1)"):$PATH"
 ```
 
 `vercel curl <preview URL>` gets past preview protection without the bypass secret.
+
+## After a rollback
+
+`vercel rollback` turns off domain auto-assignment, and the next green push would promote past it.
+Pause the job first: `gh variable set DEPLOY_PAUSED --body true`. Delete it once the fix is on main,
+then push or deploy by hand: the fix's own run was skipped while paused.
 
 ## Don't
 
