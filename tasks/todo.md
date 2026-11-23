@@ -978,6 +978,10 @@ each task is one PR, built in a fresh session from the spec.
   `nav/use-pilot-session`, `nav/use-pilot-map`); 6 more MapShell tests first; screens unchanged
 - [x] W3 `web-shell` R3.2 for MapView (PR #89): 1,050 → 555 lines; layers and markers in `components/map/`, gestures and credits in `lib/` hooks
 
+## Task J17: Ski runs and lifts on the map (SPEC-ski-runs, owner's first pick 2026-11-23)
+Build [SPEC-ski-runs.md](../SPEC-ski-runs.md): refresh module and snapshot, validator, `GET /api/ski-lines`, the map
+layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API slice, then web slice: two PRs)
+
 ## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
 Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.
 - D1 `place-search`: lodging and Overture snapshots aren't pinned (no Overpass `[date:]`; `latest_release` in

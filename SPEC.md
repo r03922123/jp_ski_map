@@ -41,6 +41,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `agent-tools` | Read-only MCP server so an LLM agent can plan a ski day with the API's tools (`services/mcp`) *(added 2026-11-11)* | all server modules (via HTTP API only) |
 | `pipeline` | Rebuild every data artifact from the shuttle-bus URL with no human step: stage DAG, snapshot store, lock file, automatic verification *(proposed 2026-11-18, ADR-0007)* | every data-producing module |
 | `ask-maps` | Ask the map a question: a bounded tool loop over the agent-tools, cited answers, cited places pinned *(proposed 2026-11-18, ADR-0007)* | `agent-tools` |
+| `ski-runs` | Runs and lifts of the 10 resorts on the map, coloured by difficulty (OpenSkiMap snapshot) *(proposed 2026-11-23)* | `resort-catalog` |
 
 **Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
 **v1.6 build order:** `game-theme` → `progression` → `web-app` wiring
