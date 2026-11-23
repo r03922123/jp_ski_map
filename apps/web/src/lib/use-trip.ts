@@ -24,7 +24,8 @@ export function useTrip() {
   const [searchLabel, setSearchLabel] = useState<string | null>(null);
   // bumped to remount (empty) the From box
   const [searchKey, setSearchKey] = useState(0);
-  const [selectedResortId, setSelectedResortId] = useState<string | null>(null);
+  // the resort chosen as the destination: in a list, the To box, on the map or in the link
+  const [chosenResortId, setChosenResortId] = useState<string | null>(null);
   const [category, setCategory] = useState<DestinationCategory>("resorts");
   const [poiId, setPoiId] = useState<string | null>(null);
   // a free destination (a saved place's or a pin's "Go here", a To-box place), with its
@@ -33,6 +34,11 @@ export function useTrip() {
   // stops between start and destination; an empty one is waiting for typing or a map tap
   const [stops, setStops] = useState<TripStop[]>([]);
   const [storedBusChoice, setBusChoice] = useState<BusOption | null>(null);
+  // The trip's resort: the chosen one, else a tapped bus's unless a point is the destination.
+  // That bus doesn't narrow Bus's list (SPEC-web-app v1.13 rule 6), but Drive, Walk and the
+  // link still go to its resort.
+  const selectedResortId =
+    chosenResortId ?? (point ? null : (storedBusChoice?.resortId ?? null));
 
   const stopKeys = useRef(0);
   const newStopKey = () => {
@@ -62,7 +68,8 @@ export function useTrip() {
     searchKey,
     setSearchKey,
     selectedResortId,
-    setSelectedResortId,
+    chosenResortId,
+    setChosenResortId,
     category,
     setCategory,
     poiId,

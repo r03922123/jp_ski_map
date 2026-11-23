@@ -59,7 +59,7 @@ export function tripActions(
     setOriginSource,
     setSearchLabel,
     setSearchKey,
-    setSelectedResortId,
+    setChosenResortId,
     setCategory,
     setPoiId,
     setPoint,
@@ -73,7 +73,7 @@ export function tripActions(
   const selectResort = (id: string) => {
     // the To box and the Bus list follow the resort, so a bus to another one can't stay
     if (storedBusChoice?.resortId !== id) setBusChoice(null);
-    setSelectedResortId(id);
+    setChosenResortId(id);
     setPoint(null);
   };
   // The To box (SPEC-web-app v1.8, BC-T1): a pick there changes only the destination. A
@@ -90,14 +90,14 @@ export function tripActions(
     } else {
       // the place replaces whatever was chosen: no resort card or food row stays pressed,
       // and the link holds only the point (the same gap in Go here is D5, cluster J)
-      setSelectedResortId(null);
+      setChosenResortId(null);
       setPoiId(null);
       setPoint({ coord: place.coord, name: place.name });
     }
   };
   const clearTo = () => {
     setBusChoice(null);
-    setSelectedResortId(null);
+    setChosenResortId(null);
     setPoiId(null);
     setPoint(null);
   };
@@ -181,10 +181,10 @@ export function tripActions(
         resorts?.some((r) => r.id === fromPlace.id)
       ) {
         setCategory("resorts");
-        setSelectedResortId(fromPlace.id);
+        setChosenResortId(fromPlace.id);
         setPoint(null);
       } else {
-        setSelectedResortId(null);
+        setChosenResortId(null);
         setPoint({ coord: fromPlace.coord, name: fromPlace.name });
       }
       setStops((list) => [...list].reverse());
