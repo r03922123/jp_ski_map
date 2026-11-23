@@ -23,7 +23,7 @@ Takeover phase: tidy (next when: the remaining architecture follow-ups are compl
 - Playwright MCP (`.mcp.json`, pinned, isolated, headless, phone viewport) is for looking at your own dev server after a
   UI change; screenshots go to the gitignored `.playwright-mcp/`. Use Claude in Chrome only for other sites.
 - Procedures are skills; invoke them with the Skill tool: `deploy` (Vercel preview or production, smoke test,
-  `vercel` commands), `new-worktree` (dependencies, free ports, `API_URL`, `E2E_BASE_URL`, shared services),
+  `vercel` commands; once `DEPLOY_PAUSED` is unset, a merge to main is a production deploy, ADR-0009), `new-worktree` (dependencies, free ports, `API_URL`, `E2E_BASE_URL`, shared services),
   and `daily-retro` (06:00 via launchd, `scripts/daily-retro/install.sh`: MLE, AI-engineer, full-stack and UX reviewers,
   a tech writer and a PM step, on Opus, write proposals and article drafts to the gitignored `.ops/`). Production runs only on
   Vercel; `scripts/serve-public.sh --funnel` makes the Mac public, so ask the owner first.

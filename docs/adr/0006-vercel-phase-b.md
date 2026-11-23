@@ -4,7 +4,9 @@
 
 Accepted (merged by the owner 2026-11-09; live on Vercel 2026-11-10). Replaces the Oracle choice for Phase B in `SPEC-deploy.md`,
 the "Oracle VM: not yet" row of [ADR-0005](0005-repo-visibility.md) for friends-only use, and, after
-cutover, ADR-0005 Decision 1's "friends keep using the Funnel link".
+cutover, ADR-0005 Decision 1's "friends keep using the Funnel link". Partly replaced by
+[ADR-0009](0009-deploy-from-ci.md) (2026-11-23): CI deploys each green merge, and the tiles are
+published as a release.
 
 ## Date
 

@@ -992,7 +992,8 @@ Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of
 secrets, tiles release). Until then, deploy by hand: J17's API slice merged 2026-11-23 but production still
 answers 404 on `/api/ski-lines`. **Scope:** S (one PR: `--staged`, the `deploy` job, docs)
 - [x] Owner accepted ADR-0009 (2026-11-23)
-- [ ] Owner steps, then the PR; the first run leaves `/api/ski-lines` at 200
+- [x] The PR: `deploy-vercel.sh --staged`, `promote-vercel.sh`, the `deploy` job (paused by `DEPLOY_PAUSED`)
+- [ ] Owner steps (SPEC-deploy Phase C), then delete `DEPLOY_PAUSED`; the first run leaves `/api/ski-lines` at 200
 
 ## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
 Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.
