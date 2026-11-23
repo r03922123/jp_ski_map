@@ -619,7 +619,7 @@ Out of scope here (a later batch, `tasks/todo.md`): stamps as "Visited ✓", the
 badges and sprites, a new app icon.
 
 **Acceptance**
-- [ ] e2e: a bare visit shows the map with no dialog, and the first Tab focuses the search box.
-- [ ] No `TitleScreen`, `hakuba_title`, `skip-title`, `gameStyle` or `useGameStyle` left in `apps/web`.
-- [ ] Before/after screenshots at 375×812 and 1366×850 in the basemap PR, with the style picked from them.
-- [ ] The route layers' snapshot shows the blue line and casing; `route.spec`, `pilot.spec` and a screenshot pass.
+- [x] e2e: a bare visit shows the map with no dialog, and the first Tab focuses the search box.
+- [x] No `TitleScreen`, `hakuba_title`, `skip-title`, `gameStyle` or `useGameStyle` left in `apps/web`.
+- [x] Before/after screenshots at 375×812 and 1366×850 in the basemap PR, with the style picked from them (#133: Liberty).
+- [x] The route layers' snapshot shows the blue line and casing; `route.spec`, `pilot.spec` and a screenshot pass.

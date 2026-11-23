@@ -1,11 +1,12 @@
 import { Layer, Source } from "react-map-gl/maplibre";
 import type { Route } from "@/lib/api";
+import { TOKENS } from "@/lib/game/tokens";
 import { type LngLat, segment } from "@/lib/route-geo";
 
 export const EMPTY = { type: "FeatureCollection" as const, features: [] };
 
-// SPEC-web-app v1.30: the chosen route is Maps blue (the app's --primary) over a darker casing
-const ROUTE_BLUE = "#185fc6";
+// SPEC-web-app v1.30: the chosen route is the app's primary blue over a darker casing
+const ROUTE_BLUE = TOKENS.primary;
 const ROUTE_CASING = "#0e3f8c";
 
 /**
