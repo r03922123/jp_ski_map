@@ -18,7 +18,7 @@ Live at **https://jp-ski-map.vercel.app** (free hosting, best on a phone). Each 
 
 - [Bus](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=bus): the next shuttle departures to each resort. Outside the ski season it shows the next service date; set **Leave after** to a January date to see a full day.
 - [Drive](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=drive): the 10 resorts ranked by drive time; change the sort to fresh snow or crowd level.
-- [Walk](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=walk&resort=happo-one): a walking route to Happo-one. On a phone, tap **Start** or **Preview**: away from Hakuba the route plays as a simulated trip, with turn-by-turn guidance.
+- [Walk](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=walk&resort=happo-one): a walking route to Happo-one. On a phone, tap **Start** or **Preview** and allow location: away from Hakuba the route plays as a simulated trip, with turn-by-turn guidance.
 
 The first request after a quiet spell can take about 5 s while the server starts.
 

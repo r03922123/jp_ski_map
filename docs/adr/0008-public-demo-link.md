@@ -22,13 +22,19 @@ What a public link can cost, read on 2026-11-23:
   uptime, not money. Hobby is for personal, non-commercial use, which a portfolio demo is.
 - **Abuse bound.** A firewall rule allows 300 requests per 60 s per IP on `/api/`, and a deny rule
   on `/` takes the site down in about 8 s. Both were tested at Checkpoint S
-  ([SPEC-deploy.md](../../SPEC-deploy.md)).
+  ([SPEC-deploy.md](../../SPEC-deploy.md)). `/ask` and `/mcp/` are outside the rate rule.
 - **Upstreams.** Map tiles come from OpenFreeMap, with no key. Open-Meteo is free for
-  non-commercial use under 10,000 calls a day ([terms](https://open-meteo.com/en/terms)). Photon's
-  public instance is for light use, and search tries our own index first.
-- **The one paid path.** `POST /ask` calls Claude Haiku. The Anthropic Console workspace limit
-  ($5 a month, [ADR-0007](0007-automated-verification-and-capped-llm.md)) is the hard cap, and the
-  app allows 20 questions per IP per day per instance.
+  non-commercial use under 10,000 calls a day ([terms](https://open-meteo.com/en/terms)), and the
+  snow lookup is cached for an hour. Photon's public instance is for light use: suggestions try our
+  own index first, a full search goes to Photon, and a bucket in each instance holds calls to 1 a second.
+- **The one paid path.** `POST /ask` calls Claude Haiku, but only once `ANTHROPIC_API_KEY` is in
+  Vercel's env. The owner item in `tasks/todo.md` says it isn't yet, so `/ask` answers 503 and costs $0. Its
+  own guards are weak: an Origin check that a script can fake, and 20 questions per IP per day per
+  instance. The real cap is the Anthropic Console workspace limit ($5 a month,
+  [ADR-0007](0007-automated-verification-and-capped-llm.md)).
+- **Bus data.** ADR-0005 held strangers back partly because the timetables weren't ready. Only
+  2025-26 tables exist; later dates are projected from them and labelled "Based on last season's
+  timetable" with a note to check before going. A demo accepts labelled projections.
 - **Secrets.** The MCP token stays secret. It is the part of `/mcp/<token>` that grants access, not
   the host, and `.claude/hooks/guard_mcp_token.py` still blocks committing it.
 
@@ -38,6 +44,8 @@ What a public link can cost, read on 2026-11-23:
 2. The budget stays $0 a month for hosting, plus the existing $5 a month Ask cap.
 3. The rule "never commit the production URL" ends. The rule for the MCP token stays.
 4. `robots.txt` and the `noindex` tag stay. A demo is reached from the README, not from search.
+5. The Anthropic key goes into Vercel only after the Console limit is set and auto-reload is off,
+   because that limit is the only cap on `/ask` that a script can't get around.
 
 ## Alternatives considered
 
@@ -54,6 +62,4 @@ What a public link can cost, read on 2026-11-23:
   Watch `vercel billing usage`, and use the kill switch if traffic looks like abuse.
 - The 15 bus stops with My Maps pins stay as ADR-0005 describes. They were already public through
   the repo, so the link adds viewers, not a new distribution.
-- The Console limit and auto-reload being off are owner checks. They were not verified when this ADR
-  was written.
 - Reviewers and the daily retro no longer treat the URL as a secret.

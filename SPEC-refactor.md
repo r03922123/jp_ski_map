@@ -18,7 +18,7 @@ fixes a measured problem. So the scope is the three measured costs:
 
 | # | Cost (evidence) | Stream |
 |---|---|---|
-| 1 | Multi-step procedures (deploy, new worktree, data refresh) live as prose in CLAUDE.md; the rules that must never break (MCP token, production URL) are only prose, which an agent can miss | `harness` |
+| 1 | Multi-step procedures (deploy, new worktree, data refresh) live as prose in CLAUDE.md; the rules that must never break (MCP token) are only prose, which an agent can miss | `harness` |
 | 2 | `MapShell.tsx` is 1,386 lines with 49 React hooks and no unit test; `MapView.tsx` is 1,050 lines. Every web feature (next: Ask Maps A3) edits them, so each change reads ~2,400 lines of context | `web-shell` |
 | 3 | Small drifts in the agent surface: SPEC-agent-tools says 11 eval questions and shows 11/11 runs, the file has 12 | `agent-tools` |
 
