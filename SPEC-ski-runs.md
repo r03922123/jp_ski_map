@@ -93,7 +93,7 @@ No query parameters: the whole valley is 31 KB gzipped.
 ## Map (web-app)
 
 - New `components/map/SkiLinesLayer.tsx`: a GeoJSON source whose `data` is the URL `/api/ski-lines`, so MapLibre
-  fetches and parses it in its worker (no TanStack Query, no main-thread parse of 182 KB). Mount order alone doesn't
+  fetches and parses it in its worker (no TanStack Query, no `JSON.parse` on the main thread). Mount order alone doesn't
   set the stacking: react-map-gl adds a layer when its source is ready. Each run and lift layer passes
   `beforeId={LODGING_LAYER}`, which keeps routes, markers and pins above it whenever it arrives.
 - Not interactive in v1: it stays out of `interactiveLayerIds` (`MapView.tsx:460`), so a tap on a run is a tap on
@@ -105,7 +105,7 @@ No query parameters: the whole valley is 31 KB gzipped.
   | novice, easy | green `hsl(125,100%,33%)` |
   | intermediate | red `hsl(359,94%,53%)` |
   | advanced, expert | black |
-  | freeride, extreme | orange `hsl(34,100%,50%)`, dashed |
+  | freeride, extreme | orange `hsl(34,100%,50%)`, dashed (v1 draws solid: none in the snapshot, `tasks/todo.md`) |
   | null | grey `hsl(0,0%,35%)` |
 
   Lifts: `hsl(0,82%,42%)`, thinner than runs, with a white casing so they read over a red run.

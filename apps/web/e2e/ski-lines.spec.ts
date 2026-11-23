@@ -41,7 +41,9 @@ test("runs and lifts show from zoom 12: drawn at 14, none at 11", async ({
   page,
 }) => {
   await openMap(page);
-  expect(await drawnAt(page, 14, RUN_LAYERS)).toBeGreaterThan(0);
+  // each on its own: a broken run filter must not hide behind the lifts' count
+  expect(await drawnAt(page, 14, ["ski-runs"])).toBeGreaterThan(0);
+  expect(await drawnAt(page, 14, ["ski-lifts"])).toBeGreaterThan(0);
   expect(await drawnAt(page, 11, RUN_LAYERS)).toBe(0);
 });
 
