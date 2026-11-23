@@ -189,6 +189,10 @@
   [data-slot="tabs-list"] {
     height: auto;
   }
+  /* WebKit ignores min-height on a <select> (23 px on an iPhone), so it gets a height */
+  select {
+    height: 44px;
+  }
   .maplibregl-ctrl-group button {
     width: 44px;
     height: 44px;
@@ -208,18 +212,18 @@
 }
 
 /* Phones: the collapsed sheet (BottomSheet, 40dvh above the home bar) covers the map's corner, so the
-   credits rise above it. 32px clears the handle's hit area, 22px above the sheet, and the
-   ⓘ's own 10px below the pill. Only the credits move: the zoom buttons share this corner
-   and stay put. Expanded, the sheet leaves no room; collapsing it brings them back.
-   Hidden (no start yet), it leaves the corner free. */
+   corner (credits, and the compass above them) rises above it. 32px clears the handle's hit
+   area, 22px above the sheet, and the ⓘ's own 10px below the pill. Expanded, the sheet
+   leaves no room; collapsing it brings them back. Hidden (no start yet), it leaves the
+   corner free. */
 @media (width < 48rem) {
   :has(> [data-sheet][data-state="collapsed"]:not([data-phone-hidden]))
-    .maplibregl-ctrl-attrib {
+    .maplibregl-ctrl-bottom-right {
     transform: translateY(calc(-40dvh - 32px));
   }
   /* the low sheet (v1.17) is 84 px on any phone */
   :has(> [data-sheet][data-state="low"]:not([data-phone-hidden]))
-    .maplibregl-ctrl-attrib {
+    .maplibregl-ctrl-bottom-right {
     transform: translateY(calc(-84px - 32px));
   }
   /* T6: a short landscape phone has no room for both the zoom buttons and the risen credits
@@ -231,6 +235,15 @@
       display: none;
     }
   }
+  /* the same on any touch phone while the sheet is up, so only the compass rises with the
+     credits (UX panel F1); with no start the zoom buttons stay */
+  @media (pointer: coarse) {
+    :has(> [data-sheet]:not([data-phone-hidden]))
+      .maplibregl-ctrl-bottom-right
+      :is(.maplibregl-ctrl-zoom-in, .maplibregl-ctrl-zoom-out) {
+      display: none;
+    }
+  }
   /* a landscape phone with a route: the sheet is the 84 px ETA bar (BottomSheet slim) */
   @media (height < 480px) {
     :has(
@@ -238,7 +251,7 @@
             [data-phone-hidden]
           )
       )
-      .maplibregl-ctrl-attrib {
+      .maplibregl-ctrl-bottom-right {
       transform: translateY(calc(-84px - 32px));
     }
   }

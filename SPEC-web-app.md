@@ -362,7 +362,11 @@ leaving 71% for the map. Our lowest is 40dvh, which leaves 33–39% (BC-L1 updat
   (`raiseKey`), so it never shows in an 84 px strip.
 - From `md` up (a touch tablet) touch drags don't change the side card's state.
 - Keyboard and screen-reader users don't reach `low`: it is a view convenience, and nothing lives only there.
-- The map credits sit above whichever height the sheet has (84 px + 32 px when low).
+- The map credits sit above whichever height the sheet has (84 px + 32 px when low). Since the 2026-11-23 UX
+  panel (F1) the compass rises with them, so it stays the way back to north, and a touch phone hides the zoom
+  buttons while the sheet shows (pinch zooms, as on a landscape phone since T6); with no start they stay.
+  Known limit: on a landscape phone about 740×360, the 40dvh sheet (no route, bus, Saved) leaves the compass
+  mostly under the top card.
 - The handle in `low` reads "Expand directions", with `aria-expanded="false"`.
 - Recorded change: a downward drag on a collapsed sheet used to do nothing except keep Safari's pull-to-refresh
   away (T79). It now lowers the sheet, and Safari still never sees it.
