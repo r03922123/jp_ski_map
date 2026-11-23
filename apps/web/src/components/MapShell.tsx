@@ -28,6 +28,7 @@ import {
 } from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
 import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
+import { useBackToClose } from "@/lib/back-close";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
@@ -46,12 +47,19 @@ const MapView = dynamic(() => import("./MapView"), { ssr: false });
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const trip = useTrip();
+  // Directions' focus is for one mount: the box has it by now, and a later remount of the same
+  // box (the sheet coming back after navigation) must not take focus and open its list
+  const { focusedSearchKey: focusKey, setFocusedSearchKey } = trip;
+  useEffect(() => {
+    if (focusKey !== null) setFocusedSearchKey(null);
+  }, [focusKey, setFocusedSearchKey]);
   const {
     mode,
     origin,
     originName,
     searchLabel,
     searchKey,
+    focusedSearchKey,
     selectedResortId,
     category,
     poiId,
@@ -84,7 +92,12 @@ export function MapShell() {
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
-  useViewUrl({ trip, rankOptions, setRankOptions, setImportCode });
+  const linkRead = useViewUrl({
+    trip,
+    rankOptions,
+    setRankOptions,
+    setImportCode,
+  });
 
   const resorts = useQuery(resortsQuery);
   const lodgingPins = useLodging(view);
@@ -262,6 +275,15 @@ export function MapShell() {
     setSavedFocus,
     setDroppedPin,
   });
+  const shownTo = point ?? (poiCategory ? poiId : selectedResortId);
+  const toEmptiedSinceLink = useRef(false);
+  if (linkRead && shownTo === null) toEmptiedSinceLink.current = true;
+  useBackToClose(
+    shownTo !== null && toEmptiedSinceLink.current,
+    actions.clearTo,
+  );
+  useBackToClose(savedOpen, () => setSavedOpen(false));
+  useBackToClose(piloting, session.exitPilot);
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
   const pinCard = droppedPin && (
@@ -312,6 +334,7 @@ export function MapShell() {
                 <SearchBox
                   // remounted (emptied) when the trip panel's ✕ clears the start
                   key={searchKey}
+                  autoFocus={searchKey === focusedSearchKey}
                   // the rail and ⇅ narrow this box in two bars (T78)
                   placeholder={showToBox ? "Search a start" : undefined}
                   searchIcon={!showToBox}

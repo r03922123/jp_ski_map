@@ -19,7 +19,8 @@ Takeover phase: tidy (next when: the remaining architecture follow-ups are compl
 - To change a Python dependency, run `uvx --from 'uv==0.9.30' uv lock` in that project: this Mac's uv 0.5.9
   rewrites the whole lock.
 - main is protected: changes land through a PR with CI green, committed with the repo-local noreply identity.
-  GitHub deletes merged branches, so check the PR is still open before pushing to it.
+  GitHub deletes merged branches, so check the PR is still open before pushing to it. Write the description from
+  `.github/pull_request_template.md`: a PR opened through the API or `gh pr create --body` starts without it.
 - Playwright MCP (`.mcp.json`, pinned, isolated, headless, phone viewport) is for looking at your own dev server after a
   UI change; screenshots go to the gitignored `.playwright-mcp/`. Use Claude in Chrome only for other sites.
 - Procedures are skills; invoke them with the Skill tool: `deploy` (Vercel preview or production, smoke test,

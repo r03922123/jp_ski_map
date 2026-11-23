@@ -20,6 +20,7 @@ import type MapView from "@/components/MapView";
 import type { Resort, Route } from "@/lib/api";
 import * as api from "@/lib/api";
 import { emptyState, savedStore, toggleInList } from "@/lib/saved-places";
+import busFixture from "../e2e/fixtures/bus-options-2026-03-20.json";
 import driveFixture from "./fixtures/route-drive.json";
 import walkFixture from "./fixtures/route-walk.json";
 
@@ -134,6 +135,7 @@ beforeEach(() => {
   // set per test; reset here so one test's answer never leaks into the next
   vi.mocked(api.fetchPath).mockReset();
   vi.mocked(api.fetchSuggestions).mockResolvedValue([]);
+  vi.mocked(api.fetchRank).mockResolvedValue([]);
   vi.mocked(api.fetchRoutes).mockImplementation(async (mode) => ({
     primary: mode === "drive" ? drive : walk,
     alternates: [],
@@ -308,8 +310,8 @@ describe("MapShell mode", () => {
     try {
       renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
       await waitFor(() => expect(map().routes).toEqual([walk]));
-      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
     } finally {
       happo.accessPoints.pop();
     }
@@ -343,8 +345,8 @@ describe("MapShell mode", () => {
         ).toBe(true),
       );
       await new Promise((r) => setTimeout(r, 50));
-      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
     } finally {
       happo.accessPoints.pop();
     }
@@ -371,8 +373,8 @@ describe("MapShell mode", () => {
     );
     await waitFor(() => expect(map().destination).toEqual(ramen));
     await waitFor(() => expect(map().routes).toEqual([drive]));
-    expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
   });
 
   it("switching to Bus drops the drive route target: the map gets no destination", async () => {
@@ -387,6 +389,79 @@ describe("MapShell mode", () => {
     expect(
       await screen.findByText("No more departures after this time today."),
     ).toBeInTheDocument();
+  });
+
+  // UX panel 2026-11-23: a bus tapped with no destination set named Happo-One in the To
+  // box, but the link had no resort and Drive and Walk had no destination
+  it("a tapped bus's resort stays the destination in the link and on Drive", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    const [option] = await screen.findAllByRole("button", { name: /Board/ });
+    fireEvent.click(option);
+    expect(await screen.findByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
+    await waitFor(() => expect(query().get("mode")).toBe("drive"));
+    await waitFor(() =>
+      expect(map().destination).toEqual(happo.accessPoints[0].coord),
+    );
+    expect(
+      await screen.findByRole("tab", { name: /Drive 8 min/ }),
+    ).toBeInTheDocument();
+
+    // a new start keeps the destination listed (SPEC-web-app "the stops and the destination stay")
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear starting point" }),
+    );
+    await waitFor(() => expect(query().get("from")).toBeNull());
+    expect(query().get("resort")).toBe(happo.id);
+  });
+
+  it("a tapped bus doesn't narrow the Bus list to its resort (v1.13 rule 6)", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue(
+      busFixture as api.BusResult,
+    );
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    const boards = () => screen.getAllByRole("button", { name: /Board/ });
+    await waitFor(() => expect(boards().length).toBeGreaterThan(3));
+    const listed = boards().length;
+    const [happoBus] = within(
+      screen.getByRole("region", { name: happo.name.en }),
+    ).getAllByRole("button", { name: /Board/ });
+    fireEvent.click(happoBus);
+    expect(await screen.findByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+    // one resort has 3 options in the fixture: narrowed, the other resorts' buses would go
+    expect(boards().length).toBeGreaterThanOrEqual(listed - 1);
+  });
+
+  it("Directions after a tapped bus makes the start the only destination", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    // with the Food list open, Drive has no destination, so the start's card offers Directions
+    renderShell("?from=36.69736,137.85393&mode=bus&cat=food");
+    const [option] = await screen.findAllByRole("button", { name: /Board/ });
+    fireEvent.click(option);
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
+    await waitFor(() => expect(query().get("dest")).toMatch(/^pt:/));
+    expect(query().get("resort")).toBeNull();
   });
 });
 
@@ -598,5 +673,90 @@ describe("MapShell saved panel", () => {
     expect(screen.queryByRole("tab", { name: /walk/i })).toBeNull();
     fireEvent.click(savedButton());
     expect(screen.queryByRole("region", { name: "Saved" })).toBeNull();
+  });
+});
+
+// a11y review (keyboard and screen reader): a pick must leave focus where the answer is
+describe("MapShell keyboard focus", () => {
+  const ranked: api.RankedResort = {
+    resortId: "happo-one",
+    name: "Hakuba Happo-One Snow Resort",
+    rank: 1,
+    sortValue: 463,
+    driveS: 463,
+    driveDistanceM: 2500,
+    accessPointId: "happo-one-adam-gondola",
+    factors: {
+      driveTime: 463,
+      freshSnow: null,
+      snowDepth: null,
+      crowd: null,
+      terrainSize: null,
+      vertical: null,
+      price: null,
+    },
+    snow: null,
+    crowd: null,
+    statsSource: "test",
+    website: "https://www.happo-one.jp/",
+  };
+  const eta = () => screen.findByText(/^ETA ~/);
+
+  it("a resort picked from the ranked list hands focus to its ETA, which is announced", async () => {
+    vi.mocked(api.fetchRank).mockResolvedValue([ranked]);
+    renderShell(`?from=${from}&mode=drive`);
+    const card = within(
+      await screen.findByRole("list", { name: "Ranked resorts" }),
+    ).getByRole("button", { name: /Happo-One/ });
+    card.focus();
+    fireEvent.click(card); // Enter on a focused button
+    await waitFor(async () => expect(await eta()).toHaveFocus());
+    expect(await eta()).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("a resort tapped on the map leaves focus where it was", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectResort("happo-one"));
+    await eta();
+    expect(document.body).toHaveFocus();
+  });
+
+  it("a mode tab keeps focus when its route appears below it", async () => {
+    renderShell(`?from=${from}&mode=bus&resort=happo-one`);
+    const driveTab = await screen.findByRole("tab", { name: /Drive 8 min/ });
+    driveTab.focus();
+    fireEvent.mouseDown(driveTab);
+    fireEvent.click(driveTab);
+    await eta();
+    expect(driveTab).toHaveFocus();
+  });
+
+  it("Directions makes the start the destination and puts focus in the empty start box", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    const directions = await screen.findByRole("button", {
+      name: "Directions",
+    });
+    directions.focus();
+    fireEvent.click(directions);
+    const start = screen.getByRole("combobox", {
+      name: "Search hotel or place",
+    });
+    expect(start).toHaveValue("");
+    expect(start).toHaveFocus();
+  });
+
+  it("the start box takes focus once: it stays unfocused when it returns after navigation", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
+    (document.activeElement as HTMLElement).blur();
+    act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /start navigation/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
+    expect(
+      await screen.findByRole("combobox", { name: "Search hotel or place" }),
+    ).not.toHaveFocus();
   });
 });

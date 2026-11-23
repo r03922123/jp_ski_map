@@ -1,7 +1,8 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
+import { devOnly } from "./dev-only";
 
 /**
- * The map credits, OpenStreetMap's included, stay reachable beside the bottom sheet.
+ * The map credits, OpenStreetMap's included, and the compass stay reachable beside the bottom sheet.
  * Hit-tested rather than read from the DOM: a link under the sheet still counts as
  * "visible" to a locator, which is how this went unnoticed (tasks/todo.md, Task J10).
  */
@@ -144,6 +145,75 @@ for (const [name, viewport] of [
 
       await button.tap();
       await expectOnTop(osmLink(page));
+    });
+  });
+}
+
+// UX panel F1 (2026-11-23): with a start set, the sheet covered the compass, so a tap on it
+// reached the sheet. It is the only way back to north (review of #119): it rises with the
+// credits, and a touch phone with the sheet up shows no zoom buttons (pinch zooms)
+type DevMap = { setBearing(b: number): void; getBearing(): number };
+/** The map's bearing in whole degrees, after turning it to `to` when given. */
+const bearing = (page: Page, to?: number) =>
+  page.evaluate((to) => {
+    const map = (window as unknown as { __hakubaMap: DevMap }).__hakubaMap;
+    if (to !== undefined) map.setBearing(to);
+    return Math.round(map.getBearing());
+  }, to);
+
+async function swipeSheetDown(page: Page) {
+  const handle = page.getByRole("button", { name: "Expand directions" });
+  const box = await handle.boundingBox();
+  if (!box) throw new Error("no sheet handle");
+  const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y + 120, { steps: 5 });
+  await page.mouse.up();
+}
+
+const PHONE = { width: 390, height: 844 };
+for (const [name, viewport, url, sheet, zoomButtons] of [
+  ["phone 390x844, no start", PHONE, "/", null, true],
+  ["phone 390x844, ranked list", PHONE, START, "collapsed", false],
+  ["phone 390x844, with a trip", PHONE, TRIP, "collapsed", false],
+  ["phone 390x844, low sheet", PHONE, TRIP, "low", false],
+  [
+    "landscape phone 740x360, with a trip",
+    { width: 740, height: 360 },
+    TRIP,
+    "collapsed",
+    false,
+  ],
+] as const) {
+  test.describe(name, () => {
+    test.use({ viewport, isMobile: true, hasTouch: true });
+
+    test("a tap on the compass turns the map back to north", async ({
+      page,
+    }) => {
+      devOnly("turns the map through window.__hakubaMap");
+      await openMap(page, url);
+      if (url === TRIP)
+        await expect(
+          page.locator("main:not([data-route-points='0'])"),
+        ).toBeAttached({ timeout: 30_000 });
+      if (sheet === "low") await swipeSheetDown(page);
+      if (sheet)
+        await expect(page.locator("[data-sheet]")).toHaveAttribute(
+          "data-state",
+          sheet,
+        );
+      await expect(osmLink(page)).toBeHidden({ timeout: 10_000 });
+
+      const compass = page.locator(".maplibregl-ctrl-compass");
+      await expectOnTop(compass);
+      expect(await bearing(page, 45)).toBe(45);
+      await compass.tap();
+      await expect.poll(() => bearing(page)).toBe(0);
+      const zoomIn = page.locator(".maplibregl-ctrl-zoom-in");
+      if (zoomButtons) await expectOnTop(zoomIn);
+      else await expect(zoomIn).toBeHidden();
     });
   });
 }

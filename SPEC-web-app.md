@@ -9,7 +9,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
 2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link, or clicking (long-pressing on mobile) the map, also sets the origin. When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
-   - 🚗 **Drive:** sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows drive ETA, snow (24 h / depth), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the drive route and step list.
+   - 🚗 **Drive:** sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows drive ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the drive route and step list.
    - 🚶 **Walk:** pick a resort or a bus stop, and see the walking route and ETA. It warns when the walk is > 45 min.
    - 🚌 **Bus:** for each resort, the walk to the stop, the next 3 departures (line badge, depart → arrive, wait), and a link to the source image. Selecting an option draws the walk leg and highlights the boarding stop. A departure time picker defaults to now. A separate "Night bus" toggle shows Line VN departures from the nearest stop.
 4. URL state: `?from=lat,lng&mode=drive&resort=happo-one&sort=drive_time&date=…`, so the view can be shared and reloaded.
@@ -281,7 +281,7 @@ Success means:
 5. **Under the boxes**, a row with ⊕ "Add destination" (Drive and Walk; it replaces "Add stop" in the sheet and opens the same empty stop box), the destination's Save star, and ★ Saved. On a landscape phone (under 480 px tall) the row sits beside the boxes, since a third row would leave no map. A pin card that would reach under this taller card opens below its pin.
 6. **Bus's To box** shows the lodging or place, else the chosen bus's resort, else the resort that is selected or was sent there from Saved.
    - A place chosen there asks `/api/bus/to-place`, as a swap does.
-   - A resort chosen there narrows the list to that resort. A bus tapped in the full list names its resort in the box but doesn't narrow the list.
+   - A resort chosen there narrows the list to that resort. A bus tapped in the full list names its resort in the box but doesn't narrow the list. That resort is still the trip's destination: Drive and Walk go there and the link holds it (2026-11-23).
    - Any new pick drops the chosen bus, because it was chosen for the old destination.
    - ✕ and the "Shuttles to resorts" link both clear the destination and the chosen bus, and show every resort.
 7. Bus's read-only To row in the trip list goes, because it would contradict the box.
@@ -362,7 +362,11 @@ leaving 71% for the map. Our lowest is 40dvh, which leaves 33–39% (BC-L1 updat
   (`raiseKey`), so it never shows in an 84 px strip.
 - From `md` up (a touch tablet) touch drags don't change the side card's state.
 - Keyboard and screen-reader users don't reach `low`: it is a view convenience, and nothing lives only there.
-- The map credits sit above whichever height the sheet has (84 px + 32 px when low).
+- The map credits sit above whichever height the sheet has (84 px + 32 px when low). Since the 2026-11-23 UX
+  panel (F1) the compass rises with them, so it stays the way back to north, and a touch phone hides the zoom
+  buttons while the sheet shows (pinch zooms, as on a landscape phone since T6); with no start they stay.
+  Known limit: on a landscape phone about 740×360, the 40dvh sheet (no route, bus, Saved) leaves the compass
+  mostly under the top card.
 - The handle in `low` reads "Expand directions", with `aria-expanded="false"`.
 - Recorded change: a downward drag on a collapsed sheet used to do nothing except keep Safari's pull-to-refresh
   away (T79). It now lowers the sheet, and Safari still never sees it.
@@ -623,3 +627,42 @@ badges and sprites, a new app icon.
 - [x] No `TitleScreen`, `hakuba_title`, `skip-title`, `gameStyle` or `useGameStyle` left in `apps/web`.
 - [x] Before/after screenshots at 375×812 and 1366×850 in the basemap PR, with the style picked from them (#133: Liberty).
 - [x] The route layers' snapshot shows the blue line and casing; `route.spec`, `pilot.spec` and a screenshot pass.
+
+## v1.31: A keyboard pick lands on its answer (2026-11-23, a11y review of the UX panel)
+A keyboard user who pressed Enter on a ranked resort saw the sheet scroll up to the new ETA while focus stayed
+on the card, now below the window; nothing was announced, and the route options were 41 Shift+Tabs back.
+- **The ETA line is the sheet's answer.** When the sheet scrolls back to it (a route appears, or a phone
+  sheet comes down) and focus was below it inside the sheet (a ranked card, a food row, a route option), focus
+  moves to the ETA line, which a screen reader then reads. Focus above it (a mode tab, a stop box) or outside
+  the sheet (a tap on the map) stays where it is. The line is a polite live region, so a route that changes in
+  place (another option, a mode from the cache) is announced too.
+- **Directions** (amends v1.13 rule 3): the empty From box takes focus, since the start is what is typed next.
+  Which box the place moves to is unchanged.
+- **Mode tabs:** the tablist is named "Travel mode", and the emoji are hidden from screen readers, so a tab
+  reads "Drive 8 min" (v1.24's visible labels are unchanged). The times are full strength: 6.0:1 on the open
+  tab and 6.6:1 on the others, from 4.0:1 and 4.2:1.
+
+**Acceptance**
+- [x] MapShell tests: a ranked card picked by keyboard hands focus to the ETA, a live region; a resort tapped
+  on the map leaves focus alone; a mode tab keeps focus when its route appears; Directions focuses the empty
+  start box. ModePanel test: a tablist "Travel mode" with tabs "Bus", "Drive 8 min", "Walk 11 min".
+- [x] e2e (`side-panel.spec.ts`, 1440×900): Enter on the Iwatake card focuses the ETA, in view, and the next Tab
+  reaches the route options.
+
+## v1.32: Back undoes the last panel step (2026-11-24, UX panel 2026-11-23, cluster B of the 2026-11-03 review)
+From a page before the app, one Back (or the iOS edge swipe) left the app after a planned trip, an open Saved
+panel or live navigation, because the URL mirror only replaces the current entry. Each step below now owns one
+history entry through `useBackToClose` (T76), so Back undoes the newest one and stays in the app:
+- **Live navigation:** Back ends it, as Exit navigation does; the trip stays.
+- **Saved panel:** Back closes it; the trip stays.
+- **A destination chosen in the app** (a resort, a food row, a point, a tapped bus's resort; only the one the
+  open tab shows, so a resort hidden by the Food tab is no step): Back clears it, as the To box's ✕ does, and
+  the start stays. Only the first one pushes an entry: changing it, the mode or the start
+  adds none, so Back never steps through every pick (amends T76's "selection does not push"). A destination the
+  link brought is where the user arrived, so it adds none and Back leaves the app.
+- Closing any of these in the app takes its entry back, so no stale Back step is left. Forward restores nothing.
+
+**Acceptance**
+- [x] e2e (`back-button.spec.ts`): from `/robots.txt`, Back closes Saved, ends navigation (phone), and clears a
+  resort picked in the list after a mode change; "Go here" in Saved leaves one step; Remove destination takes its
+  step back; the next Back leaves the app.

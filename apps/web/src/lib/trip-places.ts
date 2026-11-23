@@ -47,6 +47,7 @@ export function tripPlaces({
   stops,
   stopsKey,
   selectedResortId,
+  chosenResortId,
   poiId,
   poiCategory,
   resort,
@@ -72,6 +73,8 @@ export function tripPlaces({
   stops: TripStop[];
   stopsKey: string;
   selectedResortId: string | null;
+  /** the resort chosen as such, not through a tapped bus: it narrows the Bus list */
+  chosenResortId: string | null;
   poiId: string | null;
   poiCategory: PoiCategory | null;
   /** the selected resort, and the access point the drive goes to */
@@ -138,7 +141,7 @@ export function tripPlaces({
     : null;
   // Bus's destination is the lodging or place, else the chosen bus's resort, where it
   // drops you, else the selected resort (SPEC-web-app v1.13 rule 5)
-  const destinationResortId = pointResortId ?? selectedResortId;
+  const destinationResortId = pointResortId ?? chosenResortId;
   const busResort = resorts?.find(
     (r) => r.id === (busChoice?.resortId ?? destinationResortId),
   );

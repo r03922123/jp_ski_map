@@ -94,3 +94,30 @@ test.describe("landscape iPhone, notch simulated", () => {
     expect(expand.hit).toBe(true);
   });
 });
+
+// a11y review: Enter on a ranked card scrolled the card out of the window and left focus
+// on it, so a keyboard user saw nothing and a screen reader heard no ETA
+test("a resort picked from the ranked list by keyboard hands focus to its ETA", async ({
+  page,
+}) => {
+  await page.goto("/?from=36.6985,137.8376&mode=drive");
+  // Iwatake: its directions are tall enough to push the card below the window
+  const card = page
+    .getByRole("list", { name: "Ranked resorts" })
+    .getByRole("button", { name: /Iwatake/ });
+  await card.focus();
+  await page.keyboard.press("Enter");
+  const eta = page.getByText(/^ETA ~ \d+/);
+  await expect(eta).toBeFocused({ timeout: 15_000 });
+  await expect(eta).toBeInViewport();
+  await expect(eta).toHaveAttribute("aria-live", "polite");
+  // the route's own controls (options, else steps) are the next Tab, not 40 Shift+Tabs back
+  await page.keyboard.press("Tab");
+  const inRoute = await page.evaluate(
+    () =>
+      document.activeElement?.closest(
+        "[aria-label='Route options'], [aria-label='Steps']",
+      ) != null,
+  );
+  expect(inRoute).toBe(true);
+});

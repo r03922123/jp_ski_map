@@ -47,7 +47,15 @@ export function DirectionsPanel({
     <>
       <div className="sticky bottom-0 z-10 -mx-4 flex items-center justify-between gap-2 border-t bg-card px-4 py-2">
         {/* one line in the 84 px bars: the landscape one (BottomSheet slim) and the low sheet (v1.17) */}
-        <p className="min-w-0 text-lg font-semibold max-md:[@media(max-height:479px)]:truncate max-md:group-data-[state=low]/sheet:truncate">
+        {/* the sheet's answer: a pick below it hands focus here (BottomSheet), and a new
+            route in place (another option, mode or start) is announced */}
+        <p
+          data-sheet-answer
+          tabIndex={-1}
+          aria-live="polite"
+          aria-atomic="true"
+          className="min-w-0 text-lg font-semibold max-md:[@media(max-height:479px)]:truncate max-md:group-data-[state=low]/sheet:truncate"
+        >
           ETA ~ {formatDuration(route.durationS)} ·{" "}
           {formatDistance(route.distanceM)}
         </p>
