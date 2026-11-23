@@ -135,6 +135,7 @@ beforeEach(() => {
   // set per test; reset here so one test's answer never leaks into the next
   vi.mocked(api.fetchPath).mockReset();
   vi.mocked(api.fetchSuggestions).mockResolvedValue([]);
+  vi.mocked(api.fetchRank).mockResolvedValue([]);
   vi.mocked(api.fetchRoutes).mockImplementation(async (mode) => ({
     primary: mode === "drive" ? drive : walk,
     alternates: [],
@@ -570,5 +571,76 @@ describe("MapShell saved panel", () => {
     expect(screen.queryByRole("tab", { name: /walk/i })).toBeNull();
     fireEvent.click(savedButton());
     expect(screen.queryByRole("region", { name: "Saved" })).toBeNull();
+  });
+});
+
+// a11y review (keyboard and screen reader): a pick must leave focus where the answer is
+describe("MapShell keyboard focus", () => {
+  const ranked: api.RankedResort = {
+    resortId: "happo-one",
+    name: "Hakuba Happo-One Snow Resort",
+    rank: 1,
+    sortValue: 463,
+    driveS: 463,
+    driveDistanceM: 2500,
+    accessPointId: "happo-one-adam-gondola",
+    factors: {
+      driveTime: 463,
+      freshSnow: null,
+      snowDepth: null,
+      crowd: null,
+      terrainSize: null,
+      vertical: null,
+      price: null,
+    },
+    snow: null,
+    crowd: null,
+    statsSource: "test",
+    website: "https://www.happo-one.jp/",
+  };
+  const eta = () => screen.findByText(/^ETA ~/);
+
+  it("a resort picked from the ranked list hands focus to its ETA, which is announced", async () => {
+    vi.mocked(api.fetchRank).mockResolvedValue([ranked]);
+    renderShell(`?from=${from}&mode=drive`);
+    const card = within(
+      await screen.findByRole("list", { name: "Ranked resorts" }),
+    ).getByRole("button", { name: /Happo-One/ });
+    card.focus();
+    fireEvent.click(card); // Enter on a focused button
+    await waitFor(async () => expect(await eta()).toHaveFocus());
+    expect(await eta()).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("a resort tapped on the map leaves focus where it was", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectResort("happo-one"));
+    await eta();
+    expect(document.body).toHaveFocus();
+  });
+
+  it("a mode tab keeps focus when its route appears below it", async () => {
+    renderShell(`?from=${from}&mode=bus&resort=happo-one`);
+    const driveTab = await screen.findByRole("tab", { name: /Drive 8 min/ });
+    driveTab.focus();
+    fireEvent.mouseDown(driveTab);
+    fireEvent.click(driveTab);
+    await eta();
+    expect(driveTab).toHaveFocus();
+  });
+
+  it("Directions makes the start the destination and puts focus in the empty start box", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    const directions = await screen.findByRole("button", {
+      name: "Directions",
+    });
+    directions.focus();
+    fireEvent.click(directions);
+    const start = screen.getByRole("combobox", {
+      name: "Search hotel or place",
+    });
+    expect(start).toHaveValue("");
+    expect(start).toHaveFocus();
   });
 });
