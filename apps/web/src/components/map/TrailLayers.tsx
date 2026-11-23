@@ -4,12 +4,12 @@ import { type LngLat, segment } from "@/lib/route-geo";
 
 export const EMPTY = { type: "FeatureCollection" as const, features: [] };
 
-// SPEC-game-theme: the chosen route is an overworld trail
-const TRAIL_INK = "#22223a";
-const TRAIL_GOLD = "#ffd25e";
+// SPEC-web-app v1.30: the chosen route is Maps blue (the app's --primary) over a darker casing
+const ROUTE_BLUE = "#185fc6";
+const ROUTE_CASING = "#0e3f8c";
 
 /**
- * The chosen route as an overworld trail, then the part already covered while navigating
+ * The chosen route as a blue line, then the part already covered while navigating
  * (grey), then the highlighted step. Always mounted, empty when unused (see MapView).
  */
 export function TrailLayers({
@@ -38,9 +38,9 @@ export function TrailLayers({
           id="route-active-casing"
           type="line"
           layout={{ "line-cap": "round", "line-join": "round" }}
-          // the overworld path: an ink track (gold dashes on top by car)
+          // no casing on foot: it would fill the dots in
           paint={{
-            "line-color": isWalk ? "#ffffff" : TRAIL_INK,
+            "line-color": ROUTE_CASING,
             "line-width": isWalk ? 0 : 9,
           }}
         />
@@ -49,12 +49,11 @@ export function TrailLayers({
           type="line"
           layout={{ "line-cap": "round", "line-join": "round" }}
           paint={{
-            "line-color": isWalk ? TRAIL_INK : TRAIL_GOLD,
-            "line-width": isWalk ? 7 : 4,
-            // zero-length dashes with round caps draw as dots
-            // an overworld trail: footprint dots on foot, a dashed track by car
-            // (round caps add a line width to every dash, so the gap must be wider than 1)
-            "line-dasharray": isWalk ? [0, 1.6] : [1.5, 2],
+            "line-color": ROUTE_BLUE,
+            "line-width": isWalk ? 7 : 6,
+            // on foot, zero-length dashes with round caps draw as dots (round caps add a
+            // line width to every dash, so the gap must be wider than 1)
+            ...(isWalk ? { "line-dasharray": [0, 1.6] } : {}),
           }}
         />
       </Source>

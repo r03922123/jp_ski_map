@@ -59,11 +59,11 @@ exports[`MapView draws (characterization) > empty: every route source stays moun
     >
       <i
         data-layer="route-active-casing"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":9}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0e3f8c","line-width":9}}"
       />
       <i
         data-layer="route-active-line"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffd25e","line-width":4,"line-dasharray":[1.5,2]}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#185fc6","line-width":6}}"
       />
     </div>
     <div
@@ -209,11 +209,11 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
     >
       <i
         data-layer="route-active-casing"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffffff","line-width":0}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0e3f8c","line-width":0}}"
       />
       <i
         data-layer="route-active-line"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":7,"line-dasharray":[0,1.6]}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#185fc6","line-width":7,"line-dasharray":[0,1.6]}}"
       />
     </div>
     <div
@@ -449,11 +449,11 @@ exports[`MapView draws (characterization) > planning by car: the active route is
     >
       <i
         data-layer="route-active-casing"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":9}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0e3f8c","line-width":9}}"
       />
       <i
         data-layer="route-active-line"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffd25e","line-width":4,"line-dasharray":[1.5,2]}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#185fc6","line-width":6}}"
       />
     </div>
     <div
@@ -710,11 +710,11 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
     >
       <i
         data-layer="route-active-casing"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#ffffff","line-width":0}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#0e3f8c","line-width":0}}"
       />
       <i
         data-layer="route-active-line"
-        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#22223a","line-width":7,"line-dasharray":[0,1.6]}}"
+        data-style="{"type":"line","layout":{"line-cap":"round","line-join":"round"},"paint":{"line-color":"#185fc6","line-width":7,"line-dasharray":[0,1.6]}}"
       />
     </div>
     <div
