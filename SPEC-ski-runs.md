@@ -160,7 +160,7 @@ the map read and answer like OpenSkiMap, still from our snapshot (its vector til
 1. Runs and lifts draw from zoom 10, so the valley overview (zoom 11) shows every resort's lines.
 2. The base map has hillshade relief from [Mapterhorn](https://mapterhorn.com) terrain tiles (the source OpenSkiMap
    credits; its FAQ allows app and commercial use of `tiles.mapterhorn.com`, no rate limit), under water, roads and
-   labels. The credits line names Mapterhorn (its TileJSON adds the credit).
+   labels. The credits line names Mapterhorn last, after OpenStreetMap.
 3. A tap or click on a run or lift (a wide invisible hit line, `SKI_HIT_LAYER`) opens a card at that spot and draws the
    line in yellow under it, as OpenSkiMap does. The card shows the name, the kind ("Intermediate run", "Chairlift"),
    the resort (a button that opens the resort card), the length, the vertical with its bottom and top elevation, and

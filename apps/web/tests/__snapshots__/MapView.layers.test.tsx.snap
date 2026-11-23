@@ -3,7 +3,7 @@
 exports[`MapView draws (characterization) > empty: every route source stays mounted, empty 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-hit"]"
     data-map="true"
   >
@@ -183,7 +183,7 @@ exports[`MapView draws (characterization) > empty: every route source stays moun
 exports[`MapView draws (characterization) > navigating: the covered part, the rider puck, the start dot, no time chips 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-hit"]"
     data-map="true"
   >
@@ -460,7 +460,7 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
 exports[`MapView draws (characterization) > planning by car: the active route is the gold-dashed track 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-hit"]"
     data-map="true"
   >
@@ -758,7 +758,7 @@ exports[`MapView draws (characterization) > planning by car: the active route is
 exports[`MapView draws (characterization) > planning on foot: routes, alternates, ride, lodging, markers and labels 1`] = `
 <div>
   <div
-    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>)"}"
+    data-attribution="{"customAttribution":"Runs: <a href=\\"https://openskimap.org\\" target=\\"_blank\\" rel=\\"noopener\\">OpenSkiMap</a> | Snow: <a href=\\"https://open-meteo.com/\\" target=\\"_blank\\" rel=\\"noopener\\">Open-Meteo</a> | Shuttle: <a href=\\"https://www.hakubavalley.com/en/access_en/shuttlebus_en/\\" target=\\"_blank\\" rel=\\"noopener\\">Hakuba Valley</a> | Places: <a href=\\"https://overturemaps.org/\\" target=\\"_blank\\" rel=\\"noopener\\">Overture Maps Foundation</a> (<a href=\\"https://github.com/r03922123/jp_ski_map/blob/main/DATA-LICENSES.md\\" target=\\"_blank\\" rel=\\"noopener\\">licences</a>) | Terrain: <a href=\\"https://mapterhorn.com/attribution\\" target=\\"_blank\\" rel=\\"noopener\\">Mapterhorn</a>"}"
     data-interactive="["lodging-pins","route-alts-hit","ski-hit"]"
     data-map="true"
   >

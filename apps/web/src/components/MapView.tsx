@@ -39,7 +39,7 @@ import {
   MAP_ATTRIBUTION,
   MAP_STYLE_URL,
   MAPLIBRE_WORKER_URL,
-  TERRAIN_TILEJSON_URL,
+  TERRAIN_TILES,
 } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
 import type { RideStopMark } from "@/lib/ride-stops";
@@ -558,9 +558,17 @@ export default function MapView({
           />
         </Popup>
       )}
-      {/* relief, as OpenSkiMap draws it: above land cover, under water, roads and labels.
-          The tiles credit Mapterhorn themselves (their TileJSON attribution). */}
-      <Source id="terrain" type="raster-dem" url={TERRAIN_TILEJSON_URL}>
+      {/* relief, as OpenSkiMap draws it: above land cover, under water, roads and labels */}
+      <Source
+        id="terrain"
+        type="raster-dem"
+        tiles={[TERRAIN_TILES]}
+        encoding="terrarium"
+        tileSize={512}
+        // Hakuba has no tile past z16 (404s); z12 (~19 m a pixel) is detail enough for
+        // shading, and each tile is ~190 KB
+        maxzoom={12}
+      >
         <Layer
           id="hillshade"
           type="hillshade"
