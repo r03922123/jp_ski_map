@@ -19,22 +19,6 @@ export default defineConfig({
   timeout: 60_000,
   use: {
     baseURL: PROD_URL,
-    // the title screen shows once per browser session; the smoke tests start past it
-    storageState: {
-      cookies: [
-        {
-          name: "hakuba_title",
-          value: "seen",
-          domain: new URL(PROD_URL).hostname,
-          path: "/",
-          expires: -1,
-          httpOnly: false,
-          secure: false,
-          sameSite: "Lax",
-        },
-      ],
-      origins: [],
-    },
     // a failed run's trace (gitignored test-results/) can hold the bypass header: never share it.
     // Off in CI, where GitHub masks secrets in logs but not inside files (SPEC-deploy Phase C).
     trace: process.env.CI ? "off" : "retain-on-failure",

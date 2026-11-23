@@ -30,7 +30,6 @@ import { TripStopMarkers } from "@/components/map/TripStopMarkers";
 import { PixelSprite } from "@/components/PixelSprite";
 import type { Bbox, Coord, Place, Resort, Route } from "@/lib/api";
 import { ICONS, type Pose } from "@/lib/game/sprites";
-import { useGameStyle } from "@/lib/game/use-game-style";
 import {
   HAKUBA_VIEW,
   MAP_ATTRIBUTION,
@@ -188,7 +187,6 @@ export default function MapView({
   pilot = null,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
-  const mapStyle = useGameStyle(MAP_STYLE_URL);
   // routes can arrive before the map instance exists (shared URL); fit once it has
   const [mapReady, setMapReady] = useState(false);
   const gestures = useMapGestures({
@@ -445,12 +443,11 @@ export default function MapView({
     });
   }
 
-  if (!mapStyle) return null; // the overworld style loads first (one fetch, as MapLibre would)
   return (
     <MapGL
       ref={mapRef}
       initialViewState={HAKUBA_VIEW}
-      mapStyle={mapStyle}
+      mapStyle={MAP_STYLE_URL}
       style={{ position: "absolute", inset: 0, zIndex: 0 }}
       attributionControl={{
         customAttribution: MAP_ATTRIBUTION,

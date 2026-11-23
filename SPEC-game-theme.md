@@ -34,13 +34,11 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
   Unlike today's puck, it never rotates.
 - **It replaces today's position puck** while navigating. The puck's accuracy circle stays, restyled.
 
-## Map style (real map, game-styled)
-- `gameStyle(base)`: a pure function from the OpenFreeMap "liberty" style JSON to a restyled copy
-  (`lib/game/map-style.ts`). It changes only paint properties, so every layer, label and source survives:
-  - Land is snow white (#f4f8fb) with blue-grey hillshade.
-  - Forests are deep pine (#2f5d50), water is ice blue (#9cc9e6), and buildings are warm wood (#c9a27e).
-  - Roads are chunky, with a dark outline (#3b3b4f). Motorways are amber and local roads cream.
-  - Labels have a dark halo for contrast.
+## Map style
+- **The basemap is plain OpenFreeMap "liberty"** since web-app v1.30 (2026-11-23): MapLibre loads the style URL
+  as published. The `gameStyle` recolour (snow land, pine forests, amber roads with dark outlines) is retired;
+  before/after screenshots are in that PR. Liberty won over Positron because it keeps rivers, the lake and road
+  classes readable.
 - **Map labels keep OpenFreeMap's font (Noto).** Generating DotGothic16 glyph PBFs for the map is out of scope.
 - **Icons are pixel sprites added with `map.addImage`:**
   - Resort "worlds": a mountain badge with the world number.
@@ -48,8 +46,9 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
   - Konbini and food icons.
   - Saved places: a star.
   - The destination: a flag.
-- **Route lines:** dotted trails, like an overworld path. The active route is a thick dashed line, and
-  the alternates are thin and grey. The walk legs of a bus journey use footprint dots.
+- **Route lines** follow Maps since web-app v1.30: the chosen route is solid blue `#185fc6` over a darker
+  casing `#0e3f8c`, walking is a dotted line in the same blue, and alternates stay dashed grey. (They were
+  overworld trails: an ink track with gold dashes, and ink footprint dots.)
 - **Navigation stays plain-readable.** Off-route and arrival states keep strong colour contrast.
 
 ## World numbers
@@ -72,8 +71,8 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
   Every control keeps its accessible name. The user-location dot stays Maps blue.
 - **Colour:** text contrast ≥ 4.5:1 and focus rings ≥ 3:1, checked by the tokens test
   (`tests/game-tokens.test.ts`). No dark mode.
-- **Kept:** the rider sprite, world badges on resort chips and in the list, stamp moments, the title screen
-  (its layout and snow; its text now uses the system font too).
+- **Kept:** the rider sprite, world badges on resort chips and in the list, stamp moments. (The title screen
+  was kept here until web-app v1.30 removed it.)
 
 ## Sound
 > **Removed in web-app v1.14 (2026-11-10):** the app has no sound. The rest of this section is history.
@@ -93,8 +92,8 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
 - **Sound is never the only signal:** every effect has a visible counterpart.
 
 ## Motion
-- Sprite animation is 4–8 fps, the stamp moment lasts ≤ 1.5 s, and the title screen has drifting snow.
-- **`prefers-reduced-motion: reduce`:** static frames, no drifting snow, and the stamp shows without the bounce.
+- Sprite animation is 4–8 fps, and the stamp moment lasts ≤ 1.5 s. (The title screen's drifting snow went with it in web-app v1.30.)
+- **`prefers-reduced-motion: reduce`:** static frames, and the stamp shows without the bounce.
 
 ## Performance budget
 - Theme code (sprites, style, sfx, frames) adds ≤ 40 KB gzipped JS to the first load.
@@ -103,7 +102,7 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
 
 ## Acceptance criteria
 - [ ] Every sprite is valid: every row of every frame has the declared width, uses only palette indices, and matches the pose table.
-- [ ] `gameStyle` keeps every layer id, source and layout property of the base style and changes only paint; the snapshot of changed properties is reviewed.
+- [ ] ~~`gameStyle` keeps every layer id, source and layout property of the base style and changes only paint.~~ Retired by web-app v1.30 (plain basemap).
 - [ ] W1–W10 are assigned north to south, every resort has exactly one, and the order is stable.
 - [ ] Theme tokens meet 4.5:1 text contrast and 3:1 for focus rings (light theme; there is no dark mode yet).
 - [ ] ~~Sound is off on first load…~~ Replaced by web-app v1.14: no sound, no AudioContext.

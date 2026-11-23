@@ -253,32 +253,6 @@
     0 2px 6px 2px rgb(60 64 67 / 0.15);
 }
 
-/* SPEC-web-app v1.6 title screen: drifting snow and a blinking start, still with reduced motion */
-.title-flake {
-  animation: title-snow 6s linear infinite;
-}
-.title-start {
-  animation: title-blink 1.2s steps(2, jump-none) infinite;
-}
-@keyframes title-snow {
-  to {
-    transform: translate(-40px, 105vh);
-  }
-}
-@keyframes title-blink {
-  50% {
-    opacity: 0.75; /* still ≥ 4.5:1 on the navy */
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .title-flake {
-    display: none;
-  }
-  .title-start {
-    animation: none;
-  }
-}
-
 /* v1.19: MapLibre's corner controls (zoom, credits) stay out of the home indicator and,
    in landscape, the notch. Scoped under .maplibregl-map: MapLibre's stylesheet loads after
    this one (the map is lazy) and sets the same corners to 0 */
