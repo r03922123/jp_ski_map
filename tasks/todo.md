@@ -714,7 +714,7 @@ Real iPhone: a tap on the HUD Rider button registered on the Quests button next 
 
 ## Task 76: Back closes overlays instead of leaving the trip
 Android/desktop: Back with the rider card (or quest log) open navigates away and loses from/resort (URL mirror uses `replaceState` only). Push a history entry while an overlay is open; popstate closes it. Decide whether resort selection should push history. **Scope:** M
-**Done:** `lib/back-close.ts` (`useBackToClose`, `mirrorUrl`). Decided: resort selection does not push history (✕ undoes it; an entry per pick would flood Back). Closing an overlay calls `history.back()` async, so tests that reload right after must wait (see saved.spec).
+**Done:** `lib/back-close.ts` (`useBackToClose`, `mirrorUrl`). Decided: resort selection does not push history (✕ undoes it; an entry per pick would flood Back). Closing an overlay calls `history.back()` async, so tests that reload right after must wait (see saved.spec). Revised 2026-11-24 (SPEC-web-app v1.32): the first destination chosen in the app, Saved and live navigation each push one entry.
 
 ## Task 77: Small phones: Start/ETA visible in the collapsed sheet
 At 360×740 / Pixel 7 walk, Start and ETA are below the collapsed sheet's fold. Also "Tap to start" expands the sheet and focuses search (may raise the keyboard on Android): don't auto-focus search on touch. **Scope:** S

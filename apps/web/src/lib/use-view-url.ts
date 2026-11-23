@@ -11,7 +11,7 @@ import type { Trip } from "@/lib/use-trip";
 
 /**
  * The link holds the trip: restore it once on load (or start from My hotel), then mirror
- * every change back into the URL.
+ * every change back into the URL. Returns whether the link has been read.
  */
 export function useViewUrl({
   trip,
@@ -91,4 +91,5 @@ export function useViewUrl({
     point,
     stopsKey,
   ]);
+  return ready;
 }

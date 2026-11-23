@@ -26,6 +26,7 @@ import {
 } from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
 import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
+import { useBackToClose } from "@/lib/back-close";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
@@ -83,7 +84,12 @@ export function MapShell() {
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
-  useViewUrl({ trip, rankOptions, setRankOptions, setImportCode });
+  const linkRead = useViewUrl({
+    trip,
+    rankOptions,
+    setRankOptions,
+    setImportCode,
+  });
 
   const resorts = useQuery(resortsQuery);
   const lodgingPins = useLodging(view);
@@ -261,6 +267,14 @@ export function MapShell() {
     setSavedFocus,
     setDroppedPin,
   });
+  // Back undoes the last panel step (UX panel 2026-11-23): it ends navigation, closes Saved
+  // and steps back from a destination chosen here; a linked one is where Back leaves the app
+  const hasTo = selectedResortId !== null || poiId !== null || point !== null;
+  const toWasEmpty = useRef(false);
+  if (linkRead && !hasTo) toWasEmpty.current = true;
+  useBackToClose(hasTo && toWasEmpty.current, actions.clearTo);
+  useBackToClose(savedOpen, () => setSavedOpen(false));
+  useBackToClose(piloting, session.exitPilot);
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
   const pinCard = droppedPin && (
