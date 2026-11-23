@@ -8,6 +8,7 @@ import {
   SKI_HIT_LAYER,
   SKI_LAYERS,
   SkiLinesLayer,
+  skiLineOf,
 } from "@/components/map/SkiLinesLayer";
 
 vi.mock("react-map-gl/maplibre", () => ({
@@ -20,6 +21,34 @@ vi.mock("react-map-gl/maplibre", () => ({
 const GREEN = "hsl(125,100%,33%)";
 const RED = "hsl(359,94%,53%)";
 const ORANGE = "hsl(34,100%,50%)";
+
+// the tap boundary: MapLibre hands over untyped properties
+describe("skiLineOf", () => {
+  it("keeps the measured numbers and nulls what isn't a number", () => {
+    expect(
+      skiLineOf({
+        id: "a",
+        kind: "lift",
+        name: "Adam",
+        liftType: "gondola",
+        resortId: "happo-one",
+        distanceM: 2044,
+        minElevationM: 768,
+        maxElevationM: 1391,
+        slopePct: 32.3,
+        durationS: "480",
+      }),
+    ).toMatchObject({
+      distanceM: 2044,
+      minElevationM: 768,
+      maxElevationM: 1391,
+      slopePct: 32.3,
+      durationS: null,
+      difficulty: null,
+    });
+    expect(skiLineOf({ kind: "road" })).toBeNull();
+  });
+});
 
 describe("run colours (SPEC-ski-runs, Japan convention)", () => {
   it.each([

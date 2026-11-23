@@ -14,11 +14,23 @@ const ADAM: SkiLine = {
   distanceM: 2044,
   minElevationM: 768,
   maxElevationM: 1391,
-  slopePct: 32,
+  slopePct: 32.3,
   durationS: 480,
 };
 
 describe("skiStats", () => {
+  // review: degrees come from the 1-dp percent; 20.4% is 11.5° (12°), a whole 20% is 11.3° (11°)
+  it("rounds the degrees from the precise slope", () => {
+    expect(skiStats({ ...ADAM, slopePct: 20.6 }).at(-1)).toEqual([
+      "Slope (average)",
+      "12° (21%)",
+    ]);
+    expect(skiStats({ ...ADAM, slopePct: 20.4 }).at(-1)).toEqual([
+      "Slope (average)",
+      "12° (20%)",
+    ]);
+  });
+
   it("gives a timed lift the numbers OpenSkiMap shows", () => {
     expect(skiStats(ADAM)).toEqual([
       ["Distance", "2.04 km"],
@@ -47,7 +59,7 @@ describe("skiStats", () => {
     ]);
   });
 
-  it("shows nothing for an area with no length, slope or elevations", () => {
+  it("shows nothing for a line with no length, slope or elevations", () => {
     expect(
       skiStats({
         ...ADAM,

@@ -56,7 +56,7 @@ far more than a 31 KB crop needs.
 | `geometry` | `geometry` | LineString or Polygon; longitude and latitude only (OpenSkiMap's third value, elevation, is dropped), 5 dp |
 | `distanceM` | measured from the 3D line (v1.2) | length along the slope, m; null for a Polygon or a point with no elevation |
 | `minElevationM`, `maxElevationM` | the coordinates' third value (v1.2) | m |
-| `slopePct` | measured (v1.2) | average: (highest − lowest) / length on the ground × 100; null like `distanceM` |
+| `slopePct` | measured (v1.2) | average: (highest − lowest, both rounded to m) / length on the ground × 100, 1 dp; null like `distanceM` |
 | `durationS` | `properties.duration` (lifts, v1.2) | ride time, s; null when OSM has none (85 of 92 lifts on 2026-11-23) |
 
 Ski-area names, matched by **exact string equality** (live names, 2026-11-23). Substring matching is wrong here:

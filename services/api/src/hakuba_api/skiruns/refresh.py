@@ -94,21 +94,24 @@ def _round(coords: Any) -> Any:
     return [_round(c) for c in coords]
 
 
-def _stats(geometry: dict[str, Any]) -> dict[str, int | None]:
+def _stats(geometry: dict[str, Any]) -> dict[str, int | float | None]:
     """OpenSkiMap's numbers for a line: length along the slope, lowest and highest point,
     average slope. Measured before rounding drops the elevations."""
-    rings = geometry["coordinates"] if geometry["type"] == "Polygon" else [geometry["coordinates"]]
+    kind = geometry["type"]
+    if kind not in ("LineString", "Polygon"):
+        return {}  # the SkiLine model rejects it, naming the type
+    rings = geometry["coordinates"] if kind == "Polygon" else [geometry["coordinates"]]
     heights = [p[2] for ring in rings for p in ring if len(p) > 2]
     low = round(min(heights)) if heights else None
     high = round(max(heights)) if heights else None
-    stats: dict[str, int | None] = {
+    stats: dict[str, int | float | None] = {
         "distanceM": None,
         "minElevationM": low,
         "maxElevationM": high,
         "slopePct": None,
     }
     line = geometry["coordinates"]
-    if geometry["type"] != "LineString" or len(heights) != len(line):
+    if kind != "LineString" or len(heights) != len(line):
         return stats  # an area, or a line with a point missing its elevation
     ground = [
         km(Coord(lat=a[1], lng=a[0]), Coord(lat=b[1], lng=b[0])) * 1000
@@ -117,7 +120,9 @@ def _stats(geometry: dict[str, Any]) -> dict[str, int | None]:
     rises = [b[2] - a[2] for a, b in zip(line, line[1:], strict=False)]
     stats["distanceM"] = round(sum(map(math.hypot, ground, rises)))
     if sum(ground) > 0 and low is not None and high is not None:
-        stats["slopePct"] = round(100 * (max(heights) - min(heights)) / sum(ground))
+        # from the rounded heights the card shows, so "Vertical 0 m" never sits next to a
+        # slope; one decimal, so the degrees made from it match OpenSkiMap's
+        stats["slopePct"] = round(100 * (high - low) / sum(ground), 1)
     return stats
 
 

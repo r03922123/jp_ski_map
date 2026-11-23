@@ -28,7 +28,10 @@ export function skiStats(line: SkiLine): [string, string][] {
     const degrees = Math.round(
       (Math.atan(line.slopePct / 100) * 180) / Math.PI,
     );
-    rows.push(["Slope (average)", `${degrees}° (${line.slopePct}%)`]);
+    rows.push([
+      "Slope (average)",
+      `${degrees}° (${Math.round(line.slopePct)}%)`,
+    ]);
   }
   return rows;
 }

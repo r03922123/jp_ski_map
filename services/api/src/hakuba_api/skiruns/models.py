@@ -47,7 +47,7 @@ class SkiLineProps(ApiModel):
     distance_m: int | None  # along the slope
     min_elevation_m: int | None
     max_elevation_m: int | None
-    slope_pct: int | None  # average: vertical / ground length
+    slope_pct: float | None  # average: vertical / ground length, 1 dp
     duration_s: int | None  # lifts only: ride time, from OSM's `duration`
 
 
