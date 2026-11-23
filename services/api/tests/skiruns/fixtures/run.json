@@ -1,0 +1,227 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "c6fd19b4f857d493356991a28294501a01c88427",
+    "name": "リーゼングラートコース",
+    "type": "run",
+    "uses": [
+     "downhill"
+    ],
+    "status": "operating",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "2badaaea50fcf2640ddea5311798bbd7e2c17b7c",
+       "name": "白馬八方尾根, Hakuba Happo One",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ],
+    "difficulty": "advanced"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.7992015,
+      36.6970439,
+      1829.3
+     ],
+     [
+      137.7999008,
+      36.6973218,
+      1819.8
+     ],
+     [
+      137.8009126,
+      36.6975489,
+      1812.5
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "5dccdf5bd2697671847a1857bf1505d6021d5286",
+    "name": "黒菱ゲレンデ, Kurobishi",
+    "type": "run",
+    "uses": [
+     "downhill"
+    ],
+    "status": "operating",
+    "skiAreas": [],
+    "difficulty": "expert"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.805486,
+      36.6991447,
+      1684.2
+     ],
+     [
+      137.8058061,
+      36.6991822,
+      1667.6
+     ],
+     [
+      137.8068449,
+      36.6994147,
+      1611
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "5890df0eda76e657e30aded013c6283c7ec83a37",
+    "name": null,
+    "type": "run",
+    "uses": [
+     "nordic"
+    ],
+    "status": "operating",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "fixture-happo",
+       "name": "白馬八方尾根, Hakuba Happo One",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ],
+    "difficulty": "intermediate"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8559288,
+      36.6495458,
+      738.8
+     ],
+     [
+      137.8527316,
+      36.6495114,
+      735.7
+     ],
+     [
+      137.8523024,
+      36.6493048,
+      735.2
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "f861637c252870fb6d2c7831d09d0f07ad3c794a",
+    "name": null,
+    "type": "run",
+    "uses": [
+     "snow_park"
+    ],
+    "status": "operating",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "6d8c8a9a4114428e603d1c434b147d1217879f85",
+       "name": "白馬47, Hakuba 47",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ],
+    "difficulty": "intermediate"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      137.8176279,
+      36.6763657,
+      1165
+     ],
+     [
+      137.8177206,
+      36.6765253,
+      1163.2
+     ],
+     [
+      137.8181118,
+      36.6770176,
+      1141.8
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "7dbb38b0bfe8a4d0054672a5e7226718684e17e3",
+    "name": null,
+    "type": "run",
+    "uses": [
+     "downhill"
+    ],
+    "status": "operating",
+    "skiAreas": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "a49c1598156961b75dba1bdd98423521965cfe64",
+       "name": "爺ガ岳スキー場, Jiigatake Snow Resort",
+       "type": "skiArea",
+       "status": "operating"
+      }
+     }
+    ],
+    "difficulty": null
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       137.7984403,
+       36.5617208,
+       1012.4
+      ],
+      [
+       137.7989739,
+       36.5614209,
+       1013.2
+      ],
+      [
+       137.7990637,
+       36.5615239,
+       1013.4
+      ],
+      [
+       137.7985301,
+       36.5618239,
+       1012.1
+      ],
+      [
+       137.7984403,
+       36.5617208,
+       1012.4
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

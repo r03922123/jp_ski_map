@@ -981,6 +981,10 @@ each task is one PR, built in a fresh session from the spec.
 ## Task J17: Ski runs and lifts on the map (SPEC-ski-runs, owner's first pick 2026-11-23)
 Build [SPEC-ski-runs.md](../SPEC-ski-runs.md): refresh module and snapshot, validator, `GET /api/ski-lines`, the map
 layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API slice, then web slice: two PRs)
+- [x] API slice (2026-11-23): `hakuba_api.skiruns` (refresh, models, validator in `data.validate`, `GET /api/ski-lines`),
+  snapshot of 217 runs + 92 lifts from all 10 resorts (182 KB, 43 KB gzipped), `DATA-LICENSES.md` row
+- [ ] Web slice: `SkiLinesLayer`, the OpenSkiMap credit and the spec's e2e and screenshot checks (after the basemap
+  and route-line PRs land)
 
 ## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
 Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.
