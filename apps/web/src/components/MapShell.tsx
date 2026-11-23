@@ -44,6 +44,12 @@ const MapView = dynamic(() => import("./MapView"), { ssr: false });
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const trip = useTrip();
+  // Directions' focus is for one mount: the box has it by now, and a later remount of the same
+  // box (the sheet coming back after navigation) must not take focus and open its list
+  const { focusedSearchKey: focusKey, setFocusedSearchKey } = trip;
+  useEffect(() => {
+    if (focusKey !== null) setFocusedSearchKey(null);
+  }, [focusKey, setFocusedSearchKey]);
   const {
     mode,
     origin,
