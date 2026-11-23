@@ -159,6 +159,8 @@ export function tripActions(
     // Directions: the start becomes the destination, and From waits to be filled (rule 3)
     directionsTo: () => {
       if (!fromPlace) return;
+      // first: clearOrigin keeps a tapped bus's resort, which the new To then replaces
+      clearOrigin();
       chooseTo({
         id: fromPlace.id,
         name: fromPlace.name,
@@ -166,7 +168,6 @@ export function tripActions(
         // a resort stays a resort; anything else is a named point
         kind: fromPlace.kind === "resort" ? "resort" : "place",
       });
-      clearOrigin();
       // the new, empty From box takes focus: the Directions button that had it is gone
       setSearchKey(searchKey + 1);
       setFocusedSearchKey(searchKey + 1);
