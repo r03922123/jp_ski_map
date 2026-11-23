@@ -34,7 +34,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `poi-destinations` | Restaurant & convenience-store destinations (OSM snapshot) + nearby-by-ETA query *(added v1.1, 2026-10-30)* | `routing` |
 | `saved-places` | Starred/saved places and lists in browser storage, "My hotel" label, share links *(added v1.3, 2026-10-30)* | — (browser only) |
 | `pilot` | Turn-by-turn navigation from live GPS: snapping, progress/ETA, off-route reroute, bus journey guidance *(added v1.3, 2026-10-30)* | `routing`, `bus-schedules` |
-| `game-theme` | Original game look and sound: game-styled map, pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio); UI in the Maps look since 2026-11-20 (system font) *(added v1.6, 2026-10-31)* | — (browser only) |
+| `game-theme` | Original game look and sound: pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio); UI in the Maps look since 2026-11-20 (system font), plain basemap since web-app v1.30 *(added v1.6, 2026-10-31)* | — (browser only) |
 | `progression` | Rider profile on the device: resort stamps from real visits, daily powder quests, ride stats, rider card share link *(added v1.6, 2026-10-31)* | `resort-catalog`, `snow-conditions`, `pilot` |
 | `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels; from v1.6 presented as the adventure | all of the above (via HTTP API only) |
 | `deploy` | Zero-cost hosting: Phase A this Mac + Tailscale Funnel, Phase B Vercel Hobby with Valhalla in the API (live 2026-11-10, ADR-0006) *(added v1.5, 2026-10-31)* | hosts every server module |

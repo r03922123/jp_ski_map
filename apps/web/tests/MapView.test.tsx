@@ -2,6 +2,7 @@ import { act, fireEvent, render } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Resort } from "@/lib/api";
+import { MAP_STYLE_URL } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
 import type { SavedMarker } from "@/lib/saved-places";
 
@@ -133,6 +134,13 @@ function view(
     />
   );
 }
+
+describe("MapView basemap (SPEC-web-app v1.30)", () => {
+  it("hands MapLibre the plain style URL on the first render", () => {
+    render(view(null));
+    expect(h.props.mapStyle).toBe(MAP_STYLE_URL);
+  });
+});
 
 describe("MapView follow camera (Task 67)", () => {
   beforeEach(() => {

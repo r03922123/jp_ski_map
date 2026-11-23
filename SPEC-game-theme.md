@@ -34,7 +34,7 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
   Unlike today's puck, it never rotates.
 - **It replaces today's position puck** while navigating. The puck's accuracy circle stays, restyled.
 
-## Map style (real map, game-styled)
+## Map style
 - **The basemap is plain OpenFreeMap "liberty"** since web-app v1.30 (2026-11-23): MapLibre loads the style URL
   as published. The `gameStyle` recolour (snow land, pine forests, amber roads with dark outlines) is retired;
   before/after screenshots are in that PR. Liberty won over Positron because it keeps rivers, the lake and road
