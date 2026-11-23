@@ -20,6 +20,7 @@ import type MapView from "@/components/MapView";
 import type { Resort, Route } from "@/lib/api";
 import * as api from "@/lib/api";
 import { emptyState, savedStore, toggleInList } from "@/lib/saved-places";
+import busFixture from "../e2e/fixtures/bus-options-2026-03-20.json";
 import driveFixture from "./fixtures/route-drive.json";
 import walkFixture from "./fixtures/route-walk.json";
 
@@ -358,6 +359,34 @@ describe("MapShell mode", () => {
     // the bus panel shows the (empty) answer
     expect(
       await screen.findByText("No more departures after this time today."),
+    ).toBeInTheDocument();
+  });
+
+  // UX panel 2026-11-23: a bus tapped with no destination set named Happo-One in the To
+  // box, but the link had no resort and Drive and Walk had no destination
+  it("a tapped bus's resort stays the destination in the link and on Drive", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    const [option] = await screen.findAllByRole("button", { name: /Board/ });
+    fireEvent.click(option);
+    expect(await screen.findByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
+    await waitFor(() => expect(query().get("mode")).toBe("drive"));
+    await waitFor(() =>
+      expect(map().destination).toEqual(happo.accessPoints[0].coord),
+    );
+    expect(
+      await screen.findByRole("tab", { name: /Drive 8 min/ }),
     ).toBeInTheDocument();
   });
 });
