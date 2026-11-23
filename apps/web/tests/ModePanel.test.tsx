@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ModePanel, type ModePanelProps } from "@/components/ModePanel";
 import type { Resort, Route } from "@/lib/api";
@@ -118,6 +118,14 @@ describe("ModePanel", () => {
     fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
 
     expect(props.onModeChange).toHaveBeenCalledWith("walk");
+  });
+
+  // a11y review: an unnamed tablist, and each tab read its emoji ("automobile Drive")
+  it("the mode tabs are a named tablist whose tabs read their word and time", () => {
+    renderPanel({ durations: { drive: 463, walk: 686 } });
+    const tabs = within(screen.getByRole("tablist", { name: "Travel mode" }));
+    for (const name of ["Bus", "Drive 8 min", "Walk 11 min"])
+      expect(tabs.getByRole("tab", { name })).toBeInTheDocument();
   });
 
   it("keeps the bus tab disabled until bus data exists", () => {

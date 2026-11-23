@@ -17,7 +17,7 @@ const tabLabel = (word: string, seconds: number | undefined) =>
     // spaces outside the spans: inside them, the tab's name reads "Drive8 min"
     <>
       <span className="max-sm:sr-only">{word}</span>{" "}
-      <span className="text-xs opacity-80">{formatDuration(seconds)}</span>
+      <span className="text-xs">{formatDuration(seconds)}</span>
     </>
   );
 
@@ -114,15 +114,18 @@ export function ModePanel({
         value={mode}
         onValueChange={(value) => onModeChange(value as PanelMode)}
       >
-        <TabsList className="w-full">
+        <TabsList aria-label="Travel mode" className="w-full">
+          {/* the emoji are pictures of the word beside them: a screen reader reads "Drive 8 min" */}
           <TabsTrigger value="bus" disabled={!busPanel}>
-            🚌 Bus
+            <span aria-hidden="true">🚌</span> Bus
           </TabsTrigger>
           <TabsTrigger value="drive">
-            🚗 {tabLabel("Drive", durations.drive)}
+            <span aria-hidden="true">🚗</span>{" "}
+            {tabLabel("Drive", durations.drive)}
           </TabsTrigger>
           <TabsTrigger value="walk">
-            🚶 {tabLabel("Walk", durations.walk)}
+            <span aria-hidden="true">🚶</span>{" "}
+            {tabLabel("Walk", durations.walk)}
           </TabsTrigger>
         </TabsList>
       </Tabs>
