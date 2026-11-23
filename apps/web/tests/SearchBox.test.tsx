@@ -228,6 +228,20 @@ describe("SearchBox", () => {
     expect(onSelect).toHaveBeenCalledWith(tokyuStop);
   });
 
+  // owner's report 2026-11-23: a map press left the Recent list open over the panel
+  it("leaving the box closes its list; a press anywhere in the list keeps focus", async () => {
+    rememberRecent(tokyuStop);
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([]);
+    const { input } = renderBox();
+
+    fireEvent.focus(input);
+    await screen.findByRole("listbox", { name: /recent/i });
+    // false: default prevented, so the heading (not only a row) never blurs the box
+    expect(fireEvent.mouseDown(screen.getByText("Recent"))).toBe(false);
+    fireEvent.blur(input);
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
   it("suggests a Google Maps link or tapping the map when nothing matches", async () => {
     vi.spyOn(api, "fetchSuggestions").mockResolvedValue([]);
     const { input } = renderBox();

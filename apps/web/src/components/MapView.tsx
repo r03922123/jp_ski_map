@@ -264,9 +264,14 @@ export default function MapView({
   const resizedUnderFinger = useRef(false);
   const press = () => {
     // any press on the map lets go of a search box, as in Google Maps: its suggestions
-    // close and a phone's keyboard drops (a finger, unlike a mouse, moves no focus)
-    if (document.activeElement instanceof HTMLInputElement)
-      document.activeElement.blur();
+    // close and a phone's keyboard drops (a finger, unlike a mouse, moves no focus). Only
+    // a box you type in: a focused radio or checkbox keeps its place in the Tab order
+    const box = document.activeElement;
+    if (
+      box instanceof HTMLInputElement &&
+      (box.type === "search" || box.type === "text")
+    )
+      box.blur();
     pressed.current = true;
     setPressing(true);
   };

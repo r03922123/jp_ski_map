@@ -335,7 +335,7 @@ export function SearchBox({
               : "Search results"
           }
           className="absolute inset-x-0 top-full z-20 mt-1 max-h-80 overflow-y-auto rounded-xl border bg-background py-1 shadow-lg"
-          // keep input focus on any press in the list (a row, its scrollbar, the heading):
+          // keep input focus on any press in the list (a row, the heading, the padding):
           // a blur would close the list before the click lands
           onMouseDown={(e) => e.preventDefault()}
         >
