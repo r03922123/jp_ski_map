@@ -340,6 +340,24 @@ Not verified: the live check from a phone on mobile data with the Mac's lid clos
 criterion 2, the owner's step); warm latency from a phone network; `serve-public.sh` on the new
 code; a real iPhone.
 
+#### Daily production probe
+Hobby keeps function logs for 1 hour, so `.github/workflows/prod-probe.yml` runs
+`scripts/probe-production.sh` every day at 04:17 JST (and on `workflow_dispatch`). It sends, in order:
+`/api/health` (a cold boot when the instance was idle), `/api/route` for a fixed hotel to Happo-One
+drive (the first route loads Valhalla), then both again warm. It fails on any non-200 answer, a first
+request over 5 s, a warm one over 1 s, or a cold start over 5 s (Assumption 2). Cold start = first
+health + first route - warm health, so one round trip is counted, as in Checkpoint S. A failed
+scheduled run emails the repo owner; the table is in the run's summary for 90 days.
+- The production origin is the `PROD_URL` repo secret, not the workflow file.
+- The warm limit is 1 s, not 500 ms: GitHub's runners are far from the `hnd1` function.
+- 04:17 JST has no friends on the app, so the first request is cold almost every day, but the probe
+  can't prove it: Vercel shows no instance id. A first health under 1 s means it hit a warm instance.
+- Checkpoint S measured 5.19 s in 1 of 5 cold starts, so expect an occasional false alarm. The owner
+  decides whether to raise the limit (Checkpoint S: leave it as it is).
+- GitHub turns off scheduled workflows after 60 days without repo activity, so a quiet off-season
+  can stop the probe silently: check the Actions tab after a long pause.
+- Run it by hand: `PROD_URL=<origin> scripts/probe-production.sh`; `LIMIT_S=0.05` makes the first rows fail.
+
 #### Open questions
 1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL
    isn't written in this public repo; friends get it from the owner.
