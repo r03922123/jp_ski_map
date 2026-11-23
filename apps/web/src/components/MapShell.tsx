@@ -50,6 +50,7 @@ export function MapShell() {
     originName,
     searchLabel,
     searchKey,
+    focusedSearchKey,
     selectedResortId,
     category,
     poiId,
@@ -303,6 +304,7 @@ export function MapShell() {
                 <SearchBox
                   // remounted (emptied) when the trip panel's ✕ clears the start
                   key={searchKey}
+                  autoFocus={searchKey === focusedSearchKey}
                   // the rail and ⇅ narrow this box in two bars (T78)
                   placeholder={showToBox ? "Search a start" : undefined}
                   searchIcon={!showToBox}

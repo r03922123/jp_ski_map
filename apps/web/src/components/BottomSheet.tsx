@@ -94,8 +94,20 @@ export function BottomSheet({
   // after scrolling past it would show steps, not ETA and Start (T77). Any screen: a
   // route that appears (slim turns on) also scrolls back to its answer (bug F)
   useEffect(() => {
-    if ((slim || state === "low") && !expanded && bodyRef.current)
-      bodyRef.current.scrollTop = 0;
+    const body = bodyRef.current;
+    if (!((slim || state === "low") && !expanded && body)) return;
+    body.scrollTop = 0;
+    // focus below the answer (the resort card just picked) is now out of view: it moves
+    // to the answer, which a screen reader then reads. Above it (a mode tab) it stays
+    const answer = body.querySelector<HTMLElement>("[data-sheet-answer]");
+    const active = document.activeElement;
+    if (
+      answer &&
+      active &&
+      body.contains(active) &&
+      answer.compareDocumentPosition(active) & Node.DOCUMENT_POSITION_FOLLOWING
+    )
+      answer.focus({ preventScroll: true });
   }, [slim, state, expanded]);
 
   const expandedRef = useRef(expanded);

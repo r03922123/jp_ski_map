@@ -281,8 +281,8 @@ describe("MapShell mode", () => {
     try {
       renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
       await waitFor(() => expect(map().routes).toEqual([walk]));
-      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
     } finally {
       happo.accessPoints.pop();
     }
@@ -316,8 +316,8 @@ describe("MapShell mode", () => {
         ).toBe(true),
       );
       await new Promise((r) => setTimeout(r, 50));
-      expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
     } finally {
       happo.accessPoints.pop();
     }
@@ -344,8 +344,8 @@ describe("MapShell mode", () => {
     );
     await waitFor(() => expect(map().destination).toEqual(ramen));
     await waitFor(() => expect(map().routes).toEqual([drive]));
-    expect(screen.getByRole("tab", { name: "🚗 Drive" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "🚶 Walk" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
   });
 
   it("switching to Bus drops the drive route target: the map gets no destination", async () => {

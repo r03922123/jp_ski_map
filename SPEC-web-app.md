@@ -623,3 +623,24 @@ badges and sprites, a new app icon.
 - [x] No `TitleScreen`, `hakuba_title`, `skip-title`, `gameStyle` or `useGameStyle` left in `apps/web`.
 - [x] Before/after screenshots at 375×812 and 1366×850 in the basemap PR, with the style picked from them (#133: Liberty).
 - [x] The route layers' snapshot shows the blue line and casing; `route.spec`, `pilot.spec` and a screenshot pass.
+
+## v1.31: A keyboard pick lands on its answer (2026-11-23, a11y review of the UX panel)
+A keyboard user who pressed Enter on a ranked resort saw the sheet scroll up to the new ETA while focus stayed
+on the card, now below the window; nothing was announced, and the route options were 41 Shift+Tabs back.
+- **The ETA line is the sheet's answer.** When the sheet scrolls back to it (a route appears, or a phone
+  sheet comes down) and focus was below it inside the sheet (a ranked card, a food row, a route option), focus
+  moves to the ETA line, which a screen reader then reads. Focus above it (a mode tab, a stop box) or outside
+  the sheet (a tap on the map) stays where it is. The line is a polite live region, so a route that changes in
+  place (another option, a mode from the cache) is announced too.
+- **Directions** (amends v1.13 rule 3): the empty From box takes focus, since the start is what is typed next.
+  Which box the place moves to is unchanged.
+- **Mode tabs:** the tablist is named "Travel mode", and the emoji are hidden from screen readers, so a tab
+  reads "Drive 8 min" (v1.24's visible labels are unchanged). The times are full strength: 6.0:1 on the open
+  tab and 6.6:1 on the others, from 4.0:1 and 4.2:1.
+
+**Acceptance**
+- [x] MapShell tests: a ranked card picked by keyboard hands focus to the ETA, a live region; a resort tapped
+  on the map leaves focus alone; a mode tab keeps focus when its route appears; Directions focuses the empty
+  start box. ModePanel test: a tablist "Travel mode" with tabs "Bus", "Drive 8 min", "Walk 11 min".
+- [x] e2e (`side-panel.spec.ts`, 1440×900): Enter on the Iwatake card focuses the ETA, in view, and the next Tab
+  reaches the route options.
