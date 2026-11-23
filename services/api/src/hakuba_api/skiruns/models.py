@@ -42,6 +42,9 @@ class SkiLineProps(ApiModel):
     difficulty: Difficulty | None  # runs only
     lift_type: LiftType | None  # lifts only
     resort_id: str
+    length_m: int | None  # horizontal; None for an area run (Polygon)
+    min_ele_m: int | None  # None when a point has no elevation
+    max_ele_m: int | None
 
 
 class SkiLine(ApiModel):

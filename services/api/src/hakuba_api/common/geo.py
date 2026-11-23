@@ -1,3 +1,5 @@
+import math
+
 from hakuba_api.common.models import ApiModel
 
 
@@ -20,3 +22,13 @@ def in_hakuba(coord: Coord) -> bool:
         HAKUBA_BBOX["south"] <= coord.lat <= HAKUBA_BBOX["north"]
         and HAKUBA_BBOX["west"] <= coord.lng <= HAKUBA_BBOX["east"]
     )
+
+
+def metres(a: Coord, b: Coord) -> float:
+    """Great-circle distance (haversine)."""
+    lat1, lng1, lat2, lng2 = map(math.radians, (a.lat, a.lng, b.lat, b.lng))
+    h = (
+        math.sin((lat2 - lat1) / 2) ** 2
+        + math.cos(lat1) * math.cos(lat2) * math.sin((lng2 - lng1) / 2) ** 2
+    )
+    return 2 * 6_371_000 * math.asin(math.sqrt(h))

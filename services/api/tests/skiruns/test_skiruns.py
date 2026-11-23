@@ -156,6 +156,42 @@ def test_elevation_is_stripped_from_every_coordinate() -> None:
         assert all(len(point) == 2 for ring in rings for point in ring)
 
 
+def test_length_and_elevation_come_from_the_3d_coordinates_before_they_are_dropped() -> None:
+    runs = answer("run")
+    first = runs["features"][0]
+    first["geometry"] = {
+        "type": "LineString",
+        "coordinates": [[137.8, 36.7, 1234.6], [137.81, 36.71, 1200.0]],
+    }
+
+    lines = build(runs, answer("lift")).features
+    p = next(f.properties for f in lines if f.properties.id == first["properties"]["id"])
+
+    # 0.01 deg north (1112 m) and 0.01 deg east at 36.7 N (892 m): 1425 m apart
+    assert p.length_m == pytest.approx(1425, abs=2)
+    assert (p.min_ele_m, p.max_ele_m) == (1200, 1235)
+
+
+def test_an_area_run_has_no_length_and_a_point_without_elevation_none() -> None:
+    runs = answer("run")
+    area, flat = runs["features"][0], runs["features"][1]
+    area["geometry"] = {
+        "type": "Polygon",
+        "coordinates": [
+            [[137.8, 36.7, 900], [137.81, 36.7, 950], [137.81, 36.71, 1000], [137.8, 36.7, 900]]
+        ],
+    }
+    flat["geometry"] = {"type": "LineString", "coordinates": [[137.8, 36.7, 900], [137.81, 36.71]]}
+    flat["properties"]["skiAreas"] = area["properties"]["skiAreas"]
+
+    props = {f.properties.id: f.properties for f in build(runs, answer("lift")).features}
+    a, b = props[area["properties"]["id"]], props[flat["properties"]["id"]]
+
+    assert (a.length_m, a.min_ele_m, a.max_ele_m) == (None, 900, 1000)
+    assert b.length_m is not None
+    assert (b.min_ele_m, b.max_ele_m) == (None, None)
+
+
 # --- validator ---------------------------------------------------------------------
 
 
@@ -214,4 +250,7 @@ def test_endpoint_serves_the_snapshot_as_cached_geojson() -> None:
         "difficulty",
         "liftType",
         "resortId",
+        "lengthM",
+        "minEleM",
+        "maxEleM",
     }

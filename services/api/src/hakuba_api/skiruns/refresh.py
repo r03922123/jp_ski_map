@@ -12,7 +12,7 @@ import httpx
 from pydantic import BaseModel
 
 from hakuba_api.catalog.store import load_resorts
-from hakuba_api.common.geo import HAKUBA_BBOX
+from hakuba_api.common.geo import HAKUBA_BBOX, Coord, metres
 from hakuba_api.common.upstream import USER_AGENT
 from hakuba_api.data.paths import data_dir
 from hakuba_api.skiruns.models import Difficulty, LiftType, SkiLine, SkiLines
@@ -92,6 +92,21 @@ def _round(coords: Any) -> Any:
     return [_round(c) for c in coords]
 
 
+def _stats(geometry: dict[str, Any]) -> dict[str, int | None]:
+    """Length and elevation range, from OpenSkiMap's 3D points (before _round drops elevation)."""
+    coords = geometry["coordinates"]
+    line = geometry["type"] == "LineString"
+    points = coords if line else [p for ring in coords for p in ring]
+    length = None
+    if line:
+        at = [Coord(lng=p[0], lat=p[1]) for p in points]
+        length = round(sum(metres(a, b) for a, b in zip(at, at[1:], strict=False)))
+    eles = [p[2] for p in points if len(p) > 2]
+    if len(eles) < len(points):
+        return {"lengthM": length, "minEleM": None, "maxEleM": None}
+    return {"lengthM": length, "minEleM": round(min(eles)), "maxEleM": round(max(eles))}
+
+
 def _resort(areas: list[_Area]) -> str | None:
     """The resort of the first ski area: None when there is none or it has no name."""
     name = areas[0].properties.name if areas else None
@@ -125,6 +140,7 @@ def build(runs: dict[str, Any], lifts: dict[str, Any]) -> SkiLines:
                 "difficulty": difficulty,
                 "liftType": lift_type,
                 "resortId": resort_id,
+                **_stats(f.geometry),
             }
             geometry = {
                 "type": f.geometry["type"],
