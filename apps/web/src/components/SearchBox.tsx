@@ -260,9 +260,17 @@ export function SearchBox({
           setActive(-1);
         }}
         onFocus={() => setOpen(true)}
-        // a row's mousedown keeps focus, so a pick never blurs first; on touch, choose()
-        // blurs after onSelect and its own setText(s.name) wins
-        onBlur={restoreOnBlur ? restoreDraft : undefined}
+        // leaving the box closes its list, as Google's does (BC-T1). The list's mousedown
+        // keeps focus, so a pick never blurs first; on touch, choose() blurs after
+        // onSelect and its own setText(s.name) wins
+        onBlur={
+          restoreOnBlur
+            ? restoreDraft
+            : () => {
+                setOpen(false);
+                setActive(-1);
+              }
+        }
         onKeyDown={onKeyDown}
       />
       {surfaceOpen ? (
@@ -327,6 +335,9 @@ export function SearchBox({
               : "Search results"
           }
           className="absolute inset-x-0 top-full z-20 mt-1 max-h-80 overflow-y-auto rounded-xl border bg-background py-1 shadow-lg"
+          // keep input focus on any press in the list (a row, its scrollbar, the heading):
+          // a blur would close the list before the click lands
+          onMouseDown={(e) => e.preventDefault()}
         >
           {showRecent && (
             <p className="px-4 pt-1 pb-0.5 text-xs text-muted-foreground">
@@ -350,7 +361,6 @@ export function SearchBox({
                 tabIndex={-1}
                 aria-selected={i === active}
                 className="cursor-pointer px-3 py-1.5 text-sm aria-selected:bg-muted hover:bg-muted"
-                onMouseDown={(e) => e.preventDefault()} // keep input focus
                 onClick={() => choose(s)}
               >
                 <Row s={s} />

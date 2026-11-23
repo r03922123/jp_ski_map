@@ -263,6 +263,10 @@ export default function MapView({
   const mapTouch = useRef(false);
   const resizedUnderFinger = useRef(false);
   const press = () => {
+    // any press on the map lets go of a search box, as in Google Maps: its suggestions
+    // close and a phone's keyboard drops (a finger, unlike a mouse, moves no focus)
+    if (document.activeElement instanceof HTMLInputElement)
+      document.activeElement.blur();
     pressed.current = true;
     setPressing(true);
   };
