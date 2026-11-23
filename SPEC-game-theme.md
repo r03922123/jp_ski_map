@@ -72,8 +72,8 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
   Every control keeps its accessible name. The user-location dot stays Maps blue.
 - **Colour:** text contrast ≥ 4.5:1 and focus rings ≥ 3:1, checked by the tokens test
   (`tests/game-tokens.test.ts`). No dark mode.
-- **Kept:** the rider sprite, world badges on resort chips and in the list, stamp moments, the title screen
-  (its layout and snow; its text now uses the system font too).
+- **Kept:** the rider sprite, world badges on resort chips and in the list, stamp moments. (The title screen
+  was kept here until web-app v1.30 removed it.)
 
 ## Sound
 > **Removed in web-app v1.14 (2026-11-10):** the app has no sound. The rest of this section is history.
@@ -93,8 +93,8 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
 - **Sound is never the only signal:** every effect has a visible counterpart.
 
 ## Motion
-- Sprite animation is 4–8 fps, the stamp moment lasts ≤ 1.5 s, and the title screen has drifting snow.
-- **`prefers-reduced-motion: reduce`:** static frames, no drifting snow, and the stamp shows without the bounce.
+- Sprite animation is 4–8 fps, and the stamp moment lasts ≤ 1.5 s. (The title screen's drifting snow went with it in web-app v1.30.)
+- **`prefers-reduced-motion: reduce`:** static frames, and the stamp shows without the bounce.
 
 ## Performance budget
 - Theme code (sprites, style, sfx, frames) adds ≤ 40 KB gzipped JS to the first load.

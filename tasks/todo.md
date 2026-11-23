@@ -931,7 +931,7 @@ Spec: [SPEC-maps-ios-ux.md](../SPEC-maps-ios-ux.md); measured from the owner's t
 - [x] Map under the status bar in the home-screen app (#100, v1.19; production 2026-11-20): with simulated 47/34 px insets, 73.8% of the 390×844 screen is map with the sheet low
 - [x] No band below the map in the home-screen app (v1.20): iOS laid the page out 47 pt short; full-screen layers now reach the bottom edge
 - [ ] Owner: try both on the real iPhone (Safari tab and home-screen app); our numbers so far are Chromium emulation (v1.19: insets simulated; check the clock is readable and nothing sits under the notch or home bar)
-- [ ] `layout-share` L1 against production measures the first-visit title screen (0% map): set the `hakuba_title=seen` cookie in that state
+- [x] ~~`layout-share` L1 against production measures the first-visit title screen (0% map)~~ moot: web-app v1.30 removed the title screen
 - [ ] Next.js 16.4.3 → 16.4.5+: two moderate advisories (`'use cache'`, unused here); `next dev` 16.4.3 exits on every other start to show an upgrade notice, so start it twice or point e2e at a running server
 - Open: the camera doesn't refit when the sheet goes low (the route stays where the 40% fit put it)
 
@@ -977,6 +977,15 @@ each task is one PR, built in a fresh session from the spec.
   (`use-trip`, `use-view-url`, `trip-actions`, `trip-places`, `use-routes`, `use-bus-trip`, `use-lists`,
   `nav/use-pilot-session`, `nav/use-pilot-map`); 6 more MapShell tests first; screens unchanged
 - [x] W3 `web-shell` R3.2 for MapView (PR #89): 1,050 → 555 lines; layers and markers in `components/map/`, gestures and credits in `lib/` hooks
+
+## The Maps look, deletion first (SPEC-web-app v1.30, 2026-11-23)
+From the 2026-11-23 UX review: Google Maps stays the interaction model; game pieces go or are restyled.
+Basemap and route colours land before the ski-runs layer (SPEC-ski-runs), so run colours are tuned once.
+- [ ] PR 1: no title screen; a bare visit opens on the map
+- [ ] PR 2: plain OpenFreeMap basemap (no `gameStyle`), before/after screenshots at 375×812 and 1366×850
+- [ ] PR 3: blue route line (`#185fc6` over a darker casing, dotted walk, dashed grey alternates)
+- [ ] Next batch (needs its own spec lines): stamps restyled as "Visited ✓" (keep the stamp data); remove the
+  hero sprite, the destination flag, world badges and other sprites; lucide icons in their place; a new app icon
 
 ## Task J17: Ski runs and lifts on the map (SPEC-ski-runs, owner's first pick 2026-11-23)
 Build [SPEC-ski-runs.md](../SPEC-ski-runs.md): refresh module and snapshot, validator, `GET /api/ski-lines`, the map

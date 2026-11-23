@@ -105,8 +105,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
 /** The page's query string, as the URL mirror wrote it. */
 const query = () => new URLSearchParams(window.location.search);
 
-// `?skip-title`: no title screen over the app (a shared link skips it too)
-function renderShell(search = "?skip-title") {
+function renderShell(search = "") {
   window.history.replaceState(null, "", `/${search}`);
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -522,7 +521,7 @@ describe("MapShell saved panel", () => {
       .replaceAll("+", "-")
       .replaceAll("/", "_")
       .replace(/=+$/, "");
-    renderShell(`?skip-title#import=${code}`);
+    renderShell(`#import=${code}`);
     fireEvent.click(
       await screen.findByRole("button", { name: "Add to Saved" }),
     );

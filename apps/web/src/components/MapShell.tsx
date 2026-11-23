@@ -18,7 +18,6 @@ import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
 import { StampMoment } from "@/components/StampMoment";
-import { TitleScreen } from "@/components/TitleScreen";
 import {
   AddDestinationButton,
   SavedButton,
@@ -531,7 +530,6 @@ export function MapShell() {
         />
       )}
       <StampMoment />
-      <TitleScreen />
     </main>
   );
 }
