@@ -35,12 +35,10 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
 - **It replaces today's position puck** while navigating. The puck's accuracy circle stays, restyled.
 
 ## Map style (real map, game-styled)
-- `gameStyle(base)`: a pure function from the OpenFreeMap "liberty" style JSON to a restyled copy
-  (`lib/game/map-style.ts`). It changes only paint properties, so every layer, label and source survives:
-  - Land is snow white (#f4f8fb) with blue-grey hillshade.
-  - Forests are deep pine (#2f5d50), water is ice blue (#9cc9e6), and buildings are warm wood (#c9a27e).
-  - Roads are chunky, with a dark outline (#3b3b4f). Motorways are amber and local roads cream.
-  - Labels have a dark halo for contrast.
+- **The basemap is plain OpenFreeMap "liberty"** since web-app v1.30 (2026-11-23): MapLibre loads the style URL
+  as published. The `gameStyle` recolour (snow land, pine forests, amber roads with dark outlines) is retired;
+  before/after screenshots are in that PR. Liberty won over Positron because it keeps rivers, the lake and road
+  classes readable.
 - **Map labels keep OpenFreeMap's font (Noto).** Generating DotGothic16 glyph PBFs for the map is out of scope.
 - **Icons are pixel sprites added with `map.addImage`:**
   - Resort "worlds": a mountain badge with the world number.
@@ -103,7 +101,7 @@ Google Maps' conventions, and the game stays in the rider, the world badges, sta
 
 ## Acceptance criteria
 - [ ] Every sprite is valid: every row of every frame has the declared width, uses only palette indices, and matches the pose table.
-- [ ] `gameStyle` keeps every layer id, source and layout property of the base style and changes only paint; the snapshot of changed properties is reviewed.
+- [ ] ~~`gameStyle` keeps every layer id, source and layout property of the base style and changes only paint.~~ Retired by web-app v1.30 (plain basemap).
 - [ ] W1–W10 are assigned north to south, every resort has exactly one, and the order is stable.
 - [ ] Theme tokens meet 4.5:1 text contrast and 3:1 for focus rings (light theme; there is no dark mode yet).
 - [ ] ~~Sound is off on first load…~~ Replaced by web-app v1.14: no sound, no AudioContext.

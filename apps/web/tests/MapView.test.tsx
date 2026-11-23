@@ -30,7 +30,6 @@ const h = vi.hoisted(() => ({
 }));
 
 vi.mock("maplibre-gl", () => ({ setWorkerUrl: () => {} }));
-vi.mock("@/lib/game/use-game-style", () => ({ useGameStyle: () => ({}) }));
 vi.mock("react-map-gl/maplibre", async () => {
   const React = await import("react");
   const MapGL = React.forwardRef(function MapGL(
