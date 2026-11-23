@@ -96,8 +96,13 @@ No query parameters: the whole valley is 31 KB gzipped.
   fetches and parses it in its worker (no TanStack Query, no `JSON.parse` on the main thread). Mount order alone doesn't
   set the stacking: react-map-gl adds a layer when its source is ready. Each run and lift layer passes
   `beforeId={LODGING_LAYER}`, which keeps routes, markers and pins above it whenever it arrives.
-- Not interactive in v1: it stays out of `interactiveLayerIds` (`MapView.tsx:460`), so a tap on a run is a tap on
-  the map.
+- **v1.1 (owner's request, 2026-11-23): a tap or click on a run or lift opens its card.** An invisible 16 px
+  `ski-lines-hit` layer joins `interactiveLayerIds` (a run is 1.5–4 px wide). The card takes the dropped pin's
+  place at the bottom (`SkiLineCard` on the shared `MapCard`): the name's first language as the title, the others
+  under it, then a colour swatch and "Intermediate run · Hakuba Happo-One Snow Resort" or "Chair lift · …". The
+  `ski-selected` layer outlines that line. An open stop box still takes the tap as the stop's point, and a
+  long-press on a run still drops a pin. Out of v1.1: the run's length (MapLibre hands back the tile-clipped
+  geometry, not the whole line) and the lift it starts from.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |
@@ -136,7 +141,9 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
       returns features; at zoom 11 it returns none. The name label layer returns features at zoom 14, none at 13.
 - [ ] e2e: in `getStyle().layers` every run and lift layer comes before `lodging-pins` and the route layers, as
       `pilot.spec.ts` checks layer order today.
-- [ ] Unit (web): `interactiveLayerIds` stays `[LODGING_LAYER, ALT_HIT_LAYER]`.
+- [x] Unit (web): `interactiveLayerIds` is `[LODGING_LAYER, ALT_HIT_LAYER, SKI_HIT_LAYER]` (v1.1).
+- [x] v1.1 unit: a tap or click on a run opens its card and picks no start; a long-press's lift-off and an open
+      stop box don't open one. e2e: a click on a lift at Happo-One opens its card, `from` unchanged.
 - [ ] `scripts/test-deploy-vercel.sh` passes with `ski_lines.json` in its list.
 - [ ] Screenshot on a 390 × 844 phone and a 1366 × 850 laptop at Happo-One, zoom 14, checked by eye: runs under
       the route line and markers, the credits line shows OpenSkiMap.
@@ -145,8 +152,7 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 ## Boundaries
 
 - Always: read the snapshot, never OpenSkiMap, per user request.
-- Ask first: tapping a run for a card (name, difficulty, lift it starts from), lift-status or grooming data,
-  nordic runs, 3D terrain.
+- Ask first: the lift a run starts from, lift-status or grooming data, nordic runs, 3D terrain.
 - Never: use `tiles.openskimap.org` vector tiles in the app (their terms forbid it); download the world files on a
   schedule.
 

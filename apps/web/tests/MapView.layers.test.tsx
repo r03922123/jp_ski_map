@@ -183,7 +183,6 @@ const base: Props = {
   saved: SAVED,
   stops: [{ coord: { lat: 36.698, lng: 137.858 }, name: "Konbini" }],
   droppedPin: { coord: { lat: 36.7, lng: 137.85 }, name: "Pin" },
-  pinCard: <p>pin card</p>,
 };
 const PILOT: Props["pilot"] = {
   camera: { center: [137.858, 36.698], bearing: 30, pitch: 45, zoom: 16 },
@@ -251,7 +250,7 @@ describe("MapView draws (characterization)", () => {
 });
 
 describe("MapView taps", () => {
-  it("only lodging pins and alternate routes take a tap; runs and lifts don't (SPEC-ski-runs v1)", () => {
+  it("lodging pins, alternate routes and runs and lifts take a tap (SPEC-ski-runs v1.1)", () => {
     const { container } = render(<MapView {...base} />);
     expect(
       JSON.parse(
@@ -259,7 +258,7 @@ describe("MapView taps", () => {
           .querySelector("[data-map]")
           ?.getAttribute("data-interactive") ?? "null",
       ),
-    ).toEqual(["lodging-pins", "route-alts-hit"]);
+    ).toEqual(["lodging-pins", "route-alts-hit", "ski-lines-hit"]);
     expect(container.querySelector('[data-layer="ski-runs"]')).not.toBeNull();
   });
 });

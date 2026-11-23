@@ -96,6 +96,10 @@ Basemap and route colours land before the ski-runs layer (SPEC-ski-runs), so run
 Build [SPEC-ski-runs.md](../SPEC-ski-runs.md): refresh module and snapshot, validator, `GET /api/ski-lines`, the map
 layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API slice, then web slice: two PRs)
 - [ ] Freeride and extreme runs draw solid orange, not dashed (none in the 2026-11-23 snapshot)
+- [x] v1.1 (owner's request, 2026-11-23): a tap on a run or lift opens its card (name, difficulty or lift type,
+  resort), and the dropped pin is Google's red pin with a bottom card (`MapCard`), replacing the popup and its
+  placement maths (`pinCardAnchor`, `pinEaseOffsetY`)
+- [ ] A run's length and the lift it starts from on its card (needs the whole line, not MapLibre's tile-clipped one)
 
 ## Task J18: Deploy every green merge from CI (ADR-0009, accepted 2026-11-23)
 Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of

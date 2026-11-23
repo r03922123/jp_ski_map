@@ -6,6 +6,14 @@ import {
   test,
 } from "@playwright/test";
 
+// the dev-only map handle, as much of it as the bare-map finder reads
+type SkiHitMap = {
+  queryRenderedFeatures(
+    p: [number, number],
+    o: { layers: string[] },
+  ): unknown[];
+};
+
 /**
  * Journey group D: CHOOSING THE DESTINATION AND SEEING THE ROUTE (scenario matrix,
  * 2026-11-03). Each test asserts the GOOD behaviour (the spec or the Google Maps
@@ -216,7 +224,13 @@ async function bareMapPoint(page: Page, y: number) {
         for (const x of [200, 120, 280, 80, 320]) {
           const py = near + dy;
           const hit = document.elementFromPoint(x, py);
-          if (hit?.classList.contains("maplibregl-canvas")) return { x, y: py };
+          // a run or lift there takes the tap (SPEC-ski-runs v1.1): not bare map
+          const map = (window as { __hakubaMap?: SkiHitMap }).__hakubaMap;
+          const onRun = map?.queryRenderedFeatures([x, py], {
+            layers: ["ski-lines-hit"],
+          }).length;
+          if (hit?.classList.contains("maplibregl-canvas") && !onRun)
+            return { x, y: py };
         }
       return null;
     }, y);
