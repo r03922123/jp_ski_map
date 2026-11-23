@@ -26,6 +26,7 @@ import {
 } from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
 import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
+import { useBackToClose } from "@/lib/back-close";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
@@ -83,7 +84,12 @@ export function MapShell() {
   const [flyTo, setFlyTo] = useState<Coord | null>(null);
   const [view, setView] = useState<{ bbox: Bbox; zoom: number } | null>(null);
   const [rankOptions, setRankOptions] = useState<RankOptions>(DEFAULT_RANK);
-  useViewUrl({ trip, rankOptions, setRankOptions, setImportCode });
+  const linkRead = useViewUrl({
+    trip,
+    rankOptions,
+    setRankOptions,
+    setImportCode,
+  });
 
   const resorts = useQuery(resortsQuery);
   const lodgingPins = useLodging(view);
@@ -261,6 +267,15 @@ export function MapShell() {
     setSavedFocus,
     setDroppedPin,
   });
+  const shownTo = point ?? (poiCategory ? poiId : selectedResortId);
+  const toEmptiedSinceLink = useRef(false);
+  if (linkRead && shownTo === null) toEmptiedSinceLink.current = true;
+  useBackToClose(
+    shownTo !== null && toEmptiedSinceLink.current,
+    actions.clearTo,
+  );
+  useBackToClose(savedOpen, () => setSavedOpen(false));
+  useBackToClose(piloting, session.exitPilot);
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
   const pinCard = droppedPin && (

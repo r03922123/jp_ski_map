@@ -648,3 +648,21 @@ on the card, now below the window; nothing was announced, and the route options 
   start box. ModePanel test: a tablist "Travel mode" with tabs "Bus", "Drive 8 min", "Walk 11 min".
 - [x] e2e (`side-panel.spec.ts`, 1440×900): Enter on the Iwatake card focuses the ETA, in view, and the next Tab
   reaches the route options.
+
+## v1.32: Back undoes the last panel step (2026-11-24, UX panel 2026-11-23, cluster B of the 2026-11-03 review)
+From a page before the app, one Back (or the iOS edge swipe) left the app after a planned trip, an open Saved
+panel or live navigation, because the URL mirror only replaces the current entry. Each step below now owns one
+history entry through `useBackToClose` (T76), so Back undoes the newest one and stays in the app:
+- **Live navigation:** Back ends it, as Exit navigation does; the trip stays.
+- **Saved panel:** Back closes it; the trip stays.
+- **A destination chosen in the app** (a resort, a food row, a point, a tapped bus's resort; only the one the
+  open tab shows, so a resort hidden by the Food tab is no step): Back clears it, as the To box's ✕ does, and
+  the start stays. Only the first one pushes an entry: changing it, the mode or the start
+  adds none, so Back never steps through every pick (amends T76's "selection does not push"). A destination the
+  link brought is where the user arrived, so it adds none and Back leaves the app.
+- Closing any of these in the app takes its entry back, so no stale Back step is left. Forward restores nothing.
+
+**Acceptance**
+- [x] e2e (`back-button.spec.ts`): from `/robots.txt`, Back closes Saved, ends navigation (phone), and clears a
+  resort picked in the list after a mode change; "Go here" in Saved leaves one step; Remove destination takes its
+  step back; the next Back leaves the app.

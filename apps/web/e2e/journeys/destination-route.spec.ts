@@ -758,7 +758,7 @@ test.describe("destination survives · laptop 1440x900", () => {
   test("Back after switching the destination returns to the previous one", async ({
     page,
   }) => {
-    test.fail(); // known: B — planning adds no history entry; Back leaves the app (about:blank)
+    test.fail(); // known: B — only the first destination is a Back step (SPEC-web-app v1.32): Back clears it
     await open(page, PLAN);
     await expect(ranked(page)).toBeVisible({ timeout: 20_000 });
     await chooseResort(page, /Cortina/, false);

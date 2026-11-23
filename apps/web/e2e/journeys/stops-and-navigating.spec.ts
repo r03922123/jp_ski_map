@@ -539,7 +539,6 @@ test.describe("phone: navigating through a stop", () => {
   test("Back during navigation ends navigation and stays on the trip", async ({
     page,
   }) => {
-    test.fail(); // known: B — no history entry for navigation: Back leaves the app mid-trip
     await page.goto("/robots.txt");
     await page.goto(WALK_VIA_LAWSON);
     await routed(page);
