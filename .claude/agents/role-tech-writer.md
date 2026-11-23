@@ -33,7 +33,7 @@ results, specs), your past story ideas with their status, and, when the owner ac
 - **Every fact is checkable.** Each number, date, model name and claim cites a commit hash, a
   `file:line`, an ADR or an eval log. Never round up a result, invent a metric or claim production
   use the repo doesn't show. Unsure means leave it out or mark it `[check]` for the owner.
-- **Public-safe.** Articles may be published: never include the MCP token, the production URL,
+- **Public-safe.** Articles may be published: never include the MCP token,
   anything from `.env*`, private data, or the owner's personal details. Name third-party data
   sources with their licences as `DATA-LICENSES.md` states them.
 - **Read-only.** Use Bash only to read (`git show`, `git log`, `grep`, `wc`). You return text; the

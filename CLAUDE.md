@@ -28,8 +28,8 @@ Takeover phase: tidy (next when: the remaining architecture follow-ups are compl
   a tech writer and a PM step, on Opus, write proposals and article drafts to the gitignored `.ops/`). Production runs only on
   Vercel; `scripts/serve-public.sh --funnel` makes the Mac public, so ask the owner first.
 - MCP for Claude chat: production serves the tools at `/mcp/<HAKUBA_MCP_TOKEN>` (SPEC-agent-tools v2). The token lives
-  only in Vercel's env and the owner's `~/.config/jp_ski_map/mcp-connector-url.txt`; never commit or print it, nor the
-  production URL (the repo is public). `.claude/hooks/guard_mcp_token.py` denies reading that file and committing a
+  only in Vercel's env and the owner's `~/.config/jp_ski_map/mcp-connector-url.txt`; never commit or print it (the repo
+  is public). The production URL itself is public in the README (ADR-0008). `.claude/hooks/guard_mcp_token.py` denies reading that file and committing a
   token-shaped path.
 - ML experiments: `ml/search` (embedding server on :8032, fine-tune, evals → local MLflow), `ml/timetable_vlm` (local VLM drafts, never served), `services/mcp` (agent tools). Each is its own uv project; use `uvx --from 'uv==0.9.30' uv sync`. Semantic search is off unless the API has `HAKUBA_SEMANTIC_URL`. Only one model trains at a time: two at once swap the 16 GB Mac to a halt.
 - Valhalla (:8002) is shared by every checkout and is stopped: start it from the main checkout with `docker compose -f infra/docker-compose.yml up -d valhalla` when routing work or the e2e route, poi and trip-card specs need it. In a worktree, see the `new-worktree` skill.

@@ -10,7 +10,17 @@ A Google-Maps-style trip planner for skiers staying in **Hakuba Valley** (Nagano
 
 It also has stops along the way, saved places (kept in your browser only), turn-by-turn "pilot" guidance for phones, and a light pixel-game layer (stamps and quests for the resorts you visit).
 
-> Status: a personal project, built for the author and friends planning Hakuba trips. It covers only Hakuba Valley, but the data model doesn't hard-code the region.
+> Status: a personal project, built for the author and friends planning Hakuba trips, and open to anyone as a demo. It covers only Hakuba Valley, but the data model doesn't hard-code the region.
+
+## Try it
+
+Live at **https://jp-ski-map.vercel.app** (free hosting, best on a phone). Each link below starts from a hotel in Hakuba:
+
+- [Bus](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=bus): the next shuttle departures to each resort. Outside the ski season it shows the next service date; set **Leave after** to a January date to see a full day.
+- [Drive](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=drive): the 10 resorts ranked by drive time; change the sort to fresh snow or crowd level.
+- [Walk](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=walk&resort=happo-one): a walking route to Happo-one. On a phone, tap **Start** or **Preview** and allow location: away from Hakuba the route plays as a simulated trip, with turn-by-turn guidance.
+
+The first request after a quiet spell can take about 5 s while the server starts.
 
 ## Stack
 
