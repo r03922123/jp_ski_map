@@ -6,11 +6,13 @@ import {
   screen,
   within,
 } from "@testing-library/react";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DrivePanel } from "@/components/DrivePanel";
 import { ResortList } from "@/components/ResortList";
 import { SortControls } from "@/components/SortControls";
 import type { RankedResort } from "@/lib/api";
+import { DEFAULT_RANK } from "@/lib/url-state";
 
 // resort cards carry a Check in button, which reads the resort catalog
 // a wrapper (not a wrapped element), so rerender keeps the provider
@@ -82,6 +84,42 @@ describe("ResortList", () => {
       within(item).getByText(/46 cm new · 299 cm summit/),
     ).toBeInTheDocument();
     expect(within(item).getByText("Crowd: high (est.)")).toBeInTheDocument();
+  });
+
+  // UX panel 2026-11-23: sorted by Fresh snow (past 24 h + ½ next 24 h), every card read
+  // "0 cm new" while the order came from the forecast. Three facts don't fit one line on a
+  // 360 px phone, so under that sort the forecast takes the summit depth's place
+  it("shows the snow the fresh-snow sort counts once the user picks it", () => {
+    function Panel() {
+      const [options, setOptions] = useState(DEFAULT_RANK);
+      const snow = {
+        ...ranked().snow,
+        depthCm: { base: 20, summit: 76, source: "model" },
+        newSnowCm: { past24h: 0, past72h: 55.9, next24h: 14.4, next72h: 20 },
+      } as RankedResort["snow"];
+      return (
+        <DrivePanel
+          options={options}
+          onOptionsChange={setOptions}
+          ranking={{ status: "success", data: [ranked({ snow })] }}
+          selectedResortId={null}
+          onSelectResort={vi.fn()}
+        />
+      );
+    }
+    render(<Panel />);
+    const card = () => screen.getByRole("button", { name: /Happo-One/ });
+    expect(
+      within(card()).getByText("❄ 0 cm new · 76 cm summit"),
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Sort by"), {
+      target: { value: "fresh_snow" },
+    });
+
+    expect(
+      within(card()).getByText("❄ 0 cm new · 14 cm next 24 h"),
+    ).toBeInTheDocument();
   });
 
   it("selects a resort", () => {
