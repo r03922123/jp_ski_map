@@ -7,7 +7,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 
 ## Screens & flow
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
-2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link, or clicking (long-pressing on mobile) the map, also sets the origin. When there are no results, it hints "Paste a Google Maps link or tap the map".
+2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link~~, or clicking (long-pressing on mobile) the map,~~ also sets the origin. *Amended 2026-11-25:* a click (a long-press on touch) drops a pin and opens its card, whose Start here sets the origin; an open stop box still takes the click (v1.7 rules). When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
    - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (Walk time and Terrain size since 2026-11-25; the API keeps every `resort-ranking` key), filters (no date picker since 2026-11-25: the ranking is for today). The ranked list shows walk ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the walking route and step list.
      It warns when the walk is > 45 min.
@@ -126,7 +126,7 @@ From the [2026-11-03 UX review](docs/ux/2026-11-03-ux-review.md), cluster A: on 
   - Nothing is dropped while navigating.
 - **Card:** ✕ or Escape closes it, and so does a tap elsewhere on the map. "Go here" is hidden in 🚌 Bus. "Add stop" appears only when a stop can be added.
 - **Hints on touch** say "long-press the map".
-- **Mouse is unchanged** (a click picks the start after the double-click window) until the laptop reference (Google's left and right click) is observed.
+- ~~**Mouse is unchanged** (a click picks the start after the double-click window) until the laptop reference (Google's left and right click) is observed.~~ *Amended 2026-11-25 (the owner's ask):* a mouse click on empty map drops a pin and opens its card, as a long-press does, after the double-click window; a click on a hotel pin drops that hotel's named pin. An open stop box still takes the click.
 
 **Acceptance:**
 - [x] Unit tests:
@@ -285,7 +285,7 @@ Success means:
    - Any new pick drops the chosen bus, because it was chosen for the old destination.
    - ✕ and the "Shuttles to resorts" link both clear the destination and the chosen bus, and show every resort.
 7. Bus's read-only To row in the trip list goes, because it would contradict the box.
-8. **A mouse click with both ends set and no open stop box does nothing.** Clicking a route line still selects it. With no trip a click still sets the start, and an open stop box still takes a click. The touch long-press pin card stays.
+8. ~~**A mouse click with both ends set and no open stop box does nothing.** Clicking a route line still selects it. With no trip a click still sets the start, and an open stop box still takes a click.~~ *Amended 2026-11-25:* a mouse click on empty map drops a pin and opens its card, with or without a trip. Clicking a route line still selects it, and an open stop box still takes a click. The touch long-press pin card stays.
 9. Each box is one instance. Going from one bar to two moves it and never remounts it, so typing and focus survive (v1.9's "never a second copy").
 
 **Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` (rules 6 and 7) and `e2e/journeys/trip-card.spec.ts` (the rest) pass on a phone and a laptop, and the To box is fully in view at 360×740.
