@@ -273,8 +273,6 @@ describe("BusPanel", () => {
 // the options, so the panel shows what the server sent
 describe("BusPanel free shuttles only", () => {
   const data = fixture as BusResult;
-  const optionsOf = (resortId: string) =>
-    data.resorts.find((r) => r.resortId === resortId)?.options ?? [];
   const tick = () =>
     fireEvent.click(screen.getByLabelText("Free shuttles only"));
 
