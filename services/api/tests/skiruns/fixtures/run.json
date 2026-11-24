@@ -22,7 +22,17 @@
       }
      }
     ],
-    "difficulty": "advanced"
+    "difficulty": "advanced",
+    "elevationProfile": {
+     "heights": [
+      1829.3,
+      1824.4,
+      1821.3,
+      1819.4
+     ],
+     "resolution": 24.84981303808647,
+     "targetResolution": 25
+    }
    },
    "geometry": {
     "type": "LineString",
@@ -56,7 +66,17 @@
     ],
     "status": "operating",
     "skiAreas": [],
-    "difficulty": "expert"
+    "difficulty": "expert",
+    "elevationProfile": {
+     "heights": [
+      1684.2,
+      1672,
+      1656.8,
+      1643
+     ],
+     "resolution": 23.657155176211777,
+     "targetResolution": 25
+    }
    },
    "geometry": {
     "type": "LineString",
@@ -100,7 +120,17 @@
       }
      }
     ],
-    "difficulty": "intermediate"
+    "difficulty": "intermediate",
+    "elevationProfile": {
+     "heights": [
+      738.8,
+      738.3,
+      737.8,
+      737.4
+     ],
+     "resolution": 24.958615740957136,
+     "targetResolution": 25
+    }
    },
    "geometry": {
     "type": "LineString",
@@ -144,7 +174,17 @@
       }
      }
     ],
-    "difficulty": "intermediate"
+    "difficulty": "intermediate",
+    "elevationProfile": {
+     "heights": [
+      1165,
+      1162,
+      1153.6,
+      1145.4
+     ],
+     "resolution": 24.211402299323517,
+     "targetResolution": 25
+    }
    },
    "geometry": {
     "type": "LineString",
@@ -188,7 +228,8 @@
       }
      }
     ],
-    "difficulty": null
+    "difficulty": null,
+    "elevationProfile": null
    },
    "geometry": {
     "type": "Polygon",

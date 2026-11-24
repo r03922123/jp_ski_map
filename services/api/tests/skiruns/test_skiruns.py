@@ -13,7 +13,7 @@ from hakuba_api.catalog.store import load_resorts
 from hakuba_api.data.paths import data_dir
 from hakuba_api.main import app
 from hakuba_api.skiruns import refresh
-from hakuba_api.skiruns.models import LineString, Polygon, SkiLines
+from hakuba_api.skiruns.models import LineString, Polygon, Profile, SkiLines
 from hakuba_api.skiruns.refresh import API, OPENSKIMAP_NAMES, build, fetch
 from hakuba_api.skiruns.validate import validate_ski_lines
 
@@ -240,6 +240,33 @@ def test_a_lift_missing_duration_fails_the_refresh_with_the_field_name() -> None
         build(answer("run"), lifts)
 
 
+def test_a_run_keeps_its_height_profile_rounded_to_m_and_a_lift_has_none() -> None:
+    # SPEC-ski-runs v1.4: the run card's chart; OpenSkiMap's heights are every ~25 m
+    runs = answer("run")
+    runs["features"][0]["properties"]["elevationProfile"] = {
+        "heights": [1829.3, 1824.5, 1819.4],
+        "resolution": 24.84981,
+        "targetResolution": 25,
+    }
+
+    lines = build(runs, answer("lift")).features
+    run = next(
+        f.properties for f in lines if f.properties.id == runs["features"][0]["properties"]["id"]
+    )
+
+    assert run.profile is not None
+    assert (run.profile.heights_m, run.profile.resolution_m) == ([1829, 1824, 1819], 24.85)
+    assert all(f.properties.profile is None for f in lines if f.properties.kind == "lift")
+
+
+def test_a_run_missing_its_elevation_profile_fails_the_refresh_with_the_field_name() -> None:
+    runs = answer("run")
+    del runs["features"][0]["properties"]["elevationProfile"]
+
+    with pytest.raises(ValidationError, match="elevationProfile"):
+        build(runs, answer("lift"))
+
+
 # --- validator ---------------------------------------------------------------------
 
 
@@ -271,9 +298,15 @@ def test_validator_names_each_broken_rule() -> None:
     stopped = copy.deepcopy(good)
     stopped.properties.id = "stopped"
     stopped.properties.duration_s = 0
+    flat = copy.deepcopy(next(f for f in lines.features if f.properties.profile))
+    flat.properties.id = "flat"
+    flat.properties.profile = Profile(heights_m=[1200], resolution_m=25)
     no_goryu = [f for f in lines.features if f.properties.resort_id != "goryu"]
     broken = SkiLines(
-        features=[*no_goryu, dup, outside, stray, dot, open_ring, upside_down, timed_run, stopped]
+        features=[
+            *no_goryu,
+            *(dup, outside, stray, dot, open_ring, upside_down, timed_run, stopped, flat),
+        ]
     )
 
     errors = validate_ski_lines(broken, RESORT_IDS)
@@ -287,6 +320,7 @@ def test_validator_names_each_broken_rule() -> None:
         "ski_lines.json: upside-down has minElevationM above maxElevationM",
         "ski_lines.json: timed-run is a run with a ride time",
         "ski_lines.json: stopped has a ride time of 0 s or less",
+        "ski_lines.json: flat has a profile with fewer than 2 heights",
         "ski_lines.json: goryu has no lift",
     ]
 
@@ -304,6 +338,8 @@ def test_endpoint_serves_the_snapshot_as_cached_geojson() -> None:
     kinds = [f["properties"]["kind"] for f in body["features"]]
     assert kinds.count("run") >= 200
     assert kinds.count("lift") >= 90
+    profiles = [f for f in body["features"] if f["properties"]["profile"]]
+    assert len(profiles) >= 200  # v1.4: OpenSkiMap had none for 1 of 217 runs
     assert {f["properties"]["resortId"] for f in body["features"]} == set(RESORT_IDS)
     assert set(body["features"][0]["properties"]) == {
         "id",
@@ -317,4 +353,5 @@ def test_endpoint_serves_the_snapshot_as_cached_geojson() -> None:
         "maxElevationM",
         "slopePct",
         "durationS",
+        "profile",
     }

@@ -35,6 +35,13 @@ class Polygon(ApiModel):
 Geometry = Annotated[LineString | Polygon, Field(discriminator="type")]
 
 
+class Profile(ApiModel):
+    """A run's height every `resolution_m` along it on the ground, top to end (v1.4)."""
+
+    heights_m: list[int]
+    resolution_m: float  # 2 dp: the ground length / (len(heights_m) - 1)
+
+
 class SkiLineProps(ApiModel):
     id: str
     kind: Literal["run", "lift"]
@@ -49,6 +56,7 @@ class SkiLineProps(ApiModel):
     max_elevation_m: int | None
     slope_pct: float | None  # average: vertical / ground length, 1 dp
     duration_s: int | None  # lifts only: ride time, from OSM's `duration`
+    profile: Profile | None  # runs only (v1.4); null for an area or a run OpenSkiMap has none for
 
 
 class SkiLine(ApiModel):

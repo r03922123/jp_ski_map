@@ -34,6 +34,8 @@ def validate_ski_lines(lines: SkiLines, resort_ids: list[str]) -> list[str]:
             errors.append(f"ski_lines.json: {p.id} is a run with a ride time")
         if p.duration_s is not None and p.duration_s <= 0:
             errors.append(f"ski_lines.json: {p.id} has a ride time of 0 s or less")
+        if p.profile is not None and len(p.profile.heights_m) < 2:
+            errors.append(f"ski_lines.json: {p.id} has a profile with fewer than 2 heights")
     with_lift = {f.properties.resort_id for f in lines.features if f.properties.kind == "lift"}
     errors += [f"ski_lines.json: {r} has no lift" for r in resort_ids if r not in with_lift]
     return errors
