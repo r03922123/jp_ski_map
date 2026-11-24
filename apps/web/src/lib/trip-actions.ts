@@ -35,6 +35,7 @@ export function tripActions(
     setSavedOpen,
     setSavedFocus,
     setDroppedPin,
+    openResortCard,
   }: {
     resorts: Resort[] | undefined;
     fromPlace: PlaceInput | null;
@@ -46,6 +47,8 @@ export function tripActions(
     setSavedOpen: (open: boolean) => void;
     setSavedFocus: (id: string | null) => void;
     setDroppedPin: (pin: TripPoint | null) => void;
+    /** the resort card (SPEC-ski-runs v1.4) */
+    openResortCard: (resortId: string) => void;
   },
 ) {
   const {
@@ -262,6 +265,7 @@ export function tripActions(
         return;
       }
       selectResort(id);
+      openResortCard(id);
     },
     /** a tapped saved marker */
     selectSaved: (id: string) => {

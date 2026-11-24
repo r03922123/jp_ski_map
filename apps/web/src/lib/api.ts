@@ -1,4 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
+import type { SkiLineFeature } from "@/components/map/SkiLinesLayer";
 import type { components, operations } from "@/lib/api-types";
 
 export type Resort = components["schemas"]["Resort"];
@@ -58,6 +59,18 @@ export const resortsQuery = queryOptions({
   queryKey: ["resorts"],
   queryFn: fetchResorts,
   staleTime: Number.POSITIVE_INFINITY,
+});
+
+/**
+ * Every run and lift whole (SPEC-ski-runs v1.4): a tap only sees the tile-clipped line.
+ * The URL MapLibre fetched for the map, so the browser answers from its cache (one hour).
+ */
+export const skiLinesQuery = queryOptions({
+  queryKey: ["ski-lines"],
+  queryFn: () => getJson<{ features: SkiLineFeature[] }>("/api/ski-lines"),
+  staleTime: Number.POSITIVE_INFINITY,
+  // the default 3 retries keep the resort card on "Loading" for ~7 s before it says it failed
+  retry: 1,
 });
 
 export const fetchRoute = (mode: Mode, from: Coord, to: Coord) =>
