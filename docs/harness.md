@@ -24,7 +24,7 @@ flowchart LR
 
 | Part | What it is | Why it is built this way |
 |---|---|---|
-| **Map** | A 33-line `CLAUDE.md` that points to the specs, ADRs and `tasks/todo.md` | Agents only know what is in the repo. A short map that points to detail beats a long manual that crowds the context |
+| **Map** | A `CLAUDE.md` of at most 40 lines (`check_docs.py` enforces the limit) that points to the specs, ADRs and `tasks/todo.md` | Agents only know what is in the repo. A short map that points to detail beats a long manual that crowds the context |
 | **Gate** | `scripts/check_docs.py` in CI, next to the tests | Docs that lie are worse than no docs. Deterministic checks (links, the paths a spec names, map length) catch drift for free; the first run found a wrong path |
 | **1 Context** | `scripts/daily_retro.py`: reads git, assigns each commit to roles by path, sets each role's mode | Plain code decides *what* each agent looks at, so runs are reproducible and cheap. The model only does judgement |
 | **2 Roles** | Four engineering agents on Opus, read-only, one lens each: **MLE** (models, evals, data pipeline, CI, deploy), **AI engineer** (MCP tools, Ask Maps, Claude API use, this harness), **full-stack**, **UX** (`.claude/agents/role-*.md`) | Separate contexts keep each lens sharp. A role whose area changed reviews the commits (**retro**); an idle role researches one improvement (**ideate**), so nobody repeats itself on quiet days |

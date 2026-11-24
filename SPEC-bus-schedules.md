@@ -21,7 +21,7 @@ Answer the question "From my hotel, which shuttle bus do I take, when does it le
    - within each trip, times never decrease down the stop order (equal minutes are allowed: E2 prints 8:00 at two consecutive stops)
    - trip columns in a direction block keep the same stop order
    - `validFrom ≤ validTo`; periods of the same line don't overlap
-   - each `sourceSha256` matches an entry in `sources.json`
+   - each timetable's `source.file` names an asset in `sources.json`, which holds that asset's sha256
 4. **Review**: a human compares the image with `git diff` and commits. Unvalidated or unreviewed files are never served (`reviewed: true` is required).
 
 ## Transcription findings (2026-10-29)
@@ -59,7 +59,7 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 
 ## Query
 `GET /api/bus/options?from=lat,lng&at=<ISO datetime>` → `BusOption[]` grouped by resort
-1. Candidate stops = stops whose Valhalla **walking** time from the origin is ≤ 20 min (matrix call; fall back to the 3 nearest by straight-line distance if there are none).
+1. Candidate stops = stops whose Valhalla **walking** time from the origin is ≤ 20 min (matrix call; fall back to the 3 nearest reachable stops by walking time if there are none).
 2. Active timetables = periods where `validFrom ≤ date ≤ validTo`.
 3. For each candidate stop and each trip departing at or after `at + walkS`, list the later stops on the same trip whose stop `servesResortId` is set. That gives the arrival per resort.
 4. Per resort, keep the 3 earliest arrivals, sorted by arrival. Each item has `walkS, boardStopId, lineId, departsAt, arrivesAt, rideS, waitS`.
