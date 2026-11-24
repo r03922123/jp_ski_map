@@ -225,12 +225,13 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 
 ## Boundaries
 
-- [ ] v1.5 unit: the clear-map padding for a phone and a laptop with a card open; a tapped run frames its whole
+- [x] v1.5 unit: the clear-map padding for a phone and a laptop with a card open; a tapped run frames its whole
       line once, a resort card all its lines, and the route fit waits while either is open, then runs on close.
-- [ ] v1.5 e2e: on a 390 × 844 phone and a 1366 × 850 laptop, after a click on a run its whole line projects inside
+- [x] v1.5 e2e: on a 390 × 844 phone and a 1366 × 850 laptop, after a click on a run its whole line projects inside
       the map above the card (and right of the side panel on the laptop); a click on a resort chip does the same for
       the resort's lines.
-- [ ] v1.5 screenshots on both sizes: the run card open with its whole run in view.
+- [x] v1.5 screenshots on both sizes: the run card open with its whole run in view
+      (`docs/screenshots/ski-v1.5-*.png`).
 - Always: read the snapshot, never OpenSkiMap, per user request.
 - Ask first: the lift a run starts from, lift-status or grooming data, nordic runs, 3D terrain.
 - Never: use `tiles.openskimap.org` vector tiles in the app (their terms forbid it); download the world files on a
