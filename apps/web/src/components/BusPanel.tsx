@@ -502,6 +502,8 @@ export function BusPanel(props: BusPanelProps) {
           <input
             type="checkbox"
             checked={props.freeOnly}
+            // the night list has no paid line to hide
+            disabled={showNight}
             onChange={(e) => props.onFreeOnlyChange(e.target.checked)}
           />
           Free shuttles only

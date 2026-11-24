@@ -296,6 +296,11 @@ describe("BusPanel free shuttles only", () => {
     ).toBeInTheDocument();
   });
 
+  it("is off while the Night bus list is shown, which it doesn't filter", () => {
+    renderPanel({ showNight: true });
+    expect(screen.getByLabelText("Free shuttles only")).toBeDisabled();
+  });
+
   it("says so when the server has no free shuttle", () => {
     renderPanel({
       freeOnly: true,
