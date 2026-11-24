@@ -259,6 +259,17 @@ def test_a_run_keeps_its_height_profile_rounded_to_m_and_a_lift_has_none() -> No
     assert all(f.properties.profile is None for f in lines if f.properties.kind == "lift")
 
 
+def test_an_area_run_drops_its_profile_which_follows_its_outline() -> None:
+    runs = answer("run")
+    area = next(f for f in runs["features"] if f["geometry"]["type"] == "Polygon")
+    area["properties"]["elevationProfile"] = {"heights": [1200.0, 1190.0], "resolution": 25.0}
+
+    lines = build(runs, answer("lift")).features
+
+    run = next(f.properties for f in lines if f.properties.id == area["properties"]["id"])
+    assert run.profile is None
+
+
 def test_a_run_missing_its_elevation_profile_fails_the_refresh_with_the_field_name() -> None:
     runs = answer("run")
     del runs["features"][0]["properties"]["elevationProfile"]
@@ -301,11 +312,29 @@ def test_validator_names_each_broken_rule() -> None:
     flat = copy.deepcopy(next(f for f in lines.features if f.properties.profile))
     flat.properties.id = "flat"
     flat.properties.profile = Profile(heights_m=[1200], resolution_m=25)
+    level = copy.deepcopy(flat)
+    level.properties.id = "level"
+    level.properties.profile = Profile(heights_m=[1200, 1190], resolution_m=0)
+    lifted = copy.deepcopy(next(f for f in lines.features if f.properties.kind == "lift"))
+    lifted.properties.id = "lifted"
+    lifted.properties.profile = Profile(heights_m=[1200, 1300], resolution_m=25)
     no_goryu = [f for f in lines.features if f.properties.resort_id != "goryu"]
     broken = SkiLines(
         features=[
             *no_goryu,
-            *(dup, outside, stray, dot, open_ring, upside_down, timed_run, stopped, flat),
+            *(
+                dup,
+                outside,
+                stray,
+                dot,
+                open_ring,
+                upside_down,
+                timed_run,
+                stopped,
+                flat,
+                level,
+                lifted,
+            ),
         ]
     )
 
@@ -321,6 +350,8 @@ def test_validator_names_each_broken_rule() -> None:
         "ski_lines.json: timed-run is a run with a ride time",
         "ski_lines.json: stopped has a ride time of 0 s or less",
         "ski_lines.json: flat has a profile with fewer than 2 heights",
+        "ski_lines.json: level has a profile spacing of 0 m or less",
+        "ski_lines.json: lifted has a profile but is not a run line",
         "ski_lines.json: goryu has no lift",
     ]
 
