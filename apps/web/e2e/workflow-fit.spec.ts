@@ -14,11 +14,6 @@ const SIZES = [
 const STATES = [
   { name: "explore", url: "/", route: false },
   {
-    name: "drive trip",
-    url: "/?from=36.6985,137.8376&mode=drive&resort=happo-one",
-    route: true,
-  },
-  {
     name: "walk trip",
     url: "/?from=36.6985,137.8376&mode=walk&resort=happo-one",
     route: true,

@@ -9,7 +9,7 @@ services:
       - ./valhalla/custom_files/hakuba:/custom_files
     environment:
       serve_tiles: "True"
-      use_default_speeds_config: "True" # without it, drive times come out up to 37% too fast
+      use_default_speeds_config: "True" # without it, road (bus) times come out up to 37% too fast
       build_elevation: "False"
       build_admins: "True" # country rules: Japan drives on the left
       build_time_zones: "False" # requests carry no date_time

@@ -9,7 +9,7 @@ import { expect, type Page, test } from "@playwright/test";
 test.describe.configure({ retries: 1, timeout: 60_000 });
 
 const STATION = "36.69877,137.86197"; // JR Hakuba Station
-const START = `/?from=${STATION}&mode=drive`;
+const START = `/?from=${STATION}&mode=walk`;
 const TRIP = `${START}&resort=iwatake`;
 const ALL = 10; // data/resorts.json
 const MARCH_20 = readFileSync(
@@ -44,7 +44,7 @@ for (const device of [
     });
 
     test("every label shows until both ends are set", async ({ page }) => {
-      await open(page, "/?mode=drive");
+      await open(page, "/?mode=walk");
       await expect(labels(page)).toHaveCount(ALL);
       await open(page, START);
       await expect(labels(page)).toHaveCount(ALL);

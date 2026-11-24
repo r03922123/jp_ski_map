@@ -36,7 +36,7 @@ test("konbini on foot: list sorted by ETA, selecting one draws the walk", async 
 });
 
 test("switching back to resorts restores the resort list", async ({ page }) => {
-  await page.goto("/?from=36.6987,137.8617&mode=drive&cat=food");
+  await page.goto("/?from=36.6987,137.8617&mode=walk&cat=food");
   await expect(page.getByRole("list", { name: "Nearby places" })).toBeVisible({
     timeout: 15_000,
   });

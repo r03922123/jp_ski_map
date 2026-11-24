@@ -22,7 +22,7 @@ const TARO = { lat: 36.6910032, lng: 137.8430989 }; // Taro Club (food)
 const TOKYO = { latitude: 35.68, longitude: 139.76 };
 const ll = (c: { lat: number; lng: number }) => `${c.lat},${c.lng}`;
 
-const DRIVE = `/?from=${ll(HOTEL)}&mode=drive&resort=happo-one`;
+const TRIP = `/?from=${ll(HOTEL)}&mode=walk&resort=happo-one`;
 const WALK = `/?from=${ll(HOTEL)}&mode=walk&dest=pt:${ll(STATION)}`;
 const WALK_VIA_LAWSON = `${WALK}&stops=${ll(LAWSON)}`;
 
@@ -49,7 +49,7 @@ const LAPTOP_S = {
 
 const trip = (page: Page) => page.getByRole("list", { name: "Trip" });
 const tripRows = (page: Page) => trip(page).getByRole("listitem");
-// v1.9: in drive/walk the trip list is From and the stops; the destination is the To box
+// v1.9: in walk the trip list is From and the stops; the destination is the To box
 // in the trip card on top (bus keeps its read-only To row)
 const steps = (page: Page) => page.getByRole("list", { name: "Steps" });
 const pilot = (page: Page) => page.getByTestId("pilot");
@@ -177,7 +177,7 @@ test.describe("phone: adding stops", () => {
   test("typing 7-Eleven in a stop box: the route goes through it and a reload keeps it", async ({
     page,
   }) => {
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     await routed(page);
     await page.getByRole("button", { name: "Add destination" }).tap();
     const box = page.getByRole("combobox", { name: "Stop 1" });
@@ -207,7 +207,7 @@ test.describe("phone: adding stops", () => {
     page,
   }) => {
     // SPEC-web-app v1.7: an open stop box still takes a tap (the user asked for a point)
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     await routed(page);
     const from = param(page, "from");
     await page.getByRole("button", { name: "Add destination" }).tap();
@@ -231,7 +231,7 @@ test.describe("phone: adding stops", () => {
     page,
   }) => {
     test.fail(); // known: F — focusing the stop box expands the sheet to ~80 %: a 160 px strip of river is left, the route isn't on screen, so "tap the map" is a blind tap
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     await routed(page);
     await page.getByRole("button", { name: "Add destination" }).tap();
     await expect(page.getByRole("combobox", { name: "Stop 1" })).toBeFocused();
@@ -250,7 +250,7 @@ test.describe("phone: adding stops", () => {
 
   test("a stop's name survives a reload or a shared link", async ({ page }) => {
     test.fail(); // known: E — a typed stop ("Lawson") comes back as "Dropped pin" after reload
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     await routed(page);
     await page.getByRole("button", { name: "Add destination" }).tap();
     await page.getByRole("combobox", { name: "Stop 1" }).fill("Lawson");
@@ -269,7 +269,7 @@ test.describe("phone: adding stops", () => {
   for (const q of ["konbini", "コンビニ", "FamilyMart"]) {
     test(`typing "${q}" in a stop box offers a konbini`, async ({ page }) => {
       test.fail(); // known: S — the generic word / a missing brand gives no suggestions
-      await page.goto(DRIVE);
+      await page.goto(TRIP);
       await routed(page);
       await page.getByRole("button", { name: "Add destination" }).tap();
       await page.getByRole("combobox", { name: "Stop 1" }).fill(q);
@@ -283,7 +283,7 @@ test.describe("phone: adding stops", () => {
     page,
   }) => {
     test.fail(); // known: S — Konbini rows only replace the destination; there is no "Add stop"
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     await routed(page);
     await page.getByRole("tab", { name: /Konbini/ }).tap();
     const rows = page.getByRole("list", { name: "Nearby places" });
@@ -298,7 +298,7 @@ test.describe("phone: adding stops", () => {
   test("long-press → Add stop: the pin becomes stop 1, the start stays", async ({
     page,
   }) => {
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     await routed(page);
     const cdp = await page.context().newCDPSession(page);
     const from = param(page, "from");
@@ -319,7 +319,7 @@ test.describe("phone: adding stops", () => {
   test("two stops are visited in order; removing stop 1 renumbers the other", async ({
     page,
   }) => {
-    await page.goto(`${DRIVE}&stops=${ll(LAWSON)};${ll(TARO)}`);
+    await page.goto(`${TRIP}&stops=${ll(LAWSON)};${ll(TARO)}`);
     await routed(page);
     await expect(tripRows(page)).toHaveCount(3);
     const text = await allSteps(page);
@@ -351,7 +351,7 @@ test.describe("phone: adding stops", () => {
       { lat: 36.6955, lng: 137.8465 },
       { lat: 36.6925, lng: 137.8445 },
     ];
-    await page.goto(`${DRIVE}&stops=${five.map(ll).join(";")}`);
+    await page.goto(`${TRIP}&stops=${five.map(ll).join(";")}`);
     await routed(page);
     await expect(tripRows(page)).toHaveCount(6);
     await expect(
@@ -374,22 +374,22 @@ test.describe("phone: adding stops", () => {
       lat: 36.692 + i * 0.0015,
       lng: 137.845 + i * 0.001,
     }));
-    await page.goto(`${DRIVE}&stops=${six.map(ll).join(";")}`);
+    await page.goto(`${TRIP}&stops=${six.map(ll).join(";")}`);
     await routed(page);
     await expect(tripRows(page)).toHaveCount(6); // From and 5 stops (To is the top card's box)
   });
 
-  test("Bus hides the stops; back on Drive they are still there", async ({
+  test("Bus hides the stops; back on Walk they are still there", async ({
     page,
   }) => {
-    await page.goto(`${DRIVE}&stops=${ll(LAWSON)}`);
+    await page.goto(`${TRIP}&stops=${ll(LAWSON)}`);
     await routed(page);
     await expect(tripRows(page)).toHaveCount(2);
     await page.getByRole("tab", { name: /Bus/ }).tap();
     await expect(
       page.getByRole("button", { name: "Add destination" }),
     ).toHaveCount(0);
-    await page.getByRole("tab", { name: /Drive/ }).tap();
+    await page.getByRole("tab", { name: /Walk/ }).tap();
     await routed(page);
     await expect(tripRows(page)).toHaveCount(2);
     await expect
@@ -458,16 +458,17 @@ test.describe("phone: navigating through a stop", () => {
     await expect(startButton(page)).toBeVisible();
   });
 
-  test("Start from Drive with a stop: navigation starts on the route through it", async ({
+  test("Start from Walk to a resort with a stop: navigation starts on the route through it", async ({
     page,
   }) => {
-    await page.goto(`${DRIVE}&stops=${ll(LAWSON)}`);
+    await page.goto(`${TRIP}&stops=${ll(LAWSON)}`);
     await routed(page);
     await startNav(page);
     await following(page);
     await expect(banner(page)).not.toBeEmpty();
-    expect(await remaining(page)).toBeGreaterThan(2000);
-    await expect(progress(page)).toContainText("🚗");
+    // the direct walk is ~1.6 km; through Lawson ~1.9 km (API, 2026-11-25)
+    expect(await remaining(page)).toBeGreaterThan(1700);
+    await expect(progress(page)).toContainText("🚶");
   });
 
   test("drifting off route reroutes from where you are, still through the stop ahead", async ({
@@ -789,7 +790,7 @@ test.describe("small phone 360×740", () => {
   test("with two stops, Start is on screen; in navigation the banner and bar don't overlap", async ({
     page,
   }) => {
-    await page.goto(`${DRIVE}&stops=${ll(LAWSON)};${ll(TARO)}`);
+    await page.goto(`${TRIP}&stops=${ll(LAWSON)};${ll(TARO)}`);
     await routed(page);
     await expect(startButton(page)).toBeInViewport({ timeout: 20_000 });
     await startNav(page);
@@ -840,7 +841,7 @@ for (const [label, device] of [
     test("stops by typing work with the mouse; no Start, the ETA and steps stay in view", async ({
       page,
     }) => {
-      await page.goto(DRIVE);
+      await page.goto(TRIP);
       await routed(page);
       await page.getByRole("button", { name: "Add destination" }).click();
       await page.getByRole("combobox", { name: "Stop 1" }).fill("7-Eleven");
@@ -863,7 +864,7 @@ for (const [label, device] of [
       page,
     }) => {
       test.fail(); // known: N2 — laptop has no Start and nothing replaces it: no "Send to phone"/"Copy link"/QR for the planned trip (Google desktop offers both)
-      await page.goto(`${DRIVE}&stops=${ll(LAWSON)}`);
+      await page.goto(`${TRIP}&stops=${ll(LAWSON)}`);
       await routed(page);
       await expect(
         page.getByRole("button", {

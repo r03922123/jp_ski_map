@@ -20,8 +20,8 @@ const FACTOR_ROWS: {
   format: (v: number) => string;
 }[] = [
   {
-    key: "driveTime",
-    label: "Drive time",
+    key: "walkTime",
+    label: "Walk time",
     format: (v) => `~ ${formatDuration(v)}`,
   },
   {
@@ -99,7 +99,7 @@ function SourcesAndWeights({ r }: { r: RankedResort }) {
         Sources &amp; weights
       </summary>
       <dl className="mt-1 space-y-1 text-muted-foreground">
-        <dt className="font-medium">Drive time</dt>
+        <dt className="font-medium">Walk time</dt>
         <dd>
           OpenStreetMap roads, Valhalla router:{" "}
           <SourceLink href="https://www.openstreetmap.org/copyright" />
@@ -260,9 +260,7 @@ export function ResortList({
                 )}
               </span>
               <span className="shrink-0 text-sm font-semibold">
-                {r.driveS != null
-                  ? `~ ${formatDuration(r.driveS)}`
-                  : "no route"}
+                {r.walkS != null ? `~ ${formatDuration(r.walkS)}` : "no route"}
               </span>
             </button>
             <details className="px-2 pl-11 text-xs">

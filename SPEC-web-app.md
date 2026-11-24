@@ -3,22 +3,22 @@
 > Module of [SPEC.md](SPEC.md). Depends on all backend modules **through the HTTP API only**.
 
 ## Objective
-A single-page map UI that feels like Google Maps: a full-screen map, a search box on top, a side panel (bottom sheet on mobile) with 🚌 / 🚗 / 🚶 tabs.
+A single-page map UI that feels like Google Maps: a full-screen map, a search box on top, a side panel (bottom sheet on mobile) with 🚌 / 🚶 tabs (🚗 Drive until 2026-11-25, see v1.33).
 
 ## Screens & flow
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
 2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link, or clicking (long-pressing on mobile) the map, also sets the origin. When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
-   - 🚗 **Drive:** sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows drive ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the drive route and step list.
-   - 🚶 **Walk:** pick a resort or a bus stop, and see the walking route and ETA. It warns when the walk is > 45 min.
+   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows walk ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the walking route and step list.
+     It warns when the walk is > 45 min.
    - 🚌 **Bus:** for each resort, the walk to the stop, the next 3 departures (line badge, depart → arrive, wait), and a link to the source image. Selecting an option draws the walk leg and highlights the boarding stop. A departure time picker defaults to now. A separate "Night bus" toggle shows Line VN departures from the nearest stop.
-4. URL state: `?from=lat,lng&mode=drive&resort=happo-one&sort=drive_time&date=…`, so the view can be shared and reloaded.
+4. URL state: `?from=lat,lng&mode=walk&resort=happo-one&sort=walk_time&date=…`, so the view can be shared and reloaded.
 
 ## Acceptance Criteria
-- [ ] Playwright E2E: search "Hotel Hakuba" → select → each of the 3 tabs shows a non-empty result and a line on the map.
+- [ ] Playwright E2E: search "Hotel Hakuba" → select → each tab shows a non-empty result and a line on the map.
 - [ ] Mobile width 390 px: the panel becomes a draggable bottom sheet, with no horizontal scroll.
 - [ ] Every estimate is labeled ("ETA ~", "Crowd: estimated", snow `asOf`).
-- [ ] Each upstream error is shown inside its own panel (e.g. the bus panel fails but drive still works).
+- [ ] Each upstream error is shown inside its own panel (e.g. the bus panel fails but walk still works; a failed ranking leaves Walk the plain resort picker).
 - [ ] Map attribution shows OSM, OpenFreeMap, Open-Meteo and Hakuba Valley.
 - [ ] Keyboard-navigable search and tabs, visible focus, WCAG AA contrast.
 - [ ] API types come only from the generated `api-types.ts`.
@@ -666,3 +666,22 @@ history entry through `useBackToClose` (T76), so Back undoes the newest one and 
 - [x] e2e (`back-button.spec.ts`): from `/robots.txt`, Back closes Saved, ends navigation (phone), and clears a
   resort picked in the list after a mode change; "Go here" in Saved leaves one step; Remove destination takes its
   step back; the next Back leaves the app.
+
+## v1.33: Bus and Walk only (2026-11-25, the owner's ask)
+
+**Objective.** The app is for skiers without a car, so the 🚗 Drive mode goes. Bus and Walk keep working as before.
+
+1. The mode tabs are 🚌 Bus and 🚶 Walk, and the planner opens on Walk. An old `?mode=drive` link opens on Walk.
+2. The ranked resort list (sort, filters, date) moves from Drive to Walk, where the plain resort picker was. It sorts
+   by walk time to each resort's nearest entrance (`walk_time`), and "Max drive" becomes "Max walk" (`?maxWalk=`).
+   Walk now heads for the ranking's nearest entrance, which before only Drive did.
+3. Only the Walk tab shows a travel time (v1.24); the Bus tab's answer is its departures.
+4. If the ranking fails, Walk shows the plain resort picker instead, since choosing a resort needs no ranking.
+5. Road routing stays only for the bus: its road path on the map (API mode `bus`) and piloting along the bus line.
+   The pilot's old drive settings serve that line unchanged, and its screen shows 🚌 there.
+6. The car sprite, the drive pose and the rider's drive km go. An old save that has `km.drive` still loads.
+
+Earlier sections that mention Drive are kept as history.
+
+**Done when** `rg -i drive apps/web/src services/*/src` finds no mode, field or label, the web unit tests and
+the changed e2e specs pass, and the API rejects `mode=drive` with 422.

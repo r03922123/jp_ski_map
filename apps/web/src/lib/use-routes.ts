@@ -36,7 +36,7 @@ function routesQuery(
   };
 }
 
-const TAB_MODES: Mode[] = ["drive", "walk"];
+const TAB_MODES: Mode[] = ["walk"];
 
 /**
  * Each mode's travel time for its tab (v1.24, Google's mode row): the primary route's

@@ -9,9 +9,11 @@ test("a shared URL restores origin, mode and route", async ({ page }) => {
     "aria-selected",
     "true",
   );
-  await expect(page.getByLabel("Resort", { exact: true })).toHaveValue(
-    "happo-one",
-  );
+  await expect(
+    page
+      .getByRole("list", { name: "Ranked resorts" })
+      .getByRole("button", { name: /Happo-One/ }),
+  ).toHaveAttribute("aria-pressed", "true", { timeout: 15_000 });
   await expect(page.getByText(/^ETA ~ \d+ min/)).toBeVisible({
     timeout: 15_000,
   });
@@ -25,9 +27,9 @@ test("changing the view updates the URL", async ({ page }) => {
   await page.goto(SHARED);
   await expect(page.getByText(/^ETA ~/)).toBeVisible({ timeout: 15_000 });
 
-  await page.getByRole("tab", { name: /drive/i }).click();
+  await page.getByRole("tab", { name: /bus/i }).click();
 
-  await expect(page).toHaveURL(/mode=drive/);
+  await expect(page).toHaveURL(/mode=bus/);
   await expect(page).toHaveURL(/resort=happo-one/);
 });
 

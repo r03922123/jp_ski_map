@@ -75,19 +75,19 @@ def test_legs_carry_the_scheduled_gap() -> None:
     assert RouteLeg("stop-b", "stop-c", None) in legs
 
 
-def test_drive_slower_than_the_bus_blames_the_new_stop() -> None:
+def test_road_slower_than_the_bus_blames_the_new_stop() -> None:
     legs = [RouteLeg("stop-a", "stop-b", 5 * 60)]
     coords = {"stop-a": Coord(lat=36.70, lng=137.85), "stop-b": Coord(lat=36.60, lng=137.85)}
 
     violations = find_violations(
-        legs, coords, new={"stop-b"}, drive_s=lambda a, b: 25 * 60, serves_resort=set()
+        legs, coords, new={"stop-b"}, road_s=lambda a, b: 25 * 60, serves_resort=set()
     )
 
     assert set(violations) == {"stop-b"}
     assert "scheduled 5 min" in violations["stop-b"]
 
 
-def test_drive_within_the_schedule_passes() -> None:
+def test_road_within_the_schedule_passes() -> None:
     legs = [RouteLeg("stop-a", "stop-b", 5 * 60)]
     coords = {"stop-a": Coord(lat=36.70, lng=137.85), "stop-b": Coord(lat=36.69, lng=137.85)}
 

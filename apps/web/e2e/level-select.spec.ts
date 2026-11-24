@@ -11,7 +11,7 @@ test.describe("level select", () => {
   test("a level card shows a new stamp; worlds keep their numbers in any order", async ({
     page,
   }) => {
-    await page.goto("/?from=36.69711,137.85393&mode=drive");
+    await page.goto("/?from=36.69711,137.85393&mode=walk");
     const list = page.getByRole("list", { name: "Ranked resorts" });
     await expect(list).toBeVisible({ timeout: 15_000 });
     const happo = list

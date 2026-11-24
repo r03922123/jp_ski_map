@@ -7,7 +7,7 @@ test("the resort catalogue is fetched once per visit", async ({ page }) => {
   page.on("request", (req) => {
     if (new URL(req.url()).pathname === "/api/resorts") fetches++;
   });
-  await page.goto("/?from=36.6985,137.8376&mode=drive");
+  await page.goto("/?from=36.6985,137.8376&mode=walk");
   await expect(page.getByRole("list", { name: "Ranked resorts" })).toBeVisible({
     timeout: 15_000,
   });

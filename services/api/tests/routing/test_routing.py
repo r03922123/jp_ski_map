@@ -45,7 +45,7 @@ def test_decodes_google_reference_polyline_as_lng_lat() -> None:
 
 
 def test_decoded_valhalla_shape_starts_at_origin() -> None:
-    shape = fixture("route_drive.json")["trip"]["legs"][0]["shape"]
+    shape = fixture("route_bus.json")["trip"]["legs"][0]["shape"]
 
     lng, lat = decode_polyline(shape)[0]
 
@@ -56,14 +56,14 @@ def test_decoded_valhalla_shape_starts_at_origin() -> None:
 # --- client -----------------------------------------------------------------
 
 
-def test_drive_route_maps_summary_geometry_and_steps(
+def test_bus_route_maps_summary_geometry_and_steps(
     valhalla: respx.MockRouter, client: ValhallaClient
 ) -> None:
-    route_call = valhalla.post("/route").respond(json=fixture("route_drive.json"))
+    route_call = valhalla.post("/route").respond(json=fixture("route_bus.json"))
 
-    route = client.route("drive", HAPPO_BUS_TERMINAL, NAKIYAMA)
+    route = client.route("bus", HAPPO_BUS_TERMINAL, NAKIYAMA)
 
-    assert json.loads(route_call.calls.last.request.content)["costing"] == "auto"
+    assert json.loads(route_call.calls.last.request.content)["costing"] == "bus"
     assert route.duration_s == 172
     assert route.distance_m == 837
     assert route.geometry.type == "LineString"
@@ -88,7 +88,7 @@ def test_no_path_raises_no_route(valhalla: respx.MockRouter, client: ValhallaCli
     valhalla.post("/route").respond(400, json=fixture("route_no_edges.json"))
 
     with pytest.raises(NoRouteError):
-        client.route("drive", HAPPO_BUS_TERMINAL, Coord(lat=35.68, lng=139.76))
+        client.route("bus", HAPPO_BUS_TERMINAL, Coord(lat=35.68, lng=139.76))
 
 
 def test_unreachable_valhalla_raises_unavailable(
@@ -97,7 +97,7 @@ def test_unreachable_valhalla_raises_unavailable(
     valhalla.post("/route").mock(side_effect=httpx.ConnectError("refused"))
 
     with pytest.raises(RoutingUnavailableError):
-        client.route("drive", HAPPO_BUS_TERMINAL, NAKIYAMA)
+        client.route("bus", HAPPO_BUS_TERMINAL, NAKIYAMA)
 
 
 # --- HTTP endpoint ------------------------------------------------------------
@@ -112,11 +112,11 @@ def api(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 def test_route_endpoint_returns_camel_case_route(
     valhalla: respx.MockRouter, api: TestClient
 ) -> None:
-    valhalla.post("/route").respond(json=fixture("route_drive.json"))
+    valhalla.post("/route").respond(json=fixture("route_bus.json"))
 
     response = api.get(
         "/api/route",
-        params={"mode": "drive", "from": "36.70153,137.84561", "to": "36.69824,137.83881"},
+        params={"mode": "bus", "from": "36.70153,137.84561", "to": "36.69824,137.83881"},
     )
 
     assert response.status_code == 200
@@ -130,7 +130,7 @@ def test_route_endpoint_maps_no_route_to_404(valhalla: respx.MockRouter, api: Te
 
     response = api.get(
         "/api/route",
-        params={"mode": "drive", "from": "36.7,137.8", "to": "35.68,139.76"},
+        params={"mode": "bus", "from": "36.7,137.8", "to": "35.68,139.76"},
     )
 
     assert response.status_code == 404
@@ -155,16 +155,17 @@ def test_route_endpoint_maps_valhalla_down_to_503(
 def test_route_endpoint_rejects_malformed_coordinates(api: TestClient, bad: str) -> None:
     response = api.get(
         "/api/route",
-        params={"mode": "drive", "from": bad, "to": "36.69,137.83"},
+        params={"mode": "bus", "from": bad, "to": "36.69,137.83"},
     )
 
     assert response.status_code == 422
 
 
-def test_route_endpoint_rejects_unknown_mode(api: TestClient) -> None:
+@pytest.mark.parametrize("mode", ["fly", "drive"])  # drive was removed on 2026-11-25
+def test_route_endpoint_rejects_unknown_mode(api: TestClient, mode: str) -> None:
     response = api.get(
         "/api/route",
-        params={"mode": "fly", "from": "36.7,137.8", "to": "36.69,137.83"},
+        params={"mode": mode, "from": "36.7,137.8", "to": "36.69,137.83"},
     )
 
     assert response.status_code == 422
@@ -190,9 +191,9 @@ def test_matrix_maps_cells_back_to_target_ids(
     call = valhalla.post("/sources_to_targets").respond(json=fixture("matrix_jr_hakuba.json"))
     targets = [(f"t{i}", Coord(lat=36.7, lng=137.8)) for i in range(12)]
 
-    cells = client.matrix("drive", Coord(lat=36.6987, lng=137.8617), targets)
+    cells = client.matrix("bus", Coord(lat=36.6987, lng=137.8617), targets)
 
-    assert json.loads(call.calls.last.request.content)["costing"] == "auto"
+    assert json.loads(call.calls.last.request.content)["costing"] == "bus"
     assert [c.id for c in cells] == [f"t{i}" for i in range(12)]
     assert cells[0].duration_s == 1843
     assert cells[0].distance_m == 27408
@@ -206,6 +207,6 @@ def test_matrix_unreachable_target_has_null_duration(
     valhalla.post("/sources_to_targets").respond(json=data)
     targets = [(f"t{i}", Coord(lat=36.7, lng=137.8)) for i in range(12)]
 
-    cells = client.matrix("drive", Coord(lat=36.6987, lng=137.8617), targets)
+    cells = client.matrix("bus", Coord(lat=36.6987, lng=137.8617), targets)
 
     assert (cells[1].duration_s, cells[1].distance_m) == (None, None)

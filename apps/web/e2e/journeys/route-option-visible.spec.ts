@@ -9,7 +9,7 @@ import { devOnly } from "../dev-only";
 
 test.describe.configure({ retries: 1, timeout: 60_000 });
 
-const TRIP = "/?from=36.69877,137.86197&mode=drive&resort=iwatake"; // 3 options
+const TRIP = "/?from=36.69877,137.86197&mode=walk&resort=happo-one"; // 3 walking options (2026-11-25)
 
 const PHONES = [
   { name: "phone 393x852", width: 393, height: 852 },
@@ -112,21 +112,20 @@ for (const device of PHONES) {
       expect(await coveredPoints(page, seen.routes[1])).toBe(0);
     });
 
-    test("changing the mode from the expanded sheet shows the whole route", async ({
+    test("going back from Bus to Walk in the expanded sheet shows the whole route", async ({
       page,
     }) => {
-      await openTrip(page);
+      const seen = await openTrip(page);
+      const walkRoute = seen.routes[0]; // Bus then fetches its own walk to the stop
       await page.getByRole("button", { name: "Expand directions" }).click();
       await expect(sheet(page)).toHaveAttribute("data-state", "expanded");
+      await page.getByRole("tab", { name: /bus/i }).click();
+      await expect(sheet(page)).toHaveAttribute("data-state", "expanded");
 
-      const walked = page.waitForResponse(/\/api\/routes\?mode=walk/);
       await page.getByRole("tab", { name: /walk/i }).click();
-      const body = await (await walked).json();
 
       await expect(sheet(page)).toHaveAttribute("data-state", "collapsed");
-      await expect
-        .poll(() => coveredPoints(page, body.primary.geometry.coordinates))
-        .toBe(0);
+      await expect.poll(() => coveredPoints(page, walkRoute)).toBe(0);
     });
 
     test("tapping Bus leaves the sheet open: its list is the answer", async ({

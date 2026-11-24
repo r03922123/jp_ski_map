@@ -159,7 +159,12 @@ def test_run_one_keeps_the_cost_the_cli_reported(
 
 
 def tool_events() -> list[str]:
-    use = {"type": "tool_use", "id": "t1", "name": "mcp__hakuba__route", "input": {"mode": "drive"}}
+    use = {
+        "type": "tool_use",
+        "id": "t1",
+        "name": "mcp__hakuba__route",
+        "input": {"destination": "happo-one"},
+    }
     bad: dict[str, object] = {
         "type": "tool_use",
         "id": "t2",
@@ -208,7 +213,7 @@ def tool_events() -> list[str]:
 def test_parse_steps_pairs_each_tool_call_with_its_result_and_times() -> None:
     steps = parse_steps(tool_events())
     assert [(s.tool, s.input, s.output, s.is_error) for s in steps] == [
-        ("route", {"mode": "drive"}, '{"durationMin":7.7}', False),
+        ("route", {"destination": "happo-one"}, '{"durationMin":7.7}', False),
         ("rank_resorts", {}, "Hakuba API 422", True),
     ]
     assert steps[0].end_ns - steps[0].start_ns == 1_250_000_000

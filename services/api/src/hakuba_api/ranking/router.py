@@ -42,15 +42,15 @@ def get_rank(
     snow: Annotated[dict[str, SnowReport], Depends(get_snow_reports)],
     crowd_for: Annotated[CrowdFor, Depends(get_crowd_for)],
     today: Annotated[date, Depends(get_today)],
-    sort: SortKey = "drive_time",
+    sort: SortKey = "walk_time",
     day: Annotated[PlausibleDate | None, Query(alias="date")] = None,
     night_skiing: Annotated[bool | None, Query(alias="nightSkiing")] = None,
     hakuba_valley_pass: Annotated[bool | None, Query(alias="hakubaValleyPass")] = None,
-    max_drive_min: Annotated[float | None, Query(alias="maxDriveMin", gt=0)] = None,
+    max_walk_min: Annotated[float | None, Query(alias="maxWalkMin", gt=0)] = None,
 ) -> list[RankedResort]:
     resorts = load_resorts()
     targets = [(a.id, a.coord) for r in resorts for a in r.access_points]
-    cells = {c.id: c for c in valhalla.matrix("drive", parse_lat_lng(origin, "from"), targets)}
+    cells = {c.id: c for c in valhalla.matrix("walk", parse_lat_lng(origin, "from"), targets)}
     crowd = crowd_for(day or today)
 
     def nearest(resort_access_ids: list[str]) -> MatrixCell:
@@ -61,7 +61,7 @@ def get_rank(
     items = [
         RankInput(
             resort=r,
-            drive=nearest([a.id for a in r.access_points]),
+            walk=nearest([a.id for a in r.access_points]),
             snow=snow.get(r.id),
             crowd=crowd.get(r.id),
         )
@@ -70,6 +70,6 @@ def get_rank(
     filters = Filters(
         night_skiing=night_skiing,
         hakuba_valley_pass=hakuba_valley_pass,
-        max_drive_min=max_drive_min,
+        max_walk_min=max_walk_min,
     )
     return rank(items, sort, filters)

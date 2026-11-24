@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-const HOTEL_HAKUBA = "/?from=36.69711,137.85393&mode=drive";
+const HOTEL_HAKUBA = "/?from=36.69711,137.85393&mode=walk";
 
-test("drive mode ranks every resort and re-sorts on demand", async ({
+test("walk mode ranks every resort and re-sorts on demand", async ({
   page,
 }) => {
   await page.goto(HOTEL_HAKUBA);
@@ -17,12 +17,14 @@ test("drive mode ranks every resort and re-sorts on demand", async ({
   // Happo-One has the largest vertical drop (1071 m)
   await expect(list.getByRole("listitem").first()).toContainText("Happo-One");
 
-  await page.getByLabel("Max drive").selectOption("10");
-  await expect(page).toHaveURL(/maxDrive=10/);
+  // only Happo-One is within a 30 min walk of the hotel (~19 min)
+  await page.getByLabel("Max walk").selectOption("30");
+  await expect(page).toHaveURL(/maxWalk=30/);
   await expect.poll(() => list.getByRole("listitem").count()).toBeLessThan(10);
+  await expect(list.getByRole("listitem").first()).toContainText("Happo-One");
 });
 
-test("choosing a ranked resort draws its drive route", async ({ page }) => {
+test("choosing a ranked resort draws its walk route", async ({ page }) => {
   await page.goto(HOTEL_HAKUBA);
 
   await page
@@ -30,7 +32,7 @@ test("choosing a ranked resort draws its drive route", async ({ page }) => {
     .getByRole("button", { name: /Tsugaike/ })
     .click({ timeout: 20_000 });
 
-  await expect(page.getByText(/^ETA ~ \d+ min/)).toBeVisible({
+  await expect(page.getByText(/^ETA ~ \d+/)).toBeVisible({
     timeout: 10_000,
   });
   await expect(page.locator("main")).not.toHaveAttribute(

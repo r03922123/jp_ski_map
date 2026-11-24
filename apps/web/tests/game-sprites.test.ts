@@ -38,7 +38,6 @@ describe("hero sprite (SPEC-game-theme)", () => {
       walk: 4,
       ride: 2,
       bus: 2,
-      drive: 2,
     });
     for (const s of Object.values(HERO)) expect([s.w, s.h]).toEqual([24, 24]);
   });

@@ -13,9 +13,10 @@ test.describe.configure({ retries: 1, timeout: 60_000 });
 test.beforeEach(() => devOnly("projects the route with the dev map handle"));
 
 const STATION = "36.69877,137.86197"; // JR Hakuba Station
-const NORTH = `/?from=${STATION}&mode=drive&resort=cortina`; // the route runs up the screen
-const SOUTH = `/?from=${STATION}&mode=drive&resort=jigatake`; // and down it
-const OPTIONS = `/?from=${STATION}&mode=drive&resort=iwatake`; // 3 route options
+const NORTH = `/?from=${STATION}&mode=walk&resort=cortina`; // the route runs up the screen
+const SOUTH = `/?from=${STATION}&mode=walk&resort=jigatake`; // and down it
+// 3 walking options (2026-11-25); one entrance, so the first route answer is the one drawn
+const OPTIONS = `/?from=${STATION}&mode=walk&resort=sanosaka`;
 
 const DEVICES = [
   { name: "iPhone-sized 390x699", width: 390, height: 699, touch: true },
@@ -311,7 +312,7 @@ for (const device of [
     test("a destination away from any road stays clear", async ({ page }) => {
       const out = await open(
         page,
-        `/?from=${STATION}&mode=drive&dest=pt:36.78300,137.89900`,
+        `/?from=${STATION}&mode=walk&dest=pt:36.78300,137.89900`,
       );
       await expectClear(page, out.primary.geometry.coordinates);
     });
@@ -324,7 +325,7 @@ for (const device of [
     });
 
     test("a destination with no start yet stays clear", async ({ page }) => {
-      await page.goto("/?mode=drive&resort=jigatake");
+      await page.goto("/?mode=walk&resort=jigatake");
       await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
         timeout: 30_000,
       });
@@ -332,7 +333,7 @@ for (const device of [
     });
 
     test("a start with no destination yet stays clear", async ({ page }) => {
-      await page.goto("/?from=36.60000,137.85000&mode=drive");
+      await page.goto("/?from=36.60000,137.85000&mode=walk");
       await expectClear(page, [], { start: true, end: false });
     });
 
@@ -370,7 +371,7 @@ test.describe("turning a phone", () => {
   });
 
   test("a lone destination stays clear", async ({ page }) => {
-    await page.goto("/?mode=drive&resort=jigatake");
+    await page.goto("/?mode=walk&resort=jigatake");
     await expectClear(page, [], { start: false, end: true });
 
     await page.setViewportSize({ width: 667, height: 375 });

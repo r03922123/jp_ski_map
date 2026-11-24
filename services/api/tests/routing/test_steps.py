@@ -51,11 +51,11 @@ def test_summary_uses_route_number_when_road_has_no_name() -> None:
 
 
 def test_route_steps_carry_maneuver_streets_and_shape_range() -> None:
-    data = json.loads((FIXTURES / "route_drive_alternates.json").read_text())
+    data = json.loads((FIXTURES / "route_bus_alternates.json").read_text())
     with respx.mock(base_url=VALHALLA) as mock:
         mock.post("/route").respond(json=data)
         route = ValhallaClient(VALHALLA).route(
-            "drive", Coord(lat=36.6985, lng=137.8376), Coord(lat=36.7395, lng=137.8510)
+            "bus", Coord(lat=36.6985, lng=137.8376), Coord(lat=36.7395, lng=137.8510)
         )
 
     assert route.steps[0].maneuver == "depart"

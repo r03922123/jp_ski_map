@@ -11,7 +11,7 @@ test("the mode tabs fit a 320 px phone with a walk over an hour", async ({
   page,
 }) => {
   // Tsugaike is a long walk from Hakuba Station (≈1 h 36 min on 2026-11-20)
-  await page.goto("/?from=36.6985,137.8376&mode=drive&resort=tsugaike");
+  await page.goto("/?from=36.6985,137.8376&mode=walk&resort=tsugaike");
   const walk = page.getByRole("tab", { name: /Walk \d+ h/ });
   await expect(walk).toBeVisible({ timeout: 15_000 });
   const fits = await page
@@ -36,7 +36,7 @@ test.describe("laptop", () => {
   test("the mode tabs fit the side card with a walk over an hour", async ({
     page,
   }) => {
-    await page.goto("/?from=36.6985,137.8376&mode=drive&resort=tsugaike");
+    await page.goto("/?from=36.6985,137.8376&mode=walk&resort=tsugaike");
     const walk = page.getByRole("tab", { name: /Walk \d+ h/ });
     await expect(walk).toBeVisible({ timeout: 15_000 });
     const fits = await page

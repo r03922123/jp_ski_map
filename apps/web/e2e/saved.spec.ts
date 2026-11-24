@@ -102,7 +102,7 @@ test("the app opens from My hotel when the link has no starting point", async ({
 
 test("Go here on a saved place draws a route to it", async ({ page }) => {
   await seedSaved(page);
-  await page.goto("/?mode=drive");
+  await page.goto("/?mode=walk");
   await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
     timeout: 15_000,
   });

@@ -34,7 +34,7 @@ Answer the question "From my hotel, which shuttle bus do I take, when does it le
 1. geocodes addresses with GSI (国土地理院) and accepts only lot-number (番地) matches;
 2. rejects GSI points returned for several different lots (GSI uses one representative point for many rural lots);
 3. requires each GSI point to be within 1 km of a trusted stop (resort access point, OSM bus stop, lodging snapshot) on one of its routes;
-4. checks every timed leg: Valhalla's drive time must be ≤ scheduled gap × 1.5 + 3 min. Untimed pickup neighbours must be ≤ 8 km apart, except on the final leg to the resort.
+4. checks every timed leg: Valhalla's bus-road time (`bus` costing) must be ≤ scheduled gap × 1.5 + 3 min. Untimed pickup neighbours must be ≤ 8 km apart, except on the final leg to the resort.
 Stops that fail stay `coord: null` with the reason in `coordSource`.
 
 **Operator My Maps (decided 2026-10-29, see docs/ideas/bus-stop-locations.md).** The shuttle page embeds, next to every timetable image, a Google My Maps layer of that line's stops authored by Hakuba Valley (13 layers; lazy `<iframe data-src>`). `check_sources` discovers them with the timetable they belong to, saves their KML exports and tracks their sha256 in `data/bus/sources.json` (`myMaps`), so a moved stop is detected like a changed timetable. (First found via the PDF's QR codes, which only cover 10 lines; the page is the complete source.) `python -m hakuba_api.bus.import_mymaps [--write]` matches their KML placemarks to stops (EN/JA names plus a hand-checked table), refuses to import if they disagree with already-verified stops (median 48 m), merges a stop's pins by median, out-voting a minority of misplaced pins (two-thirds majority within 100 m; e.g. G1-6 reuses the Alpine Chalets pin for La Vigne) and skipping stops with no majority, then adds the rest to the evidence file, after which `locate_stops` runs the usual checks. These are the operator's own pins, not Google basemap or place data. Result 2026-10-30: **98/98 stops located**, median 2 m from independently verified stops. Whether the pins may be reused is still unresolved, so [ADR-0002](docs/adr/0002-data-files-odbl.md) names them as a licence exception and [DATA-LICENSES.md](DATA-LICENSES.md) covers the stops that still use them as one group: those whose `coordSource` starts with `operator My Maps pin`.
@@ -127,7 +127,7 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 - `BusOption` gains `rideStops: [{stopId, name, coord|null, time|null}]`: board stop → … → alight stop, in trip order.
 - The UI draws a Google-transit-style journey:
   - a dotted walk to the board stop;
-  - a ride leg in the line colour (`POST /api/route/path`, drive costing through the located ride stops);
+  - a ride leg in the line colour (`POST /api/route/path`, mode `bus` through the located ride stops);
   - small stop dots;
   - the resort marker.
 - The panel timeline: `🚶 4 min → 🚏 Happo Bus Terminal 08:11 → 🚌 Line V · 5 stops · 28 min → ⛷ Hakuba47 08:39`.

@@ -3,7 +3,7 @@ import { useSyncExternalStore } from "react";
 /**
  * Is this a device you'd navigate with? (SPEC-pilot "Devices")
  * Pilot mode is for touch-first devices (phones, tablets). A laptop's primary pointer is
- * fine (mouse/trackpad), it isn't carried while driving or walking, and its Wi-Fi-based
+ * fine (mouse/trackpad), it isn't carried while walking or on the bus, and its Wi-Fi-based
  * location is often hundreds of metres off. The user agent can't decide this: iPads
  * report a Mac user agent, so the primary pointer is the signal.
  */

@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 test("the map is the overworld: the idle rider stands at the start", async ({
   page,
 }) => {
-  await page.goto("/?from=36.69711,137.85393&mode=drive");
+  await page.goto("/?from=36.69711,137.85393&mode=walk");
   await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
     timeout: 15_000,
   });

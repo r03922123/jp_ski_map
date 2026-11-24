@@ -121,7 +121,7 @@ export function useBusTrip({
       busChoice?.boardStopId,
       busChoice?.alightStopId,
     ],
-    queryFn: () => fetchPath("drive", rideStops),
+    queryFn: () => fetchPath("bus", rideStops),
     enabled: busStop !== null && rideStops.length >= 2,
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,

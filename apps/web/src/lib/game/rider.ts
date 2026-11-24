@@ -24,7 +24,7 @@ export type RiderState = {
   name: string;
   stamps: Record<string, Stamp>;
   quests: QuestState[];
-  stats: { km: { bus: number; drive: number; walk: number }; trips: number };
+  stats: { km: { bus: number; walk: number }; trips: number };
 };
 
 export function emptyRider(): RiderState {
@@ -33,7 +33,7 @@ export function emptyRider(): RiderState {
     name: DEFAULT_NAME,
     stamps: {},
     quests: [],
-    stats: { km: { bus: 0, drive: 0, walk: 0 }, trips: 0 },
+    stats: { km: { bus: 0, walk: 0 }, trips: 0 },
   };
 }
 
@@ -103,7 +103,6 @@ export function parseRider(
     !isRecord(stats) ||
     !isRecord(stats.km) ||
     !isCount(stats.km.bus) ||
-    !isCount(stats.km.drive) ||
     !isCount(stats.km.walk) ||
     !isCount(stats.trips)
   )

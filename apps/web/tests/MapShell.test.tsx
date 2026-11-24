@@ -22,7 +22,6 @@ import type { Resort, Route } from "@/lib/api";
 import * as api from "@/lib/api";
 import { emptyState, savedStore, toggleInList } from "@/lib/saved-places";
 import busFixture from "../e2e/fixtures/bus-options-2026-03-20.json";
-import driveFixture from "./fixtures/route-drive.json";
 import walkFixture from "./fixtures/route-walk.json";
 
 type MapProps = ComponentProps<typeof MapView>;
@@ -155,7 +154,6 @@ const happoArea: SkiLineFeature = {
     ],
   },
 };
-const drive = driveFixture as unknown as Route;
 const walk = walkFixture as unknown as Route;
 const hotel = { lat: 36.697364, lng: 137.853928 };
 
@@ -228,10 +226,10 @@ beforeEach(() => {
   vi.mocked(api.fetchPath).mockReset();
   vi.mocked(api.fetchSuggestions).mockResolvedValue([]);
   vi.mocked(api.fetchRank).mockResolvedValue([]);
-  vi.mocked(api.fetchRoutes).mockImplementation(async (mode) => ({
-    primary: mode === "drive" ? drive : walk,
+  vi.mocked(api.fetchRoutes).mockResolvedValue({
+    primary: walk,
     alternates: [],
-  }));
+  });
 });
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -249,14 +247,14 @@ describe("MapShell origin", () => {
   });
 
   it("a shared link restores the origin, and a tap with both ends set keeps it", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
     act(() => map().onPickOrigin({ lat: 36.6, lng: 137.8 }));
     expect(map().origin).toEqual({ lat: 36.69736, lng: 137.85393 });
   });
 
   it("clearing the start empties the origin and drops it from the link", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive");
+    renderShell("?from=36.69736,137.85393&mode=walk");
     await waitFor(() => expect(map().origin).not.toBeNull());
     fireEvent.click(
       screen.getByRole("button", { name: "Clear starting point" }),
@@ -268,15 +266,14 @@ describe("MapShell origin", () => {
 
 describe("MapShell destination", () => {
   it("choosing a resort targets its access point and asks for the route", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive");
+    renderShell("?from=36.69736,137.85393&mode=walk");
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectResort("happo-one"));
     expect(map().destination).toEqual(happo.accessPoints[0].coord);
     await waitFor(() => expect(query().get("resort")).toBe("happo-one"));
-    await waitFor(() => expect(map().routes).toEqual([drive]));
-    // v1.24: the Walk tab's time is asked for too, so drive is not always the last call
+    await waitFor(() => expect(map().routes).toEqual([walk]));
     expect(api.fetchRoutes).toHaveBeenCalledWith(
-      "drive",
+      "walk",
       { lat: 36.69736, lng: 137.85393 },
       happo.accessPoints[0].coord,
     );
@@ -291,7 +288,7 @@ describe("MapShell destination", () => {
       kind: "lodging" as const,
     };
     savedStore.update((s) => toggleInList(s, hotelPlace, "starred"));
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
     act(() => map().onDropPin?.(hotelPlace.coord, "Hotel Hakuba"));
     const card = screen
@@ -305,7 +302,7 @@ describe("MapShell destination", () => {
 
   // SPEC-ski-runs v1.1: one card at a time; a mouse click elsewhere closes a run's card
   it("a run's card replaces the pin card, and a click elsewhere on the map closes it", async () => {
-    renderShell("?mode=drive");
+    renderShell("?mode=walk");
     await waitFor(() => expect(mapProps).not.toBeNull());
     act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
     expect(screen.getByRole("group", { name: "Dropped pin" })).toBeTruthy();
@@ -334,7 +331,7 @@ describe("MapShell destination", () => {
 
   // T2: a dropped pin can be saved from its card, like any place
   it("a dropped pin's card offers Save, which opens the list picker", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
     act(() => map().onDropPin?.({ lat: 36.68, lng: 137.86 }, null));
     // the start (from a link's coordinates) is a "Dropped pin" too: look inside the card
@@ -349,7 +346,7 @@ describe("MapShell destination", () => {
   });
 
   it("a pin's Go here makes the pin the destination instead of the resort", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
     const pin = { lat: 36.68, lng: 137.86 };
     act(() => map().onDropPin?.(pin, null));
@@ -362,9 +359,10 @@ describe("MapShell destination", () => {
 });
 
 describe("MapShell mode", () => {
-  it("switching to Walk re-asks the route on foot and writes the mode to the link", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
-    await waitFor(() => expect(map().routes).toEqual([drive]));
+  it("switching from Bus to Walk shows the route on foot and writes the mode to the link", async () => {
+    renderShell("?from=36.69736,137.85393&mode=bus&resort=happo-one");
+    await waitFor(() => expect(api.fetchBusOptions).toHaveBeenCalled());
+    expect(map().routes).toEqual([]);
     fireEvent.mouseDown(screen.getByRole("tab", { name: /walk/i }));
     fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
     await waitFor(() => expect(query().get("mode")).toBe("walk"));
@@ -377,32 +375,27 @@ describe("MapShell mode", () => {
   });
 
   // v1.24 (BC-L1, BC-L2): like Google's mode row, each tab shows its own time
-  it("the Drive and Walk tabs show each mode's time to the resort", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
-    // drive 463 s, walk 686 s in the fixtures
-    await waitFor(() => expect(map().routes).toEqual([drive]));
-    expect(
-      await screen.findByRole("tab", { name: /Drive 8 min/ }),
-    ).toBeInTheDocument();
+  it("only the Walk tab shows a time to the resort", async () => {
+    renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
+    // walk 686 s in the fixture
+    await waitFor(() => expect(map().routes).toEqual([walk]));
     expect(
       await screen.findByRole("tab", { name: /Walk 11 min/ }),
     ).toBeInTheDocument();
-    // the Drive tab's time and the panel's route are one request
-    const driveCalls = vi
-      .mocked(api.fetchRoutes)
-      .mock.calls.filter((c) => c[0] === "drive");
-    expect(driveCalls).toHaveLength(1);
+    expect(screen.getByRole("tab", { name: "Bus" })).toBeInTheDocument();
+    // the Walk tab's time and the panel's route are one request
+    expect(api.fetchRoutes).toHaveBeenCalledTimes(1);
   });
 
-  // review of #106: Drive goes to the ranking's nearest entrance, Walk (with no ranking
-  // yet) to the first, so a two-entrance resort's tab time would be for another place
-  it("a two-entrance resort with no ranking yet shows no times on the tabs", async () => {
+  // review of #106: Walk goes to the ranking's nearest entrance, so until the ranking
+  // answers, a two-entrance resort's route is to the first one and its time may be wrong
+  it("a two-entrance resort shows no time on the Walk tab until the ranking answers", async () => {
     const second = { ...happo.accessPoints[0], id: "happo-one-second" };
     happo.accessPoints.push(second);
+    vi.mocked(api.fetchRank).mockReturnValue(new Promise(() => {}));
     try {
       renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
       await waitFor(() => expect(map().routes).toEqual([walk]));
-      expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
     } finally {
       happo.accessPoints.pop();
@@ -410,18 +403,17 @@ describe("MapShell mode", () => {
   });
 
   // re-review of #106: the ranking keeps the old start's answer as placeholder data
-  it("a two-entrance resort hides the times again when the start moves in Walk", async () => {
+  it("a two-entrance resort hides the Walk time again when the start moves", async () => {
     const second = { ...happo.accessPoints[0], id: "happo-one-second" };
     happo.accessPoints.push(second);
     try {
-      renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
-      // the ranking for this start has loaded: one place for every mode
+      renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
+      // the ranking for this start has loaded: the Walk route goes to its entrance
       expect(
         await screen.findByRole("tab", { name: /Walk 11 min/ }),
       ).toBeInTheDocument();
-      fireEvent.mouseDown(screen.getByRole("tab", { name: /walk/i }));
-      fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
-      await waitFor(() => expect(query().get("mode")).toBe("walk"));
+      // the new start's ranking hasn't answered yet
+      vi.mocked(api.fetchRank).mockReturnValue(new Promise(() => {}));
       fireEvent.click(
         screen.getByRole("button", { name: "Clear starting point" }),
       );
@@ -437,14 +429,13 @@ describe("MapShell mode", () => {
         ).toBe(true),
       );
       await new Promise((r) => setTimeout(r, 50));
-      expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
     } finally {
       happo.accessPoints.pop();
     }
   });
 
-  it("a Food place shows no times on the tabs: its place is picked per mode", async () => {
+  it("a Food place shows no time on the Walk tab", async () => {
     const ramen = { lat: 36.699, lng: 137.84 };
     vi.mocked(api.fetchNearbyPois).mockResolvedValue([
       {
@@ -461,16 +452,15 @@ describe("MapShell mode", () => {
       } as api.NearbyPoi,
     ]);
     renderShell(
-      "?from=36.69736,137.85393&mode=drive&cat=food&dest=poi:osm:node/1",
+      "?from=36.69736,137.85393&mode=walk&cat=food&dest=poi:osm:node/1",
     );
     await waitFor(() => expect(map().destination).toEqual(ramen));
-    await waitFor(() => expect(map().routes).toEqual([drive]));
-    expect(screen.getByRole("tab", { name: "Drive" })).toBeInTheDocument();
+    await waitFor(() => expect(map().routes).toEqual([walk]));
     expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
   });
 
-  it("switching to Bus drops the drive route target: the map gets no destination", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+  it("switching to Bus drops the walk route target: the map gets no destination", async () => {
+    renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
     fireEvent.mouseDown(screen.getByRole("tab", { name: /bus/i }));
     fireEvent.click(screen.getByRole("tab", { name: /bus/i }));
@@ -484,8 +474,8 @@ describe("MapShell mode", () => {
   });
 
   // UX panel 2026-11-23: a bus tapped with no destination set named Happo-One in the To
-  // box, but the link had no resort and Drive and Walk had no destination
-  it("a tapped bus's resort stays the destination in the link and on Drive", async () => {
+  // box, but the link had no resort and Walk had no destination
+  it("a tapped bus's resort stays the destination in the link and on Walk", async () => {
     vi.mocked(api.fetchBusOptions).mockResolvedValue({
       ...(busFixture as api.BusResult),
       resorts: (busFixture as api.BusResult).resorts.filter(
@@ -500,14 +490,14 @@ describe("MapShell mode", () => {
     );
 
     await waitFor(() => expect(query().get("resort")).toBe(happo.id));
-    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
-    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
-    await waitFor(() => expect(query().get("mode")).toBe("drive"));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /walk/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
+    await waitFor(() => expect(query().get("mode")).toBe("walk"));
     await waitFor(() =>
       expect(map().destination).toEqual(happo.accessPoints[0].coord),
     );
     expect(
-      await screen.findByRole("tab", { name: /Drive 8 min/ }),
+      await screen.findByRole("tab", { name: /Walk 11 min/ }),
     ).toBeInTheDocument();
 
     // a new start keeps the destination listed (SPEC-web-app "the stops and the destination stay")
@@ -544,13 +534,13 @@ describe("MapShell mode", () => {
         (r) => r.resortId === happo.id,
       ),
     });
-    // with the Food list open, Drive has no destination, so the start's card offers Directions
+    // with the Food list open, Walk has no destination, so the start's card offers Directions
     renderShell("?from=36.69736,137.85393&mode=bus&cat=food");
     const [option] = await screen.findAllByRole("button", { name: /Board/ });
     fireEvent.click(option);
     await waitFor(() => expect(query().get("resort")).toBe(happo.id));
-    fireEvent.mouseDown(screen.getByRole("tab", { name: /drive/i }));
-    fireEvent.click(screen.getByRole("tab", { name: /drive/i }));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /walk/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
     fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
     await waitFor(() => expect(query().get("dest")).toMatch(/^pt:/));
     expect(query().get("resort")).toBeNull();
@@ -560,14 +550,14 @@ describe("MapShell mode", () => {
 describe("MapShell pilot", () => {
   it("Start hands the route to the pilot; Exit returns to the planner", async () => {
     const { container } = renderShell(
-      "?from=36.69736,137.85393&mode=drive&resort=happo-one",
+      "?from=36.69736,137.85393&mode=walk&resort=happo-one",
     );
     const main = () => container.querySelector("main") as HTMLElement;
     fireEvent.click(
       await screen.findByRole("button", { name: /start navigation/i }),
     );
     expect(main().dataset.piloting).toBe("true");
-    expect(map().routes).toEqual([drive]);
+    expect(map().routes).toEqual([walk]);
     expect(map().pilot).not.toBeNull();
     expect(
       screen.queryByRole("button", { name: /start navigation/i }),
@@ -616,7 +606,7 @@ describe("MapShell search box", () => {
 
 describe("MapShell swap", () => {
   it("swap makes the resort the start and the start a point; a second swap restores the resort", async () => {
-    renderShell(`?from=${from}&mode=drive&resort=happo-one`);
+    renderShell(`?from=${from}&mode=walk&resort=happo-one`);
     await waitFor(() => expect(map().destination).not.toBeNull());
     const swap = () =>
       fireEvent.click(
@@ -636,13 +626,12 @@ describe("MapShell swap", () => {
 
 describe("MapShell stops", () => {
   // T4: reordering stops changes the route's order and the shared link
-  // (the Walk tab's time asks for its route too, so the drive call isn't always last)
   it("Move down swaps two stops in the route and the link", async () => {
-    vi.mocked(api.fetchPath).mockResolvedValue(drive);
+    vi.mocked(api.fetchPath).mockResolvedValue(walk);
     const a = { lat: 36.69, lng: 137.84 };
     const b = { lat: 36.695, lng: 137.845 };
     renderShell(
-      `?from=${from}&mode=drive&resort=happo-one&stops=36.69000,137.84000;36.69500,137.84500`,
+      `?from=${from}&mode=walk&resort=happo-one&stops=36.69000,137.84000;36.69500,137.84500`,
     );
     fireEvent.click(
       await screen.findByRole("button", { name: "Move stop 1 down" }),
@@ -654,7 +643,7 @@ describe("MapShell stops", () => {
     );
     await waitFor(() =>
       expect(api.fetchPath).toHaveBeenCalledWith(
-        "drive",
+        "walk",
         [fromCoord, b, a, gondola],
         {
           stopAtPoints: true,
@@ -664,8 +653,8 @@ describe("MapShell stops", () => {
   });
 
   it("Add destination opens a stop box that takes the next map tap; the route goes through it", async () => {
-    vi.mocked(api.fetchPath).mockResolvedValue(drive);
-    renderShell(`?from=${from}&mode=drive&resort=happo-one`);
+    vi.mocked(api.fetchPath).mockResolvedValue(walk);
+    renderShell(`?from=${from}&mode=walk&resort=happo-one`);
     fireEvent.click(
       await screen.findByRole("button", { name: /add destination/i }),
     );
@@ -680,7 +669,7 @@ describe("MapShell stops", () => {
     );
     await waitFor(() =>
       expect(api.fetchPath).toHaveBeenCalledWith(
-        "drive",
+        "walk",
         [fromCoord, stop, gondola],
         { stopAtPoints: true },
       ),
@@ -732,7 +721,7 @@ describe("MapShell saved panel", () => {
 
   it("Go here makes a saved place the destination and closes the panel", async () => {
     savedStore.update((s) => toggleInList(s, onsen, "starred"));
-    renderShell(`?from=${from}&mode=drive`);
+    renderShell(`?from=${from}&mode=walk`);
     act(() => map().onSelectSaved?.("onsen")); // a tapped saved marker opens on it
     expect(savedButton()).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(
@@ -758,7 +747,7 @@ describe("MapShell saved panel", () => {
   });
 
   it("the Saved button toggles the panel in place of the trip lists", async () => {
-    renderShell(`?from=${from}&mode=drive`);
+    renderShell(`?from=${from}&mode=walk`);
     expect(screen.queryByRole("region", { name: "Saved" })).toBeNull();
     fireEvent.click(savedButton());
     expect(screen.getByRole("region", { name: "Saved" })).toBeInTheDocument();
@@ -775,11 +764,11 @@ describe("MapShell keyboard focus", () => {
     name: "Hakuba Happo-One Snow Resort",
     rank: 1,
     sortValue: 463,
-    driveS: 463,
-    driveDistanceM: 2500,
+    walkS: 463,
+    walkDistanceM: 2500,
     accessPointId: "happo-one-adam-gondola",
     factors: {
-      driveTime: 463,
+      walkTime: 463,
       freshSnow: null,
       snowDepth: null,
       crowd: null,
@@ -796,7 +785,7 @@ describe("MapShell keyboard focus", () => {
 
   it("a resort picked from the ranked list hands focus to its ETA, which is announced", async () => {
     vi.mocked(api.fetchRank).mockResolvedValue([ranked]);
-    renderShell(`?from=${from}&mode=drive`);
+    renderShell(`?from=${from}&mode=walk`);
     const card = within(
       await screen.findByRole("list", { name: "Ranked resorts" }),
     ).getByRole("button", { name: /Happo-One/ });
@@ -806,8 +795,16 @@ describe("MapShell keyboard focus", () => {
     expect(await eta()).toHaveAttribute("aria-live", "polite");
   });
 
+  it("Walk still offers the resort picker when the ranking fails", async () => {
+    vi.mocked(api.fetchRank).mockRejectedValue(new Error("routing busy"));
+    renderShell(`?from=${from}&mode=walk`);
+    const picker = await screen.findByRole("combobox", { name: "Resort" });
+    fireEvent.change(picker, { target: { value: "happo-one" } });
+    await waitFor(() => expect(query().get("resort")).toBe("happo-one"));
+  });
+
   it("a resort tapped on the map leaves focus where it was", async () => {
-    renderShell(`?from=${from}&mode=drive`);
+    renderShell(`?from=${from}&mode=walk`);
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectResort("happo-one"));
     await eta();
@@ -816,16 +813,16 @@ describe("MapShell keyboard focus", () => {
 
   it("a mode tab keeps focus when its route appears below it", async () => {
     renderShell(`?from=${from}&mode=bus&resort=happo-one`);
-    const driveTab = await screen.findByRole("tab", { name: /Drive 8 min/ });
-    driveTab.focus();
-    fireEvent.mouseDown(driveTab);
-    fireEvent.click(driveTab);
+    const walkTab = await screen.findByRole("tab", { name: /Walk 11 min/ });
+    walkTab.focus();
+    fireEvent.mouseDown(walkTab);
+    fireEvent.click(walkTab);
     await eta();
-    expect(driveTab).toHaveFocus();
+    expect(walkTab).toHaveFocus();
   });
 
   it("Directions makes the start the destination and puts focus in the empty start box", async () => {
-    renderShell(`?from=${from}&mode=drive`);
+    renderShell(`?from=${from}&mode=walk`);
     const directions = await screen.findByRole("button", {
       name: "Directions",
     });
@@ -839,7 +836,7 @@ describe("MapShell keyboard focus", () => {
   });
 
   it("the start box takes focus once: it stays unfocused when it returns after navigation", async () => {
-    renderShell(`?from=${from}&mode=drive`);
+    renderShell(`?from=${from}&mode=walk`);
     fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
     (document.activeElement as HTMLElement).blur();
     act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
@@ -859,7 +856,7 @@ describe("MapShell ski cards", () => {
     screen.queryByRole("group", { name: "Hakuba Happo-One Snow Resort" });
 
   it("a tapped resort chip opens the resort card and still picks the resort", async () => {
-    renderShell(`?from=${from}&mode=drive`);
+    renderShell(`?from=${from}&mode=walk`);
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectResort("happo-one"));
     expect(map().destination).toEqual(gondola);
@@ -877,7 +874,7 @@ describe("MapShell ski cards", () => {
   });
 
   it("with a stop box open, a resort chip fills the stop and opens no card", async () => {
-    renderShell(`?from=${from}&mode=drive&resort=happo-one`);
+    renderShell(`?from=${from}&mode=walk&resort=happo-one`);
     fireEvent.click(
       await screen.findByRole("button", { name: /add destination/i }),
     );
@@ -889,7 +886,7 @@ describe("MapShell ski cards", () => {
   });
 
   it("the run card's resort name opens the resort card", async () => {
-    renderShell("?mode=drive");
+    renderShell("?mode=walk");
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectSkiLine?.(skyline));
     fireEvent.click(
@@ -906,7 +903,7 @@ describe("MapShell ski cards", () => {
   });
 
   it("a resort chip tap leaves focus where it was", async () => {
-    renderShell("?mode=drive");
+    renderShell("?mode=walk");
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectResort("happo-one"));
     expect(resortCard()).not.toBeNull();
@@ -920,7 +917,7 @@ describe("MapShell ski cards", () => {
   // v1.5: the map frames what the card is about, once its whole lines have loaded (a tap's
   // own geometry is tile-clipped)
   it("a tapped run frames its whole line, a resort card all the resort's lines", async () => {
-    renderShell("?mode=drive");
+    renderShell("?mode=walk");
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectSkiLine?.(skyline));
     await waitFor(() =>
@@ -953,7 +950,7 @@ describe("MapShell ski cards", () => {
   });
 
   it("while navigating, the map frames no ski card; on exit it frames it again", async () => {
-    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectSkiLine?.(skyline));
     await waitFor(() => expect(map().skiFocus?.key).toBe("r1"));
@@ -966,7 +963,7 @@ describe("MapShell ski cards", () => {
   });
 
   it("moving over the run's profile puts the ring on the map; closing the card clears it", async () => {
-    renderShell("?mode=drive");
+    renderShell("?mode=walk");
     await waitFor(() => expect(mapProps).not.toBeNull());
     act(() => map().onSelectSkiLine?.(skyline));
     const chart = await screen.findByRole("slider", {

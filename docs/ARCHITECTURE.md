@@ -17,11 +17,11 @@ Google Maps link.
 1. **"How do I get to the slopes by bus?"** You search for your hotel ("tokyu", or 白馬東急) and open 🚌.
    The app shows the walk to the nearest shuttle stop, the next 3 departures, and when each bus
    reaches each resort. When this season's timetable isn't out yet, times are labelled **Expected**.
-2. **"Which resort should I drive to today?"** In 🚗 all 10 resorts are ranked by the one thing you
-   care about: drive time, fresh snow, snow depth, crowd level, terrain size or vertical drop.
-   Each row shows the drive ETA, the snow, and an estimated crowd badge with its reasons.
+2. **"Which resort should I go to today?"** In 🚶 all 10 resorts are ranked by the one thing you
+   care about: walk time, fresh snow, snow depth, crowd level, terrain size or vertical drop.
+   Each row shows the walk ETA, the snow, and an estimated crowd badge with its reasons.
    Tapping a row draws the route.
-3. **"Where can I eat, and how far is it?"** In 🚗 or 🚶, pick a restaurant or a konbini and get a
+3. **"Where can I eat, and how far is it?"** In 🚶, pick a restaurant or a konbini and get a
    route with an ETA. You can add stops along the way.
 4. **"Guide me there."** On a phone, **Start** turns the route into turn-by-turn navigation from
    live GPS. It reroutes when you leave the route and, on the bus, says when to get off. When you
@@ -38,11 +38,11 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 |---|---|---|---|---|
 | [resort-catalog](../SPEC-resort-catalog.md) | The 10 resorts, their lift bases and 100 bus stops on the map | `components/MapView.tsx` | `catalog/`, `GET /api/resorts` | Shipped |
 | [place-search](../SPEC-place-search.md) | Find a hotel or place, or paste a Google Maps link, to set the start | `components/SearchBox.tsx`, `lib/recent-searches.ts` | `places/` (`index.py` local index, `photon.py` fallback, `gmaps_link.py`), `/api/places/suggest`, `/search`, `/lodging` | Shipped |
-| [routing](../SPEC-routing.md) | Drive and walk routes, ETAs, turn list | `components/DirectionsPanel.tsx`, `lib/route-geo.ts` | `routing/` (Valhalla client), `/api/route`, `/routes`, `/route/path`, `/matrix` | Shipped |
+| [routing](../SPEC-routing.md) | Walk routes, ETAs, turn list; the bus's road path | `components/DirectionsPanel.tsx`, `lib/route-geo.ts` | `routing/` (Valhalla client), `/api/route`, `/routes`, `/route/path`, `/matrix` | Shipped |
 | [snow-conditions](../SPEC-snow-conditions.md) | Snow depth and new snow per resort | shown in `components/ResortList.tsx` | `snow/` (Open-Meteo, 1 h cache), `GET /api/snow` | Partly built: model only, the "reported" source isn't built |
 | [crowd-level](../SPEC-crowd-level.md) | "Crowd: high (est.)" with reasons | shown in `components/ResortList.tsx` | `crowd/heuristic.py`, `GET /api/crowd` (unused by the web) | Shipped (heuristic v1) |
 | [bus-schedules](../SPEC-bus-schedules.md) | Next shuttle from the nearest stop, way back to a place, night bus | `components/BusPanel.tsx`, `StopList.tsx` | `bus/` (`query.py`, `season.py`, `check_sources.py`), `/api/bus/options`, `/to-place`, `/night` | Shipped |
-| [resort-ranking](../SPEC-resort-ranking.md) | Resorts sorted by one chosen factor | `components/DrivePanel.tsx`, `SortControls.tsx`, `ResortList.tsx` | `ranking/`, `GET /api/rank` | Partly built: prices known for 9 of 10 resorts, so the web still hides the price sort; night skiing known for 5 of 10 |
+| [resort-ranking](../SPEC-resort-ranking.md) | Resorts sorted by one chosen factor | `components/RankingPanel.tsx`, `SortControls.tsx`, `ResortList.tsx` | `ranking/`, `GET /api/rank` | Partly built: prices known for 9 of 10 resorts, so the web still hides the price sort; night skiing known for 5 of 10 |
 | [poi-destinations](../SPEC-poi-destinations.md) | Restaurants and konbini as destinations | `components/PoiList.tsx`, `DestinationPicker.tsx` | `pois/`, `GET /api/pois/nearby` | Shipped |
 | [saved-places](../SPEC-saved-places.md) | Star places, lists, "My hotel", share link | `components/SavedPanel.tsx`, `SaveButton.tsx`, `lib/saved-places.ts`, `lib/saved-share.ts` | — (browser only) | Shipped |
 | [pilot](../SPEC-pilot.md) | Turn-by-turn navigation from GPS, bus guidance | `components/PilotView.tsx`, `BusPilotView.tsx`, `lib/nav/` | uses `/api/route/path` for reroutes | Shipped; the real-phone walk test is still open |
@@ -147,11 +147,11 @@ committed files plus the local tiles after a hash check.
 
 ## 4. One request end to end: the crowd level
 
-What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the sort menu.
+What happens when a skier opens 🚶 Walk and taps **Crowd (estimated)** in the sort menu.
 
 **In the browser**
 
-1. `components/SortControls.tsx` (inside `DrivePanel.tsx`) changes the sort to `crowd`.
+1. `components/SortControls.tsx` (inside `RankingPanel.tsx`) changes the sort to `crowd`.
 2. `components/MapShell.tsx` holds the options; its TanStack Query `useQuery(["rank", origin, rankOptions])`
    sees a new key and runs `fetchRank`. `placeholderData` keeps the old list on screen meanwhile.
 3. `lib/api.ts` `fetchRank` calls `GET /api/rank?from=36.70,137.86&sort=crowd&date=…`.
@@ -174,7 +174,7 @@ What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the
 
 **In the API** (`ranking/router.py` `get_rank`, three inputs gathered with FastAPI `Depends`)
 
-6. **Drive times.** `routing/client.py` sends one matrix request to Valhalla: the start → every
+6. **Walk times.** `routing/client.py` sends one walking matrix request to Valhalla: the start → every
    resort's lift bases. The nearest base per resort is kept.
 7. **Snow.** `crowd/router.py` `get_snow_by_resort` → `snow/router.py` (1 h `TtlCache`) →
    Open-Meteo. If Open-Meteo is down, crowd is still computed, just without the powder factor.
@@ -184,7 +184,7 @@ What happens when a skier opens 🚗 Drive and taps **Crowd (estimated)** in the
    (≥ 20 cm new: +0.15) + a fixed resort prior (Happo-One 0.25 … Jigatake 0) − 0.15 at the
    season's edges. It clamps the result to 0–1 and maps it to a level
    (< 0.3 low, < 0.55 medium, < 0.8 high, else very high). Every non-zero term becomes a reason.
-9. `ranking/rank.py` `rank` sorts by the crowd score (lower is better; unknowns last; drive
+9. `ranking/rank.py` `rank` sorts by the crowd score (lower is better; unknowns last; walk
    time breaks ties) and returns `RankedResort` objects, serialised as camelCase JSON.
 
 **Back in the browser**
@@ -196,7 +196,7 @@ A worked example (run against the real code): Happo-One on Saturday 14 Feb 2026 
 0.30 (Saturday) + 0.25 (Lunar New Year week) + 0.25 (large resort) = **0.80, very high**.
 Jigatake on Wednesday 18 Feb scores 0.25, **low**, with "Lunar New Year week" as its only reason.
 
-If Valhalla is down, `/api/rank` returns 503 (`routing_unavailable`) and the Drive panel shows an
+If Valhalla is down, `/api/rank` returns 503 (`routing_unavailable`) and the ranked list shows an
 error. Crowd disappears with it, even though the crowd estimate itself doesn't need Valhalla,
 because the two travel in one response. Each panel fetches on its own, so one panel's error
 doesn't blank the others.

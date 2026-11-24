@@ -23,7 +23,7 @@ import { devOnly } from "../dev-only";
 // A dropped pin ~800 m from the Happo bus terminal: a walk, then a ride (Line V).
 const FROM = "36.6985,137.8376";
 const BUS = `/?from=${FROM}&mode=bus`;
-const DRIVE = `/?from=${FROM}&mode=drive&resort=happo-one`;
+const TRIP = `/?from=${FROM}&mode=walk&resort=happo-one`;
 const TOMORROW_8 = "2027-01-15T08:00";
 // "today" for the in-season journeys: the evening before
 const EVE = new Date("2027-01-14T20:00:00+09:00");
@@ -233,17 +233,17 @@ for (const [device, options] of Object.entries(DEVICES)) {
       expect(minutesOf(await headline.innerText())).toBeGreaterThanOrEqual(30);
     });
 
-    test("one trip time: the bus time is the Drive date, and both are in the URL", async ({
+    test("one trip time: the bus time is the Walk date, and both are in the URL", async ({
       page,
     }) => {
-      // known: C — Drive's Date stays empty after setting the bus to Jan 15; the URL has no time
+      // known: C — Walk's Date stays empty after setting the bus to Jan 15; the URL has no time
       test.fail(true, "known: C");
       await openBus(page, EVE);
       await busAt(page, TOMORROW_8);
       await expect
         .poll(() => page.url(), { timeout: 5_000 })
         .toContain("2027-01-15");
-      await page.getByRole("tab", { name: /Drive/ }).click();
+      await page.getByRole("tab", { name: /Walk/ }).click();
       await expect(page.getByLabel("Date")).toHaveValue("2027-01-15");
     });
 
@@ -270,7 +270,7 @@ for (const [device, options] of Object.entries(DEVICES)) {
       // known: C2 — "Arrive ~" is computed from the page-load time and never updates
       test.fail(true, "known: C2");
       await page.clock.install({ time: new Date("2027-01-15T07:50:00+09:00") });
-      await page.goto(DRIVE);
+      await page.goto(TRIP);
       const arrive = page.getByText(/Arrive ~ \d\d:\d\d/).first();
       await expect(arrive).toBeVisible({ timeout: 30_000 });
       // the route has settled (a later primary/alternate swap is not "time moving on")
@@ -391,7 +391,7 @@ test.describe("laptop 1440, off-season ranking", () => {
     // known: H — off-season: "Crowd: high (est.)" next to "0 cm new · 0 cm summit"
     test.fail(true, "known: H");
     await page.clock.install({ time: OFF_SEASON });
-    await page.goto(`/?from=${FROM}&mode=drive`);
+    await page.goto(`/?from=${FROM}&mode=walk`);
     await expect(page.getByText(/0 cm new/).first()).toBeVisible({
       timeout: 30_000,
     });
@@ -449,7 +449,7 @@ for (const device of ["phone", "laptop 1440"]) {
   test.describe(`${device}, bus API trouble`, () => {
     test.use(DEVICES[device]);
 
-    test("a failing bus API is reported in place; Drive still works", async ({
+    test("a failing bus API is reported in place; Walk still works", async ({
       page,
     }) => {
       await page.route("**/api/bus/options**", (r) =>
@@ -459,8 +459,8 @@ for (const device of ["phone", "laptop 1440"]) {
       await expect(page.getByText(/Couldn't load shuttle times/)).toBeAttached({
         timeout: 20_000,
       });
-      await page.getByRole("tab", { name: /Drive/ }).click();
-      // the ranked list (each card's drive ETA) is Drive's answer
+      await page.getByRole("tab", { name: /Walk/ }).click();
+      // the ranked list (each card's walk ETA) is Walk's answer
       await expect(
         page
           .getByText(/\d+ min/)

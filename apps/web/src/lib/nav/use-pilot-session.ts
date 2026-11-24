@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import type { PanelMode } from "@/components/ModePanel";
 import type { BusOption, Coord, Resort, Route } from "@/lib/api";
 import { fetchPath, fetchRoutes } from "@/lib/api";
 import { simulateRequested, usePilotAvailable } from "@/lib/device";
@@ -33,7 +32,7 @@ const PILOT_HIDDEN_STOP_MS = 10 * 60_000;
 const FAR_FROM_STOP =
   "Bus guidance works near the start. You're far from it right now.";
 /** Preview, and `?simulate` in dev builds: replay the route at these speeds. */
-const SIMULATED_MPS = { drive: 15, walk: 5 } as const;
+const SIMULATED_MPS = { bus: 15, walk: 5 } as const;
 
 /**
  * A navigation session (SPEC-pilot): Start freezes the planner's route, GPS (or a
@@ -42,7 +41,6 @@ const SIMULATED_MPS = { drive: 15, walk: 5 } as const;
  * waits, rides and arrives with the bus.
  */
 export function usePilotSession({
-  mode,
   resorts,
   routes,
   activeRoute,
@@ -51,7 +49,6 @@ export function usePilotSession({
   busChoice,
   rideRoute,
 }: {
-  mode: PanelMode;
   resorts: Resort[] | undefined;
   /** the planner's route options, and the one chosen */
   routes: Route[];
@@ -189,7 +186,7 @@ export function usePilotSession({
         busPlan && busPhase === "ride"
           ? { bus: coveredKm(busState.alongM, busPlan.line.totalM) }
           : {
-              [busPlan || mode === "walk" ? "walk" : "drive"]:
+              walk:
                 busPlan && walkIsLine.current
                   ? 0
                   : coveredKm(along, pilot.route.totalM),
@@ -247,7 +244,7 @@ export function usePilotSession({
     tripCounted.current = true;
     // stats: a navigated trip that arrived
     const km = tripKm({
-      mode: busPlan ? "bus" : mode === "walk" ? "walk" : "drive",
+      mode: busPlan ? "bus" : "walk",
       routeM: pilot.route?.totalM ?? 0,
       bus: busPlan
         ? {

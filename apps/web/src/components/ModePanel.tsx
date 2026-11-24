@@ -9,12 +9,12 @@ import { formatDistance, formatDuration } from "@/lib/format";
 
 export type PanelMode = Mode | "bus";
 
-/** "Drive" plus its time; on phones only the icon and time show, as in Google's mode row (v1.24) */
+/** "Walk" plus its time; on phones only the icon and time show, as in Google's mode row (v1.24) */
 const tabLabel = (word: string, seconds: number | undefined) =>
   seconds === undefined ? (
     word
   ) : (
-    // spaces outside the spans: inside them, the tab's name reads "Drive8 min"
+    // spaces outside the spans: inside them, the tab's name reads "Walk8 min"
     <>
       <span className="max-sm:sr-only">{word}</span>{" "}
       <span className="text-xs">{formatDuration(seconds)}</span>
@@ -46,17 +46,17 @@ export type ModePanelProps = {
   tripFirst?: boolean;
   /** Departure used for "Arrive ~"; defaults to now. */
   departAt?: Date;
-  /** Drive mode: ranked resort list replacing the plain picker. */
-  drivePanel?: ReactNode;
-  /** Drive/walk: segmented control choosing resorts, food or konbini. */
+  /** Walk mode: ranked resort list replacing the plain picker. */
+  rankingPanel?: ReactNode;
+  /** Walk: segmented control choosing resorts, food or konbini. */
   destinationPicker?: ReactNode;
-  /** Drive/walk: the nearby-places list, shown instead of resorts when set. */
+  /** Walk: the nearby-places list, shown instead of resorts when set. */
   poiPanel?: ReactNode;
   /** Bus mode: shuttle options; the route shown is the walk to the chosen stop. */
   busPanel?: ReactNode;
   /** From/To with Save stars, shown under the tabs once there is an origin. */
   placeStrip?: ReactNode;
-  /** Drive/walk: start turn-by-turn navigation on the active route. */
+  /** Walk: start turn-by-turn navigation on the active route. */
   onStart?: () => void;
   startKind?: "start" | "preview";
 };
@@ -85,7 +85,7 @@ export function ModePanel({
   durations = {},
   tripFirst = false,
   departAt,
-  drivePanel,
+  rankingPanel,
   destinationPicker,
   poiPanel,
   busPanel,
@@ -115,13 +115,9 @@ export function ModePanel({
         onValueChange={(value) => onModeChange(value as PanelMode)}
       >
         <TabsList aria-label="Travel mode" className="w-full">
-          {/* the emoji are pictures of the word beside them: a screen reader reads "Drive 8 min" */}
+          {/* the emoji are pictures of the word beside them: a screen reader reads "Walk 8 min" */}
           <TabsTrigger value="bus" disabled={!busPanel}>
             <span aria-hidden="true">🚌</span> Bus
-          </TabsTrigger>
-          <TabsTrigger value="drive">
-            <span aria-hidden="true">🚗</span>{" "}
-            {tabLabel("Drive", durations.drive)}
           </TabsTrigger>
           <TabsTrigger value="walk">
             <span aria-hidden="true">🚶</span>{" "}
@@ -150,10 +146,10 @@ export function ModePanel({
           {placeStrip}
           <RouteSummary mode="walk" route={route} />
         </>
-      ) : mode === "drive" && drivePanel ? (
+      ) : mode === "walk" && rankingPanel ? (
         <>
           {destinationPicker}
-          {poiPanel ?? drivePanel}
+          {poiPanel ?? rankingPanel}
         </>
       ) : (
         <>
@@ -204,7 +200,7 @@ function RouteSummary({ mode, route }: { mode: PanelMode; route: RouteState }) {
       </p>
       {mode === "walk" && durationS > LONG_WALK_S && (
         <p className="text-sm text-amber-700">
-          That's a long walk — consider the bus or driving.
+          That's a long walk — consider the bus.
         </p>
       )}
       <details>

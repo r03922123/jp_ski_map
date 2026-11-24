@@ -5,7 +5,7 @@ export type RankOptions = {
   sort: SortKey;
   /** YYYY-MM-DD, null = today */
   date: string | null;
-  maxDriveMin: number | null;
+  maxWalkMin: number | null;
   nightSkiing: boolean;
   hvPass: boolean;
 };
@@ -15,9 +15,9 @@ export type DestinationCategory = "resorts" | PoiCategory;
 
 /**
  * The shareable part of the view:
- * `?from=lat,lng&mode=drive&resort=happo-one&sort=…`, or for a place
+ * `?from=lat,lng&mode=walk&resort=happo-one&sort=…`, or for a place
  * `?from=…&mode=walk&cat=convenience&dest=poi:osm:node/123`, or any point
- * (a saved place's "Go here") `?from=…&mode=drive&dest=pt:36.70001,137.85002`.
+ * (a saved place's "Go here") `?from=…&mode=walk&dest=pt:36.70001,137.85002`.
  */
 export type ViewState = {
   origin: Coord | null;
@@ -28,7 +28,7 @@ export type ViewState = {
   rank: RankOptions;
   /** A free destination point; when set it wins over resort/place. */
   point: Coord | null;
-  /** Stops between the start and the destination, in order (drive/walk). */
+  /** Stops between the start and the destination, in order (walk). */
   stops: Coord[];
 };
 
@@ -40,7 +40,7 @@ export type ViewState = {
  * would rank them wrongly. The API still accepts it.
  */
 export const SORT_KEYS: readonly SortKey[] = [
-  "drive_time",
+  "walk_time",
   "fresh_snow",
   "snow_depth",
   "crowd",
@@ -49,14 +49,14 @@ export const SORT_KEYS: readonly SortKey[] = [
 ];
 
 export const DEFAULT_RANK: RankOptions = {
-  sort: "drive_time",
+  sort: "walk_time",
   date: null,
-  maxDriveMin: null,
+  maxWalkMin: null,
   nightSkiing: false,
   hvPass: false,
 };
 
-const MODES: readonly PanelMode[] = ["bus", "drive", "walk"];
+const MODES: readonly PanelMode[] = ["bus", "walk"];
 const CATEGORIES: readonly DestinationCategory[] = [
   "resorts",
   "food",
@@ -80,11 +80,11 @@ function parseCoord(value: string | null): Coord | null {
 function parseRank(params: URLSearchParams): RankOptions {
   const sort = params.get("sort") as SortKey | null;
   const date = params.get("date");
-  const maxDrive = Number(params.get("maxDrive"));
+  const maxWalk = Number(params.get("maxWalk"));
   return {
     sort: sort && SORT_KEYS.includes(sort) ? sort : DEFAULT_RANK.sort,
     date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null,
-    maxDriveMin: maxDrive > 0 ? maxDrive : null,
+    maxWalkMin: maxWalk > 0 ? maxWalk : null,
     nightSkiing: params.get("night") === "1",
     hvPass: params.get("hvPass") === "1",
   };
@@ -100,7 +100,7 @@ export function parseViewState(search: string): ViewState {
   const destId = rest.join(":");
   return {
     origin: parseCoord(params.get("from")),
-    mode: mode && MODES.includes(mode) ? mode : "drive",
+    mode: mode && MODES.includes(mode) ? mode : "walk",
     resortId:
       (kind === "resort" && destId ? destId : null) ??
       (params.get("resort") || null),
@@ -149,7 +149,7 @@ export function serializeViewState({
   // only non-default rank options, so ordinary links stay short
   if (rank.sort !== DEFAULT_RANK.sort) params.set("sort", rank.sort);
   if (rank.date) params.set("date", rank.date);
-  if (rank.maxDriveMin) params.set("maxDrive", String(rank.maxDriveMin));
+  if (rank.maxWalkMin) params.set("maxWalk", String(rank.maxWalkMin));
   if (rank.nightSkiing) params.set("night", "1");
   if (rank.hvPass) params.set("hvPass", "1");
   return `?${params}`;

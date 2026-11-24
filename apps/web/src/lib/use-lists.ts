@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import type { RankingState } from "@/components/DrivePanel";
 import type { PanelMode } from "@/components/ModePanel";
 import type { PoiListState } from "@/components/PoiList";
+import type { RankingState } from "@/components/RankingPanel";
 import {
   type Bbox,
   type Coord,
@@ -27,7 +27,7 @@ export function useLodging(view: { bbox: Bbox; zoom: number } | null) {
   return showLodging ? (lodging.data ?? []) : [];
 }
 
-/** Drive mode's resort ranking from the start. */
+/** Walk mode's resort ranking from the start. */
 export function useRanking(
   mode: PanelMode,
   origin: Coord | null,
@@ -36,7 +36,7 @@ export function useRanking(
   const ranking = useQuery({
     queryKey: ["rank", origin, rankOptions],
     queryFn: () => fetchRank(origin!, rankOptions),
-    enabled: mode === "drive" && origin !== null,
+    enabled: mode === "walk" && origin !== null,
     retry: false,
     placeholderData: (previous) => previous, // keep the list while re-sorting
   });
@@ -49,7 +49,7 @@ export function useRanking(
   return { ranking, rankingState };
 }
 
-/** Food / konbini destinations near the start (drive and walk only; shuttles serve resorts). */
+/** Food / konbini destinations near the start (walk only; shuttles serve resorts). */
 export function usePois({
   mode,
   routeMode,

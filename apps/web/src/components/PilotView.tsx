@@ -21,7 +21,7 @@ const ERROR_TEXT: Record<PositionError, string> = {
 
 type Props = {
   status: PilotStatus;
-  mode: "drive" | "walk";
+  mode: "bus" | "walk";
   /** false once the user panned the map away from their position */
   following: boolean;
   reroute?: RerouteState;
@@ -188,7 +188,7 @@ export function PilotView({
                   {formatDistance(guidance.remainingM)}
                   <span className="text-muted-foreground">
                     {" "}
-                    · {mode === "drive" ? "🚗" : "🚶"}
+                    · {mode === "bus" ? "🚌" : "🚶"}
                   </span>
                 </p>
               </>

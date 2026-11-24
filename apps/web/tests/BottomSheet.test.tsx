@@ -49,7 +49,7 @@ describe("BottomSheet", () => {
 
   it("a new route collapses an expanded sheet; losing the route leaves it", () => {
     const view = render(
-      <BottomSheet label="Directions" revealKey="drive|a">
+      <BottomSheet label="Directions" revealKey="walk|a">
         <p>list</p>
       </BottomSheet>,
     );
@@ -61,7 +61,7 @@ describe("BottomSheet", () => {
     );
     expect(sheet()).toHaveAttribute("data-state", "expanded");
     view.rerender(
-      <BottomSheet label="Directions" revealKey="walk|a">
+      <BottomSheet label="Directions" revealKey="walk|b">
         <p>list</p>
       </BottomSheet>,
     );
@@ -423,7 +423,7 @@ describe("BottomSheet", () => {
       expect(sheet()).not.toHaveAttribute("data-panel");
       fireEvent.click(toggle(/^Collapse side panel$/));
       view.rerender(
-        <BottomSheet label="Directions" raiseKey="saved" revealKey="drive|a">
+        <BottomSheet label="Directions" raiseKey="saved" revealKey="walk|a">
           <p>list</p>
         </BottomSheet>,
       );

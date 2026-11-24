@@ -3,7 +3,7 @@ import { expect, type Page, test } from "@playwright/test";
 // SPEC-progression v1.6: stamps come only from being at a resort.
 const HAPPO_BASE = { latitude: 36.70179, longitude: 137.83683 };
 const HOTEL = { latitude: 36.69711, longitude: 137.85393 }; // ~1.6 km away
-const DRIVE = "/?from=36.69711,137.85393&mode=drive";
+const TRIP = "/?from=36.69711,137.85393&mode=walk";
 
 async function checkInAtHappo(page: Page) {
   const card = page
@@ -20,7 +20,7 @@ test.describe("check in at the base", () => {
   test("earns the stamp once, then logs today's visit only once", async ({
     page,
   }) => {
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     const card = await checkInAtHappo(page);
     await expect(page.getByText("Stamp earned!")).toBeVisible({
       timeout: 15_000,
@@ -54,7 +54,7 @@ test.describe("check in from the hotel", () => {
   test.use({ permissions: ["geolocation"], geolocation: HOTEL });
 
   test("too far: says how far, and stamps nothing", async ({ page }) => {
-    await page.goto(DRIVE);
+    await page.goto(TRIP);
     const card = await checkInAtHappo(page);
     await expect(
       card.getByText(/You're 1\.\d km from Hakuba Happo-One/),
@@ -73,7 +73,7 @@ test.describe("a trip that ends at the base", () => {
     isMobile: true,
     hasTouch: true,
     permissions: ["geolocation"],
-    geolocation: { latitude: 36.70052, longitude: 137.84132 }, // ~400 m east of the base
+    geolocation: { latitude: 36.70052, longitude: 137.84132 }, // a few hundred m from both Happo-One entrances
   });
 
   test("navigating there and arriving earns the stamp", async ({
@@ -91,9 +91,9 @@ test.describe("a trip that ends at the base", () => {
         timeout: 15_000,
       },
     );
-    // arrive where the route really ends (the app routes to this base)
+    // arrive where the route really ends (the walk ranking's nearest entrance, Nakiyama)
     const res = await page.request.get(
-      "http://127.0.0.1:8010/api/routes?mode=walk&from=36.70052,137.84132&to=36.70179,137.83683",
+      "http://127.0.0.1:8010/api/routes?mode=walk&from=36.70052,137.84132&to=36.69824,137.83881",
     );
     const line: [number, number][] = (await res.json()).primary.geometry
       .coordinates;
@@ -120,7 +120,7 @@ test.describe("a trip that ends at the base", () => {
     );
     expect(stats.trips).toBe(1);
     expect(stats.km.walk).toBeGreaterThan(0.3);
-    expect(stats.km.drive).toBe(0);
+    expect(stats.km.bus).toBe(0);
   });
 });
 

@@ -4,7 +4,7 @@ Usage: `python -m hakuba_api.bus.locate_stops [--write]`
 
 Evidence (data/bus/stop_evidence.json) is gathered by hand, like transcription: an address
 from a booking/official page (geocoded via GSI, only when GSI matches the lot number) or an
-OSM point. Every candidate must then survive the timetables: a car (Valhalla) must not need
+OSM point. Every candidate must then survive the timetables: Valhalla's bus routing must not need
 much longer than the bus between neighbouring timed stops, and neighbouring untimed pickup
 stops must be close. Coordinates that fail stay unresolved instead of being guessed.
 """
@@ -26,7 +26,7 @@ from hakuba_api.common.upstream import USER_AGENT
 
 GSI_URL = "https://msearch.gsi.go.jp/address-search/AddressSearch"
 
-SLACK_FACTOR = 1.5  # bus gap × 1.5 + 3 min covers traffic-free car vs bus differences
+SLACK_FACTOR = 1.5  # bus gap × 1.5 + 3 min covers traffic-free routing vs real bus differences
 SLACK_S = 180
 MAX_UNTIMED_KM = 8.0
 CORROBORATE_KM = 1.0  # a geocoded point must sit near a trusted stop on one of its routes
@@ -109,7 +109,7 @@ def find_violations(
     legs: set[RouteLeg] | list[RouteLeg],
     coords: dict[str, Coord],
     new: set[str],
-    drive_s: Callable[[Coord, Coord], float],
+    road_s: Callable[[Coord, Coord], float],
     serves_resort: set[str],
 ) -> dict[str, str]:
     """Stop id -> reason, blaming only newly located stops (anchors are trusted)."""
@@ -119,10 +119,10 @@ def find_violations(
             continue
         a, b = coords[leg.a], coords[leg.b]
         if leg.scheduled_s is not None:
-            seconds = drive_s(a, b)
+            seconds = road_s(a, b)
             if seconds > leg.scheduled_s * SLACK_FACTOR + SLACK_S:
                 reason = (
-                    f"car needs {round(seconds / 60)} min to {leg.a if leg.b in new else leg.b}"
+                    f"a bus needs {round(seconds / 60)} min to {leg.a if leg.b in new else leg.b}"
                     f" but the bus is scheduled {round(leg.scheduled_s / 60)} min"
                 )
             else:
@@ -222,16 +222,16 @@ def main(write: bool) -> int:
 
     valhalla = get_valhalla()
 
-    def drive_s(a: Coord, b: Coord) -> float:
+    def road_s(a: Coord, b: Coord) -> float:
         try:
-            return valhalla.route("drive", a, b).duration_s
+            return valhalla.route("bus", a, b).duration_s
         except NoRouteError:
             return math.inf
 
     legs = legs_from_timetables(load_timetables(), alias)
     serves = {s.id for s in stops if s.serves_resort_id}
     all_coords = {**coords, **{k: v[0] for k, v in candidates.items()}}
-    violations = find_violations(legs, all_coords, set(candidates), drive_s, serves)
+    violations = find_violations(legs, all_coords, set(candidates), road_s, serves)
     rejected.update(violations)
     accepted = {k: v for k, v in candidates.items() if k not in violations}
 

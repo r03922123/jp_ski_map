@@ -96,7 +96,7 @@ export function DirectionsPanel({
 
         {route.mode === "walk" && route.durationS > LONG_WALK_S && (
           <p className="text-sm text-amber-700">
-            That's a long walk — consider the bus or driving.
+            That's a long walk — consider the bus.
           </p>
         )}
 

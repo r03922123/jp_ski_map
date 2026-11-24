@@ -1,7 +1,7 @@
 import { expect, type Page, type Route, test } from "@playwright/test";
 
 /**
- * Resilience matrix: the core journey (start → destination → route → Drive/Walk/Bus →
+ * Resilience matrix: the core journey (start → destination → route → Walk/Bus →
  * touch Start) with ONE failure injected at a time. Every test asserts the GOOD
  * behaviour (SPEC-web-app: "Each upstream error is shown inside its own panel"):
  * an explanation in place, the other panels keep working, no whole-app crash, no
@@ -22,7 +22,7 @@ import { expect, type Page, type Route, test } from "@playwright/test";
  */
 
 const FROM = "36.6985,137.8376";
-const JOURNEY = `/?from=${FROM}&mode=drive&resort=happo-one`;
+const JOURNEY = `/?from=${FROM}&mode=walk&resort=happo-one`;
 const BUS = "/?from=36.69711,137.85393&mode=bus";
 const WALK_NEAR = "/?from=36.69400,137.86900&mode=walk&resort=happo-one";
 
@@ -140,7 +140,7 @@ const PANEL: Record<
     explanation: /shuttle|bus/i,
     pending: /Finding buses/,
     othersWork: async (page) => {
-      await page.getByRole("tab", { name: /drive/i }).click();
+      await page.getByRole("tab", { name: /walk/i }).click();
       await expect(ranked(page)).toBeVisible({ timeout: 20_000 });
     },
   },
@@ -405,11 +405,11 @@ test.describe("invalid URL states are explained, and the app stays usable", () =
   test.use(LAPTOP);
   const cases = [
     // known: R15 — an out-of-range start is dropped silently from the URL
-    { q: "?from=999,999&mode=drive&resort=happo-one", known: "R15" },
+    { q: "?from=999,999&mode=walk&resort=happo-one", known: "R15" },
     // known: R15 — an unknown resort id is ignored silently (and kept in the URL)
-    { q: `?from=${FROM}&mode=drive&resort=nope`, known: "R15" },
+    { q: `?from=${FROM}&mode=walk&resort=nope`, known: "R15" },
     // known: R15 — an unparsable dest=pt: is dropped silently
-    { q: `?from=${FROM}&mode=drive&dest=pt:abc`, known: "R15" },
+    { q: `?from=${FROM}&mode=walk&dest=pt:abc`, known: "R15" },
   ];
   for (const c of cases) {
     test(`${c.q} says the link was partly unreadable`, async ({ page }) => {
@@ -423,9 +423,9 @@ test.describe("invalid URL states are explained, and the app stays usable", () =
     });
   }
 
-  test("mode=fly falls back to Drive and still routes", async ({ page }) => {
+  test("mode=fly falls back to Walk and still routes", async ({ page }) => {
     await page.goto(`/?from=${FROM}&mode=fly&resort=happo-one`);
-    await expect(page.getByRole("tab", { name: /drive/i })).toHaveAttribute(
+    await expect(page.getByRole("tab", { name: /walk/i })).toHaveAttribute(
       "aria-selected",
       "true",
       { timeout: 20_000 },

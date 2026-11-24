@@ -4,7 +4,6 @@ import { expect, type Page, test } from "@playwright/test";
 // button: the trip's answer and its main action. Measured on screen and hit-tested,
 // so a control drawn under something else doesn't count.
 const WALK = "/?from=36.69400,137.86900&mode=walk&resort=happo-one";
-const DRIVE = "/?from=36.6985,137.8376&mode=drive&resort=happo-one";
 
 async function visibleAndOnTop(page: Page, name: RegExp | string) {
   const el =
@@ -38,10 +37,7 @@ for (const [label, size] of [
   test.describe(label, () => {
     test.use({ viewport: size, isMobile: true, hasTouch: true });
 
-    for (const [mode, url] of [
-      ["walk", WALK],
-      ["drive", DRIVE],
-    ]) {
+    for (const [mode, url] of [["walk", WALK]]) {
       test(`${mode}: ETA and Start show in the collapsed sheet`, async ({
         page,
       }) => {

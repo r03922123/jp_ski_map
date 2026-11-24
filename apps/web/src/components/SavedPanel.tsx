@@ -19,7 +19,7 @@ type Props = {
   onStartFrom: (place: SavedPlace) => void;
   onGoHere: (place: SavedPlace) => void;
   onClose: () => void;
-  /** "Go here" needs drive or walk mode; shuttles only serve resorts. */
+  /** "Go here" needs walk mode; shuttles only serve resorts. */
   canGoHere: boolean;
   /** Open straight to this place (a saved marker tapped on the map). */
   focusId?: string | null;
@@ -261,7 +261,7 @@ function PlaceItem({
         <button
           type="button"
           disabled={!canGoHere}
-          title={canGoHere ? undefined : "Switch to Drive or Walk"}
+          title={canGoHere ? undefined : "Switch to Walk"}
           className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
           onClick={() => onGoHere(place)}
         >

@@ -36,13 +36,13 @@ const happo: Resort = {
 
 function route(overrides: Partial<Route> = {}): Route {
   return {
-    mode: "drive",
+    mode: "walk",
     durationS: 172,
     distanceM: 837,
     geometry: { type: "LineString", coordinates: [] },
     steps: [
       {
-        instruction: "Drive south.",
+        instruction: "Walk south.",
         distanceM: 20,
         durationS: 9,
         maneuver: "depart",
@@ -57,7 +57,7 @@ function route(overrides: Partial<Route> = {}): Route {
 
 function renderPanel(overrides: Partial<ModePanelProps> = {}) {
   const props: ModePanelProps = {
-    mode: "drive",
+    mode: "walk",
     onModeChange: vi.fn(),
     resorts: [happo],
     selectedResortId: "happo-one",
@@ -109,22 +109,26 @@ describe("ModePanel", () => {
   it("lists the turn-by-turn steps", () => {
     renderPanel();
 
-    expect(screen.getByText("Drive south.")).toBeInTheDocument();
+    expect(screen.getByText("Walk south.")).toBeInTheDocument();
   });
 
   it("switches mode when the Walk tab is chosen", () => {
-    const props = renderPanel();
+    const props = renderPanel({
+      mode: "bus",
+      busPanel: <div>Bus options</div>,
+    });
 
     fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
 
     expect(props.onModeChange).toHaveBeenCalledWith("walk");
   });
 
-  // a11y review: an unnamed tablist, and each tab read its emoji ("automobile Drive")
-  it("the mode tabs are a named tablist whose tabs read their word and time", () => {
-    renderPanel({ durations: { drive: 463, walk: 686 } });
+  // a11y review: an unnamed tablist, and each tab read its emoji ("pedestrian Walk")
+  it("the mode tabs are a named tablist of Bus and Walk, read as their word and time", () => {
+    renderPanel({ durations: { walk: 686 } });
     const tabs = within(screen.getByRole("tablist", { name: "Travel mode" }));
-    for (const name of ["Bus", "Drive 8 min", "Walk 11 min"])
+    expect(tabs.getAllByRole("tab")).toHaveLength(2);
+    for (const name of ["Bus", "Walk 11 min"])
       expect(tabs.getByRole("tab", { name })).toBeInTheDocument();
   });
 
@@ -183,9 +187,9 @@ describe("ModePanel", () => {
     ).toBe(true);
   });
 
-  it("Drive shows the ETA before the trip list", () => {
+  it("Walk shows the ETA before the trip list", () => {
     renderPanel({
-      drivePanel: <div>Ranked resorts</div>,
+      rankingPanel: <div>Ranked resorts</div>,
       placeStrip: <div>Trip list</div>,
     });
     expect(before(screen.getByText(/ETA/), screen.getByText("Trip list"))).toBe(
@@ -207,7 +211,7 @@ describe("ModePanel", () => {
   // trip-card e2e (v1.18): with stops the list is what the user is editing, so it leads
   it("with stops the trip list stays above the ETA", () => {
     renderPanel({
-      drivePanel: <div>Ranked resorts</div>,
+      rankingPanel: <div>Ranked resorts</div>,
       placeStrip: <div>Trip list</div>,
       tripFirst: true,
     });

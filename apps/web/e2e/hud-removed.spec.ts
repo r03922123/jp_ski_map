@@ -53,7 +53,7 @@ test.describe("phone", () => {
   test("the swiped-up sheet has no Rider, Quests or Sound button", async ({
     page,
   }) => {
-    await open(page, "/?from=36.69711,137.85393&mode=drive");
+    await open(page, "/?from=36.69711,137.85393&mode=walk");
     await page.getByRole("button", { name: /expand directions/i }).click();
     await expect(
       page.getByRole("region", { name: "Directions" }),
@@ -66,7 +66,7 @@ test.describe("laptop", () => {
   test("the side card has no Rider, Quests or Sound button", async ({
     page,
   }) => {
-    await open(page, "/?from=36.69711,137.85393&mode=drive");
+    await open(page, "/?from=36.69711,137.85393&mode=walk");
     await expectNoHud(page);
   });
 
@@ -74,14 +74,14 @@ test.describe("laptop", () => {
     const contexts = await countAudio(page);
     // someone who turned sound on before v1.14
     await page.addInitScript(() => localStorage.setItem("hakuba:sound", "on"));
-    await open(page, "/?from=36.69711,137.85393&mode=drive");
+    await open(page, "/?from=36.69711,137.85393&mode=walk");
+    await page.getByRole("tab", { name: /Bus/ }).click();
     await page.getByRole("tab", { name: /Walk/ }).click();
-    await page.getByRole("tab", { name: /Drive/ }).click();
     expect(await contexts()).toBe(0);
   });
 
   test("a #rider= link opens the app with no dialog", async ({ page }) => {
-    await open(page, "/?from=36.69711,137.85393&mode=drive#rider=eyJuIjoiQSJ9");
+    await open(page, "/?from=36.69711,137.85393&mode=walk#rider=eyJuIjoiQSJ9");
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 });

@@ -3,7 +3,7 @@ import { expect, type Page, test } from "@playwright/test";
 // SPEC-web-app v1.8 (the To box) and v1.7 (touch: a tap looks, a long-press drops a pin)
 // on WebKit with iPhone emulation: the engine of every iOS browser.
 const STATION = "36.69877,137.86197";
-const TRIP = `/?from=${STATION}&mode=drive&resort=happo-one`;
+const TRIP = `/?from=${STATION}&mode=walk&resort=happo-one`;
 const SHOTS = process.env.IPHONE_SHOTS; // a folder for screenshots, when set
 
 const toBox = (page: Page) =>

@@ -77,7 +77,7 @@ export function tripPlaces({
   chosenResortId: string | null;
   poiId: string | null;
   poiCategory: PoiCategory | null;
-  /** the selected resort, and the access point the drive goes to */
+  /** the selected resort, and the access point the walk goes to */
   resort: Resort | undefined;
   destination: Coord | undefined;
   selectedPoi: NearbyPoi | null;

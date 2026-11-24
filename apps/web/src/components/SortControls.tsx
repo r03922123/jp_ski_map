@@ -4,7 +4,7 @@ import type { SortKey } from "@/lib/api";
 import { type RankOptions, SORT_KEYS } from "@/lib/url-state";
 
 export const SORT_LABELS: Record<SortKey, string> = {
-  drive_time: "Drive time",
+  walk_time: "Walk time",
   fresh_snow: "Fresh snow",
   snow_depth: "Snow depth",
   crowd: "Crowd (estimated)",
@@ -13,7 +13,7 @@ export const SORT_LABELS: Record<SortKey, string> = {
   price: "Ticket price",
 };
 
-const MAX_DRIVE_OPTIONS = [10, 15, 20, 30, 45];
+const MAX_WALK_OPTIONS = [10, 15, 20, 30, 45];
 
 export function SortControls({
   value,
@@ -55,19 +55,19 @@ export function SortControls({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="max-drive" className="font-medium">
-          Max drive
+        <label htmlFor="max-walk" className="font-medium">
+          Max walk
         </label>
         <select
-          id="max-drive"
+          id="max-walk"
           className="rounded-md border bg-background px-2 py-1.5"
-          value={value.maxDriveMin ?? ""}
+          value={value.maxWalkMin ?? ""}
           onChange={(e) =>
-            set({ maxDriveMin: e.target.value ? Number(e.target.value) : null })
+            set({ maxWalkMin: e.target.value ? Number(e.target.value) : null })
           }
         >
           <option value="">Any</option>
-          {MAX_DRIVE_OPTIONS.map((m) => (
+          {MAX_WALK_OPTIONS.map((m) => (
             <option key={m} value={m}>
               {m} min
             </option>

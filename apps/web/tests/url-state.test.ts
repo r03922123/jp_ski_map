@@ -25,7 +25,7 @@ describe("parseViewState", () => {
   it("falls back to defaults for missing or invalid values", () => {
     expect(parseViewState("?from=abc&mode=fly")).toEqual({
       origin: null,
-      mode: "drive",
+      mode: "walk",
       resortId: null,
       poiId: null,
       category: "resorts",
@@ -33,6 +33,10 @@ describe("parseViewState", () => {
       point: null,
       stops: [],
     });
+  });
+
+  it("opens an old ?mode=drive link on Walk, since the Drive mode is gone", () => {
+    expect(parseViewState("?mode=drive").mode).toBe("walk");
   });
 
   it("rejects out-of-range coordinates", () => {
@@ -45,7 +49,7 @@ describe("serializeViewState", () => {
     expect(
       serializeViewState({
         origin: { lat: 36.6912345678, lng: 137.8712345678 },
-        mode: "drive",
+        mode: "walk",
         resortId: null,
         poiId: null,
         category: "resorts",
@@ -53,7 +57,7 @@ describe("serializeViewState", () => {
         point: null,
         stops: [],
       }),
-    ).toBe("?from=36.69123%2C137.87123&mode=drive");
+    ).toBe("?from=36.69123%2C137.87123&mode=walk");
   });
 
   it("round-trips through parse", () => {
@@ -76,14 +80,14 @@ describe("rank options in the URL", () => {
   it("round-trips sort, date and filters", () => {
     const state: ViewState = {
       origin: { lat: 36.69, lng: 137.87 },
-      mode: "drive" as const,
+      mode: "walk" as const,
       resortId: null,
       poiId: null,
       category: "resorts",
       rank: {
         sort: "fresh_snow" as const,
         date: "2026-02-21",
-        maxDriveMin: 20,
+        maxWalkMin: 20,
         nightSkiing: true,
         hvPass: false,
       },
@@ -94,20 +98,20 @@ describe("rank options in the URL", () => {
     expect(parseViewState(serializeViewState(state))).toEqual(state);
   });
 
-  it("defaults to drive time, today and no filters", () => {
-    expect(parseViewState("?sort=best&maxDrive=-3").rank).toEqual({
-      sort: "drive_time",
+  it("defaults to walk time, today and no filters", () => {
+    expect(parseViewState("?sort=best&maxWalk=-3").rank).toEqual({
+      sort: "walk_time",
       date: null,
-      maxDriveMin: null,
+      maxWalkMin: null,
       nightSkiing: false,
       hvPass: false,
     });
   });
 
-  it("opens an old ?sort=price link on drive time, since price is hidden", () => {
+  it("opens an old ?sort=price link on walk time, since price is hidden", () => {
     // price is left out of SORT_KEYS until every resort has a comparable
     // 2026–27 price; putting it back makes this parse return "price"
-    expect(parseViewState("?sort=price").rank.sort).toBe("drive_time");
+    expect(parseViewState("?sort=price").rank.sort).toBe("walk_time");
   });
 });
 
@@ -150,7 +154,7 @@ describe("place destinations", () => {
 describe("point destinations (saved places: Go here)", () => {
   it("reads dest=pt:lat,lng and round-trips it", () => {
     const view = parseViewState(
-      "?from=36.69,137.87&mode=drive&dest=pt%3A36.70001%2C137.85002",
+      "?from=36.69,137.87&mode=walk&dest=pt%3A36.70001%2C137.85002",
     );
     expect(view.point).toEqual({ lat: 36.70001, lng: 137.85002 });
     expect(view.poiId).toBeNull();
