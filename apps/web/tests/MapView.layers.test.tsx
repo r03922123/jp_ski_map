@@ -151,7 +151,7 @@ const SAVED: SavedMarker[] = [
   },
 ];
 const RIDE = {
-  route: route("drive", 1680, [
+  route: route("bus", 1680, [
     [137.86, 36.7],
     [137.85, 36.68],
     [137.84, 36.66],
@@ -216,10 +216,16 @@ describe("MapView draws (characterization)", () => {
     expect(container).toMatchSnapshot();
   });
 
-  it("planning by car: the active route is the gold-dashed track", () => {
-    const drive = ROUTES.map((r) => ({ ...r, mode: "drive" as const }));
+  // a bus journey started at the boarding stop: the bus line stands in for the walk
+  it("navigating from the bus stop: the bus line is the solid cased track", () => {
     const { container } = render(
-      <MapView {...base} routes={drive} activeRoute={1} ride={null} />,
+      <MapView
+        {...base}
+        routes={[RIDE.route]}
+        activeRoute={0}
+        ride={null}
+        pilot={PILOT}
+      />,
     );
     expect(container).toMatchSnapshot();
   });

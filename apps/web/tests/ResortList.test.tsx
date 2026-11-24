@@ -8,7 +8,7 @@ import {
 } from "@testing-library/react";
 import { type ReactElement, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DrivePanel } from "@/components/DrivePanel";
+import { RankingPanel } from "@/components/RankingPanel";
 import { ResortList } from "@/components/ResortList";
 import { SortControls } from "@/components/SortControls";
 import type { RankedResort } from "@/lib/api";
@@ -31,11 +31,11 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
     name: "Hakuba Happo-One Snow Resort",
     rank: 1,
     sortValue: 368,
-    driveS: 368,
-    driveDistanceM: 2500,
+    walkS: 368,
+    walkDistanceM: 2500,
     accessPointId: "happo-one-adam-gondola",
     factors: {
-      driveTime: 368,
+      walkTime: 368,
       freshSnow: 46.8,
       snowDepth: 299,
       crowd: 0.6,
@@ -71,7 +71,7 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
 }
 
 describe("ResortList", () => {
-  it("shows rank, name, drive ETA, snow and an estimated crowd badge", () => {
+  it("shows rank, name, walk ETA, snow and an estimated crowd badge", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
     );
@@ -98,7 +98,7 @@ describe("ResortList", () => {
         newSnowCm: { past24h: 0, past72h: 55.9, next24h: 14.4, next72h: 20 },
       } as RankedResort["snow"];
       return (
-        <DrivePanel
+        <RankingPanel
           options={options}
           onOptionsChange={setOptions}
           ranking={{ status: "success", data: [ranked({ snow })] }}
@@ -162,7 +162,7 @@ describe("ResortList", () => {
     );
 
     it("once the ranking for the new options has loaded", () => {
-      const view = render(list([a, b], "drive", false));
+      const view = render(list([a, b], "walk", false));
       view.rerender(list([a, b], "snow", true));
       expect(scroll).not.toHaveBeenCalled();
       view.rerender(list([b, a], "snow", false));
@@ -174,8 +174,8 @@ describe("ResortList", () => {
     });
 
     it("not for a new start, nor later after a re-sort that kept the order", () => {
-      const view = render(list([a, b], "drive", false));
-      view.rerender(list([b, a], "drive", false)); // a new start
+      const view = render(list([a, b], "walk", false));
+      view.rerender(list([b, a], "walk", false)); // a new start
       expect(scroll).not.toHaveBeenCalled();
       view.rerender(list([b, a], "date", true)); // a new date, same order
       view.rerender(list([b, a], "date", false));
@@ -345,7 +345,7 @@ describe("ResortList", () => {
   it("marks unreachable resorts instead of showing an ETA", () => {
     render(
       <ResortList
-        resorts={[ranked({ driveS: null, sortValue: null })]}
+        resorts={[ranked({ walkS: null, sortValue: null })]}
         selectedId={null}
         onSelect={vi.fn()}
       />,
@@ -361,9 +361,9 @@ describe("SortControls", () => {
     render(
       <SortControls
         value={{
-          sort: "drive_time",
+          sort: "walk_time",
           date: null,
-          maxDriveMin: null,
+          maxWalkMin: null,
           nightSkiing: false,
           hvPass: false,
         }}
@@ -380,14 +380,14 @@ describe("SortControls", () => {
     );
   });
 
-  it("sets a maximum drive time", () => {
+  it("sets a maximum walk time", () => {
     const onChange = vi.fn();
     render(
       <SortControls
         value={{
-          sort: "drive_time",
+          sort: "walk_time",
           date: null,
-          maxDriveMin: null,
+          maxWalkMin: null,
           nightSkiing: false,
           hvPass: false,
         }}
@@ -395,12 +395,12 @@ describe("SortControls", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText("Max drive"), {
+    fireEvent.change(screen.getByLabelText("Max walk"), {
       target: { value: "15" },
     });
 
     expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ maxDriveMin: 15 }),
+      expect.objectContaining({ maxWalkMin: 15 }),
     );
   });
 });

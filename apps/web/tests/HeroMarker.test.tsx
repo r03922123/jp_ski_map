@@ -54,9 +54,8 @@ describe("Hero (SPEC-game-theme)", () => {
 
 describe("heroPose", () => {
   it("follows the trip", () => {
-    expect(heroPose({ mode: "drive", phase: "following" })).toBe("drive");
     expect(heroPose({ mode: "walk", phase: "following" })).toBe("walk");
-    expect(heroPose({ mode: "drive", phase: "arrived" })).toBe("ride");
+    expect(heroPose({ mode: "walk", phase: "arrived" })).toBe("ride");
     expect(heroPose({ mode: "bus", phase: "following", bus: "walk" })).toBe(
       "walk",
     );

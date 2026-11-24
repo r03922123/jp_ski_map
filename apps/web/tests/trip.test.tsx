@@ -308,7 +308,7 @@ describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
 describe("stops in the URL", () => {
   it("round-trips stops=lat,lng;lat,lng", () => {
     const view = parseViewState(
-      "?from=36.697,137.854&mode=drive&stops=36.699,137.845;36.7,137.84",
+      "?from=36.697,137.854&mode=walk&stops=36.699,137.845;36.7,137.84",
     );
     expect(view.stops).toEqual([
       { lat: 36.699, lng: 137.845 },
@@ -355,17 +355,17 @@ describe("stop numbers and reroutes", () => {
     shapeRange: [a, b],
   });
   const route = {
-    mode: "drive",
+    mode: "walk",
     durationS: 100,
     distanceM: 900,
     isEstimate: false,
     geometry: { type: "LineString", coordinates },
     steps: [
-      step("Drive east.", "depart", 0, 3),
+      step("Walk east.", "depart", 0, 3),
       step("Arrive at stop 1, on the right.", "arrive", 3, 3),
-      step("Drive east.", "depart", 3, 6),
+      step("Walk east.", "depart", 3, 6),
       step("Arrive at stop 2.", "arrive", 6, 6),
-      step("Drive east.", "depart", 6, 9),
+      step("Walk east.", "depart", 6, 9),
       step("You have arrived at your destination.", "arrive", 9, 9),
     ],
   } as unknown as Route;
@@ -396,9 +396,9 @@ describe("stop numbers and reroutes", () => {
       {
         ...route,
         steps: [
-          step("Drive east.", "depart", 0, 6),
+          step("Walk east.", "depart", 0, 6),
           step("Arrive at stop 1.", "arrive", 6, 6),
-          step("Drive east.", "depart", 6, 9),
+          step("Walk east.", "depart", 6, 9),
           step("You have arrived at your destination.", "arrive", 9, 9),
         ],
       } as unknown as Route,
@@ -413,17 +413,17 @@ describe("stop numbers and reroutes", () => {
   it("numberStops keeps the side wording and leaves other steps alone", () => {
     const renumbered = numberStops(route, [3, 5]);
     expect(renumbered.steps.map((s) => s.instruction)).toEqual([
-      "Drive east.",
+      "Walk east.",
       "Arrive at stop 3, on the right.",
-      "Drive east.",
+      "Walk east.",
       "Arrive at stop 5.",
-      "Drive east.",
+      "Walk east.",
       "You have arrived at your destination.",
     ]);
   });
 });
 
-// SPEC-web-app v1.8 rule 1 (BC-T1): in drive and walk the To row is a search box that
+// SPEC-web-app v1.8 rule 1 (BC-T1): in walk the To row is a search box that
 // shows the destination's name; a pick there changes only the destination.
 // v1.9: the To box lives in the trip card on top (DestinationBox), not in the trip list
 describe("DestinationBox (the To box)", () => {

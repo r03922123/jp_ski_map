@@ -5,10 +5,10 @@ import { progress } from "@/lib/nav/progress";
 import { type Fix, prepare, projectForward } from "@/lib/nav/project";
 import { initialNav, OFF_ROUTE_LIMIT, reduceNav } from "@/lib/nav/session";
 import type { LngLat } from "@/lib/route-geo";
-import driveFixture from "./fixtures/route-drive.json";
+import busFixture from "./fixtures/route-bus.json";
 import walkFixture from "./fixtures/route-walk.json";
 
-const drive = driveFixture as unknown as Route;
+const bus = busFixture as unknown as Route;
 const walk = walkFixture as unknown as Route;
 
 const LAT = 36.7;
@@ -32,7 +32,7 @@ function fix(p: LngLat, extra: Partial<Fix> = {}): Fix {
 }
 
 /** A straight 900 m street, east-bound, a vertex every 100 m, two steps. */
-function straight(mode: "drive" | "walk" = "drive"): Route {
+function straight(mode: "bus" | "walk" = "bus"): Route {
   const coordinates = Array.from({ length: 10 }, (_, i) => at(i * 100));
   return {
     mode,
@@ -129,11 +129,11 @@ describe("projectForward", () => {
 
 describe("progress", () => {
   it("counts down distance and time monotonically along a real route", () => {
-    const r = prepare(drive);
+    const r = prepare(bus);
     let lastM = Number.POSITIVE_INFINITY;
     let lastS = Number.POSITIVE_INFINITY;
     let from = 0;
-    for (const c of drive.geometry.coordinates as LngLat[]) {
+    for (const c of bus.geometry.coordinates as LngLat[]) {
       const p = projectForward(r, fix(c), from);
       from = p.index;
       const g = progress(r, p);
@@ -144,11 +144,11 @@ describe("progress", () => {
     }
     const start = progress(
       r,
-      projectForward(r, fix(drive.geometry.coordinates[0] as LngLat), 0),
+      projectForward(r, fix(bus.geometry.coordinates[0] as LngLat), 0),
     );
-    expect(start.remainingM).toBeGreaterThan(drive.distanceM * 0.95);
-    expect(start.remainingM).toBeLessThan(drive.distanceM * 1.05);
-    expect(start.remainingS).toBeCloseTo(drive.durationS, -1);
+    expect(start.remainingM).toBeGreaterThan(bus.distanceM * 0.95);
+    expect(start.remainingM).toBeLessThan(bus.distanceM * 1.05);
+    expect(start.remainingS).toBeCloseTo(bus.durationS, -1);
     expect(lastM).toBeLessThan(1);
   });
 
@@ -172,7 +172,7 @@ describe("progress", () => {
 describe("reduceNav (Organic Maps' off-route rule)", () => {
   const r = prepare(straight());
 
-  it("follows the route and snaps the puck within the 50 m drive radius", () => {
+  it("follows the bus line and snaps the puck within its 50 m radius", () => {
     const s = reduceNav(initialNav(), r, fix(at(300, 45)));
     expect(s.phase).toBe("following");
     expect(s.projection?.offsetM).toBeCloseTo(45, 0);
@@ -230,7 +230,7 @@ describe("reduceNav (Organic Maps' off-route rule)", () => {
     expect(s.phase).toBe("following");
   });
 
-  it("arrives within 20 m of the end driving and 15 m walking", () => {
+  it("arrives within 20 m of the end on the bus line and 15 m walking", () => {
     expect(reduceNav(initialNav(), r, fix(at(882))).phase).toBe("arrived");
     expect(reduceNav(initialNav(), r, fix(at(870))).phase).toBe("following");
     const w = prepare(straight("walk"));
@@ -257,7 +257,7 @@ describe("cameraFor", () => {
     ).toBeCloseTo(90, 0);
   });
 
-  it("tilts more driving than walking and zooms out with speed", () => {
+  it("tilts more on the bus line than walking and zooms out with speed", () => {
     const slow = cameraFor(r, p, fix(at(300), { speedMps: 2 }));
     const fast = cameraFor(r, p, fix(at(300), { speedMps: 25 }));
     expect(slow.pitch).toBe(60);

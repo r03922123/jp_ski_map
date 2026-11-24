@@ -65,7 +65,7 @@ export function RouteLabels({
                     : "bg-card text-card-foreground"
                 }`}
               >
-                {active?.mode === "walk" ? "🚶 " : "🚗 "}
+                {active?.mode === "walk" ? "🚶 " : "🚌 "}
                 {text}
               </button>
             </Marker>

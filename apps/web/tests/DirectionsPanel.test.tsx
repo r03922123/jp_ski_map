@@ -19,14 +19,14 @@ function step(overrides: Partial<Step>): Step {
 }
 
 const primary: Route = {
-  mode: "drive",
+  mode: "walk",
   durationS: 516,
   distanceM: 4100,
   geometry: { type: "LineString", coordinates: [] },
   summary: "via 白馬大橋 and 白馬岳線",
   isEstimate: true,
   steps: [
-    step({ instruction: "Drive north.", maneuver: "depart", distanceM: 210 }),
+    step({ instruction: "Walk north.", maneuver: "depart", distanceM: 210 }),
     step({
       instruction: "Turn right onto 白馬大橋.",
       maneuver: "right",

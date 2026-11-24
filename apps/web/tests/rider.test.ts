@@ -14,7 +14,7 @@ describe("rider state (SPEC-progression)", () => {
       name: "Rider",
       stamps: {},
       quests: [],
-      stats: { km: { bus: 0, drive: 0, walk: 0 }, trips: 0 },
+      stats: { km: { bus: 0, walk: 0 }, trips: 0 },
     });
   });
 
@@ -50,7 +50,7 @@ describe("rider state (SPEC-progression)", () => {
     expect(
       parseRider({
         ...ok,
-        stats: { km: { bus: -1, drive: 0, walk: 0 }, trips: 0 },
+        stats: { km: { bus: -1, walk: 0 }, trips: 0 },
       }),
     ).toBeNull();
     expect(
@@ -59,6 +59,18 @@ describe("rider state (SPEC-progression)", () => {
         quests: [{ id: "q", date: "2026-01-02", status: "won" }],
       }),
     ).toBeNull();
+  });
+
+  // saves from before the Drive mode was removed still hold km.drive; they must keep loading
+  it("a save that still has km.drive loads with its bus and walk km", () => {
+    const save = {
+      ...emptyRider(),
+      stats: { km: { bus: 3, drive: 12, walk: 1 }, trips: 4 },
+    };
+    expect(parseRider(save)?.stats).toMatchObject({
+      km: { bus: 3, walk: 1 },
+      trips: 4,
+    });
   });
 
   describe("migration: older saves are converted, never dropped", () => {
@@ -74,7 +86,7 @@ describe("rider state (SPEC-progression)", () => {
       name: "Yuki",
       stamps: { "happo-one": stamp },
       legacy: "gone in the current shape",
-      stats: { km: { bus: 3, drive: 0, walk: 1 }, trips: 2 },
+      stats: { km: { bus: 3, walk: 1 }, trips: 2 },
     };
     const steps = {
       [old.version]: ({ legacy: _, ...s }: Record<string, unknown>) => ({
@@ -90,7 +102,7 @@ describe("rider state (SPEC-progression)", () => {
         name: "Yuki",
         stamps: { "happo-one": stamp },
         quests: [],
-        stats: { km: { bus: 3, drive: 0, walk: 1 }, trips: 2 },
+        stats: { km: { bus: 3, walk: 1 }, trips: 2 },
       });
     });
 
