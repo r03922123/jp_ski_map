@@ -19,7 +19,7 @@ type RiderState = {
   name: string;                       // default "Rider", ≤ 20 chars
   stamps: Record<string, Stamp>;      // by resort id
   quests: QuestState[];               // today's, plus done ones (≤ 200 kept)
-  stats: { km: { bus: number; drive: number; walk: number }; trips: number };
+  stats: { km: { bus: number; walk: number }; trips: number };  // drive km dropped 2026-11-25; old saves keep the field and still load
 };
 ```
 - Every read is validated. A corrupt or unknown version → start empty, keep the raw value under
@@ -61,7 +61,7 @@ A visit counts when you are **at** a resort:
 | Quest | Offered when | Done when |
 |---|---|---|
 | **Powder day:** "N cm fell at X: ride there today" | a resort's fresh snow is ≥ 10 cm (the biggest one) | a visit to X that day |
-| **New world:** "Explore X" | at least one resort has no stamp yet (the nearest unstamped one by drive time; else the lowest world number) | a stamp at X |
+| **New world:** "Explore X" | at least one resort has no stamp yet (the nearest unstamped one by walk time; else the lowest world number) | a stamp at X |
 | **Konbini break:** "Stop at a konbini on the way" | every day (it only finishes on a navigated trip, so it never nags) | a pilot trip with a convenience-store stop (or to one) arrives |
 
 - Quests expire at midnight JST. A done quest stays in the log.

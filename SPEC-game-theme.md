@@ -29,7 +29,6 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
   | `walk` | 4 (board on back) | walk mode, walking legs of a bus journey |
   | `ride` | 2 (crouched on board) | arrived at a resort, stamp moment |
   | `bus` | 2 (in a bus window) | on the bus (pilot bus journey) |
-  | `drive` | 2 (small car, board on roof) | drive mode |
 - **Facing:** left and right are mirrored frames. The sprite faces the direction of travel (bearing from `pilot`).
   Unlike today's puck, it never rotates.
 - **It replaces today's position puck** while navigating. The puck's accuracy circle stays, restyled.

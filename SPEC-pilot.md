@@ -5,7 +5,7 @@
 > Decisions: no fake traffic (say so plainly); test on a phone over HTTPS on home Wi-Fi; simulated GPS in tests.
 
 ## Objective
-When the user taps **Start** on a drive, walk or bus route, the app becomes a navigator like Google
+When the user taps **Start** on a walk or bus route, the app becomes a navigator like Google
 Maps': it follows the user's GPS position, shows the next turn and the time and distance left,
 re-routes when they leave the route, and, on the bus, shows the coming stops and says when to get off.
 Pilot is offered **only on touch-first devices** (phones, tablets); see *Devices* below.
@@ -27,9 +27,9 @@ Pilot is offered **only on touch-first devices** (phones, tablets); see *Devices
 - `project(route, fix, fromIndex)` → `{ onRoute, index, t, point, offsetM }`, searching segments `fromIndex…fromIndex+N` (≈ 1 km ahead) with radius `max(threshold, accuracy)`.
 - `NavSession` reducer, `(state, fix) → state`: phases `following | offRoute | rerouting | arrived`, the moving-away counter, and the last good projection.
 - `progress(route, projection)` → remaining distance (along the line), remaining seconds (the rest of the current step, pro rata, plus later steps' Valhalla durations), the current step, the next maneuver with its distance, and a "then" maneuver when it's < 300 m after the next.
-- `cameraFor(state, speed, heading)` → centre, bearing (GPS heading when speed > 1.5 m/s, else the route's bearing), pitch (drive 60°, walk 45°), zoom (by speed: 17.5 → 15.5).
+- `cameraFor(state, speed, heading)` → centre, bearing (GPS heading when speed > 1.5 m/s, else the route's bearing), pitch (bus 60°, walk 45°), zoom (bus: by speed, 17.5 → 15.5; walk: 18). *2026-11-25: the old drive settings now serve the bus line (a bus journey started at the stop follows the line itself); the numbers are unchanged.*
 
-**Before the first match (approach):** routes start on the nearest road, not at the hotel door, so the first fixes are often outside the matching radius. Until the first on-route match, being ≤ 150 m (walk) / 250 m (drive) from the route's start shows "Head to the route · *n* m" and doesn't count towards leaving the route. Without this, GPS jitter at the door would trip a reroute onto the same road, again and again. A start farther away counts normally, so it reroutes from where the user is. *(Found by the T42 e2e; Organic Maps doesn't need it because its routes begin at the GPS position.)*
+**Before the first match (approach):** routes start on the nearest road, not at the hotel door, so the first fixes are often outside the matching radius. Until the first on-route match, being ≤ 150 m (walk) / 250 m (bus) from the route's start shows "Head to the route · *n* m" and doesn't count towards leaving the route. Without this, GPS jitter at the door would trip a reroute onto the same road, again and again. A start farther away counts normally, so it reroutes from where the user is. *(Found by the T42 e2e; Organic Maps doesn't need it because its routes begin at the GPS position.)*
 
 **Position source:** `watchPosition({ enableHighAccuracy: true, maximumAge: 1000 })` behind a `PositionSource`
 interface. A dev-only `SimulatedSource` replays the route at a chosen speed (`?simulate=1`, also a
@@ -68,7 +68,7 @@ interface. A dev-only `SimulatedSource` replays the route at a chosen speed (`?s
 ## Devices (v1.3.1, 2026-10-30): no pilot on laptops
 A laptop or desktop isn't carried while driving or walking, and its "location" is Wi-Fi-based (often hundreds of metres off), so pilot mode is removed there.
 - **Laptop/desktop** = the primary pointer is fine (mouse or trackpad): `matchMedia("(pointer: coarse)")` is false. Phones and tablets keep pilot, including iPads (which report a Mac user agent, so the user agent can't decide this). Touchscreen laptops count as laptops (their primary pointer is the trackpad).
-- On a laptop the **Start** buttons (drive/walk directions, and the bus journey) aren't shown. Routes, ETAs and step lists are unchanged.
+- On a laptop the **Start** buttons (walk directions, and the bus journey) aren't shown. Routes, ETAs and step lists are unchanged.
 - The answer is reactive: if the primary pointer changes (an iPad gets a trackpad keyboard), Start appears or disappears. A session that is already running is never cut off.
 - Server render and first paint: no Start, decided after hydration (no hydration mismatch).
 - Dev builds only: `?simulate` keeps Start on a laptop, so the simulated drive can still be watched on a desk. It is kept for the tab (sessionStorage) because the URL mirror drops it from the address bar; `?simulate=0` turns it off.
@@ -108,9 +108,9 @@ Our own symbol layers (lodging names) named no font, so MapLibre asked OpenFreeM
 ## Preview when you're far away (v1.3.4, 2026-10-30), user decision "Offer Preview"
 Found on the user's iPhone: pressing Start far from the route (the user wasn't in Hakuba) made the navigator ask for a new route from the phone's position every 10 s, and each request failed (404: outside the routing area).
 - **Far** = the phone's position is more than **1 km** from the route's start.
-- **Before tapping:** if the browser already has location permission (`navigator.permissions` says `granted`), the app reads the position quietly. When far, the drive/walk button reads **Preview** ("Preview route") instead of Start. No permission yet: it stays Start (asking would mean a prompt nobody requested).
+- **Before tapping:** if the browser already has location permission (`navigator.permissions` says `granted`), the app reads the position quietly. When far, the walk button reads **Preview** ("Preview route") instead of Start. No permission yet: it stays Start (asking would mean a prompt nobody requested).
 - **After tapping Start:** if the first fix turns out far, the session switches to **Preview** by itself, with "You're far from this route: previewing it".
-- **Preview** plays the route along its line (the simulated source: drive 15 m/s, walk 5 m/s) with the normal turn banner and progress. It uses no GPS, never reroutes, and shows a "Preview" label. Exit as usual.
+- **Preview** plays the route along its line (the simulated source: bus 15 m/s, walk 5 m/s) with the normal turn banner and progress. It uses no GPS, never reroutes, and shows a "Preview" label. Exit as usual.
 - **Rerouting is never requested from more than 50 km from the destination** (outside any route the service can plan); the "Can't reroute" note shows instead.
 - Bus journeys: when far from the boarding stop, the bus Start shows "Bus guidance works near the stop" and doesn't start. (A bus journey depends on the real time and place; there is no bus preview.)
 - The phone's position is never shown or stored; the note says "far", not where you are.

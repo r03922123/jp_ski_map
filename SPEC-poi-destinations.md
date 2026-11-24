@@ -5,7 +5,7 @@
 ## Objective
 Besides ski resorts, let the user pick a **restaurant** or a **convenience store** (konbini) as the
 destination, so the app can answer "where's the nearest konbini / somewhere to eat, and how long to get there?"
-with the same drive/walk route and ETA as for a resort. Shuttle buses only serve resorts, so the 🚌 tab
+with the same walking route and ETA as for a resort (Drive until 2026-11-25). Shuttle buses only serve resorts, so the 🚌 tab
 does not offer these destinations.
 
 ## Data
@@ -22,7 +22,7 @@ does not offer these destinations.
 - The validator checks: unique ids, coords inside the Hakuba bbox, category is in the enum.
 
 ## Interface
-`GET /api/pois/nearby?from=lat,lng&category=food|convenience&mode=drive|walk&limit=10` → `NearbyPoi[]`
+`GET /api/pois/nearby?from=lat,lng&category=food|convenience&mode=bus|walk&limit=10` (the web and the MCP tool send `walk`) → `NearbyPoi[]`
 ```jsonc
 { "id": "osm-node-123", "category": "convenience", "name": "7-Eleven Hakuba Happo",
   "nameJa": "セブン-イレブン 白馬八方店", "coord": {"lat":36.69,"lng":137.84},

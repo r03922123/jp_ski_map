@@ -14,8 +14,9 @@ The user searches for their hotel (or any place), then picks one of three transp
 | Mode | What the user gets |
 |---|---|
 | 🚌 **Bus** | Nearest Hakuba Valley shuttle stop(s), walk time to the stop, next departures, and arrival time at each reachable resort |
-| 🚗 **Drive** | All resorts ranked by one chosen criterion (drive time, fresh snow, snow depth, crowd level, terrain size, vertical, price), with a route and ETA on the map for the selected resort |
-| 🚶 **Walk** | Walking route and ETA to a selected resort (or bus stop) |
+| 🚶 **Walk** | All resorts ranked by one chosen criterion (walk time, fresh snow, snow depth, crowd level, terrain size, vertical, price), with the walking route and ETA on the map for the selected resort |
+
+The 🚗 Drive mode was removed on 2026-11-25: the app serves skiers without a car. Road routing stays only for the shuttle bus's road path.
 
 **Users:** the author and friends planning and doing Hakuba ski trips (v1). It is not a public commercial product yet.
 **Scope v1:** the 10 Hakuba Valley resorts only (Jigatake, Kashimayari, Sanosaka, Goryu, Hakuba47, Happo-One, Iwatake, Tsugaike, Norikura, Cortina). The data model must not hard-code Hakuba, because more regions should fit in later.
@@ -26,7 +27,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 |---|---|---|
 | `resort-catalog` | Resorts, base areas, bus stops (coords, names EN/JA), static stats | — |
 | `place-search` | Search hotels/places → origin coordinate | — |
-| `routing` | Valhalla wrapper: drive/walk route, ETA, one-to-many matrix | — |
+| `routing` | Valhalla wrapper: walk and bus-road route, ETA, one-to-many matrix | — |
 | `snow-conditions` | Snow depth + new-snow forecast per resort (Open-Meteo; resort reports if parseable) | `resort-catalog` |
 | `crowd-level` | Crowd estimate per resort per date (heuristic v1, pluggable source) | `resort-catalog`, `snow-conditions` |
 | `bus-schedules` | Timetable ingestion (detect → transcribe → validate → git) + "next bus to resorts" query | `resort-catalog`, `routing` |
@@ -36,7 +37,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 | `pilot` | Turn-by-turn navigation from live GPS: snapping, progress/ETA, off-route reroute, bus journey guidance *(added v1.3, 2026-10-30)* | `routing`, `bus-schedules` |
 | `game-theme` | Original game look and sound: pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio); UI in the Maps look since 2026-11-20 (system font), plain basemap since web-app v1.30 *(added v1.6, 2026-10-31)* | — (browser only) |
 | `progression` | Rider profile on the device: resort stamps from real visits, daily powder quests, ride stats, rider card share link *(added v1.6, 2026-10-31)* | `resort-catalog`, `snow-conditions`, `pilot` |
-| `web-app` | Map UI: search, 🚌/🚗/🚶 tabs, route lines, panels; from v1.6 presented as the adventure | all of the above (via HTTP API only) |
+| `web-app` | Map UI: search, 🚌/🚶 tabs, route lines, panels; from v1.6 presented as the adventure | all of the above (via HTTP API only) |
 | `deploy` | Zero-cost hosting: Phase A this Mac + Tailscale Funnel, Phase B Vercel Hobby with Valhalla in the API (live 2026-11-10, ADR-0006) *(added v1.5, 2026-10-31)* | hosts every server module |
 | `agent-tools` | Read-only MCP server so an LLM agent can plan a ski day with the API's tools (`services/mcp`) *(added 2026-11-11)* | all server modules (via HTTP API only) |
 | `pipeline` | Rebuild every data artifact from the shuttle-bus URL with no human step: stage DAG, snapshot store, lock file, automatic verification *(proposed 2026-11-18, ADR-0007)* | every data-producing module |
@@ -214,11 +215,11 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
 ## Success Criteria (system level)
 
 1. Searching "Hakuba" hotels returns real nearby lodgings, and selecting one sets the origin pin.
-2. 🚗 Drive lists all 10 resorts with drive ETA and can be re-sorted by every criterion. Selecting a resort draws its route.
+2. 🚶 Walk lists all 10 resorts with walk ETA and can be re-sorted by every criterion. Selecting a resort draws its route. *(Drive until 2026-11-25.)*
 3. 🚶 Walk draws a walking route and ETA to any resort or stop.
 4. 🚌 Bus shows the walk to the nearest stop plus the next 3 departures and arrival time at each reachable resort. When this season's timetable isn't published yet, times are projected from the last one and labeled **Expected**. Outside the season it says clearly that no service runs. No years are shown in the UI.
 6. *(v1.1)* Routes look and behave like Google Maps directions: fitted map, ETA pills, alternates, turn-by-turn with icons, and a bus journey drawn walk → ride → resort.
-7. *(v1.1)* Restaurants and convenience stores can be chosen as destinations in 🚗/🚶.
+7. *(v1.1)* Restaurants and convenience stores can be chosen as destinations in 🚶.
 5. All quality gates pass. The Playwright E2E test covers all three modes.
 
 ## Open Questions

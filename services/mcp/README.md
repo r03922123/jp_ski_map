@@ -1,6 +1,6 @@
 # hakuba-mcp
 
-An MCP server that lets an AI agent plan a Hakuba ski day with tools: find a place, check snow and crowd, rank resorts, get the next shuttle bus, a drive or walk ETA, and nearby food or convenience stores. Each tool is a thin, read-only wrapper over the Hakuba Ski Map HTTP API that trims the response to ids, names, minutes, cm and levels. Spec: [SPEC-agent-tools.md](../../SPEC-agent-tools.md).
+An MCP server that lets an AI agent plan a Hakuba ski day with tools: find a place, check snow and crowd, rank resorts, get the next shuttle bus, a walking ETA, and nearby food or convenience stores. Each tool is a thin, read-only wrapper over the Hakuba Ski Map HTTP API that trims the response to ids, names, minutes, cm and levels. Spec: [SPEC-agent-tools.md](../../SPEC-agent-tools.md).
 
 Tools: `search_place`, `rank_resorts`, `next_buses`, `route`, `nearby_pois`, `crowd_and_snow`. Prompt: `plan_ski_day`.
 

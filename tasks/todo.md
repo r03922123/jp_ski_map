@@ -42,7 +42,7 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - [ ] Owner: add the link from `~/.config/jp_ski_map/mcp-connector-url.txt` as a custom connector on claude.ai, ask a trip question from the phone app, then send the link to friends
 
 ## Task J15: Production habits around the ML parts (2026-11-16)
-- Found by #72's eval, open: for the same trip `rank_resorts` gives `driveMin` 6.6 and `route` gives 7.7 min (matrix vs route cost); an agent that answers from either is "right"
+- Found by #72's eval, open: for the same trip `rank_resorts` gives `driveMin` 6.6 and `route` gives 7.7 min (matrix vs route cost); an agent that answers from either is "right". Drive is gone since 2026-11-25; recheck the same gap for `walkMin`
 - Found by #68's first run, open: `/api/places/suggest?q=tokyu` took 1255 ms, 1231 ms of it waiting on Photon, whose timeout is 10 s. Search-as-you-type needs a short timeout on that fallback
 
 ## Task J16: MLflow eval loop and Langfuse production traces (SPEC-agent-tools v3, 2026-11-16)
@@ -114,6 +114,13 @@ Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of
 secrets, tiles release). Until then, deploy by hand: J17's API slice merged 2026-11-23 but production still
 answers 404 on `/api/ski-lines`. **Scope:** S (one PR: `--staged`, the `deploy` job, docs)
 - [ ] Owner steps (SPEC-deploy Phase C), then delete `DEPLOY_PAUSED`; the first run leaves `/api/ski-lines` at 200
+
+## Task J19: Bus and Walk only (SPEC-web-app v1.33, owner's ask 2026-11-25)
+Drive mode removed from the API, MCP tools and web app; road routing stays as mode `bus` for the shuttle's path.
+- [ ] MCP eval: 34 of 100 questions asked for drive times and were dropped (66 left: 24 en, 21 ja, 21 zh). Write
+  walk and bus questions with reference answers checked by hand to bring it back near 100; the next eval run is
+  not comparable to `evals/last_run.md` except paired on the 66 kept ids
+- [ ] Look on the iPhone: the Walk tab's ranked list and the bus-line pilot's 🚌
 
 ## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
 Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.

@@ -21,7 +21,7 @@ Examples it must handle (EN, 中文, 日本語):
 | Ask Maps (Google, launched 2026-03-12) | Ours |
 |---|---|
 | "Ask Maps" button under the search bar opens a sheet with suggested prompts | Same: an **Ask** button under the search box, 4 suggested prompts built from today's snow and the user's start |
-| Conversational answer + a custom map of the options + directions, ETAs | Answer text + the cited places as pins (fit to view) + each pin's card with walk/drive/bus ETA |
+| Conversational answer + a custom map of the options + directions, ETAs | Answer text + the cited places as pins (fit to view) + each pin's card with walk/bus ETA |
 | Links to sources; "AI answers can be wrong" | Every sentence cites a place, a timetable or the snow report; the sheet says answers are estimates and may be wrong |
 | Follow-ups refer to earlier results | Same, within one conversation (kept in the browser only) |
 | Personalised from saved places, home, work | From "My hotel" and saved places, which already live in the browser; sent with the question, never stored on the server |

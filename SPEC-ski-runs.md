@@ -166,7 +166,7 @@ No query parameters: the whole valley is 31 KB gzipped.
   - Framed with `fitBounds` once per pick, after the whole line has loaded (a tap's own geometry is tile-clipped), at
     most zoom 16, after the finger is up, without motion under `prefers-reduced-motion`.
   - While a ski card is open the route fit waits, so a resort chip tap with a start set frames the resort rather than
-    the drive to it; closing the card fits the route again.
+    the route to it; closing the card fits the route again.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |
