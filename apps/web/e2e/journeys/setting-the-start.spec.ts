@@ -405,7 +405,7 @@ for (const dev of [PHONE, SMALL]) {
       const cdp = await page.context().newCDPSession(page);
       await touch(cdp, pin, 60);
       const card = pinCard(page);
-      await expect(card.locator("legend")).toHaveText(pin.name);
+      await expect(card.getByRole("heading")).toHaveText(pin.name);
       await card.getByRole("button", { name: "Start here" }).tap();
       await expect(card).toHaveCount(0);
       await expect(fromRow(page)).toContainText(pin.name);
@@ -472,7 +472,7 @@ test.describe(`${PHONE.name} touch: long-press on a hotel pin`, () => {
     const cdp = await page.context().newCDPSession(page);
     await touch(cdp, pin, 700);
     await expect(pinCard(page)).toBeVisible();
-    await expect(pinCard(page).locator("legend")).toHaveText(pin.name, {
+    await expect(pinCard(page).getByRole("heading")).toHaveText(pin.name, {
       timeout: 3_000,
     });
   });
@@ -484,7 +484,7 @@ test.describe(`${PHONE.name} touch: long-press on a hotel pin`, () => {
     const pin = await hotelPin(page, { minX: 0, maxY: 450 });
     const cdp = await page.context().newCDPSession(page);
     await touch(cdp, pin, 700);
-    await expect(pinCard(page).locator("legend")).toHaveText(pin.name);
+    await expect(pinCard(page).getByRole("heading")).toHaveText(pin.name);
     await pinCard(page).getByRole("button", { name: "Go here" }).tap();
     await expect(page).toHaveURL(/dest=pt%3A/);
     await expect(toBox(page)).toHaveValue(pin.name, { timeout: 3_000 });

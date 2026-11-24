@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useId, useRef } from "react";
 
 /**
  * The card for something picked on the map: a dropped pin, a run or a lift. Google slides
@@ -24,6 +24,7 @@ export function MapCard({
   focusOnOpen?: boolean;
 }) {
   const close = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
   // biome-ignore lint/correctness/useExhaustiveDependencies: only when the card opens
   useEffect(() => {
     if (focusOnOpen) close.current?.focus();
@@ -41,13 +42,17 @@ export function MapCard({
     // data-map-card: the map frames a picked run clear of this card (SPEC-ski-runs v1.5)
     <fieldset
       data-map-card
+      aria-labelledby={titleId}
       className="surface fixed right-(--safe-right) bottom-0 left-(--safe-left) z-30 m-0 flex min-w-0 flex-col gap-2 rounded-t-[16px] border-0 px-4 pt-3 pb-[calc(0.75rem+var(--safe-bottom))] md:bottom-[calc(1rem+var(--safe-bottom))] md:right-[calc(1rem+var(--safe-right))] md:left-[calc(26rem+var(--safe-left))] md:max-w-96 md:rounded-[16px] md:pb-3"
     >
-      {/* float: a legend otherwise sits on the frame's border line. The legend names the
-          card, so ✕ stays outside it */}
-      <legend className="float-left pr-10 text-lg leading-tight font-semibold">
+      {/* a heading, not a <legend>: WebKit draws even a floated legend on the top edge,
+          above the card. It names the card, so ✕ stays outside it */}
+      <h2
+        id={titleId}
+        className="m-0 pr-10 text-lg leading-tight font-semibold"
+      >
         {title}
-      </legend>
+      </h2>
       <button
         type="button"
         ref={close}
@@ -57,9 +62,7 @@ export function MapCard({
       >
         <X aria-hidden="true" className="size-4" />
       </button>
-      <div className="clear-left -mt-1 text-sm text-muted-foreground">
-        {subtitle}
-      </div>
+      <div className="-mt-1 text-sm text-muted-foreground">{subtitle}</div>
       {children}
     </fieldset>
   );
