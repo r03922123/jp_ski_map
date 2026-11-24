@@ -109,12 +109,15 @@ const width = (at10: number, at16: number): ExpressionSpecification => [
 /**
  * Runs and lifts from the snapshot, under every route and pin: each layer sits below the
  * lodging pins, whatever order MapLibre adds them in. A tap on one opens its card
- * (SPEC-ski-runs v1.1); `selectedId` outlines that line.
+ * (SPEC-ski-runs v1.1); `selectedId` outlines that line, and `selectedResortId` every
+ * line of a resort whose card is open (v1.4).
  */
 export function SkiLinesLayer({
   selectedId = null,
+  selectedResortId = null,
 }: {
   selectedId?: string | null;
+  selectedResortId?: string | null;
 }) {
   return (
     // MapLibre fetches and parses the URL in its worker; cached an hour by the API
@@ -124,7 +127,11 @@ export function SkiLinesLayer({
         type="line"
         beforeId={LODGING_LAYER}
         minzoom={MINZOOM}
-        filter={["==", ["get", "id"], selectedId ?? ""]}
+        filter={
+          selectedResortId
+            ? ["==", ["get", "resortId"], selectedResortId]
+            : ["==", ["get", "id"], selectedId ?? ""]
+        }
         layout={{ "line-cap": "round", "line-join": "round" }}
         paint={{
           "line-color": "hsl(48,100%,55%)",

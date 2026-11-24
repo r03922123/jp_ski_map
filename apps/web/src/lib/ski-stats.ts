@@ -105,10 +105,10 @@ export function resortSummary(lines: SkiLine[], resortId: string) {
   };
 }
 
+export type ResortSummary = ReturnType<typeof resortSummary>;
+
 /** "1 Gondola, 21 Chair lifts" */
-export const liftsText = (
-  liftsByType: { liftType: string; count: number }[],
-) =>
+export const liftsText = (liftsByType: { liftType: string; count: number }[]) =>
   liftsByType
     .map(({ liftType, count }) => {
       const name = liftName(liftType);

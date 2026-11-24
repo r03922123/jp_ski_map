@@ -102,6 +102,10 @@ export type MapViewProps = {
   onSelectSkiLine?: (line: SkiLine) => void;
   /** The run or lift whose card is open: outlined on the map. */
   selectedSkiLineId?: string | null;
+  /** The resort whose card is open: all its lines outlined (SPEC-ski-runs v1.4). */
+  selectedSkiResortId?: string | null;
+  /** The point picked on a run's height profile: a ring on the run. */
+  profilePoint?: Coord | null;
   /** The sheet is a slim ETA + Start bar on a landscape phone (BottomSheet `slim`). */
   slimSheet?: boolean;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
@@ -192,6 +196,8 @@ export default function MapView({
   droppedPin = null,
   onSelectSkiLine,
   selectedSkiLineId = null,
+  selectedSkiResortId = null,
+  profilePoint = null,
   slimSheet = false,
   pilot = null,
 }: MapViewProps) {
@@ -498,6 +504,20 @@ export default function MapView({
           <DroppedPin />
         </Marker>
       )}
+      {profilePoint && (
+        <Marker
+          longitude={profilePoint.lng}
+          latitude={profilePoint.lat}
+          // a tap on it reaches the map; above the run, under the dropped pin
+          style={{ zIndex: 5, pointerEvents: "none" }}
+        >
+          <span
+            data-profile-ring
+            aria-hidden="true"
+            className="block size-5 rounded-full border-[3px] border-foreground bg-white/50 shadow-[0_0_0_2px_white]"
+          />
+        </Marker>
+      )}
       {/* relief, as OpenSkiMap draws it: above land cover, under water, roads and labels */}
       <Source
         id="terrain"
@@ -517,7 +537,10 @@ export default function MapView({
         />
       </Source>
       <LodgingLayer lodging={lodging} />
-      <SkiLinesLayer selectedId={selectedSkiLineId} />
+      <SkiLinesLayer
+        selectedId={selectedSkiLineId}
+        selectedResortId={selectedSkiResortId}
+      />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
           fixed order (it stacks by when a layer was added): bus line under the walk or

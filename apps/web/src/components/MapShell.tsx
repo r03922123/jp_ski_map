@@ -15,6 +15,7 @@ import { PilotScreens } from "@/components/PilotScreens";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
 import { PoiList } from "@/components/PoiList";
+import { ResortCard } from "@/components/ResortCard";
 import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
@@ -27,11 +28,12 @@ import {
   TripCard,
 } from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
-import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
+import { type Bbox, type Coord, resortsQuery, skiLinesQuery } from "@/lib/api";
 import { useBackToClose } from "@/lib/back-close";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
+import { resortSummary } from "@/lib/ski-stats";
 import { pinPlace, tripActions } from "@/lib/trip-actions";
 import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
@@ -43,6 +45,15 @@ import { useViewUrl } from "@/lib/use-view-url";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
 const MapView = dynamic(() => import("./MapView"), { ssr: false });
+
+// What the map's card at the bottom is about, one at a time: a long-pressed point (or
+// tapped hotel pin), whose buttons are touch's only way to edit the trip
+// (docs/ux/behaviour-cards.md BC-A1), a tapped run or lift (SPEC-ski-runs v1.1), or a
+// tapped resort chip (v1.4)
+type Picked =
+  | { kind: "pin"; pin: TripPoint }
+  | { kind: "line"; line: SkiLine }
+  | { kind: "resort"; resortId: string };
 
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
@@ -69,12 +80,16 @@ export function MapShell() {
     filledStops,
     fillStop,
   } = trip;
-  // What the map's card at the bottom is about, one at a time: a long-pressed point (or
-  // tapped hotel pin), whose buttons are touch's only way to edit the trip
-  // (docs/ux/behaviour-cards.md BC-A1), or a tapped run or lift (SPEC-ski-runs v1.1)
-  const [picked, setPicked] = useState<
-    { kind: "pin"; pin: TripPoint } | { kind: "line"; line: SkiLine } | null
-  >(null);
+  const [picked, setPicked] = useState<Picked | null>(null);
+  // the whole lines, for the ski cards' profile and resort sums (v1.4); asked for when the
+  // first one opens, then kept (a disabled query still hands back what it has)
+  const skiLines = useQuery({
+    ...skiLinesQuery,
+    enabled: picked !== null && picked.kind !== "pin",
+  });
+  // the ring belongs to the card that set it: a closed card or another pick drops it
+  const [ring, setRing] = useState<{ of: Picked; at: Coord } | null>(null);
+  const profilePoint = ring && ring.of === picked ? ring.at : null;
   const droppedPin = picked?.kind === "pin" ? picked.pin : null;
   const setDroppedPin = (pin: TripPoint | null) =>
     setPicked(pin && { kind: "pin", pin });
@@ -274,6 +289,7 @@ export function MapShell() {
     setSavedOpen,
     setSavedFocus,
     setDroppedPin,
+    openResortCard: (resortId) => setPicked({ kind: "resort", resortId }),
   });
   const shownTo = point ?? (poiCategory ? poiId : selectedResortId);
   const toEmptiedSinceLink = useRef(false);
@@ -284,6 +300,10 @@ export function MapShell() {
   );
   useBackToClose(savedOpen, () => setSavedOpen(false));
   useBackToClose(piloting, session.exitPilot);
+  const pickedResort =
+    picked?.kind === "resort"
+      ? resorts.data?.find((r) => r.id === picked.resortId)
+      : undefined;
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
   const pinCard = droppedPin && (
@@ -551,6 +571,10 @@ export function MapShell() {
         selectedSkiLineId={
           !piloting && picked?.kind === "line" ? picked.line.id : null
         }
+        selectedSkiResortId={
+          !piloting && picked?.kind === "resort" ? picked.resortId : null
+        }
+        profilePoint={piloting ? null : profilePoint}
         onSelectResort={actions.selectResortOnMap}
         saved={savedMarkers}
         onSelectSaved={actions.selectSaved}
@@ -571,11 +595,36 @@ export function MapShell() {
       {!piloting && pinCard}
       {!piloting && picked?.kind === "line" && (
         <SkiLineCard
+          // a fresh chart for another line: its picked point was on the old one
+          key={picked.line.id}
           line={picked.line}
+          full={skiLines.data?.features.find(
+            (f) => f.properties.id === picked.line.id,
+          )}
           resortName={
             resorts.data?.find((r) => r.id === picked.line.resortId)?.name.en ??
             picked.line.resortId
           }
+          onResort={() =>
+            setPicked({ kind: "resort", resortId: picked.line.resortId })
+          }
+          onClose={() => setPicked(null)}
+          onPoint={(at) => setRing(at && { of: picked, at })}
+        />
+      )}
+      {!piloting && pickedResort && (
+        <ResortCard
+          name={pickedResort.name}
+          website={pickedResort.website}
+          summary={
+            skiLines.data
+              ? resortSummary(
+                  skiLines.data.features.map((f) => f.properties),
+                  pickedResort.id,
+                )
+              : null
+          }
+          failed={skiLines.isError}
           onClose={() => setPicked(null)}
         />
       )}

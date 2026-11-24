@@ -84,37 +84,47 @@ test("every run and lift layer sits under the lodging pins and the route", async
     .toEqual([...ours, ...above]);
 });
 
+/** A point on bare map (no panel or marker) where a line of this kind is the top tap target. */
+function bareLine(page: Page, kind: "run" | "lift") {
+  return page.evaluate(
+    ({ kind, layer }) => {
+      const map = (window as unknown as { __hakubaMap: DevMap }).__hakubaMap;
+      const taps = ["lodging-pins", "route-alts-hit", "ski-lines-hit"];
+      for (const f of map.queryRenderedFeatures({ layers: [layer] })) {
+        if (f.geometry.type !== "LineString") continue;
+        // a line's ends may be off screen: try points along each of its legs
+        const c = f.geometry.coordinates;
+        for (let i = 0; i + 1 < c.length; i++)
+          for (let t = 0.05; t < 1; t += 0.05) {
+            const p = map.project([
+              c[i][0] + (c[i + 1][0] - c[i][0]) * t,
+              c[i][1] + (c[i + 1][1] - c[i][1]) * t,
+            ]);
+            const el = document.elementFromPoint(p.x, p.y);
+            const top = map.queryRenderedFeatures([p.x, p.y], {
+              layers: taps,
+            })[0];
+            if (
+              el?.classList.contains("maplibregl-canvas") &&
+              top?.layer.id === "ski-lines-hit" &&
+              top.properties.kind === kind
+            )
+              return { x: p.x, y: p.y, name: top.properties.name ?? null };
+          }
+      }
+      return null;
+    },
+    { kind, layer: kind === "run" ? "ski-runs" : "ski-lifts" },
+  );
+}
+
 // SPEC-ski-runs v1.1: a click on a lift opens its card, and picks no start
 test("a click on a lift opens its card, the start unchanged", async ({
   page,
 }) => {
   await openMap(page);
   expect(await drawnAt(page, 15, ["ski-lifts"])).toBeGreaterThan(0);
-  const hit = await page.evaluate(() => {
-    const map = (window as unknown as { __hakubaMap: DevMap }).__hakubaMap;
-    const taps = ["lodging-pins", "route-alts-hit", "ski-lines-hit"];
-    for (const f of map.queryRenderedFeatures({ layers: ["ski-lifts"] })) {
-      if (f.geometry.type !== "LineString") continue;
-      // a lift is a straight line whose ends may be off screen: try points along it
-      const [a, b] = f.geometry.coordinates;
-      for (let t = 0.05; t < 1; t += 0.05) {
-        const p = map.project([
-          a[0] + (b[0] - a[0]) * t,
-          a[1] + (b[1] - a[1]) * t,
-        ]);
-        // bare map there (no panel or marker), and a lift is the top tap target
-        const el = document.elementFromPoint(p.x, p.y);
-        const top = map.queryRenderedFeatures([p.x, p.y], { layers: taps })[0];
-        if (
-          el?.classList.contains("maplibregl-canvas") &&
-          top?.layer.id === "ski-lines-hit" &&
-          top.properties.kind === "lift"
-        )
-          return { x: p.x, y: p.y, name: top.properties.name ?? null };
-      }
-    }
-    return null;
-  });
+  const hit = await bareLine(page, "lift");
   expect(hit, "a lift on bare map").not.toBeNull();
   if (!hit) return;
   await page.mouse.click(hit.x, hit.y);
@@ -125,4 +135,45 @@ test("a click on a lift opens its card, the start unchanged", async ({
   expect(new URL(page.url()).searchParams.get("from")).toBeNull();
   await card.getByRole("button", { name: "Close" }).click();
   await expect(card).toHaveCount(0);
+});
+
+// SPEC-ski-runs v1.4: the resort card, and the run card's height profile on the map
+test("a click on a resort chip opens its card with OpenSkiMap's numbers", async ({
+  page,
+}) => {
+  await openMap(page);
+  await page.locator("[data-resort-marker='happo-one']").click();
+  const card = page.getByRole("group", {
+    name: "Hakuba Happo-One Snow Resort",
+  });
+  await expect(card).toContainText("Downhill runs");
+  await expect(card).toContainText("1 Gondola, 21 Chair lifts");
+  // it still picks the resort, as before
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("resort"))
+    .toBe("happo-one");
+});
+
+test("a run's card shows its height profile, and a hover over it puts a ring on the map", async ({
+  page,
+}) => {
+  await openMap(page);
+  expect(await drawnAt(page, 15, ["ski-runs"])).toBeGreaterThan(0);
+  const hit = await bareLine(page, "run");
+  expect(hit, "a run on bare map").not.toBeNull();
+  if (!hit) return;
+  await page.mouse.click(hit.x, hit.y);
+  const card = page.getByRole("group", {
+    name: hit.name?.split(", ")[0] || "Unnamed run",
+  });
+  const chart = card.getByRole("slider", { name: "Height profile" });
+  await expect(chart).toBeVisible();
+  const ring = page.locator("[data-profile-ring]");
+  await expect(ring).toHaveCount(0);
+  await chart.hover();
+  await expect(ring).toBeVisible();
+  await expect(card).toContainText(/\d+ m · \d+° \(\d+%\)/);
+  // off the chart, the ring goes
+  await page.mouse.move(5, 5);
+  await expect(ring).toHaveCount(0);
 });

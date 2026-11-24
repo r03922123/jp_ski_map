@@ -17,6 +17,7 @@ import type { ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MapShell } from "@/components/MapShell";
 import type MapView from "@/components/MapView";
+import type { SkiLine, SkiLineFeature } from "@/components/map/SkiLinesLayer";
 import type { Resort, Route } from "@/lib/api";
 import * as api from "@/lib/api";
 import { emptyState, savedStore, toggleInList } from "@/lib/saved-places";
@@ -70,6 +71,34 @@ const happo: Resort = {
   hakubaValleyPass: true,
   statsSource: "test",
 };
+// a Happo-One run as /api/ski-lines serves it: 3 heights 50 m apart, due north (v1.4)
+const skyline: SkiLine = {
+  id: "r1",
+  kind: "run",
+  name: "Skyline",
+  difficulty: "easy",
+  liftType: null,
+  resortId: "happo-one",
+  distanceM: 100,
+  minElevationM: 1645,
+  maxElevationM: 1672,
+  slopePct: 27,
+  durationS: null,
+};
+const skylineRun: SkiLineFeature = {
+  type: "Feature",
+  properties: {
+    ...skyline,
+    profile: { heightsM: [1672, 1660, 1645], resolutionM: 50 },
+  },
+  geometry: {
+    type: "LineString",
+    coordinates: [
+      [137.8, 36.7],
+      [137.8, 36.7009],
+    ],
+  },
+};
 const drive = driveFixture as unknown as Route;
 const walk = walkFixture as unknown as Route;
 const hotel = { lat: 36.697364, lng: 137.853928 };
@@ -99,6 +128,11 @@ vi.mock("@/lib/api", async (importOriginal) => {
     ),
     fetchLodging: vi.fn(async () => []),
     fetchNearbyPois: vi.fn(async () => []),
+    skiLinesQuery: {
+      queryKey: ["ski-lines"],
+      queryFn: async () => ({ features: [skylineRun] }),
+      staleTime: Number.POSITIVE_INFINITY,
+    },
   };
 });
 
@@ -758,5 +792,67 @@ describe("MapShell keyboard focus", () => {
     expect(
       await screen.findByRole("combobox", { name: "Search hotel or place" }),
     ).not.toHaveFocus();
+  });
+});
+
+// SPEC-ski-runs v1.4: the resort card, and the run card's height profile on the map
+describe("MapShell ski cards", () => {
+  const resortCard = () =>
+    screen.queryByRole("group", { name: "Hakuba Happo-One Snow Resort" });
+
+  it("a tapped resort chip opens the resort card and still picks the resort", async () => {
+    renderShell(`?from=${from}&mode=drive`);
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectResort("happo-one"));
+    expect(map().destination).toEqual(gondola);
+    expect(resortCard()).not.toBeNull();
+    // the numbers come from the resort's own lines, once they load
+    expect(await screen.findByText("Downhill runs")).toBeInTheDocument();
+    expect(map().selectedSkiResortId).toBe("happo-one");
+    fireEvent.click(
+      within(resortCard() as HTMLElement).getByRole("button", {
+        name: "Close",
+      }),
+    );
+    expect(resortCard()).toBeNull();
+    expect(map().selectedSkiResortId).toBeNull();
+  });
+
+  it("with a stop box open, a resort chip fills the stop and opens no card", async () => {
+    renderShell(`?from=${from}&mode=drive&resort=happo-one`);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /add destination/i }),
+    );
+    act(() => map().onSelectResort("happo-one"));
+    expect(map().stops).toEqual([
+      { coord: gondola, name: "Hakuba Happo-One Snow Resort" },
+    ]);
+    expect(resortCard()).toBeNull();
+  });
+
+  it("the run card's resort name opens the resort card", async () => {
+    renderShell("?mode=drive");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectSkiLine?.(skyline));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Hakuba Happo-One Snow Resort" }),
+    );
+    expect(screen.queryByRole("group", { name: "Skyline" })).toBeNull();
+    expect(resortCard()).not.toBeNull();
+  });
+
+  it("moving over the run's profile puts the ring on the map; closing the card clears it", async () => {
+    renderShell("?mode=drive");
+    await waitFor(() => expect(mapProps).not.toBeNull());
+    act(() => map().onSelectSkiLine?.(skyline));
+    const chart = await screen.findByRole("slider", {
+      name: "Height profile",
+    });
+    chart.getBoundingClientRect = () =>
+      ({ left: 0, width: 200, top: 0, height: 80 }) as DOMRect;
+    fireEvent.pointerMove(chart, { clientX: 200, clientY: 10 });
+    expect(map().profilePoint?.lat).toBeCloseTo(36.7009, 6);
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(map().profilePoint).toBeNull();
   });
 });
