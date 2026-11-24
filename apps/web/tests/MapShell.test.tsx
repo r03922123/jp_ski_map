@@ -474,6 +474,25 @@ describe("MapShell mode", () => {
     ).toBeInTheDocument();
   });
 
+  it("Free shuttles only asks the server again with freeOnly", async () => {
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    await waitFor(() => expect(api.fetchBusOptions).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByLabelText("Free shuttles only"));
+
+    await waitFor(() =>
+      expect(api.fetchBusOptions).toHaveBeenLastCalledWith(
+        expect.anything(),
+        expect.any(String),
+        null,
+        true,
+      ),
+    );
+    expect(
+      await screen.findByText("No free shuttles after this time today."),
+    ).toBeInTheDocument();
+  });
+
   // UX panel 2026-11-23: a bus tapped with no destination set named Happo-One in the To
   // box, but the link had no resort and Walk had no destination
   it("a tapped bus's resort stays the destination in the link and on Walk", async () => {

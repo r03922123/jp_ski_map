@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { StopList } from "@/components/StopList";
 import type {
   BusOption,
@@ -42,6 +42,9 @@ export type BusPanelProps = {
   night: Loadable<NightResult>;
   showNight: boolean;
   onShowNightChange: (show: boolean) => void;
+  /** hide the paid Hakuba Valley Line; the API filters before it caps the options */
+  freeOnly: boolean;
+  onFreeOnlyChange: (freeOnly: boolean) => void;
   /** local Hakuba time, "YYYY-MM-DDTHH:mm" */
   departAt: string;
   onDepartAtChange: (value: string) => void;
@@ -332,9 +335,7 @@ function Results({
   onStart,
   startNote,
 }: RowProps &
-  Pick<BusPanelProps, "resorts" | "result" | "onlyResortId"> & {
-    freeOnly: boolean;
-  }) {
+  Pick<BusPanelProps, "resorts" | "result" | "onlyResortId" | "freeOnly">) {
   const notice = serviceNotice(result);
   if (notice !== undefined || result.status !== "success") return notice;
   const data = result.data;
@@ -343,26 +344,24 @@ function Results({
       <div className="flex flex-col gap-2">
         <SeasonNotice data={data} />
         <p className="text-sm text-muted-foreground">
-          No more departures after this time today.
+          {freeOnly
+            ? "No free shuttles after this time today."
+            : "No more departures after this time today."}
         </p>
       </div>
     );
   }
   const names = new Map(resorts.map((r) => [r.id, r.name.en]));
-  const listed = data.resorts
-    .filter((r) => !onlyResortId || r.resortId === onlyResortId)
-    .map((r) => ({
-      ...r,
-      options: r.options.filter((o) => !freeOnly || o.lineId !== PAID_LINE),
-    }))
-    .filter((r) => r.options.length > 0);
+  const listed = onlyResortId
+    ? data.resorts.filter((r) => r.resortId === onlyResortId)
+    : data.resorts;
   return (
     <div className="flex flex-col gap-3">
       <SeasonNotice data={data} />
       {listed.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          No {freeOnly ? "free" : "more"} shuttles
-          {onlyResortId ? " to this resort" : ""} after this time.
+          No {freeOnly ? "free" : "more"} shuttles to this resort after this
+          time.
         </p>
       )}
       {listed.map((r) => {
@@ -417,21 +416,18 @@ function PlaceResults({
     );
   }
   const data = result.data;
-  const options = data.options.filter(
-    (o) => !freeOnly || o.lineId !== PAID_LINE,
-  );
   return (
     <div className="flex flex-col gap-2">
       {toResorts}
       <SeasonNotice data={data} />
-      {options.length === 0 ? (
+      {data.options.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No {freeOnly ? "free" : "direct"} shuttle to this place after this
           time.
         </p>
       ) : (
         <div className="flex flex-col gap-1">
-          {options.map((o) => (
+          {data.options.map((o) => (
             <OptionRow
               key={optionKey(o)}
               option={o}
@@ -441,7 +437,7 @@ function PlaceResults({
           ))}
         </div>
       )}
-      {options.some((o) => !o.timed) && (
+      {data.options.some((o) => !o.timed) && (
         <p className="text-xs text-muted-foreground">
           Where stop times aren't published, the stop order may vary.
         </p>
@@ -477,7 +473,6 @@ export function BusPanel(props: BusPanelProps) {
     props;
   // computed per render: a page left open overnight moves its range on
   const range = departRange();
-  const [freeOnly, setFreeOnly] = useState(false);
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
@@ -510,9 +505,9 @@ export function BusPanel(props: BusPanelProps) {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            checked={freeOnly}
+            checked={props.freeOnly}
             onChange={(e) => {
-              setFreeOnly(e.target.checked);
+              props.onFreeOnlyChange(e.target.checked);
               // a chosen paid bus would stay on the map while its row is hidden
               if (e.target.checked && props.selected?.lineId === PAID_LINE)
                 props.onSelect(null);
@@ -551,14 +546,14 @@ export function BusPanel(props: BusPanelProps) {
       ) : props.place ? (
         <PlaceResults
           place={props.place}
-          freeOnly={freeOnly}
+          freeOnly={props.freeOnly}
           selected={props.selected}
           onSelect={props.onSelect}
           onStart={props.onStart}
           startNote={props.startNote}
         />
       ) : (
-        <Results {...props} freeOnly={freeOnly} />
+        <Results {...props} />
       )}
 
       <p className="text-xs text-muted-foreground">

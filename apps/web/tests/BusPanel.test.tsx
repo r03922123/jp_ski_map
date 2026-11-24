@@ -24,6 +24,8 @@ function renderPanel(overrides: Partial<BusPanelProps> = {}) {
     night: { status: "idle" },
     showNight: false,
     onShowNightChange: vi.fn(),
+    freeOnly: false,
+    onFreeOnlyChange: vi.fn(),
     departAt: "2026-03-20T08:00",
     onDepartAtChange: vi.fn(),
     selected: null,
@@ -129,6 +131,8 @@ describe("BusPanel", () => {
         night: { status: "idle" },
         showNight: false,
         onShowNightChange: vi.fn(),
+        freeOnly: false,
+        onFreeOnlyChange: vi.fn(),
         departAt: "2026-03-20T08:00",
         onDepartAtChange: vi.fn(),
         selected: option,
@@ -265,86 +269,86 @@ describe("BusPanel", () => {
   });
 });
 
-// Line V (the Hakuba Valley Line) is the paid day line; the other lines are free
+// Line V (the Hakuba Valley Line) is the paid day line; the API drops it before it caps
+// the options, so the panel shows what the server sent
 describe("BusPanel free shuttles only", () => {
+  const data = fixture as BusResult;
   const optionsOf = (resortId: string) =>
-    (fixture as BusResult).resorts.find((r) => r.resortId === resortId)
-      ?.options ?? [];
-  const freeOnly = () =>
+    data.resorts.find((r) => r.resortId === resortId)?.options ?? [];
+  const tick = () =>
     fireEvent.click(screen.getByLabelText("Free shuttles only"));
 
-  it("hides Line V options, and resorts left with none", () => {
-    renderPanel();
+  it("asks for free shuttles only", () => {
+    const props = renderPanel();
     expect(screen.getByLabelText("Free shuttles only")).not.toBeChecked();
 
-    freeOnly();
+    tick();
 
+    expect(props.onFreeOnlyChange).toHaveBeenCalledWith(true);
+  });
+
+  it("lists the server's answer as it came", () => {
+    renderPanel({ freeOnly: true });
+
+    expect(screen.getByLabelText("Free shuttles only")).toBeChecked();
     expect(
-      screen.queryByRole("region", { name: "Hakuba47 Mountain Resort" }),
-    ).toBeNull();
-    const happo = screen.getByRole("region", { name: "happo-one" });
-    expect(within(happo).getAllByRole("button")).toHaveLength(2);
-    expect(within(happo).queryByText("V")).toBeNull();
-    expect(
-      screen.getByRole("region", {
-        name: "Kashimayari Ski Resort Family Park",
-      }),
+      screen.getByRole("region", { name: "Hakuba47 Mountain Resort" }),
     ).toBeInTheDocument();
   });
 
   it("clears a chosen Line V bus", () => {
     const paid = renderPanel({ selected: optionsOf("hakuba47")[0] });
-    freeOnly();
+    tick();
     expect(paid.onSelect).toHaveBeenCalledWith(null);
   });
 
   it("keeps a chosen free bus", () => {
     const free = renderPanel({ selected: optionsOf("kashimayari")[0] });
-    freeOnly();
+    tick();
     expect(free.onSelect).not.toHaveBeenCalled();
   });
 
-  it("says so in one line when no free shuttle is left", () => {
-    renderPanel({ onlyResortId: "hakuba47" });
-    freeOnly();
+  it("says so when the server has no free shuttle", () => {
+    renderPanel({
+      freeOnly: true,
+      result: { status: "success", data: { ...data, resorts: [] } },
+    });
+
+    expect(
+      screen.getByText("No free shuttles after this time today."),
+    ).toBeInTheDocument();
+  });
+
+  it("says so when the chosen resort has no free shuttle", () => {
+    renderPanel({
+      freeOnly: true,
+      onlyResortId: "hakuba47",
+      result: {
+        status: "success",
+        data: {
+          ...data,
+          resorts: data.resorts.filter((r) => r.resortId !== "hakuba47"),
+        },
+      },
+    });
 
     expect(
       screen.getByText("No free shuttles to this resort after this time."),
     ).toBeInTheDocument();
   });
 
-  it("filters the shuttles to a place too", () => {
-    const place = placeFixture as PlaceBusResult;
-    const placeProps = (data: PlaceBusResult) => ({
-      place: {
-        name: "JR Hakuba Station",
-        result: { status: "success" as const, data },
-        onClear: vi.fn(),
-      },
-    });
-    renderPanel(placeProps(place));
-    freeOnly();
-    expect(screen.queryByText("14:37 → 15:10")).toBeNull(); // a Line V row
-    // the three Line G rows stay
-    expect(screen.getAllByRole("button", { pressed: false })).toHaveLength(3);
-  });
-
-  it("says so when no free shuttle to a place is left", () => {
-    const place = placeFixture as PlaceBusResult;
+  it("says so when no free shuttle goes to a place", () => {
     renderPanel({
+      freeOnly: true,
       place: {
         name: "JR Hakuba Station",
         result: {
           status: "success",
-          data: {
-            ...place,
-            options: place.options.filter((o) => o.lineId === "line-v"),
-          },
+          data: { ...(placeFixture as PlaceBusResult), options: [] },
         },
         onClear: vi.fn(),
       },
     });
-    freeOnly();
 
     expect(
       screen.getByText("No free shuttle to this place after this time."),
@@ -492,6 +496,8 @@ describe("Journey stop list (long rides, loops)", () => {
         night={{ status: "idle" }}
         showNight={false}
         onShowNightChange={vi.fn()}
+        freeOnly={false}
+        onFreeOnlyChange={vi.fn()}
         departAt="2026-03-20T08:00"
         onDepartAtChange={vi.fn()}
         selected={option}

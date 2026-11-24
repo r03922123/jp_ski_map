@@ -134,6 +134,8 @@ export function MapShell() {
     setDepartAt,
     showNight,
     setShowNight,
+    freeOnly,
+    setFreeOnly,
   } = useBusTrip({ mode, origin, originName, pointPlace, storedBusChoice });
 
   // Walk to the access point the ranking found nearest; otherwise the first one.
@@ -506,6 +508,8 @@ export function MapShell() {
                   night={busResults.night}
                   showNight={showNight}
                   onShowNightChange={setShowNight}
+                  freeOnly={freeOnly}
+                  onFreeOnlyChange={setFreeOnly}
                   departAt={departAt}
                   onDepartAtChange={setDepartAt}
                   selected={busChoice}

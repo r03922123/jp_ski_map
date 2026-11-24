@@ -63,6 +63,7 @@ Lines F/G (and N's return) publish only first-stop departures. The bus query lis
 2. Active timetables = periods where `validFrom ≤ date ≤ validTo`.
 3. For each candidate stop and each trip departing at or after `at + walkS`, list the later stops on the same trip whose stop `servesResortId` is set. That gives the arrival per resort.
 4. Per resort, keep the 3 earliest arrivals, sorted by arrival. Each item has `walkS, boardStopId, lineId, departsAt, arrivesAt, rideS, waitS`.
+   `freeOnly=true` (here and on `/to-place`) drops the paid line V at step 2, before this cap, so three V buses can't hide a later free one (the Bus panel's "Free shuttles only" box).
 5. **Night bus (Line VN)** is transcribed too, but it is marked `"kind": "night"` and is never used for resort options. It is served separately via `GET /api/bus/night?from=lat,lng&at=…` (nearest stop → next departures, decided 2026-10-28).
 6. v1 = **direct trips only, no transfers.** If there are no active periods → `{ "status": "no_service", "nextServiceDate": … }`.
 

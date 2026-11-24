@@ -55,6 +55,7 @@ export function useBusTrip({
 }) {
   const [departAt, setDepartAt] = useState("");
   const [showNight, setShowNight] = useState(false);
+  const [freeOnly, setFreeOnly] = useState(false);
   useEffect(() => setDepartAt(nowInHakuba()), []); // client clock only, avoids SSR mismatch
 
   // Bus mode with a destination that isn't a resort: the way back (SPEC-web-app v1.11)
@@ -64,8 +65,8 @@ export function useBusTrip({
   const busPlaceName = stopMatchName(busPlace?.name);
   const busEnabled = mode === "bus" && origin !== null && departAt !== "";
   const bus = useQuery({
-    queryKey: ["bus", origin, departAt, originName],
-    queryFn: () => fetchBusOptions(origin!, departAt, originName),
+    queryKey: ["bus", origin, departAt, originName, freeOnly],
+    queryFn: () => fetchBusOptions(origin!, departAt, originName, freeOnly),
     enabled: busEnabled && !showNight && busPlace === null,
     retry: false,
   });
@@ -77,6 +78,7 @@ export function useBusTrip({
       departAt,
       originName,
       busPlaceName,
+      freeOnly,
     ],
     queryFn: () =>
       fetchBusToPlace(
@@ -85,6 +87,7 @@ export function useBusTrip({
         departAt,
         originName,
         busPlaceName,
+        freeOnly,
       ),
     enabled: busEnabled && !showNight && busPlace !== null,
     retry: false,
@@ -161,5 +164,7 @@ export function useBusTrip({
     setDepartAt,
     showNight,
     setShowNight,
+    freeOnly,
+    setFreeOnly,
   };
 }

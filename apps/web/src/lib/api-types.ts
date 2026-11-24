@@ -1238,6 +1238,7 @@ export interface operations {
         parameters: {
             query: {
                 at?: string | null;
+                freeOnly?: boolean;
                 from: string;
                 name?: string | null;
             };
@@ -1271,6 +1272,7 @@ export interface operations {
         parameters: {
             query: {
                 at?: string | null;
+                freeOnly?: boolean;
                 from: string;
                 name?: string | null;
                 to: string;

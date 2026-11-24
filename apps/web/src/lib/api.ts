@@ -145,10 +145,11 @@ export function fetchBusOptions(
   from: Coord,
   departAt: string,
   placeName: string | null = null,
+  freeOnly = false,
 ) {
   const name = placeName ? `&name=${encodeURIComponent(placeName)}` : "";
   return getJson<BusResult>(
-    `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}${name}`,
+    `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}${name}${freeOnly ? "&freeOnly=true" : ""}`,
   );
 }
 
@@ -159,12 +160,13 @@ export function fetchBusToPlace(
   departAt: string,
   placeName: string | null = null,
   toName: string | null = null,
+  freeOnly = false,
 ) {
   const names = `${placeName ? `&name=${encodeURIComponent(placeName)}` : ""}${
     toName ? `&toName=${encodeURIComponent(toName)}` : ""
   }`;
   return getJson<PlaceBusResult>(
-    `/api/bus/to-place?from=${latLng(from)}&to=${latLng(to)}&at=${jst(departAt)}${names}`,
+    `/api/bus/to-place?from=${latLng(from)}&to=${latLng(to)}&at=${jst(departAt)}${names}${freeOnly ? "&freeOnly=true" : ""}`,
   );
 }
 

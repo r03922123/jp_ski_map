@@ -136,11 +136,14 @@ def get_bus_options(
     timetables: Annotated[list[Timetable], Depends(get_bus_data)],
     manifest_season: Annotated[str | None, Depends(get_manifest_season)],
     at: PlausibleDateTime | None = None,
+    free_only: Annotated[bool, Query(alias="freeOnly")] = False,
 ) -> BusResult:
     stops = {s.id: s for s in load_stops()}
     alias = {a: s.id for s in stops.values() for a in s.aliases}
     newer = _newer_source(manifest_season, timetables)
-    return bus_options(walks, _when(at), timetables, stops, alias, newer_source_pending=newer)
+    return bus_options(
+        walks, _when(at), timetables, stops, alias, newer_source_pending=newer, free_only=free_only
+    )
 
 
 @router.get("/to-place", response_model=PlaceBusResult, response_model_by_alias=True)
@@ -150,12 +153,20 @@ def get_bus_to_place(
     timetables: Annotated[list[Timetable], Depends(get_bus_data)],
     manifest_season: Annotated[str | None, Depends(get_manifest_season)],
     at: PlausibleDateTime | None = None,
+    free_only: Annotated[bool, Query(alias="freeOnly")] = False,
 ) -> PlaceBusResult:
     stops = {s.id: s for s in load_stops()}
     alias = {a: s.id for s in stops.values() for a in s.aliases}
     newer = _newer_source(manifest_season, timetables)
     return bus_options_to_place(
-        walks_from, walks_to, _when(at), timetables, stops, alias, newer_source_pending=newer
+        walks_from,
+        walks_to,
+        _when(at),
+        timetables,
+        stops,
+        alias,
+        newer_source_pending=newer,
+        free_only=free_only,
     )
 
 
