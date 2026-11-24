@@ -69,6 +69,12 @@ async function routed(page: Page) {
 
 /** Every step's text (the list collapses after five). */
 async function allSteps(page: Page) {
+  // the steps open under the selected route option
+  const option = page
+    .getByRole("list", { name: "Route options" })
+    .locator("button[aria-current='true']");
+  if ((await option.getAttribute("aria-expanded")) === "false")
+    await option.click();
   const more = page.getByRole("button", { name: /Show all \d+ steps/ });
   if (await more.isVisible()) await more.click();
   return steps(page).innerText();

@@ -106,9 +106,15 @@ describe("ModePanel", () => {
     expect(screen.getByText("ETA ~ 3 min · 837 m")).toBeInTheDocument();
   });
 
-  it("lists the turn-by-turn steps", () => {
+  it("lists the turn-by-turn steps once the route option is opened", () => {
     renderPanel();
+    expect(screen.queryByText("Walk south.")).toBeNull();
 
+    fireEvent.click(
+      within(screen.getByRole("list", { name: "Route options" })).getByRole(
+        "button",
+      ),
+    );
     expect(screen.getByText("Walk south.")).toBeInTheDocument();
   });
 

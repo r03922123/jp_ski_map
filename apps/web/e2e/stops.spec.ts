@@ -21,11 +21,19 @@ async function loaded(page: Page) {
   await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
     timeout: 15_000,
   });
-  await expect(steps(page)).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("list", { name: "Route options" })).toBeVisible({
+    timeout: 20_000,
+  });
 }
 
-/** Show every step (the list collapses after five). */
+/** Open the selected route's steps and show every one (the list collapses after five). */
 async function allSteps(page: Page) {
+  // the steps open under the selected route option
+  const option = page
+    .getByRole("list", { name: "Route options" })
+    .locator("button[aria-current='true']");
+  if ((await option.getAttribute("aria-expanded")) === "false")
+    await option.click();
   const more = page.getByRole("button", { name: /Show all \d+ steps/ });
   if (await more.isVisible()) await more.click();
   return steps(page).innerText();

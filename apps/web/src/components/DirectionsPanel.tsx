@@ -24,7 +24,7 @@ export type DirectionsPanelProps = {
 const LONG_WALK_S = 45 * 60;
 const COLLAPSED_STEPS = 5;
 
-/** Google-Maps-style directions: headline, route options, turn-by-turn steps. */
+/** Google-Maps-style directions: headline, then route options that open to their steps. */
 export function DirectionsPanel({
   routes,
   activeRoute,
@@ -35,9 +35,21 @@ export function DirectionsPanel({
   startKind = "start",
 }: DirectionsPanelProps) {
   const [showAll, setShowAll] = useState(false);
+  // the option whose steps are open; a route picked on the map closes it
+  const [openRoute, setOpenRoute] = useState<number | null>(null);
   const route = routes[activeRoute] ?? routes[0];
   if (!route) return null;
   const steps = showAll ? route.steps : route.steps.slice(0, COLLAPSED_STEPS);
+  const open = openRoute === activeRoute ? openRoute : null;
+  const toggle = (i: number) => {
+    if (i === open) {
+      setOpenRoute(null);
+      return;
+    }
+    onSelectRoute(i);
+    setOpenRoute(i);
+    setShowAll(false);
+  };
 
   // A fragment: the ETA row must be a direct child of the panel's full-height column,
   // since a sticky element can't leave its parent. It sticks to the bottom of the
@@ -100,29 +112,21 @@ export function DirectionsPanel({
           </p>
         )}
 
-        {routes.length > 1 && (
-          <div
-            role="radiogroup"
-            aria-label="Route options"
-            className="flex flex-col gap-1"
-          >
-            {routes.map((r, i) => (
-              <label
-                key={`${r.durationS}-${r.distanceM}-${i}`}
+        <ul aria-label="Route options" className="flex flex-col gap-1">
+          {routes.map((r, i) => (
+            <li key={`${r.durationS}-${r.distanceM}-${i}`}>
+              <button
+                type="button"
+                aria-expanded={i === open}
+                aria-current={i === activeRoute || undefined}
                 className={cn(
-                  "flex cursor-pointer items-baseline justify-between rounded-md border px-3 py-2 text-sm has-[:focus-visible]:ring-2",
+                  "flex w-full items-baseline justify-between rounded-md border px-3 py-2 text-left text-sm outline-none focus-visible:ring-2",
                   i === activeRoute
                     ? "border-primary bg-blue-50"
                     : "hover:bg-muted",
                 )}
+                onClick={() => toggle(i)}
               >
-                <input
-                  type="radio"
-                  name="route-option"
-                  className="sr-only"
-                  checked={i === activeRoute}
-                  onChange={() => onSelectRoute(i)}
-                />
                 <span>
                   <span className="font-medium">
                     {formatDuration(r.durationS)}
@@ -135,44 +139,50 @@ export function DirectionsPanel({
                     {r.summary}
                   </span>
                 )}
-              </label>
-            ))}
-          </div>
-        )}
-
-        <ol aria-label="Steps" className="flex flex-col divide-y text-sm">
-          {steps.map((s, i) => (
-            // steps have no id and never reorder
-            // biome-ignore lint/suspicious/noArrayIndexKey: static list
-            <li key={i}>
-              <button
-                type="button"
-                className="flex w-full items-center gap-3 py-1.5 text-left outline-none hover:bg-muted focus-visible:bg-muted"
-                onMouseEnter={() => onHighlightStep(s.shapeRange)}
-                onMouseLeave={() => onHighlightStep(null)}
-                onFocus={() => onHighlightStep(s.shapeRange)}
-                onBlur={() => onHighlightStep(null)}
-              >
-                <ManeuverIcon maneuver={s.maneuver} />
-                <span className="flex-1">{s.instruction}</span>
-                {s.distanceM > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistance(s.distanceM)}
-                  </span>
-                )}
               </button>
+              {i === open && (
+                <div className="flex flex-col gap-2 pt-1">
+                  <ol
+                    aria-label="Steps"
+                    className="flex flex-col divide-y text-sm"
+                  >
+                    {steps.map((s, j) => (
+                      // steps have no id and never reorder
+                      // biome-ignore lint/suspicious/noArrayIndexKey: static list
+                      <li key={j}>
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-3 py-1.5 text-left outline-none hover:bg-muted focus-visible:bg-muted"
+                          onMouseEnter={() => onHighlightStep(s.shapeRange)}
+                          onMouseLeave={() => onHighlightStep(null)}
+                          onFocus={() => onHighlightStep(s.shapeRange)}
+                          onBlur={() => onHighlightStep(null)}
+                        >
+                          <ManeuverIcon maneuver={s.maneuver} />
+                          <span className="flex-1">{s.instruction}</span>
+                          {s.distanceM > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistance(s.distanceM)}
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                  {!showAll && route.steps.length > COLLAPSED_STEPS && (
+                    <button
+                      type="button"
+                      className="self-start text-sm text-muted-foreground underline"
+                      onClick={() => setShowAll(true)}
+                    >
+                      Show all {route.steps.length} steps
+                    </button>
+                  )}
+                </div>
+              )}
             </li>
           ))}
-        </ol>
-        {!showAll && route.steps.length > COLLAPSED_STEPS && (
-          <button
-            type="button"
-            className="self-start text-sm text-muted-foreground underline"
-            onClick={() => setShowAll(true)}
-          >
-            Show all {route.steps.length} steps
-          </button>
-        )}
+        </ul>
       </div>
     </>
   );
