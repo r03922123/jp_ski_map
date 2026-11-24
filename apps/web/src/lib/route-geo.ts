@@ -146,3 +146,46 @@ export function mapPadding({
     left: 32,
   };
 }
+
+// between the framed lines and the card's top edge
+const CARD_MARGIN_PX = 16;
+
+/**
+ * fitBounds padding that frames a picked run, lift or resort in the map left clear
+ * (SPEC-ski-runs v1.5): below the trip card on a phone or right of the side panel from `md`,
+ * and above `coverTop`, the highest top edge of what covers the map's bottom (the open card,
+ * and on a phone the sheet under it).
+ */
+export function cardPadding({
+  width,
+  height,
+  coverTop,
+  safe = NO_INSETS,
+}: {
+  width: number;
+  height: number;
+  coverTop: number;
+  safe?: SafeInsets;
+}) {
+  const bottom = Math.min(
+    height - coverTop + CARD_MARGIN_PX,
+    height - MIN_CLEAR_PX,
+  );
+  const pad =
+    width >= MD_BREAKPOINT_PX
+      ? { ...mapPadding({ width, height, safe }), bottom }
+      : {
+          // the trip card only: a line needs no room for a marker standing above it
+          top:
+            (height < SHORT_SCREEN_PX
+              ? SHORT_SCREEN_TOP_PX - MARKER_PX
+              : TRIP_CARD_PX) + safe.top,
+          right: 16 + (safe.right ?? 0),
+          bottom,
+          left: 16 + (safe.left ?? 0),
+        };
+  return {
+    ...pad,
+    top: Math.min(pad.top, Math.max(0, height - bottom - MIN_CLEAR_PX)),
+  };
+}

@@ -105,6 +105,8 @@ layer and the credit. Acceptance criteria are in the spec. **Scope:** M (API sli
 - [x] v1.4 (owner's request, 2026-11-24): a resort card (tapped chip, or the run card's resort name) summed from the
   snapshot, and a run's height profile coloured by slope whose hover or drag rings the spot on the map; not yet
   tried on the iPhone
+- [x] v1.5 (owner's request, 2026-11-24): a picked run, lift or resort is framed in the map its card leaves clear,
+  measured from the card (and the phone's sheet); not yet tried on the iPhone
 
 ## Task J18: Deploy every green merge from CI (ADR-0009, accepted 2026-11-23)
 Build [SPEC-deploy.md](../SPEC-deploy.md) Phase C of

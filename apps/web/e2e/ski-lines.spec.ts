@@ -16,10 +16,12 @@ type DevMap = {
   ): {
     layer: { id: string };
     geometry: { type: string; coordinates: [number, number][] };
-    properties: { name?: string; kind?: string };
+    properties: { id?: string; name?: string; kind?: string };
   }[];
   project(c: [number, number]): { x: number; y: number };
   jumpTo(o: { center: [number, number]; zoom: number }): void;
+  isMoving(): boolean;
+  unproject(p: [number, number]): { lng: number; lat: number };
   once(event: "idle", done: () => void): void;
 };
 
@@ -109,7 +111,12 @@ function bareLine(page: Page, kind: "run" | "lift") {
               top?.layer.id === "ski-lines-hit" &&
               top.properties.kind === kind
             )
-              return { x: p.x, y: p.y, name: top.properties.name ?? null };
+              return {
+                x: p.x,
+                y: p.y,
+                id: String(top.properties.id),
+                name: top.properties.name ?? null,
+              };
           }
       }
       return null;
@@ -177,3 +184,109 @@ test("a run's card shows its height profile, and a hover over it puts a ring on 
   await page.mouse.move(5, 5);
   await expect(ring).toHaveCount(0);
 });
+
+// SPEC-ski-runs v1.5: a picked run or resort is framed in the map its card leaves clear
+/**
+ * The whole lines (from /api/ski-lines, not the tile-clipped tap) whose vertices are not in
+ * the clear map once the camera has settled: off screen, under a panel (the trip card, the
+ * side panel) or below the open card's top edge. An empty list means all of them show.
+ */
+async function hiddenVertices(
+  page: Page,
+  which: { id: string } | { resortId: string },
+) {
+  return page.evaluate(async (which) => {
+    const map = (window as unknown as { __hakubaMap: DevMap }).__hakubaMap;
+    if (map.isMoving()) return ["the map is still moving"];
+    const { features } = (await (await fetch("/api/ski-lines")).json()) as {
+      features: {
+        properties: { id: string; resortId: string };
+        geometry:
+          | { type: "LineString"; coordinates: [number, number][] }
+          | { type: "Polygon"; coordinates: [number, number][][] };
+      }[];
+    };
+    const lines = features.filter((f) =>
+      "id" in which
+        ? f.properties.id === which.id
+        : f.properties.resortId === which.resortId,
+    );
+    const card = document.querySelector("[data-map-card]");
+    if (!card || lines.length === 0) return ["no card or no lines"];
+    const cardTop = card.getBoundingClientRect().top;
+    const hidden: string[] = [];
+    for (const f of lines)
+      for (const c of f.geometry.type === "LineString"
+        ? f.geometry.coordinates
+        : f.geometry.coordinates[0]) {
+        const { x, y } = map.project(c);
+        const el = document.elementFromPoint(x, y);
+        // a marker (a resort chip, a hotel pin) on the line is still the map
+        const onMap =
+          el?.closest(".maplibregl-map") &&
+          !el.closest(".maplibregl-control-container");
+        if (!onMap || y > cardTop)
+          hidden.push(
+            `${f.properties.id} at ${Math.round(x)},${Math.round(y)}`,
+          );
+      }
+    return hidden;
+  }, which);
+}
+
+for (const size of [
+  { name: "phone", viewport: { width: 390, height: 844 }, touch: true },
+  { name: "laptop", viewport: { width: 1366, height: 850 }, touch: false },
+]) {
+  test.describe(`v1.5 on a ${size.name}`, () => {
+    test.use({ viewport: size.viewport, hasTouch: size.touch });
+
+    test("a picked run's whole line shows above its card", async ({ page }) => {
+      await openMap(page);
+      expect(await drawnAt(page, 15, ["ski-runs"])).toBeGreaterThan(0);
+      const hit = await bareLine(page, "run");
+      expect(hit, "a run on bare map").not.toBeNull();
+      if (!hit) return;
+      if (size.touch) await page.touchscreen.tap(hit.x, hit.y);
+      else await page.mouse.click(hit.x, hit.y);
+      await expect(
+        page.getByRole("group", {
+          name: hit.name?.split(", ")[0] || "Unnamed run",
+        }),
+      ).toBeVisible();
+      await expect(async () => {
+        expect(await hiddenVertices(page, { id: hit.id })).toEqual([]);
+      }).toPass({ timeout: 10_000 });
+    });
+
+    test("a resort chip's card shows all the resort's lines above it", async ({
+      page,
+    }) => {
+      await openMap(page);
+      const chip = page.locator("[data-resort-marker='happo-one']");
+      // zoomed in on the chip, so most of the resort starts off screen
+      const box = await chip.boundingBox();
+      expect(box).not.toBeNull();
+      if (!box) return;
+      await page.evaluate(
+        (at) => {
+          const map = (window as unknown as { __hakubaMap: DevMap })
+            .__hakubaMap;
+          const c = map.unproject(at);
+          map.jumpTo({ center: [c.lng, c.lat], zoom: 14 });
+        },
+        [box.x + box.width / 2, box.y + box.height / 2] as [number, number],
+      );
+      if (size.touch) await chip.tap();
+      else await chip.click();
+      await expect(
+        page.getByRole("group", { name: "Hakuba Happo-One Snow Resort" }),
+      ).toContainText("Downhill runs");
+      await expect(async () => {
+        expect(await hiddenVertices(page, { resortId: "happo-one" })).toEqual(
+          [],
+        );
+      }).toPass({ timeout: 10_000 });
+    });
+  });
+}

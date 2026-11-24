@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  cardPadding,
   type LngLat,
   labelAnchor,
   MARKER_PX,
@@ -144,5 +145,45 @@ describe("safe-area insets from md up (v1.19 review: a notched iPhone in landsca
     expect(notched.left).toBe(flat.left + 47);
     expect(notched.right).toBe(flat.right + 47);
     expect(notched.bottom).toBe(flat.bottom + 21);
+  });
+});
+
+// SPEC-ski-runs v1.5: a picked run, lift or resort is framed in the map the open card leaves clear
+describe("cardPadding", () => {
+  it("on a phone: below the trip card, above the card's top edge, small sides", () => {
+    // the run card with its chart is about 365 px tall on a 390 x 844 phone
+    const p = cardPadding({ width: 390, height: 844, coverTop: 479 });
+    expect(p.top).toBeGreaterThanOrEqual(118); // the trip card
+    expect(p.bottom).toBeGreaterThanOrEqual(844 - 479 + 8); // the card and a margin
+    expect(p.bottom).toBeLessThanOrEqual(844 - 479 + 24);
+    expect(p.left).toBeLessThan(32);
+    expect(p.right).toBeLessThan(32);
+    // room for a resort's lines
+    expect(844 - p.top - p.bottom).toBeGreaterThanOrEqual(250);
+  });
+
+  it("on a laptop: right of the side panel, above the card's top edge", () => {
+    const p = cardPadding({ width: 1366, height: 850, coverTop: 470 });
+    expect(p.left).toBeGreaterThanOrEqual(384 + 12);
+    expect(p.top).toBeLessThan(100);
+    expect(p.bottom).toBeGreaterThanOrEqual(850 - 470 + 8);
+    expect(p.bottom).toBeLessThanOrEqual(850 - 470 + 24);
+  });
+
+  it("moves the top by the status bar's inset", () => {
+    const at = { width: 390, height: 844, coverTop: 479 };
+    expect(cardPadding({ ...at, safe: { top: 47, bottom: 34 } }).top).toBe(
+      cardPadding(at).top + 47,
+    );
+  });
+
+  it.each([
+    [390, 844, 200], // an expanded sheet under the card
+    [390, 844, 0],
+    [1366, 850, 10],
+  ])("leaves map to fit into at %ix%i with the cover's top at %i", (width, height, coverTop) => {
+    const p = cardPadding({ width, height, coverTop });
+    expect(height - p.top - p.bottom).toBeGreaterThan(0);
+    expect(p.top).toBeGreaterThanOrEqual(0);
   });
 });

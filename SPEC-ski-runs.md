@@ -153,8 +153,20 @@ No query parameters: the whole valley is 31 KB gzipped.
     chart when the query lands.
   - Phone and laptop: the card stays at the bottom on a phone and beside the side panel from `md`; the chart takes
     touch drags without scrolling the page (`touch-action: none`).
-  - Out of v1.4: the slope-aspect rose (OpenSkiStats, another dataset), paper maps, zooming to the resort on tap,
+  - Out of v1.4: the slope-aspect rose (OpenSkiStats, another dataset), paper maps, zooming to the resort on tap (v1.5 adds it),
     a chart for lifts.
+- **v1.5 (owner's request, 2026-11-24: "if choose the line, the card might cover the whole line. Make it as popped up
+  card, reset to center view while selecting lane or resort or any better uiux idea", with a laptop screenshot of a
+  run card over the run it describes).** The card keeps its place; the map moves. A tapped run or lift, or an opened
+  resort card, frames its whole line (or all the resort's lines) in the part of the map no panel or card covers, the
+  way the route fit and the dropped pin's ease already do. A card anchored to the line was dropped: on a 390 px phone a
+  card the size of the run card would cover the line just as much, and it would chase the line as the map moves.
+  - The clear part is measured, not guessed: the open card's top edge (the run card is about 365 px tall on a phone
+    once its chart lands) plus a margin, the trip card on top on a phone, the side panel from `md`.
+  - Framed with `fitBounds` once per pick, after the whole line has loaded (a tap's own geometry is tile-clipped), at
+    most zoom 16, after the finger is up, without motion under `prefers-reduced-motion`.
+  - While a ski card is open the route fit waits, so a resort chip tap with a start set frames the resort rather than
+    the drive to it; closing the card fits the route again.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |
@@ -213,6 +225,13 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 
 ## Boundaries
 
+- [x] v1.5 unit: the clear-map padding for a phone and a laptop with a card open; a tapped run frames its whole
+      line once, a resort card all its lines, and the route fit waits while either is open, then runs on close.
+- [x] v1.5 e2e: on a 390 × 844 phone and a 1366 × 850 laptop, after a click on a run its whole line projects inside
+      the map above the card (and right of the side panel on the laptop); a click on a resort chip does the same for
+      the resort's lines.
+- [x] v1.5 screenshots on both sizes: the run card open with its whole run in view
+      (`docs/screenshots/ski-v1.5-*.png`).
 - Always: read the snapshot, never OpenSkiMap, per user request.
 - Ask first: the lift a run starts from, lift-status or grooming data, nordic runs, 3D terrain.
 - Never: use `tiles.openskimap.org` vector tiles in the app (their terms forbid it); download the world files on a
