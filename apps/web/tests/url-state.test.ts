@@ -85,7 +85,7 @@ describe("rank options in the URL", () => {
       poiId: null,
       category: "resorts",
       rank: {
-        sort: "fresh_snow" as const,
+        sort: "terrain_size" as const,
         maxWalkMin: 20,
         nightSkiing: true,
         hvPass: false,
@@ -110,6 +110,16 @@ describe("rank options in the URL", () => {
     const view = parseViewState("?mode=walk&date=2026-02-21");
     expect(view.rank).toEqual(DEFAULT_RANK);
     expect(serializeViewState(view)).not.toContain("date");
+  });
+
+  // the panel tidy (2026-11-25) keeps two sorts; a link with another one opens on the default
+  it.each([
+    "fresh_snow",
+    "snow_depth",
+    "crowd",
+    "vertical",
+  ])("opens an old ?sort=%s link on walk time", (sort) => {
+    expect(parseViewState(`?sort=${sort}`).rank.sort).toBe("walk_time");
   });
 
   it("opens an old ?sort=price link on walk time, since price is hidden", () => {

@@ -12,10 +12,12 @@ test("walk mode ranks every resort and re-sorts on demand", async ({
   // default: nearest first, every ETA labelled as an estimate
   await expect(list.getByRole("listitem").first()).toContainText("~ ");
 
-  await page.getByLabel("Sort by").selectOption("vertical");
-  await expect(page).toHaveURL(/sort=vertical/);
-  // Happo-One has the largest vertical drop (1071 m)
-  await expect(list.getByRole("listitem").first()).toContainText("Happo-One");
+  await page.getByLabel("Sort by").selectOption("terrain_size");
+  await expect(page).toHaveURL(/sort=terrain_size/);
+  // Happo-One and Cortina have the most runs (16 each)
+  await expect(list.getByRole("listitem").first()).toContainText(
+    /Happo-One|Cortina/,
+  );
 
   // only Happo-One is within a 30 min walk of the hotel (~19 min)
   await page.getByLabel("Max walk").selectOption("30");

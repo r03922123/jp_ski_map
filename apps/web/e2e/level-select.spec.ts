@@ -41,7 +41,7 @@ test.describe("level select", () => {
           ]),
         ),
       );
-    await page.getByLabel("Sort by").selectOption("vertical");
+    await page.getByLabel("Sort by").selectOption("terrain_size");
     await expect
       .poll(() =>
         list
