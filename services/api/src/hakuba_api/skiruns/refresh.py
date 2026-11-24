@@ -50,12 +50,18 @@ class _Area(BaseModel):
     properties: _AreaProps
 
 
+class _Profile(BaseModel):
+    heights: list[float]
+    resolution: float  # m on the ground between two heights
+
+
 class _RunProps(BaseModel):
     id: str
     name: str | None
     status: str
     uses: list[str]
     difficulty: Difficulty | None
+    elevationProfile: _Profile | None  # noqa: N815
     skiAreas: list[_Area]  # noqa: N815 (OpenSkiMap's spelling)
 
 
@@ -145,11 +151,21 @@ def build(runs: dict[str, Any], lifts: dict[str, Any]) -> SkiLines:
                 p = _RunProps.model_validate(f.properties)
                 keep = p.status == "operating" and bool(RUN_USES & set(p.uses))
                 difficulty, lift_type, duration = p.difficulty, None, None
+                e = p.elevationProfile
+                profile = (
+                    {
+                        "heightsM": [round(h) for h in e.heights],
+                        "resolutionM": round(e.resolution, 2),
+                    }
+                    if e is not None
+                    else None
+                )
             else:
                 p = _LiftProps.model_validate(f.properties)
                 keep = p.status == "operating"
                 difficulty, lift_type = None, p.liftType
                 duration = round(p.duration) if p.duration is not None else None
+                profile = None
             resort_id = _resort(p.skiAreas) if keep else None
             if resort_id is None:
                 continue
@@ -162,6 +178,8 @@ def build(runs: dict[str, Any], lifts: dict[str, Any]) -> SkiLines:
                 "resortId": resort_id,
                 **_stats(f.geometry),
                 "durationS": duration,
+                # an area's profile would run along its outline, not down the slope
+                "profile": profile if f.geometry["type"] == "LineString" else None,
             }
             geometry = {
                 "type": f.geometry["type"],

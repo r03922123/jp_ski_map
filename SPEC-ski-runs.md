@@ -58,6 +58,7 @@ far more than a 31 KB crop needs.
 | `minElevationM`, `maxElevationM` | the coordinates' third value (v1.2) | m |
 | `slopePct` | measured (v1.2) | average: (highest − lowest, both rounded to m) / length on the ground × 100, 1 dp; null like `distanceM` |
 | `durationS` | `properties.duration` (lifts, v1.2) | ride time, s; null when OSM has none (85 of 92 lifts on 2026-11-23) |
+| `profile` | `properties.elevationProfile` (runs, v1.4) | `{heightsM: int[], resolutionM}`: heights every ~25 m along the run on the ground, rounded to m; null for a lift, an area or a run OpenSkiMap has none for (1 of 217 on 2026-11-24) |
 
 Ski-area names, matched by **exact string equality** (live names, 2026-11-23). Substring matching is wrong here:
 Cortina's name contains 白馬岩岳, which is Iwatake. A named ski area missing from this table fails the refresh
@@ -126,6 +127,33 @@ No query parameters: the whole valley is 31 KB gzipped.
   `DATA-LICENSES.md` has a row for it. Checks: the unit and e2e zoom checks move from 12 to 10 (lifts drawn at 11,
   nothing at 9), the credits e2e, and a phone screenshot. Out of v1.3: contour lines (the `maplibre-contour`
   package), 3D terrain.
+- **v1.4 (owner's request, 2026-11-24: "show resort information and interactive line information in openskimap in
+  the application for both desktop and mobile user", with screenshots of OpenSkiMap's ski-area panel and its run
+  panel's height profile).** This replaces v1.2's "a ski-area card is out": the owner still could not find a resort's
+  information from the map, because a tapped resort chip only picks the destination and the numbers sit in the
+  resort list's Details, which needs a start first.
+  - **Resort card.** A tap or click on a resort chip opens `ResortCard` on the shared `MapCard`, and still does what it
+    did before (it picks the destination; while a stop box is open it fills the stop and opens no card). The run or
+    lift card's resort name is a button that opens the same card. The card shows, as OpenSkiMap's does: the name
+    (English title, Japanese under it); Vertical `1080 m (749–1829 m)` (Happo-One); Downhill runs `31.4 km` and a bar split by
+    difficulty in the map's colours, with the same split as text for screen readers; Lifts `1 Gondola, 21 Chair lifts`;
+    the resort's website. Every number is summed from this resort's runs and lifts in the snapshot
+    (`lib/ski-stats.ts`), so the card matches the lines drawn; its source line says "Measured from OpenSkiMap's runs
+    and lifts". While it is open, `ski-selected` outlines all the resort's lines.
+  - **Height profile on the run card.** Under the numbers, a chart of the run's height against distance, coloured by
+    slope with OpenSkiData's downhill scale (`openskidata-format` `getSlopeGradingScaleForUse`, MIT: under 5 % grey,
+    under 25 % green, under 40 % red, under 100 % black, steeper orange), axes in m and km. Moving a mouse over it, or
+    dragging a finger along it, shows the height and slope at that point (`1145 m · 14° (25%)`) and puts a ring on
+    the map at that point of the run; arrow keys do the same from the keyboard. The card gains Ascent, Descent and
+    Max slope from the profile. A lift has no chart (OpenSkiMap shows none).
+  - **Data path.** The profile ships in `/api/ski-lines` (+6,345 heights, about 32 KB raw). MapLibre hands a tap the
+    tile-clipped geometry, so the cards read the whole line from a TanStack query of the same URL, enabled when a
+    card first opens; the browser serves it from the cache MapLibre's fetch filled (one hour). The card shows its
+    numbers from the tapped feature at once and the chart when the query lands.
+  - Phone and laptop: the card stays at the bottom on a phone and beside the side panel from `md`; the chart takes
+    touch drags without scrolling the page (`touch-action: none`).
+  - Out of v1.4: the slope-aspect rose (OpenSkiStats, another dataset), paper maps, zooming to the resort on tap,
+    a chart for lifts.
 - Colours follow OpenSkiMap's Japan convention (`difficultyConvention: "japan"`, from its `getRunColorName`):
 
   | Difficulty | Colour |
@@ -171,6 +199,16 @@ map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 - [ ] Screenshot on a 390 × 844 phone and a 1366 × 850 laptop at Happo-One, zoom 14, checked by eye: runs under
       the route line and markers, the credits line shows OpenSkiMap.
 - [ ] API and web gates green; `python3 scripts/check_docs.py` passes.
+- [ ] v1.4 API: the refresh keeps a run's profile with heights rounded to m and drops it for a lift; the validator
+      rejects a profile with fewer than 2 heights; the live snapshot has a profile on ≥ 200 runs.
+- [ ] v1.4 unit (web): the resort summary of a fixture (vertical, km by difficulty, lifts by type); the profile's ascent,
+      descent and max slope; each slope band's colour; the point at a fraction of a line.
+- [ ] v1.4 unit: a tapped resort chip opens the resort card and still selects the resort; with a stop box open it
+      opens no card; the run card's resort name opens the resort card; moving over the chart reports a map point.
+- [ ] v1.4 e2e: at Happo-One a click on a resort chip shows "Downhill runs"; a click on a run shows the profile, and a
+      hover over it puts the ring on the map.
+- [ ] v1.4 screenshots on a 390 × 844 phone and a 1366 × 850 laptop: the resort card, and the run card mid-drag with
+      the ring on the run.
 
 ## Boundaries
 
