@@ -545,11 +545,16 @@ describe("MapView frames a picked run or resort", () => {
       removeEventListener: () => {},
     })) as unknown as typeof window.matchMedia;
     h.map.fitBounds.mockClear();
+    h.map.easeTo.mockClear();
+    vi.useFakeTimers();
   });
   afterEach(() => {
+    vi.useRealTimers();
     for (const el of document.querySelectorAll("[data-map-card], [data-sheet]"))
       el.remove();
   });
+  // past the sheet's 200 ms height transition, when the fit measures the covers
+  const settle = () => act(() => vi.advanceTimersByTime(300));
 
   it("fits a tapped run's whole line once, above its card, after the finger lifts", () => {
     cover("data-map-card", 500); // the card's top edge on the 400 x 800 map
@@ -557,10 +562,12 @@ describe("MapView frames a picked run or resort", () => {
     act(() => h.props.onLoad({ target: h.map }));
     act(() => h.props.onMouseDown());
     rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    settle();
     expect(h.map.fitBounds).not.toHaveBeenCalled(); // the button is still down
     act(() => {
       window.dispatchEvent(new Event("mouseup"));
     });
+    settle();
     expect(fits()).toHaveLength(1);
     const [bounds, opts] = fits()[0];
     expect(bounds).toEqual(RUN.bounds);
@@ -569,11 +576,63 @@ describe("MapView frames a picked run or resort", () => {
     expect(opts.padding.top).toBeGreaterThanOrEqual(118); // the trip card
     // later renders of the same pick leave the map where the user takes it
     rerender(view(null, () => {}, {}, { skiFocus: { ...RUN } }));
+    settle();
     expect(fits()).toHaveLength(1);
     // a resort card frames all its lines
     rerender(view(null, () => {}, {}, { skiFocus: RESORT_LINES }));
+    settle();
     expect(fits()).toHaveLength(2);
     expect(fits()[1][0]).toEqual(RESORT_LINES.bounds);
+    // closed, then the same run picked again: framed again
+    rerender(view(null, () => {}, {}, { skiFocus: null }));
+    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    settle();
+    expect(fits()).toHaveLength(3);
+  });
+
+  it("measures the sheet where it settles, not where it was when the card opened", () => {
+    cover("data-map-card", 600);
+    const sheet = cover("data-sheet", 760); // swiped low
+    render(view(null, () => {}, {}, { skiFocus: RUN }));
+    act(() => h.props.onLoad({ target: h.map }));
+    // the new destination collapses the sheet up to 500 px within its 200 ms transition
+    sheet.getBoundingClientRect = () => ({ top: 500 }) as DOMRect;
+    settle();
+    expect(fits()).toHaveLength(1);
+    expect(fits()[0][1].padding.bottom).toBeGreaterThanOrEqual(800 - 500);
+  });
+
+  it("on a phone, a sheet hidden there covers nothing", () => {
+    cover("data-map-card", 600);
+    cover("data-sheet", 100).setAttribute("data-phone-hidden", "");
+    render(view(null, () => {}, {}, { skiFocus: RUN }));
+    act(() => h.props.onLoad({ target: h.map }));
+    settle();
+    expect(fits()[0][1].padding.bottom).toBeLessThan(800 - 100);
+  });
+
+  it("a long-pressed pin replacing the card fits no route: the pin's ease frames it", () => {
+    cover("data-map-card", 500);
+    const route = { routes: [walk], origin: { lat: 36.69, lng: 137.85 } };
+    const { rerender } = render(
+      view(null, () => {}, {}, { ...route, skiFocus: RUN }),
+    );
+    act(() => h.props.onLoad({ target: h.map }));
+    settle();
+    expect(fits()).toHaveLength(1);
+    // the finger is down; the long-press timer drops a pin and the card becomes the pin's
+    act(() => h.props.onMouseDown());
+    const pin = { coord: { lat: 36.7, lng: 137.85 }, name: null };
+    rerender(
+      view(null, () => {}, {}, { ...route, skiFocus: null, droppedPin: pin }),
+    );
+    expect(fits()).toHaveLength(1);
+    act(() => {
+      window.dispatchEvent(new Event("mouseup"));
+    });
+    settle();
+    expect(fits()).toHaveLength(1);
+    expect(h.map.easeTo).toHaveBeenCalled();
   });
 
   it("on a phone, keeps clear of the sheet when it stands above the card", () => {
@@ -581,6 +640,7 @@ describe("MapView frames a picked run or resort", () => {
     cover("data-sheet", 450);
     render(view(null, () => {}, {}, { skiFocus: RUN }));
     act(() => h.props.onLoad({ target: h.map }));
+    settle();
     expect(fits()[0][1].padding.bottom).toBeGreaterThanOrEqual(800 - 450);
   });
 
@@ -591,6 +651,7 @@ describe("MapView frames a picked run or resort", () => {
       view(null, () => {}, {}, { ...route, skiFocus: RUN }),
     );
     act(() => h.props.onLoad({ target: h.map }));
+    settle();
     expect(fits()).toHaveLength(1);
     expect(fits()[0][0]).toEqual(RUN.bounds);
     rerender(view(null, () => {}, {}, { ...route, skiFocus: null }));

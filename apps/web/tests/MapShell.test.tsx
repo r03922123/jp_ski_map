@@ -130,6 +130,31 @@ const goryuRun: SkiLineFeature = {
     ],
   },
 };
+// Happo-One's area run (a Polygon, as one run in the snapshot is), east of the others (v1.5)
+const happoArea: SkiLineFeature = {
+  type: "Feature",
+  properties: {
+    ...skyline,
+    id: "a1",
+    name: "Area",
+    distanceM: null,
+    minElevationM: null,
+    maxElevationM: null,
+    slopePct: null,
+    profile: null,
+  },
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [
+        [137.805, 36.7],
+        [137.81, 36.7],
+        [137.81, 36.705],
+        [137.805, 36.7],
+      ],
+    ],
+  },
+};
 const drive = driveFixture as unknown as Route;
 const walk = walkFixture as unknown as Route;
 const hotel = { lat: 36.697364, lng: 137.853928 };
@@ -161,7 +186,9 @@ vi.mock("@/lib/api", async (importOriginal) => {
     fetchNearbyPois: vi.fn(async () => []),
     skiLinesQuery: {
       queryKey: ["ski-lines"],
-      queryFn: async () => ({ features: [skylineRun, happoLift, goryuRun] }),
+      queryFn: async () => ({
+        features: [skylineRun, happoLift, goryuRun, happoArea],
+      }),
       staleTime: Number.POSITIVE_INFINITY,
     },
   };
@@ -906,12 +933,12 @@ describe("MapShell ski cards", () => {
       }),
     );
     act(() => map().onSelectResort("happo-one"));
-    // the run and the lift, not Goryu's run
+    // the run, the lift and the area's outline, not Goryu's run
     expect(map().skiFocus).toEqual({
       key: "resort:happo-one",
       bounds: [
         [137.79, 36.69],
-        [137.8, 36.7009],
+        [137.81, 36.705],
       ],
     });
     fireEvent.click(
@@ -923,6 +950,19 @@ describe("MapShell ski cards", () => {
     // a dropped pin's card frames nothing (the map eases to the pin instead)
     act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
     expect(map().skiFocus).toBeNull();
+  });
+
+  it("while navigating, the map frames no ski card; on exit it frames it again", async () => {
+    renderShell("?from=36.69736,137.85393&mode=drive&resort=happo-one");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectSkiLine?.(skyline));
+    await waitFor(() => expect(map().skiFocus?.key).toBe("r1"));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /start navigation/i }),
+    );
+    expect(map().skiFocus).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
+    expect(map().skiFocus?.key).toBe("r1");
   });
 
   it("moving over the run's profile puts the ring on the map; closing the card clears it", async () => {

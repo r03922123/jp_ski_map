@@ -192,6 +192,9 @@ const sizeOf = (map: HasCanvas) => {
   return `${canvas.clientWidth}x${canvas.clientHeight}`;
 };
 
+// BottomSheet's `duration-200` height transition, and a frame to spare
+const SHEET_SETTLE_MS = 250;
+
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -268,9 +271,15 @@ export default function MapView({
     .join("|")}`;
   const piloting = pilot !== null;
   const skiKey = skiFocus?.key ?? "";
+  const lastSkiKey = useRef(skiKey);
   // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
   useEffect(() => {
     const map = mapRef.current;
+    // a long-pressed pin took the ski card's place, finger still down: the pin's own ease
+    // frames it, and a route fit now would start inside the press
+    const pinReplacedCard = lastSkiKey.current !== "" && !skiKey && droppedPin;
+    lastSkiKey.current = skiKey;
+    if (pinReplacedCard) return;
     // while navigating the follow camera owns the view (a reroute must not zoom out); while
     // a ski card is open its lines own it, and closing the card fits the route again
     if (!mapReady || !map || drawn.length === 0 || piloting || skiKey) return;
@@ -446,14 +455,23 @@ export default function MapView({
     }
     if (!mapReady || !map || !skiFocus || piloting || pressing) return;
     if (framedSki.current === skiKey) return;
-    framedSki.current = skiKey;
-    map.fitBounds(skiFocus.bounds, {
-      padding: cardPaddingOf(map),
-      // as the route fit: replaces what an ease left on the map instead of adding to it
-      absolutePadding: true,
-      maxZoom: 16,
-      duration: prefersReducedMotion() ? 0 : 600,
-    });
+    const { bounds } = skiFocus;
+    // shortcut: waits out BottomSheet's 200 ms height transition (a new destination collapses
+    // it) before measuring; watch the covers instead if the sheet's timing changes
+    const settled = setTimeout(() => {
+      if (pressed.current) return; // the release re-runs this effect
+      framedSki.current = skiKey;
+      map.fitBounds(bounds, {
+        padding: cardPaddingOf(map),
+        // as the route fit: replaces what an ease left on the map instead of adding to it
+        absolutePadding: true,
+        maxZoom: 16,
+        // the view navigation leaves is tilted
+        pitch: 0,
+        duration: prefersReducedMotion() ? 0 : 600,
+      });
+    }, SHEET_SETTLE_MS);
+    return () => clearTimeout(settled);
   }, [skiKey, pressing, mapReady, piloting]);
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
