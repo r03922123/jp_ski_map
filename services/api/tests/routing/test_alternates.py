@@ -29,9 +29,9 @@ def valhalla() -> Iterator[respx.MockRouter]:
 
 
 def test_routes_returns_primary_and_alternates(valhalla: respx.MockRouter) -> None:
-    call = valhalla.post("/route").respond(json=fixture("route_drive_alternates.json"))
+    call = valhalla.post("/route").respond(json=fixture("route_bus_alternates.json"))
 
-    routes = ValhallaClient(VALHALLA).routes("drive", HAPPO, IWATAKE, alternates=2)
+    routes = ValhallaClient(VALHALLA).routes("bus", HAPPO, IWATAKE, alternates=2)
 
     assert json.loads(call.calls.last.request.content)["alternates"] == 2
     assert routes.primary.duration_s == 1048
@@ -40,19 +40,19 @@ def test_routes_returns_primary_and_alternates(valhalla: respx.MockRouter) -> No
 
 
 def test_routes_drops_alternates_much_slower_than_primary(valhalla: respx.MockRouter) -> None:
-    data = fixture("route_drive_alternates.json")
+    data = fixture("route_bus_alternates.json")
     data["alternates"][0]["trip"]["summary"]["time"] = 1048.229 * 1.6
     valhalla.post("/route").respond(json=data)
 
-    routes = ValhallaClient(VALHALLA).routes("drive", HAPPO, IWATAKE, alternates=2)
+    routes = ValhallaClient(VALHALLA).routes("bus", HAPPO, IWATAKE, alternates=2)
 
     assert routes.alternates == []
 
 
 def test_routes_without_alternates_does_not_ask_for_them(valhalla: respx.MockRouter) -> None:
-    call = valhalla.post("/route").respond(json=fixture("route_drive.json"))
+    call = valhalla.post("/route").respond(json=fixture("route_bus.json"))
 
-    routes = ValhallaClient(VALHALLA).routes("drive", HAPPO, IWATAKE, alternates=0)
+    routes = ValhallaClient(VALHALLA).routes("bus", HAPPO, IWATAKE, alternates=0)
 
     assert "alternates" not in json.loads(call.calls.last.request.content)
     assert routes.alternates == []
@@ -62,7 +62,7 @@ def test_path_passes_middle_points_as_through_locations(valhalla: respx.MockRout
     call = valhalla.post("/route").respond(json=fixture("route_path_through.json"))
     points = [Coord(lat=36.70153, lng=137.84561), Coord(lat=36.6985, lng=137.8616), IWATAKE]
 
-    route = ValhallaClient(VALHALLA).path("drive", points)
+    route = ValhallaClient(VALHALLA).path("bus", points)
 
     sent = json.loads(call.calls.last.request.content)["locations"]
     assert [loc.get("type") for loc in sent] == [None, "through", None]
@@ -76,11 +76,11 @@ def api(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
 
 def test_routes_endpoint_returns_route_set(valhalla: respx.MockRouter, api: TestClient) -> None:
-    valhalla.post("/route").respond(json=fixture("route_drive_alternates.json"))
+    valhalla.post("/route").respond(json=fixture("route_bus_alternates.json"))
 
     response = api.get(
         "/api/routes",
-        params={"mode": "drive", "from": "36.6985,137.8376", "to": "36.7395,137.851"},
+        params={"mode": "bus", "from": "36.6985,137.8376", "to": "36.7395,137.851"},
     )
 
     assert response.status_code == 200
@@ -93,7 +93,7 @@ def test_routes_endpoint_returns_route_set(valhalla: respx.MockRouter, api: Test
 def test_routes_endpoint_rejects_too_many_alternates(api: TestClient) -> None:
     response = api.get(
         "/api/routes",
-        params={"mode": "drive", "from": "36.7,137.8", "to": "36.7,137.85", "alternates": 3},
+        params={"mode": "bus", "from": "36.7,137.8", "to": "36.7,137.85", "alternates": 3},
     )
 
     assert response.status_code == 422
@@ -105,20 +105,20 @@ def test_path_endpoint(valhalla: respx.MockRouter, api: TestClient) -> None:
     response = api.post(
         "/api/route/path",
         json={
-            "mode": "drive",
+            "mode": "bus",
             "points": [{"lat": 36.70153, "lng": 137.84561}, {"lat": 36.7395, "lng": 137.851}],
         },
     )
 
     assert response.status_code == 200
-    assert response.json()["mode"] == "drive"
+    assert response.json()["mode"] == "bus"
 
 
 @pytest.mark.parametrize("n", [1, 26])
 def test_path_endpoint_needs_2_to_25_points(api: TestClient, n: int) -> None:
     response = api.post(
         "/api/route/path",
-        json={"mode": "drive", "points": [{"lat": 36.7, "lng": 137.8}] * n},
+        json={"mode": "bus", "points": [{"lat": 36.7, "lng": 137.8}] * n},
     )
 
     assert response.status_code == 422
@@ -131,7 +131,7 @@ def test_path_endpoint_maps_valhalla_down_to_503(
 
     response = api.post(
         "/api/route/path",
-        json={"mode": "drive", "points": [{"lat": 36.7, "lng": 137.8}] * 2},
+        json={"mode": "bus", "points": [{"lat": 36.7, "lng": 137.8}] * 2},
     )
 
     assert response.status_code == 503
@@ -151,7 +151,7 @@ def test_live_path_passes_near_every_point() -> None:
         Coord(lat=36.7094385, lng=137.8362778),  # Spicy Rental Wadano
     ]
 
-    route = live.path("drive", points)
+    route = live.path("bus", points)
 
     line = [Coord(lat=lat, lng=lng) for lng, lat in route.geometry.coordinates]
     for p in points:
@@ -171,7 +171,7 @@ def test_path_with_stops_sends_break_points_and_announces_each_stop(
         Coord(lat=36.70179, lng=137.83683),
     ]
 
-    route = ValhallaClient(VALHALLA).path("drive", points, stop_at_points=True)
+    route = ValhallaClient(VALHALLA).path("bus", points, stop_at_points=True)
 
     sent = json.loads(call.calls.last.request.content)["locations"]
     assert [loc.get("type") for loc in sent] == [None, None, None]  # Valhalla's default: break
@@ -191,7 +191,7 @@ def test_path_endpoint_accepts_stop_at_points(valhalla: respx.MockRouter, api: T
     response = api.post(
         "/api/route/path",
         json={
-            "mode": "drive",
+            "mode": "bus",
             "points": [
                 {"lat": 36.69711, "lng": 137.85393},
                 {"lat": 36.69877, "lng": 137.86197},

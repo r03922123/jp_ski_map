@@ -1,6 +1,6 @@
 """The Hakuba-only tiles give the same answers as the full Chubu build (measured 2026-10-31).
 
-Without default_speeds.json, drive times came out up to 37% too fast; walking was unaffected.
+Without default_speeds.json, road (bus) times came out up to 37% too fast; walking was unaffected.
 """
 
 import os
@@ -13,13 +13,13 @@ HAPPO = (36.69711, 137.85393)
 
 # (from, to, costing) -> (km, minutes) from the Chubu build
 EXPECTED = {
-    (HAPPO, (36.7006, 137.8320), "auto"): (2.80, 11.5),
+    (HAPPO, (36.7006, 137.8320), "bus"): (2.80, 11.5),
     (HAPPO, (36.7006, 137.8320), "pedestrian"): (2.52, 29.8),
-    (HAPPO, (36.7835, 137.8650), "auto"): (17.16, 29.9),
+    (HAPPO, (36.7835, 137.8650), "bus"): (17.16, 29.9),
     (HAPPO, (36.7835, 137.8650), "pedestrian"): (16.86, 198.4),
-    (HAPPO, (36.5622, 137.8278), "auto"): (18.14, 23.4),
+    (HAPPO, (36.5622, 137.8278), "bus"): (18.14, 23.4),
     (HAPPO, (36.5622, 137.8278), "pedestrian"): (16.96, 199.6),
-    ((36.6977, 137.8622), (36.7880, 137.8530), "auto"): (22.46, 57.8),
+    ((36.6977, 137.8622), (36.7880, 137.8530), "bus"): (22.46, 57.8),
 }
 
 

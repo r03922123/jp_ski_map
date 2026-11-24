@@ -82,13 +82,13 @@ def _mixed(rng: random.Random, everywhere: list[Point], stops: list[Point]) -> l
     """The bodies routing/client.py sends, including the biggest matrix: a bus query's walk
     to every stop, which holds the engine's lock longest."""
     cases: list[Case] = []
-    for costing in ("auto", "pedestrian"):
+    for costing in ("bus", "pedestrian"):
         for i in range(40):
             alternates = {"alternates": i % 3} if i % 3 else {}  # the API takes 0, 1 or 2
             start, end = rng.sample(everywhere, 2)
             cases.append(_route([_near(rng, start), end], costing, **alternates))
         for _ in range(10):
-            targets = rng.sample(everywhere, MATRIX_TARGETS) if costing == "auto" else stops
+            targets = rng.sample(everywhere, MATRIX_TARGETS) if costing == "bus" else stops
             cases.append(_matrix([_near(rng, rng.choice(everywhere))], targets, costing))
     return cases
 
@@ -102,7 +102,7 @@ def _paths(rng: random.Random, stops: list[Point]) -> list[Case]:
             if not stop_at_points:
                 for point in points[1:-1]:
                     point["type"] = "through"  # type: ignore[assignment]
-            cases.append(_route(points, rng.choice(("auto", "pedestrian"))))
+            cases.append(_route(points, rng.choice(("bus", "pedestrian"))))
     return cases
 
 
@@ -111,11 +111,11 @@ def _errors(rng: random.Random, stops: list[Point]) -> list[Case]:
     far_away = {"lat": 0.1, "lon": 0.1}  # past the distance limit
     no_roads = {"lat": 36.0, "lon": 139.5}  # outside the Hakuba tiles
     return [
-        _route([far_away, a], "auto"),
+        _route([far_away, a], "bus"),
         _route([a, no_roads], "pedestrian"),
-        _route([a], "auto"),  # one location
+        _route([a], "bus"),  # one location
         _route([a, b], "nope"),  # no such costing
-        _matrix([far_away], [a, b], "auto"),
+        _matrix([far_away], [a, b], "bus"),
     ]
 
 
@@ -275,9 +275,9 @@ def test_mixed_requests_cover_both_costings_on_both_endpoints() -> None:
     kinds = {(c.path, c.body["costing"]) for c in generate_requests(SEED).mixed}
 
     assert kinds == {
-        ("/route", "auto"),
+        ("/route", "bus"),
         ("/route", "pedestrian"),
-        ("/sources_to_targets", "auto"),
+        ("/sources_to_targets", "bus"),
         ("/sources_to_targets", "pedestrian"),
     }
 
@@ -286,7 +286,7 @@ def test_matrix_requests_include_the_biggest_the_app_sends() -> None:
     matrices = [c for c in generate_requests(SEED).mixed if c.path == "/sources_to_targets"]
     sizes = {c.body["costing"]: len(c.body["targets"]) for c in matrices}
 
-    assert sizes == {"auto": MATRIX_TARGETS, "pedestrian": len(_load_points()[1])}
+    assert sizes == {"bus": MATRIX_TARGETS, "pedestrian": len(_load_points()[1])}
 
 
 def test_path_requests_are_half_through_points_and_half_stops() -> None:
@@ -298,7 +298,7 @@ def test_path_requests_are_half_through_points_and_half_stops() -> None:
 
 
 def test_a_difference_names_its_seed_index_and_request() -> None:
-    cases = [Case("/route", {"costing": "auto"}), Case("/route", {"costing": "pedestrian"})]
+    cases = [Case("/route", {"costing": "bus"}), Case("/route", {"costing": "pedestrian"})]
 
     with pytest.raises(pytest.fail.Exception) as failure:
         assert_same_answers(
@@ -312,7 +312,7 @@ def test_a_difference_names_its_seed_index_and_request() -> None:
     assert "2 of 2" in message
     assert "seed 42" in message
     assert "index 0" in message
-    assert "'costing': 'auto'" in message
+    assert "'costing': 'bus'" in message
     assert "['trip']" in message
 
 
@@ -383,7 +383,7 @@ def test_a_cost_outside_a_matrix_stays_exact() -> None:
 
 
 def test_a_matrix_cost_within_the_tolerance_is_not_reported() -> None:
-    cases = [Case("/sources_to_targets", {"costing": "auto"})]
+    cases = [Case("/sources_to_targets", {"costing": "bus"})]
 
     assert_same_answers(
         cases,

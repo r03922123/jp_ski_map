@@ -10,15 +10,15 @@ from hakuba_api.routing.models import MatrixCell
 from hakuba_api.snow.models import SnowReport
 
 SortKey = Literal[
-    "drive_time", "fresh_snow", "snow_depth", "crowd", "terrain_size", "vertical", "price"
+    "walk_time", "fresh_snow", "snow_depth", "crowd", "terrain_size", "vertical", "price"
 ]
-LOWER_IS_BETTER: set[SortKey] = {"drive_time", "crowd", "price"}
+LOWER_IS_BETTER: set[SortKey] = {"walk_time", "crowd", "price"}
 
 
 class Factors(ApiModel):
     """Raw values, in their natural units; None = unknown."""
 
-    drive_time: float | None  # seconds
+    walk_time: float | None  # seconds
     fresh_snow: float | None  # cm: past 24 h + half of next 24 h
     snow_depth: float | None  # cm at the summit
     crowd: float | None  # 0..1 estimate
@@ -32,8 +32,8 @@ class RankedResort(ApiModel):
     name: str
     rank: int
     sort_value: float | None
-    drive_s: int | None
-    drive_distance_m: int | None
+    walk_s: int | None
+    walk_distance_m: int | None
     access_point_id: str
     factors: Factors
     snow: SnowReport | None
@@ -45,7 +45,7 @@ class RankedResort(ApiModel):
 @dataclass
 class RankInput:
     resort: Resort
-    drive: MatrixCell  # nearest access point (id = access point id)
+    walk: MatrixCell  # nearest access point (id = access point id)
     snow: SnowReport | None
     crowd: CrowdEstimate | None
 
@@ -54,7 +54,7 @@ class RankInput:
 class Filters:
     night_skiing: bool | None = None
     hakuba_valley_pass: bool | None = None
-    max_drive_min: float | None = None
+    max_walk_min: float | None = None
 
 
 def _fresh_snow(snow: SnowReport | None) -> float | None:
@@ -69,7 +69,7 @@ def _fresh_snow(snow: SnowReport | None) -> float | None:
 def factors_for(item: RankInput) -> Factors:
     stats = item.resort.stats
     return Factors(
-        drive_time=item.drive.duration_s,
+        walk_time=item.walk.duration_s,
         fresh_snow=_fresh_snow(item.snow),
         snow_depth=item.snow.depth_cm.summit if item.snow else None,
         crowd=item.crowd.score if item.crowd else None,
@@ -88,9 +88,9 @@ def _keep(item: RankInput, filters: Filters) -> bool:
         return False
     if filters.hakuba_valley_pass and not item.resort.hakuba_valley_pass:
         return False
-    if filters.max_drive_min is not None:
-        seconds = item.drive.duration_s
-        if seconds is None or seconds > filters.max_drive_min * 60:
+    if filters.max_walk_min is not None:
+        seconds = item.walk.duration_s
+        if seconds is None or seconds > filters.max_walk_min * 60:
             return False
     return True
 
@@ -103,12 +103,12 @@ def rank(items: list[RankInput], sort: SortKey, filters: Filters) -> list[Ranked
         item, factors = entry
         value: float | None = getattr(factors, sort)
         lift_tiebreak = -_lifts(item.resort) if sort == "terrain_size" else 0
-        drive = item.drive.duration_s
+        walk = item.walk.duration_s
         return (
             value is None,  # unknowns last
             sign * (value or 0),
             lift_tiebreak,
-            float("inf") if drive is None else drive,
+            float("inf") if walk is None else walk,
             item.resort.id,
         )
 
@@ -118,9 +118,9 @@ def rank(items: list[RankInput], sort: SortKey, filters: Filters) -> list[Ranked
             name=item.resort.name.en,
             rank=position,
             sort_value=getattr(factors, sort),
-            drive_s=item.drive.duration_s,
-            drive_distance_m=item.drive.distance_m,
-            access_point_id=item.drive.id,
+            walk_s=item.walk.duration_s,
+            walk_distance_m=item.walk.distance_m,
+            access_point_id=item.walk.id,
             factors=factors,
             snow=item.snow,
             crowd=item.crowd,

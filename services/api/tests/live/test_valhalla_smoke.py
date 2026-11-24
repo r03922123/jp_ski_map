@@ -13,7 +13,7 @@ HAPPO_AREA = {"lat": 36.6964, "lon": 137.8436}
 def test_valhalla_routes_jr_hakuba_station_to_happo_by_car() -> None:
     response = httpx.post(
         f"{VALHALLA_URL}/route",
-        json={"locations": [JR_HAKUBA_STATION, HAPPO_AREA], "costing": "auto"},
+        json={"locations": [JR_HAKUBA_STATION, HAPPO_AREA], "costing": "bus"},
         timeout=10,
     )
 

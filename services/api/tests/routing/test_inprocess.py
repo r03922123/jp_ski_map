@@ -22,9 +22,9 @@ from hakuba_api.routing.engine import InProcessEngine, get_engine
 
 VALHALLA = "http://valhalla.test"
 TILES = "/deploy/valhalla_tiles.tar"
-ROUTE_QUERY = {"mode": "drive", "from": "36.70153,137.84561", "to": "36.69824,137.83881"}
+ROUTE_QUERY = {"mode": "bus", "from": "36.70153,137.84561", "to": "36.69824,137.83881"}
 ROUTE_ANSWER = json.loads(
-    (Path(__file__).parents[1] / "fixtures" / "valhalla" / "route_drive.json").read_text()
+    (Path(__file__).parents[1] / "fixtures" / "valhalla" / "route_bus.json").read_text()
 )
 Body = dict[str, Any]
 
@@ -322,7 +322,7 @@ def test_matrix_takes_at_most_25_targets(
     cells = [{"to_index": i, "time": 60, "distance": 1.0} for i in range(targets)]
     http = http_backend.post("/sources_to_targets").respond(json={"sources_to_targets": [cells]})
     body = {
-        "mode": "drive",
+        "mode": "bus",
         "origin": {"lat": 36.7, "lng": 137.84},
         "targets": [{"id": f"t{i}", "lat": 36.7, "lng": 137.85} for i in range(targets)],
     }

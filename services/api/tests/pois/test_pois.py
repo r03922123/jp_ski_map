@@ -151,7 +151,7 @@ def test_nearby_prefilters_the_closest_by_straight_line_before_routing() -> None
         routed.extend(t for t, _ in targets)
         return [MatrixCell(id=t, duration_s=10, distance_m=10) for t, _ in targets]
 
-    nearby(pois, JR_HAKUBA, "convenience", "drive", limit=10, matrix=matrix)
+    nearby(pois, JR_HAKUBA, "convenience", "walk", limit=10, matrix=matrix)
 
     assert len(routed) == PREFILTER
     assert "osm:node/0" in routed and "osm:node/39" not in routed
@@ -222,7 +222,7 @@ def test_nearby_endpoint_maps_valhalla_down_to_503(api: TestClient) -> None:
         mock.post("/sources_to_targets").mock(side_effect=httpx.ConnectError("refused"))
         response = api.get(
             "/api/pois/nearby",
-            params={"from": "36.6987,137.8617", "category": "food", "mode": "drive"},
+            params={"from": "36.6987,137.8617", "category": "food", "mode": "walk"},
         )
 
     assert response.status_code == 503

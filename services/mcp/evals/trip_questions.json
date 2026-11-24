@@ -1,20 +1,5 @@
 [
   {
-    "id": "fresh-snow-from-hotel",
-    "lang": "en",
-    "question": "I'm staying at Hotel Hakuba. Which resort has the most fresh snow right now, and how long is the drive there?",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow", "route"],
-    "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake)",
-    "check": "names a resort",
-    "regex_why": "Weak, kept for comparison: any Hakuba resort name passes, so it rules out only an answer that names no resort (a refusal, or a generic 'Hakuba Valley').",
-    "positive": "Happo-One has the most fresh snow, about 6 minutes' drive from Hotel Hakuba.",
-    "negatives": [
-      "Hakuba Valley has had fresh snow; the drive is about 6 minutes.",
-      "I can't tell which resort has the most snow."
-    ]
-  },
-  {
     "id": "bus-to-happo",
     "lang": "zh",
     "question": "我住在白馬駅附近，2026-12-26 早上 8 點想搭接駁巴士去八方尾根，有哪些班次？",
@@ -31,21 +16,6 @@
     ]
   },
   {
-    "id": "drive-to-goryu",
-    "lang": "ja",
-    "question": "白馬駅から白馬五竜まで車で何分かかりますか？",
-    "required": ["search_place", "route"],
-    "optional": ["rank_resorts"],
-    "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
-    "check": "gives minutes",
-    "regex_why": "Weak, kept for comparison: any number of minutes passes, so it rules out only a distance-only or time-less answer, not a wrong duration.",
-    "positive": "約8分（5.3km）です。",
-    "negatives": [
-      "約5.3kmです。",
-      "車ですぐ着きます。"
-    ]
-  },
-  {
     "id": "crowd-and-depth",
     "lang": "en",
     "question": "Is Happo-One going to be crowded on 2026-12-27, and how deep is the snow there?",
@@ -58,21 +28,6 @@
     "negatives": [
       "Happo-One is expected to be busy on Sunday.",
       "There is 12 cm of snow at the summit."
-    ]
-  },
-  {
-    "id": "quietest-resort",
-    "lang": "zh",
-    "question": "從 Hakuba Tokyu Hotel 出發，2026-12-31 哪個雪場人最少？開車多久？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow", "route"],
-    "answer_regex": "(?i)(happo|goryu|47|iwatake|tsugaike|norikura|cortina|sanosaka|kashimayari|jigatake|八方|五竜|岩岳|栂池|乘鞍|乗鞍|科爾蒂納|コルチナ|鹿島槍|爺ガ岳|佐野坂)",
-    "check": "names a resort",
-    "regex_why": "Weak, kept for comparison: any resort name in English or kanji passes, so it rules out only an answer that names no resort.",
-    "positive": "2026-12-31 人最少的是爺ヶ岳（Jigatake），開車約 35 分鐘。",
-    "negatives": [
-      "白馬的雪場那天都很擠，開車約 30 分鐘。",
-      "我查不到人潮資料。"
     ]
   },
   {
@@ -123,36 +78,6 @@
     ]
   },
   {
-    "id": "drive-to-cortina",
-    "lang": "zh",
-    "question": "從白馬駅開車到白馬Cortina滑雪場要多久？",
-    "required": ["search_place", "route"],
-    "optional": ["rank_resorts", "crowd_and_snow"],
-    "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
-    "check": "gives minutes",
-    "regex_why": "Weak, kept for comparison: any number of minutes passes, so it rules out only a distance-only answer, not a wrong duration.",
-    "positive": "从JR白马站开车到白马Cortina大约要20分钟，约13.5 km。",
-    "negatives": [
-      "全程約 13.5 km。",
-      "開車不會太久。"
-    ]
-  },
-  {
-    "id": "drive-to-sanosaka",
-    "lang": "ja",
-    "question": "Hotel Hakubaから白馬さのさかスキー場まで車で何分ですか？",
-    "required": ["search_place", "route"],
-    "optional": ["rank_resorts", "crowd_and_snow"],
-    "answer_regex": "(?i)\\d+(\\.\\d+)?\\s*-?\\s*(分|min)",
-    "check": "gives minutes",
-    "regex_why": "Weak, kept for comparison: any number of minutes passes, so it rules out only a distance-only answer, not a wrong duration.",
-    "positive": "車で約22分、距離は約10.2kmです。",
-    "negatives": [
-      "距離は約10.2kmです。",
-      "車ですぐです。"
-    ]
-  },
-  {
     "id": "food-near-iwatake",
     "lang": "en",
     "question": "Is there somewhere to eat within walking distance of the Hakuba Iwatake base?",
@@ -180,72 +105,6 @@
     "negatives": [
       "15:18 JR白馬駅発の便があります。",
       "15時ごろの便があります。"
-    ]
-  },
-  {
-    "id": "rank-closest-from-berghaus",
-    "lang": "en",
-    "question": "I'm staying at Tsugaike Kogen Hotel Hakuba Berghaus. Which ski resort is the shortest drive away, and how many minutes is it?",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[0０]|[1１]|[2２]|[3３])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:tsugaike|栂池|つがいけ|ツガイケ)|(?:closest|nearest|shortest|一番近|最も近|最寄|最近|最短)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:tsugaike|栂池|つがいけ|ツガイケ))",
-    "check": "names Tsugaike, ~1 min drive",
-    "regex_why": "Tsugaike (1.4 min by car) leads, so an answer naming Norikura or Iwatake first, or a drive of 6+ minutes, fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "Tsugaike Mountain Resort is closest, about a 1-minute drive (1.4 min).",
-    "negatives": [
-      "Hakuba Norikura is the closest at about 6 minutes.",
-      "Tsugaike Mountain Resort, roughly a 10 minute drive.",
-      "Hakuba Iwatake is the shortest drive, about 8 min."
-    ],
-    "more_positives": [
-      "Tsugaike Mountain Resort is closest, about a 1-minute drive."
-    ]
-  },
-  {
-    "id": "rank-closest-from-omachi",
-    "lang": "ja",
-    "question": "信濃大町駅から車で一番近いスキー場はどこですか？何分かかりますか？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[1１][4４]|[1１][5５]|[1１][6６]|[1１][7７]|[1１][8８])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳|kashimayari|鹿[島岛][槍枪鑓])|(?:closest|nearest|shortest|一番近|最も近|最寄|最近|最短)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:jigatake|[爺爷].{0,2}岳|kashimayari|鹿[島岛][槍枪鑓]))",
-    "check": "names Jigatake, ~16 min",
-    "regex_why": "Jigatake and Kashimayari tie at 15.7 min, so either may lead, but an answer leading with Sanosaka or a Hakuba-centric 30+ min guess fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "一番近いのは爺ガ岳スキー場で、車で約16分です。",
-    "negatives": [
-      "白馬さのさかが一番近く、約21分です。",
-      "爺ガ岳スキー場です。車で約30分かかります。"
-    ]
-  },
-  {
-    "id": "rank-pass-closest-from-kamishiro",
-    "lang": "zh",
-    "question": "從神城駅出發，最近、又能用 Hakuba Valley 共通券的雪場是哪一個？開車要幾分鐘？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.０-９])(?:[1１]|[2２]|[3３]|[4４]|[5５])(?![\\d０-９])(?:\\.\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分))(?:^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ)|(?:closest|nearest|shortest|一番近|最も近|最寄|最近|最短)(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:gory[uū]|五[竜龍龙]|ゴリュウ))",
-    "check": "names Goryu, ~3 min",
-    "regex_why": "Goryu is 3.4 min from Kamishiro Station, so naming Sanosaka (5.8 min) or Happo-One first, or a 10+ minute drive, fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "最近的是 ABLE 白马五龙，开车约 3 分钟（3.4 分钟），可以使用 Hakuba Valley 通用券。",
-    "negatives": [
-      "最近的是白馬さのさか，開車約6分鐘。",
-      "白馬八方尾根最近，約 9 分鐘。",
-      "白马五龙，开车大约 12 分钟。"
-    ]
-  },
-  {
-    "id": "rank-fresh-snow-within-8min",
-    "lang": "en",
-    "question": "From 36.6983,137.8619, which resort within an 8-minute drive has the most new snow, and how many cm?",
-    "required": ["rank_resorts"],
-    "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))(?:^(?:(?!(?:tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳)|(?:most\\s+(?:new|fresh)|最多|一番多|最も多)(?:(?!(?:tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳))",
-    "check": "names a resort within 8 min + cm (live data, form only)",
-    "regex_why": "New snow is live data, so only the form is pinned: the first resort named must be one of the three within 8 min (Iwatake, Happo-One, Goryu) with a cm figure, which rules out Tsugaike or Hakuba47 (10+ min away) and an answer with no amount. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "Hakuba Happo-One has the most new snow within 8 minutes: about 93 cm (as of 18:00 JST), a 6-minute drive.",
-    "negatives": [
-      "Hakuba47 has the most fresh snow, 50 cm, about 10 minutes away.",
-      "Tsugaike leads with 46 cm of new snow.",
-      "Happo-One looks best for fresh snow, about 6 minutes away."
     ]
   },
   {
@@ -295,40 +154,6 @@
     ]
   },
   {
-    "id": "rank-quiet-within-15-jan",
-    "lang": "ja",
-    "question": "白馬樅の木ホテルから車で15分以内のスキー場で、2027-01-13に一番空いているのはどこですか？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow", "route"],
-    "answer_regex": "(?is)(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:iwatake|岩岳)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:iwatake|岩岳))",
-    "check": "names Iwatake (filter + date)",
-    "regex_why": "Without the 15-minute filter Jigatake (35 min) is quietest, and Goryu/Tsugaike come next, so an answer leading with Jigatake, Sanosaka or Goryu fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "15分以内では白馬岩岳スノーフィールドが一番空いています（混雑度：中、車で約7分）。",
-    "negatives": [
-      "一番空いているのは爺ガ岳スキー場です（混雑度：低）。",
-      "白馬さのさかが空いています、約15分です。",
-      "白馬五竜が比較的空いています。"
-    ],
-    "more_positives": [
-      "2027-01-13は八方尾根（車で約4分）が medium（0.40）。15分以内で一番空いているのは白馬岩岳（0.30）です。"
-    ]
-  },
-  {
-    "id": "rank-quiet-night-feb",
-    "lang": "zh",
-    "question": "2027-02-13 我想從 Hotel Hakuba 出發，去開車 15 分鐘內、有夜場的雪場，哪個人最少？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow", "route"],
-    "answer_regex": "(?is)(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:sanosaka|さのさか|サノサカ|佐野坂)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:sanosaka|さのさか|サノサカ|佐野坂))",
-    "check": "names Sanosaka (3 filters)",
-    "regex_why": "Night skiing within 15 min leaves Sanosaka (12 min) and Goryu, and Sanosaka is quieter, so leading with Goryu, or with Jigatake (32 min, outside the limit), fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "符合條件的雪場中，White Resort 白馬さのさか人最少（擁擠度中等），開車約 12 分鐘。",
-    "negatives": [
-      "爺ガ岳人最少，可以夜滑。",
-      "白马五龙人最少，开车约 9 分钟，有夜场。"
-    ]
-  },
-  {
     "id": "rank-quiet-omachi-march",
     "lang": "en",
     "question": "On 2027-03-06, starting from Shinano-Omachi Station, which resort will be the least crowded, and what crowd level should I expect there?",
@@ -342,22 +167,6 @@
       "Kashimayari Family Park will be the quietest, crowd level medium.",
       "Jigatake should be quiet, with a low crowd level.",
       "White Resort Hakuba Sanosaka will be least crowded (medium)."
-    ]
-  },
-  {
-    "id": "rank-most-runs-within-15",
-    "lang": "ja",
-    "question": "白馬岩岳から車で15分以内で、コース数が一番多いスキー場はどこですか？何本ありますか？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])16(?!\\d|[.,]\\d))(?:^(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:happ?[oō]|八方)|(?:most\\s+(?:runs|courses|trails)|最多|一番多|最も多)(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:gory[uū]|五[竜龍龙]|ゴリュウ|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:happ?[oō]|八方))",
-    "check": "names Happo-One, 16 runs",
-    "regex_why": "Cortina ties Happo-One at 16 runs but is beyond 15 min, so leading with Cortina or Goryu (15 runs) fails, as does Happo-One with a wrong count. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "15分以内では白馬八方尾根が最多で、16コースあります（車で約9分）。",
-    "negatives": [
-      "白馬コルチナが16コースで一番多いです。",
-      "白馬五竜が15コースで最多です。",
-      "八方尾根で、コースは13本です。"
     ]
   },
   {
@@ -391,21 +200,6 @@
     ]
   },
   {
-    "id": "rank-vertical-within-10-berghaus",
-    "lang": "ja",
-    "question": "Tsugaike Kogen Hotel Hakuba Berghausから車で10分以内のスキー場で、標高差が一番大きいのはどこですか？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])904(?!\\d|[.,]\\d))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:tsugaike|栂池|つがいけ|ツガイケ)|(?:largest|biggest|greatest|highest|最大|一番大き|最も大き)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:tsugaike|栂池|つがいけ|ツガイケ))",
-    "check": "names Tsugaike, 904 m",
-    "regex_why": "Within 10 min only Tsugaike, Norikura and Iwatake remain and Tsugaike (904 m) leads, so Happo-One (1071 m, 16 min away) or Norikura (798 m) fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "10分以内では栂池高原スキー場（Tsugaike Mountain Resort）の標高差が最大で、904mです。",
-    "negatives": [
-      "白馬八方尾根で、標高差は1071mです。",
-      "白馬乗鞍温泉スキー場、798mです。"
-    ]
-  },
-  {
     "id": "rank-vertical-pass-hotel-hakuba",
     "lang": "ja",
     "question": "ホテル白馬から行ける、Hakuba Valleyチケットが使えるスキー場の中で、標高差が一番大きいのはどこ？何メートル？",
@@ -429,26 +223,10 @@
     "answer_regex": "(?is)(?=.*(?<![\\d.])5[,，]?500(?!\\d|[.,]\\d))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳)|(?:cheapest|least\\s+expensive|最便宜|一番安|最も安|最安)(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:jigatake|[爺爷].{0,2}岳))",
     "check": "names Jigatake, 5,500 yen",
     "regex_why": "Jigatake (5,500 JPY) is cheapest, so leading with Sanosaka (5,700) or Kashimayari (6,200) fails, as does Jigatake with a wrong price. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "Jigatake Snow Resort has the cheapest day ticket at ¥5,500 (about 30 minutes' drive).",
+    "positive": "Jigatake Snow Resort has the cheapest day ticket at ¥5,500.",
     "negatives": [
       "White Resort Hakuba Sanosaka is cheapest at ¥5,700.",
       "Jigatake Snow Resort, about ¥6,200 for a day."
-    ]
-  },
-  {
-    "id": "rank-cheapest-within-10-berghaus",
-    "lang": "zh",
-    "question": "從 Tsugaike Kogen Hotel Hakuba Berghaus 開車 10 分鐘內的雪場，哪個一日券最便宜？多少日圓？",
-    "required": ["search_place", "rank_resorts"],
-    "optional": [],
-    "answer_regex": "(?is)(?=.*(?<![\\d.])6[,，]?500(?!\\d|[.,]\\d))(?:^(?:(?!(?:tsugaike(?!\\s*kogen\\s*hotel)|栂池|つがいけ|ツガイケ|happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:norikura|[乗乘]鞍|のりくら)|(?:cheapest|least\\s+expensive|最便宜|一番安|最も安|最安)(?:(?!(?:tsugaike(?!\\s*kogen\\s*hotel)|栂池|つがいけ|ツガイケ|happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:tsugaike(?!\\s*kogen\\s*hotel)|栂池|つがいけ|ツガイケ|happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:norikura|[乗乘]鞍|のりくら))",
-    "check": "names Norikura, 6,500 yen",
-    "regex_why": "Within 10 min Norikura (6,500 JPY) is cheapest, so an answer that forgets the filter and leads with Jigatake (5,500) fails, as does Iwatake (7,500). Tsugaike leading (except in the hotel name Tsugaike Kogen Hotel) fails too. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "10 分钟车程内，白马乘鞍温泉滑雪场的一日券最便宜，6,500 日元。",
-    "negatives": [
-      "爺ガ岳最便宜，一日券 5,500 日圓。",
-      "白馬岩岳最便宜，7,500 日圓。",
-      "栂池高原滑雪場最便宜，一日券 6,500 日圓；白馬乘鞍也在 10 分鐘內。"
     ]
   },
   {
@@ -736,102 +514,6 @@
     ]
   },
   {
-    "id": "route-happo-to-cortina-drive",
-    "lang": "en",
-    "question": "How long is the drive from Happo-One to Hakuba Cortina, and how many km is it?",
-    "required": ["route"],
-    "optional": ["search_place", "rank_resorts", "crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d.０-９])(?:24|25|26|27|28|２４|２５|２６|２７|２８)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:(?<![\\d.０-９])(?:15|16|17|１５|１６|１７)(?:[.．]\\d+)?\\s*(?:km|公里|キロ|ｋｍ)))",
-    "check": "drive 24-28 min and 15-17 km",
-    "regex_why": "Pins the router's 25.8 min / 16 km, so a guess like '40 minutes, 30 km' or a drive time without the distance fails.",
-    "positive": "The drive from Happo-One to Hakuba Cortina takes about 26 minutes and covers 16 km, via Route 148.",
-    "negatives": [
-      "It's roughly a 40-minute drive, about 30 km.",
-      "About 26 minutes.",
-      "Around 16 km; I couldn't get a time."
-    ]
-  },
-  {
-    "id": "route-goryu-to-tsugaike-drive",
-    "lang": "zh",
-    "question": "從白馬五龍開車到栂池高原滑雪場要多久？",
-    "required": ["route"],
-    "optional": ["search_place", "rank_resorts"],
-    "answer_regex": "(?is)(?<![\\d.０-９])(?:16|17|18|19|20|１６|１７|１８|１９|２０)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)",
-    "check": "drive 16-20 min",
-    "regex_why": "Pins the 17.5 min drive, so the 13 km distance read as minutes or a guessed '30 分鐘' fails.",
-    "positive": "從五龙开车到栂池大约 17.5 分钟（13.2 公里），走国道148号。",
-    "negatives": [
-      "开车大约 30 分钟。",
-      "距离约 13 公里。",
-      "大概 10 分鐘就到了。"
-    ]
-  },
-  {
-    "id": "route-jigatake-to-47-drive",
-    "lang": "ja",
-    "question": "爺ガ岳スキー場からHakuba47まで車で何分くらいですか？",
-    "required": ["route"],
-    "optional": ["search_place", "rank_resorts"],
-    "answer_regex": "(?is)(?<![\\d.０-９])(?:32|33|34|35|36|３２|３３|３４|３５|３６)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)",
-    "check": "drive 32-36 min",
-    "regex_why": "Pins the 33.9 min drive, so the 27 km distance written as minutes or a guessed '20分' fails.",
-    "positive": "爺ガ岳からHakuba47までは車で約34分（27.3km）です。",
-    "negatives": [
-      "車で約20分です。",
-      "距離は約27kmです。",
-      "車で約45分かかります。"
-    ]
-  },
-  {
-    "id": "route-tokyu-hotel-to-iwatake-drive",
-    "lang": "en",
-    "question": "I'm staying at the Hakuba Tokyu Hotel. How many minutes is the drive to Hakuba Iwatake?",
-    "required": ["search_place", "route"],
-    "optional": ["rank_resorts"],
-    "answer_regex": "(?is)(?<![\\d.０-９])(?:5|6|7|8|9|５|６|７|８|９)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)",
-    "check": "drive 5-9 min",
-    "regex_why": "Pins the 6.6 min drive, so a guessed '15 minutes' or the 3.4 km distance alone fails.",
-    "positive": "From the Hakuba Tokyu Hotel it's about a 7-minute drive (3.4 km) to Hakuba Iwatake.",
-    "negatives": [
-      "About 15 minutes by car.",
-      "It's 3.4 km away.",
-      "Roughly 12 minutes."
-    ]
-  },
-  {
-    "id": "route-hotel-hakuba-to-norikura-drive",
-    "lang": "zh",
-    "question": "我住在 Hotel Hakuba，開車去白馬乘鞍溫泉滑雪場要多久？",
-    "required": ["search_place", "route"],
-    "optional": ["rank_resorts"],
-    "answer_regex": "(?is)(?<![\\d.０-９])(?:16|17|18|19|20|１６|１７|１８|１９|２０)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)",
-    "check": "drive 16-20 min",
-    "regex_why": "Pins the 17.7 min drive, so the Happo-One time (about 6 min) or the 12.7 km distance as minutes fails.",
-    "positive": "从 Hotel Hakuba 开车到白马乘鞍约 18 分钟（12.7 公里）。",
-    "negatives": [
-      "开车大约 6 分钟。",
-      "大约 12.7 公里，开车 12 分鐘。",
-      "约 25 分钟。"
-    ]
-  },
-  {
-    "id": "route-station-to-tokyu-hotel-drive",
-    "lang": "ja",
-    "question": "JR白馬駅から白馬東急ホテルまで車で何分ですか？",
-    "required": ["search_place", "route"],
-    "optional": [],
-    "answer_regex": "(?is)(?<![\\d.０-９])(?:4|5|6|7|8|４|５|６|７|８)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)",
-    "check": "drive 4-8 min",
-    "regex_why": "Pins the 5.6 min drive, so a guessed '15分' or the walking time fails.",
-    "positive": "白馬駅から白馬東急ホテルまでは車で約6分（2.8km）です。",
-    "negatives": [
-      "車で約15分です。",
-      "徒歩で約35分です。",
-      "距離は2.8kmです。"
-    ]
-  },
-  {
     "id": "route-station-to-hotel-hakuba-walk",
     "lang": "en",
     "question": "Can I walk from JR Hakuba Station to Hotel Hakuba with my luggage? How many minutes on foot?",
@@ -880,22 +562,6 @@
     ]
   },
   {
-    "id": "route-omachi-station-to-kashimayari-drive",
-    "lang": "en",
-    "question": "From JR Shinano-Omachi Station, how long is the drive to Kashimayari ski resort?",
-    "required": ["search_place", "route"],
-    "optional": ["rank_resorts"],
-    "answer_regex": "(?is)(?<![\\d.０-９])(?:14|15|16|17|18|１４|１５|１６|１７|１８)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)",
-    "check": "drive 14-18 min",
-    "regex_why": "Pins the 15.7 min drive, so the 12 km distance read as minutes or a guessed '30 minutes' fails.",
-    "positive": "It's about a 16-minute drive (12.1 km) from JR Shinano-Omachi Station to Kashimayari, via Routes 148 and 147.",
-    "negatives": [
-      "About 30 minutes by car.",
-      "It's 12 km.",
-      "Roughly 10 minutes."
-    ]
-  },
-  {
     "id": "route-kamishiro-station-to-goryu-walk",
     "lang": "zh",
     "question": "從JR神城站走路到白馬五龍滑雪場要幾分鐘？",
@@ -909,38 +575,6 @@
       "步行约 30 分钟。",
       "开车约 3 分钟。",
       "距离约 1.2 公里。"
-    ]
-  },
-  {
-    "id": "route-happo-to-goryu-walk-vs-drive",
-    "lang": "ja",
-    "question": "八方尾根から白馬五竜まで、歩くのと車で行くのとではそれぞれ何分かかりますか？",
-    "required": ["route"],
-    "optional": ["search_place", "rank_resorts"],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d.０-９])(?:65|66|67|68|69|６５|６６|６７|６８|６９)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)|(?<![\\d.０-９])1\\s*(?:h|hours?|hrs?|小時|小时|時間|个小时|個小時)\\s*(?:and\\s*)?(?:5|6|7|8|9|５|６|７|８|９)(?![\\d０-９])\\s*(?:m|min|分)))(?=.*(?:(?<![\\d.０-９])(?:11|12|13|14|15|１１|１２|１３|１４|１５)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "walk ~67 min and drive ~13 min",
-    "regex_why": "Needs both route calls: the 67 min walk and the 13.2 min drive, so an answer giving only one mode or a guessed walk of '30分' fails.",
-    "positive": "徒歩だと約67分（5.7km）、車なら約13分（7.8km）です。",
-    "negatives": [
-      "車で約13分です。",
-      "徒歩約30分、車で約13分です。",
-      "徒歩約1時間7分です。"
-    ]
-  },
-  {
-    "id": "route-bergland-to-47-drive",
-    "lang": "en",
-    "question": "I'm at Hotel Berg-land in Hakuba. How long is the drive to Hakuba47?",
-    "required": ["search_place", "route"],
-    "optional": ["rank_resorts"],
-    "answer_regex": "(?is)(?<![\\d.０-９])(?:11|12|13|14|15|１１|１２|１３|１４|１５)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)",
-    "check": "drive 11-15 min",
-    "regex_why": "Pins the 12.6 min drive from Hotel Hakuba Berg-land, so the station's 9.9 min or a guessed '25 minutes' fails.",
-    "positive": "From Hotel Hakuba Berg-land it's about a 13-minute drive (7 km) to Hakuba47.",
-    "negatives": [
-      "About 25 minutes.",
-      "Around 9 minutes by car.",
-      "It's 7 km away."
     ]
   },
   {
@@ -1039,22 +673,6 @@
       "Endless Bar & Restaurantが徒歩約11分です。",
       "近くに食事処がいくつかあります。",
       "レストランSNOW DROPまで徒歩約10分です。"
-    ]
-  },
-  {
-    "id": "poi-konbini-jigatake-drive",
-    "lang": "en",
-    "question": "From Jigatake ski resort, what's the nearest convenience store if I drive, and how many minutes?",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)(?=.*(?:y\\s*[-‐]?\\s*(?:shop|ショップ)))(?=.*(?:(?<![\\d.０-９])(?:11|12|13|14|15|１１|１２|１３|１４|１５)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names Y Shop, ~13 min drive",
-    "regex_why": "Needs mode=drive: pins Y Shop at 12.7 min by car, so the walking default (105 min) or a 7-Eleven 24 min away fails.",
-    "positive": "The nearest is Y Shop (Yショップ), about a 13-minute drive (9.9 km).",
-    "negatives": [
-      "Y Shop, about 105 minutes away.",
-      "The nearest is a 7-Eleven, about 24 minutes by car.",
-      "There's a store about 5 minutes away."
     ]
   },
   {
@@ -1458,164 +1076,6 @@
     ]
   },
   {
-    "id": "plan-powder-pick-drive-lunch",
-    "lang": "en",
-    "question": "On 2027-01-09 I'm driving from Hakuba Tokyu Hotel and can't decide between Tsugaike and Iwatake: pick whichever has more fresh snow, then tell me the drive time and a place to eat lunch near its base.",
-    "required": ["search_place", "nearby_pois"],
-    "any_of": [["rank_resorts", "crowd_and_snow"], ["route", "rank_resorts"]],
-    "optional": [],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d.])\\d+(?:\\.\\d+)?\\s*cm))(?:(?=.*(?:tsugaike|栂池|つがいけ|ツガイケ))(?=.*(?:(?<![\\d.０-９])(?:[1１][1１]|[1１][2２]|[1１][3３]|[1１][4４]|[1１][5５])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:tsuga ?base|ツガベース|栂池パーク))|(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:holiday|ホリデイ|brew ?pub|ブリューパブ)))",
-    "check": "snow in cm, then the chosen resort's drive time and a lunch spot at its base",
-    "regex_why": "The resort depends on live snow so either is accepted, but each branch pins its own drive time (Tsugaike 13 min, Iwatake 7 min) and base restaurant, so Tsugaike with Iwatake's 7 min or a plan without a lunch spot fails.",
-    "positive": "Tsugaike has more fresh snow (46 cm vs 8 cm as of 18:00). It's about a 13 min drive. For lunch, Tsuga Base is 1 min walk from the base.",
-    "negatives": [
-      "Tsugaike has more fresh snow (46 cm). It's about a 7 min drive; eat at Holiday.",
-      "Iwatake has more fresh snow (8 cm), about 7 min by car.",
-      "Tsugaike looks better, about 13 min drive, and Tsuga Base is near the base."
-    ]
-  },
-  {
-    "id": "plan-night-ski-konbini",
-    "lang": "en",
-    "question": "Which resort with night skiing is the shortest drive from JR Hakuba Station, how many minutes is it, and what is the nearest convenience store I can walk to from its base?",
-    "required": ["search_place", "rank_resorts", "nearby_pois"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう|ゴリュウ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９]|[1１][0０])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:7-?eleven|7-?11|seven|セブン|小七|７-?(?:eleven|11)))",
-    "check": "Goryu, ~7 min drive, 7-Eleven nearby",
-    "regex_why": "Requires Goryu with a 5-10 min drive and the 7-Eleven, so Sanosaka (the next night-skiing resort) or naming only the Lawson fails.",
-    "positive": "ABLE Hakuba GORYU has night skiing and is about 7 min by car. The nearest convenience store is a 7-Eleven, about 24 min walk (2.0 km) from the base.",
-    "negatives": [
-      "White Resort Hakuba Sanosaka, about 10 min drive; there's a 7-Eleven nearby.",
-      "Goryu is about 7 min away; the nearest convenience store is a Lawson, 27 min walk.",
-      "Goryu has night skiing and a 7-Eleven nearby."
-    ],
-    "more_positives": [
-      "ABLE Hakuba GORYU is a 7-minute drive… 7-Eleven, 24 min walk."
-    ]
-  },
-  {
-    "id": "plan-bus-vs-drive-goryu",
-    "lang": "en",
-    "question": "On 2027-01-12 I'll be at JR Hakuba Station around 8:30 and want to ski Hakuba Goryu. Compare the shuttle bus with driving: which bus do I take, when does it arrive, and how long is the drive?",
-    "required": ["search_place", "next_buses", "route"],
-    "optional": ["rank_resorts"],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][2２]))(?=.*(?:(?<![\\d０-９])[0０]?[9９]\\s*[:：時点點]\\s*[2２][3３]))(?=.*(?:(?<![\\d.０-９])(?:[6６]|[7７]|[8８]|[9９]|[1１][0０])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "08:42 bus arriving 09:23 vs ~8 min drive",
-    "regex_why": "Requires the 08:42 departure, its 09:23 arrival and a 6-10 min drive, so the 08:46 Cortina-loop bus, the echoed 8:30, or a bus-only answer fails.",
-    "positive": "Bus: the 08:42 Cortina ↔ Hakuba GORYU shuttle from JR Hakuba Station arrives at Goryu at 09:23 (41 min, timetable estimate). Driving takes about 8 min (5.3 km).",
-    "negatives": [
-      "Take the 08:46 bus from JR Hakuba Station, arriving 09:17; driving is about 8 min.",
-      "The 08:42 bus arrives at 09:23 (41 min ride).",
-      "Take the 8:30 bus; driving is about 8 minutes."
-    ]
-  },
-  {
-    "id": "plan-cheapest-ticket-lunch-zh",
-    "lang": "zh",
-    "question": "我住在 Hotel Hakuba，想去一日券最便宜的雪場。開車要多久？雪場附近有走路能到的午餐地方嗎？",
-    "required": ["search_place", "rank_resorts", "nearby_pois"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d.０-９])(?:[3３][0０]|[3３][1１]|[3３][2２]|[3３][3３]|[3３][4４])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:山品|美麻|miasa|沒有|没有))",
-    "check": "Jigatake, ~32 min drive, and no restaurant within a walk (nearest 山品 11.7 km)",
-    "regex_why": "Requires Jigatake (5,500 yen, cheapest) with a 30-34 min drive and the lunch finding, so Sanosaka at 12 min or a plan that skips the lunch question fails.",
-    "positive": "一日券最便宜的是爺岳（Jigatake，5,500 日圓），從 Hotel Hakuba 開車約 32 分鐘。雪場附近走路沒有餐廳，最近的山品在 11.7 公里外。",
-    "negatives": [
-      "最便宜的是 Sanosaka（5,700 日圓），開車約 12 分鐘，附近沒有餐廳。",
-      "最便宜的是爺岳，開車約 32 分鐘。",
-      "爺岳最便宜，開車約 12 分鐘，附近有山品。"
-    ]
-  },
-  {
-    "id": "plan-kamishiro-vertical-bus-zh",
-    "lang": "zh",
-    "question": "我在 JR 神城站，2027-02-10 想去開車 10 分鐘內垂直落差最大的雪場。早上 8 點以後搭接駁巴士還是走路比較好？各要多久？",
-    "required": ["search_place", "rank_resorts", "next_buses"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう|ゴリュウ))(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][0０]))(?=.*(?:(?<![\\d.])1[3-7](?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "Goryu; 08:40 bus from ESCAL PLAZA after a ~15 min walk, or walk ~15 min",
-    "regex_why": "Requires Goryu, the 08:40 departure and a 13-17 min walk, so Sanosaka (the other resort within 10 min), the 08:22 Cortina bus, or an answer without the walk time fails.",
-    "positive": "開車 10 分鐘內垂直落差最大的是白馬五竜（926 m）。巴士要先走約 15 分鐘到 ESCAL PLAZA，搭 08:40 的車 08:45 到；直接走路到五竜也只要約 15 分鐘，所以走路比較好。",
-    "negatives": [
-      "垂直落差最大的是白馬五竜，搭 08:22 的巴士，08:50 到。",
-      "最大的是 Sanosaka，搭 08:28 的巴士。",
-      "白馬五竜，08:40 的巴士。"
-    ],
-    "more_positives": [
-      "白馬五竜：走約15分鐘到ESCAL PLAZA，搭8點40分的巴士。"
-    ]
-  },
-  {
-    "id": "plan-tsugaike-bus-drive-crowd-zh",
-    "lang": "zh",
-    "question": "2026-12-30 我從 Hakuba Tokyu Hotel 去栂池，早上 8 點左右出發：搭接駁巴士要搭哪一班、幾點到？開車要多久？那天栂池人會多嗎？",
-    "required": ["search_place", "next_buses"],
-    "any_of": [["crowd_and_snow", "rank_resorts"], ["route", "rank_resorts"]],
-    "optional": [],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[1１][5５]))(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[3３][8８]|(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][5５]))(?=.*(?:(?<![\\d.０-９])(?:[1１][1１]|[1１][2２]|[1１][3３]|[1１][4４]|[1１][5５])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:\\bhigh\\b|(?:人潮|擁擠度|拥挤度|擁擠程度|拥挤程度|人數|人数|人流)[^\\n。]{0,8}?(?<!不)高(?!原)|很擁擠|很拥挤|非常擁擠|非常拥挤))",
-    "check": "08:15 bus (arr 08:38 or 08:45), ~13 min drive, crowd high",
-    "regex_why": "Requires the 08:15 departure with its 08:38/08:45 arrival, an 11-15 min drive and the high crowd level, so the echoed 8:00, the next 08:48 loop, or an answer without the crowd level fails. The crowd check needs 'high' or 高 after a crowd word, so the 高 in 栂池高原 next to a 'medium' level fails.",
-    "positive": "08:15 從 Hakuba Tokyu Hotel 站上車，08:45 到栂池（也可走約 10 分鐘到八方巴士總站搭 08:15，08:38 到）。開車約 13 分鐘。那天擁擠度預估為高（high）。",
-    "negatives": [
-      "搭 08:00 的巴士，08:30 到；開車約 13 分鐘；人會很多。",
-      "08:15 的巴士 08:45 到，開車約 13 分鐘。",
-      "08:15 的巴士 08:45 到，那天擁擠度高。",
-      "08:15 上車，08:45 到栂池高原；開車約 13 分鐘；那天人潮 medium。"
-    ],
-    "more_positives": [
-      "搭8點15分的巴士，8點45分到栂池高原；開車約13分鐘；那天人潮預估為高（high）。"
-    ]
-  },
-  {
-    "id": "plan-no-bus-day-happo-zh",
-    "lang": "zh",
-    "question": "2026-12-05 我在 JR 白馬站，想搭接駁巴士去八方尾根滑雪，再在雪場附近吃午餐。巴士怎麼搭？如果沒有巴士，開車要多久？",
-    "required": ["search_place", "next_buses", "nearby_pois"],
-    "any_of": [["route", "rank_resorts"]],
-    "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?:12\\s*[-‐‑–/月]\\s*13|(?<!\\d)13\\s*[日號号]))(?=.*(?:(?<![\\d.０-９])(?:[4４]|[5５]|[6６]|[7７]|[8８])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:unjaune|uncle steven|まえだ|maeda|roots|ルーツ|aduka))",
-    "check": "no bus until 2026-12-13, ~6 min drive, a restaurant at the Happo base",
-    "regex_why": "Requires the first service date 12-13, a 4-8 min drive and a named Happo-base restaurant, so inventing an 08:xx bus on 12-05 or skipping lunch fails.",
-    "positive": "2026-12-05 接駁巴士還沒開始營運，第一天是 2026-12-13。開車去八方尾根約 6 分鐘（2.6 公里）。午餐可以去基地旁的 Unjaune（步行 1 分鐘）或 Uncle Steven's（3 分鐘）。",
-    "negatives": [
-      "搭 08:13 從 JR 白馬站出發的巴士，08:23 到八方；午餐可去 Uncle Steven's。",
-      "那天沒有巴士，開車約 6 分鐘。",
-      "巴士 12-13 才開始，開車約 15 分鐘，午餐去 Unjaune。"
-    ]
-  },
-  {
-    "id": "plan-night-quiet-untimed-bus-ja",
-    "lang": "ja",
-    "question": "2027-01-16にホテル白馬から、ナイター営業があるスキー場のうち一番空いているところへ行きたいです。15時以降のシャトルバスと、車なら何分かかるかを教えてください。",
-    "required": ["search_place", "rank_resorts", "next_buses"],
-    "optional": ["route", "crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d０-９])[1１][7７]\\s*[:：時点點]\\s*[3３][0０]))(?=.*(?:八方バスターミナル|happo bus terminal|バスターミナル|巴士))(?=.*(?:(?<![\\d.０-９])(?:[3３][0０]|[3３][1１]|[3３][2２]|[3３][3３]|[3３][4４])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "Jigatake; untimed 17:30 from Happo Bus Terminal; ~32 min drive",
-    "regex_why": "Requires Jigatake, the 17:30 departure from Happo Bus Terminal and a 30-34 min drive, so Sanosaka (second quietest), the 15:13 Happo bus, or a bus-only answer fails.",
-    "positive": "一番空いているナイター営業のスキー場は爺ガ岳（混雑は中程度）です。15時以降のバスは白馬八方バスターミナル発17:30の1本だけで（徒歩約12分）、到着時刻は時刻表に載っていません。車なら約32分です。",
-    "negatives": [
-      "白馬さのさかが一番空いています。八方バスターミナル17:30発、17:48着、車で約12分です。",
-      "爺ガ岳です。15:13の八方バスターミナル発のバスに乗り、車なら約32分です。",
-      "爺ガ岳が一番空いています。車で約32分です。"
-    ]
-  },
-  {
-    "id": "plan-holiday-crowd-alt-ja",
-    "lang": "ja",
-    "question": "2027-02-11（祝日）に白馬東急ホテルから滑りに行きます。八方尾根はどのくらい混みますか？車で10分以内にもっと空いているスキー場があれば、そこまでの時間とベース近くのランチの店も教えてください。",
-    "required": ["search_place", "nearby_pois"],
-    "any_of": [["rank_resorts", "crowd_and_snow"]],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:very.?high|非常に|とても混|大変混|かなり混|最も混|一番混|激しく混))(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d.０-９])(?:[5５]|[6６]|[7７]|[8８]|[9９])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:holiday|ホリデイ|brew ?pub|ブリューパブ))",
-    "check": "Happo very high; Iwatake ~7 min drive; Holiday for lunch",
-    "regex_why": "Requires Happo's very-high crowd, Iwatake with a 5-9 min drive and an Iwatake base restaurant, so Jigatake (quieter but 35 min away) or a plan without lunch fails.",
-    "positive": "八方尾根は混雑度「very_high（非常に混雑）」の予想です。車で10分以内なら白馬岩岳（high）のほうが空いていて、車で約7分です。ランチはベースから徒歩1分のホリデイがおすすめです。",
-    "negatives": [
-      "八方尾根は非常に混みます。爺ガ岳が空いていて車で約35分、ランチはホリデイです。",
-      "八方尾根は非常に混雑します。岩岳なら車で約7分です。",
-      "八方尾根はやや混みます。岩岳まで車で約7分、ランチはホリデイ。"
-    ]
-  },
-  {
     "id": "plan-quieter-of-two-bus-lunch-ja",
     "lang": "ja",
     "question": "2027-03-06（土）、JR白馬駅から八方尾根と栂池のうち空いているほうへバスで行きたいです。8時以降のシャトルバスと、ベース近くでランチできる店を教えてください。",
@@ -1630,22 +1090,6 @@
       "空いているのは八方尾根です。JR白馬駅08:13発、08:23着。ランチはUnjauneです。",
       "栂池が空いています。JR白馬駅08:46発、09:10着です。",
       "栂池が空いています。09:46発のバスで、ランチはツガベース。"
-    ]
-  },
-  {
-    "id": "plan-pass-cheapest-near-konbini-ja",
-    "lang": "ja",
-    "question": "JR白馬駅から車で8分以内、Hakuba Valley共通券が使えるスキー場のうち一日券が一番安いのはどこですか？いくらで、車で何分か、ベースから歩いて行けるコンビニも教えてください。",
-    "required": ["search_place", "rank_resorts", "nearby_pois"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:iwatake|岩岳|いわたけ))(?=.*(?:(?<![\\d０-９])[7７][,，]?[5５][0０][0０](?![\\d０-９])))(?=.*(?:(?<![\\d.０-９])(?:[3３]|[4４]|[5５]|[6６]|[7７])(?:\\.\\d)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))(?=.*(?:7-?eleven|7-?11|seven|セブン|小七|７-?(?:eleven|11)))",
-    "check": "Iwatake 7,500 yen, ~5 min drive, 7-Eleven",
-    "regex_why": "Requires Iwatake at 7,500 yen with a 3-7 min drive and the 7-Eleven, so Goryu (9,500), the echoed 8 min, or naming only the Lawson fails.",
-    "positive": "一番安いのは白馬岩岳（一日券7,500円）で、JR白馬駅から車で約5分です。ベースから徒歩約19分（1.6km）のところにセブン-イレブンがあります。",
-    "negatives": [
-      "一番安いのは白馬五竜（9,500円）で、車で約7分。セブン-イレブンが近くにあります。",
-      "白馬岩岳（7,500円）、車で約8分、近くにローソンがあります。",
-      "白馬岩岳が一番安く、車で約5分です。"
     ]
   }
 ]

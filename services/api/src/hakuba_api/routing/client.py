@@ -8,7 +8,7 @@ from hakuba_api.routing.maneuvers import maneuver_for, route_summary
 from hakuba_api.routing.models import LineString, MatrixCell, Mode, Route, RouteSet, Step
 from hakuba_api.routing.polyline import decode_polyline
 
-COSTING: dict[Mode, str] = {"drive": "auto", "walk": "pedestrian"}
+COSTING: dict[Mode, str] = {"bus": "bus", "walk": "pedestrian"}
 MAX_ALTERNATE_RATIO = 1.5  # slower alternates are detours nobody would pick
 
 

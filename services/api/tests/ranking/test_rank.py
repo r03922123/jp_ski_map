@@ -54,7 +54,7 @@ def inputs() -> list[RankInput]:
     return [
         RankInput(
             resort=resort("a", runs=10, chairLifts=5, gondolas=0, verticalM=500, dayTicketJpy=6000),
-            drive=MatrixCell(id="a-base", duration_s=600, distance_m=5000),
+            walk=MatrixCell(id="a-base", duration_s=600, distance_m=5000),
             snow=snow(past24h=10, next24h=10, summit=200),
             crowd=crowd(0.7),
         ),
@@ -62,13 +62,13 @@ def inputs() -> list[RankInput]:
             resort=resort(
                 "b", runs=20, chairLifts=10, gondolas=1, verticalM=900, dayTicketJpy=None
             ),
-            drive=MatrixCell(id="b-base", duration_s=1200, distance_m=12000),
+            walk=MatrixCell(id="b-base", duration_s=1200, distance_m=12000),
             snow=snow(past24h=30, next24h=0, summit=300),
             crowd=crowd(0.2),
         ),
         RankInput(
             resort=resort("c", runs=15, chairLifts=8, gondolas=0, verticalM=700, dayTicketJpy=5000),
-            drive=MatrixCell(id="c-base", duration_s=300, distance_m=2000),
+            walk=MatrixCell(id="c-base", duration_s=300, distance_m=2000),
             snow=snow(past24h=None, next24h=5, summit=None),
             crowd=crowd(0.4),
         ),
@@ -78,7 +78,7 @@ def inputs() -> list[RankInput]:
 @pytest.mark.parametrize(
     ("sort", "expected"),
     [
-        ("drive_time", ["c", "a", "b"]),  # lower is better
+        ("walk_time", ["c", "a", "b"]),  # lower is better
         ("fresh_snow", ["b", "a", "c"]),  # b: 30, a: 10 + 5 = 15, c: unknown -> last
         ("snow_depth", ["b", "a", "c"]),  # c unknown -> last
         ("crowd", ["b", "c", "a"]),  # lower is better
@@ -98,12 +98,12 @@ def test_sort_value_and_factors_carry_raw_values() -> None:
     ranked = rank(inputs(), "fresh_snow", Filters())
 
     assert ranked[1].sort_value == 15
-    assert ranked[1].factors.drive_time == 600
+    assert ranked[1].factors.walk_time == 600
     assert ranked[2].sort_value is None
     assert ranked[2].factors.price == 5000
 
 
-def test_ties_break_by_drive_time_then_id() -> None:
+def test_ties_break_by_walk_time_then_id() -> None:
     data = inputs()
     for item in data:
         item.resort.stats.vertical_m = 800
@@ -122,17 +122,17 @@ def test_terrain_size_ties_break_by_lift_count() -> None:
     assert [r.resort_id for r in ranked][:2] == ["b", "a"]
 
 
-def test_unreachable_resort_sorts_last_on_drive_time() -> None:
+def test_unreachable_resort_sorts_last_on_walk_time() -> None:
     data = inputs()
-    data[2].drive = MatrixCell(id="c-base", duration_s=None, distance_m=None)
+    data[2].walk = MatrixCell(id="c-base", duration_s=None, distance_m=None)
 
-    ranked = rank(data, "drive_time", Filters())
+    ranked = rank(data, "walk_time", Filters())
 
     assert [r.resort_id for r in ranked] == ["a", "b", "c"]
 
 
-def test_max_drive_filter_drops_far_and_unreachable_resorts() -> None:
-    ranked = rank(inputs(), "drive_time", Filters(max_drive_min=15))
+def test_max_walk_filter_drops_far_and_unreachable_resorts() -> None:
+    ranked = rank(inputs(), "walk_time", Filters(max_walk_min=15))
 
     assert [r.resort_id for r in ranked] == ["c", "a"]
 
@@ -142,7 +142,7 @@ def test_night_skiing_filter_keeps_only_confirmed_resorts() -> None:
     data[0].resort.stats.night_skiing = True
     data[1].resort.stats.night_skiing = False  # c stays unknown
 
-    ranked = rank(data, "drive_time", Filters(night_skiing=True))
+    ranked = rank(data, "walk_time", Filters(night_skiing=True))
 
     assert [r.resort_id for r in ranked] == ["a"]
 
@@ -151,7 +151,7 @@ def test_valley_pass_filter() -> None:
     data = inputs()
     data[1].resort.hakuba_valley_pass = False
 
-    ranked = rank(data, "drive_time", Filters(hakuba_valley_pass=True))
+    ranked = rank(data, "walk_time", Filters(hakuba_valley_pass=True))
 
     assert [r.resort_id for r in ranked] == ["c", "a"]
 
@@ -195,15 +195,15 @@ def api() -> Any:
     app.dependency_overrides.clear()
 
 
-def test_rank_endpoint_returns_all_resorts_by_drive_time(api: TestClient) -> None:
-    response = api.get("/api/rank", params={"from": "36.6987,137.8617", "sort": "drive_time"})
+def test_rank_endpoint_returns_all_resorts_by_walk_time(api: TestClient) -> None:
+    response = api.get("/api/rank", params={"from": "36.6987,137.8617", "sort": "walk_time"})
 
     assert response.status_code == 200
     body = response.json()
     assert len(body) == 10
     assert body[0]["resortId"] == "jigatake"  # first access point in the fake matrix
     assert body[0]["accessPointId"] == "jigatake-base"
-    assert body[0]["driveS"] == 60
+    assert body[0]["walkS"] == 60
 
 
 def test_rank_endpoint_uses_nearest_access_point(api: TestClient) -> None:

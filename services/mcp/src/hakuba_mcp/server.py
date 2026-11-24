@@ -18,9 +18,8 @@ API_URL = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8010").rstrip("/")
 TIMEOUT_S = 30.0  # a cold Valhalla matrix or Open-Meteo fetch can take several seconds
 
 SortKey = Literal[
-    "drive_time", "fresh_snow", "snow_depth", "crowd", "terrain_size", "vertical", "price"
+    "walk_time", "fresh_snow", "snow_depth", "crowd", "terrain_size", "vertical", "price"
 ]
-Mode = Literal["drive", "walk"]
 
 READ_ONLY = ToolAnnotations(read_only_hint=True)
 
@@ -107,20 +106,20 @@ def search_place(query: str, limit: int = 5) -> list[dict[str, Any]]:
 @mcp.tool(annotations=READ_ONLY)
 def rank_resorts(
     origin: str,
-    sort: SortKey = "drive_time",
+    sort: SortKey = "walk_time",
     date: str | None = None,
     night_skiing: bool | None = None,
     hakuba_valley_pass: bool | None = None,
-    max_drive_min: float | None = None,
+    max_walk_min: float | None = None,
     top: int = 5,
 ) -> list[dict[str, Any]]:
     """Rank the Hakuba Valley resorts from an origin by ONE criterion and return the top ones.
 
-    origin: 'lat,lng' (from search_place). sort: drive_time (shortest first), fresh_snow
+    origin: 'lat,lng' (from search_place). sort: walk_time (shortest walk first), fresh_snow
     (cm, past 24 h + half of next 24 h), snow_depth (summit cm), crowd (quietest first),
     terrain_size (runs), vertical (m), price (cheapest day ticket, JPY).
     date: YYYY-MM-DD for the crowd estimate (default today, JST). Filters are optional.
-    Each item gives resortId, driveMin, sortValue (in the sort's unit), snow in cm and
+    Each item gives resortId, walkMin, sortValue (in the sort's unit), snow in cm and
     crowdLevel (low/medium/high/very_high). snowAsOf is the local time (JST) the snow
     figures are from: say that time when you quote them, because they can be a few hours
     old when the weather service is unreachable.
@@ -133,7 +132,7 @@ def rank_resorts(
             "date": date,
             "nightSkiing": night_skiing,
             "hakubaValleyPass": hakuba_valley_pass,
-            "maxDriveMin": max_drive_min,
+            "maxWalkMin": max_walk_min,
         },
     )
     out: list[dict[str, Any]] = []
@@ -146,7 +145,7 @@ def rank_resorts(
                 "resortId": r["resortId"],
                 "name": r["name"],
                 "sortValue": r["sortValue"],
-                "driveMin": _min(r.get("driveS")),
+                "walkMin": _min(r.get("walkS")),
                 "summitDepthCm": _obj(snow.get("depthCm")).get("summit"),
                 "newSnow24hCm": _obj(snow.get("newSnowCm")).get("past24h"),
                 "snowAsOf": _to_minute(snow.get("asOf")),
@@ -221,15 +220,14 @@ def _resolve(place: str) -> str:
 
 
 @mcp.tool(annotations=READ_ONLY)
-def route(mode: Mode, origin: str, destination: str) -> dict[str, Any]:
-    """Drive or walk ETA between two places (Valhalla road routing, no live traffic).
+def route(origin: str, destination: str) -> dict[str, Any]:
+    """Walking ETA between two places (Valhalla routing). For the shuttle bus, use next_buses.
 
     origin / destination: 'lat,lng', or a resort id (e.g. 'happo-one') for its main base.
     Returns durationMin, distanceKm and a one-line road summary.
     """
-    r = _get("/api/route", {"mode": mode, "from": _resolve(origin), "to": _resolve(destination)})
+    r = _get("/api/route", {"mode": "walk", "from": _resolve(origin), "to": _resolve(destination)})
     return {
-        "mode": r["mode"],
         "durationMin": _min(r["durationS"]),
         "distanceKm": round(r["distanceM"] / 1000, 1),
         "summary": r.get("summary"),
@@ -240,17 +238,16 @@ def route(mode: Mode, origin: str, destination: str) -> dict[str, Any]:
 def nearby_pois(
     origin: str,
     category: Literal["food", "convenience"],
-    mode: Mode = "walk",
     limit: int = 5,
 ) -> list[dict[str, Any]]:
     """Restaurants (food) or convenience stores near a place, closest by travel time first.
 
-    origin: 'lat,lng' or a resort id. Returns a stable id, name, minutes away by `mode`, distanceM,
+    origin: 'lat,lng' or a resort id. Returns a stable id, name, minutes away on foot, distanceM,
     coord and opening hours when OpenStreetMap has them.
     """
     pois = _get(
         "/api/pois/nearby",
-        {"from": _resolve(origin), "category": category, "mode": mode, "limit": limit},
+        {"from": _resolve(origin), "category": category, "mode": "walk", "limit": limit},
     )
     return [
         {
@@ -307,8 +304,8 @@ def plan_ski_day(start: str, date: str = "today") -> str:
 1. Find the origin with search_place and use its 'lat,lng' coord from then on.
 2. Check conditions with crowd_and_snow for that date.
 3. Rank resorts with rank_resorts on the criterion that matters most (fresh_snow on a powder
-   day, crowd on a holiday, drive_time otherwise).
-4. For the top pick, get next_buses from the origin (pass origin_name) and the drive route.
+   day, crowd on a holiday, walk_time otherwise).
+4. For the top pick, get next_buses from the origin (pass origin_name) and the walking route.
 5. Answer with the resort, departure and arrival times, snow in cm, crowd level, and say that
    bus times are timetable estimates and crowd is a heuristic, so check before leaving."""
 

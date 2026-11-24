@@ -87,7 +87,7 @@ def test_over_http_a_bad_call_is_one_span_with_no_values_and_its_own_trace(
         "method": "tools/call",
         "params": {
             "name": "route",
-            "arguments": {"mode": "drive", "origin": COORD, "Hotel Secret": 1},
+            "arguments": {"origin": COORD, "Hotel Secret": 1},
             "_meta": {
                 "traceparent": f"00-{CLIENT_TRACE}-b7ad6b7169203331-01",
                 "baggage": "langfuse_user_id=evil",
@@ -112,7 +112,7 @@ def test_over_http_a_bad_call_is_one_span_with_no_values_and_its_own_trace(
     assert attrs["langfuse.observation.status_message"] == (
         "ToolError; invalid arguments: destination"
     )
-    assert attrs["langfuse.observation.metadata.args"] == '["mode","origin"]'
+    assert attrs["langfuse.observation.metadata.args"] == '["origin"]'
     for secret in (COORD, "Hotel Secret", "evil"):
         assert secret not in everything(span)
     assert span.context is not None

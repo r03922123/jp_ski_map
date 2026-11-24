@@ -27,7 +27,7 @@ from hakuba_api.snow.router import clear_cache
 FIXTURE = Path(__file__).parent / "fixtures" / "openmeteo" / "winter_week.json"
 VALHALLA = "http://localhost:8002"
 SEMANTIC = "http://semantic.test"
-ROUTE_PARAMS = {"mode": "drive", "from": "36.70,137.86", "to": "36.69,137.85"}
+ROUTE_PARAMS = {"mode": "bus", "from": "36.70,137.86", "to": "36.69,137.85"}
 MANEUVER = {
     "type": 1,
     "instruction": "Go.",

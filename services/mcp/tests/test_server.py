@@ -33,8 +33,8 @@ def ranked(i: int) -> dict[str, object]:
         "name": f"Resort {i}",
         "rank": i,
         "sortValue": 12.0,
-        "driveS": 600,
-        "driveDistanceM": 5000,
+        "walkS": 600,
+        "walkDistanceM": 5000,
         "accessPointId": "x",
         "factors": {},
         "snow": SNOW,
@@ -83,7 +83,7 @@ def test_rank_resorts_maps_params_drops_none_and_trims() -> None:
         "resortId": "r1",
         "name": "Resort 1",
         "sortValue": 12.0,
-        "driveMin": 10.0,
+        "walkMin": 10.0,
         "summitDepthCm": 120,
         "newSnow24hCm": 12.0,
         "snowAsOf": "2026-12-27T07:00",  # the API serves an older report in an outage
@@ -93,10 +93,10 @@ def test_rank_resorts_maps_params_drops_none_and_trims() -> None:
 
 @respx.mock
 def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
-    item = ranked(1) | {"snow": None, "crowd": None, "driveS": None}
+    item = ranked(1) | {"snow": None, "crowd": None, "walkS": None}
     respx.get(f"{API}/api/rank").respond(json=[item])
     out = s.rank_resorts(ORIGIN)
-    assert out[0]["driveMin"] is None
+    assert out[0]["walkMin"] is None
     assert out[0]["summitDepthCm"] is None
     assert out[0]["snowAsOf"] is None
     assert out[0]["crowdLevel"] is None
@@ -192,16 +192,15 @@ def test_route_resolves_resort_id_to_its_first_access_point() -> None:
         json=[{"id": "happo-one", "accessPoints": [{"coord": {"lat": 36.70179, "lng": 137.83683}}]}]
     )
     route = respx.get(f"{API}/api/route").respond(
-        json={"mode": "drive", "durationS": 378, "distanceM": 2612, "summary": "via 白馬岳線"}
+        json={"mode": "walk", "durationS": 378, "distanceM": 2612, "summary": "via 白馬岳線"}
     )
-    out = s.route("drive", ORIGIN, "happo-one")
+    out = s.route(ORIGIN, "happo-one")
     assert dict(route.calls.last.request.url.params) == {
-        "mode": "drive",
+        "mode": "walk",
         "from": ORIGIN,
         "to": "36.70179,137.83683",
     }
     assert out == {
-        "mode": "drive",
         "durationMin": 6.3,
         "distanceKm": 2.6,
         "summary": "via 白馬岳線",
@@ -213,7 +212,7 @@ def test_route_unknown_resort_id_lists_the_valid_ids() -> None:
     # an agent guessed 'hakuba47-goryu' in the eval; the error should say what to pass instead
     respx.get(f"{API}/api/resorts").respond(json=[{"id": "goryu"}, {"id": "hakuba47"}])
     with pytest.raises(ToolError) as e:
-        s.route("walk", "hakuba47-goryu", ORIGIN)
+        s.route("hakuba47-goryu", ORIGIN)
     assert str(e.value) == (
         "unknown place 'hakuba47-goryu': pass 'lat,lng' or a resort id: goryu, hakuba47"
     )

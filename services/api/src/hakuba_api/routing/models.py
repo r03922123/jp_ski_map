@@ -3,7 +3,7 @@ from typing import Literal
 from hakuba_api.common.models import ApiModel
 from hakuba_api.routing.maneuvers import Maneuver
 
-Mode = Literal["drive", "walk"]
+Mode = Literal["bus", "walk"]  # "bus": road routing for the shuttle's path
 
 
 class LineString(ApiModel):

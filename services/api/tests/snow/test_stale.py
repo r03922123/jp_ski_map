@@ -126,7 +126,7 @@ def test_rank_keeps_its_snow_through_an_outage() -> None:
         openmeteo.get(OPEN_METEO_URL).respond(503)
         snow_router._cache.clear()  # pyright: ignore[reportPrivateUsage]  the hour is over
 
-        assert len(get_snow_reports()) == 10  # was {}: the Drive list lost its snow
+        assert len(get_snow_reports()) == 10  # was {}: the ranked list lost its snow
 
 
 def test_a_failure_is_logged_once_with_its_cause(
