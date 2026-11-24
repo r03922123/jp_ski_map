@@ -144,6 +144,37 @@ describe("DirectionsPanel", () => {
     expect(stepsOf(option(/11 min/))).toBeInTheDocument();
   });
 
+  // review of feat/panel-tidy: the open option outlived a pick on the map and a new route set
+  it("closes the steps when the route changes from outside; only a click opens them", () => {
+    const props: DirectionsPanelProps = {
+      routes: [primary, alternate],
+      activeRoute: 0,
+      onSelectRoute: vi.fn(),
+      onHighlightStep: vi.fn(),
+      departAt: new Date("2026-03-20T08:00:00+09:00"),
+    };
+    const { rerender } = render(<DirectionsPanel {...props} />);
+    fireEvent.click(option(/9 min/));
+    expect(stepsOf(option(/9 min/))).toBeInTheDocument();
+
+    // picked on the map, then picked back
+    rerender(<DirectionsPanel {...props} activeRoute={1} />);
+    expect(screen.queryByRole("list", { name: /steps/i })).toBeNull();
+    rerender(<DirectionsPanel {...props} activeRoute={0} />);
+    expect(screen.queryByRole("list", { name: /steps/i })).toBeNull();
+
+    // a new start or destination: a new route set, back on its first route
+    fireEvent.click(option(/9 min/));
+    rerender(
+      <DirectionsPanel
+        {...props}
+        routes={[{ ...primary }, { ...alternate }]}
+      />,
+    );
+    expect(option(/9 min/)).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("list", { name: /steps/i })).toBeNull();
+  });
+
   it("shows the option list with a single route too", () => {
     renderPanel({ routes: [primary] });
 

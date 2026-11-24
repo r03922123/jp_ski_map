@@ -35,19 +35,27 @@ export function DirectionsPanel({
   startKind = "start",
 }: DirectionsPanelProps) {
   const [showAll, setShowAll] = useState(false);
-  // the option whose steps are open; a route picked on the map closes it
-  const [openRoute, setOpenRoute] = useState<number | null>(null);
+  // whether the active option's steps are open: only a click on it opens them
+  const [isOpen, setIsOpen] = useState(false);
   const route = routes[activeRoute] ?? routes[0];
+  // a route picked on the map, or a new route set, closes them (reset during render)
+  const [openedRoute, setOpenedRoute] = useState(route);
+  if (openedRoute !== route) {
+    setOpenedRoute(route);
+    setIsOpen(false);
+  }
   if (!route) return null;
   const steps = showAll ? route.steps : route.steps.slice(0, COLLAPSED_STEPS);
-  const open = openRoute === activeRoute ? openRoute : null;
+  const open = isOpen ? activeRoute : null;
   const toggle = (i: number) => {
     if (i === open) {
-      setOpenRoute(null);
+      setIsOpen(false);
       return;
     }
     onSelectRoute(i);
-    setOpenRoute(i);
+    // the click's own route change must not close what it opens
+    setOpenedRoute(routes[i]);
+    setIsOpen(true);
     setShowAll(false);
   };
 
