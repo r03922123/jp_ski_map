@@ -1,6 +1,6 @@
 import type { RiderState } from "@/lib/game/rider";
 
-type Mode = "bus" | "drive" | "walk";
+type Mode = "bus" | "walk";
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /** Distance actually covered along a route, in km (SPEC-progression "Stats"). */
@@ -41,7 +41,7 @@ export function tripKm({
   routeM,
   bus,
 }: {
-  mode: "drive" | "walk" | "bus";
+  mode: "walk" | "bus";
   /** the navigated route (for a bus journey: the walk to the stop) */
   routeM: number;
   bus?: { alongM: number; lineM: number; walkIsLine: boolean };
@@ -53,5 +53,5 @@ export function tripKm({
       bus: coveredKm(bus.alongM, bus.lineM),
     };
   }
-  return { [mode === "walk" ? "walk" : "drive"]: round2(routeM / 1000) };
+  return { walk: round2(routeM / 1000) };
 }

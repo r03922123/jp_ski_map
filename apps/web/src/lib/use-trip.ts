@@ -14,7 +14,7 @@ export type TripPoint = { coord: Coord; name: string | null };
  * keep these consistent are in lib/trip-actions.ts.
  */
 export function useTrip() {
-  const [mode, setMode] = useState<PanelMode>("drive");
+  const [mode, setMode] = useState<PanelMode>("walk");
   const [origin, setOrigin] = useState<Coord | null>(null);
   // name of the searched place, if the origin came from search (not a dropped pin)
   const [originName, setOriginName] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export function useTrip() {
   const [stops, setStops] = useState<TripStop[]>([]);
   const [storedBusChoice, setBusChoice] = useState<BusOption | null>(null);
   // The trip's resort: the chosen one, else a tapped bus's unless a point is the destination.
-  // That bus doesn't narrow Bus's list (SPEC-web-app v1.13 rule 6), but Drive, Walk and the
+  // That bus doesn't narrow Bus's list (SPEC-web-app v1.13 rule 6), but Walk and the
   // link still go to its resort.
   const selectedResortId =
     chosenResortId ?? (point ? null : (storedBusChoice?.resortId ?? null));

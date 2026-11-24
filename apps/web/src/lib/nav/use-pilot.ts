@@ -29,7 +29,7 @@ export type PilotStatus = {
 
 type Live = { nav: NavState; fix: Fix | null; error: PositionError | null };
 /** Rough speeds for the stretch to the route's start (not in Valhalla's times). */
-const APPROACH_MPS = { drive: 8, walk: 1.3 } as const;
+const APPROACH_MPS = { bus: 8, walk: 1.3 } as const;
 const START: Live = { nav: initialNav(), fix: null, error: null };
 
 /** Runs the pure navigator (lib/nav/session) on fixes from `source` along `route`. */

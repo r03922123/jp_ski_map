@@ -36,7 +36,7 @@ const SETTINGS = {
   // ours: approachM. A route starts on the nearest road, not at the hotel door, so until
   // the first match being this close to its start is "heading to it", not leaving it
   // (otherwise GPS jitter at the door would reroute, onto the same road, forever).
-  drive: { matchM: 50, finishM: 20, minSpeedMps: 3 / 3.6, approachM: 250 },
+  bus: { matchM: 50, finishM: 20, minSpeedMps: 3 / 3.6, approachM: 250 },
   walk: { matchM: 20, finishM: 15, minSpeedMps: -1, approachM: 150 },
 } as const;
 

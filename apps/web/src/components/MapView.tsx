@@ -613,8 +613,8 @@ export default function MapView({
       />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
-          fixed order (it stacks by when a layer was added): bus line under the walk or
-          drive route, then the part already covered, the step highlight, and the bus
+          fixed order (it stacks by when a layer was added): bus line under the walk
+          route, then the part already covered, the step highlight, and the bus
           stop dots on top. */}
       <RideLine route={ride?.route ?? null} />
       <TrailLayers

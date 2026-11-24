@@ -8,7 +8,7 @@ import {
 
 /**
  * Where GPS fixes come from. The navigator only sees `Fix`es, so the same pilot runs on
- * the phone's GPS, on Playwright's mocked geolocation, or on a simulated drive.
+ * the phone's GPS, on Playwright's mocked geolocation, or on a simulated trip.
  */
 
 export type PositionError =

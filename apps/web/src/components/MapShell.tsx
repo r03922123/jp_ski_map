@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
 import { DestinationPicker } from "@/components/DestinationPicker";
-import { DrivePanel } from "@/components/DrivePanel";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ModePanel } from "@/components/ModePanel";
@@ -15,6 +14,7 @@ import { PilotScreens } from "@/components/PilotScreens";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
 import { PoiList } from "@/components/PoiList";
+import { RankingPanel } from "@/components/RankingPanel";
 import { ResortCard } from "@/components/ResortCard";
 import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
@@ -136,7 +136,7 @@ export function MapShell() {
     setShowNight,
   } = useBusTrip({ mode, origin, originName, pointPlace, storedBusChoice });
 
-  // Drive to the access point the ranking found nearest; otherwise the first one.
+  // Walk to the access point the ranking found nearest; otherwise the first one.
   const resort = resorts.data?.find((r) => r.id === selectedResortId);
   const nearestId = ranking.data?.find(
     (r) => r.resortId === selectedResortId,
@@ -149,7 +149,7 @@ export function MapShell() {
   // In bus mode the route shown is the walk to the chosen boarding stop.
   const routeMode = mode === "bus" ? "walk" : mode;
 
-  // Food / konbini destinations (drive and walk only; shuttles serve resorts).
+  // Food / konbini destinations (walk only; shuttles serve resorts).
   const poiCategory = category === "resorts" ? null : category;
   const { pois, poiState, selectedPoi, poiTarget } = usePois({
     mode,
@@ -159,10 +159,10 @@ export function MapShell() {
     poiId,
   });
 
-  // where drive and walk go; a Food or Konbini list picks its place per mode
+  // where walk goes; a Food or Konbini list picks its place per mode
   const tripTarget = point?.coord ?? (poiCategory ? poiTarget : destination);
   const target = mode === "bus" ? busStop : tripTarget;
-  // With stops (drive/walk) the route is one trip through them; no alternates then.
+  // With stops (walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
   const {
     routes,
@@ -174,7 +174,7 @@ export function MapShell() {
     setHighlight,
   } = useRoutes({ mode, routeMode, origin, target, viaStops });
   // the tabs' times need one place for every mode: a Food or Konbini list picks its place per
-  // mode, and Drive heads for the ranking's nearest entrance, so a resort with several waits
+  // mode, and Walk heads for the ranking's nearest entrance, so a resort with several waits
   // for this start's ranking (cached, so every mode then uses that entrance; a placeholder is
   // the previous start's)
   const sharedTarget =
@@ -191,7 +191,6 @@ export function MapShell() {
   const routeData = routeState.status === "success" ? routeState.data : null;
 
   const session = usePilotSession({
-    mode,
     resorts: resorts.data,
     routes,
     activeRoute,
@@ -218,7 +217,7 @@ export function MapShell() {
   } = session;
   // SPEC-game-theme: the rider's pose follows the trip
   const pose = heroPose({
-    mode: busPlan ? "bus" : mode === "walk" ? "walk" : "drive",
+    mode: busPlan ? "bus" : "walk",
     phase: pilot.phase,
     bus: busPhase ?? undefined,
   });
@@ -535,8 +534,8 @@ export function MapShell() {
                   />
                 ) : undefined
               }
-              drivePanel={
-                <DrivePanel
+              rankingPanel={
+                <RankingPanel
                   options={rankOptions}
                   onOptionsChange={setRankOptions}
                   ranking={rankingState}

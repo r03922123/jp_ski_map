@@ -80,7 +80,7 @@ export function planBus(option: BusOption, ridePath: Route | null): BusPlan {
     ? (ridePath.geometry.coordinates as LngLat[])
     : located;
   const line = prepare({
-    mode: "drive",
+    mode: "bus",
     durationS: option.rideS ?? 0,
     distanceM: 0,
     isEstimate: true,

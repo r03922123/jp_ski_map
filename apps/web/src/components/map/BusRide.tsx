@@ -10,7 +10,7 @@ import { EMPTY } from "./TrailLayers";
 const RIDE_COLOR = "#0f766e"; // the line badge colour in the bus panel
 const RIDE_CASING = "#134e4a";
 
-/** The bus ride's road path, drawn under the walk or drive trail. */
+/** The bus ride's road path, drawn under the walk trail. */
 export function RideLine({ route }: { route: Route | null }) {
   return (
     <Source id="ride" type="geojson" data={route ? route.geometry : EMPTY}>

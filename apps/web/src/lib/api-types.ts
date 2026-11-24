@@ -431,8 +431,8 @@ export interface components {
          * @description Raw values, in their natural units; None = unknown.
          */
         Factors: {
-            /** Drivetime */
-            driveTime: number | null;
+            /** Walktime */
+            walkTime: number | null;
             /** Freshsnow */
             freshSnow: number | null;
             /** Snowdepth */
@@ -484,7 +484,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "drive" | "walk";
+            mode: "bus" | "walk";
             origin: components["schemas"]["Coord"];
             /** Targets */
             targets: components["schemas"]["MatrixTarget"][];
@@ -575,7 +575,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "drive" | "walk";
+            mode: "bus" | "walk";
             /** Points */
             points: components["schemas"]["Coord"][];
             /**
@@ -641,10 +641,10 @@ export interface components {
             rank: number;
             /** Sortvalue */
             sortValue: number | null;
-            /** Drives */
-            driveS: number | null;
-            /** Drivedistancem */
-            driveDistanceM: number | null;
+            /** Walks */
+            walkS: number | null;
+            /** Walkdistancem */
+            walkDistanceM: number | null;
             /** Accesspointid */
             accessPointId: string;
             factors: components["schemas"]["Factors"];
@@ -724,7 +724,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "drive" | "walk";
+            mode: "bus" | "walk";
             /** Durations */
             durationS: number;
             /** Distancem */
@@ -887,7 +887,7 @@ export interface operations {
     get_route_api_route_get: {
         parameters: {
             query: {
-                mode: "drive" | "walk";
+                mode: "bus" | "walk";
                 from: string;
                 to: string;
             };
@@ -920,7 +920,7 @@ export interface operations {
     get_routes_api_routes_get: {
         parameters: {
             query: {
-                mode: "drive" | "walk";
+                mode: "bus" | "walk";
                 from: string;
                 to: string;
                 alternates?: number;
@@ -1118,7 +1118,7 @@ export interface operations {
             query: {
                 from: string;
                 category: "food" | "convenience";
-                mode: "drive" | "walk";
+                mode: "bus" | "walk";
                 limit?: number;
             };
             header?: never;
@@ -1202,11 +1202,11 @@ export interface operations {
         parameters: {
             query: {
                 from: string;
-                sort?: "drive_time" | "fresh_snow" | "snow_depth" | "crowd" | "terrain_size" | "vertical" | "price";
+                sort?: "walk_time" | "fresh_snow" | "snow_depth" | "crowd" | "terrain_size" | "vertical" | "price";
                 date?: string | null;
                 nightSkiing?: boolean | null;
                 hakubaValleyPass?: boolean | null;
-                maxDriveMin?: number | null;
+                maxWalkMin?: number | null;
             };
             header?: never;
             path?: never;

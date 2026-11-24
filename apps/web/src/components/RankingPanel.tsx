@@ -10,7 +10,7 @@ export type RankingState =
   | { status: "error" }
   | { status: "success"; data: RankedResort[] };
 
-export function DrivePanel({
+export function RankingPanel({
   options,
   onOptionsChange,
   ranking,

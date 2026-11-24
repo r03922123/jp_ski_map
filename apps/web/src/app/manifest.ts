@@ -7,8 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Hakuba Ski Map",
     short_name: "Hakuba",
-    description:
-      "Bus, drive and walk to Hakuba Valley ski resorts from your hotel",
+    description: "Bus and walk to Hakuba Valley ski resorts from your hotel",
     start_url: "/",
     display: "standalone",
     background_color: ICON_BACKGROUND,

@@ -19,12 +19,12 @@ export function cameraFor(r: PreparedRoute, p: Projection, fix: Fix): Camera {
     fix.headingDeg !== null;
   const a = r.coords[p.index];
   const b = r.coords[p.index + 1] ?? a;
-  const drive = r.route.mode === "drive";
+  const bus = r.route.mode === "bus";
   const kmh = (fix.speedMps ?? 0) * 3.6;
   return {
     center: p.point,
     bearing: moving ? (fix.headingDeg as number) : bearingDeg(a, b),
-    pitch: drive ? 60 : 45,
-    zoom: drive ? Math.min(17.5, Math.max(15.5, 17.5 - kmh / 40)) : 18,
+    pitch: bus ? 60 : 45,
+    zoom: bus ? Math.min(17.5, Math.max(15.5, 17.5 - kmh / 40)) : 18,
   };
 }

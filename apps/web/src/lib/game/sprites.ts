@@ -12,14 +12,13 @@ export type Sprite = {
   palette: Record<string, string>;
   frames: Frame[];
 };
-export type Pose = "idle" | "walk" | "ride" | "bus" | "drive";
+export type Pose = "idle" | "walk" | "ride" | "bus";
 
 export const POSE_FRAMES: Record<Pose, number> = {
   idle: 2,
   walk: 4,
   ride: 2,
   bus: 2,
-  drive: 2,
 };
 
 export const HERO_PALETTE = {
@@ -178,21 +177,6 @@ const BUS_BODY = layer(3, [
   "...khhhk.......khhhk",
 ]);
 
-const CAR_BODY = layer(3, [
-  "",
-  "......ktttttttttttk",
-  ".......k...k...k",
-  "......kkkkkkkkkkkk",
-  ".....kycccckbbbkccck",
-  "....kyycccckgggkcccyk",
-  "...kyyyyyyyyyyyyyyyyyyk",
-  "..kyyyyyyyyyyyyyyyyyyyyk",
-  "..kYYYYYYYYYYYYYYYYYYYYk",
-  "...kkkkkkkkkkkkkkkkkkkk",
-  ".....kkk.........kkk",
-  "....khhhk.......khhhk",
-]);
-
 const wheels = (from: number, left: number, right: number, spoke: string) =>
   layer(from, [
     `${".".repeat(left)}k${spoke}k${".".repeat(right - left - 5)}k${spoke}k`,
@@ -240,15 +224,6 @@ export const HERO: Record<Pose, Sprite> = {
     frames: [
       stack(BUS_BODY, wheels(17, 3, 15, "hkh"), ROAD),
       stack(BUS_BODY, wheels(17, 3, 15, "khk"), ROAD_2),
-    ],
-  },
-  drive: {
-    w: W,
-    h: W,
-    palette: HERO_PALETTE,
-    frames: [
-      stack(CAR_BODY, wheels(16, 4, 16, "hkh"), ROAD),
-      stack(CAR_BODY, wheels(16, 4, 16, "khk"), ROAD_2),
     ],
   },
 };

@@ -29,7 +29,7 @@ function useFrame(n: number): number {
 
 /** Which pose the rider takes, from the trip's state (SPEC-game-theme "The hero"). */
 export function heroPose(trip: {
-  mode: "drive" | "walk" | "bus";
+  mode: "walk" | "bus";
   /** the navigator's phase; only "arrived" changes the pose */
   phase: string;
   bus?: BusPhase;
@@ -40,7 +40,7 @@ export function heroPose(trip: {
     ] as Pose;
   }
   if (trip.phase === "arrived") return "ride";
-  return trip.mode === "walk" ? "walk" : "drive";
+  return "walk";
 }
 
 /**
