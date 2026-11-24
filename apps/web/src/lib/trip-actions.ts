@@ -52,7 +52,6 @@ export function tripActions(
   },
 ) {
   const {
-    origin,
     point,
     stops,
     storedBusChoice,
@@ -224,26 +223,9 @@ export function tripActions(
         [next[i], next[j]] = [next[j], next[i]];
         return next;
       }),
-    /** a map tap */
+    /** a map click with a stop box open is the stop (Google: "put a point on the map") */
     pickOnMap: (coord: Coord) => {
-      // an open stop box takes the tap (Google: type, or put a point on the map)
-      if (placingStop) {
-        fillOpenStop({
-          id: pinId(coord),
-          name: "Dropped pin",
-          coord,
-          kind: "pin",
-        });
-        return;
-      }
-      // both ends set: a stray click must not replace the start (v1.13 rule 8);
-      // Add destination is how to change the trip from here
-      if (origin && toPlace) return;
-      setOrigin(coord);
-      setOriginName(null);
-      setOriginSource(null);
-      // the From box then shows "Dropped pin", not an older label such as My hotel
-      setSearchLabel(null);
+      if (placingStop) fillOpenStop(pinPlace({ coord, name: null }));
     },
     /** a tapped resort marker */
     selectResortOnMap: (id: string) => {

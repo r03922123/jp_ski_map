@@ -237,19 +237,19 @@ afterEach(() => {
 });
 
 describe("MapShell origin", () => {
-  it("a map tap with no start sets the origin, the link and the From box", async () => {
+  it("a dropped pin's Start here sets the origin, the link and the From box", async () => {
     renderShell();
     expect(map().origin).toBeNull();
-    act(() => map().onPickOrigin(hotel));
+    act(() => map().onDropPin?.(hotel, null));
+    fireEvent.click(screen.getByRole("button", { name: "Start here" }));
     expect(map().origin).toEqual(hotel);
     await waitFor(() => expect(query().get("from")).toBe("36.69736,137.85393"));
     expect(screen.getByDisplayValue("Dropped pin")).toBeInTheDocument();
   });
 
-  it("a shared link restores the origin, and a tap with both ends set keeps it", async () => {
+  it("a shared link restores the origin", async () => {
     renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
-    act(() => map().onPickOrigin({ lat: 36.6, lng: 137.8 }));
     expect(map().origin).toEqual({ lat: 36.69736, lng: 137.85393 });
   });
 
@@ -300,8 +300,8 @@ describe("MapShell destination", () => {
     ).toBeInTheDocument();
   });
 
-  // SPEC-ski-runs v1.1: one card at a time; a mouse click elsewhere closes a run's card
-  it("a run's card replaces the pin card, and a click elsewhere on the map closes it", async () => {
+  // SPEC-ski-runs v1.1: one card at a time; a tap elsewhere closes a run's card
+  it("a run's card replaces the pin card, and a tap elsewhere on the map closes it", async () => {
     renderShell("?mode=walk");
     await waitFor(() => expect(mapProps).not.toBeNull());
     act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
@@ -324,7 +324,7 @@ describe("MapShell destination", () => {
     expect(screen.queryByRole("group", { name: "Dropped pin" })).toBeNull();
     expect(screen.getByRole("group", { name: "Skyline" })).toBeTruthy();
     expect(map().selectedSkiLineId).toBe("r1");
-    act(() => map().onPickOrigin({ lat: 36.69, lng: 137.84 }));
+    act(() => map().onMapTap?.());
     expect(screen.queryByRole("group", { name: "Skyline" })).toBeNull();
     expect(map().selectedSkiLineId).toBeNull();
   });
@@ -417,7 +417,8 @@ describe("MapShell mode", () => {
       fireEvent.click(
         screen.getByRole("button", { name: "Clear starting point" }),
       );
-      act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+      act(() => map().onDropPin?.({ lat: 36.69, lng: 137.86 }, null));
+      fireEvent.click(screen.getByRole("button", { name: "Start here" }));
       await waitFor(() =>
         expect(map().origin).toEqual({ lat: 36.69, lng: 137.86 }),
       );
@@ -839,7 +840,8 @@ describe("MapShell keyboard focus", () => {
     renderShell(`?from=${from}&mode=walk`);
     fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
     (document.activeElement as HTMLElement).blur();
-    act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+    act(() => map().onDropPin?.({ lat: 36.69, lng: 137.86 }, null));
+    fireEvent.click(screen.getByRole("button", { name: "Start here" }));
     fireEvent.click(
       await screen.findByRole("button", { name: /start navigation/i }),
     );
