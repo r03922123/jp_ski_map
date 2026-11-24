@@ -17,8 +17,6 @@ import { kindFromSuggestion, type PlaceInput } from "@/lib/saved-places";
 export type TripStop = { key: string; place: PlaceInput | null };
 
 export type TripPanelProps = {
-  /** null while the start is being changed: the stops stay listed */
-  from: PlaceInput | null;
   stops: TripStop[];
   /** the Add destination button (the slot below), which takes focus after an edit */
   addStopRef: RefObject<HTMLButtonElement | null>;
@@ -30,22 +28,19 @@ export type TripPanelProps = {
   /** T4: reorder a stop (by -1: earlier, 1: later) */
   onMoveStop?: (key: string, by: -1 | 1) => void;
   onFillStop: (key: string, place: PlaceInput) => void;
-  onClearFrom: () => void;
 };
 
 /**
- * The trip, Google-style (SPEC-web-app v1.4): From and any stops, each with a Save star
- * and ✕. The start can also be retyped in the search box above, beside the To box.
+ * The trip's stops, Google-style (SPEC-web-app v1.4), each with a Save star and ✕. The
+ * start has no row: the From box above is the start, and its ✕ clears it (v1.26).
  */
 export function TripPanel({
-  from,
   stops,
   addStopRef,
   near,
   onRemoveStop,
   onMoveStop,
   onFillStop,
-  onClearFrom,
   addDestination,
 }: TripPanelProps) {
   const listRef = useRef<HTMLUListElement>(null);
@@ -68,32 +63,23 @@ export function TripPanel({
     onRemoveStop(key);
   };
 
-  if (!from && stops.length === 0 && !addDestination) return null;
+  if (stops.length === 0 && !addDestination) return null;
   return (
     <div className="flex flex-col items-start gap-1">
       {/* above the list: two or more stops would push it under the sticky ETA row (v1.18) */}
       {addDestination}
-      {(from || stops.length > 0) && (
+      {stops.length > 0 && (
         <ul
           ref={listRef}
           tabIndex={-1}
           aria-label="Trip"
           className="flex w-full flex-col rounded-lg border text-sm outline-none"
         >
-          {from && (
-            <Row
-              marker="🔵"
-              label="From"
-              place={from}
-              removeLabel="Remove starting point"
-              onRemove={onClearFrom}
-            />
-          )}
           {stops.map((stop, i) =>
             stop.place ? (
               <Row
                 key={stop.key}
-                marker={String(i + 1)}
+                n={i + 1}
                 label={`Stop ${i + 1}`}
                 place={stop.place}
                 removeLabel={`Remove stop ${i + 1}`}
@@ -158,14 +144,14 @@ function StopBadge({ n }: { n: number }) {
 }
 
 function Row({
-  marker,
+  n,
   label,
   place,
   removeLabel,
   onRemove,
   move,
 }: {
-  marker: string;
+  n: number;
   label: string;
   place: PlaceInput;
   removeLabel: string;
@@ -177,13 +163,7 @@ function Row({
     "flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted";
   return (
     <li className="flex items-center gap-2 px-2 py-1 not-last:border-b">
-      {/^\d+$/.test(marker) ? (
-        <StopBadge n={Number(marker)} />
-      ) : (
-        <span aria-hidden="true" className="w-5 text-center text-xs">
-          {marker}
-        </span>
-      )}
+      <StopBadge n={n} />
       <span className="min-w-0 flex-1 truncate">
         <span className="sr-only">{label}: </span>
         {place.name}

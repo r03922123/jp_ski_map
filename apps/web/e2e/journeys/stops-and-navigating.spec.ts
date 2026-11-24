@@ -49,8 +49,8 @@ const LAPTOP_S = {
 
 const trip = (page: Page) => page.getByRole("list", { name: "Trip" });
 const tripRows = (page: Page) => trip(page).getByRole("listitem");
-// v1.9: in walk the trip list is From and the stops; the destination is the To box
-// in the trip card on top (bus keeps its read-only To row)
+// in walk the trip list is the stops; the start and destination are the From and To boxes
+// in the trip card on top (bus has no trip list)
 const steps = (page: Page) => page.getByRole("list", { name: "Steps" });
 const pilot = (page: Page) => page.getByTestId("pilot");
 const banner = (page: Page) => page.getByRole("region", { name: "Next turn" });
@@ -193,8 +193,8 @@ test.describe("phone: adding stops", () => {
       .getByRole("option", { name: /7-Eleven/ })
       .first()
       .tap({ timeout: 20_000 });
-    await expect(tripRows(page)).toHaveCount(2);
-    await expect(tripRows(page).nth(1)).toContainText("7-Eleven");
+    await expect(tripRows(page)).toHaveCount(1);
+    await expect(tripRows(page).nth(0)).toContainText("7-Eleven");
     await expect
       .poll(() => allSteps(page), { timeout: 20_000 })
       .toMatch(/Arrive at stop 1/);
@@ -203,7 +203,7 @@ test.describe("phone: adding stops", () => {
 
     await page.reload();
     await routed(page);
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await expect
       .poll(() => allSteps(page), { timeout: 20_000 })
       .toContain("Arrive at stop 1");
@@ -224,7 +224,7 @@ test.describe("phone: adding stops", () => {
     // the focused box expands the sheet: only a strip of map stays above it, under the
     // trip card (v1.27: the two-row card ends at 110 px with its frame, so 120 is inside the strip; v1.18: 120, was 180)
     await touch(cdp, await bareMap(page, 120), 60);
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await expect(page.getByRole("combobox", { name: "Stop 1" })).toHaveCount(0);
     await expect(page).toHaveURL(/stops=36\.\d+%2C137\.\d+/);
     expect(param(page, "from")).toBe(from);
@@ -264,10 +264,10 @@ test.describe("phone: adding stops", () => {
       .getByRole("option", { name: /Lawson/ })
       .first()
       .tap({ timeout: 20_000 });
-    await expect(tripRows(page).nth(1)).toContainText("Lawson");
+    await expect(tripRows(page).nth(0)).toContainText("Lawson");
     await page.reload();
     await routed(page);
-    await expect(tripRows(page).nth(1)).toContainText("Lawson", {
+    await expect(tripRows(page).nth(0)).toContainText("Lawson", {
       timeout: 10_000,
     });
   });
@@ -313,7 +313,7 @@ test.describe("phone: adding stops", () => {
     await expect(card).toBeVisible();
     await card.getByRole("button", { name: "Add stop" }).tap();
     await expect(card).toHaveCount(0);
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await expect(page).toHaveURL(/stops=36\.\d+%2C137\.\d+/);
     expect(param(page, "from")).toBe(from);
     await expect(page).toHaveURL(/resort=happo-one/);
@@ -327,7 +327,7 @@ test.describe("phone: adding stops", () => {
   }) => {
     await page.goto(`${TRIP}&stops=${ll(LAWSON)};${ll(TARO)}`);
     await routed(page);
-    await expect(tripRows(page)).toHaveCount(3);
+    await expect(tripRows(page)).toHaveCount(2);
     const text = await allSteps(page);
     const one = text.indexOf("Arrive at stop 1");
     const two = text.indexOf("Arrive at stop 2");
@@ -336,7 +336,7 @@ test.describe("phone: adding stops", () => {
     await expect(page.locator('[data-trip-stop="2"]')).toBeVisible();
 
     await page.getByRole("button", { name: "Remove stop 1" }).tap();
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await expect(page.locator('[data-trip-stop="2"]')).toHaveCount(0);
     // the link keeps only the remaining stop (coordinates rounded to 5 places)
     await expect
@@ -359,7 +359,7 @@ test.describe("phone: adding stops", () => {
     ];
     await page.goto(`${TRIP}&stops=${five.map(ll).join(";")}`);
     await routed(page);
-    await expect(tripRows(page)).toHaveCount(6);
+    await expect(tripRows(page)).toHaveCount(5);
     await expect(
       page.getByRole("button", { name: "Add destination" }),
     ).toHaveCount(0);
@@ -382,7 +382,7 @@ test.describe("phone: adding stops", () => {
     }));
     await page.goto(`${TRIP}&stops=${six.map(ll).join(";")}`);
     await routed(page);
-    await expect(tripRows(page)).toHaveCount(6); // From and 5 stops (To is the top card's box)
+    await expect(tripRows(page)).toHaveCount(5); // 5 stops (From and To are the top card's boxes)
   });
 
   test("Bus hides the stops; back on Walk they are still there", async ({
@@ -390,14 +390,14 @@ test.describe("phone: adding stops", () => {
   }) => {
     await page.goto(`${TRIP}&stops=${ll(LAWSON)}`);
     await routed(page);
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await page.getByRole("tab", { name: /Bus/ }).tap();
     await expect(
       page.getByRole("button", { name: "Add destination" }),
     ).toHaveCount(0);
     await page.getByRole("tab", { name: /Walk/ }).tap();
     await routed(page);
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await expect
       .poll(() => allSteps(page), { timeout: 20_000 })
       .toContain("Arrive at stop 1");
@@ -460,7 +460,7 @@ test.describe("phone: navigating through a stop", () => {
     // Exit returns to the same trip, stop included
     await page.getByRole("button", { name: "Exit navigation" }).tap();
     await expect(pilot(page)).toHaveCount(0);
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await expect(startButton(page)).toBeVisible();
   });
 
@@ -539,7 +539,7 @@ test.describe("phone: navigating through a stop", () => {
     await expect(pilot(page)).toBeVisible();
     expect(page.url()).toBe(url);
     await page.getByRole("button", { name: "Exit navigation" }).tap();
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     expect(param(page, "from")).toBe(`${HOTEL.lat},${HOTEL.lng}`);
   });
 
@@ -555,7 +555,7 @@ test.describe("phone: navigating through a stop", () => {
     await page.waitForTimeout(1500);
     await expect(page).not.toHaveURL(/robots\.txt$/);
     await expect(pilot(page)).toHaveCount(0);
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
   });
 
   test("going offline mid-route: navigation keeps going and says it can't reroute", async ({
@@ -642,7 +642,7 @@ test.describe("phone: location problems", () => {
       timeout: 15_000,
     });
     await page.getByRole("button", { name: "Exit navigation" }).tap();
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
     await expect(startButton(page)).toBeVisible();
   });
 
@@ -690,7 +690,7 @@ test.describe("phone: location problems", () => {
       { timeout: 15_000 },
     );
     await page.getByRole("button", { name: "Exit navigation" }).tap();
-    await expect(tripRows(page)).toHaveCount(2);
+    await expect(tripRows(page)).toHaveCount(1);
   });
 
   test.describe("±800 m accuracy", () => {
@@ -855,7 +855,7 @@ for (const [label, device] of [
         .getByRole("option", { name: /7-Eleven/ })
         .first()
         .click({ timeout: 20_000 });
-      await expect(tripRows(page)).toHaveCount(2);
+      await expect(tripRows(page)).toHaveCount(1);
       await expect
         .poll(() => allSteps(page), { timeout: 20_000 })
         .toContain("Arrive at stop 1");

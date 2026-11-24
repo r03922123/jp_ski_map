@@ -130,11 +130,6 @@ export function tripActions(
     chooseTo,
     clearTo,
     clearOrigin,
-    /** the trip panel's ✕: also empties the From box */
-    clearFrom: () => {
-      clearOrigin();
-      setSearchKey((k) => k + 1);
-    },
     /** a search result becomes the start */
     searchStart: (place: Suggestion) => {
       setOrigin(place.coord);

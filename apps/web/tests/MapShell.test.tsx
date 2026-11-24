@@ -243,7 +243,7 @@ describe("MapShell origin", () => {
     act(() => map().onPickOrigin(hotel));
     expect(map().origin).toEqual(hotel);
     await waitFor(() => expect(query().get("from")).toBe("36.69736,137.85393"));
-    expect(screen.getAllByText("Dropped pin").length).toBeGreaterThan(0);
+    expect(screen.getByDisplayValue("Dropped pin")).toBeInTheDocument();
   });
 
   it("a shared link restores the origin, and a tap with both ends set keeps it", async () => {

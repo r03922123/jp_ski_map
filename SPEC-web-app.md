@@ -390,7 +390,7 @@ card was 172 px against Google's ≈95 pt: a third row held "+ Add destination",
 - Two bars: row 1 is the rail, the From box and **★ Saved**, the same place it has in the one-bar card. Row 2 is
   the rail, the To box and the destination's **☆**. ⇅ stays to the right of both rows. No third row, on any
   screen.
-- **"+ Add destination" moves into the sheet**, just above the Trip list (From, then the stops), which is
+- **"+ Add destination" moves into the sheet**, just above the Trip list (From, then the stops; only the stops since 2026-11-25, see v1.26), which is
   where the stop box it opens appears. Above, not under: at 360×740 two stops pushed it under the sticky ETA
   row (measured in review: its bottom at 732 px, the ETA row's top at 676). Its focus handling (TripPanel hands focus back to it after an edit) is unchanged.
 - Recorded change: when the sheet is only its 84 px bar (a landscape phone with a route, or the low sheet of
@@ -556,11 +556,13 @@ the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to plann
 "Dropped pin" row, the date box with its label above it, Night bus and a notice; its map got 321 pt (38%).
 - Drive and Walk: the directions (ETA, arrival, Start, then steps) come right after the mode tabs, before the
   trip list and the Resorts / Food / Konbini picker. Walk had them last.
-- The trip list (its From row, stops and "+ Add destination") follows the answer; in Bus it follows the
+- The trip list (its From row until 2026-11-25, stops and "+ Add destination") follows the answer; in Bus it follows the
   options. With stops it leads, above the answer: it is what the user is editing, and v1.18's "Add
   destination in the collapsed sheet with two stops" holds. The answer moves, the list keeps its place in the
-  tree (a moved list remounts and loses its focus after a stop is removed). Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
-  hides the place card (review of #109), and the journey e2e specs use its ✕.
+  tree (a moved list remounts and loses its focus after a stop is removed). ~~Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
+  hides the place card (review of #109), and the journey e2e specs use its ✕.~~ *Amended 2026-11-25 (the
+  owner's ask):* the From row goes in Walk and Bus; the top card's From box is the start, and its ✕ clears it.
+  The start is saved from its place card (one bar, before a destination) or from a dropped pin's card.
 - Bus: "Leave after" sits beside its date box, not above it (one row fewer before the options).
 - Not taken: Google's title row and its share/filter buttons; Start, Add stops and Save as one button row
   (our Start sits in the sticky ETA row, ★ beside the top card's To).

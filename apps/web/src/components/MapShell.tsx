@@ -379,7 +379,7 @@ export function MapShell() {
               twoBars={showToBox}
               from={
                 <SearchBox
-                  // remounted (emptied) when the trip panel's ✕ clears the start
+                  // remounted when an action replaces the start (Directions, swap, Start here)
                   key={searchKey}
                   autoFocus={searchKey === focusedSearchKey}
                   // the rail and ⇅ narrow this box in two bars (T78)
@@ -459,14 +459,12 @@ export function MapShell() {
               tripFirst={mode !== "bus" && tripStops.length > 0}
               placeStrip={
                 <TripPanel
-                  from={fromPlace}
                   stops={mode === "bus" ? [] : tripStops}
                   addStopRef={addStopRef}
                   near={viewCentre}
                   onRemoveStop={actions.removeStop}
                   onMoveStop={actions.moveStop}
                   onFillStop={fillStop}
-                  onClearFrom={actions.clearFrom}
                   addDestination={
                     canAddStop && (
                       <AddDestinationButton

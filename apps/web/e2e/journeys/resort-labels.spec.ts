@@ -122,7 +122,7 @@ for (const device of [
       await routeReady(page);
       await expect(labels(page)).toHaveCount(1);
 
-      await page.getByRole("button", { name: "Remove starting point" }).click();
+      await page.getByRole("button", { name: "Clear starting point" }).click();
 
       await expect(labels(page)).toHaveCount(ALL);
     });
