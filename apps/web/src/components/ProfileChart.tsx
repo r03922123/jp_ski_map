@@ -103,7 +103,7 @@ export function ProfileChart({
                 fill={slopeColour(pct)}
                 // the same colour round each stretch closes the hairline gaps between them
                 stroke={slopeColour(pct)}
-                strokeWidth={0.5}
+                strokeWidth={1}
                 vectorEffect="non-scaling-stroke"
               />
             ))}
