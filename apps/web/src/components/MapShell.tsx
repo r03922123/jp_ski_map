@@ -509,7 +509,10 @@ export function MapShell() {
                   showNight={showNight}
                   onShowNightChange={setShowNight}
                   freeOnly={freeOnly}
-                  onFreeOnlyChange={setFreeOnly}
+                  onFreeOnlyChange={(on) => {
+                    setFreeOnly(on);
+                    if (on) actions.dropPaidBus();
+                  }}
                   departAt={departAt}
                   onDepartAtChange={setDepartAt}
                   selected={busChoice}

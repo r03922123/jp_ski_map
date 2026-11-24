@@ -17,9 +17,6 @@ import { cn } from "@/lib/utils";
 export const SHUTTLE_PAGE =
   "https://www.hakubavalley.com/en/access_en/shuttlebus_en/";
 
-/** The Hakuba Valley Line, the paid day line (PAID_DAY_LINE in the API's bus query); the rest are free. */
-const PAID_LINE = "line-v";
-
 type Loadable<T> =
   | { status: "idle" }
   | { status: "loading" }
@@ -49,8 +46,7 @@ export type BusPanelProps = {
   departAt: string;
   onDepartAtChange: (value: string) => void;
   selected: BusOption | null;
-  /** null: the chosen option was hidden (Free shuttles only) */
-  onSelect: (option: BusOption | null) => void;
+  onSelect: (option: BusOption) => void;
   /** Guide the chosen journey step by step (SPEC-pilot "bus pilot"). */
   onStart?: () => void;
   /** why Start didn't start (e.g. far from the stop) */
@@ -506,12 +502,7 @@ export function BusPanel(props: BusPanelProps) {
           <input
             type="checkbox"
             checked={props.freeOnly}
-            onChange={(e) => {
-              props.onFreeOnlyChange(e.target.checked);
-              // a chosen paid bus would stay on the map while its row is hidden
-              if (e.target.checked && props.selected?.lineId === PAID_LINE)
-                props.onSelect(null);
-            }}
+            onChange={(e) => props.onFreeOnlyChange(e.target.checked)}
           />
           Free shuttles only
         </label>

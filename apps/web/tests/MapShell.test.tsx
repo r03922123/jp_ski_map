@@ -528,6 +528,63 @@ describe("MapShell mode", () => {
     expect(query().get("resort")).toBe(happo.id);
   });
 
+  // review of feat/panel-tidy: the box cleared the bus, and the resort the bus had set with it
+  it("Free shuttles only clears a tapped Line V bus but keeps its resort", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    // Happo-One's third option in the fixture is Line V
+    const paid = (await screen.findAllByRole("button", { name: /Board/ }))[2];
+    fireEvent.click(paid);
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+
+    fireEvent.click(screen.getByLabelText("Free shuttles only"));
+
+    await waitFor(() =>
+      expect(
+        screen
+          .getAllByRole("button", { name: /Board/ })
+          .some((b) => b.getAttribute("aria-pressed") === "true"),
+      ).toBe(false),
+    );
+    expect(screen.getByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+    expect(query().get("resort")).toBe(happo.id);
+  });
+
+  it("Free shuttles only keeps a tapped free bus", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    // Happo-One's first option in the fixture is Line H, a free one
+    const free = (await screen.findAllByRole("button", { name: /Board/ }))[0];
+    fireEvent.click(free);
+    await waitFor(() => expect(free).toHaveAttribute("aria-pressed", "true"));
+
+    fireEvent.click(screen.getByLabelText("Free shuttles only"));
+
+    await waitFor(() =>
+      expect(api.fetchBusOptions).toHaveBeenLastCalledWith(
+        expect.anything(),
+        expect.any(String),
+        null,
+        true,
+      ),
+    );
+    expect(
+      (await screen.findAllByRole("button", { name: /Board/ }))[0],
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
   it("a tapped bus doesn't narrow the Bus list to its resort (v1.13 rule 6)", async () => {
     vi.mocked(api.fetchBusOptions).mockResolvedValue(
       busFixture as api.BusResult,

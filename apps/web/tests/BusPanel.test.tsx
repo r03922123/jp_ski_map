@@ -296,18 +296,6 @@ describe("BusPanel free shuttles only", () => {
     ).toBeInTheDocument();
   });
 
-  it("clears a chosen Line V bus", () => {
-    const paid = renderPanel({ selected: optionsOf("hakuba47")[0] });
-    tick();
-    expect(paid.onSelect).toHaveBeenCalledWith(null);
-  });
-
-  it("keeps a chosen free bus", () => {
-    const free = renderPanel({ selected: optionsOf("kashimayari")[0] });
-    tick();
-    expect(free.onSelect).not.toHaveBeenCalled();
-  });
-
   it("says so when the server has no free shuttle", () => {
     renderPanel({
       freeOnly: true,

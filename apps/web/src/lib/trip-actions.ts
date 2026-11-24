@@ -11,6 +11,9 @@ import {
 import type { DestinationCategory } from "@/lib/url-state";
 import type { Trip, TripPoint } from "@/lib/use-trip";
 
+/** The Hakuba Valley Line, the paid day line (PAID_DAY_LINE in the API's bus query); the rest are free. */
+const PAID_LINE = "line-v";
+
 export const pinPlace = (pin: TripPoint): PlaceInput => ({
   id: pinId(pin.coord),
   name: pin.name ?? "Dropped pin",
@@ -105,15 +108,18 @@ export function tripActions(
     setPoiId(null);
     setPoint(null);
   };
+  // the tapped bus goes, but the resort it set stays the destination
+  const dropBusChoice = () => {
+    const busResort = point ? null : storedBusChoice?.resortId;
+    if (busResort) setChosenResortId((id) => id ?? busResort);
+    setBusChoice(null);
+  };
   const clearOrigin = () => {
     setOrigin(null);
     setOriginName(null);
     setOriginSource(null);
     setSearchLabel(null);
-    // the bus was for the old start, but its resort stays the destination
-    const busResort = point ? null : storedBusChoice?.resortId;
-    if (busResort) setChosenResortId((id) => id ?? busResort);
-    setBusChoice(null);
+    dropBusChoice(); // it was for the old start
     // an empty stop box would take the next tap, which is meant for the new start
     setStops((list) => list.filter((st) => st.place !== null));
   };
@@ -129,6 +135,10 @@ export function tripActions(
     chooseTo,
     clearTo,
     clearOrigin,
+    /** Free shuttles only: a chosen paid bus would stay on the map while its row is hidden */
+    dropPaidBus: () => {
+      if (storedBusChoice?.lineId === PAID_LINE) dropBusChoice();
+    },
     /** a search result becomes the start */
     searchStart: (place: Suggestion) => {
       setOrigin(place.coord);
