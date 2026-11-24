@@ -69,6 +69,8 @@ export const skiLinesQuery = queryOptions({
   queryKey: ["ski-lines"],
   queryFn: () => getJson<{ features: SkiLineFeature[] }>("/api/ski-lines"),
   staleTime: Number.POSITIVE_INFINITY,
+  // the default 3 retries keep the resort card on "Loading" for ~7 s before it says it failed
+  retry: 1,
 });
 
 export const fetchRoute = (mode: Mode, from: Coord, to: Coord) =>

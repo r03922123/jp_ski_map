@@ -35,7 +35,9 @@ export function ProfileChart({
   const { slopesPct } = profileStats(profile);
   const last = h.length - 1;
   const top = Math.max(...h);
-  const span = Math.max(top - Math.min(...h), 1);
+  const low = Math.min(...h);
+  // a flat run still gets a chart 1 m tall to draw in
+  const span = Math.max(top - low, 1);
   const [at, setAt] = useState<number | null>(null);
   const show = (i: number | null) => {
     if (i === at) return; // a move inside the same 25 m redraws nothing
@@ -58,7 +60,7 @@ export function ProfileChart({
       <div className="grid grid-cols-[auto_1fr] gap-x-1.5 gap-y-0.5 text-[11px] leading-none text-muted-foreground tabular-nums">
         <div className="flex flex-col justify-between text-right">
           <span>{top} m</span>
-          <span>{top - span} m</span>
+          <span>{low} m</span>
         </div>
         <div
           role="slider"
@@ -67,7 +69,11 @@ export function ProfileChart({
           aria-valuemin={0}
           aria-valuemax={Math.round(last * resolutionM)}
           aria-valuenow={Math.round(shown * resolutionM)}
-          aria-valuetext={`${readout(shown)}, ${km(shown * resolutionM)} km along`}
+          aria-valuetext={
+            at === null
+              ? "No point picked: use the arrow keys"
+              : `${readout(at)}, ${km(at * resolutionM)} km along`
+          }
           // a finger dragged along the chart moves the point, not the page
           className="relative h-20 cursor-crosshair touch-none rounded-sm bg-muted/50 outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
           onPointerDown={fromPointer}
@@ -82,7 +88,10 @@ export function ProfileChart({
                 : e.key === "End"
                   ? last
                   : e.key in STEP
-                    ? Math.min(Math.max(shown + STEP[e.key], 0), last)
+                    ? // the first step picks the start, not the point after it
+                      at === null
+                      ? 0
+                      : Math.min(Math.max(at + STEP[e.key], 0), last)
                     : null;
             if (i === null) return;
             e.preventDefault();

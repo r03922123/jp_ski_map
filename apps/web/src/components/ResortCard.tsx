@@ -15,6 +15,7 @@ export function ResortCard({
   summary,
   failed,
   onClose,
+  focusOnOpen,
 }: {
   name: { en: string; ja: string };
   website: string;
@@ -23,10 +24,16 @@ export function ResortCard({
   /** the lines could not be loaded */
   failed: boolean;
   onClose: () => void;
+  focusOnOpen?: boolean;
 }) {
   const host = new URL(website).hostname.replace(/^www\./, "");
   return (
-    <MapCard title={name.en} subtitle={name.ja} onClose={onClose}>
+    <MapCard
+      title={name.en}
+      subtitle={name.ja}
+      onClose={onClose}
+      focusOnOpen={focusOnOpen}
+    >
       {summary ? (
         <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm">
           {summary.verticalM !== null && (

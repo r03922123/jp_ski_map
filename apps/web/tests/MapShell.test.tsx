@@ -839,6 +839,24 @@ describe("MapShell ski cards", () => {
     );
     expect(screen.queryByRole("group", { name: "Skyline" })).toBeNull();
     expect(resortCard()).not.toBeNull();
+    // the button that had focus is gone: focus moves into the card that replaced it
+    expect(
+      within(resortCard() as HTMLElement).getByRole("button", {
+        name: "Close",
+      }),
+    ).toHaveFocus();
+  });
+
+  it("a resort chip tap leaves focus where it was", async () => {
+    renderShell("?mode=drive");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectResort("happo-one"));
+    expect(resortCard()).not.toBeNull();
+    expect(
+      within(resortCard() as HTMLElement).getByRole("button", {
+        name: "Close",
+      }),
+    ).not.toHaveFocus();
   });
 
   it("moving over the run's profile puts the ring on the map; closing the card clears it", async () => {

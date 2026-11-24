@@ -211,6 +211,15 @@ describe("SkiLineCard", () => {
       />,
     );
     const chart = screen.getByRole("slider", { name: "Height profile" });
+    // at rest no point is picked, and the slider says so
+    expect(chart).toHaveAttribute(
+      "aria-valuetext",
+      "No point picked: use the arrow keys",
+    );
+    // the first step picks the start, not the point after it
+    fireEvent.keyDown(chart, { key: "ArrowRight" });
+    expect(chart).toHaveAttribute("aria-valuenow", "0");
+    expect(onPoint.mock.calls.at(-1)?.[0]).not.toBeNull();
     fireEvent.keyDown(chart, { key: "End" });
     expect(chart).toHaveAttribute("aria-valuenow", "100");
     expect(onPoint.mock.calls.at(-1)?.[0].lat).toBeCloseTo(36.7009, 6);
@@ -218,5 +227,25 @@ describe("SkiLineCard", () => {
     expect(chart).toHaveAttribute("aria-valuenow", "50");
     fireEvent.blur(chart);
     expect(onPoint).toHaveBeenLastCalledWith(null);
+  });
+
+  it("a flat profile's axis names its one real height", () => {
+    render(
+      <SkiLineCard
+        line={run}
+        full={{
+          ...full,
+          properties: {
+            ...full.properties,
+            profile: { heightsM: [1200, 1200, 1200], resolutionM: 50 },
+          },
+        }}
+        resortName="Happo-One"
+        onResort={() => {}}
+        onClose={() => {}}
+      />,
+    );
+    expect(screen.getAllByText("1200 m")).toHaveLength(2);
+    expect(screen.queryByText("1199 m")).toBeNull();
   });
 });

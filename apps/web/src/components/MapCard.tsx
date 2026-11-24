@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
 /**
  * The card for something picked on the map: a dropped pin, a run or a lift. Google slides
@@ -14,12 +14,20 @@ export function MapCard({
   subtitle,
   onClose,
   children,
+  focusOnOpen = false,
 }: {
   title: string;
   subtitle: ReactNode;
   onClose: () => void;
   children?: ReactNode;
+  /** opened from a button in a card it replaced: focus would otherwise fall to the page */
+  focusOnOpen?: boolean;
 }) {
+  const close = useRef<HTMLButtonElement>(null);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only when the card opens
+  useEffect(() => {
+    if (focusOnOpen) close.current?.focus();
+  }, []);
   useEffect(() => {
     // Escape dismisses it, like the app's other pop-ups
     const onKey = (e: KeyboardEvent) => {
@@ -38,6 +46,7 @@ export function MapCard({
       </legend>
       <button
         type="button"
+        ref={close}
         aria-label="Close"
         onClick={onClose}
         className="absolute top-2.5 right-3 flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/70"

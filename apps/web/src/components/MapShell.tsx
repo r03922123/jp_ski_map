@@ -53,7 +53,8 @@ const MapView = dynamic(() => import("./MapView"), { ssr: false });
 type Picked =
   | { kind: "pin"; pin: TripPoint }
   | { kind: "line"; line: SkiLine }
-  | { kind: "resort"; resortId: string };
+  // fromCard: opened from the run or lift card's resort name, which unmounts with it
+  | { kind: "resort"; resortId: string; fromCard?: boolean };
 
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
@@ -606,7 +607,11 @@ export function MapShell() {
             picked.line.resortId
           }
           onResort={() =>
-            setPicked({ kind: "resort", resortId: picked.line.resortId })
+            setPicked({
+              kind: "resort",
+              resortId: picked.line.resortId,
+              fromCard: true,
+            })
           }
           onClose={() => setPicked(null)}
           onPoint={(at) => setRing(at && { of: picked, at })}
@@ -625,6 +630,7 @@ export function MapShell() {
               : null
           }
           failed={skiLines.isError}
+          focusOnOpen={picked?.kind === "resort" && picked.fromCard === true}
           onClose={() => setPicked(null)}
         />
       )}
