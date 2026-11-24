@@ -46,6 +46,7 @@ import {
 import type { Camera } from "@/lib/nav/camera";
 import type { RideStopMark } from "@/lib/ride-stops";
 import {
+  cardPadding,
   type LngLat,
   MD_BREAKPOINT_PX,
   mapPadding,
@@ -104,6 +105,11 @@ export type MapViewProps = {
   selectedSkiLineId?: string | null;
   /** The resort whose card is open: all its lines outlined (SPEC-ski-runs v1.4). */
   selectedSkiResortId?: string | null;
+  /**
+   * The open run, lift or resort card's whole lines (SPEC-ski-runs v1.5): framed clear of the
+   * card once per `key`, and the route fit waits while it is set.
+   */
+  skiFocus?: { key: string; bounds: [LngLat, LngLat] } | null;
   /** The point picked on a run's height profile: a ring on the run. */
   profilePoint?: Coord | null;
   /** The sheet is a slim ETA + Start bar on a landscape phone (BottomSheet `slim`). */
@@ -160,6 +166,27 @@ const paddingOf = (map: HasCanvas, slimSheet = false) => {
     safe: safeInsets(),
   });
 };
+/** Padding for the map above the open card, and on a phone the sheet under it (v1.5). */
+const cardPaddingOf = (map: HasCanvas) => {
+  const canvas = map.getCanvas();
+  const phone = canvas.clientWidth < MD_BREAKPOINT_PX;
+  // from md the sheet is the side panel, which the padding's left already clears
+  const covers = document.querySelectorAll(
+    phone
+      ? "[data-map-card], [data-sheet]:not([data-phone-hidden])"
+      : "[data-map-card]",
+  );
+  return cardPadding({
+    width: canvas.clientWidth,
+    height: canvas.clientHeight,
+    // the canvas fills the window, so page and map coordinates agree
+    coverTop: Math.min(
+      canvas.clientHeight,
+      ...Array.from(covers, (el) => el.getBoundingClientRect().top),
+    ),
+    safe: safeInsets(),
+  });
+};
 const sizeOf = (map: HasCanvas) => {
   const canvas = map.getCanvas();
   return `${canvas.clientWidth}x${canvas.clientHeight}`;
@@ -197,6 +224,7 @@ export default function MapView({
   onSelectSkiLine,
   selectedSkiLineId = null,
   selectedSkiResortId = null,
+  skiFocus = null,
   profilePoint = null,
   slimSheet = false,
   pilot = null,
@@ -239,11 +267,13 @@ export default function MapView({
     )
     .join("|")}`;
   const piloting = pilot !== null;
+  const skiKey = skiFocus?.key ?? "";
   // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
   useEffect(() => {
     const map = mapRef.current;
-    // while navigating the follow camera owns the view (a reroute must not zoom out)
-    if (!mapReady || !map || drawn.length === 0 || piloting) return;
+    // while navigating the follow camera owns the view (a reroute must not zoom out); while
+    // a ski card is open its lines own it, and closing the card fits the route again
+    if (!mapReady || !map || drawn.length === 0 || piloting || skiKey) return;
     const all = [
       ...drawn.flatMap((r) => r.geometry.coordinates as LngLat[]),
       ...endPoints,
@@ -259,7 +289,7 @@ export default function MapView({
       bearing: 0,
       duration: prefersReducedMotion() ? 0 : 700,
     });
-  }, [fitKey, mapReady, piloting]);
+  }, [fitKey, mapReady, piloting, skiKey]);
 
   useCompactCredits(mapRef, mapReady, fitKey);
 
@@ -403,6 +433,28 @@ export default function MapView({
       duration: prefersReducedMotion() ? 0 : 600,
     });
   }, [pinKey, pressing, mapReady]);
+
+  // A picked run, lift or resort: its whole lines in the map its card leaves clear, once
+  // per pick, after the finger is up (as the dropped pin above).
+  const framedSki = useRef("");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: skiKey stands for skiFocus
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!skiKey) {
+      framedSki.current = "";
+      return;
+    }
+    if (!mapReady || !map || !skiFocus || piloting || pressing) return;
+    if (framedSki.current === skiKey) return;
+    framedSki.current = skiKey;
+    map.fitBounds(skiFocus.bounds, {
+      padding: cardPaddingOf(map),
+      // as the route fit: replaces what an ease left on the map instead of adding to it
+      absolutePadding: true,
+      maxZoom: 16,
+      duration: prefersReducedMotion() ? 0 : 600,
+    });
+  }, [skiKey, pressing, mapReady, piloting]);
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
   // and an identity-keyed effect would re-ease after each of its own moveend reports.

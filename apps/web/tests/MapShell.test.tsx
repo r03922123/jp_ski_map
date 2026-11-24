@@ -99,6 +99,37 @@ const skylineRun: SkiLineFeature = {
     ],
   },
 };
+// a Happo-One lift south-west of it, and another resort's run, for the resort's frame (v1.5)
+const happoLift: SkiLineFeature = {
+  type: "Feature",
+  properties: {
+    ...skyline,
+    id: "l1",
+    kind: "lift",
+    name: "Alpen",
+    difficulty: null,
+    liftType: "chair_lift",
+    profile: null,
+  },
+  geometry: {
+    type: "LineString",
+    coordinates: [
+      [137.79, 36.69],
+      [137.8, 36.7],
+    ],
+  },
+};
+const goryuRun: SkiLineFeature = {
+  ...skylineRun,
+  properties: { ...skylineRun.properties, id: "g1", resortId: "goryu" },
+  geometry: {
+    type: "LineString",
+    coordinates: [
+      [137.85, 36.66],
+      [137.86, 36.67],
+    ],
+  },
+};
 const drive = driveFixture as unknown as Route;
 const walk = walkFixture as unknown as Route;
 const hotel = { lat: 36.697364, lng: 137.853928 };
@@ -130,7 +161,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     fetchNearbyPois: vi.fn(async () => []),
     skiLinesQuery: {
       queryKey: ["ski-lines"],
-      queryFn: async () => ({ features: [skylineRun] }),
+      queryFn: async () => ({ features: [skylineRun, happoLift, goryuRun] }),
       staleTime: Number.POSITIVE_INFINITY,
     },
   };
@@ -857,6 +888,41 @@ describe("MapShell ski cards", () => {
         name: "Close",
       }),
     ).not.toHaveFocus();
+  });
+
+  // v1.5: the map frames what the card is about, once its whole lines have loaded (a tap's
+  // own geometry is tile-clipped)
+  it("a tapped run frames its whole line, a resort card all the resort's lines", async () => {
+    renderShell("?mode=drive");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectSkiLine?.(skyline));
+    await waitFor(() =>
+      expect(map().skiFocus).toEqual({
+        key: "r1",
+        bounds: [
+          [137.8, 36.7],
+          [137.8, 36.7009],
+        ],
+      }),
+    );
+    act(() => map().onSelectResort("happo-one"));
+    // the run and the lift, not Goryu's run
+    expect(map().skiFocus).toEqual({
+      key: "resort:happo-one",
+      bounds: [
+        [137.79, 36.69],
+        [137.8, 36.7009],
+      ],
+    });
+    fireEvent.click(
+      within(resortCard() as HTMLElement).getByRole("button", {
+        name: "Close",
+      }),
+    );
+    expect(map().skiFocus).toBeNull();
+    // a dropped pin's card frames nothing (the map eases to the pin instead)
+    act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
+    expect(map().skiFocus).toBeNull();
   });
 
   it("moving over the run's profile puts the ring on the map; closing the card clears it", async () => {

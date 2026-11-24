@@ -32,6 +32,7 @@ import { type Bbox, type Coord, resortsQuery, skiLinesQuery } from "@/lib/api";
 import { useBackToClose } from "@/lib/back-close";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
+import { routeBounds } from "@/lib/route-geo";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
 import { resortSummary } from "@/lib/ski-stats";
 import { pinPlace, tripActions } from "@/lib/trip-actions";
@@ -305,6 +306,32 @@ export function MapShell() {
     picked?.kind === "resort"
       ? resorts.data?.find((r) => r.id === picked.resortId)
       : undefined;
+  // v1.5: what the open ski card is about, whole (a tap's own geometry is tile-clipped), for
+  // the map to frame: the run or lift, or all the resort's lines
+  const skiFocusLines =
+    piloting || !picked || picked.kind === "pin"
+      ? []
+      : (skiLines.data?.features ?? []).filter((f) =>
+          picked.kind === "line"
+            ? f.properties.id === picked.line.id
+            : f.properties.resortId === picked.resortId,
+        );
+  const skiFocus =
+    picked && picked.kind !== "pin" && skiFocusLines.length > 0
+      ? {
+          key:
+            picked.kind === "line"
+              ? picked.line.id
+              : `resort:${picked.resortId}`,
+          bounds: routeBounds(
+            skiFocusLines.flatMap((f) =>
+              f.geometry.type === "LineString"
+                ? f.geometry.coordinates
+                : f.geometry.coordinates[0],
+            ),
+          ),
+        }
+      : null;
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
   const pinCard = droppedPin && (
@@ -575,6 +602,7 @@ export function MapShell() {
         selectedSkiResortId={
           !piloting && picked?.kind === "resort" ? picked.resortId : null
         }
+        skiFocus={skiFocus}
         profilePoint={piloting ? null : profilePoint}
         onSelectResort={actions.selectResortOnMap}
         saved={savedMarkers}
