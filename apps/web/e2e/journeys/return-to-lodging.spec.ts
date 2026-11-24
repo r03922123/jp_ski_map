@@ -10,9 +10,9 @@ test.describe.configure({ retries: 1, timeout: 60_000 });
 
 const STATION = "36.69877,137.86197"; // JR Hakuba Station stands in for the lodging
 const RESORT_END = "36.65,137.84"; // near Goryu: a start that isn't the lodging
-const TRIP = `/?from=${STATION}&mode=drive&resort=happo-one`;
+const TRIP = `/?from=${STATION}&mode=walk&resort=happo-one`;
 const SWAP = "Swap start and destination";
-const OLD_BUS_HINT = "Way back from a resort: use Drive or Walk.";
+const OLD_BUS_HINT = "Way back from a resort:"; // the removed hint's start (substring match)
 const MARCH_20 = readFileSync(
   "e2e/fixtures/bus-options-2026-03-20.json",
   "utf8",
@@ -232,7 +232,7 @@ for (const device of DEVICES) {
       await expect(page.getByText("14:37 → 15:10")).toHaveCount(0);
     });
 
-    // SPEC-web-app v1.13 rule 5: Bus has the same To box as Drive and Walk
+    // SPEC-web-app v1.13 rule 5: Bus has the same To box as Walk
     const toBox = (page: Page) => page.getByRole("combobox", { name: "To" });
     const pickTo = async (page: Page, text: string, option: RegExp) => {
       await toBox(page).fill(text);
@@ -324,7 +324,7 @@ for (const device of DEVICES) {
       page,
     }) => {
       await mockBuses(page);
-      await page.goto(`/?from=${STATION}&mode=drive&resort=iwatake`);
+      await page.goto(`/?from=${STATION}&mode=walk&resort=iwatake`);
       await routeReady(page);
       await page.getByRole("button", { name: /^Save Hakuba Iwatake/ }).click();
       await page.getByRole("checkbox", { name: /Starred/ }).check();
@@ -344,7 +344,7 @@ for (const device of DEVICES) {
     }) => {
       const SAVED_IWATAKE = "36.71705,137.85862";
       await mockBuses(page);
-      await page.goto(`/?from=${STATION}&mode=drive&resort=iwatake`);
+      await page.goto(`/?from=${STATION}&mode=walk&resort=iwatake`);
       await routeReady(page);
       await page.getByRole("button", { name: /^Save Hakuba Iwatake/ }).click();
       await page.getByRole("checkbox", { name: /Starred/ }).check();
@@ -465,7 +465,7 @@ for (const device of DEVICES) {
       await expect(journey).toHaveCount(0);
     });
 
-    test("bus: another resort chosen on Drive drops the bus to the old one", async ({
+    test("bus: another resort chosen on Walk drops the bus to the old one", async ({
       page,
     }) => {
       await mockBuses(page);
@@ -474,7 +474,7 @@ for (const device of DEVICES) {
       const journey = page.locator('[aria-label="Journey"]');
       await expect(journey).toBeVisible();
 
-      await page.getByRole("tab", { name: /drive/i }).click();
+      await page.getByRole("tab", { name: /walk/i }).click();
       await page
         .getByRole("list", { name: "Ranked resorts" })
         .getByRole("button", { name: /Happo-One/ })
@@ -526,7 +526,7 @@ test("a swap drops the chosen bus, whose stop belonged to the old start", async 
   const journey = page.locator('[aria-label="Journey"]');
   await expect(journey).toBeVisible();
 
-  await page.getByRole("tab", { name: /drive/i }).click();
+  await page.getByRole("tab", { name: /walk/i }).click();
   await page
     .getByRole("list", { name: "Ranked resorts" })
     .getByRole("button", { name: /Happo-One/ })

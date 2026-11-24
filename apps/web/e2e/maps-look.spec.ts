@@ -11,7 +11,7 @@ test.use({
 test("the working interface has the Maps look, not the pixel look", async ({
   page,
 }) => {
-  await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+  await page.goto("/?from=36.6985,137.8376&mode=walk&resort=happo-one");
   await page
     .locator("main[data-map-loaded='true']:not([data-route-points='0'])")
     .waitFor({ timeout: 30_000 });

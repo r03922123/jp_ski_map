@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const HOTEL_HAKUBA = "/?from=36.69711,137.85393";
-const ETA = /^ETA ~ .+ · [\d.]+ k?m$/; // "ETA ~ 25 min · 12.3 km"
+const ETA = /^ETA ~ .+ · [\d.]+ k?m$/; // "ETA ~ 1 h 36 min · 8.2 km"
 
 // A protected preview needs Vercel's bypass header. Only on the deployment's own origin:
 // extraHTTPHeaders would also send the secret to the map tile host.
@@ -65,10 +65,10 @@ test("bus mode shows a departure and its journey", async ({ page }) => {
   );
 });
 
-test("drive mode routes to a ranked resort with time and distance", async ({
+test("walk mode routes to a ranked resort with time and distance", async ({
   page,
 }) => {
-  await page.goto(`${HOTEL_HAKUBA}&mode=drive`);
+  await page.goto(`${HOTEL_HAKUBA}&mode=walk`);
   await page
     .getByRole("list", { name: "Ranked resorts" })
     .getByRole("button", { name: /Tsugaike/ })
@@ -76,7 +76,7 @@ test("drive mode routes to a ranked resort with time and distance", async ({
   await expect(page.getByText(ETA)).toBeVisible({ timeout: 15_000 });
 });
 
-test("walk mode routes to a resort with time and distance", async ({
+test("walk mode routes to a resort from the link with time and distance", async ({
   page,
 }) => {
   await page.goto(`${HOTEL_HAKUBA}&mode=walk&resort=happo-one`);

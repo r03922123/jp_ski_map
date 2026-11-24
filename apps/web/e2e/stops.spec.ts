@@ -3,7 +3,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { devOnly } from "./dev-only";
 
 // SPEC-web-app v1.4: add a stop by typing or by tapping the map; remove it; share it.
-const DRIVE = "/?from=36.69711,137.85393&mode=drive&resort=happo-one";
+const TRIP = "/?from=36.69711,137.85393&mode=walk&resort=happo-one";
 const steps = (page: Page) => page.getByRole("list", { name: "Steps" });
 const trip = (page: Page) => page.getByRole("list", { name: "Trip" });
 
@@ -88,7 +88,7 @@ async function tapLayer(
 test("add a stop by typing: the route goes through it, and the link keeps it", async ({
   page,
 }) => {
-  await page.goto(DRIVE);
+  await page.goto(TRIP);
   await loaded(page);
   expect(await allSteps(page)).not.toContain("Arrive at stop 1");
 
@@ -131,7 +131,7 @@ test("with both ends set, a click on an alternate route line still selects it", 
   page,
 }) => {
   devOnly("finds the route line on screen through the dev map handle");
-  await page.goto(DRIVE);
+  await page.goto(TRIP);
   await loaded(page);
   const main = page.locator("main");
   await expect(main).toHaveAttribute(
@@ -152,7 +152,7 @@ test("a stop box takes a tap on an alternate route line (a stop on the way), the
   page,
 }) => {
   devOnly("finds the route line on screen through the dev map handle");
-  await page.goto(DRIVE);
+  await page.goto(TRIP);
   await loaded(page);
   // the case this rule exists for: without a stop box, this tap would pick that route
   await page.getByRole("button", { name: "Add destination" }).click();
@@ -186,7 +186,7 @@ test("a stop box takes a tap on an alternate route line (a stop on the way), the
 test("an empty stop box can be dismissed before typing; then a click leaves the trip alone", async ({
   page,
 }) => {
-  await page.goto(DRIVE);
+  await page.goto(TRIP);
   await loaded(page);
   await page.getByRole("button", { name: "Add destination" }).click();
   await page.getByRole("button", { name: "Remove stop 1" }).click();
@@ -208,7 +208,7 @@ test("an empty stop box can be dismissed before typing; then a click leaves the 
 test("clearing the start keeps the stops listed; the next tap is the new start", async ({
   page,
 }) => {
-  await page.goto(`${DRIVE}&stops=36.69877,137.86197`);
+  await page.goto(`${TRIP}&stops=36.69877,137.86197`);
   await loaded(page);
   await expect(trip(page).getByRole("listitem")).toHaveCount(2);
   // an open, empty box too: it must not take the tap meant for the new start
@@ -244,7 +244,7 @@ test("while a stop box is open, a resort marker is the stop, not a new destinati
   page,
 }) => {
   devOnly("zooms out through the dev map handle");
-  await page.goto(DRIVE);
+  await page.goto(TRIP);
   await loaded(page);
   await page.getByRole("button", { name: "Add destination" }).click();
 
@@ -312,7 +312,7 @@ test("the bus tab offers no stops and no ✕ on the bus's stop", async ({
 // from a moved element; focus goes back to the moved stop's button
 test("Move down keeps keyboard focus on the moved stop", async ({ page }) => {
   await page.goto(
-    "/?from=36.6985,137.8376&mode=drive&resort=happo-one&stops=36.69000,137.84000;36.69500,137.84500",
+    "/?from=36.6985,137.8376&mode=walk&resort=happo-one&stops=36.69000,137.84000;36.69500,137.84500",
   );
   const down = page.getByRole("button", { name: "Move stop 1 down" });
   await down.focus();

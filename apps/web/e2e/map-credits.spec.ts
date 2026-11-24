@@ -10,7 +10,7 @@ import { devOnly } from "./dev-only";
 const CREDITS = ".maplibregl-ctrl-attrib";
 const INFO_BUTTON = `${CREDITS} summary.maplibregl-ctrl-attrib-button`;
 
-const TRIP = "/?from=36.69711,137.85393&mode=drive&resort=tsugaike";
+const TRIP = "/?from=36.69711,137.85393&mode=walk&resort=tsugaike";
 
 async function openMap(page: Page, url = "/") {
   await page.goto(url);
@@ -44,7 +44,7 @@ async function expectOnTop(el: Locator) {
   await expect.poll(() => isOnTop(el), { timeout: 5_000 }).toBe(true);
 }
 
-const START = "/?from=36.69711,137.85393&mode=drive";
+const START = "/?from=36.69711,137.85393&mode=walk";
 
 for (const [name, viewport] of [
   ["phone 390x844", { width: 390, height: 844 }],

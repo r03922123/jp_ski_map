@@ -18,7 +18,7 @@ test.use({
   hasTouch: true,
 });
 
-const TRIP = "/?from=36.6985,137.8376&mode=drive&resort=happo-one";
+const TRIP = "/?from=36.6985,137.8376&mode=walk&resort=happo-one";
 
 async function openTrip(page: Page) {
   await page.goto(TRIP);

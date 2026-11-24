@@ -1,10 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { devOnly } from "./dev-only";
 
 // Needs the API (started by playwright.config) and Valhalla (docker compose) running.
-test("click map → choose resort → drive then walk route with ETA", async ({
-  page,
-}) => {
+test("click map → choose resort → walk route with ETA", async ({ page }) => {
   await page.goto("/");
   const main = page.locator("main[data-map-loaded='true']");
   await expect(main).toBeAttached({ timeout: 15_000 });
@@ -19,29 +16,21 @@ test("click map → choose resort → drive then walk route with ETA", async ({
   );
   await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible();
 
-  // Drive mode lists ranked resorts (map markers share the name, so scope to the list)
+  // Walk mode lists ranked resorts (map markers share the name, so scope to the list)
   await page
     .getByRole("list", { name: "Ranked resorts" })
     .getByRole("button", { name: /Happo-One/ })
     .click({ timeout: 15_000 });
-  await expect(page.getByText(/^ETA ~ \d+ min/)).toBeVisible({
+  await expect(page.getByText(/^ETA ~ \d+/)).toBeVisible({
     timeout: 10_000,
   });
   await expect(main).not.toHaveAttribute("data-route-points", "0");
-  const drivePoints = await main.getAttribute("data-route-points");
-
-  await page.getByRole("tab", { name: /walk/i }).click();
-  await expect(page.getByText(/^ETA ~ \d+/)).toBeVisible({ timeout: 10_000 });
-  await expect(main).not.toHaveAttribute(
-    "data-route-points",
-    drivePoints ?? "",
-  );
 });
 
-// Happo village → Iwatake: Valhalla offers one alternate here (recorded 2026-10-30).
-const WITH_ALTERNATE = "/?from=36.6985,137.8376&mode=drive&resort=iwatake";
+// Hotel Hakuba → Happo-One: Valhalla offers two walking alternates here (recorded 2026-11-25).
+const WITH_ALTERNATE = "/?from=36.69711,137.85393&mode=walk&resort=happo-one";
 
-test("drive route is fitted, labelled, and alternates can be chosen", async ({
+test("walk route is fitted, labelled, and alternates can be chosen", async ({
   page,
 }) => {
   await page.goto(WITH_ALTERNATE);
@@ -52,7 +41,7 @@ test("drive route is fitted, labelled, and alternates can be chosen", async ({
   });
 
   const selected = page.locator("[data-route-label='active']");
-  const alternate = page.locator("[data-route-label='alternate']");
+  const alternate = page.locator("[data-route-label='alternate']").first();
   await expect(selected).toHaveText(/\d+ min/);
   await expect(alternate).toHaveText(/\d+ min/);
   await expect(page.getByRole("img", { name: "Destination" })).toBeVisible();
@@ -75,26 +64,10 @@ test("drive route is fitted, labelled, and alternates can be chosen", async ({
 
   const before = await selected.textContent();
   await alternate.click();
-  await expect(main).toHaveAttribute("data-route-layers", "alternate,primary");
+  // routes keep their order; the chosen one becomes primary
+  await expect(main).toHaveAttribute(
+    "data-route-layers",
+    /^alternate,.*primary/,
+  );
   await expect(selected).not.toHaveText(before ?? "");
-});
-
-// SPEC-web-app v1.30: walking is dotted blue, driving solid; the dots must not stay behind after a switch
-test("walk then drive: the route line drops its dots", async ({ page }) => {
-  devOnly("reads paint through the dev map handle");
-  const dashes = () =>
-    page.evaluate(() =>
-      (
-        window as unknown as {
-          __hakubaMap: { getPaintProperty(l: string, p: string): unknown };
-        }
-      ).__hakubaMap.getPaintProperty("route-active-line", "line-dasharray"),
-    );
-  await page.goto("/?from=36.69711,137.85393&mode=walk&resort=happo-one");
-  await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
-    timeout: 15_000,
-  });
-  await expect.poll(dashes, { timeout: 15_000 }).toEqual([0, 1.6]);
-  await page.getByRole("tab", { name: /Drive/ }).click();
-  await expect.poll(dashes, { timeout: 15_000 }).toBeUndefined();
 });

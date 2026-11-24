@@ -166,7 +166,7 @@ test("Tab reaches the search box first; the page has an h1", async ({
 // T78: standing at Happo village, the hero hid the Happo-One label; labels stay on top
 // (the hero takes no taps, so this is about reading the label)
 test("resort labels draw above the idle hero", async ({ page }) => {
-  await page.goto("/?from=36.6985,137.8376&mode=drive");
+  await page.goto("/?from=36.6985,137.8376&mode=walk");
   await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible({
     timeout: 15_000,
   });

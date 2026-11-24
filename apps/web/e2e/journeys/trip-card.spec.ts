@@ -9,7 +9,7 @@ import { expect, type Page, test } from "@playwright/test";
 test.describe.configure({ retries: 1, timeout: 60_000 });
 
 const STATION = "36.69877,137.86197"; // JR Hakuba Station
-const TRIP = `/?from=${STATION}&mode=drive&resort=happo-one`;
+const TRIP = `/?from=${STATION}&mode=walk&resort=happo-one`;
 const BUS_TRIP = `/?from=${STATION}&mode=bus&resort=happo-one`;
 
 const DEVICES = [
@@ -260,7 +260,7 @@ test.describe("mouse clicks on the map (v1.13 rule 8)", () => {
   });
 
   test("with only a start, a click still moves it", async ({ page }) => {
-    await page.goto(`/?from=${STATION}&mode=drive`);
+    await page.goto(`/?from=${STATION}&mode=walk`);
     await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
       timeout: 30_000,
     });
@@ -277,7 +277,7 @@ const placeCard = (page: Page) =>
   page.getByRole("group", { name: "From here" });
 const directions = (page: Page) =>
   placeCard(page).getByRole("button", { name: "Directions" });
-const START_ONLY = `/?from=${STATION}&mode=drive`;
+const START_ONLY = `/?from=${STATION}&mode=walk`;
 
 async function searchStation(page: Page) {
   await fromBox(page).fill("Hakuba Station");
@@ -294,7 +294,7 @@ for (const device of DEVICES) {
     test("a search gives one bar, the card under it, and the rider at the start", async ({
       page,
     }) => {
-      await page.goto("/?mode=drive");
+      await page.goto("/?mode=walk");
       await expect(fromBox(page)).toBeVisible({ timeout: 15_000 });
       await expect(placeCard(page)).toHaveCount(0);
 
@@ -332,7 +332,7 @@ for (const device of DEVICES) {
     test("Directions makes the place the destination and leaves From empty", async ({
       page,
     }) => {
-      await page.goto("/?mode=drive");
+      await page.goto("/?mode=walk");
       await searchStation(page);
 
       await directions(page).click();
@@ -376,7 +376,7 @@ for (const device of DEVICES) {
     test("Directions on a resort start selects that resort as the destination", async ({
       page,
     }) => {
-      await page.goto("/?mode=drive");
+      await page.goto("/?mode=walk");
       await fromBox(page).fill("Happo-One");
       await page
         .getByRole("option", { name: /Happo-One/ })

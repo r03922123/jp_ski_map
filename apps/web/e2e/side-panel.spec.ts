@@ -25,7 +25,7 @@ const onTop = (page: Page, name: string) =>
 test("the side card collapses out of the way and comes back, the camera stays", async ({
   page,
 }) => {
-  await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+  await page.goto("/?from=36.6985,137.8376&mode=walk&resort=happo-one");
   await page
     .locator("main[data-map-loaded='true']:not([data-route-points='0'])")
     .waitFor();
@@ -69,7 +69,7 @@ test.describe("landscape iPhone, notch simulated", () => {
   test("the tabs sit beside the card and right of the notch", async ({
     page,
   }) => {
-    await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+    await page.goto("/?from=36.6985,137.8376&mode=walk&resort=happo-one");
     await page.addStyleTag({
       content:
         ":root { --safe-left: 47px !important; --safe-right: 47px !important; }",
@@ -100,7 +100,7 @@ test.describe("landscape iPhone, notch simulated", () => {
 test("a resort picked from the ranked list by keyboard hands focus to its ETA", async ({
   page,
 }) => {
-  await page.goto("/?from=36.6985,137.8376&mode=drive");
+  await page.goto("/?from=36.6985,137.8376&mode=walk");
   // Iwatake: its directions are tall enough to push the card below the window
   const card = page
     .getByRole("list", { name: "Ranked resorts" })

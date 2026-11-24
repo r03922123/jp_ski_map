@@ -28,7 +28,7 @@ type SkiHitMap = {
 test.describe.configure({ retries: 1, timeout: 60_000 });
 
 const STATION = "36.69877,137.86197"; // JR Hakuba Station: Cortina is ~20 min north
-const PLAN = `/?from=${STATION}&mode=drive`;
+const PLAN = `/?from=${STATION}&mode=walk`;
 
 type Device = {
   name: string;
@@ -239,7 +239,7 @@ async function bareMapPoint(page: Page, y: number) {
   return found as unknown as { x: number; y: number };
 }
 
-/** The To box (SPEC-web-app v1.8): drive and walk; bus keeps a read-only To row. */
+/** The To box (SPEC-web-app v1.8): walk; bus keeps a read-only To row. */
 const toBox = (page: Page) =>
   page.getByRole("combobox", { name: "To", exact: true });
 /** The destination is the To box's value (an input's value is not text content). */
@@ -442,7 +442,7 @@ test.describe("ranked list · laptop 1440x900", () => {
     expect(sorts).not.toContain("price");
     expect(sorts.length).toBe(6);
     for (const sort of sorts) {
-      if (sort !== "drive_time") {
+      if (sort !== "walk_time") {
         const fresh = page.waitForResponse(
           (r) =>
             r.url().includes("/api/rank") && r.url().includes(`sort=${sort}`),
@@ -696,10 +696,10 @@ for (const d of ALL) {
 test.describe("destination survives · laptop 1440x900", () => {
   test.use(LAPTOP.use);
 
-  test("Drive → Walk → Bus → Drive keeps the resort", async ({ page }) => {
+  test("Walk → Bus → Walk keeps the resort", async ({ page }) => {
     await open(page, `${PLAN}&resort=cortina`);
     await routeDrawn(page);
-    for (const m of [/Walk/, /Bus/, /Drive/]) {
+    for (const m of [/Bus/, /Walk/]) {
       await page.getByRole("tab", { name: m }).click();
       await expect(page).toHaveURL(/resort=cortina/);
     }
@@ -707,17 +707,7 @@ test.describe("destination survives · laptop 1440x900", () => {
     await routeDrawn(page);
   });
 
-  test("Walk shows the same resort in its picker", async ({ page }) => {
-    await open(page, `${PLAN}&resort=cortina`);
-    await routeDrawn(page);
-    await page.getByRole("tab", { name: /Walk/ }).click();
-    await expect(page.locator("#resort-picker")).toHaveValue("cortina");
-    await expect(toBox(page)).toHaveValue(/Hakuba Cortina/);
-  });
-
-  test("a food destination survives Walk and back to Drive", async ({
-    page,
-  }) => {
+  test("a food destination survives Bus and back to Walk", async ({ page }) => {
     await open(page, `${PLAN}&resort=happo-one`);
     await routeDrawn(page);
     await page.getByRole("tab", { name: /Food/ }).click();
@@ -729,9 +719,8 @@ test.describe("destination survives · laptop 1440x900", () => {
     const name = (await row.innerText()).split("\n")[0].trim();
     await row.click();
     await expectTo(page, name);
+    await page.getByRole("tab", { name: /Bus/ }).click();
     await page.getByRole("tab", { name: /Walk/ }).click();
-    await expectTo(page, name);
-    await page.getByRole("tab", { name: /Drive/ }).click();
     await expectTo(page, name);
     await routeDrawn(page);
   });

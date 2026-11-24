@@ -25,19 +25,19 @@ const STATES = [
   {
     id: "L1b",
     note: "start set, ranked resorts, sheet collapsed",
-    url: "/?from=36.6985,137.8376&mode=drive",
+    url: "/?from=36.6985,137.8376&mode=walk",
     wait: "main[data-map-loaded='true']",
   },
   {
     id: "L4",
     note: "directions preview, sheet collapsed",
-    url: "/?from=36.6985,137.8376&mode=drive&resort=happo-one",
+    url: "/?from=36.6985,137.8376&mode=walk&resort=happo-one",
     wait: "main[data-map-loaded='true']:not([data-route-points='0'])",
   },
   {
     id: "L4-low",
     note: "directions preview, sheet swiped low (SPEC-web-app v1.17)",
-    url: "/?from=36.6985,137.8376&mode=drive&resort=happo-one",
+    url: "/?from=36.6985,137.8376&mode=walk&resort=happo-one",
     wait: "main[data-map-loaded='true']:not([data-route-points='0'])",
     low: true,
   },
@@ -195,7 +195,7 @@ test.describe("iPhone insets simulated, 390×844 (v1.19)", () => {
           document.head.append(style);
         });
       }, NOTCH);
-      await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+      await page.goto("/?from=36.6985,137.8376&mode=walk&resort=happo-one");
       await expect(
         page.locator(
           "main[data-map-loaded='true']:not([data-route-points='0'])",
@@ -264,7 +264,7 @@ test.describe("iPhone landscape insets simulated, 844×390 (v1.19)", () => {
         document.head.append(style);
       });
     }, SIDES);
-    await page.goto("/?from=36.6985,137.8376&mode=drive&resort=happo-one");
+    await page.goto("/?from=36.6985,137.8376&mode=walk&resort=happo-one");
     await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
       timeout: 30_000,
     });

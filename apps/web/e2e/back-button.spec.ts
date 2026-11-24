@@ -80,7 +80,7 @@ test("Back closes the Saved panel and keeps the trip", async ({ page }) => {
 test("Back steps back from a first-chosen destination, once", async ({
   page,
 }) => {
-  await open(page, "/?from=36.69400,137.86900&mode=drive");
+  await open(page, "/?from=36.69400,137.86900&mode=walk");
   const before = await entries(page);
   await page
     .getByRole("list", { name: "Ranked resorts" })
@@ -103,7 +103,7 @@ test("Back steps back from a first-chosen destination, once", async ({
 test("removing the destination in the app leaves no extra Back step", async ({
   page,
 }) => {
-  await open(page, "/?from=36.69400,137.86900&mode=drive");
+  await open(page, "/?from=36.69400,137.86900&mode=walk");
   const before = await entries(page);
   await page
     .getByRole("list", { name: "Ranked resorts" })

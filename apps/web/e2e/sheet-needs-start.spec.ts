@@ -30,7 +30,7 @@ test.describe("phone", () => {
     await openMap(page, "/");
     await expect(searchBox(page)).toBeVisible();
     await expect(sheet(page)).toBeHidden();
-    await expect(page.getByRole("tab", { name: /Drive/ })).toBeHidden();
+    await expect(page.getByRole("tab", { name: /Walk/ })).toBeHidden();
     // with no sheet to clear, the credits stay down in the map's corner
     const credits = await page.locator(".maplibregl-ctrl-attrib").boundingBox();
     expect((credits?.y ?? 0) + (credits?.height ?? 0)).toBeGreaterThan(
@@ -55,14 +55,14 @@ test.describe("phone", () => {
   });
 
   test("a shared link with a start shows the sheet", async ({ page }) => {
-    await openMap(page, "/?from=36.69711,137.85393&mode=drive");
+    await openMap(page, "/?from=36.69711,137.85393&mode=walk");
     await expect(sheet(page)).toBeVisible();
     await expect(sheet(page)).toHaveAttribute("data-state", "collapsed");
   });
 
   // the stops a cleared start leaves stay listed in the sheet, with their ✕
   test("stops with no start keep the sheet", async ({ page }) => {
-    await openMap(page, "/?mode=drive&stops=36.74000,137.87000");
+    await openMap(page, "/?mode=walk&stops=36.74000,137.87000");
     await expect(sheet(page)).toBeVisible();
   });
 

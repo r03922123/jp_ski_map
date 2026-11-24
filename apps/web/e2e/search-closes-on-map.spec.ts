@@ -13,7 +13,7 @@ type SkiHitMap = {
 // open over the panel. Google Maps: any touch on the map closes the suggestions and lets
 // go of the box.
 
-const TRIP = "/?from=36.6985,137.8376&mode=drive&resort=happo-one";
+const TRIP = "/?from=36.6985,137.8376&mode=walk&resort=happo-one";
 const RECENT = [
   {
     id: "test-recent-1",

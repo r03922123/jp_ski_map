@@ -64,10 +64,10 @@ async function expandSheet(page: Page) {
     .toBeGreaterThan(844 * 0.7);
 }
 
-test("drive: the resort list, tabs and map controls are big enough", async ({
+test("walk: the resort list, tabs and map controls are big enough", async ({
   page,
 }) => {
-  await open(page, "/?from=36.6985,137.8376&mode=drive");
+  await open(page, "/?from=36.6985,137.8376&mode=walk");
   await expect(page.getByRole("list", { name: "Ranked resorts" })).toBeVisible({
     timeout: 15_000,
   });
@@ -95,7 +95,7 @@ test("the sheet handle can be grabbed above its thin bar too", async ({
   page,
 }) => {
   // a start: with none the phone's sheet is hidden (SPEC-web-app v1.15)
-  await open(page, "/?from=36.69711,137.85393&mode=drive");
+  await open(page, "/?from=36.69711,137.85393&mode=walk");
   const sheet = await page
     .getByRole("region", { name: "Directions" })
     .boundingBox();

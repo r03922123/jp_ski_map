@@ -225,7 +225,7 @@ for (const dev of DEVICES) {
     test("set the start by typing a hotel, then change it by typing another", async ({
       page,
     }) => {
-      await open(page, "/?mode=drive&resort=happo-one");
+      await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
       await expect(fromRow(page)).toContainText(HOTEL.name);
@@ -249,7 +249,7 @@ for (const dev of DEVICES) {
     test("typed input: gibberish, very long, Japanese, and a pasted Maps link", async ({
       page,
     }) => {
-      await open(page, "/?mode=drive");
+      await open(page, "/?mode=walk");
       const box = searchBox(page);
       await box.fill("xqzzvplk");
       await expect(page.getByRole("listbox")).toContainText(
@@ -287,7 +287,7 @@ for (const dev of DEVICES) {
     test("clear the start (trip ✕ and box ✕), set a new one: the destination stays", async ({
       page,
     }) => {
-      await open(page, "/?mode=drive&resort=happo-one");
+      await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
 
@@ -324,7 +324,7 @@ for (const dev of DEVICES) {
     test("star a place, then Start from here (Saved) replaces the start", async ({
       page,
     }) => {
-      await open(page, "/?mode=drive&resort=happo-one");
+      await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hakuba Tokyu", /Tokyu/);
       await press(
         dev,
@@ -356,7 +356,7 @@ for (const dev of DEVICES) {
     }) => {
       // known: B — changing the start is no Back step (SPEC-web-app v1.32), so Back leaves the app
       test.fail();
-      await open(page, "/?mode=drive");
+      await open(page, "/?mode=walk");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
       await searchAndPick(dev, page, "Hakuba Tokyu", /Tokyu/);
@@ -372,7 +372,7 @@ for (const dev of DEVICES) {
     }) => {
       // known: E — the start comes back from the URL as bare coordinates ("Dropped pin")
       test.fail();
-      await open(page, "/?mode=drive&resort=happo-one");
+      await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
       const link = page.url();
@@ -397,7 +397,7 @@ for (const dev of [PHONE, SMALL]) {
     test("tap a hotel pin: its card is named; Start here makes it the start", async ({
       page,
     }) => {
-      await open(page, "/?mode=drive&from=36.6985,137.8376");
+      await open(page, "/?mode=walk&from=36.6985,137.8376");
       const pin = await hotelPin(page, {
         minX: 0,
         maxY: dev.use.viewport.height * 0.55,
@@ -416,7 +416,7 @@ for (const dev of [PHONE, SMALL]) {
       page,
     }) => {
       // fixed: S1 — Start here sets the box to the new start ("Dropped pin" if unnamed)
-      await open(page, "/?mode=drive&resort=happo-one");
+      await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
       await collapseSheet(page);
@@ -445,7 +445,7 @@ for (const dev of [PHONE, SMALL]) {
     }) => {
       // fixed: F (v1.9) — the search lives in the top card and focusing it no longer grows
       // the sheet, so the start shows (was: the sheet stayed ~80 % tall after a choice)
-      await open(page, "/?mode=drive&resort=happo-one");
+      await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
       const sheet = page.getByRole("region", { name: "Directions" });
@@ -467,7 +467,7 @@ test.describe(`${PHONE.name} touch: long-press on a hotel pin`, () => {
     page,
   }) => {
     // fixed: S4 — a long-press on a hotel pin uses the hotel's spot and name
-    await open(page, "/?mode=drive&from=36.6985,137.8376");
+    await open(page, "/?mode=walk&from=36.6985,137.8376");
     const pin = await hotelPin(page, { minX: 0, maxY: 450 });
     const cdp = await page.context().newCDPSession(page);
     await touch(cdp, pin, 700);
@@ -480,7 +480,7 @@ test.describe(`${PHONE.name} touch: long-press on a hotel pin`, () => {
     page,
   }) => {
     // T81 (SPEC-web-app v1.8): a free destination keeps its name, not "Chosen place"
-    await open(page, "/?mode=drive&from=36.6985,137.8376");
+    await open(page, "/?mode=walk&from=36.6985,137.8376");
     const pin = await hotelPin(page, { minX: 0, maxY: 450 });
     const cdp = await page.context().newCDPSession(page);
     await touch(cdp, pin, 700);
@@ -497,7 +497,7 @@ test.describe(`${PHONE.name} touch: pin card near the edge`, () => {
     page,
   }) => {
     // fixed: S6 — the card has no fixed anchor; MapLibre keeps it inside the map
-    await open(page, "/?mode=drive&from=36.6985,137.8376");
+    await open(page, "/?mode=walk&from=36.6985,137.8376");
     const cdp = await page.context().newCDPSession(page);
     // the card is ~223 px wide and centred on the finger: x > 282 pushes it off a 393 screen
     const at = await bareMapPoint(page, {
@@ -523,7 +523,7 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
       // fixed: A (v1.9 review) — a map-picked start clears the old label, and the From box
       // shows the start's name (was: box "Hotel Hakuba", trip "Dropped pin")
       // no destination: with both ends set a click changes nothing (v1.13 rule 8)
-      await open(page, "/?mode=drive");
+      await open(page, "/?mode=walk");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
       const w = dev.use.viewport.width;
@@ -544,7 +544,7 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
     }) => {
       // known: E — a mouse click on a named hotel pin gives "Dropped pin"
       test.fail();
-      await open(page, "/?mode=drive&from=36.6985,137.8376");
+      await open(page, "/?mode=walk&from=36.6985,137.8376");
       const pin = await hotelPin(page, {
         minX: 460,
         maxY: dev.use.viewport.height - 60,
@@ -606,7 +606,7 @@ test.describe(`${LAPTOP.name}: saved place twice`, () => {
         }),
       );
     });
-    await open(page, "/?mode=drive");
+    await open(page, "/?mode=walk");
     const startFromSaved = async () => {
       await page.getByRole("button", { name: "Saved places" }).click();
       await page.getByRole("button", { name: /Starred/ }).click();
@@ -716,7 +716,7 @@ test.describe(`${LAPTOP_SMALL.name}: offline`, () => {
     // known: S2 — the suggest query is paused offline (React Query networkMode
     // "online"): no rows, no alert, nothing at all
     test.fail();
-    await open(page, "/?mode=drive&resort=happo-one");
+    await open(page, "/?mode=walk&resort=happo-one");
     await context.setOffline(true);
     await searchBox(page).fill("Hotel Hakuba");
     await expect(
@@ -771,7 +771,7 @@ test.describe(`${PHONE.name}: Asia/Taipei time zone`, () => {
   test("setting the start by a Japanese name works the same", async ({
     page,
   }) => {
-    await open(page, "/?mode=drive");
+    await open(page, "/?mode=walk");
     await searchBox(page).fill("ホテル白馬");
     await page
       .getByRole("option", { name: /ホテル白馬/ })
