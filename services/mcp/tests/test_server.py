@@ -201,6 +201,7 @@ def test_route_resolves_resort_id_to_its_first_access_point() -> None:
         "to": "36.70179,137.83683",
     }
     assert out == {
+        "mode": "walk",
         "durationMin": 6.3,
         "distanceKm": 2.6,
         "summary": "via 白馬岳線",

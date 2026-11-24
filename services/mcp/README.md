@@ -42,7 +42,7 @@ uvx --from 'uv==0.9.30' uv run pyright
 ```
 
 ## Eval
-`evals/trip_questions.json` has 100 questions (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
+`evals/trip_questions.json` has 66 questions (100 until 2026-11-25, when the 34 that asked for drive times were dropped) (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
 
 ```bash
 uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --out evals/last_run.md

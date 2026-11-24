@@ -795,6 +795,14 @@ describe("MapShell keyboard focus", () => {
     expect(await eta()).toHaveAttribute("aria-live", "polite");
   });
 
+  it("Walk still offers the resort picker when the ranking fails", async () => {
+    vi.mocked(api.fetchRank).mockRejectedValue(new Error("routing busy"));
+    renderShell(`?from=${from}&mode=walk`);
+    const picker = await screen.findByRole("combobox", { name: "Resort" });
+    fireEvent.change(picker, { target: { value: "happo-one" } });
+    await waitFor(() => expect(query().get("resort")).toBe("happo-one"));
+  });
+
   it("a resort tapped on the map leaves focus where it was", async () => {
     renderShell(`?from=${from}&mode=walk`);
     await waitFor(() => expect(map().resorts).toHaveLength(1));

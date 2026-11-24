@@ -224,10 +224,11 @@ def route(origin: str, destination: str) -> dict[str, Any]:
     """Walking ETA between two places (Valhalla routing). For the shuttle bus, use next_buses.
 
     origin / destination: 'lat,lng', or a resort id (e.g. 'happo-one') for its main base.
-    Returns durationMin, distanceKm and a one-line road summary.
+    Returns mode ("walk"), durationMin, distanceKm and a one-line summary of the way.
     """
     r = _get("/api/route", {"mode": "walk", "from": _resolve(origin), "to": _resolve(destination)})
     return {
+        "mode": r["mode"],  # "walk": says so to a client whose tool list still offers drive
         "durationMin": _min(r["durationS"]),
         "distanceKm": round(r["distanceM"] / 1000, 1),
         "summary": r.get("summary"),

@@ -534,15 +534,18 @@ export function MapShell() {
                   />
                 ) : undefined
               }
+              // a failed ranking falls back to the plain picker: choosing a resort needs no ranking
               rankingPanel={
-                <RankingPanel
-                  options={rankOptions}
-                  onOptionsChange={setRankOptions}
-                  ranking={rankingState}
-                  fetching={ranking.isFetching}
-                  selectedResortId={selectedResortId}
-                  onSelectResort={actions.selectResort}
-                />
+                rankingState.status === "error" ? undefined : (
+                  <RankingPanel
+                    options={rankOptions}
+                    onOptionsChange={setRankOptions}
+                    ranking={rankingState}
+                    fetching={ranking.isFetching}
+                    selectedResortId={selectedResortId}
+                    onSelectResort={actions.selectResort}
+                  />
+                )
               }
             />
           )}

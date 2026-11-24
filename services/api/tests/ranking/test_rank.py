@@ -172,9 +172,12 @@ def test_missing_snow_and_crowd_are_null_factors() -> None:
 
 
 class FakeValhalla:
+    modes: list[Mode] = []  # every matrix mode asked for, across instances
+
     def matrix(
         self, mode: Mode, origin: Coord, targets: list[tuple[str, Coord]]
     ) -> list[MatrixCell]:
+        FakeValhalla.modes.append(mode)
         # pretend every access point is (index + 1) minutes away
         return [
             MatrixCell(id=t[0], duration_s=60 * (i + 1), distance_m=1000)
@@ -204,6 +207,19 @@ def test_rank_endpoint_returns_all_resorts_by_walk_time(api: TestClient) -> None
     assert body[0]["resortId"] == "jigatake"  # first access point in the fake matrix
     assert body[0]["accessPointId"] == "jigatake-base"
     assert body[0]["walkS"] == 60
+
+
+def test_rank_endpoint_ranks_by_walking_not_road_times(api: TestClient) -> None:
+    FakeValhalla.modes.clear()
+    api.get("/api/rank", params={"from": "36.6987,137.8617"})
+
+    assert FakeValhalla.modes == ["walk"]
+
+
+def test_rank_endpoint_rejects_the_removed_drive_sort(api: TestClient) -> None:
+    response = api.get("/api/rank", params={"from": "36.6987,137.8617", "sort": "drive_time"})
+
+    assert response.status_code == 422
 
 
 def test_rank_endpoint_uses_nearest_access_point(api: TestClient) -> None:

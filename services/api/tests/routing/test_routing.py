@@ -161,10 +161,11 @@ def test_route_endpoint_rejects_malformed_coordinates(api: TestClient, bad: str)
     assert response.status_code == 422
 
 
-def test_route_endpoint_rejects_unknown_mode(api: TestClient) -> None:
+@pytest.mark.parametrize("mode", ["fly", "drive"])  # drive was removed on 2026-11-25
+def test_route_endpoint_rejects_unknown_mode(api: TestClient, mode: str) -> None:
     response = api.get(
         "/api/route",
-        params={"mode": "fly", "from": "36.7,137.8", "to": "36.69,137.83"},
+        params={"mode": mode, "from": "36.7,137.8", "to": "36.69,137.83"},
     )
 
     assert response.status_code == 422

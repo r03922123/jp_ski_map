@@ -18,7 +18,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 - [ ] Playwright E2E: search "Hotel Hakuba" → select → each tab shows a non-empty result and a line on the map.
 - [ ] Mobile width 390 px: the panel becomes a draggable bottom sheet, with no horizontal scroll.
 - [ ] Every estimate is labeled ("ETA ~", "Crowd: estimated", snow `asOf`).
-- [ ] Each upstream error is shown inside its own panel (e.g. the bus panel fails but drive still works).
+- [ ] Each upstream error is shown inside its own panel (e.g. the bus panel fails but walk still works; a failed ranking leaves Walk the plain resort picker).
 - [ ] Map attribution shows OSM, OpenFreeMap, Open-Meteo and Hakuba Valley.
 - [ ] Keyboard-navigable search and tabs, visible focus, WCAG AA contrast.
 - [ ] API types come only from the generated `api-types.ts`.
@@ -676,9 +676,10 @@ history entry through `useBackToClose` (T76), so Back undoes the newest one and 
    by walk time to each resort's nearest entrance (`walk_time`), and "Max drive" becomes "Max walk" (`?maxWalk=`).
    Walk now heads for the ranking's nearest entrance, which before only Drive did.
 3. Only the Walk tab shows a travel time (v1.24); the Bus tab's answer is its departures.
-4. Road routing stays only for the bus: its road path on the map (API mode `bus`) and piloting along the bus line.
+4. If the ranking fails, Walk shows the plain resort picker instead, since choosing a resort needs no ranking.
+5. Road routing stays only for the bus: its road path on the map (API mode `bus`) and piloting along the bus line.
    The pilot's old drive settings serve that line unchanged, and its screen shows 🚌 there.
-5. The car sprite, the drive pose and the rider's drive km go. An old save that has `km.drive` still loads.
+6. The car sprite, the drive pose and the rider's drive km go. An old save that has `km.drive` still loads.
 
 Earlier sections that mention Drive are kept as history.
 
