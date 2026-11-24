@@ -51,6 +51,21 @@ export type SkiLine = {
   durationS: number | null;
 };
 
+/** A run's height every `resolutionM` along it on the ground, start to end (v1.4). */
+export type SkiProfile = { heightsM: number[]; resolutionM: number };
+
+/**
+ * A whole line from the `/api/ski-lines` query: a tap only sees the tile-clipped geometry,
+ * and MapLibre turns nested properties such as `profile` into strings.
+ */
+export type SkiLineFeature = {
+  type: "Feature";
+  properties: SkiLine & { profile: SkiProfile | null };
+  geometry:
+    | { type: "LineString"; coordinates: [number, number][] }
+    | { type: "Polygon"; coordinates: [number, number][][] };
+};
+
 /** A tapped feature's properties (untyped, from MapLibre) as a SkiLine, or null. */
 export function skiLineOf(p: Record<string, unknown> | null | undefined) {
   if (!p || (p.kind !== "run" && p.kind !== "lift")) return null;

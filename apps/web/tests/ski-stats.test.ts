@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { SkiLine } from "@/components/map/SkiLinesLayer";
-import { skiStats } from "@/lib/ski-stats";
+import { runColor, type SkiLine } from "@/components/map/SkiLinesLayer";
+import {
+  liftsText,
+  profileRows,
+  profileStats,
+  resortSummary,
+  skiStats,
+  slopeColour,
+  slopeText,
+} from "@/lib/ski-stats";
 
 // OpenSkiMap's card for Gondola Adam (2026-11-23): Distance 2.04 km, Vertical 623 m
 // (768m - 1391m), Speed 4.3 m/s, Ride time 8 min, Vertical speed 78 m/min, Slope 18° (32%)
@@ -70,5 +78,123 @@ describe("skiStats", () => {
         durationS: null,
       }),
     ).toEqual([]);
+  });
+});
+
+// SPEC-ski-runs v1.4: the resort card sums the resort's own lines, as OpenSkiMap's does
+describe("resortSummary", () => {
+  const line = (p: Partial<SkiLine>): SkiLine => ({
+    ...ADAM,
+    kind: "run",
+    liftType: null,
+    durationS: null,
+    ...p,
+  });
+  const lines: SkiLine[] = [
+    line({ id: "a", difficulty: "easy", distanceM: 1200, minElevationM: 760 }),
+    line({ id: "b", difficulty: "novice", distanceM: 300 }),
+    line({ id: "c", difficulty: "advanced", distanceM: 800 }),
+    line({ id: "d", difficulty: "intermediate", distanceM: 2000 }),
+    line({ id: "e", difficulty: null, distanceM: 100, maxElevationM: 1500 }),
+    // an area: no length, still counts for the heights
+    line({ id: "f", difficulty: "easy", distanceM: null, minElevationM: 749 }),
+    { ...ADAM, id: "g", liftType: "chair_lift" },
+    { ...ADAM, id: "h", liftType: "chair_lift", maxElevationM: 1829 },
+    { ...ADAM, id: "i", liftType: "gondola" },
+    // another resort's lines count for nothing
+    line({ id: "x", resortId: "goryu", distanceM: 9000, minElevationM: 1 }),
+    { ...ADAM, id: "y", resortId: "goryu", liftType: "t-bar" },
+  ];
+
+  it("sums vertical, run km by the map's colours (easy to hard) and lifts by type", () => {
+    expect(resortSummary(lines, "happo-one")).toEqual({
+      verticalM: 1080,
+      lowM: 749,
+      highM: 1829,
+      runKmByColour: [
+        { label: "Easy", colour: runColor("easy"), km: 1.5 },
+        { label: "Intermediate", colour: runColor("intermediate"), km: 2 },
+        { label: "Advanced", colour: runColor("advanced"), km: 0.8 },
+        { label: "Unknown", colour: runColor(null), km: 0.1 },
+      ],
+      totalRunKm: 4.4,
+      liftsByType: [
+        { liftType: "gondola", count: 1 },
+        { liftType: "chair_lift", count: 2 },
+      ],
+    });
+  });
+
+  it("names the lifts by type, plural by count", () => {
+    expect(
+      liftsText([
+        { liftType: "gondola", count: 1 },
+        { liftType: "chair_lift", count: 21 },
+        { liftType: "t-bar", count: 2 },
+      ]),
+    ).toBe("1 Gondola, 21 Chair lifts, 2 T-bars");
+  });
+
+  it("has no vertical when no line has heights", () => {
+    const flat = lines.map((l) => ({
+      ...l,
+      minElevationM: null,
+      maxElevationM: null,
+    }));
+    expect(resortSummary(flat, "happo-one")).toMatchObject({
+      verticalM: null,
+      lowM: null,
+      highM: null,
+    });
+  });
+});
+
+describe("profileStats", () => {
+  it("adds up the climbs and drops and finds the steepest 25 m", () => {
+    // down 5, up 2, down 10 (40 %), down 1
+    const stats = profileStats({
+      heightsM: [1200, 1195, 1197, 1187, 1186],
+      resolutionM: 25,
+    });
+    expect(stats).toEqual({
+      ascentM: 2,
+      descentM: 16,
+      maxSlopePct: 40,
+      slopesPct: [20, 8, 40, 4],
+    });
+  });
+
+  it("turns into rows for the card", () => {
+    expect(
+      profileRows({ ascentM: 2, descentM: 16, maxSlopePct: 40, slopesPct: [] }),
+    ).toEqual([
+      ["Ascent", "2 m"],
+      ["Descent", "16 m"],
+      ["Max slope", "22° (40%)"],
+    ]);
+  });
+});
+
+// openskidata-format getSlopeGradingScaleForUse (downhill), in the map's run colours
+describe("slopeColour", () => {
+  it.each([
+    [0, runColor(null)],
+    [4.9, runColor(null)],
+    [5, runColor("easy")],
+    [24.9, runColor("easy")],
+    [25, runColor("intermediate")],
+    [39.9, runColor("intermediate")],
+    [40, runColor("advanced")],
+    [99.9, runColor("advanced")],
+    [100, runColor("freeride")],
+    [-30, runColor("intermediate")], // a climb is as steep as a drop
+  ])("%s %% is %s", (pct, colour) => {
+    expect(slopeColour(pct)).toBe(colour);
+  });
+});
+
+describe("slopeText", () => {
+  it("gives degrees and the whole percent", () => {
+    expect(slopeText(25)).toBe("14° (25%)");
   });
 });

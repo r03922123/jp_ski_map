@@ -6,16 +6,14 @@ import {
   runColor,
   type SkiLine,
 } from "@/components/map/SkiLinesLayer";
-import { skiStats } from "@/lib/ski-stats";
-
-const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+import { liftName, skiStats } from "@/lib/ski-stats";
 
 /** "Intermediate run", "Chair lift": OpenSkiMap's words, as the map's colours show them. */
 function kindLabel(line: SkiLine) {
   if (line.kind === "lift")
-    return line.liftType ? capital(line.liftType.replaceAll("_", " ")) : "Lift";
+    return line.liftType ? liftName(line.liftType) : "Lift";
   return line.difficulty
-    ? `${capital(line.difficulty)} run`
+    ? `${line.difficulty.charAt(0).toUpperCase()}${line.difficulty.slice(1)} run`
     : "Run, difficulty unknown";
 }
 
