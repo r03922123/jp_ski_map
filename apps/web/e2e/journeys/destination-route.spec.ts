@@ -440,7 +440,8 @@ test.describe("ranked list · laptop 1440x900", () => {
     // ADR-0001 decision 2, applied to the partial case in PR #15: price stays
     // hidden until every resort has a comparable 2026–27 price
     expect(sorts).not.toContain("price");
-    expect(sorts.length).toBe(6);
+    // the panel tidy (2026-11-25) keeps only these two
+    expect(sorts).toEqual(["walk_time", "terrain_size"]);
     for (const sort of sorts) {
       if (sort !== "walk_time") {
         const fresh = page.waitForResponse(
