@@ -356,13 +356,19 @@ describe("ResortList", () => {
 });
 
 describe("SortControls", () => {
+  // a date only a link could set had no way to be cleared
+  it("has no Date input", () => {
+    render(<SortControls value={DEFAULT_RANK} onChange={vi.fn()} />);
+
+    expect(screen.queryByLabelText("Date")).toBeNull();
+  });
+
   it("changes the sort key", () => {
     const onChange = vi.fn();
     render(
       <SortControls
         value={{
           sort: "walk_time",
-          date: null,
           maxWalkMin: null,
           nightSkiing: false,
           hvPass: false,
@@ -386,7 +392,6 @@ describe("SortControls", () => {
       <SortControls
         value={{
           sort: "walk_time",
-          date: null,
           maxWalkMin: null,
           nightSkiing: false,
           hvPass: false,

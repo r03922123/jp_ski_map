@@ -167,7 +167,7 @@ export function ResortList({
   resorts: RankedResort[];
   selectedId: string | null;
   onSelect: (resortId: string, accessPointId: string) => void;
-  /** the user's sort and date: a new order that follows a change here is brought to the selection */
+  /** the user's sort and filters: a new order that follows a change here is brought to the selection */
   scrollKey?: string;
   /** the ranking is being fetched (for new options, the list still shows the old one) */
   fetching?: boolean;
@@ -179,7 +179,7 @@ export function ResortList({
   const worlds = worldNumbers(catalog.data ?? []);
   const rider = useRider();
   const now = useNow(60_000);
-  // T3: a re-sort or a new date must not hide the selection: once the ranking for the user's
+  // T3: a re-sort or a new filter must not hide the selection: once the ranking for the user's
   // new options has loaded, the selected row comes into view. Only then: a new start reorders
   // the list too, and a scroll there could push the sheet's Start out of view; and a re-sort
   // that kept the order must not leave a scroll waiting (reviews of #116)

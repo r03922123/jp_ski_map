@@ -9,10 +9,10 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
 2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link, or clicking (long-pressing on mobile) the map, also sets the origin. When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
-   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows walk ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the walking route and step list.
+   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (all `resort-ranking` keys), filters (no date picker since 2026-11-25: the ranking is for today). The ranked list shows walk ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the walking route and step list.
      It warns when the walk is > 45 min.
    - 🚌 **Bus:** for each resort, the walk to the stop, the next 3 departures (line badge, depart → arrive, wait), and a link to the source image. Selecting an option draws the walk leg and highlights the boarding stop. A departure time picker defaults to now. A separate "Night bus" toggle shows Line VN departures from the nearest stop.
-4. URL state: `?from=lat,lng&mode=walk&resort=happo-one&sort=walk_time&date=…`, so the view can be shared and reloaded.
+4. URL state: `?from=lat,lng&mode=walk&resort=happo-one&sort=walk_time`, so the view can be shared and reloaded.
 
 ## Acceptance Criteria
 - [ ] Playwright E2E: search "Hotel Hakuba" → select → each tab shows a non-empty result and a line on the map.

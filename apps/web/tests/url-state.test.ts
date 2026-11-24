@@ -77,7 +77,7 @@ describe("serializeViewState", () => {
 });
 
 describe("rank options in the URL", () => {
-  it("round-trips sort, date and filters", () => {
+  it("round-trips sort and filters", () => {
     const state: ViewState = {
       origin: { lat: 36.69, lng: 137.87 },
       mode: "walk" as const,
@@ -86,7 +86,6 @@ describe("rank options in the URL", () => {
       category: "resorts",
       rank: {
         sort: "fresh_snow" as const,
-        date: "2026-02-21",
         maxWalkMin: 20,
         nightSkiing: true,
         hvPass: false,
@@ -98,14 +97,19 @@ describe("rank options in the URL", () => {
     expect(parseViewState(serializeViewState(state))).toEqual(state);
   });
 
-  it("defaults to walk time, today and no filters", () => {
+  it("defaults to walk time and no filters", () => {
     expect(parseViewState("?sort=best&maxWalk=-3").rank).toEqual({
       sort: "walk_time",
-      date: null,
       maxWalkMin: null,
       nightSkiing: false,
       hvPass: false,
     });
+  });
+
+  it("drops the date of an old ?date= link: the panel has no Date to clear it", () => {
+    const view = parseViewState("?mode=walk&date=2026-02-21");
+    expect(view.rank).toEqual(DEFAULT_RANK);
+    expect(serializeViewState(view)).not.toContain("date");
   });
 
   it("opens an old ?sort=price link on walk time, since price is hidden", () => {

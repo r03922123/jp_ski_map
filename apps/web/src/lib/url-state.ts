@@ -3,8 +3,6 @@ import type { Coord, PoiCategory, SortKey } from "@/lib/api";
 
 export type RankOptions = {
   sort: SortKey;
-  /** YYYY-MM-DD, null = today */
-  date: string | null;
   maxWalkMin: number | null;
   nightSkiing: boolean;
   hvPass: boolean;
@@ -50,7 +48,6 @@ export const SORT_KEYS: readonly SortKey[] = [
 
 export const DEFAULT_RANK: RankOptions = {
   sort: "walk_time",
-  date: null,
   maxWalkMin: null,
   nightSkiing: false,
   hvPass: false,
@@ -79,11 +76,9 @@ function parseCoord(value: string | null): Coord | null {
 
 function parseRank(params: URLSearchParams): RankOptions {
   const sort = params.get("sort") as SortKey | null;
-  const date = params.get("date");
   const maxWalk = Number(params.get("maxWalk"));
   return {
     sort: sort && SORT_KEYS.includes(sort) ? sort : DEFAULT_RANK.sort,
-    date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null,
     maxWalkMin: maxWalk > 0 ? maxWalk : null,
     nightSkiing: params.get("night") === "1",
     hvPass: params.get("hvPass") === "1",
@@ -148,7 +143,6 @@ export function serializeViewState({
   }
   // only non-default rank options, so ordinary links stay short
   if (rank.sort !== DEFAULT_RANK.sort) params.set("sort", rank.sort);
-  if (rank.date) params.set("date", rank.date);
   if (rank.maxWalkMin) params.set("maxWalk", String(rank.maxWalkMin));
   if (rank.nightSkiing) params.set("night", "1");
   if (rank.hvPass) params.set("hvPass", "1");

@@ -124,7 +124,6 @@ export const fetchLodging = ({ south, west, north, east }: Bbox) =>
 
 export type RankQuery = {
   sort: SortKey;
-  date: string | null;
   maxWalkMin: number | null;
   nightSkiing: boolean;
   hvPass: boolean;
@@ -132,7 +131,6 @@ export type RankQuery = {
 
 export function fetchRank(from: Coord, q: RankQuery) {
   const params = new URLSearchParams({ from: latLng(from), sort: q.sort });
-  if (q.date) params.set("date", q.date);
   if (q.maxWalkMin) params.set("maxWalkMin", String(q.maxWalkMin));
   if (q.nightSkiing) params.set("nightSkiing", "true");
   if (q.hvPass) params.set("hakubaValleyPass", "true");
