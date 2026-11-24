@@ -197,20 +197,28 @@ describe("MapView taps while navigating", () => {
     vi.useRealTimers();
   });
 
-  it("planning, mouse: a click sets the start (after the double-click window)", () => {
+  // Google Maps' dropped pin (BC-A1): a click puts a pin and its card down; only the card's
+  // buttons edit the trip
+  it("planning, mouse: a click drops a pin (after the double-click window) and sets no start", () => {
     const pick = vi.fn();
-    render(view(null, pick));
+    const drop = vi.fn();
+    render(view(null, pick, {}, { onDropPin: drop }));
     act(() => tap());
-    act(() => vi.advanceTimersByTime(400));
-    expect(pick).toHaveBeenCalledWith({ lat: 36.7, lng: 137.85 });
+    act(() => vi.advanceTimersByTime(299));
+    expect(drop).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1));
+    expect(drop).toHaveBeenCalledWith({ lat: 36.7, lng: 137.85 }, null);
+    expect(pick).not.toHaveBeenCalled();
   });
 
   it("navigating or previewing: a tap drops nothing", () => {
     const pick = vi.fn();
-    render(view(cam(137.85), pick));
+    const drop = vi.fn();
+    render(view(cam(137.85), pick, {}, { onDropPin: drop }));
     act(() => tap());
     act(() => vi.advanceTimersByTime(400));
     expect(pick).not.toHaveBeenCalled();
+    expect(drop).not.toHaveBeenCalled();
   });
 
   it("navigating or previewing: a resort or saved-place marker changes nothing", () => {
@@ -344,6 +352,27 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
       ]),
     );
     act(() => vi.advanceTimersByTime(800));
+    expect(drop).toHaveBeenCalledWith(
+      { lat: 36.71, lng: 137.86 },
+      "Hotel Hakuba",
+    );
+    expect(pick).not.toHaveBeenCalled();
+  });
+
+  it("a mouse click on a hotel pin drops the pin at the hotel, named", () => {
+    const pick = vi.fn();
+    const drop = vi.fn();
+    render(view(null, pick, {}, { onDropPin: drop }));
+    act(() =>
+      click([
+        {
+          layer: { id: "lodging-pins" },
+          geometry: { type: "Point", coordinates: [137.86, 36.71] },
+          properties: { name: "Hotel Hakuba" },
+        },
+      ]),
+    );
+    act(() => vi.advanceTimersByTime(400));
     expect(drop).toHaveBeenCalledWith(
       { lat: 36.71, lng: 137.86 },
       "Hotel Hakuba",

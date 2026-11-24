@@ -213,7 +213,7 @@ test("an empty stop box can be dismissed before typing; then a click leaves the 
   await expect(page).not.toHaveURL(/stops=/);
 });
 
-test("clearing the start keeps the stops listed; the next tap is the new start", async ({
+test("clearing the start keeps the stops listed; the next click's pin is the new start", async ({
   page,
 }) => {
   await page.goto(`${TRIP}&stops=36.69877,137.86197`);
@@ -244,6 +244,10 @@ test("clearing the start keeps the stops listed; the next tap is the new start",
     canvas.x + canvas.width * 0.75,
     canvas.y + canvas.height * 0.5,
   );
+  await page
+    .getByRole("group", { name: "Dropped pin" })
+    .getByRole("button", { name: "Start here" })
+    .click();
   await expect(page).toHaveURL(/from=36\.\d+%2C137\.\d+/);
   await expect(trip(page).getByRole("listitem")).toHaveCount(2);
 });

@@ -137,8 +137,8 @@ export function ModePanel({
       {tripFirst && hasOrigin && mode !== "bus" && directions}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
-          Type a place above, or {touch ? "long-press" : "tap"} the map, to set
-          your starting point.
+          Type a place above, or {touch ? "long-press" : "click"} the map, to
+          set your starting point.
         </p>
       ) : mode === "bus" && busPanel ? (
         <>

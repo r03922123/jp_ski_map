@@ -80,12 +80,13 @@ function stubCoarse(matches: boolean) {
 }
 
 describe("ModePanel", () => {
+  // a mouse click drops a pin, whose card has Start here (BC-A1)
   it("asks for a starting point before anything else", () => {
     renderPanel({ hasOrigin: false, route: { status: "idle" } });
 
     expect(
       screen.getByText(
-        /type a place above, or tap the map, to set your starting point/i,
+        /type a place above, or click the map, to set your starting point/i,
       ),
     ).toBeInTheDocument();
   });

@@ -580,7 +580,7 @@ export function MapShell() {
         onLoad={() => setLoaded(true)}
         onViewChange={setView}
         onPickOrigin={(coord) => {
-          // a mouse click elsewhere closes the card, as a finger's tap does
+          // the open stop box takes the click; it closes the card, as a finger's tap does
           setPicked(null);
           actions.pickOnMap(coord);
         }}

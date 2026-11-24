@@ -517,12 +517,12 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
   test.describe(`${dev.name} mouse`, () => {
     test.use(dev.use);
 
-    test("a map click that moves the start also updates the search box", async ({
+    test("a map click's Start here moves the start and updates the search box", async ({
       page,
     }) => {
       // fixed: A (v1.9 review) — a map-picked start clears the old label, and the From box
-      // shows the start's name (was: box "Hotel Hakuba", trip "Dropped pin")
-      // no destination: with both ends set a click changes nothing (v1.13 rule 8)
+      // shows the start's name (was: box "Hotel Hakuba", trip "Dropped pin").
+      // A click drops a pin; its card's Start here moves the start (2026-11-25, BC-A1)
       await open(page, "/?mode=walk");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
@@ -532,6 +532,7 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
         y: [200, 260, 320, 380, 440, 500],
       });
       await page.mouse.click(at.x, at.y);
+      await pinCard(page).getByRole("button", { name: "Start here" }).click();
       await expect.poll(() => fromParam(page)).not.toMatch(HOTEL.from);
       await expect(fromRow(page)).toContainText("Dropped pin");
       await expect(searchBox(page)).not.toHaveValue(HOTEL.name, {
@@ -542,14 +543,16 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
     test("a click on a hotel pin starts from that hotel, named", async ({
       page,
     }) => {
-      // known: E — a mouse click on a named hotel pin gives "Dropped pin"
-      test.fail();
+      // fixed: E (mouse) — a click drops the hotel's own pin, named, as a tap does (2026-11-25)
       await open(page, "/?mode=walk&from=36.6985,137.8376");
       const pin = await hotelPin(page, {
         minX: 460,
         maxY: dev.use.viewport.height - 60,
       });
       await page.mouse.click(pin.x, pin.y);
+      const card = pinCard(page);
+      await expect(card.getByRole("heading")).toHaveText(pin.name);
+      await card.getByRole("button", { name: "Start here" }).click();
       await expect.poll(() => fromParam(page)).not.toBe("36.69850,137.83760");
       await expect(fromRow(page)).toContainText(pin.name, { timeout: 5_000 });
     });
@@ -642,7 +645,7 @@ for (const dev of DEVICES) {
         page.getByText(
           dev.touch
             ? /long-press the map, to set\s+your starting point/
-            : /tap the map, to set\s+your starting point/,
+            : /click the map, to set\s+your starting point/,
         ),
       ).toBeInViewport();
       // nothing grabs focus (no keyboard pops over the map); the first Tab is the search box
