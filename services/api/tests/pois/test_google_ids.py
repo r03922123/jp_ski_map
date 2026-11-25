@@ -79,6 +79,16 @@ def test_matches_food_only_leaves_unmatched_out_and_the_output_validates() -> No
     assert validate_google_ids(pois, ids) == []
 
 
+def test_match_drops_a_place_id_two_pois_claim() -> None:
+    pois = [food(1, "藤屋"), food(2, "ふきのとう"), food(3, "蕎麦 福")]
+
+    def search(headers: dict[str, str], body: dict[str, Any]) -> dict[str, Any]:
+        same = body["textQuery"] in ("藤屋", "ふきのとう")  # neither can be told right
+        return {"places": [{"id": "ChIJshared" if same else "ChIJsoba"}]}
+
+    assert match_ids(pois, search) == {"osm:node/3": "ChIJsoba"}
+
+
 def test_validator_rejects_unknown_non_food_and_empty_ids() -> None:
     pois = [food(1), food(2, category="convenience")]
 
