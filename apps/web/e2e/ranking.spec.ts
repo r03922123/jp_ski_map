@@ -14,10 +14,9 @@ test("walk mode ranks every resort and re-sorts on demand", async ({
 
   await page.getByLabel("Sort by").selectOption("terrain_size");
   await expect(page).toHaveURL(/sort=terrain_size/);
-  // Happo-One and Cortina have the most runs (16 each)
-  await expect(list.getByRole("listitem").first()).toContainText(
-    /Happo-One|Cortina/,
-  );
+  // the longest total runs: Happo-One 23.3 km, then Tsugaike 20.5 km (only 11 runs)
+  await expect(list.getByRole("listitem").nth(0)).toContainText("Happo-One");
+  await expect(list.getByRole("listitem").nth(1)).toContainText("Tsugaike");
 
   // only Happo-One is within a 30 min walk of the hotel (~19 min)
   await page.getByLabel("Max walk").selectOption("30");
