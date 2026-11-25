@@ -90,7 +90,7 @@ caps of 300 element loads and 200 text searches. Expected cost at friends-only t
 
 **Acceptance:**
 - [x] Refresh unit tests with a recorded response (no key, no `X-Goog-Api-Key` header in the fixture):
-  the request body has the field mask, the rectangle and `nameJa` first; a response `{}` with no `places`
+  the request has the field mask (Google's `X-Goog-FieldMask` header), and its body the rectangle and `nameJa` first; a response `{}` with no `places`
   leaves the POI out; the output validates.
 - [x] The validator checks that every key in `poi_google.json` is a food POI in `poi_osm.json` and every
   value is a non-empty place ID.
