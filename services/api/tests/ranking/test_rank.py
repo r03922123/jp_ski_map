@@ -53,21 +53,46 @@ def crowd(score: float) -> CrowdEstimate:
 def inputs() -> list[RankInput]:
     return [
         RankInput(
-            resort=resort("a", runs=10, chairLifts=5, gondolas=0, verticalM=500, dayTicketJpy=6000),
+            resort=resort(
+                "a",
+                runs=10,
+                totalRunsM=8000,
+                areaHa=60,
+                chairLifts=5,
+                gondolas=0,
+                verticalM=500,
+                dayTicketJpy=6000,
+            ),
             walk=MatrixCell(id="a-base", duration_s=600, distance_m=5000),
             snow=snow(past24h=10, next24h=10, summit=200),
             crowd=crowd(0.7),
         ),
         RankInput(
             resort=resort(
-                "b", runs=20, chairLifts=10, gondolas=1, verticalM=900, dayTicketJpy=None
+                "b",
+                runs=20,
+                totalRunsM=20000,
+                areaHa=150,
+                chairLifts=10,
+                gondolas=1,
+                verticalM=900,
+                dayTicketJpy=None,
             ),
             walk=MatrixCell(id="b-base", duration_s=1200, distance_m=12000),
             snow=snow(past24h=30, next24h=0, summit=300),
             crowd=crowd(0.2),
         ),
         RankInput(
-            resort=resort("c", runs=15, chairLifts=8, gondolas=0, verticalM=700, dayTicketJpy=5000),
+            resort=resort(
+                "c",
+                runs=15,
+                totalRunsM=15000,
+                areaHa=90,
+                chairLifts=8,
+                gondolas=0,
+                verticalM=700,
+                dayTicketJpy=5000,
+            ),
             walk=MatrixCell(id="c-base", duration_s=300, distance_m=2000),
             snow=snow(past24h=None, next24h=5, summit=None),
             crowd=crowd(0.4),
@@ -115,11 +140,22 @@ def test_ties_break_by_walk_time_then_id() -> None:
 
 def test_terrain_size_ties_break_by_lift_count() -> None:
     data = inputs()
-    data[0].resort.stats.runs = 20  # same runs as b, fewer lifts
+    data[0].resort.stats.total_runs_m = 20000  # as long as b, fewer lifts
 
     ranked = rank(data, "terrain_size", Filters())
 
     assert [r.resort_id for r in ranked][:2] == ["b", "a"]
+
+
+def test_terrain_size_is_total_run_length_not_run_count() -> None:
+    data = inputs()
+    data[0].resort.stats.total_runs_m = 30000  # a: fewest runs, most terrain
+
+    ranked = rank(data, "terrain_size", Filters())
+
+    assert ranked[0].resort_id == "a"
+    assert ranked[0].sort_value == 30000
+    assert (ranked[0].factors.runs, ranked[0].factors.area_ha) == (10, 60)
 
 
 def test_unreachable_resort_sorts_last_on_walk_time() -> None:

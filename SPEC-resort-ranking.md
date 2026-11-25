@@ -6,6 +6,8 @@
 
 *2026-11-25: the web offers two sorts, walk time and terrain size, so each card's Details shows only their factors (walk time, runs) plus crowd until it is removed. The API still returns every factor for the MCP `rank_resorts` tool. Snow stays on the card's ❄ line, with its source.*
 
+*2026-11-25, later: `terrain_size` is the total run length each resort reports (`totalRunsM`, m), no longer its run count. Resorts count runs differently: Tsugaike reports 11 runs (7th of 10) but 20.5 km (2nd), Cortina 16 runs (2nd) but 13.3 km (5th). The factors also carry `runs` and `area_ha`, so a card shows all three sizes.*
+
 ## Objective
 From the user's origin, rank all resorts by **one criterion the user chooses**, and show every factor's value so the user can compare resorts themselves.
 
@@ -18,7 +20,7 @@ From the user's origin, rank all resorts by **one criterion the user chooses**, 
 | `fresh_snow` | newSnow past24h + 0.5 × next24h | higher |
 | `snow_depth` | summit depth | higher |
 | `crowd` | crowd score for the date | lower |
-| `terrain_size` | runs, then lifts as tiebreak | higher |
+| `terrain_size` | total run length (m), then lifts as tiebreak | higher |
 | `vertical` | vertical drop | higher |
 | `price` | day ticket JPY | lower |
 
@@ -31,7 +33,8 @@ Filters: `nightSkiing`, `hakubaValleyPass`, `maxWalkMin`.
   "sortValue": 840,                       // raw value of the chosen key (null if unknown)
   "walkS": 840, "walkDistanceM": 9200, "accessPointId": "hakuba47-base",
   "factors": { "walk_time": 840, "fresh_snow": 22, "snow_depth": 260,
-               "crowd": 0.55, "terrain_size": 24, "vertical": 818, "price": 7500 },  // raw values
+               "crowd": 0.55, "terrain_size": 13570, "vertical": 818, "price": 7500,
+               "runs": 8, "area_ha": 32 },  // raw values
   "snow": { …SnowReport }, "crowd": { …CrowdEstimate } }
 ```
 

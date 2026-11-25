@@ -190,7 +190,7 @@ What happens when a skier opens 🚶 Walk and taps **Crowd (estimated)** in the 
 **Back in the browser**
 
 10. `components/ResortList.tsx` shows "Crowd: very high (est.)" on each row. Under **Details**,
-    it lists the reasons and the raw values of walk time, crowd and runs.
+    it lists the reasons and the raw values of walk time, crowd, total run length, runs and skiable area.
 
 A worked example (run against the real code): Happo-One on Saturday 14 Feb 2026 scores
 0.30 (Saturday) + 0.25 (Lunar New Year week) + 0.25 (large resort) = **0.80, very high**.

@@ -445,6 +445,10 @@ export interface components {
             vertical: number | null;
             /** Price */
             price: number | null;
+            /** Runs */
+            runs: number | null;
+            /** Areaha */
+            areaHa: number | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {

@@ -36,7 +36,7 @@ def ranked(i: int) -> dict[str, object]:
         "walkS": 600,
         "walkDistanceM": 5000,
         "accessPointId": "x",
-        "factors": {},
+        "factors": {"runs": 16, "areaHa": 220},
         "snow": SNOW,
         "crowd": CROWD,
     }
@@ -88,18 +88,26 @@ def test_rank_resorts_maps_params_drops_none_and_trims() -> None:
         "newSnow24hCm": 12.0,
         "snowAsOf": "2026-12-27T07:00",  # the API serves an older report in an outage
         "crowdLevel": "high",
+        "runs": 16,
+        "areaHa": 220,
     }
 
 
 @respx.mock
 def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
-    item = ranked(1) | {"snow": None, "crowd": None, "walkS": None}
+    item = ranked(1) | {
+        "snow": None,
+        "crowd": None,
+        "walkS": None,
+        "factors": dict[str, int](),
+    }
     respx.get(f"{API}/api/rank").respond(json=[item])
     out = s.rank_resorts(ORIGIN)
     assert out[0]["walkMin"] is None
     assert out[0]["summitDepthCm"] is None
     assert out[0]["snowAsOf"] is None
     assert out[0]["crowdLevel"] is None
+    assert out[0]["runs"] is None
 
 
 @respx.mock
