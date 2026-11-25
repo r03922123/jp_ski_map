@@ -55,7 +55,9 @@ def match_ids(pois: list[Poi], search: Search) -> dict[str, str]:
         found = place_id(search(*search_request(poi)))
         if found:
             ids[poi.id] = found
-    return ids
+    shared = {v for v in ids.values() if list(ids.values()).count(v) > 1}
+    # Two OSM nodes on one Google place: one match is wrong and we can't tell which.
+    return {k: v for k, v in ids.items() if v not in shared}
 
 
 def main() -> None:
