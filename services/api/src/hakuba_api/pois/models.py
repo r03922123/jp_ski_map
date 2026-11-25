@@ -18,6 +18,7 @@ class Poi(ApiModel):
     brand: str | None
     cuisine: str | None
     opening_hours: str | None  # raw OSM string, shown as-is
+    google_place_id: str | None = None  # from poi_google.json, food only (v1.2)
 
 
 class NearbyPoi(Poi):
