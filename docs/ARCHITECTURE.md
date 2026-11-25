@@ -18,7 +18,7 @@ Google Maps link.
    The app shows the walk to the nearest shuttle stop, the next 3 departures, and when each bus
    reaches each resort. When this season's timetable isn't out yet, times are labelled **Expected**.
 2. **"Which resort should I go to today?"** In 🚶 all 10 resorts are ranked by the one thing you
-   care about: walk time, fresh snow, snow depth, crowd level, terrain size or vertical drop.
+   care about: walk time or terrain size (the API also sorts by snow, crowd, vertical and price).
    Each row shows the walk ETA, the snow, and an estimated crowd badge with its reasons.
    Tapping a row draws the route.
 3. **"Where can I eat, and how far is it?"** In 🚶, pick a restaurant or a konbini and get a
@@ -190,7 +190,7 @@ What happens when a skier opens 🚶 Walk and taps **Crowd (estimated)** in the 
 **Back in the browser**
 
 10. `components/ResortList.tsx` shows "Crowd: very high (est.)" on each row. Under **Details**,
-    it lists the reasons and every factor's raw value.
+    it lists the reasons and the raw values of walk time, crowd and runs.
 
 A worked example (run against the real code): Happo-One on Saturday 14 Feb 2026 scores
 0.30 (Saturday) + 0.25 (Lunar New Year week) + 0.25 (large resort) = **0.80, very high**.

@@ -3,14 +3,9 @@
 import type { SortKey } from "@/lib/api";
 import { type RankOptions, SORT_KEYS } from "@/lib/url-state";
 
-export const SORT_LABELS: Record<SortKey, string> = {
+const SORT_LABELS: Record<(typeof SORT_KEYS)[number], string> = {
   walk_time: "Walk time",
-  fresh_snow: "Fresh snow",
-  snow_depth: "Snow depth",
-  crowd: "Crowd (estimated)",
   terrain_size: "Terrain size",
-  vertical: "Vertical drop",
-  price: "Ticket price",
 };
 
 const MAX_WALK_OPTIONS = [10, 15, 20, 30, 45];
