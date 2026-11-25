@@ -3,7 +3,7 @@
 > Module of [SPEC.md](SPEC.md). Depends on all backend modules **through the HTTP API only**.
 
 ## Objective
-A single-page map UI that feels like Google Maps: a full-screen map, a search box on top, a side panel (bottom sheet on mobile) with 🚌 / 🚶 tabs (🚗 Drive until 2026-11-25, see v1.33).
+A single-page map UI that feels like Google Maps: a full-screen map, a search box on top, a side panel (bottom sheet on mobile) with 🚌 / 🚶 tabs (🚗 Drive until 2026-11-25, see v1.33). Destinations are resorts and free points; the Food and Konbini lists went on 2026-11-25 (v1.34, ADR-0010).
 
 ## Screens & flow
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
@@ -30,7 +30,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 ## v1.1
 Design reference: Google Maps directions (web and mobile), rebuilt with our own components and styles. We copy the interaction model, not Google's assets, icons or brand colours.
 
-**Destination picker.** In 🚗 / 🚶 a segmented control sits above the list: `⛷ Resorts | 🍜 Food | 🏪 Konbini`.
+**Destination picker.** *Removed 2026-11-25 (v1.34, ADR-0010); kept as history.* In 🚗 / 🚶 a segmented control sits above the list: `⛷ Resorts | 🍜 Food | 🏪 Konbini`.
 - Resorts keeps the ranked list.
 - Food and Konbini list `GET /api/pois/nearby` results, sorted by ETA. Each row shows the name, the brand/cuisine, the ETA and distance, and the raw opening hours.
 - URL state gains `dest=resort:<id>|poi:<id>` and `cat=food|convenience`. The old `resort=` is still read.
@@ -275,7 +275,7 @@ Success means:
 
 **Rules.**
 1. **One bar** while there is no destination: one rounded box with a search icon, ✕ while typing, and ★ Saved beside it.
-2. **Place card** under the bar whenever there is a start and no destination: Directions (primary), Ski, Food, Konbini, Save. A search still sets the start at once, so the rider, the resort ETAs and the link behave as before. Ski, Food and Konbini pick the destination list in the sheet. Save is the star for that place. In Bus the card has only Directions and Save, because Bus has no food or konbini list and already lists resorts.
+2. **Place card** under the bar whenever there is a start and no destination: Directions (primary), Ski, Food, Konbini, Save. A search still sets the start at once, so the rider, the resort ETAs and the link behave as before. Ski, Food and Konbini pick the destination list in the sheet. Save is the star for that place. In Bus the card has only Directions and Save, because Bus has no food or konbini list and already lists resorts. *Amended 2026-11-25 (v1.34):* Directions and Save only, in every mode.
 3. **Directions** moves the place to To and empties From. A resort becomes the selected resort; anything else a named destination.
 4. **Two bars** once there is a destination, in every mode. From and To have equal width. A rail on the left: the rider at From (the same icon the map draws at the start), dots, and the map's flag at To. ⇅ stands on the right, disabled until both ends exist; v1.10 and v1.11 otherwise stand. ✕ on To with a start set returns to one bar and the card.
 5. **Under the boxes**, a row with ⊕ "Add destination" (Drive and Walk; it replaces "Add stop" in the sheet and opens the same empty stop box), the destination's Save star, and ★ Saved. On a landscape phone (under 480 px tall) the row sits beside the boxes, since a third row would leave no map. A pin card that would reach under this taller card opens below its pin.
@@ -687,3 +687,21 @@ Earlier sections that mention Drive are kept as history.
 
 **Done when** `rg -i drive apps/web/src services/*/src` finds no mode, field or label, the web unit tests and
 the changed e2e specs pass, and the API rejects `mode=drive` with 422.
+
+## v1.34: Resorts only (2026-11-25, ADR-0010)
+
+**Objective.** The app focuses on resorts, so the restaurant and konbini destinations go
+([ADR-0010](docs/adr/0010-drop-restaurants-and-konbini.md)). Resorts, lodging, free points, stops, Bus and Walk keep
+working as before.
+
+1. Walk shows the ranked resort list, or the plain resort picker when the ranking fails, with no picker above it.
+2. The place card holds Directions and Save, in Walk and Bus alike (v1.13 rule 2 had Ski, Food and Konbini too).
+3. An old link's `cat=` and `dest=poi:…` are ignored: it opens with its start and no destination. A saved place of
+   kind `poi`, a shared list's `poi` rows and a recent search of kind food or convenience are dropped on read; the
+   rest of the saved state still loads.
+4. The Google Places loader and its rating card go, so no Google Maps Platform call is left.
+
+Earlier sections that mention food, konbini or POIs are kept as history.
+
+**Done when** no POI code is left in `apps/web/src`, the web unit tests pass (each rule in 3 has one), and the changed
+e2e specs pass.

@@ -5,6 +5,8 @@
 ## Objective
 Let the user find their hotel (or any place) in Hakuba and turn it into an origin coordinate, the way the Google Maps search box works.
 
+*Amended 2026-11-25 ([ADR-0010](docs/adr/0010-drop-restaurants-and-konbini.md)):* the index holds resorts, stops and lodging only; restaurants and konbini are found through Photon, if at all. The `food` and `convenience` kinds, and the food and shop eval cases below, are history (the hard set keeps 20 of 40 cases, the held-out set 32 of 55).
+
 ## Coverage findings (2026-10-28 spot check, 10 well-known hotels)
 - 4/10 found by English name in OSM/Photon (Hotel Hakuba, Mominoki, Sierra Resort, Penke Panke).
 - 2/10 are in OSM **only under their Japanese name** (白馬東急ホテル, 白馬ハイランドホテル), so English search misses them.

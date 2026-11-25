@@ -22,8 +22,9 @@ Google Maps link.
    and price).
    Each row shows the walk ETA, the snow, and an estimated crowd badge with its reasons.
    Tapping a row draws the route.
-3. **"Where can I eat, and how far is it?"** In 🚶, pick a restaurant or a konbini and get a
-   route with an ETA. You can add stops along the way.
+3. **"How far is it to there?"** In 🚶, type any place in the To box or drop a pin and get a
+   route with an ETA. You can add stops along the way. (Restaurants and konbini lists went on
+   2026-11-25, [ADR-0010](adr/0010-drop-restaurants-and-konbini.md): Google Maps does food better.)
 4. **"Guide me there."** On a phone, **Start** turns the route into turn-by-turn navigation from
    live GPS. It reroutes when you leave the route and, on the bus, says when to get off. When you
    reach a resort you collect a **stamp** (the light game layer).
@@ -44,7 +45,6 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 | [crowd-level](../SPEC-crowd-level.md) | "Crowd: high (est.)" with reasons | shown in `components/ResortList.tsx` | `crowd/heuristic.py`, `GET /api/crowd` (unused by the web) | Shipped (heuristic v1) |
 | [bus-schedules](../SPEC-bus-schedules.md) | Next shuttle from the nearest stop, way back to a place, night bus | `components/BusPanel.tsx`, `StopList.tsx` | `bus/` (`query.py`, `season.py`, `check_sources.py`), `/api/bus/options`, `/to-place`, `/night` | Shipped |
 | [resort-ranking](../SPEC-resort-ranking.md) | Resorts sorted by one chosen factor | `components/RankingPanel.tsx`, `SortControls.tsx`, `ResortList.tsx` | `ranking/`, `GET /api/rank` | Partly built: prices known for 9 of 10 resorts, so the web still hides the price sort; night skiing known for 5 of 10 |
-| [poi-destinations](../SPEC-poi-destinations.md) | Restaurants and konbini as destinations | `components/PoiList.tsx`, `DestinationPicker.tsx` | `pois/`, `GET /api/pois/nearby` | Shipped |
 | [saved-places](../SPEC-saved-places.md) | Star places, lists, "My hotel", share link | `components/SavedPanel.tsx`, `SaveButton.tsx`, `lib/saved-places.ts`, `lib/saved-share.ts` | — (browser only) | Shipped |
 | [pilot](../SPEC-pilot.md) | Turn-by-turn navigation from GPS, bus guidance | `components/PilotView.tsx`, `BusPilotView.tsx`, `lib/nav/` | uses `/api/route/path` for reroutes | Shipped; the real-phone walk test is still open |
 | [game-theme](../SPEC-game-theme.md) | Pixel snowboarder (no sound since web-app v1.14; plain basemap since v1.30) | `lib/game/` (`sprites.ts`), `components/HeroMarker.tsx` | — (browser only) | Shipped |
@@ -105,7 +105,7 @@ flowchart TB
     WEB["Next.js server<br/>next start :3000<br/>rewrites /api/*"]
     API["FastAPI<br/>127.0.0.1 only"]
     VAL["Valhalla (Docker)<br/>127.0.0.1:8002<br/>Hakuba-only tiles"]
-    DATA[("data/*.json<br/>resorts, stops, timetables,<br/>lodging, POIs, crowd periods")]
+    DATA[("data/*.json<br/>resorts, stops, timetables,<br/>lodging, crowd periods")]
   end
 
   subgraph Net["Free public services"]
@@ -130,8 +130,8 @@ flowchart TB
   exception: they go from OpenFreeMap straight to the browser.
 - **Only port 443 is public.** Funnel forwards it to `:3000`; the API and Valhalla bind
   `127.0.0.1`. `tailscale funnel --https=443 off` takes the site down at once.
-- **Offline, not per request:** the lodging and POI snapshots (`places/refresh_lodging.py`,
-  `places/refresh_overture.py`, `pois/refresh_pois.py`), the Valhalla tile build
+- **Offline, not per request:** the lodging snapshots (`places/refresh_lodging.py`,
+  `places/refresh_overture.py`), the Valhalla tile build
   (`infra/valhalla/build-hakuba.sh` from Geofabrik), and the timetable watch
   (`.github/workflows/timetable-watch.yml`, which opens an issue when the operator's page changes).
 - **Types cross the boundary once:** FastAPI's OpenAPI schema → `pnpm gen:api` →
@@ -210,7 +210,7 @@ source of truth.
 
 | Data | File | Source | Licence |
 |---|---|---|---|
-| Lodging (146) and POIs (87) | `data/lodging_osm.json`, `data/poi_osm.json` | OpenStreetMap via Overpass (snapshot) | ODbL 1.0 |
+| Lodging (146) | `data/lodging_osm.json` | OpenStreetMap via Overpass (snapshot) | ODbL 1.0 |
 | Lodging (755) | `data/lodging_overture.json` | Overture Maps Places (snapshot) | CDLA-Permissive-2.0; CC0 1.0 for AllThePlaces records; Apache-2.0 for Foursquare records |
 | Road network | Valhalla tiles, built at setup, not committed | OpenStreetMap via Geofabrik | ODbL 1.0 |
 | Map tiles | fetched at runtime | OpenFreeMap / OpenMapTiles | ODbL (OSM data) |

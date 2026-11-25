@@ -32,7 +32,6 @@ The 🚗 Drive mode was removed on 2026-11-25: the app serves skiers without a c
 | `crowd-level` | Crowd estimate per resort per date (heuristic v1, pluggable source) | `resort-catalog`, `snow-conditions` |
 | `bus-schedules` | Timetable ingestion (detect → transcribe → validate → git) + "next bus to resorts" query | `resort-catalog`, `routing` |
 | `resort-ranking` | Single-criterion ranking of resorts from an origin | `resort-catalog`, `routing`, `snow-conditions`, `crowd-level` |
-| `poi-destinations` | Restaurant & convenience-store destinations (OSM snapshot) + nearby-by-ETA query *(added v1.1, 2026-10-30)* | `routing` |
 | `saved-places` | Starred/saved places and lists in browser storage, "My hotel" label, share links *(added v1.3, 2026-10-30)* | — (browser only) |
 | `pilot` | Turn-by-turn navigation from live GPS: snapping, progress/ETA, off-route reroute, bus journey guidance *(added v1.3, 2026-10-30)* | `routing`, `bus-schedules` |
 | `game-theme` | Original game look and sound: pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio); UI in the Maps look since 2026-11-20 (system font), plain basemap since web-app v1.30 *(added v1.6, 2026-10-31)* | — (browser only) |
@@ -108,7 +107,7 @@ apps/web/                     Next.js app (web-app module)
 services/api/                 FastAPI service
   src/hakuba_api/
     main.py                   app + router registration
-    catalog/ places/ routing/ snow/ crowd/ bus/ ranking/ pois/   ← one package per module id
+    catalog/ places/ routing/ snow/ crowd/ bus/ ranking/   ← one package per module id
     common/                   shared helpers: cache, geo, models, params, rate limit, upstream errors
     data/                     loaders + validate entrypoint
   tests/                      pytest, mirrors package layout; tests/fixtures/ for recorded HTTP
@@ -219,7 +218,7 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
 3. 🚶 Walk draws a walking route and ETA to any resort or stop.
 4. 🚌 Bus shows the walk to the nearest stop plus the next 3 departures and arrival time at each reachable resort. When this season's timetable isn't published yet, times are projected from the last one and labeled **Expected**. Outside the season it says clearly that no service runs. No years are shown in the UI.
 6. *(v1.1)* Routes look and behave like Google Maps directions: fitted map, ETA pills, alternates, turn-by-turn with icons, and a bus journey drawn walk → ride → resort.
-7. *(v1.1)* Restaurants and convenience stores can be chosen as destinations in 🚶.
+7. ~~*(v1.1)* Restaurants and convenience stores can be chosen as destinations in 🚶.~~ *Removed 2026-11-25 ([ADR-0010](docs/adr/0010-drop-restaurants-and-konbini.md)).*
 5. All quality gates pass. The Playwright E2E test covers all three modes.
 
 ## Open Questions

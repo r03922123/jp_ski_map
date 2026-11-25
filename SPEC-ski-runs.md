@@ -36,7 +36,7 @@ Users: the author and friends planning a day in Hakuba, on a phone or a laptop.
 The bbox is `HAKUBA_BBOX` (`services/api/src/hakuba_api/common/geo.py`). Every one of the 10 resorts appears as an
 `operating` ski area (Sakka's runs sit under Happo One). 10 runs have no ski area; they are dropped.
 
-Why OpenSkiMap rather than our own Overpass query (the `pois/refresh_pois.py` pattern): OpenSkiMap's processor
+Why OpenSkiMap rather than our own Overpass query (the `places/refresh_lodging.py` pattern): OpenSkiMap's processor
 already links each run and lift to its ski area, drops runs of closed areas (Hakuba Highland, Sun Alpina and
 Minekata are in the bbox and marked `abandoned`), and normalises difficulty. Raw OSM tags would make us rebuild
 that. The world GeoJSON files (257 MB gzipped for runs) and running their processor (Docker, 4 GB RAM) are both
@@ -91,7 +91,7 @@ refresh, never the site.
 ## Interface
 
 `GET /api/ski-lines` → GeoJSON `FeatureCollection`; each feature's properties are the table above minus
-`geometry`. Loaded lazily once per process with `@cache`, like `pois/store.py`, and served with the shared
+`geometry`. Loaded lazily once per process with `@cache`, like `catalog/store.py`, and served with the shared
 `STATIC_CACHE` header (`catalog/router.py:8`, one hour), so a refreshed snapshot shows within an hour of a deploy.
 No query parameters: the whole valley is 31 KB gzipped.
 
@@ -188,7 +188,7 @@ No query parameters: the whole valley is 31 KB gzipped.
 
 OpenSkiMap data is ODbL, built on OpenStreetMap. `DATA-LICENSES.md` gets a row for `data/ski_lines.json` with the
 attribution OpenSkiData asks for ("Data from OpenSkiData / OpenSkiMap.org, © OpenStreetMap contributors (ODbL),
-Skimap.org, Who's On First, © Mapterhorn"). The file stays ODbL like `data/poi_osm.json`; drawing it on the
+Skimap.org, Who's On First, © Mapterhorn"). The file stays ODbL like `data/lodging_osm.json`; drawing it on the
 map is a Produced Work (ODbL §4.5.b), so the map needs the credit only.
 
 ## Acceptance criteria
