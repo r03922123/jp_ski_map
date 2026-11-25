@@ -112,6 +112,7 @@ describe("PoiList Google rating card (SPEC-poi-destinations v1.2)", () => {
   afterEach(async () => {
     vi.unstubAllEnvs();
     await act(async () => failScripts());
+    delete window.google;
   });
 
   it("loads Google only once a row with a place ID is selected, and shows its card in that row", () => {
@@ -198,5 +199,35 @@ describe("PoiList Google rating card (SPEC-poi-destinations v1.2)", () => {
     rerender(list(soba.id));
     expect(request(container)).toHaveAttribute("place", "ChIJtest-soba");
     expect(googleScripts()).toHaveLength(1);
+  });
+
+  // Measured on production 2026-11-25: with loading=async, google.maps exists at the script's
+  // load event but importLibrary arrives later, so only Google's callback means "ready".
+  it("keeps the card while Google starts up and loads Places once Google says it is ready", async () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_MAPS_KEY", "test-key");
+    const { container } = render(
+      <PoiList
+        state={{ status: "success", data: [soba] }}
+        selectedId={soba.id}
+        onSelect={vi.fn()}
+      />,
+    );
+    const script = googleScripts()[0];
+    const importLibrary = vi.fn(async () => ({}));
+
+    window.google = { maps: {} } as unknown as typeof window.google;
+    await act(async () => script.dispatchEvent(new Event("load")));
+    expect(request(container)).toHaveAttribute("place", "ChIJtest-soba");
+
+    window.google = { maps: { importLibrary } };
+    const callback = new URL(script.getAttribute("src") ?? "").searchParams.get(
+      "callback",
+    );
+    expect(callback).toBeTruthy();
+    await act(async () =>
+      (window as unknown as Record<string, () => void>)[callback ?? ""](),
+    );
+    expect(importLibrary).toHaveBeenCalledWith("places");
+    expect(request(container)).toHaveAttribute("place", "ChIJtest-soba");
   });
 });
