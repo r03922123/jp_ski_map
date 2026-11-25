@@ -183,14 +183,13 @@ describe("ModePanel", () => {
   const before = (a: HTMLElement, b: HTMLElement) =>
     Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
 
-  it("Walk shows the ETA before the destination picker", () => {
+  it("Walk shows the ETA before the resort picker", () => {
     renderPanel({
       mode: "walk",
       route: { status: "success", data: route({ mode: "walk" }) },
-      destinationPicker: <div>Destination picker</div>,
     });
     expect(
-      before(screen.getByText(/ETA/), screen.getByText("Destination picker")),
+      before(screen.getByText(/ETA/), screen.getByLabelText("Resort")),
     ).toBe(true);
   });
 

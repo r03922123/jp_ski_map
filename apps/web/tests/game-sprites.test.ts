@@ -76,7 +76,7 @@ describe("map icons", () => {
 
   it("has the icons the map needs", () => {
     expect(Object.keys(ICONS).sort()).toEqual(
-      ["flag", "food", "konbini", "star", "stop", "world"].sort(),
+      ["flag", "star", "stop", "world"].sort(),
     );
   });
 

@@ -181,7 +181,7 @@ const base: Props = {
   onPickOrigin: () => {},
   onSelectResort: () => {},
   saved: SAVED,
-  stops: [{ coord: { lat: 36.698, lng: 137.858 }, name: "Konbini" }],
+  stops: [{ coord: { lat: 36.698, lng: 137.858 }, name: "Lodge" }],
   droppedPin: { coord: { lat: 36.7, lng: 137.85 }, name: "Pin" },
 };
 const PILOT: Props["pilot"] = {

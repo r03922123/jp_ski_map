@@ -1,5 +1,5 @@
 import type { PanelMode } from "@/components/ModePanel";
-import type { Coord, PoiCategory, SortKey } from "@/lib/api";
+import type { Coord, SortKey } from "@/lib/api";
 
 export type RankOptions = {
   sort: SortKey;
@@ -8,23 +8,18 @@ export type RankOptions = {
   hvPass: boolean;
 };
 
-/** What the destination list shows: ski resorts, or a kind of nearby place. */
-export type DestinationCategory = "resorts" | PoiCategory;
-
 /**
  * The shareable part of the view:
- * `?from=lat,lng&mode=walk&resort=happo-one&sort=…`, or for a place
- * `?from=…&mode=walk&cat=convenience&dest=poi:osm:node/123`, or any point
+ * `?from=lat,lng&mode=walk&resort=happo-one&sort=…`, or any point
  * (a saved place's "Go here") `?from=…&mode=walk&dest=pt:36.70001,137.85002`.
+ * Links from before ADR-0010 may carry `cat=food` or `dest=poi:…`; both are ignored.
  */
 export type ViewState = {
   origin: Coord | null;
   mode: PanelMode;
   resortId: string | null;
-  poiId: string | null;
-  category: DestinationCategory;
   rank: RankOptions;
-  /** A free destination point; when set it wins over resort/place. */
+  /** A free destination point; when set it wins over the resort. */
   point: Coord | null;
   /** Stops between the start and the destination, in order (walk). */
   stops: Coord[];
@@ -50,11 +45,6 @@ export const DEFAULT_RANK: RankOptions = {
 };
 
 const MODES: readonly PanelMode[] = ["bus", "walk"];
-const CATEGORIES: readonly DestinationCategory[] = [
-  "resorts",
-  "food",
-  "convenience",
-];
 
 /** Stops between start and destination (SPEC-web-app v1.4; Google allows ~9). */
 export const MAX_STOPS = 5;
@@ -84,8 +74,7 @@ function parseRank(params: URLSearchParams): RankOptions {
 export function parseViewState(search: string): ViewState {
   const params = new URLSearchParams(search);
   const mode = params.get("mode") as PanelMode | null;
-  const cat = params.get("cat") as DestinationCategory | null;
-  // `dest=poi:<id>` / `dest=resort:<id>`; the older `resort=<id>` is still read
+  // `dest=resort:<id>` / `dest=pt:<lat,lng>`; the older `resort=<id>` is still read
   const dest = params.get("dest");
   const [kind, ...rest] = dest ? dest.split(":") : [];
   const destId = rest.join(":");
@@ -95,8 +84,6 @@ export function parseViewState(search: string): ViewState {
     resortId:
       (kind === "resort" && destId ? destId : null) ??
       (params.get("resort") || null),
-    poiId: kind === "poi" && destId ? destId : null,
-    category: cat && CATEGORIES.includes(cat) ? cat : "resorts",
     rank: parseRank(params),
     point: kind === "pt" ? parseCoord(destId) : null,
     stops: (params.get("stops") ?? "")
@@ -113,8 +100,6 @@ export function serializeViewState({
   origin,
   mode,
   resortId,
-  poiId,
-  category,
   rank,
   point,
   stops,
@@ -125,7 +110,6 @@ export function serializeViewState({
   }
   params.set("mode", mode);
   if (resortId) params.set("resort", resortId);
-  if (category !== "resorts") params.set("cat", category);
   if (stops.length > 0) {
     params.set(
       "stops",
@@ -134,8 +118,6 @@ export function serializeViewState({
   }
   if (point) {
     params.set("dest", `pt:${point.lat.toFixed(5)},${point.lng.toFixed(5)}`);
-  } else if (poiId) {
-    params.set("dest", `poi:${poiId}`);
   }
   // only non-default rank options, so ordinary links stay short
   if (rank.sort !== DEFAULT_RANK.sort) params.set("sort", rank.sort);

@@ -86,20 +86,6 @@ for (const device of [
       await expect(labels(page)).toHaveCount(ALL);
     });
 
-    test("a nearby place replacing a selected resort leaves no label", async ({
-      page,
-    }) => {
-      await open(page, `${TRIP}&cat=food`);
-      await page
-        .getByRole("list", { name: "Nearby places" })
-        .getByRole("button")
-        .first()
-        .click({ timeout: 15_000 });
-      await routeReady(page);
-
-      await expect(labels(page)).toHaveCount(0);
-    });
-
     test("a resort reached through Saved keeps its label", async ({ page }) => {
       await open(page, TRIP);
       await routeReady(page);

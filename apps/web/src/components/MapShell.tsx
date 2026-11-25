@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
-import { DestinationPicker } from "@/components/DestinationPicker";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ModePanel } from "@/components/ModePanel";
@@ -13,7 +12,6 @@ import type { SkiLine } from "@/components/map/SkiLinesLayer";
 import { PilotScreens } from "@/components/PilotScreens";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
-import { PoiList } from "@/components/PoiList";
 import { RankingPanel } from "@/components/RankingPanel";
 import { ResortCard } from "@/components/ResortCard";
 import { SaveButton } from "@/components/SaveButton";
@@ -39,7 +37,7 @@ import { pinPlace, tripActions } from "@/lib/trip-actions";
 import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
-import { useLodging, usePois, useRanking } from "@/lib/use-lists";
+import { useLodging, useRanking } from "@/lib/use-lists";
 import { useModeDurations, useRoutes } from "@/lib/use-routes";
 import { type TripPoint, useTrip } from "@/lib/use-trip";
 import { useViewUrl } from "@/lib/use-view-url";
@@ -74,8 +72,6 @@ export function MapShell() {
     searchKey,
     focusedSearchKey,
     selectedResortId,
-    category,
-    poiId,
     point,
     storedBusChoice,
     setBusChoice,
@@ -151,18 +147,8 @@ export function MapShell() {
   // In bus mode the route shown is the walk to the chosen boarding stop.
   const routeMode = mode === "bus" ? "walk" : mode;
 
-  // Food / konbini destinations (walk only; shuttles serve resorts).
-  const poiCategory = category === "resorts" ? null : category;
-  const { pois, poiState, selectedPoi, poiTarget } = usePois({
-    mode,
-    routeMode,
-    origin,
-    poiCategory,
-    poiId,
-  });
-
-  // where walk goes; a Food or Konbini list picks its place per mode
-  const tripTarget = point?.coord ?? (poiCategory ? poiTarget : destination);
+  // where walk goes
+  const tripTarget = point?.coord ?? destination;
   const target = mode === "bus" ? busStop : tripTarget;
   // With stops (walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
@@ -175,15 +161,13 @@ export function MapShell() {
     highlight,
     setHighlight,
   } = useRoutes({ mode, routeMode, origin, target, viaStops });
-  // the tabs' times need one place for every mode: a Food or Konbini list picks its place per
-  // mode, and Walk heads for the ranking's nearest entrance, so a resort with several waits
-  // for this start's ranking (cached, so every mode then uses that entrance; a placeholder is
-  // the previous start's)
+  // the tabs' times need one place for every mode: Walk heads for the ranking's nearest
+  // entrance, so a resort with several waits for this start's ranking (cached, so every mode
+  // then uses that entrance; a placeholder is the previous start's)
   const sharedTarget =
     point !== null ||
-    (!poiCategory &&
-      ((resort?.accessPoints.length ?? 0) <= 1 ||
-        (ranking.data !== undefined && !ranking.isPlaceholderData)));
+    (resort?.accessPoints.length ?? 0) <= 1 ||
+    (ranking.data !== undefined && !ranking.isPlaceholderData);
   const durations = useModeDurations({
     origin,
     target: sharedTarget ? tripTarget : null,
@@ -264,10 +248,8 @@ export function MapShell() {
     ...trip,
     routeMode,
     pointPlace,
-    poiCategory,
     resort,
     destination,
-    selectedPoi,
     busPlace,
     busChoice,
     showNight,
@@ -277,10 +259,7 @@ export function MapShell() {
     savedOpen,
     savedState,
     resorts: resorts.data,
-    listsLoading: {
-      resorts: resorts.isLoading,
-      pois: pois.isLoading,
-    },
+    resortsLoading: resorts.isLoading,
   });
   const actions = tripActions(trip, {
     resorts: resorts.data,
@@ -294,7 +273,7 @@ export function MapShell() {
     setDroppedPin,
     openResortCard: (resortId) => setPicked({ kind: "resort", resortId }),
   });
-  const shownTo = point ?? (poiCategory ? poiId : selectedResortId);
+  const shownTo = point ?? selectedResortId;
   const toEmptiedSinceLink = useRef(false);
   if (linkRead && shownTo === null) toEmptiedSinceLink.current = true;
   useBackToClose(
@@ -411,10 +390,7 @@ export function MapShell() {
                 !destinationLoading && (
                   <PlaceCard
                     place={fromPlace}
-                    showLists={mode !== "bus"}
-                    category={category}
                     onDirections={actions.directionsTo}
-                    onCategory={actions.pickCategory}
                   />
                 )
               }
@@ -432,7 +408,7 @@ export function MapShell() {
           }
           collapseKey={destinationKey}
           revealKey={routeKey}
-          raiseKey={`${savedOpen}|${category ?? ""}|${mode}`}
+          raiseKey={`${savedOpen}|${mode}`}
           // with no start it would hold only the hint on how to set one (and the stops
           // a cleared start leaves, which must stay reachable)
           hiddenOnPhone={
@@ -523,21 +499,6 @@ export function MapShell() {
                   }
                   startNote={busNote}
                 />
-              }
-              destinationPicker={
-                <DestinationPicker
-                  value={category}
-                  onChange={actions.pickCategory}
-                />
-              }
-              poiPanel={
-                poiCategory ? (
-                  <PoiList
-                    state={poiState}
-                    selectedId={poiId}
-                    onSelect={actions.selectPoi}
-                  />
-                ) : undefined
               }
               // a failed ranking falls back to the plain picker: choosing a resort needs no ranking
               rankingPanel={

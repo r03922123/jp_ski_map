@@ -308,10 +308,6 @@ for (const device of DEVICES) {
       await searchStation(page);
 
       await expect(directions(page)).toBeVisible();
-      for (const name of ["Ski", "Food", "Konbini"])
-        await expect(
-          placeCard(page).getByRole("button", { name }),
-        ).toBeVisible();
       await expect(
         placeCard(page).getByRole("button", { name: /^Save(d:)? / }),
       ).toBeVisible();
@@ -319,21 +315,6 @@ for (const device of DEVICES) {
       await expect(
         page.getByRole("img", { name: "Starting point" }),
       ).toBeVisible();
-    });
-
-    test("Food picks the food list and keeps one bar", async ({ page }) => {
-      await page.goto(START_ONLY);
-
-      await placeCard(page).getByRole("button", { name: "Food" }).click();
-
-      await expect(page.getByRole("tab", { name: /Food/ })).toHaveAttribute(
-        "aria-selected",
-        "true",
-      );
-      await expect(
-        placeCard(page).getByRole("button", { name: "Food" }),
-      ).toHaveAttribute("aria-pressed", "true");
-      await expect(toBox(page)).toHaveCount(0);
     });
 
     test("Directions makes the place the destination and leaves From empty", async ({
@@ -369,15 +350,7 @@ for (const device of DEVICES) {
       await page.goto(`/?from=${STATION}&mode=bus`);
 
       await expect(directions(page)).toBeVisible({ timeout: 15_000 });
-      await expect(
-        placeCard(page).getByRole("button", { name: "Food" }),
-      ).toHaveCount(0);
-      await expect(
-        placeCard(page).getByRole("button", { name: "Ski" }),
-      ).toHaveCount(0);
-      await expect(
-        placeCard(page).getByRole("button", { name: "Konbini" }),
-      ).toHaveCount(0);
+      await expect(placeCard(page).getByRole("button")).toHaveCount(2);
     });
 
     test("Directions on a resort start selects that resort as the destination", async ({
@@ -427,14 +400,15 @@ for (const device of DEVICES) {
       await expect(toBox(page)).toHaveValue(/Happo-One/, { timeout: 15_000 });
     });
 
-    test("Bus: a food row in the link still leaves the card, since Bus has no food list", async ({
+    test("an old restaurant link (before ADR-0010) opens with the start and its card", async ({
       page,
     }) => {
       await page.goto(
-        `/?from=${STATION}&mode=bus&cat=food&dest=poi:osm:node/123`,
+        `/?from=${STATION}&mode=walk&cat=food&dest=poi:osm:node/123`,
       );
 
       await expect(directions(page)).toBeVisible({ timeout: 15_000 });
+      await expect(toBox(page)).toHaveCount(0);
     });
 
     test("a resort from the list turns one bar into two, keeping the same From box", async ({

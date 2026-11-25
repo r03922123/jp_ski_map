@@ -48,7 +48,7 @@ export function useModeDurations({
   viaStops,
 }: {
   origin: Coord | null;
-  /** null: no destination both modes share (a Food or Konbini list) */
+  /** null: no destination both modes share yet (a resort waiting for its entrance) */
   target: Coord | null | undefined;
   viaStops: Coord[];
 }): Partial<Record<Mode, number>> {

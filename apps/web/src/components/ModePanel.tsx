@@ -48,10 +48,6 @@ export type ModePanelProps = {
   departAt?: Date;
   /** Walk mode: ranked resort list replacing the plain picker. */
   rankingPanel?: ReactNode;
-  /** Walk: segmented control choosing resorts, food or konbini. */
-  destinationPicker?: ReactNode;
-  /** Walk: the nearby-places list, shown instead of resorts when set. */
-  poiPanel?: ReactNode;
   /** Bus mode: shuttle options; the route shown is the walk to the chosen stop. */
   busPanel?: ReactNode;
   /** From/To with Save stars, shown under the tabs once there is an origin. */
@@ -86,8 +82,6 @@ export function ModePanel({
   tripFirst = false,
   departAt,
   rankingPanel,
-  destinationPicker,
-  poiPanel,
   busPanel,
   placeStrip,
   onStart,
@@ -147,34 +141,26 @@ export function ModePanel({
           <RouteSummary mode="walk" route={route} />
         </>
       ) : mode === "walk" && rankingPanel ? (
-        <>
-          {destinationPicker}
-          {poiPanel ?? rankingPanel}
-        </>
+        rankingPanel
       ) : (
-        <>
-          {destinationPicker}
-          {poiPanel ?? (
-            <div className="flex flex-col gap-1 text-sm font-medium">
-              <label htmlFor="resort-picker">Resort</label>
-              <select
-                id="resort-picker"
-                className="rounded-md border bg-background px-2 py-1.5 font-normal"
-                value={selectedResortId ?? ""}
-                onChange={(e) => onSelectResort(e.target.value)}
-              >
-                <option value="" disabled>
-                  Choose a resort…
-                </option>
-                {resorts.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name.en}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-        </>
+        <div className="flex flex-col gap-1 text-sm font-medium">
+          <label htmlFor="resort-picker">Resort</label>
+          <select
+            id="resort-picker"
+            className="rounded-md border bg-background px-2 py-1.5 font-normal"
+            value={selectedResortId ?? ""}
+            onChange={(e) => onSelectResort(e.target.value)}
+          >
+            <option value="" disabled>
+              Choose a resort…
+            </option>
+            {resorts.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name.en}
+              </option>
+            ))}
+          </select>
+        </div>
       )}
     </div>
   );

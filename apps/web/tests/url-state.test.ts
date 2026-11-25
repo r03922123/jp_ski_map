@@ -14,8 +14,6 @@ describe("parseViewState", () => {
       origin: { lat: 36.69, lng: 137.87 },
       mode: "walk",
       resortId: "happo-one",
-      poiId: null,
-      category: "resorts",
       rank: DEFAULT_RANK,
       point: null,
       stops: [],
@@ -27,8 +25,6 @@ describe("parseViewState", () => {
       origin: null,
       mode: "walk",
       resortId: null,
-      poiId: null,
-      category: "resorts",
       rank: DEFAULT_RANK,
       point: null,
       stops: [],
@@ -51,8 +47,6 @@ describe("serializeViewState", () => {
         origin: { lat: 36.6912345678, lng: 137.8712345678 },
         mode: "walk",
         resortId: null,
-        poiId: null,
-        category: "resorts",
         rank: DEFAULT_RANK,
         point: null,
         stops: [],
@@ -65,8 +59,6 @@ describe("serializeViewState", () => {
       origin: { lat: 36.69, lng: 137.87 },
       mode: "walk" as const,
       resortId: "cortina",
-      poiId: null,
-      category: "resorts",
       rank: DEFAULT_RANK,
       point: null,
       stops: [],
@@ -82,8 +74,6 @@ describe("rank options in the URL", () => {
       origin: { lat: 36.69, lng: 137.87 },
       mode: "walk" as const,
       resortId: null,
-      poiId: null,
-      category: "resorts",
       rank: {
         sort: "run_length" as const,
         maxWalkMin: 20,
@@ -131,39 +121,23 @@ describe("rank options in the URL", () => {
   });
 });
 
-describe("place destinations", () => {
-  it("reads a place destination and its category", () => {
+describe("links from before ADR-0010", () => {
+  it("ignores a restaurant or konbini destination and its category", () => {
     const view = parseViewState(
       "?from=36.69,137.87&mode=walk&cat=convenience&dest=poi%3Aosm%3Anode%2F123",
     );
 
-    expect(view.category).toBe("convenience");
-    expect(view.poiId).toBe("osm:node/123");
     expect(view.resortId).toBeNull();
+    expect(view.point).toBeNull();
+    expect(serializeViewState(view)).toBe(
+      "?from=36.69000%2C137.87000&mode=walk",
+    );
   });
 
-  it("reads dest=resort:… as a resort and ignores unknown categories", () => {
-    const view = parseViewState("?dest=resort%3Ahappo-one&cat=onsen");
-
-    expect(view.resortId).toBe("happo-one");
-    expect(view.category).toBe("resorts");
-  });
-
-  it("round-trips a place destination", () => {
-    const search = serializeViewState({
-      origin: { lat: 36.69, lng: 137.87 },
-      mode: "walk",
-      resortId: null,
-      poiId: "osm:node/123",
-      category: "food",
-      rank: DEFAULT_RANK,
-      point: null,
-      stops: [],
-    });
-
-    expect(search).toContain("cat=food");
-    expect(parseViewState(search).poiId).toBe("osm:node/123");
-    expect(search).not.toContain("resort=");
+  it("still reads dest=resort:… next to an old cat=food", () => {
+    expect(parseViewState("?dest=resort%3Ahappo-one&cat=food").resortId).toBe(
+      "happo-one",
+    );
   });
 });
 
@@ -173,7 +147,6 @@ describe("point destinations (saved places: Go here)", () => {
       "?from=36.69,137.87&mode=walk&dest=pt%3A36.70001%2C137.85002",
     );
     expect(view.point).toEqual({ lat: 36.70001, lng: 137.85002 });
-    expect(view.poiId).toBeNull();
     expect(view.resortId).toBeNull();
 
     const search = serializeViewState({ ...view, point: view.point });

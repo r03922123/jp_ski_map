@@ -125,13 +125,13 @@ test("Go here on a saved place draws a route to it", async ({ page }) => {
   ).toHaveValue("JR Hakuba Station");
 });
 
-// {"v":1,"n":"Onsen trip","i":"bookmark","p":[["osm-node-7","Mimizuku no Yu",36.69735,137.84402,"poi"]]}
+// {"v":1,"n":"Onsen trip","i":"bookmark","p":[["osm-node-7","Mimizuku no Yu",36.69735,137.84402,"pin"]]}
 const IMPORT_CODE = Buffer.from(
   JSON.stringify({
     v: 1,
     n: "Onsen trip",
     i: "bookmark",
-    p: [["osm-node-7", "Mimizuku no Yu", 36.69735, 137.84402, "poi"]],
+    p: [["osm-node-7", "Mimizuku no Yu", 36.69735, 137.84402, "pin"]],
   }),
 ).toString("base64url");
 

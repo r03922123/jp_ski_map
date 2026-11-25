@@ -359,19 +359,19 @@ for (const d of ALL) {
       await routeDrawn(page);
     });
 
-    test("typing a konbini into the To box makes it the destination with its name, and no resort stays chosen", async ({
+    test("typing a hotel into the To box makes it the destination with its name, and no resort stays chosen", async ({
       page,
     }) => {
       // code review of v1.8: the non-resort branch (spec rule 1: a free point with its name)
       await open(page, `${PLAN}&resort=happo-one`);
       await routeDrawn(page);
       const before = fromParam(page);
-      await toBox(page).fill("7-Eleven");
-      const option = page.getByRole("option", { name: /7-Eleven/ }).first();
+      await toBox(page).fill("Hotel Hakuba");
+      const option = page.getByRole("option", { name: /Hotel Hakuba/ }).first();
       await press(option, d.touch);
       await expect(page).toHaveURL(/dest=pt%3A/);
       await expect(page).not.toHaveURL(/resort=/, { timeout: 3_000 });
-      await expectTo(page, /7-Eleven/); // its name, not "Chosen place"
+      await expectTo(page, /Hotel Hakuba/); // its name, not "Chosen place"
       expect(fromParam(page)).toBe(before);
       await routeDrawn(page);
     });
@@ -493,53 +493,6 @@ test.describe("ranked list · laptop 1440x900", () => {
         name: "Go here",
       }),
     ).toBeVisible({ timeout: 3_000 });
-  });
-});
-
-for (const d of [PHONE, LAPTOP]) {
-  test.describe(`food and konbini · ${d.name}`, () => {
-    test.use(d.use);
-
-    for (const cat of ["Food", "Konbini"]) {
-      test(`a ${cat} row becomes the destination and its route is drawn`, async ({
-        page,
-      }) => {
-        await open(page, `${PLAN}&resort=happo-one`);
-        await routeDrawn(page);
-        await press(page.getByRole("tab", { name: new RegExp(cat) }), d.touch);
-        const row = page
-          .getByRole("list", { name: "Nearby places" })
-          .getByRole("button")
-          .first();
-        await expect(row).toBeVisible({ timeout: 20_000 });
-        const name = (await row.innerText()).split("\n")[0].trim();
-        await press(row, d.touch);
-        await expect(row).toHaveAttribute("aria-pressed", "true");
-        await expectTo(page, name);
-        await expect(page).toHaveURL(/dest=poi%3A/);
-        await routeDrawn(page);
-      });
-    }
-  });
-}
-
-test.describe("food and konbini URL · laptop 1440x900", () => {
-  test.use(LAPTOP.use);
-
-  test("a konbini destination leaves no stale resort in the shared link", async ({
-    page,
-  }) => {
-    test.fail(); // known: J — the URL keeps resort=happo-one next to dest=poi:
-    await open(page, `${PLAN}&resort=happo-one`);
-    await routeDrawn(page);
-    await page.getByRole("tab", { name: /Konbini/ }).click();
-    const row = page
-      .getByRole("list", { name: "Nearby places" })
-      .getByRole("button")
-      .first();
-    await row.click();
-    await expect(page).toHaveURL(/dest=poi%3A/);
-    await expect(page).not.toHaveURL(/resort=/, { timeout: 3_000 });
   });
 });
 
@@ -705,24 +658,6 @@ test.describe("destination survives · laptop 1440x900", () => {
       await expect(page).toHaveURL(/resort=cortina/);
     }
     await expect(toBox(page)).toHaveValue(/Hakuba Cortina/);
-    await routeDrawn(page);
-  });
-
-  test("a food destination survives Bus and back to Walk", async ({ page }) => {
-    await open(page, `${PLAN}&resort=happo-one`);
-    await routeDrawn(page);
-    await page.getByRole("tab", { name: /Food/ }).click();
-    const row = page
-      .getByRole("list", { name: "Nearby places" })
-      .getByRole("button")
-      .first();
-    await expect(row).toBeVisible({ timeout: 20_000 });
-    const name = (await row.innerText()).split("\n")[0].trim();
-    await row.click();
-    await expectTo(page, name);
-    await page.getByRole("tab", { name: /Bus/ }).click();
-    await page.getByRole("tab", { name: /Walk/ }).click();
-    await expectTo(page, name);
     await routeDrawn(page);
   });
 

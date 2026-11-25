@@ -181,7 +181,6 @@ vi.mock("@/lib/api", async (importOriginal) => {
       }),
     ),
     fetchLodging: vi.fn(async () => []),
-    fetchNearbyPois: vi.fn(async () => []),
     skiLinesQuery: {
       queryKey: ["ski-lines"],
       queryFn: async () => ({
@@ -436,30 +435,6 @@ describe("MapShell mode", () => {
     }
   });
 
-  it("a Food place shows no time on the Walk tab", async () => {
-    const ramen = { lat: 36.699, lng: 137.84 };
-    vi.mocked(api.fetchNearbyPois).mockResolvedValue([
-      {
-        id: "osm:node/1",
-        category: "food",
-        name: "Ramen",
-        nameJa: null,
-        coord: ramen,
-        brand: null,
-        cuisine: "ramen",
-        openingHours: null,
-        durationS: 300,
-        distanceM: 2000,
-      } as api.NearbyPoi,
-    ]);
-    renderShell(
-      "?from=36.69736,137.85393&mode=walk&cat=food&dest=poi:osm:node/1",
-    );
-    await waitFor(() => expect(map().destination).toEqual(ramen));
-    await waitFor(() => expect(map().routes).toEqual([walk]));
-    expect(screen.getByRole("tab", { name: "Walk" })).toBeInTheDocument();
-  });
-
   it("switching to Bus drops the walk route target: the map gets no destination", async () => {
     renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
@@ -603,25 +578,6 @@ describe("MapShell mode", () => {
     // one resort has 3 options in the fixture: narrowed, the other resorts' buses would go
     expect(boards().length).toBeGreaterThanOrEqual(listed - 1);
   });
-
-  it("Directions after a tapped bus makes the start the only destination", async () => {
-    vi.mocked(api.fetchBusOptions).mockResolvedValue({
-      ...(busFixture as api.BusResult),
-      resorts: (busFixture as api.BusResult).resorts.filter(
-        (r) => r.resortId === happo.id,
-      ),
-    });
-    // with the Food list open, Walk has no destination, so the start's card offers Directions
-    renderShell("?from=36.69736,137.85393&mode=bus&cat=food");
-    const [option] = await screen.findAllByRole("button", { name: /Board/ });
-    fireEvent.click(option);
-    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
-    fireEvent.mouseDown(screen.getByRole("tab", { name: /walk/i }));
-    fireEvent.click(screen.getByRole("tab", { name: /walk/i }));
-    fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
-    await waitFor(() => expect(query().get("dest")).toMatch(/^pt:/));
-    expect(query().get("resort")).toBeNull();
-  });
 });
 
 describe("MapShell pilot", () => {
@@ -763,7 +719,7 @@ describe("MapShell saved panel", () => {
     id: "onsen",
     name: "Onsen",
     coord: { lat: 36.7, lng: 137.85 },
-    kind: "poi" as const,
+    kind: "pin" as const,
   };
   const savedButton = () =>
     screen.getByRole("button", { name: "Saved places" });
@@ -776,7 +732,7 @@ describe("MapShell saved panel", () => {
         v: 1,
         n: "Onsen trip",
         i: "bookmark",
-        p: [["osm-node-7", "Mimizuku no Yu", 36.69735, 137.84402, "poi"]],
+        p: [["osm-node-7", "Mimizuku no Yu", 36.69735, 137.84402, "pin"]],
       }),
     )
       .replaceAll("+", "-")

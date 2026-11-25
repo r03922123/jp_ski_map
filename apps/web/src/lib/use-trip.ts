@@ -3,14 +3,13 @@ import type { PanelMode } from "@/components/ModePanel";
 import type { TripStop } from "@/components/TripPanel";
 import type { BusOption, Coord } from "@/lib/api";
 import type { PlaceInput } from "@/lib/saved-places";
-import type { DestinationCategory } from "@/lib/url-state";
 
 /** A free destination, with its name when it has one. */
 export type TripPoint = { coord: Coord; name: string | null };
 
 /**
- * The trip being planned: the mode, the start, the destination (a resort, a food row or
- * a free point), the stops between them and the tapped bus. State only; the edits that
+ * The trip being planned: the mode, the start, the destination (a resort or a free
+ * point), the stops between them and the tapped bus. State only; the edits that
  * keep these consistent are in lib/trip-actions.ts.
  */
 export function useTrip() {
@@ -28,8 +27,6 @@ export function useTrip() {
   const [focusedSearchKey, setFocusedSearchKey] = useState<number | null>(null);
   // the resort chosen as the destination: in a list, the To box, on the map or in the link
   const [chosenResortId, setChosenResortId] = useState<string | null>(null);
-  const [category, setCategory] = useState<DestinationCategory>("resorts");
-  const [poiId, setPoiId] = useState<string | null>(null);
   // a free destination (a saved place's or a pin's "Go here", a To-box place), with its
   // name when it has one; the link holds only the coordinate (names in the URL: cluster E)
   const [point, setPoint] = useState<TripPoint | null>(null);
@@ -74,10 +71,6 @@ export function useTrip() {
     selectedResortId,
     chosenResortId,
     setChosenResortId,
-    category,
-    setCategory,
-    poiId,
-    setPoiId,
     point,
     setPoint,
     stops,
