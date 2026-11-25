@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PoiList } from "@/components/PoiList";
 import type { NearbyPoi } from "@/lib/api";
 
@@ -83,5 +83,91 @@ describe("PoiList", () => {
       />,
     );
     expect(screen.getByRole("alert")).toBeInTheDocument();
+  });
+});
+
+describe("PoiList Google rating card (SPEC-poi-destinations v1.2)", () => {
+  const soba: NearbyPoi = {
+    ...seven,
+    id: "osm:node/3",
+    category: "food",
+    name: "Soba Fuku",
+    googlePlaceId: "ChIJtest-soba",
+  };
+  const googleScripts = () =>
+    document.head.querySelectorAll(
+      'script[src^="https://maps.googleapis.com/"]',
+    );
+  const request = (container: HTMLElement) =>
+    container.querySelector("gmp-place-details-place-request");
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    for (const s of googleScripts()) s.remove();
+  });
+
+  it("loads Google only once a row with a place ID is selected, and shows its card in that row", () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_MAPS_KEY", "test-key");
+    const list = (selectedId: string | null) => (
+      <PoiList
+        state={{ status: "success", data: [soba, lawson] }}
+        selectedId={selectedId}
+        onSelect={vi.fn()}
+      />
+    );
+    const { container, rerender } = render(list(null));
+    expect(googleScripts()).toHaveLength(0);
+    expect(request(container)).toBeNull();
+
+    rerender(list(soba.id));
+
+    expect(request(container)).toHaveAttribute("place", "ChIJtest-soba");
+    const card = container.querySelector("gmp-place-details-compact");
+    expect(card?.parentElement?.closest("li")).toBe(
+      screen.getByRole("button", { name: /Soba Fuku/ }).closest("li"),
+    );
+    expect(card?.closest("button")).toBeNull();
+    expect(googleScripts()).toHaveLength(1);
+    expect(googleScripts()[0].getAttribute("src")).toContain("key=test-key");
+  });
+
+  it("shows no card and loads nothing without a key or a place ID", () => {
+    const { container, rerender } = render(
+      <PoiList
+        state={{ status: "success", data: [soba] }}
+        selectedId={soba.id}
+        onSelect={vi.fn()}
+      />,
+    );
+    expect(request(container)).toBeNull();
+
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_MAPS_KEY", "test-key");
+    rerender(
+      <PoiList
+        state={{ status: "success", data: [{ ...soba, googlePlaceId: null }] }}
+        selectedId={soba.id}
+        onSelect={vi.fn()}
+      />,
+    );
+    expect(request(container)).toBeNull();
+    expect(googleScripts()).toHaveLength(0);
+  });
+
+  it("drops the card when the element reports an error", () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_MAPS_KEY", "test-key");
+    const { container } = render(
+      <PoiList
+        state={{ status: "success", data: [soba] }}
+        selectedId={soba.id}
+        onSelect={vi.fn()}
+      />,
+    );
+    const card = container.querySelector("gmp-place-details-compact");
+
+    act(() => {
+      card?.dispatchEvent(new Event("gmp-error"));
+    });
+
+    expect(container.querySelector("gmp-place-details-compact")).toBeNull();
   });
 });

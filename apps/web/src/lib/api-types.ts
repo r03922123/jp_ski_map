@@ -275,6 +275,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ski-lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ski Lines
+         * @description Every operating run and lift of the 10 resorts, as GeoJSON (SPEC-ski-runs).
+         */
+        get: operations["get_ski_lines_api_ski_lines_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -451,17 +471,6 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
-        /** LineString */
-        LineString: {
-            /**
-             * Type
-             * @default LineString
-             * @constant
-             */
-            type: "LineString";
-            /** Coordinates */
-            coordinates: number[][];
-        };
         /** LocalizedName */
         LocalizedName: {
             /** En */
@@ -518,6 +527,8 @@ export interface components {
             cuisine: string | null;
             /** Openinghours */
             openingHours: string | null;
+            /** Googleplaceid */
+            googlePlaceId?: string | null;
             /** Durations */
             durationS: number;
             /** Distancem */
@@ -631,6 +642,29 @@ export interface components {
              */
             newerSourcePending: boolean;
         };
+        /** Polygon */
+        Polygon: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "Polygon";
+            /** Coordinates */
+            coordinates: [
+                number,
+                number
+            ][][];
+        };
+        /**
+         * Profile
+         * @description A run's height every `resolution_m` along it on the ground, top to end (v1.4).
+         */
+        Profile: {
+            /** Heightsm */
+            heightsM: number[];
+            /** Resolutionm */
+            resolutionM: number;
+        };
         /** RankedResort */
         RankedResort: {
             /** Resortid */
@@ -729,7 +763,7 @@ export interface components {
             durationS: number;
             /** Distancem */
             distanceM: number;
-            geometry: components["schemas"]["LineString"];
+            geometry: components["schemas"]["hakuba_api__routing__models__LineString"];
             /** Steps */
             steps: components["schemas"]["Step"][];
             /** Summary */
@@ -745,6 +779,61 @@ export interface components {
             primary: components["schemas"]["Route"];
             /** Alternates */
             alternates: components["schemas"]["Route"][];
+        };
+        /** SkiLine */
+        SkiLine: {
+            /**
+             * Type
+             * @default Feature
+             * @constant
+             */
+            type: "Feature";
+            properties: components["schemas"]["SkiLineProps"];
+            /** Geometry */
+            geometry: components["schemas"]["hakuba_api__skiruns__models__LineString"] | components["schemas"]["Polygon"];
+        };
+        /** SkiLineProps */
+        SkiLineProps: {
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "run" | "lift";
+            /** Name */
+            name: string | null;
+            /** Difficulty */
+            difficulty: ("novice" | "easy" | "intermediate" | "advanced" | "expert" | "freeride" | "extreme") | null;
+            /** Lifttype */
+            liftType: ("cable_car" | "gondola" | "chair_lift" | "mixed_lift" | "drag_lift" | "t-bar" | "j-bar" | "platter" | "rope_tow" | "magic_carpet" | "funicular" | "railway") | null;
+            /** Resortid */
+            resortId: string;
+            /** Distancem */
+            distanceM: number | null;
+            /** Minelevationm */
+            minElevationM: number | null;
+            /** Maxelevationm */
+            maxElevationM: number | null;
+            /** Slopepct */
+            slopePct: number | null;
+            /** Durations */
+            durationS: number | null;
+            profile: components["schemas"]["Profile"] | null;
+        };
+        /**
+         * SkiLines
+         * @description data/ski_lines.json and GET /api/ski-lines: one GeoJSON FeatureCollection.
+         */
+        SkiLines: {
+            /**
+             * Type
+             * @default FeatureCollection
+             * @constant
+             */
+            type: "FeatureCollection";
+            /** Features */
+            features: components["schemas"]["SkiLine"][];
         };
         /** SnowDepth */
         SnowDepth: {
@@ -854,6 +943,30 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** LineString */
+        hakuba_api__routing__models__LineString: {
+            /**
+             * Type
+             * @default LineString
+             * @constant
+             */
+            type: "LineString";
+            /** Coordinates */
+            coordinates: number[][];
+        };
+        /** LineString */
+        hakuba_api__skiruns__models__LineString: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "LineString";
+            /** Coordinates */
+            coordinates: [
+                number,
+                number
+            ][];
         };
     };
     responses: never;
@@ -1333,6 +1446,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ski_lines_api_ski_lines_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkiLines"];
                 };
             };
         };
