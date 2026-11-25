@@ -172,8 +172,6 @@ describe("ResortList", () => {
     });
   });
 
-  // the panel tidy left two sorts (2026-11-25); Details keeps their factors and crowd, which
-  // refactor/remove-crowd removes, and drops the rows of the sorts it took away
   it("rounds the run length to one decimal, half up", () => {
     const factors = { ...ranked().factors, runLength: 20450 };
     render(

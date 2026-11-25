@@ -112,8 +112,10 @@ describe("rank options in the URL", () => {
     expect(serializeViewState(view)).not.toContain("date");
   });
 
-  // the panel tidy (2026-11-25) keeps two sorts; a link with another one opens on the default
+  // the web offers walk time and three sizes (2026-11-25); a link with another sort, or with
+  // the old terrain_size, opens on the default
   it.each([
+    "terrain_size",
     "fresh_snow",
     "snow_depth",
     "crowd",

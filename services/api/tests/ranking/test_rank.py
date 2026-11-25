@@ -140,13 +140,17 @@ def test_ties_break_by_walk_time_then_id() -> None:
     assert [r.resort_id for r in ranked] == ["c", "a", "b"]
 
 
-def test_size_sorts_break_ties_by_lift_count() -> None:
+@pytest.mark.parametrize(
+    ("sort", "field", "b_value"),
+    [("runs", "runs", 20), ("area", "area_ha", 150), ("run_length", "total_runs_m", 20000)],
+)
+def test_size_sorts_break_ties_by_lift_count(sort: str, field: str, b_value: int) -> None:
     data = inputs()
-    data[0].resort.stats.runs = 20  # as many runs as b, fewer lifts
+    setattr(data[0].resort.stats, field, b_value)  # a ties b, with fewer lifts
 
-    ranked = rank(data, "runs", Filters())
+    order = [r.resort_id for r in rank(data, sort, Filters())]  # type: ignore[arg-type]
 
-    assert [r.resort_id for r in ranked][:2] == ["b", "a"]
+    assert order.index("b") == order.index("a") - 1
 
 
 def test_unreachable_resort_sorts_last_on_walk_time() -> None:
