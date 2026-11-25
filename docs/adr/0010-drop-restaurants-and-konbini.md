@@ -41,8 +41,9 @@ the Google Maps JavaScript loader. Keep the OpenStreetMap base map.
 
 - No Google Maps Platform call remains in the app. The owner can delete the Vercel variable
   `NEXT_PUBLIC_GOOGLE_MAPS_KEY` and disable the Google Cloud APIs and keys. Cost stays $0.
-- Old links with `dest=poi:…` and saved places of kind `poi` no longer resolve. The app ignores them
-  instead of failing.
+- Old links with `dest=poi:…` no longer resolve; the app ignores them instead of failing. Saved or
+  shared places of kind `poi` become pins, keeping their name and position, so nothing a user saved
+  is lost.
 - Typing a restaurant name in search finds it only through the Photon fallback, if at all.
 - The MCP eval set shrinks from 66 questions; results before and after are not directly comparable.
 - Lodging (OpenStreetMap plus Overture) stays: it is where a trip starts.

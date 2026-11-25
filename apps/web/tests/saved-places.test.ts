@@ -121,13 +121,14 @@ describe("parseState", () => {
     expect(parseState(nanCoord)).toBeNull();
   });
 
-  it("drops a restaurant or konbini saved before ADR-0010 and keeps the rest", () => {
+  it("keeps a restaurant or konbini saved before ADR-0010 as a pin", () => {
     const good = toggleInList(emptyState(), hotel, "starred");
-    const old = {
-      ...good,
-      places: [...good.places, { ...good.places[0], id: "x", kind: "poi" }],
-    };
-    expect(parseState(JSON.parse(JSON.stringify(old)))).toEqual(good);
+    const cafe = { ...good.places[0], id: "x", name: "Cafe", kind: "poi" };
+    const old = { ...good, places: [...good.places, cafe] };
+
+    const parsed = parseState(JSON.parse(JSON.stringify(old)));
+
+    expect(parsed?.places).toEqual([...good.places, { ...cafe, kind: "pin" }]);
   });
 
   it("restores built-in lists a stored state is missing", () => {

@@ -269,8 +269,10 @@ function isList(v: unknown): v is SavedList {
 export function parseState(raw: unknown): SavedState | null {
   if (!isRecord(raw) || raw.version !== 1) return null;
   if (!Array.isArray(raw.lists) || !Array.isArray(raw.places)) return null;
-  // restaurants and konbini saved before ADR-0010 are dropped, not a reason to reject the rest
-  const places = raw.places.filter((p) => !(isRecord(p) && p.kind === "poi"));
+  // restaurants and konbini saved before ADR-0010 stay as pins, so the user's place survives
+  const places = raw.places.map((p) =>
+    isRecord(p) && p.kind === "poi" ? { ...p, kind: "pin" } : p,
+  );
   if (!raw.lists.every(isList) || !places.every(isPlace)) return null;
   const lists = raw.lists as SavedList[];
   const missing = BUILT_IN.filter((b) => !lists.some((l) => l.id === b.id));

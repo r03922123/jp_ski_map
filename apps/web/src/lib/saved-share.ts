@@ -100,8 +100,8 @@ export function decodeImport(code: string): DecodeResult {
     if (!Array.isArray(row) || row.length !== 5) {
       return { ok: false, error: "This link has a malformed place." };
     }
-    const [id, name, lat, lng, kind] = row as unknown[];
-    if (kind === "poi") continue; // a restaurant or konbini shared before ADR-0010
+    const [id, name, lat, lng, shared] = row as unknown[];
+    const kind = shared === "poi" ? "pin" : shared; // a restaurant or konbini shared before ADR-0010
     const coord = { lat, lng };
     if (
       !short(id, 120) ||

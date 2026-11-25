@@ -55,7 +55,7 @@ describe("share links", () => {
     expect(readImportHash("")).toBeNull();
   });
 
-  it("skips a restaurant or konbini shared before ADR-0010", () => {
+  it("keeps a restaurant or konbini shared before ADR-0010 as a pin", () => {
     const code = base64url(
       JSON.stringify({
         v: 1,
@@ -69,7 +69,15 @@ describe("share links", () => {
     );
     const decoded = decodeImport(code);
     if (!decoded.ok) throw new Error(decoded.error);
-    expect(decoded.list.places).toEqual([station]);
+    expect(decoded.list.places).toEqual([
+      {
+        id: "osm-node-1",
+        name: "Ramen",
+        coord: { lat: 36.7, lng: 137.85 },
+        kind: "pin",
+      },
+      station,
+    ]);
   });
 
   it("rejects garbage, bad coordinates and oversized lists", () => {
