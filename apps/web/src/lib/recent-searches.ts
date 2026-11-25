@@ -3,12 +3,16 @@ import type { Suggestion } from "@/lib/api";
 /** Per-viewer convenience only: the last few picks, in this browser. */
 export const RECENT_KEY = "hakuba:recent-searches";
 const MAX_RECENT = 5;
+// kinds a pick could have before ADR-0010 removed restaurants and konbini
+const RETIRED_KINDS = new Set(["food", "convenience"]);
 
 export function loadRecent(): Suggestion[] {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? (parsed as Suggestion[]) : [];
+    return Array.isArray(parsed)
+      ? (parsed as Suggestion[]).filter((s) => !RETIRED_KINDS.has(s?.kind))
+      : [];
   } catch {
     return [];
   }

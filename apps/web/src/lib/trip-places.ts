@@ -1,12 +1,6 @@
 import type { PanelMode } from "@/components/ModePanel";
 import type { TripStop } from "@/components/TripPanel";
-import type {
-  BusOption,
-  Coord,
-  NearbyPoi,
-  PoiCategory,
-  Resort,
-} from "@/lib/api";
+import type { BusOption, Coord, Resort } from "@/lib/api";
 import { alightIndexOf } from "@/lib/nav/bus-journey";
 import {
   type PlaceInput,
@@ -48,11 +42,8 @@ export function tripPlaces({
   stopsKey,
   selectedResortId,
   chosenResortId,
-  poiId,
-  poiCategory,
   resort,
   destination,
-  selectedPoi,
   busPlace,
   busChoice,
   showNight,
@@ -62,7 +53,7 @@ export function tripPlaces({
   savedOpen,
   savedState,
   resorts,
-  listsLoading,
+  resortsLoading,
 }: {
   mode: PanelMode;
   routeMode: Exclude<PanelMode, "bus">;
@@ -75,12 +66,9 @@ export function tripPlaces({
   selectedResortId: string | null;
   /** the resort chosen as such, not through a tapped bus: it narrows the Bus list */
   chosenResortId: string | null;
-  poiId: string | null;
-  poiCategory: PoiCategory | null;
   /** the selected resort, and the access point the walk goes to */
   resort: Resort | undefined;
   destination: Coord | undefined;
-  selectedPoi: NearbyPoi | null;
   busPlace: PlaceInput | null;
   busChoice: BusOption | null;
   showNight: boolean;
@@ -90,8 +78,8 @@ export function tripPlaces({
   savedOpen: boolean;
   savedState: SavedState;
   resorts: Resort[] | undefined;
-  /** requests still in flight for a linked destination */
-  listsLoading: { resorts: boolean; pois: boolean };
+  /** the resorts request is still in flight for a linked destination */
+  resortsLoading: boolean;
 }) {
   // Map-tapped and linked stops are pins: name them as the start is named (a saved
   // place's name, else "Dropped pin") when drawn, so renumbering never strands a "Stop 2".
@@ -125,9 +113,7 @@ export function tripPlaces({
       ? (busChoice?.resortId ?? null)
       : point
         ? pointResortId
-        : poiCategory
-          ? null
-          : selectedResortId;
+        : selectedResortId;
   const shownResortIds =
     tripSet && !placingStop ? (tripResortId ? [tripResortId] : []) : undefined;
   const fromPlace: PlaceInput | null = origin
@@ -163,37 +149,23 @@ export function tripPlaces({
       ? (busPlace ?? busResortPlace)
       : pointPlace
         ? pointPlace
-        : poiCategory
-          ? selectedPoi
-            ? {
-                id: selectedPoi.id,
-                name: selectedPoi.name,
-                coord: selectedPoi.coord,
-                kind: "poi",
-              }
-            : null
-          : resort && destination
-            ? {
-                id: resort.id,
-                name: resort.name.en,
-                coord: destination,
-                kind: "resort",
-              }
-            : null;
+        : resort && destination
+          ? {
+              id: resort.id,
+              name: resort.name.en,
+              coord: destination,
+              kind: "resort",
+            }
+          : null;
   // the To box in the trip card, once there is a start or a destination
   // two bars once there is a destination; until then one bar, with the place card under
   // it once there is a start (SPEC-web-app v1.13 rules 1, 2 and 4)
   const showToBox = toPlace !== null;
-  // a linked destination whose list is still on its way: no card meanwhile, or Directions
-  // would replace that destination with the start. Only a request in flight counts: Bus
-  // never asks for the food list, and a failed request leaves the card usable
+  // a linked destination whose resort list is still on its way: no card meanwhile, or
+  // Directions would replace that destination with the start. Only a request in flight
+  // counts: a failed request leaves the card usable
   const destinationLoading =
-    toPlace === null &&
-    ((selectedResortId !== null && listsLoading.resorts) ||
-      (mode !== "bus" &&
-        poiCategory !== null &&
-        poiId !== null &&
-        listsLoading.pois));
+    toPlace === null && selectedResortId !== null && resortsLoading;
   // a new destination collapses the sheet so its route shows (v1.9 rule 4, cluster F)
   // bus: the chosen option is the answer too (code review: choosing one from a swiped-up
   // sheet left it at 80 % over the walk leg and the board stop)
@@ -201,7 +173,7 @@ export function tripPlaces({
     mode === "bus" && busChoice
       ? `${busChoice.routeId}/${busChoice.trip}/${busChoice.boardStopId}`
       : "";
-  const destinationKey = `${selectedResortId}|${poiId}|${point ? `${point.coord.lat},${point.coord.lng}` : ""}|${busKey}`;
+  const destinationKey = `${selectedResortId}|${point ? `${point.coord.lat},${point.coord.lng}` : ""}|${busKey}`;
   // with both ends set, anything that changes the route on screen reveals it too: a new
   // start, mode or stop, or another route option, tapped from a swiped-up sheet
   const routeKey =

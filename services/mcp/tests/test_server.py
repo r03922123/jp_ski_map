@@ -220,44 +220,6 @@ def test_route_unknown_resort_id_lists_the_valid_ids() -> None:
 
 
 @respx.mock
-def test_nearby_pois_params_and_trimming() -> None:
-    route = respx.get(f"{API}/api/pois/nearby").respond(
-        json=[
-            {
-                "id": "osm:node/1",
-                "category": "convenience",
-                "name": "Lawson",
-                "nameJa": "ローソン",
-                "coord": {"lat": 36.70089, "lng": 137.84685},
-                "brand": "Lawson",
-                "cuisine": None,
-                "openingHours": "24/7",
-                "durationS": 1128,
-                "distanceM": 1594,
-            }
-        ]
-    )
-    out = s.nearby_pois(ORIGIN, "convenience", limit=1)
-    assert dict(route.calls.last.request.url.params) == {
-        "from": ORIGIN,
-        "category": "convenience",
-        "mode": "walk",
-        "limit": "1",
-    }
-    assert out == [
-        {
-            "id": "osm:node/1",
-            "name": "Lawson",
-            "nameJa": "ローソン",
-            "minutes": 18.8,
-            "distanceM": 1594,
-            "coord": "36.70089,137.84685",
-            "openingHours": "24/7",
-        }
-    ]
-
-
-@respx.mock
 def test_crowd_and_snow_joins_by_resort() -> None:
     crowd = respx.get(f"{API}/api/crowd").respond(json=[CROWD])
     respx.get(f"{API}/api/snow").respond(json=[SNOW])
@@ -309,14 +271,13 @@ def test_tool_error_survives_mcp_call_tool() -> None:
         asyncio.run(s.mcp.call_tool("rank_resorts", {"origin": "abc"}))
 
 
-def test_server_lists_six_read_only_tools_and_the_prompt() -> None:
+def test_server_lists_five_read_only_tools_and_the_prompt() -> None:
     tools = asyncio.run(s.mcp.list_tools())
     assert {t.name for t in tools} == {
         "search_place",
         "rank_resorts",
         "next_buses",
         "route",
-        "nearby_pois",
         "crowd_and_snow",
     }
     assert all(t.annotations and t.annotations.read_only_hint for t in tools)

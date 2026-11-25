@@ -245,35 +245,6 @@ def route(origin: str, destination: str) -> dict[str, Any]:
 
 
 @mcp.tool(annotations=READ_ONLY)
-def nearby_pois(
-    origin: str,
-    category: Literal["food", "convenience"],
-    limit: int = 5,
-) -> list[dict[str, Any]]:
-    """Restaurants (food) or convenience stores near a place, closest by travel time first.
-
-    origin: 'lat,lng' or a resort id. Returns a stable id, name, minutes away on foot, distanceM,
-    coord and opening hours when OpenStreetMap has them.
-    """
-    pois = _get(
-        "/api/pois/nearby",
-        {"from": _resolve(origin), "category": category, "mode": "walk", "limit": limit},
-    )
-    return [
-        {
-            "id": p["id"],
-            "name": p["name"],
-            "nameJa": p.get("nameJa"),
-            "minutes": _min(p.get("durationS")),
-            "distanceM": p.get("distanceM"),
-            "coord": _coord(p["coord"]),
-            "openingHours": p.get("openingHours"),
-        }
-        for p in pois
-    ]
-
-
-@mcp.tool(annotations=READ_ONLY)
 def crowd_and_snow(date: str | None = None) -> list[dict[str, Any]]:
     """Crowd estimate and snow for every resort. Use it to compare conditions before ranking.
 

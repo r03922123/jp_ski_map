@@ -14,7 +14,7 @@ export const MAX_PLACES = 500;
 const MAX_NOTE = 140;
 const MAX_NAME = 80;
 
-export type SavedKind = "lodging" | "stop" | "resort" | "poi" | "pin";
+export type SavedKind = "lodging" | "stop" | "resort" | "pin";
 export type ListIcon = "star" | "heart" | "flag" | "bookmark";
 
 export type SavedPlace = {
@@ -222,7 +222,7 @@ export function removePlace(state: SavedState, placeId: string): SavedState {
 
 // --- validation -----------------------------------------------------------
 
-const KINDS = new Set<SavedKind>(["lodging", "stop", "resort", "poi", "pin"]);
+const KINDS = new Set<SavedKind>(["lodging", "stop", "resort", "pin"]);
 const ICONS = new Set<ListIcon>(["star", "heart", "flag", "bookmark"]);
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -269,13 +269,17 @@ function isList(v: unknown): v is SavedList {
 export function parseState(raw: unknown): SavedState | null {
   if (!isRecord(raw) || raw.version !== 1) return null;
   if (!Array.isArray(raw.lists) || !Array.isArray(raw.places)) return null;
-  if (!raw.lists.every(isList) || !raw.places.every(isPlace)) return null;
+  // restaurants and konbini saved before ADR-0010 stay as pins, so the user's place survives
+  const places = raw.places.map((p) =>
+    isRecord(p) && p.kind === "poi" ? { ...p, kind: "pin" } : p,
+  );
+  if (!raw.lists.every(isList) || !places.every(isPlace)) return null;
   const lists = raw.lists as SavedList[];
   const missing = BUILT_IN.filter((b) => !lists.some((l) => l.id === b.id));
   return {
     version: 1,
     lists: [...missing.map((l) => ({ ...l })), ...lists],
-    places: raw.places as SavedPlace[],
+    places: places as SavedPlace[],
   };
 }
 
@@ -367,10 +371,7 @@ export function useSaved(): SavedState {
 // --- adapters -----------------------------------------------------------------
 
 /** Our place kinds from a search suggestion's kind. */
-export function kindFromSuggestion(
-  kind: "resort" | "stop" | "lodging" | "food" | "convenience" | "place",
-): SavedKind {
-  if (kind === "food" || kind === "convenience") return "poi";
+export function kindFromSuggestion(kind: Suggestion["kind"]): SavedKind {
   if (kind === "place") return "pin";
   return kind;
 }
@@ -402,7 +403,6 @@ const SUGGESTION_KIND: Record<SavedKind, Suggestion["kind"]> = {
   lodging: "lodging",
   stop: "stop",
   resort: "resort",
-  poi: "food",
   pin: "place",
 };
 const MAX_SAVED_SUGGESTIONS = 3;

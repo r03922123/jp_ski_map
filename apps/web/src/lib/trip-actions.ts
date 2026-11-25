@@ -1,5 +1,5 @@
 import type { PanelMode } from "@/components/ModePanel";
-import type { Coord, NearbyPoi, Resort, Suggestion } from "@/lib/api";
+import type { Coord, Resort, Suggestion } from "@/lib/api";
 import { stopMatchName } from "@/lib/nav/bus-place";
 import {
   kindFromSuggestion,
@@ -8,7 +8,6 @@ import {
   type SavedPlace,
   type SavedState,
 } from "@/lib/saved-places";
-import type { DestinationCategory } from "@/lib/url-state";
 import type { Trip, TripPoint } from "@/lib/use-trip";
 
 /** The Hakuba Valley Line, the paid day line (PAID_DAY_LINE in the API's bus query); the rest are free. */
@@ -67,8 +66,6 @@ export function tripActions(
     setSearchKey,
     setFocusedSearchKey,
     setChosenResortId,
-    setCategory,
-    setPoiId,
     setPoint,
     setStops,
     setBusChoice,
@@ -76,7 +73,7 @@ export function tripActions(
     fillStop,
   } = trip;
 
-  // Choosing a resort or nearby place replaces a saved place's "Go here".
+  // Choosing a resort replaces a saved place's "Go here".
   const selectResort = (id: string) => {
     // the To box and the Bus list follow the resort, so a bus to another one can't stay
     if (storedBusChoice?.resortId !== id) setBusChoice(null);
@@ -84,28 +81,23 @@ export function tripActions(
     setPoint(null);
   };
   // The To box (SPEC-web-app v1.8, BC-T1): a pick there changes only the destination. A
-  // resort selects it as the list does (the resorts tab, or a food tab would win); any
-  // other place is a free destination with its name.
+  // resort selects it as the list does; any other place is a free destination with its name.
   const chooseTo = (
     place: Pick<Suggestion, "id" | "name" | "coord" | "kind">,
   ) => {
     setBusChoice(null); // it was chosen for the old destination (v1.13 rule 5)
     if (place.kind === "resort" && resorts?.some((r) => r.id === place.id)) {
-      setCategory("resorts");
-      setPoiId(null);
       selectResort(place.id);
     } else {
-      // the place replaces whatever was chosen: no resort card or food row stays pressed,
-      // and the link holds only the point (the same gap in Go here is D5, cluster J)
+      // the place replaces whatever was chosen: no resort card stays pressed, and the
+      // link holds only the point (the same gap in Go here is D5, cluster J)
       setChosenResortId(null);
-      setPoiId(null);
       setPoint({ coord: place.coord, name: place.name });
     }
   };
   const clearTo = () => {
     setBusChoice(null);
     setChosenResortId(null);
-    setPoiId(null);
     setPoint(null);
   };
   // the tapped bus goes, but the resort it set stays the destination
@@ -188,14 +180,12 @@ export function tripActions(
       setSearchLabel(toPlace.name);
       // remounted: a label equal to the last one the app set wouldn't replace a typed start
       setSearchKey((k) => k + 1);
-      setPoiId(null);
       setBusChoice(null); // its stop was picked for the old start
       // a resort goes back to being selected, so a second tap restores the trip
       if (
         fromPlace.kind === "resort" &&
         resorts?.some((r) => r.id === fromPlace.id)
       ) {
-        setCategory("resorts");
         setChosenResortId(fromPlace.id);
         setPoint(null);
       } else {
@@ -208,14 +198,6 @@ export function tripActions(
       setMode(m);
       // the destination may have changed on the other tab, and the bus with it
       if (m === "bus" && point) setBusChoice(null);
-    },
-    pickCategory: (c: DestinationCategory) => {
-      setCategory(c);
-      setPoint(null);
-    },
-    selectPoi: (p: NearbyPoi) => {
-      setPoiId(p.id);
-      setPoint(null);
     },
     addStop: () => {
       setSavedOpen(false); // the stop box lives in the trip list, which Saved replaces

@@ -18,7 +18,7 @@ import { expect, type Page, type Route, test } from "@playwright/test";
  * loaded Mac): /api/routes, /api/rank, /api/resorts, /api/bus/options and
  * /api/places/suggest on the laptop; routes and bus on the phone. The badJson kind
  * (unparsable body) behaves like captive (HTML body): both are a parse error. Not covered
- * here: /api/route/path, /api/pois/nearby, /api/bus/night, /api/places/lodging.
+ * here: /api/route/path, /api/bus/night, /api/places/lodging.
  */
 
 const FROM = "36.6985,137.8376";

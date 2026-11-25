@@ -72,7 +72,7 @@ def test_only_japanese_names_get_readings() -> None:
 
 def test_a_generated_reading_finds_a_kanji_name() -> None:
     readings = {"lodging:yuki": ("yuki no so", "yukinoso", "ユキノソウ")}
-    index = build_index([], [], [YUKINOSO], [], readings=readings)
+    index = build_index([], [], [YUKINOSO], readings=readings)
     for q in ("yukinoso", "yuki no so", "ゆきのそう", "ユキノソウ"):
         assert _names(rank(index, q, HAPPO, 3)) == ["雪の荘"], q
 
@@ -80,7 +80,7 @@ def test_a_generated_reading_finds_a_kanji_name() -> None:
 def test_a_reading_never_ties_a_spelled_name() -> None:
     # ホテル サニーバレー reads "sani bare": "bar" still means the bar
     index = [
-        Entry("poi:bar", "food", "Endless Bar & Restaurant", None, [], HAPPO, "Restaurant"),
+        Entry("lodging:bar", "lodging", "Endless Bar & Restaurant", None, [], HAPPO, "Hotel"),
         Entry(
             "lodging:sunny",
             "lodging",
@@ -109,7 +109,7 @@ def test_only_reviewed_aliases_reach_the_index() -> None:
         ]
     )
     assert reviewed_aliases(f) == {"lodging:yuki": ("Hakuba Hospitality Inn Yukinoso",)}
-    index = build_index([], [], [YUKINOSO], [], aliases=reviewed_aliases(f))
+    index = build_index([], [], [YUKINOSO], aliases=reviewed_aliases(f))
     assert _names(rank(index, "Hakuba Hospitality Inn Yukinoso", HAPPO, 3)) == ["雪の荘"]
     assert rank(index, "Snowfield Chalet", HAPPO, 3) == []  # unreviewed: not a name yet
 

@@ -30,7 +30,7 @@ const ramen: PlaceInput = {
   id: "osm-node-2",
   name: "Ramen Shop",
   coord: { lat: 36.7, lng: 137.85 },
-  kind: "poi",
+  kind: "pin",
 };
 
 describe("saved lists (pure)", () => {
@@ -119,6 +119,16 @@ describe("parseState", () => {
       places: [{ ...good.places[0], coord: { lat: "36", lng: 137 } }],
     };
     expect(parseState(nanCoord)).toBeNull();
+  });
+
+  it("keeps a restaurant or konbini saved before ADR-0010 as a pin", () => {
+    const good = toggleInList(emptyState(), hotel, "starred");
+    const cafe = { ...good.places[0], id: "x", name: "Cafe", kind: "poi" };
+    const old = { ...good, places: [...good.places, cafe] };
+
+    const parsed = parseState(JSON.parse(JSON.stringify(old)));
+
+    expect(parsed?.places).toEqual([...good.places, { ...cafe, kind: "pin" }]);
   });
 
   it("restores built-in lists a stored state is missing", () => {

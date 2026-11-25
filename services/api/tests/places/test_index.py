@@ -36,7 +36,7 @@ ENTRIES = [
         ja="白馬八方バスターミナル",
         aliases=["Happo Bus Terminal"],
     ),
-    entry("7-Eleven Hakuba Happo", "convenience", ja="セブン-イレブン 白馬八方店"),
+    entry("7-Eleven Hakuba Happo", "place", ja="セブン-イレブン 白馬八方店"),
     entry("Hakuba Cortina Snow Resort", "resort", CORTINA, ja="白馬コルチナスキー場"),
     entry("Hakuba Happo-One Snow Resort", "resort", ja="白馬八方尾根スキー場"),
     entry("Tsugaike Mountain Resort", "resort", Coord(lat=36.79, lng=137.86)),
@@ -74,7 +74,7 @@ def test_a_kana_lodging_word_matches_the_same_word_in_any_script() -> None:
 
 
 def test_a_lodging_word_joined_by_an_ampersand_still_counts() -> None:
-    heyza = [entry("HEYZA food&guesthouse", "food")]
+    heyza = [entry("HEYZA food&guesthouse", "lodging")]
     assert names(rank(heyza, "HEYZA guesthouse", HAPPO, 5)) == ["HEYZA food&guesthouse"]
 
 
@@ -85,7 +85,7 @@ def test_a_stop_named_only_for_the_hotel_stays() -> None:
 
 
 def test_only_a_bus_stop_can_be_named_for_a_hotel() -> None:
-    places = [entry("Zen", "food"), entry("Tsugaike Mountain Resort", "resort")]
+    places = [entry("Zen", "place"), entry("Tsugaike Mountain Resort", "resort")]
     assert names(rank(places, "Zen Hotel", HAPPO, 5)) == []
     assert names(rank(places, "Tsugaike Mountain Hotel", HAPPO, 5)) == []
 
@@ -135,12 +135,11 @@ def test_build_index_covers_every_source() -> None:
     from hakuba_api.bus.store import load_stops
     from hakuba_api.catalog.store import load_resorts
     from hakuba_api.places.lodging import load_lodging
-    from hakuba_api.pois.store import load_pois
 
-    index = build_index(load_stops(), load_resorts(), load_lodging(), load_pois())
+    index = build_index(load_stops(), load_resorts(), load_lodging())
 
     kinds = {e.kind for e in index}
-    assert kinds >= {"stop", "resort", "lodging", "food", "convenience"}
+    assert kinds >= {"stop", "resort", "lodging"}
     assert len(index) > 300
     assert names(rank(index, "happo bus terminal", HAPPO, limit=1)) == ["Hakuba Happo Bus Terminal"]
     assert "Bus stop" in rank(index, "happo bus terminal", HAPPO, limit=1)[0].detail
@@ -197,7 +196,7 @@ def test_an_area_name_alone_is_not_a_shared_word() -> None:
 
 
 def test_english_finds_a_katakana_only_hotel_over_a_namesake() -> None:
-    entries = build_index([], [], [], []) + [
+    entries = build_index([], [], []) + [
         Entry("lodging:inn", "lodging", "Hakuba Grace Inn", None, [], CORTINA, "Inn"),
         Entry(
             "lodging:grace",
@@ -225,7 +224,7 @@ def test_readings_come_from_japanese_names() -> None:
         address=None,
         source="overture-snapshot",
     )
-    entries = build_index([], [], [granjam], [])
+    entries = build_index([], [], [granjam])
     assert names(rank(entries, "Hotel Granjam Tsugaike", HAPPO, 5)) == ["グランジャム栂池"]
 
 

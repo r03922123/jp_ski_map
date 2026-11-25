@@ -57,7 +57,7 @@ ROLES: dict[str, dict] = {
     "fullstack": {
         "pattern": r"^(apps/web/src/(lib|app)/|apps/web/tests/"
         r"|apps/web/(package\.json|next\.config\.ts|tsconfig\.json)|services/api/(src/hakuba_api/(?!ranking|crowd)|tests/|pyproject\.toml|uv\.lock)"
-        r"|SPEC-(snow-conditions|resort-catalog|poi-destinations)\.md)",
+        r"|SPEC-(snow-conditions|resort-catalog)\.md)",
         "specs": [
             "SPEC-web-app.md",
             "SPEC-saved-places.md",
@@ -65,7 +65,6 @@ ROLES: dict[str, dict] = {
             "SPEC-progression.md",
             "SPEC-snow-conditions.md",
             "SPEC-resort-catalog.md",
-            "SPEC-poi-destinations.md",
         ],
     },
     "ux": {

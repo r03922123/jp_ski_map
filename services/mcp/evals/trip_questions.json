@@ -31,21 +31,6 @@
     ]
   },
   {
-    "id": "konbini-near-station",
-    "lang": "ja",
-    "question": "白馬駅の近くにコンビニはありますか？歩いて何分ですか？",
-    "required": ["search_place", "nearby_pois"],
-    "optional": [],
-    "answer_regex": "(?i)(ローソン|セブン|ファミリーマート|ファミマ|lawson|7-eleven|seven|familymart)",
-    "check": "names a convenience store chain",
-    "regex_why": "A chain name is required, so 'there is a convenience store nearby' without naming it fails; it does not check the walking time.",
-    "positive": "いちばん近いのはローソンで、歩いて約20分です。",
-    "negatives": [
-      "駅の近くにコンビニがあります。歩いて約20分です。",
-      "コンビニは見つかりませんでした。"
-    ]
-  },
-  {
     "id": "plan-day-by-bus",
     "lang": "en",
     "question": "Plan my ski day on 2026-12-26 starting from JR Hakuba Station: pick a resort with good snow that isn't too crowded, and tell me which shuttle bus to take around 8am.",
@@ -75,21 +60,6 @@
     "negatives": [
       "The resorts near 36.6983,137.8619 have up to 1,071 m of vertical.",
       "I can't rank them by vertical."
-    ]
-  },
-  {
-    "id": "food-near-iwatake",
-    "lang": "en",
-    "question": "Is there somewhere to eat within walking distance of the Hakuba Iwatake base?",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "crowd_and_snow"],
-    "answer_regex": "(?i)\\d+\\s*[-‐‑–]?\\s*(min|分)",
-    "check": "gives a walking time",
-    "regex_why": "A walking time is required, so naming a restaurant without minutes fails; the place and the minutes are not pinned (kept for comparison).",
-    "positive": "Holiday is about 1 min walk from the Iwatake base.",
-    "negatives": [
-      "Yes, Holiday and Hakuba Brew Pub are close to the base.",
-      "Hakuba Brew Pub is 322 m away."
     ]
   },
   {
@@ -578,168 +548,6 @@
     ]
   },
   {
-    "id": "poi-food-happo",
-    "lang": "en",
-    "question": "What's the closest place to eat from the Happo-One base, and how many minutes' walk is it?",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)^(?=(?:(?!uncle\\s*steven|アンクル|maeda|まえだ|roots|ルーツ|aduka).)*?unjaune)(?=.*(?:(?<![\\d.０-９])(?:[0-3０-３])(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)|(?<![\\d.０-９])88\\s*m(?!i)))",
-    "check": "names Unjaune, ~1 min walk",
-    "regex_why": "Pins the nearest POI Unjaune (1 min, 88 m), so the second one, Uncle Steven's, or a nameless 'several cafes nearby' fails. Unjaune must come before Uncle Steven's, Maeda, Roots or Aduka, so an answer leading with Uncle Steven's fails.",
-    "positive": "The closest is Unjaune, about a 1-minute walk (88 m) from the Happo-One base.",
-    "negatives": [
-      "Uncle Steven's is about a 3-minute walk.",
-      "There are several cafes within 5 minutes.",
-      "Unjaune, about 10 minutes away.",
-      "The closest is Uncle Steven's, about 3 min walk; Unjaune is a bit further."
-    ]
-  },
-  {
-    "id": "poi-konbini-goryu",
-    "lang": "zh",
-    "question": "白馬五龍滑雪場附近有便利商店嗎？走路要多久？",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)^(?=(?:(?!lawson|ローソン|罗森|羅森|family\\s*mart|ファミリーマート|全家|yamazaki|ヤマザキ|y\\s*shop).)*?(?:7\\s*[-‐－]?\\s*(?:eleven|11)|セブン|seven|小七))(?=.*(?:(?<![\\d.０-９])(?:22|23|24|25|２２|２３|２４|２５)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names 7-Eleven, ~24 min walk",
-    "regex_why": "Pins the nearest store, a 7-Eleven 23.8 min (2 km) away, so 'a Lawson right next to the base' or a nameless 'about 5 minutes' fails. 7-Eleven must be named before Lawson and the window is 22-25 min, so Lawson's 26.8 min fails.",
-    "positive": "最近的是 7-Eleven（セブン-イレブン），步行约 24 分钟（约 2 公里）。",
-    "negatives": [
-      "附近有一家 Lawson，走路 5 分钟。",
-      "有便利商店，走路大概 10 分鐘。",
-      "最近的是 Lawson，步行约 27 分钟。",
-      "最近的是 Lawson，步行约 26.8 分钟；7-Eleven 也在附近。"
-    ]
-  },
-  {
-    "id": "poi-food-tsugaike",
-    "lang": "ja",
-    "question": "栂池高原スキー場のベースの近くで食事ができるお店はありますか？歩いて何分ですか？",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)(?=.*(?:tsuga\\s*base|ツガベース))(?=.*(?:(?<![\\d.０-９])(?:[0-3０-３])(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names Tsuga Base, ~1 min walk",
-    "regex_why": "Pins the nearest POI Tsuga Base at 1 min, so the Burger King 20 min away or a nameless 'restaurants nearby' fails.",
-    "positive": "ベースから徒歩約1分（84m）の「ツガベース（Tsuga Base）」があります。",
-    "negatives": [
-      "Burger Kingが徒歩約20分のところにあります。",
-      "近くにいくつかレストランがあります。",
-      "栂池パークが徒歩約6分です。"
-    ]
-  },
-  {
-    "id": "poi-konbini-hakuba47",
-    "lang": "en",
-    "question": "Is there a convenience store I can walk to from Hakuba47? How long is the walk?",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)(?=.*(?:lawson|ローソン|罗森|羅森))(?=.*(?:(?<![\\d.０-９])(?:31|32|33|34|35|３１|３２|３３|３４|３５)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names Lawson, ~33 min walk",
-    "regex_why": "Pins the nearest store, a Lawson 33 min (2.8 km) away, so 'a store at the base, 5 minutes' or a nameless distance fails.",
-    "positive": "The nearest is a Lawson about a 33-minute walk (2.8 km) away, so it's a long walk.",
-    "negatives": [
-      "There's a 7-Eleven about a 5-minute walk away.",
-      "Yes, a Lawson about 10 minutes away.",
-      "The nearest store is 2.8 km away."
-    ]
-  },
-  {
-    "id": "poi-konbini-cortina-far",
-    "lang": "zh",
-    "question": "白馬Cortina滑雪場附近有便利商店嗎？走路要多久？",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)(?=.*(?:yamazaki|ヤマザキ|山崎))(?=.*(?:(?<![\\d.０-９])(?:62|63|64|65|66|６２|６３|６４|６５|６６)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)|(?<![\\d.０-９])1\\s*(?:h|hours?|hrs?|小時|小时|時間|个小时|個小時)\\s*(?:and\\s*)?(?:2|3|4|5|6|２|３|４|５|６)(?![\\d０-９])\\s*(?:m|min|分)|(?<![\\d.０-９])5[.．]4\\s*(?:km|公里)))",
-    "check": "names Yamazaki Shop, ~64 min walk",
-    "regex_why": "Pins the nearest store, Yamazaki Shop 64 min (5.4 km) away, so a Lawson 'nearby' or 'no store at all' fails.",
-    "positive": "最近的便利店是 Yamazaki Shop（ヤマザキショップ），步行约 64 分钟（5.4 公里），走路太远，建议开车。",
-    "negatives": [
-      "附近有一家 Lawson，走路约 10 分钟。",
-      "附近没有便利商店。",
-      "Yamazaki Shop 走路约 10 分钟。"
-    ]
-  },
-  {
-    "id": "poi-food-norikura",
-    "lang": "ja",
-    "question": "白馬乗鞍温泉スキー場の近くで歩いて行ける食事処はどこですか？何分かかりますか？",
-    "required": ["nearby_pois"],
-    "optional": ["search_place", "rank_resorts", "route"],
-    "answer_regex": "(?is)(?=.*(?:snow\\s*drop|スノードロップ))(?=.*(?:(?<![\\d.０-９])(?:[1-4１-４])(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names Restaurant SNOW DROP, ~2 min walk",
-    "regex_why": "Pins the nearest POI Restaurant SNOW DROP at 2 min, so Endless Bar & Restaurant (11 min) or a nameless 'restaurants nearby' fails.",
-    "positive": "一番近いのは「レストランSNOW DROP」で、徒歩約2分（175m）です。",
-    "negatives": [
-      "Endless Bar & Restaurantが徒歩約11分です。",
-      "近くに食事処がいくつかあります。",
-      "レストランSNOW DROPまで徒歩約10分です。"
-    ]
-  },
-  {
-    "id": "poi-konbini-tokyu-hotel",
-    "lang": "zh",
-    "question": "白馬東急酒店附近最近的便利商店是哪一家？走路幾分鐘？",
-    "required": ["search_place", "nearby_pois"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:lawson|ローソン|罗森|羅森))(?=.*(?:(?<![\\d.０-９])(?:10|11|12|13|１０|１１|１２|１３)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names Lawson, ~11 min walk",
-    "regex_why": "Pins the nearest store, a Lawson 11.4 min (968 m) away, so the 7-Eleven 36 min away or a nameless 'about 5 minutes' fails.",
-    "positive": "最近的是 Lawson（ローソン），步行约 11 分钟（968 米），24 小时营业。",
-    "negatives": [
-      "最近的是 7-Eleven，步行约 36 分钟。",
-      "附近有便利商店，走路 5 分鐘。",
-      "Taro Club，步行约 25 分钟。"
-    ]
-  },
-  {
-    "id": "poi-food-echoland",
-    "lang": "ja",
-    "question": "エコーランドで夕食を食べられるお店を教えてください。歩いて何分ですか？",
-    "required": ["search_place", "nearby_pois"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:hige|tomatito|tako\\s*taco|sarugaku|penguin\\s*cafe))(?=.*(?:(?<![\\d.０-９])(?:[0-3０-３])(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names an Echoland restaurant within 3 min",
-    "regex_why": "Pins one of the five Echoland POIs (Hige, Tomatito, TakoTaco, SARUGAKU, Penguin Cafe, all under 3 min) so a guessed 'Uncle Steven's' or a nameless answer fails.",
-    "positive": "エコーランドには「Hige」（徒歩約2分）、「Tomatito」（約2分）、「TakoTaco」などがあります。",
-    "negatives": [
-      "Uncle Steven'sが徒歩約3分です。",
-      "近くにレストランがたくさんあります。",
-      "白馬飯店まで徒歩約7分です。"
-    ]
-  },
-  {
-    "id": "poi-konbini-kamishiro-station",
-    "lang": "zh",
-    "question": "我在JR神城站下車，附近有走路能到的便利商店嗎？要走幾分鐘？",
-    "required": ["search_place", "nearby_pois"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:7\\s*[-‐－]?\\s*(?:eleven|11)|セブン|seven|小七))(?=.*(?:(?<![\\d.０-９])(?:10|11|12|13|１０|１１|１２|１３)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names 7-Eleven, ~11 min walk",
-    "regex_why": "Pins the nearest store, a 7-Eleven 11.3 min (962 m) away, so the Lawson 31 min away or a nameless 'about 5 minutes' fails.",
-    "positive": "有，最近的是 7-Eleven，步行约 11 分钟（962 米）。",
-    "negatives": [
-      "最近的是 Lawson，步行约 31 分钟。",
-      "车站旁边就有便利商店，走路 2 分钟。",
-      "有一家便利商店，大约 1 公里。"
-    ]
-  },
-  {
-    "id": "poi-food-hotel-hakuba",
-    "lang": "ja",
-    "question": "ホテル白馬の近くで歩いて行ける食事処はありますか？一番近い店と徒歩の分数を教えてください。",
-    "required": ["search_place", "nearby_pois"],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:hakuba\\s*hanten|白馬飯店|白马饭店))(?=.*(?:(?<![\\d.０-９])(?:5|6|7|8|9|５|６|７|８|９)(?:[.．]\\d+)?\\s*(?:[-‐‑–]|~|〜)?\\s*(?:min|分)))",
-    "check": "names Hakuba Hanten, ~7 min walk",
-    "regex_why": "Pins the nearest POI Hakuba Hanten at 6.8-7.1 min, so a different place like 割烹さわど (10 min) or a nameless answer fails.",
-    "positive": "一番近いのは「白馬飯店（Hakuba Hanten）」で、徒歩約7分（約600m）です。",
-    "negatives": [
-      "割烹さわどが徒歩約10分です。",
-      "近くにいくつか食事処があります。",
-      "白馬飯店まで徒歩約15分です。"
-    ]
-  },
-  {
     "id": "crowd-happo-jan-weekday",
     "lang": "en",
     "question": "How busy will Happo-One be on Wednesday 2027-01-13?",
@@ -995,7 +803,7 @@
     "lang": "zh",
     "question": "在八方尾根租一套雪板加雪鞋一天要多少錢？",
     "required": [],
-    "optional": ["rank_resorts", "nearby_pois", "search_place"],
+    "optional": ["rank_resorts", "search_place"],
     "answer_regex": "(?is)^(?=.*(?:沒有|没有|無法|无法|查不到|找不到|不在|不包[含括]|不支[援持]|不提供|不涵蓋|不涵盖|僅涵蓋|仅涵盖|只涵蓋|只涵盖|不能))(?!.*(?:租|雪板|雪具|裝備|装备)[^\\n]{0,30}(?:[¥￥]\\s*\\d|\\d[\\d,]*\\s*(?:日圓|日元|円|yen|JPY)))",
     "check": "says it has no rental prices, without inventing one",
     "regex_why": "Requires a 'no data' statement and rules out an invented rental price like '雪板加雪鞋一天 ¥6,000'; a lift ticket price elsewhere in the answer is allowed.",
@@ -1063,7 +871,7 @@
     "question": "I'm at Hotel Hakuba on 2027-01-20 and want to leave around 9am. Which resort will be the least crowded that day, and which shuttle bus (stop and departure time) gets me there?",
     "required": ["search_place", "next_buses"],
     "any_of": [["rank_resorts", "crowd_and_snow"]],
-    "optional": ["route", "nearby_pois"],
+    "optional": ["route"],
     "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d０-９])[1１][0０]\\s*[:：時点點]\\s*[5５][0０]))(?=.*(?:happo bus terminal|八方バスターミナル|八方巴士|bus terminal|バスターミナル))",
     "check": "picks Jigatake and the 10:50 bus from Hakuba Happo Bus Terminal",
     "regex_why": "Crowd is calendar-based so Jigatake is pinned, and the 10:50 Happo Bus Terminal departure is required, which rules out Sanosaka's 08:00 bus from Hotel Hakuba and the untimed 17:30 Jigatake bus. The question says around 9am, so the earlier 07:25 Jigatake bus fails too.",
@@ -1073,23 +881,6 @@
       "Jigatake is the quietest; take the 17:30 bus from Hakuba Happo Bus Terminal.",
       "Jigatake will be the least crowded, but I couldn't find a bus time.",
       "Jigatake is the quietest. Walk to Hakuba Happo Bus Terminal and take the 07:25 Happo-Jigatake bus, arriving 08:33."
-    ]
-  },
-  {
-    "id": "plan-quieter-of-two-bus-lunch-ja",
-    "lang": "ja",
-    "question": "2027-03-06（土）、JR白馬駅から八方尾根と栂池のうち空いているほうへバスで行きたいです。8時以降のシャトルバスと、ベース近くでランチできる店を教えてください。",
-    "required": ["search_place", "next_buses", "nearby_pois"],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:(?<![\\d０-９])[0０]?[8８]\\s*[:：時点點]\\s*[4４][6６]))(?=.*(?:tsuga ?base|ツガベース|栂池パーク))",
-    "check": "Tsugaike (medium vs Happo high); 08:46 bus; Tsuga Base for lunch",
-    "regex_why": "Requires the 08:46 Tsugaike bus and a Tsugaike base restaurant, so picking Happo (08:13 bus, Unjaune) or the bus without lunch fails.",
-    "positive": "空いているのは栂池（混雑は中程度、八方尾根は高）です。JR白馬駅08:46発のバスで09:10着（時刻表の推定）。ランチはベースから徒歩1分のツガベースがあります。",
-    "negatives": [
-      "空いているのは八方尾根です。JR白馬駅08:13発、08:23着。ランチはUnjauneです。",
-      "栂池が空いています。JR白馬駅08:46発、09:10着です。",
-      "栂池が空いています。09:46発のバスで、ランチはツガベース。"
     ]
   }
 ]

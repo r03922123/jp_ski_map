@@ -1,6 +1,6 @@
 # Spec: agent-tools
 
-> Module of [SPEC.md](SPEC.md). Depends on: the HTTP API (place-search, resort-ranking, bus-schedules, routing, poi-destinations, crowd-level, snow-conditions). Consumed by: any MCP client (Claude Code, Claude Desktop). Code: [services/mcp/](services/mcp/README.md).
+> Module of [SPEC.md](SPEC.md). Depends on: the HTTP API (place-search, resort-ranking, bus-schedules, routing, crowd-level, snow-conditions). Consumed by: any MCP client (Claude Code, Claude Desktop). Code: [services/mcp/](services/mcp/README.md).
 
 ## Objective
 Let an LLM agent plan a Hakuba ski day by calling the existing API as tools. An MCP server (`hakuba-mcp`, the official `mcp` Python SDK, `MCPServer`, formerly FastMCP) wraps read-only GETs, trims each response to what a planner needs, and ships an eval that measures whether the agent picks the right tools.
@@ -14,7 +14,6 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 | `rank_resorts` | `GET /api/rank` | `origin`, `sort` (walk_time, fresh_snow, snow_depth, crowd, runs, area, run_length, vertical, price), `date?`, `night_skiing?`, `hakuba_valley_pass?`, `max_walk_min?`, `top=5` | `rank, resortId, name, sortValue, walkMin, summitDepthCm, newSnow24hCm, snowAsOf, crowdLevel` |
 | `next_buses` | `GET /api/bus/options` | `origin`, `at?` (ISO, JST), `origin_name?`, `per_resort=2` | `status, nextServiceDate, basis, newerTimetablePending`, per resort `boardStop, walkMin, departs, departsFrom, arrives, rideMin, route, timed` (untimed: `departsFrom` may be an earlier stop; `arrives`, `rideMin` null) |
 | `route` | `GET /api/route` (+ `/api/resorts` to resolve an id) | `origin`, `destination` (`lat,lng` or a resort id); walking only (2026-11-25) | `mode, durationMin, distanceKm, summary` |
-| `nearby_pois` | `GET /api/pois/nearby` | `origin` (`lat,lng` or resort id), `category` (food, convenience), `limit=5` (walking only) | `name, nameJa, minutes, distanceM, coord, openingHours` |
 | `crowd_and_snow` | `GET /api/crowd` + `GET /api/snow` | `date?` | per resort `crowdLevel, crowdScore, crowdReasons, summitDepthCm, baseDepthCm, newSnowPast24hCm, newSnowNext24hCm, newSnowNext72hCm, snowAsOf` |
 
 - Prompt `plan_ski_day(start, date)`: origin → snow/crowd → rank → bus or walk → answer with times, and say bus times are timetable estimates.
@@ -55,7 +54,7 @@ Results are as scored at the time; labels changed between runs, so read the rows
 
 **The set.**
 - 100 questions in all: the 12 existing ones unchanged (their ids stay, so the old runs remain comparable question by question) plus 88 new ones. About a third each in en, zh, ja.
-- Coverage, counting the main tool a question needs: `rank_resorts` ~20 (all 7 sorts, and each filter: `date`, `night_skiing`, `hakuba_valley_pass`, `max_drive_min`), `next_buses` ~18 (timed, untimed, no service that day, a stop that is not a station), `route` ~14 (drive and walk, resort ids and places), `nearby_pois` ~12 (food and convenience, from a resort and from a place), `crowd_and_snow` ~12 (fixed dates across the season), whole-day plans with 3+ tools ~14, and ~10 the tools cannot answer (a resort outside Hakuba, lift ticket refunds, a past date's snow): `required: []`, and the regex checks the answer says it has no data instead of inventing it.
+- Coverage, counting the main tool a question needs: `rank_resorts` ~20 (all 7 sorts, and each filter: `date`, `night_skiing`, `hakuba_valley_pass`, `max_drive_min`), `next_buses` ~18 (timed, untimed, no service that day, a stop that is not a station), `route` ~14 (drive and walk, resort ids and places), ~~`nearby_pois` ~12 (food and convenience, from a resort and from a place)~~ (the tool and its 13 questions went on 2026-11-25, ADR-0010: 53 questions remain), `crowd_and_snow` ~12 (fixed dates across the season), whole-day plans with 3+ tools ~14, and ~10 the tools cannot answer (a resort outside Hakuba, lift ticket refunds, a past date's snow): `required: []`, and the regex checks the answer says it has no data instead of inventing it.
 - Some questions are meant to be hard: the set is useful only if today's tools fail some of them.
 - Every question uses fixed dates in the 2026-27 season, never "today", so its answer does not move with the run date.
 

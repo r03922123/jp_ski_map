@@ -73,7 +73,7 @@ export function readImportHash(hash: string): string | null {
   return hash.startsWith(PREFIX) ? hash.slice(PREFIX.length) || null : null;
 }
 
-const KINDS = new Set(["lodging", "stop", "resort", "poi", "pin"]);
+const KINDS = new Set(["lodging", "stop", "resort", "pin"]);
 const ICONS = new Set(["star", "heart", "flag", "bookmark"]);
 const short = (v: unknown, max: number): v is string =>
   typeof v === "string" && v.length > 0 && v.length <= max;
@@ -100,7 +100,8 @@ export function decodeImport(code: string): DecodeResult {
     if (!Array.isArray(row) || row.length !== 5) {
       return { ok: false, error: "This link has a malformed place." };
     }
-    const [id, name, lat, lng, kind] = row as unknown[];
+    const [id, name, lat, lng, shared] = row as unknown[];
+    const kind = shared === "poi" ? "pin" : shared; // a restaurant or konbini shared before ADR-0010
     const coord = { lat, lng };
     if (
       !short(id, 120) ||

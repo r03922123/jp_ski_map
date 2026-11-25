@@ -254,7 +254,7 @@ def test_request_shape_is_cached_and_capped() -> None:
     assert req["output_config"] == {"effort": "low"}
     assert req["system"][0]["cache_control"] == {"type": "ephemeral"}
     assert req["tools"][-1]["cache_control"] == {"type": "ephemeral"}
-    assert len(req["tools"]) == 6
+    assert len(req["tools"]) == 5
     # the user's start stays in the user turn; local time follows as a system message
     assert req["messages"][0] == {"role": "user", "content": "hi\n\n(My start: Hakuba Tokyu Hotel)"}
     assert req["messages"][1]["role"] == "system"

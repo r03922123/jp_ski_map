@@ -147,7 +147,7 @@ on the Mac keeps serving until cutover.
      `infra/valhalla/hakuba-tiles.sha256`, which this work commits (it doesn't exist yet). A missing file or wrong hash stops the deploy.
    - Copy the runtime data next to the API and fail if any is missing: `resorts.json`,
      `bus_stops.json`, `bus/timetables/**`, `bus/sources.json`, `lodging_osm.json`,
-     `lodging_overture.json`, `poi_osm.json`, `crowd_periods.json`. `data/bus/raw` and
+     `lodging_overture.json`, `crowd_periods.json` (`poi_osm.json` until ADR-0010). `data/bus/raw` and
      `stop_evidence.json` aren't needed at runtime and stay out.
    - Bind the temp folder to the linked project, by copying `.vercel/project.json` or setting
      `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. A `git archive` holds no link, and an unlinked folder is

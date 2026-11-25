@@ -1,7 +1,7 @@
 """In-memory place index for search-as-you-type. Pure matching; loaders are injected.
 
-Sources: bus stops, resorts (+ base areas), the lodging snapshot and the POI snapshot —
-about 350 names we already hold, so suggestions never wait on the network.
+Sources: bus stops, resorts (+ base areas) and the lodging snapshot —
+about 1,000 names we already hold, so suggestions never wait on the network.
 See SPEC-place-search.md v1.2.
 """
 
@@ -17,9 +17,8 @@ from hakuba_api.catalog.models import Resort
 from hakuba_api.common.geo import Coord
 from hakuba_api.places.kana import sound_key, to_romaji
 from hakuba_api.places.models import Place
-from hakuba_api.pois.models import Poi
 
-Kind = Literal["resort", "stop", "lodging", "food", "convenience", "place"]
+Kind = Literal["resort", "stop", "lodging", "place"]
 KIND_ORDER: dict[str, int] = {k: i for i, k in enumerate(Kind.__args__)}  # type: ignore[attr-defined]
 
 MIN_FUZZY_LEN = 4
@@ -285,7 +284,6 @@ def build_index(
     stops: list[BusStop],
     resorts: list[Resort],
     lodging: list[Place],
-    pois: list[Poi],
     readings: Mapping[str, Sequence[str]] | None = None,
     aliases: Mapping[str, Sequence[str]] | None = None,
 ) -> list[Entry]:
@@ -329,20 +327,6 @@ def build_index(
                 p.coord,
                 p.kind.replace("_", " ").title(),
                 readings=tuple(dict.fromkeys(r for r in found if r)),
-            )
-        )
-    for poi in pois:
-        label = "Konbini" if poi.category == "convenience" else "Restaurant"
-        extra = poi.brand if poi.category == "convenience" else poi.cuisine
-        entries.append(
-            Entry(
-                poi.id,
-                poi.category,
-                poi.name,
-                poi.name_ja,
-                [poi.brand] if poi.brand else [],
-                poi.coord,
-                f"{label} · {extra}" if extra else label,
             )
         )
     return entries

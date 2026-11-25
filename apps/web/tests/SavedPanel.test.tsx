@@ -20,7 +20,7 @@ const ramen: PlaceInput = {
   id: "osm-node-2",
   name: "Ramen Shop",
   coord: { lat: 36.7, lng: 137.85 },
-  kind: "poi",
+  kind: "pin",
 };
 
 beforeEach(() => {

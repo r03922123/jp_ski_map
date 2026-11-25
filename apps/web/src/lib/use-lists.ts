@@ -1,15 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PanelMode } from "@/components/ModePanel";
-import type { PoiListState } from "@/components/PoiList";
 import type { RankingState } from "@/components/RankingPanel";
-import {
-  type Bbox,
-  type Coord,
-  fetchLodging,
-  fetchNearbyPois,
-  fetchRank,
-  type PoiCategory,
-} from "@/lib/api";
+import { type Bbox, type Coord, fetchLodging, fetchRank } from "@/lib/api";
 import type { RankOptions } from "@/lib/url-state";
 
 const LODGING_MIN_ZOOM = 14;
@@ -47,37 +39,4 @@ export function useRanking(
       : { status: "success", data: ranking.data };
 
   return { ranking, rankingState };
-}
-
-/** Food / konbini destinations near the start (walk only; shuttles serve resorts). */
-export function usePois({
-  mode,
-  routeMode,
-  origin,
-  poiCategory,
-  poiId,
-}: {
-  mode: PanelMode;
-  routeMode: Exclude<PanelMode, "bus">;
-  origin: Coord | null;
-  /** null on the resorts tab */
-  poiCategory: PoiCategory | null;
-  poiId: string | null;
-}) {
-  const pois = useQuery({
-    queryKey: ["pois", origin, poiCategory, routeMode],
-    queryFn: () => fetchNearbyPois(origin!, poiCategory!, routeMode),
-    enabled: mode !== "bus" && origin !== null && poiCategory !== null,
-    retry: false,
-    placeholderData: (previous) => previous,
-  });
-  const poiState: PoiListState = pois.isPending
-    ? { status: "loading" }
-    : pois.isError
-      ? { status: "error" }
-      : { status: "success", data: pois.data };
-  const selectedPoi = pois.data?.find((p) => p.id === poiId) ?? null;
-  const poiTarget = poiCategory ? (selectedPoi?.coord ?? null) : null;
-
-  return { pois, poiState, selectedPoi, poiTarget };
 }

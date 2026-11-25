@@ -8,7 +8,7 @@ import {
 } from "@playwright/test";
 
 // Scenario matrix, group N: STOPS ON THE WAY AND NAVIGATING.
-// Each test is a user goal ("stop at a konbini on the way", "navigate there") run from an
+// Each test is a user goal ("stop somewhere on the way", "navigate there") run from an
 // entry point, asserting the good behaviour (SPEC-web-app v1.4/v1.7, SPEC-pilot, Google
 // Maps conventions in docs/ux/behaviour-cards.md). A test that fails today because of a
 // real bug is wrapped in test.fail() with `// known: <id>`, so it flips when fixed.
@@ -17,8 +17,8 @@ import {
 const API = "http://127.0.0.1:8010";
 const HOTEL = { lat: 36.69711, lng: 137.85393 }; // Hotel Hakuba
 const STATION = { lat: 36.69877, lng: 137.86197 }; // JR Hakuba Station
-const LAWSON = { lat: 36.700886, lng: 137.8468474 }; // the konbini nearest the hotel
-const TARO = { lat: 36.6910032, lng: 137.8430989 }; // Taro Club (food)
+const LAWSON = { lat: 36.700886, lng: 137.8468474 }; // a corner near the hotel (a Lawson)
+const TARO = { lat: 36.6910032, lng: 137.8430989 }; // a second point (Taro Club)
 const TOKYO = { latitude: 35.68, longitude: 139.76 };
 const ll = (c: { lat: number; lng: number }) => `${c.lat},${c.lng}`;
 
@@ -175,12 +175,12 @@ const near = (
 ) => Math.abs(a.lat - b.lat) < 1e-4 && Math.abs(a.lng - b.lng) < 1e-4;
 
 // ---------------------------------------------------------------------------------------
-// Goal: "stop at a konbini on the way", phone
+// Goal: "stop somewhere on the way", phone
 // ---------------------------------------------------------------------------------------
 test.describe("phone: adding stops", () => {
   test.use(PHONE);
 
-  test("typing 7-Eleven in a stop box: the route goes through it and a reload keeps it", async ({
+  test("typing a station in a stop box: the route goes through it and a reload keeps it", async ({
     page,
   }) => {
     await page.goto(TRIP);
@@ -188,13 +188,13 @@ test.describe("phone: adding stops", () => {
     await page.getByRole("button", { name: "Add destination" }).tap();
     const box = page.getByRole("combobox", { name: "Stop 1" });
     await expect(box).toBeFocused();
-    await box.fill("7-Eleven");
+    await box.fill("Hakuba Station");
     await page
-      .getByRole("option", { name: /7-Eleven/ })
+      .getByRole("option", { name: /Hakuba Station/ })
       .first()
       .tap({ timeout: 20_000 });
     await expect(tripRows(page)).toHaveCount(1);
-    await expect(tripRows(page).nth(0)).toContainText("7-Eleven");
+    await expect(tripRows(page).nth(0)).toContainText("Hakuba Station");
     await expect
       .poll(() => allSteps(page), { timeout: 20_000 })
       .toMatch(/Arrive at stop 1/);
@@ -255,50 +255,21 @@ test.describe("phone: adding stops", () => {
   });
 
   test("a stop's name survives a reload or a shared link", async ({ page }) => {
-    test.fail(); // known: E — a typed stop ("Lawson") comes back as "Dropped pin" after reload
+    test.fail(); // known: E — a typed stop comes back as "Dropped pin" after reload
     await page.goto(TRIP);
     await routed(page);
     await page.getByRole("button", { name: "Add destination" }).tap();
-    await page.getByRole("combobox", { name: "Stop 1" }).fill("Lawson");
+    await page.getByRole("combobox", { name: "Stop 1" }).fill("Hakuba Station");
     await page
-      .getByRole("option", { name: /Lawson/ })
+      .getByRole("option", { name: /Hakuba Station/ })
       .first()
       .tap({ timeout: 20_000 });
-    await expect(tripRows(page).nth(0)).toContainText("Lawson");
+    await expect(tripRows(page).nth(0)).toContainText("Hakuba Station");
     await page.reload();
     await routed(page);
-    await expect(tripRows(page).nth(0)).toContainText("Lawson", {
+    await expect(tripRows(page).nth(0)).toContainText("Hakuba Station", {
       timeout: 10_000,
     });
-  });
-
-  for (const q of ["konbini", "コンビニ", "FamilyMart"]) {
-    test(`typing "${q}" in a stop box offers a konbini`, async ({ page }) => {
-      test.fail(); // known: S — the generic word / a missing brand gives no suggestions
-      await page.goto(TRIP);
-      await routed(page);
-      await page.getByRole("button", { name: "Add destination" }).tap();
-      await page.getByRole("combobox", { name: "Stop 1" }).fill(q);
-      await expect(
-        page.getByRole("option", { name: /7-Eleven|Lawson|FamilyMart/ }),
-      ).not.toHaveCount(0, { timeout: 8_000 });
-    });
-  }
-
-  test("a konbini from the Konbini tab can become a stop on the way to the resort", async ({
-    page,
-  }) => {
-    test.fail(); // known: S — Konbini rows only replace the destination; there is no "Add stop"
-    await page.goto(TRIP);
-    await routed(page);
-    await page.getByRole("tab", { name: /Konbini/ }).tap();
-    const rows = page.getByRole("list", { name: "Nearby places" });
-    await expect(rows.getByRole("button").first()).toBeVisible({
-      timeout: 20_000,
-    });
-    await expect(
-      page.getByRole("button", { name: /Add .*stop/i }).first(),
-    ).toBeVisible({ timeout: 5_000 });
   });
 
   test("long-press → Add stop: the pin becomes stop 1, the start stays", async ({
@@ -422,9 +393,10 @@ test.describe("phone: navigating through a stop", () => {
     await page.goto(WALK);
     await routed(page);
     await page.getByRole("button", { name: "Add destination" }).tap();
-    await page.getByRole("combobox", { name: "Stop 1" }).fill("Lawson");
+    // a hotel by the Lawson corner: konbini left search with ADR-0010
+    await page.getByRole("combobox", { name: "Stop 1" }).fill("Berg-land");
     await page
-      .getByRole("option", { name: /Lawson/ })
+      .getByRole("option", { name: /Berg-land/ })
       .first()
       .tap({ timeout: 20_000 });
     await expect(page).toHaveURL(/stops=/);
@@ -850,9 +822,11 @@ for (const [label, device] of [
       await page.goto(TRIP);
       await routed(page);
       await page.getByRole("button", { name: "Add destination" }).click();
-      await page.getByRole("combobox", { name: "Stop 1" }).fill("7-Eleven");
       await page
-        .getByRole("option", { name: /7-Eleven/ })
+        .getByRole("combobox", { name: "Stop 1" })
+        .fill("Hakuba Station");
+      await page
+        .getByRole("option", { name: /Hakuba Station/ })
         .first()
         .click({ timeout: 20_000 });
       await expect(tripRows(page)).toHaveCount(1);

@@ -430,7 +430,7 @@ exports[`MapView draws (characterization) > navigating from the bus stop: the bu
       data-style="{"zIndex":4}"
     >
       <span
-        aria-label="Stop 1: Konbini"
+        aria-label="Stop 1: Lodge"
         class="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
         data-trip-stop="1"
         role="img"
@@ -726,7 +726,7 @@ exports[`MapView draws (characterization) > navigating: the covered part, the ri
       data-style="{"zIndex":4}"
     >
       <span
-        aria-label="Stop 1: Konbini"
+        aria-label="Stop 1: Lodge"
         class="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
         data-trip-stop="1"
         role="img"
@@ -1008,7 +1008,7 @@ exports[`MapView draws (characterization) > planning on foot: routes, alternates
       data-style="{"zIndex":4}"
     >
       <span
-        aria-label="Stop 1: Konbini"
+        aria-label="Stop 1: Lodge"
         class="flex size-6 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-xs font-bold shadow"
         data-trip-stop="1"
         role="img"

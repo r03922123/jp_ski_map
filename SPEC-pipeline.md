@@ -1,7 +1,7 @@
 # Spec: pipeline (rebuild everything from one URL)
 
 > Module of [SPEC.md](SPEC.md). Depends on: every data-producing module (resort-catalog, place-search,
-> poi-destinations, bus-schedules, routing). Consumed by: CI, deploy. Drafted 2026-11-18, revised
+> bus-schedules, routing). Consumed by: CI, deploy. Drafted 2026-11-18, revised
 > after a fresh-context review the same day.
 
 ## Objective

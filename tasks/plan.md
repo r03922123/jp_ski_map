@@ -93,7 +93,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 
 # v1.1 plan (2026-10-30)
 
-Specs: v1.1 sections of [SPEC-routing](../SPEC-routing.md), [SPEC-bus-schedules](../SPEC-bus-schedules.md), [SPEC-web-app](../SPEC-web-app.md), and the new [SPEC-poi-destinations](../SPEC-poi-destinations.md).
+Specs: v1.1 sections of [SPEC-routing](../SPEC-routing.md), [SPEC-bus-schedules](../SPEC-bus-schedules.md), [SPEC-web-app](../SPEC-web-app.md), and the new SPEC-poi-destinations (deleted 2026-11-25 with ADR-0010).
 
 ## Architecture decisions
 - **Additive API.** `/api/routes` (alternates) and `POST /api/route/path` are new endpoints; `/api/route` is unchanged. New `Step` and `BusResult` fields are optional for old callers.
@@ -122,7 +122,7 @@ T30 poi data ── T31 nearby API ── T32 destination picker (needs T24/T25)
 - T28 Web: bus copy — no years, Expected badge, newer-timetable notice ✅
 - T29 Bus + web: `rideStops`, ride-leg drawing, transit timeline ✅
 ### Checkpoint G: bus works today (Oct 2026) as "Expected"; journey drawn ✅
-### Phase 8: Food & konbini destinations
+### Phase 8: Food & konbini destinations (removed 2026-11-25, [ADR-0010](../docs/adr/0010-drop-restaurants-and-konbini.md))
 - T30 POI: model, refresh script, snapshot, validator ✅
 - T31 POI: `GET /api/pois/nearby` ✅
 - T32 Web: destination picker (Resorts | Food | Konbini), list, URL state ✅

@@ -43,22 +43,20 @@ def test_chinese_variants_of_japanese_words() -> None:
     assert to_zh("エイブル白馬五竜") == "エイブル白馬五龍"
 
 
-def test_food_entries_get_cuisine_queries() -> None:
-    qs = queries_for(
-        entry("r", "food", "Takahashi-ke", detail="Restaurant · ramen"), random.Random(0)
-    )
-    assert any("拉麵" in q for q in qs) and "Takahashi-ke" in qs
+def test_resort_entries_get_kind_word_queries() -> None:
+    qs = queries_for(entry("goryu", "resort", "Hakuba Goryu"), random.Random(0))
+    assert "Goryu 滑雪場" in qs and "Hakuba Goryu" in qs
 
 
 def place(**kw: object) -> SimpleNamespace:
-    base = {"id": "x", "kind": "food", "name": "n", "name_ja": None, "detail": ""}
+    base = {"id": "x", "kind": "lodging", "name": "n", "name_ja": None, "detail": ""}
     return SimpleNamespace(**(base | kw))
 
 
 def test_case_predicates() -> None:
     assert matches({"id_prefix": ["goryu"]}, place(id="goryu:goryu-iimori"))  # type: ignore[arg-type]
-    assert matches({"detail_any": ["noodle"]}, place(detail="Restaurant · noodle;soba"))  # type: ignore[arg-type]
-    assert matches({"kind": "convenience"}, place(kind="convenience"))  # type: ignore[arg-type]
+    assert matches({"detail_any": ["Ryokan"]}, place(detail="Ryokan"))  # type: ignore[arg-type]
+    assert matches({"kind": "stop"}, place(kind="stop"))  # type: ignore[arg-type]
     assert matches({"name_any": ["東急"]}, place(name="x", name_ja="白馬東急ホテル"))  # type: ignore[arg-type]
     assert not matches({"name_any": ["東急"]}, place(name="Tokyo"))  # type: ignore[arg-type]
 
@@ -73,16 +71,17 @@ def test_threshold_is_the_lowest_score_that_keeps_the_precision() -> None:
 
 
 def test_hit_at_k_looks_only_at_the_top_k() -> None:
-    results = [place(kind="food"), place(kind="convenience")]
-    assert not hit_at({"kind": "convenience"}, results, 1)  # type: ignore[arg-type]
-    assert hit_at({"kind": "convenience"}, results, 2)  # type: ignore[arg-type]
+    results = [place(kind="lodging"), place(kind="stop")]
+    assert not hit_at({"kind": "stop"}, results, 1)  # type: ignore[arg-type]
+    assert hit_at({"kind": "stop"}, results, 2)  # type: ignore[arg-type]
 
 
 def test_excluded_queries_never_become_pairs() -> None:
-    es = [entry("r", "food", "Takahashi-ke", detail="Restaurant · ramen")]
-    pairs = make_pairs(es, exclude=frozenset({"ramen", "拉麵"}))
+    es = [entry("goryu", "resort", "Hakuba Goryu")]
+    pairs = make_pairs(es, exclude=frozenset({"goryu ski resort", "goryu 滑雪場"}))
     queries = {p.query for split in pairs.values() for p in split}
-    assert "Takahashi-ke" in queries and "ramen" not in queries and "拉麵" not in queries
+    assert "Hakuba Goryu" in queries
+    assert "Goryu ski resort" not in queries and "Goryu 滑雪場" not in queries
 
 
 def test_no_hard_query_is_a_training_or_dev_query() -> None:
@@ -94,19 +93,20 @@ def test_no_hard_query_is_a_training_or_dev_query() -> None:
 
     pairs = make_pairs(load_index())
     seen = {normalize(p.query) for split in pairs.values() for p in split}
-    # both hand-written sets: the v1.4 hard set (40) and the 2026-11-21 held-out set (55)
-    assert len(held_out()) == 95 and not seen & held_out()
+    # both hand-written sets, less their food and konbini cases (ADR-0010): the v1.4 hard
+    # set (20 of 40) and the 2026-11-21 held-out set (32 of 55)
+    assert len(held_out()) == 52 and not seen & held_out()
 
 
 def test_rebalance_caps_the_largest_kind_and_keeps_the_rest() -> None:
-    kind = {"h": "lodging", "f": "food", "s": "stop"}
+    kind = {"h": "lodging", "f": "resort", "s": "stop"}
     pairs = [Pair(f"q{i}", "h") for i in range(90)] + [
         *(Pair(f"f{i}", "f") for i in range(6)),
         *(Pair(f"s{i}", "s") for i in range(4)),
     ]
     out = rebalance(pairs, kind, max_share=0.5, seed=0)
     by = [kind[p.entry_id] for p in out]
-    assert by.count("lodging") == 10 and by.count("food") == 6 and by.count("stop") == 4
+    assert by.count("lodging") == 10 and by.count("resort") == 6 and by.count("stop") == 4
     assert rebalance(pairs, kind, max_share=0.5, seed=0) == out  # reproducible
     assert rebalance(pairs, kind, max_share=1.0, seed=0) == pairs  # 1.0 turns it off
 

@@ -8,10 +8,13 @@ import pytest
 import respx
 from fastapi.testclient import TestClient
 
+from hakuba_api.common.geo import Coord
 from hakuba_api.main import app
 from hakuba_api.places import photon
+from hakuba_api.places.index import Entry
 from hakuba_api.places.photon import PHOTON_URL
 from hakuba_api.places.refresh_lodging import elements_to_places
+from hakuba_api.places.suggest import suggest
 
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "photon"
 
@@ -122,16 +125,14 @@ def test_photon_keeps_the_original_words_when_the_retry_finds_nothing(
     assert call.calls.last.request.url.params["q"] == "北京飯店"
 
 
-def test_a_place_really_named_hanten_is_still_found(
-    api: TestClient, mock: respx.MockRouter
-) -> None:
-    mock.get(PHOTON_URL).respond(json={"features": []})
+def test_a_place_really_named_hanten_is_still_found() -> None:
+    near = Coord(lat=36.70, lng=137.845)
+    hanten = Entry("place:hanten", "place", "Hakuba Hanten", "白馬飯店", [], near, "Place")
+    hotel = Entry("lodging:hotel", "lodging", "白馬ホテル", None, [], near, "Hotel")
 
-    body: Any = api.get(
-        "/api/places/suggest", params={"q": "白馬飯店", "near": "36.70,137.845"}
-    ).json()
+    out = suggest("白馬飯店", near, 5, entries=[hanten, hotel], use_photon=False)
 
-    assert body[0]["name"] == "Hakuba Hanten"
+    assert out[0].name == "Hakuba Hanten"
 
 
 def test_photon_failure_still_returns_local_hits(api: TestClient, mock: respx.MockRouter) -> None:
