@@ -56,7 +56,7 @@ new_repo() {
     "$REPO/infra/valhalla/custom_files/hakuba" "$REPO/.vercel" "$REPO/services/api" "$REPO/.ux-evidence" "$REPO/.run"
   cp "$HERE/deploy-vercel.sh" "$HERE/promote-vercel.sh" "$REPO/scripts/"
   for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_overture.json \
-    lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json ski_lines.json bus/stop_evidence.json \
+    lodging_readings.json lodging_aliases.json poi_osm.json poi_google.json crowd_periods.json ski_lines.json bus/stop_evidence.json \
     bus/timetables/2025-26/line-a.json; do
     echo '[]' >"$REPO/data/$f"
   done
@@ -119,7 +119,7 @@ deploy
 expect_args "deploy --environment preview"
 grep -q "$(git_q rev-parse HEAD)" "$OUT" || fail "commit not printed"
 for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_overture.json \
-  lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json ski_lines.json \
+  lodging_readings.json lodging_aliases.json poi_osm.json poi_google.json crowd_periods.json ski_lines.json \
   bus/timetables/2025-26/line-a.json; do
   uploaded "services/api/data/$f" || fail "not uploaded: services/api/data/$f"
 done
@@ -155,7 +155,7 @@ deploy --prod extra
 expect_stop "extra argument" "usage:"
 
 for item in resorts.json bus_stops.json bus/timetables bus/sources.json lodging_osm.json \
-  lodging_overture.json lodging_readings.json lodging_aliases.json poi_osm.json crowd_periods.json ski_lines.json; do
+  lodging_overture.json lodging_readings.json lodging_aliases.json poi_osm.json poi_google.json crowd_periods.json ski_lines.json; do
   new_repo
   rm -rf "${REPO:?}/data/$item"
   commit_all
