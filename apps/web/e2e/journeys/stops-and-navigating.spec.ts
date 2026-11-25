@@ -393,9 +393,10 @@ test.describe("phone: navigating through a stop", () => {
     await page.goto(WALK);
     await routed(page);
     await page.getByRole("button", { name: "Add destination" }).tap();
-    await page.getByRole("combobox", { name: "Stop 1" }).fill("Lawson");
+    // a hotel by the Lawson corner: konbini left search with ADR-0010
+    await page.getByRole("combobox", { name: "Stop 1" }).fill("Berg-land");
     await page
-      .getByRole("option", { name: /Lawson/ })
+      .getByRole("option", { name: /Berg-land/ })
       .first()
       .tap({ timeout: 20_000 });
     await expect(page).toHaveURL(/stops=/);

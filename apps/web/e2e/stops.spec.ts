@@ -104,14 +104,14 @@ test("add a stop by typing: the route goes through it, and the link keeps it", a
   const box = page.getByRole("combobox", { name: "Stop 1" });
   await expect(box).toBeFocused();
   await expect(box).toHaveAttribute("placeholder", /tap the map/i);
-  await box.fill("7-Eleven");
+  await box.fill("Berg-land");
   await page
-    .getByRole("option", { name: /7-Eleven/ })
+    .getByRole("option", { name: /Berg-land/ })
     .first()
     .click({ timeout: 15_000 });
 
   await expect(trip(page).getByRole("listitem")).toHaveCount(1);
-  await expect(trip(page).getByRole("listitem")).toContainText("7-Eleven");
+  await expect(trip(page).getByRole("listitem")).toContainText("Berg-land");
   // focus stays in the panel, on the next thing to do
   await expect(
     page.getByRole("button", { name: "Add destination" }),
