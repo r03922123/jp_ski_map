@@ -5,7 +5,9 @@ import { type RankOptions, SORT_KEYS } from "@/lib/url-state";
 
 const SORT_LABELS: Record<(typeof SORT_KEYS)[number], string> = {
   walk_time: "Walk time",
-  terrain_size: "Terrain size",
+  runs: "Total runs",
+  area: "Skiable area",
+  run_length: "Run length",
 };
 
 const MAX_WALK_OPTIONS = [10, 15, 20, 30, 45];

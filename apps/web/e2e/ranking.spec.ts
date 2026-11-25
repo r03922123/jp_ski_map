@@ -12,9 +12,9 @@ test("walk mode ranks every resort and re-sorts on demand", async ({
   // default: nearest first, every ETA labelled as an estimate
   await expect(list.getByRole("listitem").first()).toContainText("~ ");
 
-  await page.getByLabel("Sort by").selectOption("terrain_size");
-  await expect(page).toHaveURL(/sort=terrain_size/);
-  // the longest total runs: Happo-One 23.3 km, then Tsugaike 20.5 km (only 11 runs)
+  await page.getByLabel("Sort by").selectOption("run_length");
+  await expect(page).toHaveURL(/sort=run_length/);
+  // the longest runs in all: Happo-One 23.3 km, then Tsugaike 20.5 km (only 11 runs)
   await expect(list.getByRole("listitem").nth(0)).toContainText("Happo-One");
   await expect(list.getByRole("listitem").nth(1)).toContainText("Tsugaike");
 

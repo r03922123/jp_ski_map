@@ -56,7 +56,7 @@ def inputs() -> list[RankInput]:
             resort=resort(
                 "a",
                 runs=10,
-                totalRunsM=8000,
+                totalRunsM=30000,
                 areaHa=60,
                 chairLifts=5,
                 gondolas=0,
@@ -87,7 +87,7 @@ def inputs() -> list[RankInput]:
                 "c",
                 runs=15,
                 totalRunsM=15000,
-                areaHa=90,
+                areaHa=200,
                 chairLifts=8,
                 gondolas=0,
                 verticalM=700,
@@ -107,7 +107,9 @@ def inputs() -> list[RankInput]:
         ("fresh_snow", ["b", "a", "c"]),  # b: 30, a: 10 + 5 = 15, c: unknown -> last
         ("snow_depth", ["b", "a", "c"]),  # c unknown -> last
         ("crowd", ["b", "c", "a"]),  # lower is better
-        ("terrain_size", ["b", "c", "a"]),
+        ("runs", ["b", "c", "a"]),
+        ("area", ["c", "b", "a"]),
+        ("run_length", ["a", "b", "c"]),
         ("vertical", ["b", "c", "a"]),
         ("price", ["c", "a", "b"]),  # b unknown -> last
     ],
@@ -138,24 +140,13 @@ def test_ties_break_by_walk_time_then_id() -> None:
     assert [r.resort_id for r in ranked] == ["c", "a", "b"]
 
 
-def test_terrain_size_ties_break_by_lift_count() -> None:
+def test_size_sorts_break_ties_by_lift_count() -> None:
     data = inputs()
-    data[0].resort.stats.total_runs_m = 20000  # as long as b, fewer lifts
+    data[0].resort.stats.runs = 20  # as many runs as b, fewer lifts
 
-    ranked = rank(data, "terrain_size", Filters())
+    ranked = rank(data, "runs", Filters())
 
     assert [r.resort_id for r in ranked][:2] == ["b", "a"]
-
-
-def test_terrain_size_is_total_run_length_not_run_count() -> None:
-    data = inputs()
-    data[0].resort.stats.total_runs_m = 30000  # a: fewest runs, most terrain
-
-    ranked = rank(data, "terrain_size", Filters())
-
-    assert ranked[0].resort_id == "a"
-    assert ranked[0].sort_value == 30000
-    assert (ranked[0].factors.runs, ranked[0].factors.area_ha) == (10, 60)
 
 
 def test_unreachable_resort_sorts_last_on_walk_time() -> None:

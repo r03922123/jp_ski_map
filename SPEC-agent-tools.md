@@ -11,7 +11,7 @@ All places pass between tools as `"lat,lng"` strings. Times are minutes, snow is
 | Tool | Wraps | Inputs | Output (trimmed) |
 |---|---|---|---|
 | `search_place` | `GET /api/places/suggest` (local index + optional semantic retrieval) | `query`, `limit=5` | `name, nameJa, kind, coord, detail` |
-| `rank_resorts` | `GET /api/rank` | `origin`, `sort` (walk_time, fresh_snow, snow_depth, crowd, terrain_size, vertical, price), `date?`, `night_skiing?`, `hakuba_valley_pass?`, `max_walk_min?`, `top=5` | `rank, resortId, name, sortValue, walkMin, summitDepthCm, newSnow24hCm, snowAsOf, crowdLevel, runs, areaHa` (runs and areaHa since 2026-11-25, when terrain_size became total run length) |
+| `rank_resorts` | `GET /api/rank` | `origin`, `sort` (walk_time, fresh_snow, snow_depth, crowd, runs, area, run_length, vertical, price), `date?`, `night_skiing?`, `hakuba_valley_pass?`, `max_walk_min?`, `top=5` | `rank, resortId, name, sortValue, walkMin, summitDepthCm, newSnow24hCm, snowAsOf, crowdLevel` |
 | `next_buses` | `GET /api/bus/options` | `origin`, `at?` (ISO, JST), `origin_name?`, `per_resort=2` | `status, nextServiceDate, basis, newerTimetablePending`, per resort `boardStop, walkMin, departs, departsFrom, arrives, rideMin, route, timed` (untimed: `departsFrom` may be an earlier stop; `arrives`, `rideMin` null) |
 | `route` | `GET /api/route` (+ `/api/resorts` to resolve an id) | `origin`, `destination` (`lat,lng` or a resort id); walking only (2026-11-25) | `mode, durationMin, distanceKm, summary` |
 | `nearby_pois` | `GET /api/pois/nearby` | `origin` (`lat,lng` or resort id), `category` (food, convenience), `limit=5` (walking only) | `name, nameJa, minutes, distanceM, coord, openingHours` |

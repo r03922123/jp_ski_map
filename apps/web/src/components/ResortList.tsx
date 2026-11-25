@@ -19,25 +19,15 @@ const FACTOR_ROWS: {
   label: string;
   format: (v: number) => string;
 }[] = [
+  // Only the resort sizes: walk time is in the card's header, crowd in Sources & weights
+  { key: "runs", label: "Total runs", format: (v) => `${v}` },
+  { key: "area", label: "Skiable area", format: (v) => `${v} ha` },
   {
-    key: "walkTime",
-    label: "Walk time",
-    format: (v) => `~ ${formatDuration(v)}`,
-  },
-  {
-    key: "crowd",
-    label: "Crowd score (est.)",
-    format: (v) => `${Math.round(v * 100)}%`,
-  },
-  {
-    key: "terrainSize",
-    label: "Total run length",
+    key: "runLength",
+    label: "Run length",
     // whole hundreds of metres first: (20450 / 1000).toFixed(1) is "20.4"
     format: (v) => `${(Math.round(v / 100) / 10).toFixed(1)} km`,
   },
-  // Resorts count runs differently, so both sizes show beside the run length
-  { key: "runs", label: "Runs", format: (v) => `${v}` },
-  { key: "areaHa", label: "Skiable area", format: (v) => `${v} ha` },
 ];
 
 const asOfFormat = new Intl.DateTimeFormat("en-GB", {
@@ -105,7 +95,8 @@ function SourcesAndWeights({ r }: { r: RankedResort }) {
           {r.snow?.depthCm.source === "reported"
             ? "Reported by the resort; forecast from Open-Meteo"
             : "Open-Meteo model"}
-          : <SourceLink href="https://open-meteo.com/" />
+          {r.snow && `, as of ${formatAsOf(r.snow.asOf)}`}:{" "}
+          <SourceLink href="https://open-meteo.com/" />
         </dd>
         {r.crowd && (
           <>
@@ -269,16 +260,6 @@ export function ResortList({
                   ];
                 })}
               </dl>
-              {r.crowd && r.crowd.reasons.length > 0 && (
-                <p className="mt-1 text-muted-foreground">
-                  Crowd estimate: {r.crowd.reasons.join(" · ")}
-                </p>
-              )}
-              {r.snow && (
-                <p className="mt-1 text-muted-foreground">
-                  Snow model as of {formatAsOf(r.snow.asOf)} (Open-Meteo)
-                </p>
-              )}
               <SourcesAndWeights r={r} />
             </details>
           </li>

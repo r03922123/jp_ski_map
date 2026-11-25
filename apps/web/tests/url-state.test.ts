@@ -85,7 +85,7 @@ describe("rank options in the URL", () => {
       poiId: null,
       category: "resorts",
       rank: {
-        sort: "terrain_size" as const,
+        sort: "run_length" as const,
         maxWalkMin: 20,
         nightSkiing: true,
         hvPass: false,
