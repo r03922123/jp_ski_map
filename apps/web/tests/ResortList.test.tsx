@@ -181,11 +181,13 @@ describe("ResortList", () => {
 
     const details = screen.getByText(/details/i).closest("details");
     if (!details) throw new Error("no Details");
+    const factors = details.querySelector("dl");
+    if (!factors) throw new Error("no factor list");
     expect(
-      within(details)
+      within(factors)
         .getAllByRole("term")
         .map((dt) => dt.textContent),
-    ).toEqual(expect.arrayContaining(["Walk time", "Runs"]));
+    ).toEqual(["Walk time", "Crowd score (est.)", "Runs"]);
     for (const gone of [
       /Fresh snow \(24 h/,
       "Summit snow depth",
