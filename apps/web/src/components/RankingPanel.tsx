@@ -51,7 +51,6 @@ export function RankingPanel({
             onSelect={(id) => onSelectResort(id)}
             scrollKey={JSON.stringify(options)}
             fetching={fetching}
-            sort={options.sort}
           />
         ))}
     </div>

@@ -35,7 +35,10 @@ export type ViewState = {
  * accepts the rest. `price` stays hidden in any case: ADR-0001 decision 2 hides it
  * until every resort has a comparable 2026–27 day-ticket price.
  */
-export const SORT_KEYS: readonly SortKey[] = ["walk_time", "terrain_size"];
+export const SORT_KEYS = [
+  "walk_time",
+  "terrain_size",
+] as const satisfies readonly SortKey[];
 
 export const DEFAULT_RANK: RankOptions = {
   sort: "walk_time",
@@ -66,10 +69,10 @@ function parseCoord(value: string | null): Coord | null {
 }
 
 function parseRank(params: URLSearchParams): RankOptions {
-  const sort = params.get("sort") as SortKey | null;
+  const sort = params.get("sort");
   const maxWalk = Number(params.get("maxWalk"));
   return {
-    sort: sort && SORT_KEYS.includes(sort) ? sort : DEFAULT_RANK.sort,
+    sort: SORT_KEYS.find((key) => key === sort) ?? DEFAULT_RANK.sort,
     maxWalkMin: maxWalk > 0 ? maxWalk : null,
     nightSkiing: params.get("night") === "1",
     hvPass: params.get("hvPass") === "1",

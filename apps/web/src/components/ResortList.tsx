@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { CheckInButton } from "@/components/CheckInButton";
 import { PixelSprite } from "@/components/PixelSprite";
-import { type RankedResort, resortsQuery, type SortKey } from "@/lib/api";
+import { type RankedResort, resortsQuery } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 import { useRider } from "@/lib/game/rider";
 import { worldBadge } from "@/lib/game/sprites";
@@ -25,23 +25,11 @@ const FACTOR_ROWS: {
     format: (v) => `~ ${formatDuration(v)}`,
   },
   {
-    key: "freshSnow",
-    label: "Fresh snow (24 h + ½ next 24 h)",
-    format: (v) => `${v} cm`,
-  },
-  { key: "snowDepth", label: "Summit snow depth", format: (v) => `${v} cm` },
-  {
     key: "crowd",
     label: "Crowd score (est.)",
     format: (v) => `${Math.round(v * 100)}%`,
   },
   { key: "terrainSize", label: "Runs", format: (v) => `${v}` },
-  { key: "vertical", label: "Vertical drop", format: (v) => `${v} m` },
-  {
-    key: "price",
-    label: "Ticket price",
-    format: (v) => `¥${v.toLocaleString("en-US")}`,
-  },
 ];
 
 const asOfFormat = new Intl.DateTimeFormat("en-GB", {
@@ -132,7 +120,7 @@ function SourcesAndWeights({ r }: { r: RankedResort }) {
             </dd>
           </>
         )}
-        <dt className="font-medium">Runs, vertical drop, ticket price</dt>
+        <dt className="font-medium">Resort stats</dt>
         <dd>{linkify(r.statsSource)}</dd>
         <dt className="font-medium">Resort website</dt>
         <dd>{linkify(r.website)}</dd>
@@ -141,17 +129,12 @@ function SourcesAndWeights({ r }: { r: RankedResort }) {
   );
 }
 
-// The fresh-snow sort adds half the next 24 h, so its cards show that forecast. It takes the
-// summit depth's place: three facts overflow one line on a 360 px phone card
-function snowSummary(r: RankedResort, sort?: SortKey): string | null {
+function snowSummary(r: RankedResort): string | null {
   const fresh = r.snow?.newSnowCm.past24h;
-  const next = r.snow?.newSnowCm.next24h;
   const depth = r.snow?.depthCm.summit;
   const bits = [
     fresh != null ? `${Math.round(fresh)} cm new` : null,
-    sort === "fresh_snow"
-      ? next != null && `${Math.round(next)} cm next 24 h`
-      : depth != null && `${depth} cm summit`,
+    depth != null ? `${depth} cm summit` : null,
   ].filter(Boolean);
   return bits.length ? `❄ ${bits.join(" · ")}` : null;
 }
@@ -162,7 +145,6 @@ export function ResortList({
   onSelect,
   scrollKey,
   fetching = false,
-  sort,
 }: {
   resorts: RankedResort[];
   selectedId: string | null;
@@ -171,8 +153,6 @@ export function ResortList({
   scrollKey?: string;
   /** the ranking is being fetched (for new options, the list still shows the old one) */
   fetching?: boolean;
-  /** the user's sort: the snow line shows the snow it ranks by */
-  sort?: SortKey;
 }) {
   // SPEC-web-app v1.6 level select: each card is a world, numbered by geography
   const catalog = useQuery(resortsQuery);
@@ -204,7 +184,7 @@ export function ResortList({
       className="flex flex-col divide-y"
     >
       {resorts.map((r) => {
-        const snow = snowSummary(r, sort);
+        const snow = snowSummary(r);
         const snowIsOld =
           r.snow != null &&
           now.getTime() - Date.parse(r.snow.asOf) > SNOW_OLD_MS;

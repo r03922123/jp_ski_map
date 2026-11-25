@@ -4,6 +4,8 @@
 
 Accepted (2026-11-06).
 
+2026-11-25: at the owner's request the resort cards no longer show a "Ticket price" row, and the web offers only the walk-time and terrain-size sorts. `dayTicketJpy` stays in the catalog and the API's `price` sort, which the MCP `rank_resorts` tool can use. Next step 1 now only fills Cortina's value; putting price back in the web is a new owner decision.
+
 2026-11-06: [PR #20](https://github.com/r03922123/jp_ski_map/pull/20) settles three cases this
 definition left open (regular or peak rate, joint tickets, which notes name the period) and
 restates two it decided (通常 prices, the online fallback), without changing a value;

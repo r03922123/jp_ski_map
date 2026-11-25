@@ -4,6 +4,8 @@
 
 *2026-11-25: Drive mode removed. The travel-time key is `walk_time` (a walk matrix; measured 0.042 s median, n=5, local, vs 0.05 s for the road matrix), and `maxDriveMin` is `maxWalkMin`.*
 
+*2026-11-25: the web offers two sorts, walk time and terrain size, so each card's Details shows only their factors (walk time, runs) plus crowd until it is removed. The API still returns every factor for the MCP `rank_resorts` tool. Snow stays on the card's ❄ line, with its source.*
+
 ## Objective
 From the user's origin, rank all resorts by **one criterion the user chooses**, and show every factor's value so the user can compare resorts themselves.
 
@@ -80,7 +82,7 @@ factor values and the crowd reasons, but no source links and no weights (checked
    | Walk time | "OpenStreetMap roads, Valhalla router" → https://www.openstreetmap.org/copyright |
    | Fresh snow, snow depth | "Open-Meteo model" (or "reported" when `depthCm.source` says so) → https://open-meteo.com/ |
    | Crowd | each contribution as `label  +0.30`, then `sum`, then "capped to 0–1" if the sum was outside, then the level thresholds (< 0.30 low, < 0.55 medium, < 0.80 high) |
-   | Runs, vertical, price | `statsSource` with each `http(s)://` URL turned into a link, then the resort `website` |
+   | Resort stats (was: Runs, vertical, price) | `statsSource` with each `http(s)://` URL turned into a link, then the resort `website` |
 
    Links open in a new tab with `rel="noopener noreferrer"`. Only `http:` and `https:` URLs become links;
    anything else stays plain text.

@@ -85,34 +85,24 @@ describe("ResortList", () => {
     expect(within(item).getByText("Crowd: high (est.)")).toBeInTheDocument();
   });
 
-  // UX panel 2026-11-23: sorted by Fresh snow (past 24 h + ½ next 24 h), every card read
-  // "0 cm new" while the order came from the forecast. Three facts don't fit one line on a
-  // 360 px phone, so under that sort the forecast takes the summit depth's place
-  // the panel no longer offers this sort (2026-11-25); the list still honours it
-  it("shows the snow the fresh-snow sort counts under that sort", () => {
+  it("shows the past 24 h of new snow and the summit depth on the card", () => {
     const snow = {
       ...ranked().snow,
       depthCm: { base: 20, summit: 76, source: "model" },
       newSnowCm: { past24h: 0, past72h: 55.9, next24h: 14.4, next72h: 20 },
     } as RankedResort["snow"];
-    const list = (sort: "walk_time" | "fresh_snow") => (
+    render(
       <ResortList
         resorts={[ranked({ snow })]}
         selectedId={null}
         onSelect={vi.fn()}
-        sort={sort}
-      />
+      />,
     );
-    const view = render(list("walk_time"));
-    const card = () => screen.getByRole("button", { name: /Happo-One/ });
-    expect(
-      within(card()).getByText("❄ 0 cm new · 76 cm summit"),
-    ).toBeInTheDocument();
-
-    view.rerender(list("fresh_snow"));
 
     expect(
-      within(card()).getByText("❄ 0 cm new · 14 cm next 24 h"),
+      within(screen.getByRole("button", { name: /Happo-One/ })).getByText(
+        "❄ 0 cm new · 76 cm summit",
+      ),
     ).toBeInTheDocument();
   });
 
@@ -180,16 +170,30 @@ describe("ResortList", () => {
     });
   });
 
-  it("expands to every factor, crowd reasons and the snow timestamp", () => {
+  // the panel tidy left two sorts (2026-11-25); Details keeps their factors and crowd, which
+  // refactor/remove-crowd removes, and drops the rows of the sorts it took away
+  it("expands to the kept factors, crowd reasons and the snow timestamp", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
     );
 
     fireEvent.click(screen.getByText(/details/i));
 
-    expect(screen.getByText("Vertical drop")).toBeInTheDocument();
-    expect(screen.getByText("1071 m")).toBeInTheDocument();
-    expect(screen.getByText("Ticket price").nextSibling).toHaveTextContent("—");
+    const details = screen.getByText(/details/i).closest("details");
+    if (!details) throw new Error("no Details");
+    expect(
+      within(details)
+        .getAllByRole("term")
+        .map((dt) => dt.textContent),
+    ).toEqual(expect.arrayContaining(["Walk time", "Runs"]));
+    for (const gone of [
+      /Fresh snow \(24 h/,
+      "Summit snow depth",
+      "Vertical drop",
+      "Ticket price",
+    ]) {
+      expect(within(details).queryByText(gone)).not.toBeInTheDocument();
+    }
     expect(screen.getByText(/Crowd estimate:/)).toHaveTextContent(
       /Coming of Age Day/,
     );
