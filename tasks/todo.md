@@ -31,8 +31,8 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 The code is merged and hidden until a key exists. Owner only:
 - [ ] Owner setup from the spec: Google Cloud project, billing, two restricted keys, daily quota caps; browser key in
   Vercel and `apps/web/.env.local`
-- [ ] `GOOGLE_PLACES_SERVER_KEY=… uv run --directory services/api --frozen python -m hakuba_api.pois.refresh_google_ids`,
-  commit `data/poi_google.json` and `.meta.json` (then drop the `.meta.json` line from `docs/doc-check-allow.txt`)
+- [x] `GOOGLE_PLACES_SERVER_KEY=… uv run --directory services/api --frozen python -m hakuba_api.pois.refresh_google_ids`,
+  commit `data/poi_google.json` and `.meta.json` (2026-11-25: 57 of 77 matched; 2 sharing one place dropped)
 - [ ] Open the first 10 food results (walk) from JR Hakuba Station; fewer than 9 right → tighten the match
 
 ## Task J10: Overture licence label (ADR-0004 next step 2)
