@@ -132,7 +132,7 @@ def to_blocks(
             blocks.append(_text(item))
             continue
         item = cast(dict[str, Any], item)
-        if "id" in item:  # search_place, nearby_pois: the place index ids
+        if "id" in item:  # search_place: the place index ids
             source = f"hakuba:place/{item['id']}"
         elif "resortId" in item:  # rank_resorts, crowd_and_snow
             source = f"hakuba:resort/{item['resortId']}"

@@ -1,8 +1,8 @@
 # hakuba-mcp
 
-An MCP server that lets an AI agent plan a Hakuba ski day with tools: find a place, check snow and crowd, rank resorts, get the next shuttle bus, a walking ETA, and nearby food or convenience stores. Each tool is a thin, read-only wrapper over the Hakuba Ski Map HTTP API that trims the response to ids, names, minutes, cm and levels. Spec: [SPEC-agent-tools.md](../../SPEC-agent-tools.md).
+An MCP server that lets an AI agent plan a Hakuba ski day with tools: find a place, check snow and crowd, rank resorts, get the next shuttle bus and a walking ETA. Each tool is a thin, read-only wrapper over the Hakuba Ski Map HTTP API that trims the response to ids, names, minutes, cm and levels. Spec: [SPEC-agent-tools.md](../../SPEC-agent-tools.md).
 
-Tools: `search_place`, `rank_resorts`, `next_buses`, `route`, `nearby_pois`, `crowd_and_snow`. Prompt: `plan_ski_day`.
+Tools: `search_place`, `rank_resorts`, `next_buses`, `route`, `crowd_and_snow`. Prompt: `plan_ski_day`.
 
 ## Setup
 The Mac's own uv 0.5.9 is too old for this lock, so use uv 0.9.30 through uvx:
@@ -42,7 +42,7 @@ uvx --from 'uv==0.9.30' uv run pyright
 ```
 
 ## Eval
-`evals/trip_questions.json` has 66 questions (100 until 2026-11-25, when the 34 that asked for drive times were dropped) (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
+`evals/trip_questions.json` has 53 questions (100 until 2026-11-25, when the 34 that asked for drive times and then the 13 that needed `nearby_pois` were dropped, ADR-0010) (English, Chinese, Japanese), each with the tools it must call and an answer regex. `evals/run_eval.py` runs each one through headless Claude Code with only this server's tools, then prints pass/fail and tool-call precision and recall.
 
 ```bash
 uvx --from 'uv==0.9.30' uv run python evals/run_eval.py --out evals/last_run.md
