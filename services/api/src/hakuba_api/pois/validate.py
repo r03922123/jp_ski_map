@@ -12,3 +12,20 @@ def validate_pois(pois: list[Poi]) -> list[str]:
         if not in_hakuba(p.coord):
             errors.append(f"poi_osm.json: {p.id} is outside the Hakuba bbox")
     return errors
+
+
+def validate_google_ids(pois: list[Poi], ids: dict[str, str]) -> list[str]:
+    category = {p.id: p.category for p in pois}
+    errors: list[str] = []
+    first_poi: dict[str, str] = {}
+    for poi_id, place in ids.items():
+        if place in first_poi:  # two OSM nodes can't be one restaurant: one match is wrong
+            errors.append(f"poi_google.json: {poi_id} has the same place ID as {first_poi[place]}")
+        first_poi.setdefault(place, poi_id)
+        if poi_id not in category:
+            errors.append(f"poi_google.json: {poi_id} is not in poi_osm.json")
+        elif category[poi_id] != "food":
+            errors.append(f"poi_google.json: {poi_id} is not a food POI")
+        if not place.strip():
+            errors.append(f"poi_google.json: {poi_id} has an empty place ID")
+    return errors

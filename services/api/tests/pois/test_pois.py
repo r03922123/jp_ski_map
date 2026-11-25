@@ -227,3 +227,24 @@ def test_nearby_endpoint_maps_valhalla_down_to_503(api: TestClient) -> None:
 
     assert response.status_code == 503
     assert response.json() == {"error": "routing_unavailable"}
+
+
+def test_nearby_endpoint_returns_the_google_place_id_or_null(
+    monkeypatch: pytest.MonkeyPatch, valhalla: respx.MockRouter
+) -> None:
+    monkeypatch.setenv("VALHALLA_URL", VALHALLA)
+    matched = poi(1, 36.700, 137.86, "food").model_copy(update={"google_place_id": "ChIJ1"})
+    app.dependency_overrides[get_pois] = lambda: [matched, poi(2, 36.701, 137.86, "food")]
+    try:
+        response = TestClient(app).get(
+            "/api/pois/nearby",
+            params={"from": "36.6987,137.8617", "category": "food", "mode": "walk", "limit": 5},
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert {p["id"]: p["googlePlaceId"] for p in response.json()} == {
+        "osm:node/1": "ChIJ1",
+        "osm:node/2": None,
+    }

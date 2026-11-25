@@ -27,6 +27,14 @@ no regressions, behavior checked at runtime, specs updated if a decision changed
 ## Task 88: Intermittent: the To box reads empty after "Clear starting point" (open)
 Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear the start (trip ✕ and box ✕) … the destination stays" failed 6/16 in one repeat run, with the To box at `""` while the destination (resort) still exists. Then 16/16 in Playwright and 8/8 in a step-by-step reproduction logging the box after every step passed. Reasoning ruled out the destination vanishing (the resort and its fallback access point don't depend on the start). Next: `trace: "retain-on-failure"` is now on, so read the first failing trace before changing code.
 
+## Task 89: Google rating card goes live (SPEC-poi-destinations v1.2)
+The code is merged and hidden until a key exists. Owner only:
+- [ ] Owner setup from the spec: Google Cloud project, billing, two restricted keys, daily quota caps; browser key in
+  Vercel and `apps/web/.env.local`
+- [ ] `GOOGLE_PLACES_SERVER_KEY=… uv run --directory services/api --frozen python -m hakuba_api.pois.refresh_google_ids`,
+  commit `data/poi_google.json` and `.meta.json` (then drop the `.meta.json` line from `docs/doc-check-allow.txt`)
+- [ ] Open the first 10 food results (walk) from JR Hakuba Station; fewer than 9 right → tighten the match
+
 ## Task J10: Overture licence label (ADR-0004 next step 2)
 - Known limits: with the sheet expanded the credits stay covered until it collapses. With no trip they open over the map's labels and a resort marker until the first drag or a tap on ⓘ. On landscape phones about 320 px tall or less, the ⓘ takes a tap on `+`, which worked before this change; pinch zoom still works. At those sizes, credits reopened during a trip sit partly under the trip card. The zoom buttons stay behind the sheet on portrait phones, as before. Not checked: navigation mode, where a bottom bar replaces the sheet, and real iPhones or WebKit.
 - Follow-up 1 stays open for the 15 My Maps stops, follow-up 2 for the December re-check; the takeover phase is unchanged.

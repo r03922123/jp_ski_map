@@ -89,16 +89,16 @@ and `localhost` referrers and to the first two APIs, set as `NEXT_PUBLIC_GOOGLE_
 caps of 300 element loads and 200 text searches. Expected cost at friends-only traffic: $0 a month.
 
 **Acceptance:**
-- [ ] Refresh unit tests with a recorded response (no key, no `X-Goog-Api-Key` header in the fixture):
-  the request body has the field mask, the rectangle and `nameJa` first; a response `{}` with no `places`
+- [x] Refresh unit tests with a recorded response (no key, no `X-Goog-Api-Key` header in the fixture):
+  the request has the field mask (Google's `X-Goog-FieldMask` header), and its body the rectangle and `nameJa` first; a response `{}` with no `places`
   leaves the POI out; the output validates.
-- [ ] The validator checks that every key in `poi_google.json` is a food POI in `poi_osm.json` and every
+- [x] The validator checks that every key in `poi_google.json` is a food POI in `poi_osm.json` and every
   value is a non-empty place ID.
-- [ ] `/api/pois/nearby` returns `googlePlaceId` for a matched POI and `null` for an unmatched one.
-- [ ] `PoiList` tests: a selected row with a place ID and a key renders a
+- [x] `/api/pois/nearby` returns `googlePlaceId` for a matched POI and `null` for an unmatched one.
+- [x] `PoiList` tests: a selected row with a place ID and a key renders a
   `gmp-place-details-place-request` whose `place` is that ID;
   without either it renders nothing; the Google script is not requested before a selection.
-- [ ] The deploy-script test fails when `poi_google.json` is missing from the copied files.
+- [x] The deploy-script test fails when `poi_google.json` is missing from the copied files.
 - [ ] With a real key on the dev server, the owner opens the first 10 food results (walk) from the JR
   Hakuba Station coordinate and records in the PR how many show the right restaurant. Fewer than 9 of 10 → tighten the rectangle or match rule before shipping.
 
