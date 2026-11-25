@@ -9,7 +9,7 @@ LIMIT_S="${LIMIT_S:-5}"
 # Above SPEC-deploy's 500 ms: GitHub's runners are far from the hnd1 function
 WARM_LIMIT_S="${WARM_LIMIT_S:-1}"
 # A Hakuba hotel to Happo-One's Adam Gondola, the README's example start
-ROUTE="/api/route?mode=drive&from=36.69711,137.85393&to=36.70179,137.83683"
+ROUTE="/api/route?mode=walk&from=36.69711,137.85393&to=36.70179,137.83683"
 summary="${GITHUB_STEP_SUMMARY:-/dev/null}"
 fail=0
 t=0
