@@ -1,10 +1,10 @@
 """Synthetic (query, entry) pairs for contrastive fine-tuning, generated from the index itself.
 
 Each rule mimics a way people really type a place: dropped or added area words, typos,
-romaji readings, Chinese characters for Japanese words, and food or shop words. Rules like
-these regenerate test queries word for word ("ramen", 拉麵), so `make_pairs` drops every query
-equal to one in a hand-written eval set (evals/hard_queries.json, evals/heldout_v2.json) after
-normalising. Near-duplicates ("ramen hakuba") can remain.
+romaji readings, Chinese characters for Japanese words, and stop or resort words. Rules like
+these regenerate test queries word for word ("Goryu ski resort"), so `make_pairs` drops every
+query equal to one in a hand-written eval set (evals/hard_queries.json, evals/heldout_v2.json)
+after normalising. Near-duplicates ("Goryu ski resort hakuba") can remain.
 """
 
 import hashlib
@@ -20,25 +20,7 @@ HELD_OUT = (EVALS / "hard_queries.json", EVALS / "heldout_v2.json")
 
 # Japanese → Chinese (traditional) words and characters a Chinese-speaking visitor would type
 ZH = {"スキー場": "滑雪場", "ホテル": "酒店", "温泉": "溫泉", "竜": "龍", "乗": "乘", "館": "館"}
-CUISINE_WORDS = {
-    "ramen": ["ramen", "拉麵", "ラーメン"],
-    "noodle": ["noodles", "麵", "麺"],
-    "soba": ["soba", "蕎麥麵", "そば"],
-    "curry": ["curry", "咖哩", "カレー"],
-    "pizza": ["pizza", "披薩", "ピザ"],
-    "coffee_shop": ["coffee", "cafe", "咖啡", "カフェ"],
-    "japanese": ["japanese food", "日本料理", "和食"],
-    "mexican": ["mexican", "tacos", "墨西哥菜"],
-    "indian": ["indian", "印度料理", "インド料理"],
-    "chinese": ["chinese", "中華料理", "中餐"],
-    "italian": ["italian", "義大利菜", "イタリアン"],
-    "burger": ["burger", "漢堡", "ハンバーガー"],
-    "steak_house": ["steak", "牛排", "ステーキ"],
-    "breakfast": ["breakfast", "早餐", "朝食"],
-}
 KIND_WORDS = {
-    "convenience": ["convenience store", "konbini", "便利商店", "コンビニ"],
-    "food": ["restaurant", "餐廳", "レストラン"],
     "stop": ["bus stop", "公車站", "バス停"],
     "resort": ["ski resort", "滑雪場", "スキー場"],
 }
@@ -88,15 +70,8 @@ def queries_for(e: Entry, rng: random.Random) -> list[str]:
             out.append(zh)
     out.extend(e.readings)
     out.extend(e.aliases)
-    cuisines = e.detail.split(" · ")[-1].split(";") if " · " in e.detail else []
-    for c in cuisines:
-        for word in CUISINE_WORDS.get(c, []):
-            out.append(rng.choice([word, f"{word} {rng.choice(AREA)}"]))
     for word in KIND_WORDS.get(e.kind, []):
-        if e.kind in ("stop", "resort"):
-            out.append(f"{e.name.split(' · ')[0].split()[-1]} {word}")
-        else:
-            out.append(f"{word} {e.name}")
+        out.append(f"{e.name.split(' · ')[0].split()[-1]} {word}")
     return list(dict.fromkeys(q for q in out if q.strip()))
 
 
@@ -111,7 +86,7 @@ def rebalance(
     pairs: list[Pair], kind_of: dict[str, str], max_share: float, seed: int = 0
 ) -> list[Pair]:
     """Sample down any kind holding more than `max_share` of the pairs, so lodging names
-    (three quarters of the index) don't crowd out food, shop and resort words. Keeps order."""
+    (three quarters of the index) don't crowd out stop and resort words. Keeps order."""
     if max_share >= 1:
         return pairs
     counts: dict[str, int] = {}
