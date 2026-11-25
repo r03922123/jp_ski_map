@@ -42,7 +42,7 @@ does not offer these destinations.
 ## Boundaries
 - Never: show or store Google Places content outside the Places UI Kit element of v1.2 (only place IDs
   are stored). Never call Overpass per user request.
-- Ask first: adding other ratings or photos, or interpreting opening hours ("open now").
+- Ask first: adding ratings or photos beyond v1.2, or interpreting opening hours ("open now").
 
 ## v1.2 — Google rating card (approved 2026-11-25)
 **Problem:** the owner wants review scores for restaurants. OpenStreetMap has none. Tabelog's terms forbid
@@ -63,14 +63,21 @@ no scores to sort by.
    on the POI, `pageSize` 1. It writes `data/poi_google.json` (`{"<poi id>": "<place id>"}`, matched POIs
    only) and `data/poi_google.meta.json` (run date, counts matched and unmatched). Google allows storing
    place IDs indefinitely and suggests refreshing those older than 12 months.
-2. **API.** `Poi` gains `googlePlaceId: str | None`, joined from `poi_google.json` at load. `None` when
-   absent or when the file is missing. `/api/pois/nearby` returns it, and `api-types.ts` is regenerated.
-3. **Web.** Selecting a food row that has a `googlePlaceId` shows, under that row,
-   `gmp-place-details-compact` (horizontal) with `gmp-place-media`, `gmp-place-rating` and
+2. **API.** `Poi` gains `googlePlaceId: str | None = None`, joined from `poi_google.json` at load.
+   `/api/pois/nearby` returns it (so does the MCP `nearby_pois` tool, which is fine: an ID is no Google
+   content), and `api-types.ts` is regenerated. `hakuba_api/data/validate.py` loads the new file.
+   `scripts/deploy-vercel.sh` copies it with the other data files, and `scripts/test-deploy-vercel.sh`
+   lists it, because a missing file would silently show no cards in production.
+   `refresh_pois` drops keys whose POI no longer exists, so an OSM refresh never breaks the validator
+   while the place IDs wait for the owner's next run.
+3. **Web.** Selecting a food row that has a `googlePlaceId` shows, inside that row's `<li>` after its
+   `<button>` (never inside the button), `gmp-place-details-compact` (horizontal) holding a
+   `gmp-place-details-place-request place="<id>"` child plus `gmp-place-media`, `gmp-place-rating` and
    `gmp-place-attribution`. The Maps JavaScript API loads on the first such selection only, with the key
    in `NEXT_PUBLIC_GOOGLE_MAPS_KEY`. No key, no place ID, or a load failure → no card and no error; the
    list works as before. Each selection is one billed element load ("Places UI Kit Query": 10,000 free a
-   month, then $1.00 per 1,000).
+   month, then $1.00 per 1,000; the owner confirms the SKU in the billing console after the first load,
+   since Google bills the "Advanced" elements to Places UI Kit Pro).
 4. **Credits.** The element draws Google's attribution itself; we never hide or restyle it beyond the
    documented colours. `DATA-LICENSES.md` gets a row for `poi_google.json`: Google place IDs, stored under
    Google's place-ID policy, no other Google content.
@@ -82,15 +89,18 @@ and `localhost` referrers and to the first two APIs, set as `NEXT_PUBLIC_GOOGLE_
 caps of 300 element loads and 200 text searches. Expected cost at friends-only traffic: $0 a month.
 
 **Acceptance:**
-- [ ] Refresh unit tests with a recorded response (no key): the request body has the field mask, the
-  rectangle and `nameJa` first; a response with no places leaves the POI out; the output validates.
+- [ ] Refresh unit tests with a recorded response (no key, no `X-Goog-Api-Key` header in the fixture):
+  the request body has the field mask, the rectangle and `nameJa` first; a response `{}` with no `places`
+  leaves the POI out; the output validates.
 - [ ] The validator checks that every key in `poi_google.json` is a food POI in `poi_osm.json` and every
   value is a non-empty place ID.
 - [ ] `/api/pois/nearby` returns `googlePlaceId` for a matched POI and `null` for an unmatched one.
-- [ ] `PoiList` tests: a selected row with a place ID and a key renders the element with that `place`;
+- [ ] `PoiList` tests: a selected row with a place ID and a key renders a
+  `gmp-place-details-place-request` whose `place` is that ID;
   without either it renders nothing; the Google script is not requested before a selection.
-- [ ] With a real key on the dev server, the owner opens 10 cards and records how many show the right
-  restaurant in the PR. Fewer than 9 of 10 → tighten the rectangle or match rule before shipping.
+- [ ] The deploy-script test fails when `poi_google.json` is missing from the copied files.
+- [ ] With a real key on the dev server, the owner opens the first 10 food results (walk) from the JR
+  Hakuba Station coordinate and records in the PR how many show the right restaurant. Fewer than 9 of 10 → tighten the rectangle or match rule before shipping.
 
 **Not doing:** sorting or filtering by Google rating (we hold no scores, and UI Kit offers no sort);
 Tabelog scores; a Google base map.
@@ -98,4 +108,5 @@ Tabelog scores; a Google base map.
 **Open question for the owner:** Maps ToS 3.2.3(d)(iii) bans Core Services "in a listings or directory
 service", and 16.1 overrides only the non-Google-map clause. Google doesn't define the term. Assumption,
 until the owner decides otherwise: a ski trip planner showing restaurants as destinations is not a
-listings service.
+listings service, and committing place IDs to a public repo is storage Google allows, not
+redistribution of Google content.
