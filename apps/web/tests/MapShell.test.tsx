@@ -850,6 +850,8 @@ describe("MapShell keyboard focus", () => {
       snowDepth: null,
       crowd: null,
       terrainSize: null,
+      runs: null,
+      areaHa: null,
       vertical: null,
       price: null,
     },

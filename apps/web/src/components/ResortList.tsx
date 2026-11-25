@@ -29,7 +29,15 @@ const FACTOR_ROWS: {
     label: "Crowd score (est.)",
     format: (v) => `${Math.round(v * 100)}%`,
   },
-  { key: "terrainSize", label: "Runs", format: (v) => `${v}` },
+  {
+    key: "terrainSize",
+    label: "Total run length",
+    // whole hundreds of metres first: (20450 / 1000).toFixed(1) is "20.4"
+    format: (v) => `${(Math.round(v / 100) / 10).toFixed(1)} km`,
+  },
+  // Resorts count runs differently, so both sizes show beside the run length
+  { key: "runs", label: "Runs", format: (v) => `${v}` },
+  { key: "areaHa", label: "Skiable area", format: (v) => `${v} ha` },
 ];
 
 const asOfFormat = new Intl.DateTimeFormat("en-GB", {

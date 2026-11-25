@@ -38,9 +38,11 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       freshSnow: 46.8,
       snowDepth: 299,
       crowd: 0.6,
-      terrainSize: 16,
+      terrainSize: 23300,
       vertical: 1071,
       price: null,
+      runs: 16,
+      areaHa: 220,
     },
     snow: {
       resortId: "happo-one",
@@ -172,6 +174,19 @@ describe("ResortList", () => {
 
   // the panel tidy left two sorts (2026-11-25); Details keeps their factors and crowd, which
   // refactor/remove-crowd removes, and drops the rows of the sorts it took away
+  it("rounds the run length to one decimal, half up", () => {
+    const factors = { ...ranked().factors, terrainSize: 20450 };
+    render(
+      <ResortList
+        resorts={[ranked({ factors })]}
+        selectedId={null}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("20.5 km")).toBeInTheDocument();
+  });
+
   it("expands to the kept factors, crowd reasons and the snow timestamp", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
@@ -187,7 +202,19 @@ describe("ResortList", () => {
       within(factors)
         .getAllByRole("term")
         .map((dt) => dt.textContent),
-    ).toEqual(["Walk time", "Crowd score (est.)", "Runs"]);
+    ).toEqual([
+      "Walk time",
+      "Crowd score (est.)",
+      "Total run length",
+      "Runs",
+      "Skiable area",
+    ]);
+    expect(
+      within(factors)
+        .getAllByRole("definition")
+        .map((dd) => dd.textContent)
+        .slice(2),
+    ).toEqual(["23.3 km", "16", "220 ha"]);
     for (const gone of [
       /Fresh snow \(24 h/,
       "Summit snow depth",

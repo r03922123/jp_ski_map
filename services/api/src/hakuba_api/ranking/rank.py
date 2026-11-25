@@ -22,9 +22,12 @@ class Factors(ApiModel):
     fresh_snow: float | None  # cm: past 24 h + half of next 24 h
     snow_depth: float | None  # cm at the summit
     crowd: float | None  # 0..1 estimate
-    terrain_size: float | None  # number of runs
+    terrain_size: float | None  # m: total run length, as the resort reports it
     vertical: float | None  # m
     price: float | None  # JPY day ticket
+    # Not sort keys: shown beside terrain_size, since resorts count runs differently
+    runs: int | None
+    area_ha: int | None
 
 
 class RankedResort(ApiModel):
@@ -73,9 +76,11 @@ def factors_for(item: RankInput) -> Factors:
         fresh_snow=_fresh_snow(item.snow),
         snow_depth=item.snow.depth_cm.summit if item.snow else None,
         crowd=item.crowd.score if item.crowd else None,
-        terrain_size=stats.runs,
+        terrain_size=stats.total_runs_m,
         vertical=stats.vertical_m,
         price=stats.day_ticket_jpy,
+        runs=stats.runs,
+        area_ha=stats.area_ha,
     )
 
 

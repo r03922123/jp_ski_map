@@ -117,7 +117,7 @@ def rank_resorts(
 
     origin: 'lat,lng' (from search_place). sort: walk_time (shortest walk first), fresh_snow
     (cm, past 24 h + half of next 24 h), snow_depth (summit cm), crowd (quietest first),
-    terrain_size (runs), vertical (m), price (cheapest day ticket, JPY).
+    terrain_size (total run length, m), vertical (m), price (cheapest day ticket, JPY).
     date: YYYY-MM-DD for the crowd estimate (default today, JST). Filters are optional.
     Each item gives resortId, walkMin, sortValue (in the sort's unit), snow in cm and
     crowdLevel (low/medium/high/very_high). snowAsOf is the local time (JST) the snow
