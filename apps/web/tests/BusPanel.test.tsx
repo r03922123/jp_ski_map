@@ -24,6 +24,8 @@ function renderPanel(overrides: Partial<BusPanelProps> = {}) {
     night: { status: "idle" },
     showNight: false,
     onShowNightChange: vi.fn(),
+    freeOnly: false,
+    onFreeOnlyChange: vi.fn(),
     departAt: "2026-03-20T08:00",
     onDepartAtChange: vi.fn(),
     selected: null,
@@ -129,6 +131,8 @@ describe("BusPanel", () => {
         night: { status: "idle" },
         showNight: false,
         onShowNightChange: vi.fn(),
+        freeOnly: false,
+        onFreeOnlyChange: vi.fn(),
         departAt: "2026-03-20T08:00",
         onDepartAtChange: vi.fn(),
         selected: option,
@@ -261,6 +265,84 @@ describe("BusPanel", () => {
 
     expect(
       screen.getByText("No more shuttles to this resort after this time."),
+    ).toBeInTheDocument();
+  });
+});
+
+// Line V (the Hakuba Valley Line) is the paid day line; the API drops it before it caps
+// the options, so the panel shows what the server sent
+describe("BusPanel free shuttles only", () => {
+  const data = fixture as BusResult;
+  const tick = () =>
+    fireEvent.click(screen.getByLabelText("Free shuttles only"));
+
+  it("asks for free shuttles only", () => {
+    const props = renderPanel();
+    expect(screen.getByLabelText("Free shuttles only")).not.toBeChecked();
+
+    tick();
+
+    expect(props.onFreeOnlyChange).toHaveBeenCalledWith(true);
+  });
+
+  it("lists the server's answer as it came", () => {
+    renderPanel({ freeOnly: true });
+
+    expect(screen.getByLabelText("Free shuttles only")).toBeChecked();
+    expect(
+      screen.getByRole("region", { name: "Hakuba47 Mountain Resort" }),
+    ).toBeInTheDocument();
+  });
+
+  it("is off while the Night bus list is shown, which it doesn't filter", () => {
+    renderPanel({ showNight: true });
+    expect(screen.getByLabelText("Free shuttles only")).toBeDisabled();
+  });
+
+  it("says so when the server has no free shuttle", () => {
+    renderPanel({
+      freeOnly: true,
+      result: { status: "success", data: { ...data, resorts: [] } },
+    });
+
+    expect(
+      screen.getByText("No free shuttles after this time today."),
+    ).toBeInTheDocument();
+  });
+
+  it("says so when the chosen resort has no free shuttle", () => {
+    renderPanel({
+      freeOnly: true,
+      onlyResortId: "hakuba47",
+      result: {
+        status: "success",
+        data: {
+          ...data,
+          resorts: data.resorts.filter((r) => r.resortId !== "hakuba47"),
+        },
+      },
+    });
+
+    expect(
+      screen.getByText("No free shuttles to this resort after this time."),
+    ).toBeInTheDocument();
+  });
+
+  it("says so when no free shuttle goes to a place", () => {
+    renderPanel({
+      freeOnly: true,
+      place: {
+        name: "JR Hakuba Station",
+        result: {
+          status: "success",
+          data: { ...(placeFixture as PlaceBusResult), options: [] },
+        },
+        onClear: vi.fn(),
+      },
+    });
+
+    expect(
+      screen.getByText("No free shuttle to this place after this time."),
     ).toBeInTheDocument();
   });
 });
@@ -405,6 +487,8 @@ describe("Journey stop list (long rides, loops)", () => {
         night={{ status: "idle" }}
         showNight={false}
         onShowNightChange={vi.fn()}
+        freeOnly={false}
+        onFreeOnlyChange={vi.fn()}
         departAt="2026-03-20T08:00"
         onDepartAtChange={vi.fn()}
         selected={option}

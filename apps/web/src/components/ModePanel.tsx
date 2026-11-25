@@ -131,14 +131,14 @@ export function ModePanel({
       {/* the trip list keeps one place in the tree and the answer moves around it: a list
           that moved would remount and lose its refocus after a stop is removed */}
       {!tripFirst && hasOrigin && mode !== "bus" && directions}
-      {/* the trip stays listed while the start is being changed (its stops survive); it
-          holds the start's ★, so it stays, below the answer (v1.26; Bus: below its options) */}
+      {/* the trip stays listed, below the answer, while the start is being changed: its
+          stops survive (v1.26; Bus: below its options) */}
       {(mode !== "bus" || !hasOrigin || !busPanel) && placeStrip}
       {tripFirst && hasOrigin && mode !== "bus" && directions}
       {!hasOrigin ? (
         <p className="text-sm text-muted-foreground">
-          Type a place above, or {touch ? "long-press" : "tap"} the map, to set
-          your starting point.
+          Type a place above, or {touch ? "long-press" : "click"} the map, to
+          set your starting point.
         </p>
       ) : mode === "bus" && busPanel ? (
         <>

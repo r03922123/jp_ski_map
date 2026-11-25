@@ -169,7 +169,11 @@ for (const device of DEVICES) {
       const expand = page.getByRole("button", { name: "Expand directions" });
       if (device.width < 768) await expand.click();
 
-      await page.locator("label:has(input[name=route-option])").nth(1).click();
+      await page
+        .getByRole("list", { name: "Route options" })
+        .getByRole("button")
+        .nth(1)
+        .click();
 
       await expectClear(page, set.alternates[0].geometry.coordinates);
     });
@@ -209,6 +213,11 @@ for (const device of DEVICES.filter((d) => d.width > d.height && d.touch)) {
       await expect
         .poll(async () => (await sheet.boundingBox())?.height ?? 0)
         .toBeGreaterThan(150);
+      // the steps open under the selected route option
+      await page
+        .getByRole("list", { name: "Route options" })
+        .locator("button[aria-current='true']")
+        .click();
       await expect(page.getByRole("list", { name: "Steps" })).toBeVisible();
 
       // collapsed again after scrolling down the steps: the bar shows ETA and Start

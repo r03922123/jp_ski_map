@@ -11,6 +11,9 @@ import {
 import type { DestinationCategory } from "@/lib/url-state";
 import type { Trip, TripPoint } from "@/lib/use-trip";
 
+/** The Hakuba Valley Line, the paid day line (PAID_DAY_LINE in the API's bus query); the rest are free. */
+const PAID_LINE = "line-v";
+
 export const pinPlace = (pin: TripPoint): PlaceInput => ({
   id: pinId(pin.coord),
   name: pin.name ?? "Dropped pin",
@@ -52,7 +55,6 @@ export function tripActions(
   },
 ) {
   const {
-    origin,
     point,
     stops,
     storedBusChoice,
@@ -106,15 +108,18 @@ export function tripActions(
     setPoiId(null);
     setPoint(null);
   };
+  // the tapped bus goes, but the resort it set stays the destination
+  const dropBusChoice = () => {
+    const busResort = point ? null : storedBusChoice?.resortId;
+    if (busResort) setChosenResortId((id) => id ?? busResort);
+    setBusChoice(null);
+  };
   const clearOrigin = () => {
     setOrigin(null);
     setOriginName(null);
     setOriginSource(null);
     setSearchLabel(null);
-    // the bus was for the old start, but its resort stays the destination
-    const busResort = point ? null : storedBusChoice?.resortId;
-    if (busResort) setChosenResortId((id) => id ?? busResort);
-    setBusChoice(null);
+    dropBusChoice(); // it was for the old start
     // an empty stop box would take the next tap, which is meant for the new start
     setStops((list) => list.filter((st) => st.place !== null));
   };
@@ -130,10 +135,9 @@ export function tripActions(
     chooseTo,
     clearTo,
     clearOrigin,
-    /** the trip panel's ✕: also empties the From box */
-    clearFrom: () => {
-      clearOrigin();
-      setSearchKey((k) => k + 1);
+    /** Free shuttles only: a chosen paid bus would stay on the map while its row is hidden */
+    dropPaidBus: () => {
+      if (storedBusChoice?.lineId === PAID_LINE) dropBusChoice();
     },
     /** a search result becomes the start */
     searchStart: (place: Suggestion) => {
@@ -229,26 +233,9 @@ export function tripActions(
         [next[i], next[j]] = [next[j], next[i]];
         return next;
       }),
-    /** a map tap */
+    /** a map click with a stop box open is the stop (Google: "put a point on the map") */
     pickOnMap: (coord: Coord) => {
-      // an open stop box takes the tap (Google: type, or put a point on the map)
-      if (placingStop) {
-        fillOpenStop({
-          id: pinId(coord),
-          name: "Dropped pin",
-          coord,
-          kind: "pin",
-        });
-        return;
-      }
-      // both ends set: a stray click must not replace the start (v1.13 rule 8);
-      // Add destination is how to change the trip from here
-      if (origin && toPlace) return;
-      setOrigin(coord);
-      setOriginName(null);
-      setOriginSource(null);
-      // the From box then shows "Dropped pin", not an older label such as My hotel
-      setSearchLabel(null);
+      if (placingStop) fillOpenStop(pinPlace({ coord, name: null }));
     },
     /** a tapped resort marker */
     selectResortOnMap: (id: string) => {

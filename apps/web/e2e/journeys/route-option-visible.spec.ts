@@ -76,7 +76,10 @@ function coveredPoints(page: Page, coords: Coords) {
 }
 
 const option = (page: Page, index: number) =>
-  page.locator("label:has(input[name=route-option])").nth(index);
+  page
+    .getByRole("list", { name: "Route options" })
+    .getByRole("button")
+    .nth(index);
 const sheet = (page: Page) => page.locator("[data-sheet]");
 
 async function openTrip(page: Page) {

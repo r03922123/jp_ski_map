@@ -43,18 +43,6 @@ export function SortControls({
         </select>
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="ski-date" className="font-medium">
-          Date
-        </label>
-        <input
-          id="ski-date"
-          type="date"
-          className="rounded-md border bg-background px-2 py-1"
-          value={value.date ?? ""}
-          onChange={(e) => set({ date: e.target.value || null })}
-        />
-      </div>
-      <div className="flex flex-col gap-1">
         <label htmlFor="max-walk" className="font-medium">
           Max walk
         </label>

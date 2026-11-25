@@ -233,18 +233,14 @@ for (const [device, options] of Object.entries(DEVICES)) {
       expect(minutesOf(await headline.innerText())).toBeGreaterThanOrEqual(30);
     });
 
-    test("one trip time: the bus time is the Walk date, and both are in the URL", async ({
-      page,
-    }) => {
-      // known: C — Walk's Date stays empty after setting the bus to Jan 15; the URL has no time
+    test("the bus time is in the URL", async ({ page }) => {
+      // known: C — the URL has no time (Walk has no Date since the panel tidy, 2026-11-25)
       test.fail(true, "known: C");
       await openBus(page, EVE);
       await busAt(page, TOMORROW_8);
       await expect
         .poll(() => page.url(), { timeout: 5_000 })
         .toContain("2027-01-15");
-      await page.getByRole("tab", { name: /Walk/ }).click();
-      await expect(page.getByLabel("Date")).toHaveValue("2027-01-15");
     });
 
     test("a reload (or shared link) keeps the bus time and the chosen option", async ({

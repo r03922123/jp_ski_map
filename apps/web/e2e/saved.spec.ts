@@ -13,12 +13,13 @@ test("a starred hotel stays saved after a reload and shows on the map", async ({
     .first()
     .click({ timeout: 15_000 });
 
-  const trip = page.getByRole("list", { name: "Trip" });
-  await trip.getByRole("button", { name: /^Save Hotel Hakuba/ }).click();
+  // no destination: the start's place card holds its Save star
+  const card = page.getByRole("group", { name: "From here" });
+  await card.getByRole("button", { name: /^Save Hotel Hakuba/ }).click();
   await page.getByRole("checkbox", { name: /Starred/ }).check();
   await page.getByRole("button", { name: "Done" }).click();
   await expect(
-    trip.getByRole("button", { name: /^Saved: Hotel Hakuba/ }),
+    card.getByRole("button", { name: /^Saved: Hotel Hakuba/ }),
   ).toHaveAttribute("aria-pressed", "true");
   // closing the list picker hands its Back entry back (an async history.back(), T76);
   // a reload racing that traversal is aborted
@@ -32,9 +33,7 @@ test("a starred hotel stays saved after a reload and shows on the map", async ({
   });
   // the origin comes back from the URL as a coordinate and is matched to the saved place
   await expect(
-    page
-      .getByRole("list", { name: "Trip" })
-      .getByRole("button", { name: /^Saved: Hotel Hakuba/ }),
+    card.getByRole("button", { name: /^Saved: Hotel Hakuba/ }),
   ).toBeVisible();
   await expect(page.locator("[data-saved-marker]")).toHaveCount(1);
 });
@@ -182,7 +181,7 @@ test.describe("mobile", () => {
       );
 
     await page
-      .getByRole("list", { name: "Trip" })
+      .getByRole("group", { name: "From here" })
       .getByRole("button", { name: /Hotel Hakuba/ })
       .click();
     await expect(

@@ -490,9 +490,9 @@ test.describe("on a laptop (fine pointer)", () => {
     page,
   }) => {
     await page.goto(URL);
-    await expect(page.getByRole("list", { name: "Steps" })).toBeVisible({
-      timeout: 20_000,
-    });
+    await expect(page.getByRole("list", { name: "Route options" })).toBeVisible(
+      { timeout: 20_000 },
+    );
     await expect(page.getByText(/ETA ~/).first()).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Start navigation" }),
@@ -577,7 +577,9 @@ test.describe("a running session", () => {
 
     // after the trip the laptop-like device gets no Start; touch again brings it back
     await page.getByRole("button", { name: "Exit navigation" }).click();
-    await expect(page.getByRole("list", { name: "Steps" })).toBeVisible();
+    await expect(
+      page.getByRole("list", { name: "Route options" }),
+    ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Start navigation" }),
     ).toHaveCount(0);

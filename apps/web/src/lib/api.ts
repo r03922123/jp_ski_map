@@ -124,7 +124,6 @@ export const fetchLodging = ({ south, west, north, east }: Bbox) =>
 
 export type RankQuery = {
   sort: SortKey;
-  date: string | null;
   maxWalkMin: number | null;
   nightSkiing: boolean;
   hvPass: boolean;
@@ -132,7 +131,6 @@ export type RankQuery = {
 
 export function fetchRank(from: Coord, q: RankQuery) {
   const params = new URLSearchParams({ from: latLng(from), sort: q.sort });
-  if (q.date) params.set("date", q.date);
   if (q.maxWalkMin) params.set("maxWalkMin", String(q.maxWalkMin));
   if (q.nightSkiing) params.set("nightSkiing", "true");
   if (q.hvPass) params.set("hakubaValleyPass", "true");
@@ -147,10 +145,11 @@ export function fetchBusOptions(
   from: Coord,
   departAt: string,
   placeName: string | null = null,
+  freeOnly = false,
 ) {
   const name = placeName ? `&name=${encodeURIComponent(placeName)}` : "";
   return getJson<BusResult>(
-    `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}${name}`,
+    `/api/bus/options?from=${latLng(from)}&at=${jst(departAt)}${name}${freeOnly ? "&freeOnly=true" : ""}`,
   );
 }
 
@@ -161,12 +160,13 @@ export function fetchBusToPlace(
   departAt: string,
   placeName: string | null = null,
   toName: string | null = null,
+  freeOnly = false,
 ) {
   const names = `${placeName ? `&name=${encodeURIComponent(placeName)}` : ""}${
     toName ? `&toName=${encodeURIComponent(toName)}` : ""
   }`;
   return getJson<PlaceBusResult>(
-    `/api/bus/to-place?from=${latLng(from)}&to=${latLng(to)}&at=${jst(departAt)}${names}`,
+    `/api/bus/to-place?from=${latLng(from)}&to=${latLng(to)}&at=${jst(departAt)}${names}${freeOnly ? "&freeOnly=true" : ""}`,
   );
 }
 

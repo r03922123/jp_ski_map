@@ -197,6 +197,36 @@ def test_bus_options_endpoint(api: TestClient) -> None:
     assert hakuba47["options"][0]["boardStopName"] == "Hakuba Happo Bus Terminal"
 
 
+def test_free_only_reaches_a_free_shuttle_behind_three_paid_ones() -> None:
+    walks = {JR_HAKUBA: 0}
+    tables = [table("line-v-v2"), table("line-f-f6")]
+    at = datetime(2026, 3, 20, 11, 0, tzinfo=JST)
+
+    def hakuba47(result: Any) -> list[tuple[str, str | None]]:
+        options = next(r for r in result.resorts if r.resort_id == "hakuba47").options
+        return [(o.route_id, hhmm(o.departs_at)) for o in options]
+
+    # the cap keeps the three timed line V buses and drops F6's untimed 12:00
+    assert hakuba47(bus_options(walks, at, tables, STOPS, ALIAS)) == [
+        ("v2", "11:42"),
+        ("v2", "13:42"),
+        ("v2", "16:42"),
+    ]
+    free = bus_options(walks, at, tables, STOPS, ALIAS, free_only=True)
+    assert hakuba47(free) == [("f6", "12:00")]
+    assert all(o.line_id != "line-v" for r in free.resorts for o in r.options)
+
+
+def test_bus_options_endpoint_passes_free_only(api: TestClient) -> None:
+    response = api.get(
+        "/api/bus/options",
+        params={"from": "36.7015,137.8456", "at": "2026-03-20T08:00:00+09:00", "freeOnly": "true"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["resorts"] == []  # the fixture runs line V only
+
+
 # --- "your hotel is the stop" ---------------------------------------------------
 
 
@@ -449,6 +479,20 @@ def test_at_most_five_rows_in_departure_order() -> None:
     assert departures == sorted(departures)
 
 
+def test_free_only_to_place_reaches_past_the_paid_rows() -> None:
+    walks_from, walks_to = {ESCAL: 0}, {TERMINAL: 60}
+    tables = [table("line-v-v2"), table("line-g-g4")]
+    at = datetime(2026, 3, 20, 8, 0, tzinfo=JST)
+
+    def rows(result: Any) -> list[tuple[str, str | None]]:
+        return [(o.route_id, hhmm(o.departs_at)) for o in result.options]
+
+    capped = bus_options_to_place(walks_from, walks_to, at, tables, STOPS, ALIAS)
+    assert rows(capped)[-1] == ("g4", "13:45")  # four line V rows come first
+    free = bus_options_to_place(walks_from, walks_to, at, tables, STOPS, ALIAS, free_only=True)
+    assert rows(free) == [("g4", "13:45"), ("g4", "15:00"), ("g4", "16:00"), ("g4", "17:10")]
+
+
 def test_to_place_out_of_season_reports_next_service_date() -> None:
     result = to_place(
         {ESCAL: 0},
@@ -614,6 +658,21 @@ def test_to_place_endpoint(place_api: TestClient) -> None:
     assert first["doorArrivesAt"] == "2026-03-20T15:15:00+09:00"
     assert first["walkToPlaceS"] == 300
     assert first["resortId"] is None
+
+
+def test_to_place_endpoint_passes_free_only(place_api: TestClient) -> None:
+    response = place_api.get(
+        "/api/bus/to-place",
+        params={
+            "from": "36.65,137.84",
+            "to": "36.70,137.85",
+            "at": "2026-03-20T14:30:00+09:00",
+            "freeOnly": "true",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["options"] == []  # the fixture runs line V only
 
 
 def test_to_place_endpoint_needs_a_destination() -> None:

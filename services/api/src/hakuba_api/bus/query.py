@@ -139,12 +139,15 @@ def bus_options(
     stops: dict[str, BusStop],
     alias: dict[str, str],
     newer_source_pending: bool = False,
+    free_only: bool = False,
 ) -> BusResult:
     day = at.date()
     day_tables = [t for t in timetables if t.kind == "day"]
     active, status, next_date, meta = _service_on(day, day_tables, newer_source_pending)
     if status != "ok":
         return BusResult(status=status, next_service_date=next_date, resorts=[], **meta)
+    if free_only:  # before the per-resort cap, or three paid buses can hide a free one
+        active = [t for t in active if t.line_id != PAID_DAY_LINE]
 
     best: dict[tuple[str, str, int, str], BusOption] = {}  # one entry per trip and resort
     for t in active:
@@ -224,6 +227,7 @@ def bus_options_to_place(
     stops: dict[str, BusStop],
     alias: dict[str, str],
     newer_source_pending: bool = False,
+    free_only: bool = False,
 ) -> PlaceBusResult:
     """The next direct shuttles to a place, such as back to the lodging (spec v1.2)."""
     day = at.date()
@@ -231,6 +235,8 @@ def bus_options_to_place(
     active, status, next_date, meta = _service_on(day, day_tables, newer_source_pending)
     if status != "ok":
         return PlaceBusResult(status=status, next_service_date=next_date, options=[], **meta)
+    if free_only:  # before the cap, as in bus_options
+        active = [t for t in active if t.line_id != PAID_DAY_LINE]
 
     best: dict[tuple[str, str, int], BusOption] = {}  # one row per trip
     for t in active:

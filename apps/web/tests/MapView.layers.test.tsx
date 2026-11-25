@@ -344,14 +344,14 @@ describe("MapView clicks on a route line and double-clicks", () => {
     expect(onPickOrigin).toHaveBeenCalledTimes(1); // the stop box takes the point
   });
 
-  it("the second click of a double-click picks nothing", () => {
-    const onPickOrigin = vi.fn();
-    render(<MapView {...base} onPickOrigin={onPickOrigin} />);
+  it("the second click of a double-click drops no pin", () => {
+    const onDropPin = vi.fn();
+    render(<MapView {...base} onDropPin={onDropPin} />);
     click(undefined, 2);
     act(() => vi.advanceTimersByTime(300));
-    expect(onPickOrigin).not.toHaveBeenCalled();
+    expect(onDropPin).not.toHaveBeenCalled();
     click(undefined, 1);
     act(() => vi.advanceTimersByTime(300));
-    expect(onPickOrigin).toHaveBeenCalledWith({ lat: 36.7, lng: 137.85 });
+    expect(onDropPin).toHaveBeenCalledWith({ lat: 36.7, lng: 137.85 }, null);
   });
 });

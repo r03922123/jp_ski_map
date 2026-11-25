@@ -6,9 +6,8 @@ import {
   screen,
   within,
 } from "@testing-library/react";
-import { type ReactElement, useState } from "react";
+import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { RankingPanel } from "@/components/RankingPanel";
 import { ResortList } from "@/components/ResortList";
 import { SortControls } from "@/components/SortControls";
 import type { RankedResort } from "@/lib/api";
@@ -89,33 +88,28 @@ describe("ResortList", () => {
   // UX panel 2026-11-23: sorted by Fresh snow (past 24 h + ½ next 24 h), every card read
   // "0 cm new" while the order came from the forecast. Three facts don't fit one line on a
   // 360 px phone, so under that sort the forecast takes the summit depth's place
-  it("shows the snow the fresh-snow sort counts once the user picks it", () => {
-    function Panel() {
-      const [options, setOptions] = useState(DEFAULT_RANK);
-      const snow = {
-        ...ranked().snow,
-        depthCm: { base: 20, summit: 76, source: "model" },
-        newSnowCm: { past24h: 0, past72h: 55.9, next24h: 14.4, next72h: 20 },
-      } as RankedResort["snow"];
-      return (
-        <RankingPanel
-          options={options}
-          onOptionsChange={setOptions}
-          ranking={{ status: "success", data: [ranked({ snow })] }}
-          selectedResortId={null}
-          onSelectResort={vi.fn()}
-        />
-      );
-    }
-    render(<Panel />);
+  // the panel no longer offers this sort (2026-11-25); the list still honours it
+  it("shows the snow the fresh-snow sort counts under that sort", () => {
+    const snow = {
+      ...ranked().snow,
+      depthCm: { base: 20, summit: 76, source: "model" },
+      newSnowCm: { past24h: 0, past72h: 55.9, next24h: 14.4, next72h: 20 },
+    } as RankedResort["snow"];
+    const list = (sort: "walk_time" | "fresh_snow") => (
+      <ResortList
+        resorts={[ranked({ snow })]}
+        selectedId={null}
+        onSelect={vi.fn()}
+        sort={sort}
+      />
+    );
+    const view = render(list("walk_time"));
     const card = () => screen.getByRole("button", { name: /Happo-One/ });
     expect(
       within(card()).getByText("❄ 0 cm new · 76 cm summit"),
     ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Sort by"), {
-      target: { value: "fresh_snow" },
-    });
+    view.rerender(list("fresh_snow"));
 
     expect(
       within(card()).getByText("❄ 0 cm new · 14 cm next 24 h"),
@@ -356,13 +350,29 @@ describe("ResortList", () => {
 });
 
 describe("SortControls", () => {
+  // a date only a link could set had no way to be cleared
+  it("has no Date input", () => {
+    render(<SortControls value={DEFAULT_RANK} onChange={vi.fn()} />);
+
+    expect(screen.queryByLabelText("Date")).toBeNull();
+  });
+
+  it("sorts by walk time or terrain size only", () => {
+    render(<SortControls value={DEFAULT_RANK} onChange={vi.fn()} />);
+
+    expect(
+      within(screen.getByLabelText("Sort by"))
+        .getAllByRole("option")
+        .map((o) => o.textContent),
+    ).toEqual(["Walk time", "Terrain size"]);
+  });
+
   it("changes the sort key", () => {
     const onChange = vi.fn();
     render(
       <SortControls
         value={{
           sort: "walk_time",
-          date: null,
           maxWalkMin: null,
           nightSkiing: false,
           hvPass: false,
@@ -372,11 +382,11 @@ describe("SortControls", () => {
     );
 
     fireEvent.change(screen.getByLabelText("Sort by"), {
-      target: { value: "fresh_snow" },
+      target: { value: "terrain_size" },
     });
 
     expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ sort: "fresh_snow" }),
+      expect.objectContaining({ sort: "terrain_size" }),
     );
   });
 
@@ -386,7 +396,6 @@ describe("SortControls", () => {
       <SortControls
         value={{
           sort: "walk_time",
-          date: null,
           maxWalkMin: null,
           nightSkiing: false,
           hvPass: false,

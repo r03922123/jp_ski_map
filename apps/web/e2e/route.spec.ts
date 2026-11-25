@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 // Needs the API (started by playwright.config) and Valhalla (docker compose) running.
-test("click map → choose resort → walk route with ETA", async ({ page }) => {
+test("click map → Start here → choose resort → walk route with ETA", async ({
+  page,
+}) => {
   await page.goto("/");
   const main = page.locator("main[data-map-loaded='true']");
   await expect(main).toBeAttached({ timeout: 15_000 });
@@ -14,6 +16,11 @@ test("click map → choose resort → walk route with ETA", async ({ page }) => 
     box.x + box.width / 2 + 40,
     box.y + box.height / 2 + 40,
   );
+  // a click drops a pin; its card's Start here sets the start (BC-A1)
+  await page
+    .getByRole("group", { name: "Dropped pin" })
+    .getByRole("button", { name: "Start here" })
+    .click();
   await expect(page.getByRole("img", { name: "Starting point" })).toBeVisible();
 
   // Walk mode lists ranked resorts (map markers share the name, so scope to the list)

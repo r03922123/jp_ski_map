@@ -237,19 +237,19 @@ afterEach(() => {
 });
 
 describe("MapShell origin", () => {
-  it("a map tap with no start sets the origin, the link and the From box", async () => {
+  it("a dropped pin's Start here sets the origin, the link and the From box", async () => {
     renderShell();
     expect(map().origin).toBeNull();
-    act(() => map().onPickOrigin(hotel));
+    act(() => map().onDropPin?.(hotel, null));
+    fireEvent.click(screen.getByRole("button", { name: "Start here" }));
     expect(map().origin).toEqual(hotel);
     await waitFor(() => expect(query().get("from")).toBe("36.69736,137.85393"));
-    expect(screen.getAllByText("Dropped pin").length).toBeGreaterThan(0);
+    expect(screen.getByDisplayValue("Dropped pin")).toBeInTheDocument();
   });
 
-  it("a shared link restores the origin, and a tap with both ends set keeps it", async () => {
+  it("a shared link restores the origin", async () => {
     renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().destination).not.toBeNull());
-    act(() => map().onPickOrigin({ lat: 36.6, lng: 137.8 }));
     expect(map().origin).toEqual({ lat: 36.69736, lng: 137.85393 });
   });
 
@@ -300,8 +300,8 @@ describe("MapShell destination", () => {
     ).toBeInTheDocument();
   });
 
-  // SPEC-ski-runs v1.1: one card at a time; a mouse click elsewhere closes a run's card
-  it("a run's card replaces the pin card, and a click elsewhere on the map closes it", async () => {
+  // SPEC-ski-runs v1.1: one card at a time; a tap elsewhere closes a run's card
+  it("a run's card replaces the pin card, and a tap elsewhere on the map closes it", async () => {
     renderShell("?mode=walk");
     await waitFor(() => expect(mapProps).not.toBeNull());
     act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
@@ -324,7 +324,7 @@ describe("MapShell destination", () => {
     expect(screen.queryByRole("group", { name: "Dropped pin" })).toBeNull();
     expect(screen.getByRole("group", { name: "Skyline" })).toBeTruthy();
     expect(map().selectedSkiLineId).toBe("r1");
-    act(() => map().onPickOrigin({ lat: 36.69, lng: 137.84 }));
+    act(() => map().onMapTap?.());
     expect(screen.queryByRole("group", { name: "Skyline" })).toBeNull();
     expect(map().selectedSkiLineId).toBeNull();
   });
@@ -417,7 +417,8 @@ describe("MapShell mode", () => {
       fireEvent.click(
         screen.getByRole("button", { name: "Clear starting point" }),
       );
-      act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+      act(() => map().onDropPin?.({ lat: 36.69, lng: 137.86 }, null));
+      fireEvent.click(screen.getByRole("button", { name: "Start here" }));
       await waitFor(() =>
         expect(map().origin).toEqual({ lat: 36.69, lng: 137.86 }),
       );
@@ -473,6 +474,25 @@ describe("MapShell mode", () => {
     ).toBeInTheDocument();
   });
 
+  it("Free shuttles only asks the server again with freeOnly", async () => {
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    await waitFor(() => expect(api.fetchBusOptions).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByLabelText("Free shuttles only"));
+
+    await waitFor(() =>
+      expect(api.fetchBusOptions).toHaveBeenLastCalledWith(
+        expect.anything(),
+        expect.any(String),
+        null,
+        true,
+      ),
+    );
+    expect(
+      await screen.findByText("No free shuttles after this time today."),
+    ).toBeInTheDocument();
+  });
+
   // UX panel 2026-11-23: a bus tapped with no destination set named Happo-One in the To
   // box, but the link had no resort and Walk had no destination
   it("a tapped bus's resort stays the destination in the link and on Walk", async () => {
@@ -506,6 +526,63 @@ describe("MapShell mode", () => {
     );
     await waitFor(() => expect(query().get("from")).toBeNull());
     expect(query().get("resort")).toBe(happo.id);
+  });
+
+  // review of feat/panel-tidy: the box cleared the bus, and the resort the bus had set with it
+  it("Free shuttles only clears a tapped Line V bus but keeps its resort", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    // Happo-One's third option in the fixture is Line V
+    const paid = (await screen.findAllByRole("button", { name: /Board/ }))[2];
+    fireEvent.click(paid);
+    await waitFor(() => expect(query().get("resort")).toBe(happo.id));
+
+    fireEvent.click(screen.getByLabelText("Free shuttles only"));
+
+    await waitFor(() =>
+      expect(
+        screen
+          .getAllByRole("button", { name: /Board/ })
+          .some((b) => b.getAttribute("aria-pressed") === "true"),
+      ).toBe(false),
+    );
+    expect(screen.getByRole("combobox", { name: "To" })).toHaveValue(
+      happo.name.en,
+    );
+    expect(query().get("resort")).toBe(happo.id);
+  });
+
+  it("Free shuttles only keeps a tapped free bus", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+    renderShell("?from=36.69736,137.85393&mode=bus");
+    // Happo-One's first option in the fixture is Line H, a free one
+    const free = (await screen.findAllByRole("button", { name: /Board/ }))[0];
+    fireEvent.click(free);
+    await waitFor(() => expect(free).toHaveAttribute("aria-pressed", "true"));
+
+    fireEvent.click(screen.getByLabelText("Free shuttles only"));
+
+    await waitFor(() =>
+      expect(api.fetchBusOptions).toHaveBeenLastCalledWith(
+        expect.anything(),
+        expect.any(String),
+        null,
+        true,
+      ),
+    );
+    expect(
+      (await screen.findAllByRole("button", { name: /Board/ }))[0],
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   it("a tapped bus doesn't narrow the Bus list to its resort (v1.13 rule 6)", async () => {
@@ -839,7 +916,8 @@ describe("MapShell keyboard focus", () => {
     renderShell(`?from=${from}&mode=walk`);
     fireEvent.click(await screen.findByRole("button", { name: "Directions" }));
     (document.activeElement as HTMLElement).blur();
-    act(() => map().onPickOrigin({ lat: 36.69, lng: 137.86 }));
+    act(() => map().onDropPin?.({ lat: 36.69, lng: 137.86 }, null));
+    fireEvent.click(screen.getByRole("button", { name: "Start here" }));
     fireEvent.click(
       await screen.findByRole("button", { name: /start navigation/i }),
     );

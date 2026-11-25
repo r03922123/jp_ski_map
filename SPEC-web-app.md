@@ -7,12 +7,12 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 
 ## Screens & flow
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
-2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link, or clicking (long-pressing on mobile) the map, also sets the origin. When there are no results, it hints "Paste a Google Maps link or tap the map".
+2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link~~, or clicking (long-pressing on mobile) the map,~~ also sets the origin. *Amended 2026-11-25:* a click (a long-press on touch) drops a pin and opens its card, whose Start here sets the origin; an open stop box still takes the click (v1.7 rules). When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
-   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (all `resort-ranking` keys), filters, date picker (default today). The ranked list shows walk ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the walking route and step list.
+   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (Walk time and Terrain size since 2026-11-25; the API keeps every `resort-ranking` key), filters (no date picker since 2026-11-25: the ranking is for today). The ranked list shows walk ETA, snow (past 24 h / summit depth; under the Fresh snow sort, past 24 h / next 24 h, the two numbers it adds, since three don't fit one line on a 360 px phone), crowd badge (estimated), and all factor values on expand. Selecting a resort draws the walking route and step list.
      It warns when the walk is > 45 min.
    - 🚌 **Bus:** for each resort, the walk to the stop, the next 3 departures (line badge, depart → arrive, wait), and a link to the source image. Selecting an option draws the walk leg and highlights the boarding stop. A departure time picker defaults to now. A separate "Night bus" toggle shows Line VN departures from the nearest stop.
-4. URL state: `?from=lat,lng&mode=walk&resort=happo-one&sort=walk_time&date=…`, so the view can be shared and reloaded.
+4. URL state: `?from=lat,lng&mode=walk&resort=happo-one&sort=walk_time`, so the view can be shared and reloaded.
 
 ## Acceptance Criteria
 - [ ] Playwright E2E: search "Hotel Hakuba" → select → each tab shows a non-empty result and a line on the map.
@@ -126,7 +126,7 @@ From the [2026-11-03 UX review](docs/ux/2026-11-03-ux-review.md), cluster A: on 
   - Nothing is dropped while navigating.
 - **Card:** ✕ or Escape closes it, and so does a tap elsewhere on the map. "Go here" is hidden in 🚌 Bus. "Add stop" appears only when a stop can be added.
 - **Hints on touch** say "long-press the map".
-- **Mouse is unchanged** (a click picks the start after the double-click window) until the laptop reference (Google's left and right click) is observed.
+- ~~**Mouse is unchanged** (a click picks the start after the double-click window) until the laptop reference (Google's left and right click) is observed.~~ *Amended 2026-11-25 (the owner's ask):* a mouse click on empty map drops a pin and opens its card, as a long-press does, after the double-click window; a click on a hotel pin drops that hotel's named pin. An open stop box still takes the click.
 
 **Acceptance:**
 - [x] Unit tests:
@@ -285,7 +285,7 @@ Success means:
    - Any new pick drops the chosen bus, because it was chosen for the old destination.
    - ✕ and the "Shuttles to resorts" link both clear the destination and the chosen bus, and show every resort.
 7. Bus's read-only To row in the trip list goes, because it would contradict the box.
-8. **A mouse click with both ends set and no open stop box does nothing.** Clicking a route line still selects it. With no trip a click still sets the start, and an open stop box still takes a click. The touch long-press pin card stays.
+8. ~~**A mouse click with both ends set and no open stop box does nothing.** Clicking a route line still selects it. With no trip a click still sets the start, and an open stop box still takes a click.~~ *Amended 2026-11-25:* a mouse click on empty map drops a pin and opens its card, with or without a trip. Clicking a route line still selects it, and an open stop box still takes a click. The touch long-press pin card stays.
 9. Each box is one instance. Going from one bar to two moves it and never remounts it, so typing and focus survive (v1.9's "never a second copy").
 
 **Success criteria.** `e2e/journeys/return-to-lodging.spec.ts` (rules 6 and 7) and `e2e/journeys/trip-card.spec.ts` (the rest) pass on a phone and a laptop, and the To box is fully in view at 360×740.
@@ -390,7 +390,7 @@ card was 172 px against Google's ≈95 pt: a third row held "+ Add destination",
 - Two bars: row 1 is the rail, the From box and **★ Saved**, the same place it has in the one-bar card. Row 2 is
   the rail, the To box and the destination's **☆**. ⇅ stays to the right of both rows. No third row, on any
   screen.
-- **"+ Add destination" moves into the sheet**, just above the Trip list (From, then the stops), which is
+- **"+ Add destination" moves into the sheet**, just above the Trip list (From, then the stops; only the stops since 2026-11-25, see v1.26), which is
   where the stop box it opens appears. Above, not under: at 360×740 two stops pushed it under the sticky ETA
   row (measured in review: its bottom at 732 px, the ETA row's top at 676). Its focus handling (TripPanel hands focus back to it after an edit) is unchanged.
 - Recorded change: when the sheet is only its 84 px bar (a landscape phone with a route, or the low sheet of
@@ -556,11 +556,13 @@ the 844 pt screen. Ours (the owner's screenshot, Bus tab) gave the peek to plann
 "Dropped pin" row, the date box with its label above it, Night bus and a notice; its map got 321 pt (38%).
 - Drive and Walk: the directions (ETA, arrival, Start, then steps) come right after the mode tabs, before the
   trip list and the Resorts / Food / Konbini picker. Walk had them last.
-- The trip list (its From row, stops and "+ Add destination") follows the answer; in Bus it follows the
+- The trip list (its From row until 2026-11-25, stops and "+ Add destination") follows the answer; in Bus it follows the
   options. With stops it leads, above the answer: it is what the user is editing, and v1.18's "Add
   destination in the collapsed sheet with two stops" holds. The answer moves, the list keeps its place in the
-  tree (a moved list remounts and loses its focus after a stop is removed). Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
-  hides the place card (review of #109), and the journey e2e specs use its ✕.
+  tree (a moved list remounts and loses its focus after a stop is removed). ~~Its From row repeats the top card's From but stays: it holds the start's ★ once a destination
+  hides the place card (review of #109), and the journey e2e specs use its ✕.~~ *Amended 2026-11-25 (the
+  owner's ask):* the From row goes in Walk and Bus; the top card's From box is the start, and its ✕ clears it.
+  The start is saved from its place card (one bar, before a destination) or from a dropped pin's card.
 - Bus: "Leave after" sits beside its date box, not above it (one row fewer before the options).
 - Not taken: Google's title row and its share/filter buttons; Start, Add stops and Save as one button row
   (our Start sits in the sticky ETA row, ★ beside the top card's To).

@@ -259,7 +259,10 @@ test.describe("mouse clicks on the map (v1.13 rule 8)", () => {
     await expect(fromBox(page)).toHaveValue(before);
   });
 
-  test("with only a start, a click still moves it", async ({ page }) => {
+  // Google Maps (BC-A1): a click drops a pin; only its card's Start here moves the start
+  test("with only a start, a click drops a pin and Start here moves it", async ({
+    page,
+  }) => {
     await page.goto(`/?from=${STATION}&mode=walk`);
     await expect(page.locator("main[data-map-loaded='true']")).toBeAttached({
       timeout: 30_000,
@@ -267,7 +270,11 @@ test.describe("mouse clicks on the map (v1.13 rule 8)", () => {
     const at = await bareMap(page);
 
     await page.mouse.click(at.x, at.y);
+    const card = page.getByRole("group", { name: "Dropped pin" });
+    await expect(card).toBeVisible();
+    expect(fromParam(page)).toBe(STATION);
 
+    await card.getByRole("button", { name: "Start here" }).click();
     await expect.poll(() => fromParam(page)).not.toBe(STATION);
   });
 });

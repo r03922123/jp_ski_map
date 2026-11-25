@@ -96,14 +96,16 @@ async function expectClosed(page: Page) {
 }
 
 test.describe("desktop", () => {
-  test("a map click that picks the start closes the Recent list", async ({
+  test("a map click that drops a pin closes the Recent list", async ({
     page,
   }) => {
     await openTrip(page);
     await openRecent(page);
     const at = await mapPoint(page, 300);
     await page.mouse.click(at.x, at.y);
-    await expect(searchBox(page)).toHaveValue("Dropped pin");
+    await expect(
+      page.getByRole("group", { name: "Dropped pin" }),
+    ).toBeVisible();
     await expectClosed(page);
   });
 });

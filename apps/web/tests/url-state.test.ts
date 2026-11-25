@@ -77,7 +77,7 @@ describe("serializeViewState", () => {
 });
 
 describe("rank options in the URL", () => {
-  it("round-trips sort, date and filters", () => {
+  it("round-trips sort and filters", () => {
     const state: ViewState = {
       origin: { lat: 36.69, lng: 137.87 },
       mode: "walk" as const,
@@ -85,8 +85,7 @@ describe("rank options in the URL", () => {
       poiId: null,
       category: "resorts",
       rank: {
-        sort: "fresh_snow" as const,
-        date: "2026-02-21",
+        sort: "terrain_size" as const,
         maxWalkMin: 20,
         nightSkiing: true,
         hvPass: false,
@@ -98,14 +97,29 @@ describe("rank options in the URL", () => {
     expect(parseViewState(serializeViewState(state))).toEqual(state);
   });
 
-  it("defaults to walk time, today and no filters", () => {
+  it("defaults to walk time and no filters", () => {
     expect(parseViewState("?sort=best&maxWalk=-3").rank).toEqual({
       sort: "walk_time",
-      date: null,
       maxWalkMin: null,
       nightSkiing: false,
       hvPass: false,
     });
+  });
+
+  it("drops the date of an old ?date= link: the panel has no Date to clear it", () => {
+    const view = parseViewState("?mode=walk&date=2026-02-21");
+    expect(view.rank).toEqual(DEFAULT_RANK);
+    expect(serializeViewState(view)).not.toContain("date");
+  });
+
+  // the panel tidy (2026-11-25) keeps two sorts; a link with another one opens on the default
+  it.each([
+    "fresh_snow",
+    "snow_depth",
+    "crowd",
+    "vertical",
+  ])("opens an old ?sort=%s link on walk time", (sort) => {
+    expect(parseViewState(`?sort=${sort}`).rank.sort).toBe("walk_time");
   });
 
   it("opens an old ?sort=price link on walk time, since price is hidden", () => {

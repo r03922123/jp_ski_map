@@ -279,10 +279,8 @@ for (const device of DEVICES) {
         timeout: 15_000,
       });
       await expect(toBox(page)).toHaveValue("Chosen place"); // a link has no name
-      // the box is the destination: no second, read-only To row under it
-      await expect(page.getByRole("list", { name: "Trip" })).not.toContainText(
-        "To:",
-      );
+      // the box is the destination: no trip list under it to repeat it
+      await expect(page.getByRole("list", { name: "Trip" })).toHaveCount(0);
 
       await page.getByRole("button", { name: "Remove destination" }).click();
 

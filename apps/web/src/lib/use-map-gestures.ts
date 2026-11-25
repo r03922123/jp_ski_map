@@ -21,7 +21,8 @@ const TOUCH_CLICK_MS = 700;
 
 /**
  * What a click, double-click, tap or long-press on the map means (MapView's props of the
- * same names): pick the start, select a route, drop a pin, open a run's card, or nothing.
+ * same names): fill an open stop box, select a route, drop a pin, open a run's card, or
+ * nothing.
  */
 export function useMapGestures({
   piloting,
@@ -40,7 +41,7 @@ export function useMapGestures({
   onMapTap?: () => void;
   onSelectSkiLine?: (line: SkiLine) => void;
 }) {
-  // A double-click (double-tap) zooms; its first click must not also move the start.
+  // A double-click (double-tap) zooms; its first click must not also drop a pin.
   // A pick waits out the double-click window, and a second click inside it cancels it.
   const pendingPick = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelPick = () => {
@@ -140,23 +141,29 @@ export function useMapGestures({
         }, DOUBLE_CLICK_MS);
       return;
     }
-    // a lodging pin snaps the origin onto the hotel itself
+    // a lodging pin snaps the point onto the hotel itself
     const pin = feature?.geometry;
     const at: Coord =
       pin?.type === "Point"
         ? { lat: pin.coordinates[1], lng: pin.coordinates[0] }
         : { lat: e.lngLat.lat, lng: e.lngLat.lng };
+    const name =
+      pin?.type === "Point"
+        ? ((feature?.properties?.name as string) ?? null)
+        : null;
     // a finger looks, it doesn't edit (BC-A1): a hotel pin opens its card, empty map
     // closes one. An open stop box is the exception: the user asked for a point.
     if (byFinger && onDropPin && !placingStop) {
-      if (pin?.type === "Point")
-        onDropPin(at, (feature?.properties?.name as string) ?? null);
+      if (pin?.type === "Point") onDropPin(at, name);
       else onMapTap?.();
       return;
     }
+    // a mouse click drops a pin with its card, as a long-press does (Google Maps, BC-A1);
+    // an open stop box takes the point instead
     pendingPick.current = setTimeout(() => {
       pendingPick.current = null;
-      onPickOrigin(at);
+      if (onDropPin && !placingStop) onDropPin(at, name);
+      else onPickOrigin(at);
     }, DOUBLE_CLICK_MS);
   };
   const touchEnd = () => {

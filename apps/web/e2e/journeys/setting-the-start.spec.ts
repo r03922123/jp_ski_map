@@ -72,9 +72,6 @@ const TOKYU = {
 const fromParam = (page: Page) => new URL(page.url()).searchParams.get("from");
 const searchBox = (page: Page) =>
   page.getByRole("combobox", { name: "Search hotel or place" });
-const trip = (page: Page) => page.getByRole("list", { name: "Trip" });
-const fromRow = (page: Page) =>
-  trip(page).locator("li").filter({ hasText: "From:" });
 /** The To box (SPEC-web-app v1.8): the destination is its value, not row text. */
 const toBox = (page: Page) =>
   page.getByRole("combobox", { name: "To", exact: true });
@@ -228,7 +225,6 @@ for (const dev of DEVICES) {
       await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
-      await expect(fromRow(page)).toContainText(HOTEL.name);
       await expect(searchBox(page)).toHaveValue(HOTEL.name);
       await expect(
         page.getByRole("img", { name: "Starting point" }),
@@ -237,8 +233,6 @@ for (const dev of DEVICES) {
       // change: the old start is replaced cleanly, the destination survives
       await searchAndPick(dev, page, "Hakuba Tokyu", /Tokyu/);
       await expect.poll(() => fromParam(page)).toMatch(TOKYU.from);
-      await expect(fromRow(page)).toContainText(TOKYU.name);
-      await expect(fromRow(page)).toHaveCount(1);
       await expect(searchBox(page)).toHaveValue(TOKYU.name);
       await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(
@@ -280,11 +274,10 @@ for (const dev of DEVICES) {
         page.getByRole("option", { name: /Hotel Hakuba\s*Other/ }),
       );
       await expect.poll(() => fromParam(page)).toBe("36.69710,137.85390");
-      await expect(fromRow(page)).toContainText("Hotel Hakuba");
       await expect(box).toHaveValue("Hotel Hakuba");
     });
 
-    test("clear the start (trip ✕ and box ✕), set a new one: the destination stays", async ({
+    test("clear the start (box ✕), set a new one, clear it again: the destination stays", async ({
       page,
     }) => {
       await open(page, "/?mode=walk&resort=happo-one");
@@ -293,11 +286,10 @@ for (const dev of DEVICES) {
 
       await press(
         dev,
-        page.getByRole("button", { name: "Remove starting point" }),
+        page.getByRole("button", { name: "Clear starting point" }),
       );
       await expect.poll(() => fromParam(page)).toBeNull();
       expect(new URL(page.url()).searchParams.get("resort")).toBe("happo-one");
-      await expect(fromRow(page)).toHaveCount(0);
       await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(searchBox(page)).toHaveValue("");
       // phones hide the sheet with no start (SPEC-web-app v1.15); laptops keep the hint
@@ -324,11 +316,12 @@ for (const dev of DEVICES) {
     test("star a place, then Start from here (Saved) replaces the start", async ({
       page,
     }) => {
-      await open(page, "/?mode=walk&resort=happo-one");
+      // no destination yet: the start's place card has the Save star
+      await open(page, "/?mode=walk");
       await searchAndPick(dev, page, "Hakuba Tokyu", /Tokyu/);
       await press(
         dev,
-        trip(page).getByRole("button", { name: /^Save Hakuba Tokyu/ }),
+        page.getByRole("button", { name: /^Save Hakuba Tokyu/ }),
       );
       await page.getByRole("checkbox", { name: /Starred/ }).check();
       await press(dev, page.getByRole("button", { name: "Done" }));
@@ -336,6 +329,7 @@ for (const dev of DEVICES) {
         .poll(() => page.evaluate(() => history.state?.overlay === true))
         .toBe(false);
 
+      await open(page, "/?mode=walk&resort=happo-one");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
 
@@ -347,7 +341,6 @@ for (const dev of DEVICES) {
       );
       await expect.poll(() => fromParam(page)).toMatch(TOKYU.from);
       await expect(searchBox(page)).toHaveValue(TOKYU.name);
-      await expect(fromRow(page)).toContainText(TOKYU.name);
       await expect(toBox(page)).toHaveValue(/Happo-One/);
     });
 
@@ -379,8 +372,7 @@ for (const dev of DEVICES) {
       const other = await freshContext(browser, dev, baseURL as string);
       const friend = await other.newPage();
       await open(friend, link);
-      await expect(fromRow(friend)).toBeVisible();
-      await expect(fromRow(friend)).toContainText(HOTEL.name, {
+      await expect(searchBox(friend)).toHaveValue(HOTEL.name, {
         timeout: 5_000,
       });
       await other.close();
@@ -408,7 +400,6 @@ for (const dev of [PHONE, SMALL]) {
       await expect(card.getByRole("heading")).toHaveText(pin.name);
       await card.getByRole("button", { name: "Start here" }).tap();
       await expect(card).toHaveCount(0);
-      await expect(fromRow(page)).toContainText(pin.name);
       await expect(searchBox(page)).toHaveValue(pin.name);
     });
 
@@ -433,7 +424,7 @@ for (const dev of [PHONE, SMALL]) {
       await expect(pinCard(page)).toBeVisible();
       await pinCard(page).getByRole("button", { name: "Start here" }).tap();
       await expect.poll(() => fromParam(page)).not.toMatch(HOTEL.from);
-      await expect(fromRow(page)).toContainText("Dropped pin");
+      await expect(searchBox(page)).toHaveValue("Dropped pin");
       await expect(toBox(page)).toHaveValue(/Happo-One/);
       await expect(searchBox(page)).not.toHaveValue(HOTEL.name, {
         timeout: 5_000,
@@ -517,12 +508,12 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
   test.describe(`${dev.name} mouse`, () => {
     test.use(dev.use);
 
-    test("a map click that moves the start also updates the search box", async ({
+    test("a map click's Start here moves the start and updates the search box", async ({
       page,
     }) => {
       // fixed: A (v1.9 review) — a map-picked start clears the old label, and the From box
-      // shows the start's name (was: box "Hotel Hakuba", trip "Dropped pin")
-      // no destination: with both ends set a click changes nothing (v1.13 rule 8)
+      // shows the start's name (was: box "Hotel Hakuba", trip "Dropped pin").
+      // A click drops a pin; its card's Start here moves the start (2026-11-25, BC-A1)
       await open(page, "/?mode=walk");
       await searchAndPick(dev, page, "Hotel Hakuba", /Hotel Hakuba/);
       await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
@@ -532,8 +523,9 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
         y: [200, 260, 320, 380, 440, 500],
       });
       await page.mouse.click(at.x, at.y);
+      await pinCard(page).getByRole("button", { name: "Start here" }).click();
       await expect.poll(() => fromParam(page)).not.toMatch(HOTEL.from);
-      await expect(fromRow(page)).toContainText("Dropped pin");
+      await expect(searchBox(page)).toHaveValue("Dropped pin");
       await expect(searchBox(page)).not.toHaveValue(HOTEL.name, {
         timeout: 5_000,
       });
@@ -542,16 +534,18 @@ for (const dev of [LAPTOP, LAPTOP_SMALL]) {
     test("a click on a hotel pin starts from that hotel, named", async ({
       page,
     }) => {
-      // known: E — a mouse click on a named hotel pin gives "Dropped pin"
-      test.fail();
+      // fixed: E (mouse) — a click drops the hotel's own pin, named, as a tap does (2026-11-25)
       await open(page, "/?mode=walk&from=36.6985,137.8376");
       const pin = await hotelPin(page, {
         minX: 460,
         maxY: dev.use.viewport.height - 60,
       });
       await page.mouse.click(pin.x, pin.y);
+      const card = pinCard(page);
+      await expect(card.getByRole("heading")).toHaveText(pin.name);
+      await card.getByRole("button", { name: "Start here" }).click();
       await expect.poll(() => fromParam(page)).not.toBe("36.69850,137.83760");
-      await expect(fromRow(page)).toContainText(pin.name, { timeout: 5_000 });
+      await expect(searchBox(page)).toHaveValue(pin.name, { timeout: 5_000 });
     });
   });
 }
@@ -618,7 +612,6 @@ test.describe(`${LAPTOP.name}: saved place twice`, () => {
     await searchAndPick(LAPTOP, page, "Hotel Hakuba", /Hotel Hakuba/);
     await expect.poll(() => fromParam(page)).toMatch(HOTEL.from);
     await startFromSaved();
-    await expect(fromRow(page)).toContainText(TOKYU.name);
     await expect(searchBox(page)).toHaveValue(TOKYU.name, { timeout: 5_000 });
   });
 });
@@ -642,7 +635,7 @@ for (const dev of DEVICES) {
         page.getByText(
           dev.touch
             ? /long-press the map, to set\s+your starting point/
-            : /tap the map, to set\s+your starting point/,
+            : /click the map, to set\s+your starting point/,
         ),
       ).toBeInViewport();
       // nothing grabs focus (no keyboard pops over the map); the first Tab is the search box
@@ -706,7 +699,7 @@ test.describe(`${PHONE.name}: search API failing`, () => {
     await touch(cdp, at, 700);
     await pinCard(page).getByRole("button", { name: "Start here" }).tap();
     await expect.poll(() => fromParam(page)).not.toBeNull();
-    await expect(fromRow(page)).toContainText("Dropped pin");
+    await expect(searchBox(page)).toHaveValue("Dropped pin");
   });
 });
 
@@ -780,7 +773,7 @@ test.describe(`${PHONE.name}: Asia/Taipei time zone`, () => {
     await expect
       .poll(() => fromParam(page))
       .toMatch(/^36\.697\d*,137\.853\d*$/);
-    await expect(fromRow(page)).toBeVisible();
+    await expect(searchBox(page)).toHaveValue(HOTEL.name); // the place, by its English name
   });
 });
 

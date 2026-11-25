@@ -15,12 +15,6 @@ import { numberStops, STOP_REACHED_M, stopsAhead } from "@/lib/nav/stops";
 import type { PlaceInput } from "@/lib/saved-places";
 import { MAX_STOPS, parseViewState, serializeViewState } from "@/lib/url-state";
 
-const hotel = {
-  id: "h",
-  name: "Hotel Hakuba",
-  coord: { lat: 36.697, lng: 137.854 },
-  kind: "lodging" as const,
-};
 const resort = {
   id: "happo-one",
   name: "Happo-One",
@@ -40,13 +34,11 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
   const handlers = {
     onRemoveStop: vi.fn(),
     onFillStop: vi.fn(),
-    onClearFrom: vi.fn(),
     onMoveStop: vi.fn(),
   };
   render(
     <QueryClientProvider client={new QueryClient()}>
       <TripPanel
-        from={hotel}
         stops={[]}
         addStopRef={{ current: null }}
         near={null}
@@ -59,18 +51,21 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
 }
 
 describe("TripPanel", () => {
-  it("lists From and the stops, each with a Save star", () => {
+  // the From box on top has the start's star and ✕, so the list holds only the stops
+  it("lists the stops, each with a Save star, and no From row", () => {
     renderTrip({ stops: [{ key: "s1", place: konbini }] });
     const rows = within(
       screen.getByRole("list", { name: "Trip" }),
     ).getAllByRole("listitem");
     expect(rows.map((r) => r.textContent)).toEqual([
-      expect.stringContaining("Hotel Hakuba"),
       expect.stringContaining("7-Eleven Happo"),
     ]);
     expect(
       screen.getByRole("button", { name: "Save 7-Eleven Happo" }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Remove starting point" }),
+    ).toBeNull();
   });
 
   it("an empty stop is a search box that says the map works too, and its ✕ removes it before typing", () => {
@@ -84,33 +79,18 @@ describe("TripPanel", () => {
     expect(h.onRemoveStop).toHaveBeenCalledWith("s1");
   });
 
-  it("✕ on each row: removes a stop, clears the start", () => {
+  it("✕ on a stop row removes it", () => {
     const h = renderTrip({ stops: [{ key: "s1", place: konbini }] });
     fireEvent.click(screen.getByRole("button", { name: "Remove stop 1" }));
     expect(h.onRemoveStop).toHaveBeenCalledWith("s1");
-    fireEvent.click(
-      screen.getByRole("button", { name: "Remove starting point" }),
-    );
-    expect(h.onClearFrom).toHaveBeenCalled();
   });
 
   // SPEC-web-app v1.13 rule 6: the To box in the trip card is the only To
   it("has no To row: the box in the trip card is the destination", () => {
-    renderTrip();
+    renderTrip({ stops: [{ key: "s1", place: konbini }] });
     expect(screen.getByRole("list", { name: "Trip" })).not.toHaveTextContent(
       "To:",
     );
-  });
-
-  it("shows the stops while the start is being changed", () => {
-    renderTrip({ from: null, stops: [{ key: "s1", place: konbini }] });
-    const rows = within(
-      screen.getByRole("list", { name: "Trip" }),
-    ).getAllByRole("listitem");
-    expect(rows).toHaveLength(1);
-    expect(
-      screen.getByRole("button", { name: "Remove stop 1" }),
-    ).toBeInTheDocument();
   });
 
   // T4 (docs/ux/google-maps-workflows.md): stops can be reordered without a drag. Review of
@@ -149,13 +129,11 @@ describe("TripPanel", () => {
       return (
         <QueryClientProvider client={new QueryClient()}>
           <TripPanel
-            from={hotel}
             stops={stops}
             addStopRef={{ current: null }}
             near={null}
             onRemoveStop={() => {}}
             onFillStop={() => {}}
-            onClearFrom={() => {}}
             onMoveStop={(key, by) =>
               setStops((list) => {
                 const i = list.findIndex((st) => st.key === key);
@@ -223,7 +201,6 @@ describe("TripPanel with its state (add → type → pick)", () => {
           </button>
         )}
         <TripPanel
-          from={hotel}
           stops={stops}
           addStopRef={addStopRef}
           near={null}
@@ -233,7 +210,6 @@ describe("TripPanel with its state (add → type → pick)", () => {
           onFillStop={(key, place) =>
             setStops((l) => l.map((s) => (s.key === key ? { ...s, place } : s)))
           }
-          onClearFrom={() => {}}
         />
       </>
     );
@@ -257,7 +233,7 @@ describe("TripPanel with its state (add → type → pick)", () => {
     const rows = within(
       screen.getByRole("list", { name: "Trip" }),
     ).getAllByRole("listitem");
-    expect(rows[1]).toHaveTextContent("7-Eleven Happo");
+    expect(rows[0]).toHaveTextContent("7-Eleven Happo");
     expect(
       screen.getByRole("button", { name: "Add destination" }),
     ).toHaveFocus();
@@ -274,17 +250,16 @@ describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
   it("shows the slot above the Trip list, where any number of stops can't push it under the ETA row", () => {
     const addStopRef = { current: null };
     const props = {
-      stops: [],
+      stops: [{ key: "s1", place: konbini }],
       addStopRef,
       near: null,
       onRemoveStop: () => {},
       onFillStop: () => {},
-      onClearFrom: () => {},
       addDestination: <button type="button">Add destination</button>,
     };
     const { rerender } = render(
       <QueryClientProvider client={new QueryClient()}>
-        <TripPanel from={hotel} {...props} />
+        <TripPanel {...props} />
       </QueryClientProvider>,
     );
     const list = screen.getByRole("list", { name: "Trip" });
@@ -293,10 +268,10 @@ describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
       add.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
 
-    // the slot alone is enough to render the panel (a start being retyped keeps the stops)
+    // the slot alone is enough to render the panel
     rerender(
       <QueryClientProvider client={new QueryClient()}>
-        <TripPanel from={null} {...props} />
+        <TripPanel {...props} stops={[]} />
       </QueryClientProvider>,
     );
     expect(

@@ -134,6 +134,8 @@ export function MapShell() {
     setDepartAt,
     showNight,
     setShowNight,
+    freeOnly,
+    setFreeOnly,
   } = useBusTrip({ mode, origin, originName, pointPlace, storedBusChoice });
 
   // Walk to the access point the ranking found nearest; otherwise the first one.
@@ -379,7 +381,7 @@ export function MapShell() {
               twoBars={showToBox}
               from={
                 <SearchBox
-                  // remounted (emptied) when the trip panel's ✕ clears the start
+                  // remounted when an action replaces the start (Directions, swap, Start here)
                   key={searchKey}
                   autoFocus={searchKey === focusedSearchKey}
                   // the rail and ⇅ narrow this box in two bars (T78)
@@ -459,14 +461,12 @@ export function MapShell() {
               tripFirst={mode !== "bus" && tripStops.length > 0}
               placeStrip={
                 <TripPanel
-                  from={fromPlace}
                   stops={mode === "bus" ? [] : tripStops}
                   addStopRef={addStopRef}
                   near={viewCentre}
                   onRemoveStop={actions.removeStop}
                   onMoveStop={actions.moveStop}
                   onFillStop={fillStop}
-                  onClearFrom={actions.clearFrom}
                   addDestination={
                     canAddStop && (
                       <AddDestinationButton
@@ -508,6 +508,11 @@ export function MapShell() {
                   night={busResults.night}
                   showNight={showNight}
                   onShowNightChange={setShowNight}
+                  freeOnly={freeOnly}
+                  onFreeOnlyChange={(on) => {
+                    setFreeOnly(on);
+                    if (on) actions.dropPaidBus();
+                  }}
                   departAt={departAt}
                   onDepartAtChange={setDepartAt}
                   selected={busChoice}
@@ -580,7 +585,7 @@ export function MapShell() {
         onLoad={() => setLoaded(true)}
         onViewChange={setView}
         onPickOrigin={(coord) => {
-          // a mouse click elsewhere closes the card, as a finger's tap does
+          // the open stop box takes the click; it closes the card, as a finger's tap does
           setPicked(null);
           actions.pickOnMap(coord);
         }}

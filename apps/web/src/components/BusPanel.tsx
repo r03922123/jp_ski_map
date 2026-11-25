@@ -39,6 +39,9 @@ export type BusPanelProps = {
   night: Loadable<NightResult>;
   showNight: boolean;
   onShowNightChange: (show: boolean) => void;
+  /** hide the paid Hakuba Valley Line; the API filters before it caps the options */
+  freeOnly: boolean;
+  onFreeOnlyChange: (freeOnly: boolean) => void;
   /** local Hakuba time, "YYYY-MM-DDTHH:mm" */
   departAt: string;
   onDepartAtChange: (value: string) => void;
@@ -322,11 +325,13 @@ function Results({
   resorts,
   result,
   onlyResortId,
+  freeOnly,
   selected,
   onSelect,
   onStart,
   startNote,
-}: RowProps & Pick<BusPanelProps, "resorts" | "result" | "onlyResortId">) {
+}: RowProps &
+  Pick<BusPanelProps, "resorts" | "result" | "onlyResortId" | "freeOnly">) {
   const notice = serviceNotice(result);
   if (notice !== undefined || result.status !== "success") return notice;
   const data = result.data;
@@ -335,7 +340,9 @@ function Results({
       <div className="flex flex-col gap-2">
         <SeasonNotice data={data} />
         <p className="text-sm text-muted-foreground">
-          No more departures after this time today.
+          {freeOnly
+            ? "No free shuttles after this time today."
+            : "No more departures after this time today."}
         </p>
       </div>
     );
@@ -349,7 +356,8 @@ function Results({
       <SeasonNotice data={data} />
       {listed.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          No more shuttles to this resort after this time.
+          No {freeOnly ? "free" : "more"} shuttles to this resort after this
+          time.
         </p>
       )}
       {listed.map((r) => {
@@ -379,7 +387,11 @@ function Results({
 }
 
 /** The next direct shuttles to a place, such as back to the lodging (v1.11). */
-function PlaceResults({ place, ...rowProps }: RowProps & { place: BusPlace }) {
+function PlaceResults({
+  place,
+  freeOnly,
+  ...rowProps
+}: RowProps & { place: BusPlace; freeOnly: boolean }) {
   const toResorts = (
     <button
       type="button"
@@ -406,7 +418,8 @@ function PlaceResults({ place, ...rowProps }: RowProps & { place: BusPlace }) {
       <SeasonNotice data={data} />
       {data.options.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No direct shuttle to this place after this time.
+          No {freeOnly ? "free" : "direct"} shuttle to this place after this
+          time.
         </p>
       ) : (
         <div className="flex flex-col gap-1">
@@ -485,6 +498,16 @@ export function BusPanel(props: BusPanelProps) {
           />
           Night bus
         </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={props.freeOnly}
+            // the night list has no paid line to hide
+            disabled={showNight}
+            onChange={(e) => props.onFreeOnlyChange(e.target.checked)}
+          />
+          Free shuttles only
+        </label>
       </div>
 
       {showNight ? (
@@ -516,6 +539,7 @@ export function BusPanel(props: BusPanelProps) {
       ) : props.place ? (
         <PlaceResults
           place={props.place}
+          freeOnly={props.freeOnly}
           selected={props.selected}
           onSelect={props.onSelect}
           onStart={props.onStart}

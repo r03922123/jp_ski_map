@@ -81,6 +81,7 @@ export type MapViewProps = {
   flyTo: Coord | null;
   onLoad?: () => void;
   onViewChange?: (view: { bbox: Bbox; zoom: number }) => void;
+  /** The point for an open stop box (and a mouse click's point when there is no onDropPin). */
   onPickOrigin: (coord: Coord) => void;
   onSelectResort: (id: string) => void;
   /** Saved places (SPEC-saved-places); tapping one calls `onSelectSaved`. */
@@ -91,8 +92,8 @@ export type MapViewProps = {
   /** A stop box is open: a tap places the stop, even on a route line. */
   placingStop?: boolean;
   /**
-   * Touch: a long-press on the map (or a tap on a hotel pin) drops a pin there. On touch a
-   * tap never edits the trip (Google Maps, docs/ux/behaviour-cards.md BC-A1).
+   * A mouse click, a touch long-press or a tap on a hotel pin drops a pin there. A click
+   * or tap never edits the trip itself (Google Maps, docs/ux/behaviour-cards.md BC-A1).
    */
   onDropPin?: (coord: Coord, name: string | null) => void;
   /** Touch: a tap on the map that edits nothing (it closes the pin card). */

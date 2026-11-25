@@ -3,8 +3,6 @@ import type { Coord, PoiCategory, SortKey } from "@/lib/api";
 
 export type RankOptions = {
   sort: SortKey;
-  /** YYYY-MM-DD, null = today */
-  date: string | null;
   maxWalkMin: number | null;
   nightSkiing: boolean;
   hvPass: boolean;
@@ -33,24 +31,14 @@ export type ViewState = {
 };
 
 /**
- * The sorts the web offers. `price` is hidden: ADR-0001 decision 2 hides it
- * while 2026–27 prices aren't published, and PR #15 applies that to the
- * partial case, so it stays hidden until every resort has a comparable
- * 2026–27 day-ticket price. With gaps, unknown prices sort last and the list
- * would rank them wrongly. The API still accepts it.
+ * The sorts the web offers: two since the panel tidy (2026-11-25); the API still
+ * accepts the rest. `price` stays hidden in any case: ADR-0001 decision 2 hides it
+ * until every resort has a comparable 2026–27 day-ticket price.
  */
-export const SORT_KEYS: readonly SortKey[] = [
-  "walk_time",
-  "fresh_snow",
-  "snow_depth",
-  "crowd",
-  "terrain_size",
-  "vertical",
-];
+export const SORT_KEYS: readonly SortKey[] = ["walk_time", "terrain_size"];
 
 export const DEFAULT_RANK: RankOptions = {
   sort: "walk_time",
-  date: null,
   maxWalkMin: null,
   nightSkiing: false,
   hvPass: false,
@@ -79,11 +67,9 @@ function parseCoord(value: string | null): Coord | null {
 
 function parseRank(params: URLSearchParams): RankOptions {
   const sort = params.get("sort") as SortKey | null;
-  const date = params.get("date");
   const maxWalk = Number(params.get("maxWalk"));
   return {
     sort: sort && SORT_KEYS.includes(sort) ? sort : DEFAULT_RANK.sort,
-    date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null,
     maxWalkMin: maxWalk > 0 ? maxWalk : null,
     nightSkiing: params.get("night") === "1",
     hvPass: params.get("hvPass") === "1",
@@ -148,7 +134,6 @@ export function serializeViewState({
   }
   // only non-default rank options, so ordinary links stay short
   if (rank.sort !== DEFAULT_RANK.sort) params.set("sort", rank.sort);
-  if (rank.date) params.set("date", rank.date);
   if (rank.maxWalkMin) params.set("maxWalk", String(rank.maxWalkMin));
   if (rank.nightSkiing) params.set("night", "1");
   if (rank.hvPass) params.set("hvPass", "1");

@@ -103,7 +103,7 @@ test("an attribute a browser adds to <html> (Chrome on iOS) causes no hydration 
 });
 
 // T73: a double-click zooms; it must not also move the start (the hotel is lost)
-test("double-click zooms without moving the start; a single click still moves it", async ({
+test("double-click zooms without moving the start; a single click drops a pin", async ({
   page,
 }) => {
   devOnly("reads the zoom through the dev map handle");
@@ -142,6 +142,10 @@ test("double-click zooms without moving the start; a single click still moves it
     box.x + box.width / 2 + 60,
     box.y + box.height / 2 + 60,
   );
+  const card = page.getByRole("group", { name: "Dropped pin" });
+  await expect(card).toBeVisible();
+  expect(new URL(page.url()).searchParams.get("from")).toBe(startBefore);
+  await card.getByRole("button", { name: "Start here" }).click();
   await expect
     .poll(() => new URL(page.url()).searchParams.get("from"))
     .not.toBe(startBefore);
