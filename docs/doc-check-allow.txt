@@ -5,5 +5,4 @@ services/api/data generated: scripts/deploy-vercel.sh copies data/ into the func
 services/api/tiles generated: scripts/deploy-vercel.sh copies the Valhalla tiles into the function bundle (SPEC-deploy)
 ml/timetable_vlm/dataset.py planned: SPEC-pipeline step for rendering the PDFs
 services/mcp/evals/ask_questions.json planned: SPEC-ask-maps eval set (proposed 2026-11-18)
-data/poi_google.json planned: SPEC-poi-destinations v1.2 place IDs (approved 2026-11-25)
 data/poi_google.meta.json planned: SPEC-poi-destinations v1.2 refresh record
