@@ -17,7 +17,11 @@ def validate_pois(pois: list[Poi]) -> list[str]:
 def validate_google_ids(pois: list[Poi], ids: dict[str, str]) -> list[str]:
     category = {p.id: p.category for p in pois}
     errors: list[str] = []
+    first_poi: dict[str, str] = {}
     for poi_id, place in ids.items():
+        if place in first_poi:  # two OSM nodes can't be one restaurant: one match is wrong
+            errors.append(f"poi_google.json: {poi_id} has the same place ID as {first_poi[place]}")
+        first_poi.setdefault(place, poi_id)
         if poi_id not in category:
             errors.append(f"poi_google.json: {poi_id} is not in poi_osm.json")
         elif category[poi_id] != "food":

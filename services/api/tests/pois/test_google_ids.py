@@ -90,6 +90,12 @@ def test_validator_rejects_unknown_non_food_and_empty_ids() -> None:
     assert any("osm:node/9" in e and "poi_osm.json" in e for e in errors)
 
 
+def test_validator_rejects_one_place_id_matched_to_two_pois() -> None:
+    errors = validate_google_ids([food(1), food(2)], {"osm:node/1": "ChIJ1", "osm:node/2": "ChIJ1"})
+
+    assert errors == ["poi_google.json: osm:node/2 has the same place ID as osm:node/1"]
+
+
 def test_poi_refresh_drops_place_ids_of_vanished_or_non_food_pois() -> None:
     pois = [food(1), food(2, category="convenience")]
 

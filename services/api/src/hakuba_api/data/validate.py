@@ -31,7 +31,8 @@ def collect_errors() -> list[str]:
     except (ValidationError, FileNotFoundError) as e:
         pois, poi_errors = [], [f"poi_osm.json: {e}"]
     try:
-        poi_errors += validate_google_ids(pois, load_google_ids())
+        if pois:  # else every key would also read as missing from poi_osm.json
+            poi_errors += validate_google_ids(pois, load_google_ids())
     except (ValidationError, FileNotFoundError) as e:
         poi_errors.append(f"poi_google.json: {e}")
     try:
