@@ -60,14 +60,14 @@ def test_malformed_server_reply_falls_back_to_nothing(
 
 
 def test_suggest_adds_a_semantic_only_hit(monkeypatch: pytest.MonkeyPatch) -> None:
-    ramen = next(e for e in load_index() if "ramen" in e.detail)
-    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [ramen.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    resort = next(e for e in load_index() if e.kind == "resort")
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [resort.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     names = [s.name for s in suggest("拉麵", NEAR, 5, use_photon=False)]
-    assert ramen.name in names
+    assert resort.name in names
 
 
 def test_suggest_keeps_an_exact_lexical_hit_first(monkeypatch: pytest.MonkeyPatch) -> None:
-    other = next(e for e in load_index() if "ramen" in e.detail)
+    other = next(e for e in load_index() if e.kind == "resort")
     monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [other.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     top = suggest("Hakuba Happo Bus Terminal", NEAR, 5, use_photon=False)[0]
     assert top.name == "Hakuba Happo Bus Terminal"
@@ -85,8 +85,8 @@ def test_suggest_drops_a_semantic_lodging_that_shares_no_word(
 def test_suggest_drops_a_semantic_non_lodging_for_a_hotel_query(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    ramen = next(e for e in load_index() if "ramen" in e.detail)
-    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [ramen.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    resort = next(e for e in load_index() if e.kind == "resort")
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [resort.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     assert suggest("Wadano Onsen Hotel", NEAR, 5, use_photon=False) == []
 
 
@@ -103,27 +103,27 @@ def test_suggest_keeps_the_lexical_order_and_appends_meaning(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     lexical = [s.id for s in suggest("Hotel Grace Hakuba", NEAR, 5, use_photon=False)]
-    ramen = next(e for e in load_index() if "ramen" in e.detail)
-    meaning = [ramen.id, *reversed(lexical)]
+    resort = next(e for e in load_index() if e.kind == "resort")
+    meaning = [resort.id, *reversed(lexical)]
     monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: meaning)  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     ids = [s.id for s in suggest("Hotel Grace Hakuba", NEAR, 10, use_photon=False)]
     assert ids[: len(lexical)] == lexical
 
 
 def test_a_repeated_semantic_id_is_added_once(monkeypatch: pytest.MonkeyPatch) -> None:
-    ramen = next(e for e in load_index() if "ramen" in e.detail)
-    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [ramen.id, ramen.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    resort = next(e for e in load_index() if e.kind == "resort")
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: [resort.id, resort.id])  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     ids = [s.id for s in suggest("拉麵", NEAR, 5, use_photon=False)]
-    assert ids.count(ramen.id) == 1
+    assert ids.count(resort.id) == 1
 
 
 def test_photon_hits_rank_before_semantic_fill(
     mock: respx.MockRouter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Photon fills in on too few *lexical* hits, and its name-checked hit must not be crowded
-    # off the page by semantic food hits, which carry no name check
-    food = [e.id for e in load_index() if e.kind == "food"][:5]
-    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: food)  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
+    # off the page by semantic resort hits, which carry no name check
+    resorts = [e.id for e in load_index() if e.kind == "resort"][:5]
+    monkeypatch.setattr(semantic, "semantic_ids", lambda q, k: resorts)  # pyright: ignore[reportUnknownLambdaType, reportUnknownArgumentType]
     photon.clear_cache()
     feature = {
         "type": "Feature",
