@@ -18,6 +18,11 @@ export function loadGooglePlaces(key: string): Promise<unknown> {
     script.onerror = () =>
       reject(new Error("Google Maps script failed to load"));
     document.head.append(script);
-  }).then(() => window.google?.maps.importLibrary("places"));
+  })
+    .then(() => window.google?.maps.importLibrary("places"))
+    .catch((error: unknown) => {
+      placesLoad = undefined; // a dropped mountain signal shouldn't hide every later card
+      throw error;
+    });
   return placesLoad;
 }

@@ -101,9 +101,17 @@ describe("PoiList Google rating card (SPEC-poi-destinations v1.2)", () => {
   const request = (container: HTMLElement) =>
     container.querySelector("gmp-place-details-place-request");
 
-  afterEach(() => {
+  const failScripts = () => {
+    for (const s of googleScripts()) {
+      s.dispatchEvent(new Event("error"));
+      s.remove();
+    }
+  };
+
+  // a failed load lets the next card try again, so failing leftovers keeps each test fresh
+  afterEach(async () => {
     vi.unstubAllEnvs();
-    for (const s of googleScripts()) s.remove();
+    await act(async () => failScripts());
   });
 
   it("loads Google only once a row with a place ID is selected, and shows its card in that row", () => {
@@ -169,5 +177,26 @@ describe("PoiList Google rating card (SPEC-poi-destinations v1.2)", () => {
     });
 
     expect(container.querySelector("gmp-place-details-compact")).toBeNull();
+  });
+
+  it("drops the card when the script fails, and tries again on the next selection", async () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_MAPS_KEY", "test-key");
+    const list = (selectedId: string | null) => (
+      <PoiList
+        state={{ status: "success", data: [soba] }}
+        selectedId={selectedId}
+        onSelect={vi.fn()}
+      />
+    );
+    const { container, rerender } = render(list(soba.id));
+    expect(googleScripts()).toHaveLength(1);
+
+    await act(async () => failScripts());
+
+    expect(container.querySelector("gmp-place-details-compact")).toBeNull();
+    rerender(list(null));
+    rerender(list(soba.id));
+    expect(request(container)).toHaveAttribute("place", "ChIJtest-soba");
+    expect(googleScripts()).toHaveLength(1);
   });
 });
