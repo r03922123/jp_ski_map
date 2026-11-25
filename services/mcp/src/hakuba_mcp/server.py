@@ -18,7 +18,15 @@ API_URL = os.environ.get("HAKUBA_API_URL", "http://127.0.0.1:8010").rstrip("/")
 TIMEOUT_S = 30.0  # a cold Valhalla matrix or Open-Meteo fetch can take several seconds
 
 SortKey = Literal[
-    "walk_time", "fresh_snow", "snow_depth", "crowd", "terrain_size", "vertical", "price"
+    "walk_time",
+    "fresh_snow",
+    "snow_depth",
+    "crowd",
+    "runs",
+    "area",
+    "run_length",
+    "vertical",
+    "price",
 ]
 
 READ_ONLY = ToolAnnotations(read_only_hint=True)
@@ -117,11 +125,11 @@ def rank_resorts(
 
     origin: 'lat,lng' (from search_place). sort: walk_time (shortest walk first), fresh_snow
     (cm, past 24 h + half of next 24 h), snow_depth (summit cm), crowd (quietest first),
-    terrain_size (total run length, m), vertical (m), price (cheapest day ticket, JPY).
+    runs (as each resort counts them), area (skiable ha),
+    run_length (total run length, m), vertical (m), price (cheapest day ticket, JPY).
     date: YYYY-MM-DD for the crowd estimate (default today, JST). Filters are optional.
     Each item gives resortId, walkMin, sortValue (in the sort's unit), snow in cm and
-    crowdLevel (low/medium/high/very_high), plus runs (as the resort counts them) and
-    areaHa (skiable hectares) for terrain questions. snowAsOf is the local time (JST) the snow
+    crowdLevel (low/medium/high/very_high). snowAsOf is the local time (JST) the snow
     figures are from: say that time when you quote them, because they can be a few hours
     old when the weather service is unreachable.
     """
@@ -140,7 +148,6 @@ def rank_resorts(
     for r in ranked[:top]:
         snow = _obj(r.get("snow"))
         crowd = _obj(r.get("crowd"))
-        factors = _obj(r.get("factors"))
         out.append(
             {
                 "rank": r["rank"],
@@ -152,8 +159,6 @@ def rank_resorts(
                 "newSnow24hCm": _obj(snow.get("newSnowCm")).get("past24h"),
                 "snowAsOf": _to_minute(snow.get("asOf")),
                 "crowdLevel": crowd.get("level"),
-                "runs": factors.get("runs"),
-                "areaHa": factors.get("areaHa"),
             }
         )
     return out

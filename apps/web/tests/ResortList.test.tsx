@@ -38,11 +38,11 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       freshSnow: 46.8,
       snowDepth: 299,
       crowd: 0.6,
-      terrainSize: 23300,
+      runs: 16,
+      area: 220,
+      runLength: 23300,
       vertical: 1071,
       price: null,
-      runs: 16,
-      areaHa: 220,
     },
     snow: {
       resortId: "happo-one",
@@ -172,10 +172,8 @@ describe("ResortList", () => {
     });
   });
 
-  // the panel tidy left two sorts (2026-11-25); Details keeps their factors and crowd, which
-  // refactor/remove-crowd removes, and drops the rows of the sorts it took away
   it("rounds the run length to one decimal, half up", () => {
-    const factors = { ...ranked().factors, terrainSize: 20450 };
+    const factors = { ...ranked().factors, runLength: 20450 };
     render(
       <ResortList
         resorts={[ranked({ factors })]}
@@ -187,7 +185,7 @@ describe("ResortList", () => {
     expect(screen.getByText("20.5 km")).toBeInTheDocument();
   });
 
-  it("expands to the kept factors, crowd reasons and the snow timestamp", () => {
+  it("expands to the three resort sizes, with the snow time in its source", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
     );
@@ -202,32 +200,24 @@ describe("ResortList", () => {
       within(factors)
         .getAllByRole("term")
         .map((dt) => dt.textContent),
-    ).toEqual([
-      "Walk time",
-      "Crowd score (est.)",
-      "Total run length",
-      "Runs",
-      "Skiable area",
-    ]);
+    ).toEqual(["Total runs", "Skiable area", "Run length"]);
     expect(
       within(factors)
         .getAllByRole("definition")
-        .map((dd) => dd.textContent)
-        .slice(2),
-    ).toEqual(["23.3 km", "16", "220 ha"]);
+        .map((dd) => dd.textContent),
+    ).toEqual(["16", "220 ha", "23.3 km"]);
+    // the card already shows these: walk time in its header, crowd in Sources & weights
     for (const gone of [
+      "Crowd score (est.)",
+      /Crowd estimate:/,
       /Fresh snow \(24 h/,
-      "Summit snow depth",
       "Vertical drop",
       "Ticket price",
     ]) {
       expect(within(details).queryByText(gone)).not.toBeInTheDocument();
     }
-    expect(screen.getByText(/Crowd estimate:/)).toHaveTextContent(
-      /Coming of Age Day/,
-    );
     expect(
-      screen.getByText(/snow model as of 01\/12 07:00/i),
+      within(details).getByText(/Open-Meteo model, as of 01\/12 07:00/),
     ).toBeInTheDocument();
   });
 
@@ -390,14 +380,14 @@ describe("SortControls", () => {
     expect(screen.queryByLabelText("Date")).toBeNull();
   });
 
-  it("sorts by walk time or terrain size only", () => {
+  it("sorts by walk time or one of three resort sizes", () => {
     render(<SortControls value={DEFAULT_RANK} onChange={vi.fn()} />);
 
     expect(
       within(screen.getByLabelText("Sort by"))
         .getAllByRole("option")
         .map((o) => o.textContent),
-    ).toEqual(["Walk time", "Terrain size"]);
+    ).toEqual(["Walk time", "Total runs", "Skiable area", "Run length"]);
   });
 
   it("changes the sort key", () => {
@@ -415,11 +405,11 @@ describe("SortControls", () => {
     );
 
     fireEvent.change(screen.getByLabelText("Sort by"), {
-      target: { value: "terrain_size" },
+      target: { value: "run_length" },
     });
 
     expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ sort: "terrain_size" }),
+      expect.objectContaining({ sort: "run_length" }),
     );
   });
 

@@ -31,13 +31,15 @@ export type ViewState = {
 };
 
 /**
- * The sorts the web offers: two since the panel tidy (2026-11-25); the API still
+ * The sorts the web offers: walk time and three resort sizes since 2026-11-25; the API still
  * accepts the rest. `price` stays hidden in any case: ADR-0001 decision 2 hides it
  * until every resort has a comparable 2026–27 day-ticket price.
  */
 export const SORT_KEYS = [
   "walk_time",
-  "terrain_size",
+  "runs",
+  "area",
+  "run_length",
 ] as const satisfies readonly SortKey[];
 
 export const DEFAULT_RANK: RankOptions = {

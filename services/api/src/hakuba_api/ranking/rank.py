@@ -10,9 +10,18 @@ from hakuba_api.routing.models import MatrixCell
 from hakuba_api.snow.models import SnowReport
 
 SortKey = Literal[
-    "walk_time", "fresh_snow", "snow_depth", "crowd", "terrain_size", "vertical", "price"
+    "walk_time",
+    "fresh_snow",
+    "snow_depth",
+    "crowd",
+    "runs",
+    "area",
+    "run_length",
+    "vertical",
+    "price",
 ]
 LOWER_IS_BETTER: set[SortKey] = {"walk_time", "crowd", "price"}
+SIZE_SORTS: set[SortKey] = {"runs", "area", "run_length"}
 
 
 class Factors(ApiModel):
@@ -22,12 +31,11 @@ class Factors(ApiModel):
     fresh_snow: float | None  # cm: past 24 h + half of next 24 h
     snow_depth: float | None  # cm at the summit
     crowd: float | None  # 0..1 estimate
-    terrain_size: float | None  # m: total run length, as the resort reports it
+    runs: float | None  # as the resort counts them
+    area: float | None  # ha skiable
+    run_length: float | None  # m: total run length, as the resort reports it
     vertical: float | None  # m
     price: float | None  # JPY day ticket
-    # Not sort keys: shown beside terrain_size, since resorts count runs differently
-    runs: int | None
-    area_ha: int | None
 
 
 class RankedResort(ApiModel):
@@ -76,11 +84,11 @@ def factors_for(item: RankInput) -> Factors:
         fresh_snow=_fresh_snow(item.snow),
         snow_depth=item.snow.depth_cm.summit if item.snow else None,
         crowd=item.crowd.score if item.crowd else None,
-        terrain_size=stats.total_runs_m,
+        runs=stats.runs,
+        area=stats.area_ha,
+        run_length=stats.total_runs_m,
         vertical=stats.vertical_m,
         price=stats.day_ticket_jpy,
-        runs=stats.runs,
-        area_ha=stats.area_ha,
     )
 
 
@@ -107,7 +115,7 @@ def rank(items: list[RankInput], sort: SortKey, filters: Filters) -> list[Ranked
     def order(entry: tuple[RankInput, Factors]) -> tuple[bool, float, int, float, str]:
         item, factors = entry
         value: float | None = getattr(factors, sort)
-        lift_tiebreak = -_lifts(item.resort) if sort == "terrain_size" else 0
+        lift_tiebreak = -_lifts(item.resort) if sort in SIZE_SORTS else 0
         walk = item.walk.duration_s
         return (
             value is None,  # unknowns last

@@ -439,16 +439,16 @@ export interface components {
             snowDepth: number | null;
             /** Crowd */
             crowd: number | null;
-            /** Terrainsize */
-            terrainSize: number | null;
+            /** Runs */
+            runs: number | null;
+            /** Area */
+            area: number | null;
+            /** Runlength */
+            runLength: number | null;
             /** Vertical */
             vertical: number | null;
             /** Price */
             price: number | null;
-            /** Runs */
-            runs: number | null;
-            /** Areaha */
-            areaHa: number | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1206,7 +1206,7 @@ export interface operations {
         parameters: {
             query: {
                 from: string;
-                sort?: "walk_time" | "fresh_snow" | "snow_depth" | "crowd" | "terrain_size" | "vertical" | "price";
+                sort?: "walk_time" | "fresh_snow" | "snow_depth" | "crowd" | "runs" | "area" | "run_length" | "vertical" | "price";
                 date?: string | null;
                 nightSkiing?: boolean | null;
                 hakubaValleyPass?: boolean | null;

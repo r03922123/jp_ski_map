@@ -14,7 +14,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 | Mode | What the user gets |
 |---|---|
 | 🚌 **Bus** | Nearest Hakuba Valley shuttle stop(s), walk time to the stop, next departures, and arrival time at each reachable resort |
-| 🚶 **Walk** | All resorts ranked by one chosen criterion (walk time, fresh snow, snow depth, crowd level, terrain size, vertical, price), with the walking route and ETA on the map for the selected resort |
+| 🚶 **Walk** | All resorts ranked by one chosen criterion (walk time, fresh snow, snow depth, crowd level, total runs, skiable area, run length, vertical, price), with the walking route and ETA on the map for the selected resort |
 
 The 🚗 Drive mode was removed on 2026-11-25: the app serves skiers without a car. Road routing stays only for the shuttle bus's road path.
 
