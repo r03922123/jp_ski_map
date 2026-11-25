@@ -40,5 +40,5 @@ does not offer these destinations.
 - [ ] The live snapshot has ≥ 10 konbini and ≥ 50 food places in Hakuba Valley (sanity check, run once).
 
 ## Boundaries
-- Never: query Google Places, or scrape review sites for ratings. Never call Overpass per user request.
+- Never: query Google Places. Never call Overpass per user request.
 - Ask first: adding ratings or photos, or interpreting opening hours ("open now").
