@@ -40,7 +40,10 @@ export function useMapCamera(
   const skiWait = `${skiKey}/${pressing}/${wishes.mapReady}/${wishes.piloting}`;
   const [settled, setSettled] = useState("");
   useEffect(() => {
-    if (!skiKey) return;
+    if (!skiKey) {
+      setSettled(""); // a re-pick of the same run waits for its sheet again
+      return;
+    }
     const t = setTimeout(() => setSettled(skiWait), SHEET_SETTLE_MS);
     return () => clearTimeout(t);
   }, [skiKey, skiWait]);

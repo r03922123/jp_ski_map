@@ -625,6 +625,19 @@ describe("MapView frames a picked run or resort", () => {
     expect(fits()).toHaveLength(3);
   });
 
+  it("waits for the sheet again when the same run is picked again", () => {
+    cover("data-map-card", 500);
+    const { rerender } = render(view(null, () => {}, {}, { skiFocus: RUN }));
+    act(() => h.props.onLoad({ target: h.map }));
+    settle();
+    expect(fits()).toHaveLength(1);
+    rerender(view(null, () => {}, {}, { skiFocus: null }));
+    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    expect(fits()).toHaveLength(1); // the sheet is still moving
+    settle();
+    expect(fits()).toHaveLength(2);
+  });
+
   it("measures the sheet where it settles, not where it was when the card opened", () => {
     cover("data-map-card", 600);
     const sheet = cover("data-sheet", 760); // swiped low
