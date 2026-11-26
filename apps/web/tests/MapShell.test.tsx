@@ -804,7 +804,6 @@ describe("MapShell keyboard focus", () => {
       walkTime: 463,
       freshSnow: null,
       snowDepth: null,
-      crowd: null,
       runs: null,
       area: null,
       runLength: null,
@@ -812,7 +811,6 @@ describe("MapShell keyboard focus", () => {
       price: null,
     },
     snow: null,
-    crowd: null,
     statsSource: "test",
     website: "https://www.happo-one.jp/",
   };

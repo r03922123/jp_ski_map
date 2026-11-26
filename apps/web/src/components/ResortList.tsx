@@ -19,7 +19,7 @@ const FACTOR_ROWS: {
   label: string;
   format: (v: number) => string;
 }[] = [
-  // Only the resort sizes: walk time is in the card's header, crowd in Sources & weights
+  // Only the resort sizes: walk time is in the card's header
   { key: "runs", label: "Total runs", format: (v) => `${v}` },
   { key: "area", label: "Skiable area", format: (v) => `${v} ha` },
   {
@@ -75,14 +75,11 @@ function linkify(text: string) {
   );
 }
 
-const signed = (w: number) => `${w < 0 ? "−" : "+"}${Math.abs(w).toFixed(2)}`;
-
-function SourcesAndWeights({ r }: { r: RankedResort }) {
-  const sum = r.crowd?.contributions.reduce((s, c) => s + c.weight, 0) ?? 0;
+function DataSources({ r }: { r: RankedResort }) {
   return (
     <details className="mt-1">
       <summary className="cursor-pointer text-muted-foreground">
-        Sources &amp; weights
+        Sources
       </summary>
       <dl className="mt-1 space-y-1 text-muted-foreground">
         <dt className="font-medium">Walk time</dt>
@@ -98,27 +95,6 @@ function SourcesAndWeights({ r }: { r: RankedResort }) {
           {r.snow && `, as of ${formatAsOf(r.snow.asOf)}`}:{" "}
           <SourceLink href="https://open-meteo.com/" />
         </dd>
-        {r.crowd && (
-          <>
-            <dt className="font-medium">Crowd (heuristic estimate)</dt>
-            <dd>
-              <ul>
-                {r.crowd.contributions.map((c) => (
-                  <li key={c.label} className="flex justify-between gap-3">
-                    <span>{c.label}</span>
-                    <span className="tabular-nums">{signed(c.weight)}</span>
-                  </li>
-                ))}
-                <li className="flex justify-between gap-3 font-medium">
-                  <span>Sum</span>
-                  <span className="tabular-nums">{sum.toFixed(2)}</span>
-                </li>
-              </ul>
-              {(sum < 0 || sum > 1) && <p>The sum is capped to 0–1.</p>}
-              <p>Levels: below 0.30 low, below 0.55 medium, below 0.80 high.</p>
-            </dd>
-          </>
-        )}
         <dt className="font-medium">Resort stats</dt>
         <dd>{linkify(r.statsSource)}</dd>
         <dt className="font-medium">Resort website</dt>
@@ -232,11 +208,6 @@ export function ResortList({
                     Snow as of {formatAsOf(r.snow.asOf)}
                   </span>
                 )}
-                {r.crowd && (
-                  <span className="text-xs text-muted-foreground">
-                    Crowd: {r.crowd.level.replace("_", " ")} (est.)
-                  </span>
-                )}
               </span>
               <span className="shrink-0 text-sm font-semibold">
                 {r.walkS != null ? `~ ${formatDuration(r.walkS)}` : "no route"}
@@ -260,7 +231,7 @@ export function ResortList({
                   ];
                 })}
               </dl>
-              <SourcesAndWeights r={r} />
+              <DataSources r={r} />
             </details>
           </li>
         );

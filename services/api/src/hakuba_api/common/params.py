@@ -25,7 +25,6 @@ def _plausible_moment(moment: datetime) -> datetime:
     return moment
 
 
-PlausibleDate = Annotated[date, AfterValidator(_plausible_day)]
 PlausibleDateTime = Annotated[datetime, AfterValidator(_plausible_moment)]
 
 
