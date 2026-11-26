@@ -8,16 +8,13 @@ import { BusPanel } from "@/components/BusPanel";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ModePanel } from "@/components/ModePanel";
-import type { SkiLine } from "@/components/map/SkiLinesLayer";
 import { PilotScreens } from "@/components/PilotScreens";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
 import { RankingPanel } from "@/components/RankingPanel";
-import { ResortCard } from "@/components/ResortCard";
 import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
-import { SkiLineCard } from "@/components/SkiLineCard";
 import { StampMoment } from "@/components/StampMoment";
 import {
   AddDestinationButton,
@@ -26,38 +23,22 @@ import {
   TripCard,
 } from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
-import { type Bbox, type Coord, resortsQuery, skiLinesQuery } from "@/lib/api";
+import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
 import { useBackToClose } from "@/lib/back-close";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
-import { routeBounds } from "@/lib/route-geo";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
-import { resortSummary } from "@/lib/ski-stats";
 import { shownTrip } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
 import { useLodging, useRanking } from "@/lib/use-lists";
+import { useMapCard } from "@/lib/use-map-card";
 import { useModeDurations, useRoutes } from "@/lib/use-routes";
-import {
-  pinPlace,
-  type TripEvent,
-  type TripPoint,
-  useTrip,
-} from "@/lib/use-trip";
+import { pinPlace, type TripEvent, useTrip } from "@/lib/use-trip";
 import { useViewUrl } from "@/lib/use-view-url";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
 const MapView = dynamic(() => import("./MapView"), { ssr: false });
-
-// What the map's card at the bottom is about, one at a time: a long-pressed point (or
-// tapped hotel pin), whose buttons are touch's only way to edit the trip
-// (docs/ux/behaviour-cards.md BC-A1), a tapped run or lift (SPEC-ski-runs v1.1), or a
-// tapped resort chip (v1.4)
-type Picked =
-  | { kind: "pin"; pin: TripPoint }
-  | { kind: "line"; line: SkiLine }
-  // fromCard: opened from the run or lift card's resort name, which unmounts with it
-  | { kind: "resort"; resortId: string; fromCard?: boolean };
 
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
@@ -71,19 +52,6 @@ export function MapShell() {
     focusedSearchKey,
     filledStops,
   } = trip;
-  const [picked, setPicked] = useState<Picked | null>(null);
-  // the whole lines, for the ski cards' profile and resort sums (v1.4); asked for when the
-  // first one opens, then kept (a disabled query still hands back what it has)
-  const skiLines = useQuery({
-    ...skiLinesQuery,
-    enabled: picked !== null && picked.kind !== "pin",
-  });
-  // the ring belongs to the card that set it: a closed card or another pick drops it
-  const [ring, setRing] = useState<{ of: Picked; at: Coord } | null>(null);
-  const profilePoint = ring && ring.of === picked ? ring.at : null;
-  const droppedPin = picked?.kind === "pin" ? picked.pin : null;
-  const setDroppedPin = (pin: TripPoint | null) =>
-    setPicked(pin && { kind: "pin", pin });
   // Saved panel: open, and optionally focused on one place (a tapped saved marker)
   const [savedOpen, setSavedOpen] = useState(false);
   const [savedFocus, setSavedFocus] = useState<string | null>(null);
@@ -240,9 +208,7 @@ export function MapShell() {
   // the panel an edit opens is the shell's to open
   const edit = (event: TripEvent) => {
     const opens = trip.edit(event, world);
-    if (opens?.panel === "resortCard") {
-      setPicked({ kind: "resort", resortId: opens.id });
-    }
+    if (opens?.panel === "resortCard") card.openResort(opens.id);
     if (opens?.panel === "saved") {
       setSavedFocus(opens.id);
       setSavedOpen(true);
@@ -255,71 +221,44 @@ export function MapShell() {
   useBackToClose(hasDestination && toEmptiedSinceLink.current, clearTo);
   useBackToClose(savedOpen, () => setSavedOpen(false));
   useBackToClose(piloting, session.exitPilot);
-  const pickedResort =
-    picked?.kind === "resort"
-      ? resorts.data?.find((r) => r.id === picked.resortId)
-      : undefined;
-  // v1.5: what the open ski card is about, whole (a tap's own geometry is tile-clipped), for
-  // the map to frame: the run or lift, or all the resort's lines
-  const skiFocusLines =
-    piloting || !picked || picked.kind === "pin"
-      ? []
-      : (skiLines.data?.features ?? []).filter((f) =>
-          picked.kind === "line"
-            ? f.properties.id === picked.line.id
-            : f.properties.resortId === picked.resortId,
-        );
-  const skiFocus =
-    picked && picked.kind !== "pin" && skiFocusLines.length > 0
-      ? {
-          key:
-            picked.kind === "line"
-              ? picked.line.id
-              : `resort:${picked.resortId}`,
-          bounds: routeBounds(
-            skiFocusLines.flatMap((f) =>
-              f.geometry.type === "LineString"
-                ? f.geometry.coordinates
-                : f.geometry.coordinates[0],
-            ),
-          ),
-        }
-      : null;
+  const card = useMapCard({
+    resorts: resorts.data,
+    piloting,
+    pinCard: (pin, close) => {
+      // the pin card's buttons edit the trip and close the card
+      const pinEdit = (event: TripEvent) => () => {
+        edit(event);
+        close();
+      };
+      return (
+        <PinCard
+          name={pin.name}
+          coord={pin.coord}
+          onClose={close}
+          onStart={pinEdit({ type: "startSet", start: { by: "pin", pin } })}
+          onGo={
+            // Bus has no "go here": its destination comes from the swap or another tab
+            mode === "bus"
+              ? undefined
+              : pinEdit({ type: "pointChosen", point: pin })
+          }
+          onAddStop={
+            canAddStop
+              ? pinEdit({ type: "stopAdded", place: pinPlace(pin) })
+              : undefined
+          }
+          save={
+            // a saved place at that spot (My hotel's lodging pin) is that place, not a new pin
+            <SaveButton
+              place={placeAt(savedState, pin.coord) ?? pinPlace(pin)}
+            />
+          }
+        />
+      );
+    },
+  });
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
-  // the pin card's buttons edit the trip and close the card
-  const pinEdit = (event: TripEvent) => () => {
-    edit(event);
-    setDroppedPin(null);
-  };
-  const pinCard = droppedPin && (
-    <PinCard
-      name={droppedPin.name}
-      coord={droppedPin.coord}
-      onClose={() => setDroppedPin(null)}
-      onStart={pinEdit({
-        type: "startSet",
-        start: { by: "pin", pin: droppedPin },
-      })}
-      onGo={
-        // Bus has no "go here": its destination comes from the swap or another tab
-        mode === "bus"
-          ? undefined
-          : pinEdit({ type: "pointChosen", point: droppedPin })
-      }
-      onAddStop={
-        canAddStop
-          ? pinEdit({ type: "stopAdded", place: pinPlace(droppedPin) })
-          : undefined
-      }
-      save={
-        // a saved place at that spot (My hotel's lodging pin) is that place, not a new pin
-        <SaveButton
-          place={placeAt(savedState, droppedPin.coord) ?? pinPlace(droppedPin)}
-        />
-      }
-    />
-  );
   // the sheet shows DirectionsPanel, whose sticky ETA + Start row is the landscape bar
   const slimSheet =
     !savedOpen && origin !== null && mode !== "bus" && routeData !== null;
@@ -551,25 +490,17 @@ export function MapShell() {
         onViewChange={setView}
         onPickOrigin={(coord) => {
           // the open stop box takes the click; it closes the card, as a finger's tap does
-          setPicked(null);
+          card.close();
           edit({ type: "mapTapped", coord });
         }}
         stops={tripStops.flatMap((st) =>
           st.place ? [{ coord: st.place.coord, name: st.place.name }] : [],
         )}
         placingStop={placingStop}
-        onDropPin={(coord, name) => setDroppedPin({ coord, name })}
-        onMapTap={() => setPicked(null)}
-        droppedPin={piloting ? null : droppedPin}
-        onSelectSkiLine={(line) => setPicked({ kind: "line", line })}
-        selectedSkiLineId={
-          !piloting && picked?.kind === "line" ? picked.line.id : null
-        }
-        selectedSkiResortId={
-          !piloting && picked?.kind === "resort" ? picked.resortId : null
-        }
-        skiFocus={skiFocus}
-        profilePoint={piloting ? null : profilePoint}
+        card={card.onMap}
+        onDropPin={card.dropPin}
+        onMapTap={card.close}
+        onSelectSkiLine={card.selectLine}
         onSelectResort={(id) => edit({ type: "resortTapped", id })}
         saved={savedMarkers}
         onSelectSaved={(id) => edit({ type: "savedTapped", id })}
@@ -587,47 +518,7 @@ export function MapShell() {
           }}
         />
       )}
-      {!piloting && pinCard}
-      {!piloting && picked?.kind === "line" && (
-        <SkiLineCard
-          // a fresh chart for another line: its picked point was on the old one
-          key={picked.line.id}
-          line={picked.line}
-          full={skiLines.data?.features.find(
-            (f) => f.properties.id === picked.line.id,
-          )}
-          resortName={
-            resorts.data?.find((r) => r.id === picked.line.resortId)?.name.en ??
-            picked.line.resortId
-          }
-          onResort={() =>
-            setPicked({
-              kind: "resort",
-              resortId: picked.line.resortId,
-              fromCard: true,
-            })
-          }
-          onClose={() => setPicked(null)}
-          onPoint={(at) => setRing(at && { of: picked, at })}
-        />
-      )}
-      {!piloting && pickedResort && (
-        <ResortCard
-          name={pickedResort.name}
-          website={pickedResort.website}
-          summary={
-            skiLines.data
-              ? resortSummary(
-                  skiLines.data.features.map((f) => f.properties),
-                  pickedResort.id,
-                )
-              : null
-          }
-          failed={skiLines.isError}
-          focusOnOpen={picked?.kind === "resort" && picked.fromCard === true}
-          onClose={() => setPicked(null)}
-        />
-      )}
+      {card.view}
       <StampMoment />
     </main>
   );
