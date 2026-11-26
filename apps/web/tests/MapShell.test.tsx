@@ -162,6 +162,9 @@ const happoArea: SkiLineFeature = {
 const walk = walkFixture as unknown as Route;
 const hotel = { lat: 36.697364, lng: 137.853928 };
 
+// the whole lines (v1.4): the ski card tests count its calls and fail one
+const fetchSkiLines = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/api", async (importOriginal) => {
   const actual = await importOriginal<typeof api>();
   return {
@@ -190,9 +193,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     fetchLodging: vi.fn(async () => []),
     skiLinesQuery: {
       queryKey: ["ski-lines"],
-      queryFn: async () => ({
-        features: [skylineRun, happoLift, goryuRun, happoArea],
-      }),
+      queryFn: async () => fetchSkiLines(),
       staleTime: Number.POSITIVE_INFINITY,
     },
   };
@@ -235,6 +236,9 @@ beforeEach(() => {
   vi.mocked(api.fetchRoutes).mockResolvedValue({
     primary: walk,
     alternates: [],
+  });
+  fetchSkiLines.mockResolvedValue({
+    features: [skylineRun, happoLift, goryuRun, happoArea],
   });
 });
 afterEach(() => {
@@ -1035,6 +1039,113 @@ describe("MapShell ski cards", () => {
     expect(map().profilePoint?.lat).toBeCloseTo(36.7009, 6);
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     expect(map().profilePoint).toBeNull();
+  });
+
+  // the card rules nothing pinned, before the card moves into its own module
+  const openCards = () =>
+    Array.from(
+      document.querySelectorAll("[data-map-card] h2"),
+      (h) => h.textContent,
+    );
+  // a point on the run's height profile, `x` of 200 px along the chart
+  const pointAt = async (x: number) => {
+    const chart = await screen.findByRole("slider", { name: "Height profile" });
+    chart.getBoundingClientRect = () =>
+      ({ left: 0, width: 200, top: 0, height: 80 }) as DOMRect;
+    fireEvent.pointerMove(chart, { clientX: x, clientY: 10 });
+  };
+
+  it("one card at a time: a pin, a resort chip, a run and a pin again each replace it", async () => {
+    renderShell("?mode=walk");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    const pin = { lat: 36.7, lng: 137.85 };
+    act(() => map().onDropPin?.(pin, null));
+    expect(openCards()).toEqual(["Dropped pin"]);
+    expect(map().droppedPin).toEqual({ coord: pin, name: null });
+    act(() => map().onSelectResort("happo-one"));
+    expect(openCards()).toEqual(["Hakuba Happo-One Snow Resort"]);
+    expect(map().droppedPin).toBeNull();
+    expect(map().selectedSkiResortId).toBe("happo-one");
+    act(() => map().onSelectSkiLine?.(skyline));
+    expect(openCards()).toEqual(["Skyline"]);
+    expect(map().selectedSkiResortId).toBeNull();
+    expect(map().selectedSkiLineId).toBe("r1");
+    act(() => map().onDropPin?.(pin, null));
+    expect(openCards()).toEqual(["Dropped pin"]);
+    expect(map().selectedSkiLineId).toBeNull();
+  });
+
+  it("the ring belongs to its card: the same run tapped again or its resort's card drops it", async () => {
+    renderShell("?mode=walk");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectSkiLine?.(skyline));
+    await pointAt(200);
+    expect(map().profilePoint?.lat).toBeCloseTo(36.7009, 6);
+    act(() => map().onSelectSkiLine?.(skyline));
+    expect(openCards()).toEqual(["Skyline"]);
+    expect(map().profilePoint).toBeNull();
+    await pointAt(0);
+    expect(map().profilePoint?.lat).toBeCloseTo(36.7, 6);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Hakuba Happo-One Snow Resort" }),
+    );
+    expect(map().profilePoint).toBeNull();
+  });
+
+  it("while navigating no card shows and the map marks none; leaving brings the card back", async () => {
+    renderShell(`?from=${from}&mode=walk&resort=happo-one`);
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectSkiLine?.(skyline));
+    await pointAt(200);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /start navigation/i }),
+    );
+    expect(openCards()).toEqual([]);
+    expect(map().selectedSkiLineId).toBeNull();
+    expect(map().profilePoint).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
+    expect(openCards()).toEqual(["Skyline"]);
+    expect(map().selectedSkiLineId).toBe("r1");
+    // a pin's card too
+    const pin = { lat: 36.69, lng: 137.84 };
+    act(() => map().onDropPin?.(pin, null));
+    fireEvent.click(screen.getByRole("button", { name: /start navigation/i }));
+    expect(openCards()).toEqual([]);
+    expect(map().droppedPin).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
+    expect(openCards()).toEqual(["Dropped pin"]);
+    expect(map().droppedPin).toEqual({ coord: pin, name: null });
+  });
+
+  // v1.4: the lines are asked for when the first ski card opens, then kept
+  it("a pin's card asks for no lines; the first run card does, once", async () => {
+    renderShell("?mode=walk");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
+    expect(fetchSkiLines).not.toHaveBeenCalled();
+    act(() => map().onSelectSkiLine?.(skyline));
+    await waitFor(() => expect(map().skiFocus?.key).toBe("r1"));
+    act(() => map().onSelectResort("happo-one"));
+    expect(map().skiFocus?.key).toBe("resort:happo-one");
+    expect(fetchSkiLines).toHaveBeenCalledTimes(1);
+  });
+
+  it("the resort card says so when the lines fail to load", async () => {
+    fetchSkiLines.mockRejectedValueOnce(new Error("down"));
+    renderShell("?mode=walk");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectResort("happo-one"));
+    expect(
+      await screen.findByText("Couldn't load the runs and lifts."),
+    ).toBeInTheDocument();
+    expect(map().skiFocus).toBeNull();
+  });
+
+  it("a run of a resort the list doesn't know names that resort by its id", async () => {
+    renderShell("?mode=walk");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    act(() => map().onSelectSkiLine?.({ ...skyline, resortId: "goryu" }));
+    expect(screen.getByRole("button", { name: "goryu" })).toBeInTheDocument();
   });
 });
 
