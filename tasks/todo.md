@@ -46,7 +46,7 @@ Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear th
 - Found by #68's first run, open: `/api/places/suggest?q=tokyu` took 1255 ms, 1231 ms of it waiting on Photon, whose timeout is 10 s. Search-as-you-type needs a short timeout on that fallback
 
 ## Task J16: MLflow eval loop and Langfuse production traces (SPEC-agent-tools v3, 2026-11-16)
-- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; crowd heuristic ranks Jigatake quietest on every date (its prior is 0 and every date term applies to all resorts alike, so only snow changes the crowd ranking)
+- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; ~~crowd heuristic ranks Jigatake quietest on every date (its prior is 0 and every date term applies to all resorts alike, so only snow changes the crowd ranking)~~ (crowd removed 2026-11-26, ADR-0011)
 
 ## Rebuild from the URL, and Ask Maps (2026-11-18; status at main 8485c47)
 Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../SPEC-ask-maps.md) (A0–A4),
@@ -127,6 +127,12 @@ POIs removed from the API, data, MCP tools, place index, web app and search eval
 - [ ] Owner: delete the Vercel variable `NEXT_PUBLIC_GOOGLE_MAPS_KEY` and disable the Google Cloud APIs and keys
 - [ ] MCP eval: 13 more questions dropped with `nearby_pois` (53 left); compare runs only paired on kept ids
 - [ ] Run the changed e2e specs (destination-route, stops-and-navigating, trip-card, resort-labels, saved)
+
+## Task J21: No crowd estimate (ADR-0011, owner's ask 2026-11-24)
+Crowd removed from the API (`/api/crowd`, the `crowd` sort, field and `date` param of `/api/rank`), web app, MCP
+tools (`crowd_and_snow` is now `snow_conditions`) and specs.
+- [ ] MCP eval: 12 more questions dropped (41 left; `nodata-happo-crowd` replaces `crowd-happo-jan-weekday`);
+  compare runs only paired on kept ids
 
 ## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
 Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.

@@ -43,8 +43,8 @@ ads, a vector database (1,000 places fit in one matrix; see SPEC-place-search v1
 ## Design
 
 **A tool loop over the tools we already have, not a new agent.** The five MCP tools
-(`search_place`, `rank_resorts`, `next_buses`, `route`, `crowd_and_snow`; `nearby_pois` went on
-2026-11-25, ADR-0010) are
+(`search_place`, `rank_resorts`, `next_buses`, `route`, `snow_conditions`; `nearby_pois` went on
+2026-11-25, ADR-0010, and `crowd_and_snow` became `snow_conditions` on 2026-11-26, ADR-0011) are
 trimmed for context and return errors the model can act on; through Claude Code's default model
 they pass the agent-tools eval 12/12 (that says nothing yet about Haiku, see Eval). Ask calls them
 through `await mcp.call_tool(name, args)`, not the bare functions, so argument validation, the

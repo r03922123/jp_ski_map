@@ -9,7 +9,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
 2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link~~, or clicking (long-pressing on mobile) the map,~~ also sets the origin. *Amended 2026-11-25:* a click (a long-press on touch) drops a pin and opens its card, whose Start here sets the origin; an open stop box still takes the click (v1.7 rules). When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
-   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (Walk time, Total runs, Skiable area and Run length since 2026-11-25; the API keeps every `resort-ranking` key), filters (no date picker since 2026-11-25: the ranking is for today). The ranked list shows walk ETA, snow (past 24 h / summit depth), crowd badge (estimated), and on expand the three resort sizes, then Sources & weights with the snow time and the crowd weights (since 2026-11-25; before, every factor). Selecting a resort draws the walking route and step list.
+   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (Walk time, Total runs, Skiable area and Run length since 2026-11-25; the API keeps every `resort-ranking` key), filters (no date picker since 2026-11-25: the ranking is for today). The ranked list shows walk ETA, snow (past 24 h / summit depth), ~~crowd badge (estimated)~~, and on expand the three resort sizes, then Sources with the snow time (since 2026-11-25; before, every factor; the crowd badge and weights went on 2026-11-26, ADR-0011). Selecting a resort draws the walking route and step list.
      It warns when the walk is > 45 min.
    - 🚌 **Bus:** for each resort, the walk to the stop, the next 3 departures (line badge, depart → arrive, wait), and a link to the source image. Selecting an option draws the walk leg and highlights the boarding stop. A departure time picker defaults to now. A separate "Night bus" toggle shows Line VN departures from the nearest stop.
 4. URL state: `?from=lat,lng&mode=walk&resort=happo-one&sort=walk_time`, so the view can be shared and reloaded.
@@ -17,7 +17,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 ## Acceptance Criteria
 - [ ] Playwright E2E: search "Hotel Hakuba" → select → each tab shows a non-empty result and a line on the map.
 - [ ] Mobile width 390 px: the panel becomes a draggable bottom sheet, with no horizontal scroll.
-- [ ] Every estimate is labeled ("ETA ~", "Crowd: estimated", snow `asOf`).
+- [ ] Every estimate is labeled ("ETA ~", snow `asOf`).
 - [ ] Each upstream error is shown inside its own panel (e.g. the bus panel fails but walk still works; a failed ranking leaves Walk the plain resort picker).
 - [ ] Map attribution shows OSM, OpenFreeMap, Open-Meteo and Hakuba Valley.
 - [ ] Keyboard-navigable search and tabs, visible focus, WCAG AA contrast.
@@ -94,7 +94,7 @@ Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats:
 **Screens**
 - ~~**Title screen**~~ Removed in v1.30 (a bare visit opens on the map). It was: first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: press start" (a tap, click or Enter; on a touch screen focus then lands on the sheet, not the search box, so no keyboard rises; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
 - ~~**HUD** (top bar): rider name and title, stamps n/10, a quest-log button with a badge for active quests, and the sound toggle.~~ Removed in v1.14.
-- **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow, crowd...). The sort controls and the order work as today.
+- **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow...). The sort controls and the order work as today.
 - **Directions and navigation:** steps in dialog boxes. The hero sprite replaces the position puck; pose by mode, facing the direction of travel. Navigation keeps high-contrast banners.
 - **Stamp moment:** a dialog box (SPEC-progression). The quest log was removed in v1.14.
 - **Every existing panel** (bus, trip, saved, POIs) gets the frames and font, with no change in behaviour.

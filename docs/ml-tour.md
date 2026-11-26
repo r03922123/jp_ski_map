@@ -19,16 +19,13 @@ flowchart LR
   subgraph api["HTTP API on Vercel"]
     lex["Lexical index<br/>kana→romaji, sound keys"]
     val["Valhalla routing<br/>drive / walk ETA, matrix"]
-    crowd["Crowd heuristic<br/>hand-set weights, no labels"]
     rank["Rank 10 resorts<br/>by one factor"]
     bus["Bus options"]
     val --> rank
-    crowd --> rank
   end
   lex -. "fewer than 3 hits" .-> photon["Photon geocoder"]
   lex -. "only if HAKUBA_SEMANTIC_URL<br/>300 ms, else lexical only" .-> sem["Fine-tuned e5-small<br/>exact cosine over 1,100 entries"]
   snow["Open-Meteo snow"] --> rank
-  snow --> crowd
   poster["Bus poster"] -- "transcribed, human-reviewed" --> tt["Timetable JSON<br/>validator in CI"]
   poster --> vlm["Qwen2.5-VL-3B<br/>experiment"]
   vlm -. "drafts for a reviewer, unused" .-> tt
@@ -37,7 +34,7 @@ flowchart LR
   classDef served fill:#d7f0dd,stroke:#2e7d32,color:#000
   classDef off fill:#fde7c8,stroke:#b26a00,color:#000
   classDef offline fill:#e3e3e3,stroke:#666,color:#000
-  class lex,photon,val,rank,snow,crowd,mcp,tt,bus served
+  class lex,photon,val,rank,snow,mcp,tt,bus served
   class sem off
   class vlm offline
 ```
@@ -53,43 +50,23 @@ judged on, and whether it ships. ± is one standard error.
 |---|---|---|---|---|---|
 | Place search | Lexical index: normalisation, kana→romaji, sound keys | `booking_eval.json`, 26 present + 4 absent hotels | 26/26 found, 4/4 absent left empty, 0 wrong | Served | [SPEC-place-search.md](../SPEC-place-search.md) |
 | Semantic search | `multilingual-e5-small`, contrastive fine-tune on synthetic pairs, per-model threshold | `heldout_v2.json`, n=55, written before any result on it | hybrid − lexical hit@5 +0.036 ± 0.025, paired: not established | Off | [SPEC-place-search.md](../SPEC-place-search.md) v1.6, v1.7 |
-| Crowd level | Hand-weighted heuristic (calendar, holidays, snow, resort size) | No labelled crowd data exists; unit tests pin named cases | Every estimate shows "(est.)" and the weight each reason added | Served | [SPEC-crowd-level.md](../SPEC-crowd-level.md) |
+| ~~Crowd level~~ | Hand-weighted heuristic (calendar, holidays, snow, resort size) | No labelled crowd data exists; unit tests pinned named cases | Never validated | Removed 2026-11-26 | [ADR-0011](adr/0011-remove-crowd-estimate.md) |
 | ETA | Valhalla, in process on Vercel | 100 mixed + 20 path + 5 error requests against the Valhalla server (a local `live` test, not in CI) | Identical, except matrix `cost` within 0.01 | Served | [SPEC-deploy.md](../SPEC-deploy.md) |
-| Trip agent | Claude + 6 MCP tools over the HTTP API | 100 questions (en, zh, ja); regex graders tested against wrong answers | 97/100 (0.97 ± 0.02, 95% interval 0.92–0.99), $0.047 per question | Tools served; eval offline | [last_run.md](../services/mcp/evals/last_run.md), [SPEC-agent-tools.md](../SPEC-agent-tools.md) |
+| Trip agent | Claude + 6 MCP tools over the HTTP API | 100 questions (en, zh, ja) in that run, 41 since the drive, POI and crowd questions went; regex graders tested against wrong answers | 97/100 (0.97 ± 0.02, 95% interval 0.92–0.99), $0.047 per question | Tools served; eval offline | [last_run.md](../services/mcp/evals/last_run.md), [SPEC-agent-tools.md](../SPEC-agent-tools.md) |
 | Timetable drafts | Qwen2.5-VL-3B 4-bit, zero-shot, local MLX | 4 real poster crops from unseen lines | Cell accuracy 0.771; 2 of 4 pass the validator; LoRA run never finished | Never served | [ml/timetable_vlm](../ml/timetable_vlm/README.md) |
 
 ## 3. Six decisions worth checking
 
-### 3.1 Heuristic first, with the reasons shown
+### 3.1 A heuristic with no ground truth was removed
 
-There are no crowd labels to train on, so the crowd level is a rule with hand-set weights, after Rule #1 of Google's
+Until 2026-11-26 the app showed a crowd level per resort and date: a rule with hand-set weights (day type, peak
+periods, powder, a resort prior), launched after Rule #1 of Google's
 [Rules of ML](https://developers.google.com/machine-learning/guides/rules-of-ml) ("Don't be afraid to launch a
-product without machine learning"). Each estimate returns the weight every reason added, so the UI can show why a
-day ranks as busy:
-
-```python
-# services/api: uv run --frozen python toy.py
-src = HeuristicCrowdSource(load_periods())
-for rid, day in [("jigatake", date(2026, 1, 14)), ("happo-one", date(2026, 2, 21))]:
-    e = src.estimate(get_resort(rid), day, None)
-    print(rid, day, e.level, round(e.score, 2))
-    for c in e.contributions:
-        print(f"  +{c.weight:.2f}  {c.label}")
-```
-
-```text
-jigatake 2026-01-14 low 0.15
-  +0.15  Australian summer school holidays
-happo-one 2026-02-21 very_high 0.85
-  +0.35  3-day weekend (Emperor's Birthday)
-  +0.25  Lunar New Year week
-  +0.25  Large, popular resort
-```
-
-[`tests/crowd/test_heuristic.py`](../services/api/tests/crowd/test_heuristic.py) pins the levels and reasons for
-these two dates in CI (with snow data added), not the printed scores. Known limit:
-every date term applies to all resorts alike, so the crowd ranking only changes with snow. Jigatake, whose prior is
-0, ranks quietest on every date ([todo](../tasks/todo.md), J16).
+product without machine learning"). Rule #1 assumes the heuristic can later be measured. This one never could: no
+open per-resort daily crowd data exists for Hakuba, so its tests pinned only cases its own author wrote, and one
+error showed (Jigatake, prior 0, ranked quietest on every date). [ADR-0011](adr/0011-remove-crowd-estimate.md)
+removed it and states the bar for a return: a grounded source plus about 20 to 50 labelled days, checked with a
+rank correlation reported with its n and standard error.
 
 ### 3.2 A threshold belongs to one model
 
@@ -166,7 +143,7 @@ The eval is built so it can fail ([SPEC-agent-tools.md](../SPEC-agent-tools.md))
 
 | Practice | Source | In this repo |
 |---|---|---|
-| Launch without ML first | Google, [Rules of ML](https://developers.google.com/machine-learning/guides/rules-of-ml) #1 | Crowd heuristic; lexical search served while semantic stays off |
+| Launch without ML first | Google, [Rules of ML](https://developers.google.com/machine-learning/guides/rules-of-ml) #1 | Lexical search served while semantic stays off |
 | Report a model with its eval and limits | Google, [Model Cards](https://arxiv.org/abs/1810.03993) | Section 2; the Caveats in each `ml/*/README.md` |
 | Test data and model infrastructure, not only code | Google, [ML Test Score](https://research.google/pubs/the-ml-test-score-a-rubric-for-ml-production-readiness-and-technical-debt-reduction/) | `python -m hakuba_api.data.validate` in CI; ETA equivalence suite; snapshot pinning (gaps D1–D3 in the todo Debt list) |
 | Error bars and paired differences | Anthropic, [statistical approach to evals](https://www.anthropic.com/research/statistical-approach-to-model-evals) | `mean_se`, `paired_diff`; the v1.6 and v1.7 tables in SPEC-place-search |
@@ -182,5 +159,4 @@ The eval is built so it can fail ([SPEC-agent-tools.md](../SPEC-agent-tools.md))
 - Both search eval sets have now been seen during tuning; the next semantic change needs a third set.
 - The VLM fine-tune was stopped after step 1 of 40 (106.6 s per step while the 16 GB Mac swapped), so there is no
   fine-tuned number.
-- The crowd heuristic has no ground truth; its weights are judgment, checked only against named cases.
 - `ml/` is not in CI, so the toy outputs in 3.2 and 3.3 hold at `361cb08` and are not re-checked on each PR.

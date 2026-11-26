@@ -1,14 +1,16 @@
 # Spec: resort-ranking
 
-> Module of [SPEC.md](SPEC.md). Depends on: resort-catalog, routing, snow-conditions, crowd-level. Consumed by: web-app (🚶 Walk tab).
+> Module of [SPEC.md](SPEC.md). Depends on: resort-catalog, routing, snow-conditions. Consumed by: web-app (🚶 Walk tab).
 
 *2026-11-25: Drive mode removed. The travel-time key is `walk_time` (a walk matrix; measured 0.042 s median, n=5, local, vs 0.05 s for the road matrix), and `maxDriveMin` is `maxWalkMin`.*
 
-*2026-11-25: the web offers two sorts, walk time and terrain size, so each card's Details shows only their factors (walk time, runs) plus crowd until it is removed. The API still returns every factor for the MCP `rank_resorts` tool. Snow stays on the card's ❄ line, with its source.*
+*2026-11-25: the web offers two sorts, walk time and terrain size, so each card's Details shows only their factors (walk time, runs) ~~plus crowd until it is removed~~. The API still returns every factor for the MCP `rank_resorts` tool. Snow stays on the card's ❄ line, with its source.*
 
 *2026-11-25, later: `terrain_size` is the total run length each resort reports (`totalRunsM`, m), no longer its run count. Resorts count runs differently: Tsugaike reports 11 runs (7th of 10) but 20.5 km (2nd), Cortina 16 runs (2nd) but 13.3 km (5th). The factors also carry `runs` and `area_ha`, so a card shows all three sizes.*
 
-*2026-11-25, last: `terrain_size` is gone. `runs`, `area` and `run_length` are each a sort key of their own, all with the lift tiebreak, and the web offers all three beside walk time. A card's Details lists only these sizes: walk time is in its header, the crowd score and reasons are in Sources & weights, and the snow time moved into the snow source there.*
+*2026-11-25, last: `terrain_size` is gone. `runs`, `area` and `run_length` are each a sort key of their own, all with the lift tiebreak, and the web offers all three beside walk time. A card's Details lists only these sizes: walk time is in its header, ~~the crowd score and reasons are in Sources & weights,~~ and the snow time moved into the snow source there.*
+
+*2026-11-26: the crowd estimate is removed ([ADR-0011](docs/adr/0011-remove-crowd-estimate.md)). The `crowd` sort key, the `crowd` factor and field, and the `date` parameter (it only chose the crowd estimate's day) are gone; `sort=crowd` is a 422. "Sources & weights" is now "Sources".*
 
 ## Objective
 From the user's origin, rank all resorts by **one criterion the user chooses**, and show every factor's value so the user can compare resorts themselves.
@@ -21,7 +23,7 @@ From the user's origin, rank all resorts by **one criterion the user chooses**, 
 | `walk_time` (default) | Valhalla walking duration to the nearest access point | lower |
 | `fresh_snow` | newSnow past24h + 0.5 × next24h | higher |
 | `snow_depth` | summit depth | higher |
-| `crowd` | crowd score for the date | lower |
+| ~~`crowd`~~ | ~~crowd score for the date~~ (removed 2026-11-26) | ~~lower~~ |
 | `runs` | runs, as the resort counts them, then lifts as tiebreak | higher |
 | `area` | skiable area (ha), then lifts as tiebreak | higher |
 | `run_length` | total run length (m), as the resort reports it, then lifts as tiebreak | higher |
@@ -31,15 +33,15 @@ From the user's origin, rank all resorts by **one criterion the user chooses**, 
 Filters: `nightSkiing`, `hakubaValleyPass`, `maxWalkMin`.
 
 ## Interface
-- `GET /api/rank?from=lat,lng&sort=walk_time&date=YYYY-MM-DD&nightSkiing=&hakubaValleyPass=&maxWalkMin=` → `RankedResort[]`
+- `GET /api/rank?from=lat,lng&sort=walk_time&nightSkiing=&hakubaValleyPass=&maxWalkMin=` → `RankedResort[]`
 ```jsonc
 { "resortId": "hakuba47", "name": "…", "rank": 1,
   "sortValue": 840,                       // raw value of the chosen key (null if unknown)
   "walkS": 840, "walkDistanceM": 9200, "accessPointId": "hakuba47-base",
   "factors": { "walk_time": 840, "fresh_snow": 22, "snow_depth": 260,
-               "crowd": 0.55, "runs": 8, "area": 32, "run_length": 13570,
+               "runs": 8, "area": 32, "run_length": 13570,
                "vertical": 818, "price": 7500 },  // raw values
-  "snow": { …SnowReport }, "crowd": { …CrowdEstimate } }
+  "snow": { …SnowReport }, "statsSource": "…", "website": "…" }
 ```
 
 ## Rules
@@ -66,6 +68,10 @@ Filters: `nightSkiing`, `hakubaValleyPass`, `maxWalkMin`.
 - **"Best overall":** how to combine factors. Options: user weight sliders, sensible preset profiles ("powder chaser", "beginner family", "short drive"), or learning from user choices. Decide after v1 is in use.
 
 ## v1.1: Sources and weights, one tap away (2026-11-19, draft)
+
+> ~~Its crowd parts (contributions, weights, the Crowd row)~~ were removed on 2026-11-26 with the crowd estimate
+> ([ADR-0011](docs/adr/0011-remove-crowd-estimate.md)). The disclosure is now called "Sources" and lists the sources only. The rest of this section is the
+> record of the original change.
 
 **Objective.** A skier who doubts a number in the ranked list can see where it came from and, for the crowd
 score, how it was added up, without that detail cluttering the list. Today each row's "Details" shows the raw
