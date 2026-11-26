@@ -13,8 +13,8 @@ jobs:
       run:
         working-directory: services/api
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       - run: uv sync --locked
@@ -33,8 +33,8 @@ jobs:
       run:
         working-directory: services/mcp
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       - run: uv sync --locked
@@ -51,8 +51,8 @@ jobs:
       run:
         working-directory: pipeline
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       - run: uv sync --locked
@@ -69,11 +69,11 @@ jobs:
       run:
         working-directory: apps/web
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4.4.0
         with:
           package_json_file: apps/web/package.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: pnpm
@@ -92,10 +92,10 @@ jobs:
   deploy-script:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Deploy script stops on bad input (stubbed vercel; nothing can deploy)
         run: scripts/test-deploy-vercel.sh
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       # The stub above skips the real vendor step; this runs it as the deploy does, on Linux x86_64.
       - name: Slim pyvalhalla imports, and the staged lock no longer installs pyvalhalla
         run: |
@@ -110,14 +110,14 @@ jobs:
   claude-hooks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: MCP-token hook denies the secret file and token-shaped commits
         run: scripts/test-guard-mcp-token.sh
 
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Docs stay a true map (links, paths named in SPECs, CLAUDE.md length)
         run: python3 scripts/check_docs.py
 
@@ -139,11 +139,11 @@ jobs:
       PROD_DOMAIN: jp-ski-map.vercel.app
     steps:
       # Third-party code runs next to the token, so actions are pinned to a commit and the CLI to a version.
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
         with:
           package_json_file: apps/web/package.json
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: "24"
           cache: pnpm
