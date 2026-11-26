@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { mirrorUrl } from "@/lib/back-close";
-import { hotelOf, pinId, savedStore } from "@/lib/saved-places";
+import { hotelOf, savedStore } from "@/lib/saved-places";
 import { readImportHash } from "@/lib/saved-share";
 import {
   parseViewState,
@@ -30,28 +30,11 @@ export function useViewUrl({
   // already holds the restored values; with a ref, StrictMode's double-mount
   // would overwrite the shared URL with defaults before it is read again.
   const [ready, setReady] = useState(false);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: once, on load (the setters are stable)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once, on load
   useEffect(() => {
     const view = parseViewState(window.location.search);
-    trip.setMode(view.mode);
-    trip.setOrigin(view.origin);
-    // No shared origin: start from My hotel, like Google starting from Home.
-    const hotel = view.origin ? undefined : hotelOf(savedStore.getSnapshot());
-    if (hotel) {
-      trip.setOrigin(hotel.coord);
-      trip.setOriginName(hotel.name);
-      trip.setOriginSource(hotel);
-      trip.setSearchLabel(`My hotel · ${hotel.name}`);
-    }
-    trip.setPoint(view.point ? { coord: view.point, name: null } : null);
-    trip.setStops(
-      view.stops.map((coord, i) => ({
-        key: `stop-url-${i}`,
-        place: { id: pinId(coord), name: "Dropped pin", coord, kind: "pin" },
-      })),
-    );
+    trip.restore(view, hotelOf(savedStore.getSnapshot()));
     setImportCode(readImportHash(window.location.hash));
-    trip.setChosenResortId(view.resortId);
     setRankOptions(view.rank);
     setReady(true);
   }, []);
