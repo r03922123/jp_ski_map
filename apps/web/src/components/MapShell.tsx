@@ -33,7 +33,7 @@ import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import { routeBounds } from "@/lib/route-geo";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
 import { resortSummary } from "@/lib/ski-stats";
-import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
+import { shownTrip } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
 import { useLodging, useRanking } from "@/lib/use-lists";
@@ -69,9 +69,6 @@ export function MapShell() {
     searchLabel,
     searchKey,
     focusedSearchKey,
-    selectedResortId,
-    point,
-    storedBusChoice,
     filledStops,
   } = trip;
   const [picked, setPicked] = useState<Picked | null>(null);
@@ -113,39 +110,50 @@ export function MapShell() {
   const { ranking, rankingState } = useRanking(mode, origin, rankOptions);
 
   const savedState = useSaved();
-  const pointPlace = pointPlaceOf(savedState, point);
+  // Night bus: the shown trip reads it (night buses draw no trip), then the bus answers
+  const [showNight, setShowNight] = useState(false);
   const {
+    selectedResortId,
+    routeMode,
+    target,
+    sharedTarget,
+    destinationMarker,
     busPlace,
     busChoice,
     busStop,
+    onlyResortId,
+    fromPlace,
+    toPlace,
+    showToBox,
+    tripStops,
+    stopBoxOpen,
+    shownResortIds,
+    hasDestination,
+    destinationLoading,
+    canAddStop,
+    canSwap,
+    destinationKey,
+    routeKey,
+  } = shownTrip(trip, { resorts, ranking, savedState, showNight });
+  const {
     rideRoute,
     rideLeg,
     results: busResults,
     basis: busBasis,
     departAt,
     setDepartAt,
-    showNight,
-    setShowNight,
     freeOnly,
     setFreeOnly,
-  } = useBusTrip({ mode, origin, originName, pointPlace, storedBusChoice });
+  } = useBusTrip({
+    mode,
+    origin,
+    originName,
+    busPlace,
+    busChoice,
+    busStop,
+    showNight,
+  });
 
-  // Walk to the access point the ranking found nearest; otherwise the first one.
-  const resort = resorts.data?.find((r) => r.id === selectedResortId);
-  const nearestId = ranking.data?.find(
-    (r) => r.resortId === selectedResortId,
-  )?.accessPointId;
-  const destination = (
-    resort?.accessPoints.find((a) => a.id === nearestId) ??
-    resort?.accessPoints[0]
-  )?.coord;
-
-  // In bus mode the route shown is the walk to the chosen boarding stop.
-  const routeMode = mode === "bus" ? "walk" : mode;
-
-  // where walk goes
-  const tripTarget = point?.coord ?? destination;
-  const target = mode === "bus" ? busStop : tripTarget;
   // With stops (walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
   const {
@@ -157,16 +165,9 @@ export function MapShell() {
     highlight,
     setHighlight,
   } = useRoutes({ mode, routeMode, origin, target, viaStops });
-  // the tabs' times need one place for every mode: Walk heads for the ranking's nearest
-  // entrance, so a resort with several waits for this start's ranking (cached, so every mode
-  // then uses that entrance; a placeholder is the previous start's)
-  const sharedTarget =
-    point !== null ||
-    (resort?.accessPoints.length ?? 0) <= 1 ||
-    (ranking.data !== undefined && !ranking.isPlaceholderData);
   const durations = useModeDurations({
     origin,
-    target: sharedTarget ? tripTarget : null,
+    target: sharedTarget,
     viaStops: filledStops.map((s) => s.coord),
   });
 
@@ -227,36 +228,8 @@ export function MapShell() {
         lng: (view.bbox.west + view.bbox.east) / 2,
       }
     : null;
-  const {
-    tripStops,
-    placingStop,
-    shownResortIds,
-    fromPlace,
-    toPlace,
-    showToBox,
-    destinationResortId,
-    destinationLoading,
-    canAddStop,
-    canSwap,
-    destinationKey,
-    routeKey,
-  } = tripPlaces({
-    ...trip,
-    routeMode,
-    pointPlace,
-    resort,
-    destination,
-    busPlace,
-    busChoice,
-    showNight,
-    target,
-    activeRoute,
-    piloting,
-    savedOpen,
-    savedState,
-    resorts: resorts.data,
-    resortsLoading: resorts.isLoading,
-  });
+  // An open stop box takes map taps only while it is on screen (SPEC-web-app v1.4).
+  const placingStop = stopBoxOpen && !piloting && !savedOpen;
   const world = {
     resorts: resorts.data,
     savedPlaces: savedState.places,
@@ -277,10 +250,9 @@ export function MapShell() {
   };
   const clearTo = () => edit({ type: "destinationCleared" });
   const chooseResort = (id: string) => edit({ type: "resortChosen", id });
-  const shownTo = point ?? selectedResortId;
   const toEmptiedSinceLink = useRef(false);
-  if (linkRead && shownTo === null) toEmptiedSinceLink.current = true;
-  useBackToClose(shownTo !== null && toEmptiedSinceLink.current, clearTo);
+  if (linkRead && !hasDestination) toEmptiedSinceLink.current = true;
+  useBackToClose(hasDestination && toEmptiedSinceLink.current, clearTo);
   useBackToClose(savedOpen, () => setSavedOpen(false));
   useBackToClose(piloting, session.exitPilot);
   const pickedResort =
@@ -430,7 +402,7 @@ export function MapShell() {
             />
           }
           collapseKey={destinationKey}
-          revealKey={routeKey}
+          revealKey={routeKey && `${routeKey}|${activeRoute}`}
           raiseKey={`${savedOpen}|${mode}`}
           // with no start it would hold only the hint on how to set one (and the stops
           // a cleared start leaves, which must stay reachable)
@@ -467,10 +439,10 @@ export function MapShell() {
               onSelectResort={chooseResort}
               hasOrigin={origin !== null}
               durations={durations}
-              tripFirst={mode !== "bus" && tripStops.length > 0}
+              tripFirst={tripStops.length > 0}
               placeStrip={
                 <TripPanel
-                  stops={mode === "bus" ? [] : tripStops}
+                  stops={tripStops}
                   addStopRef={addStopRef}
                   near={viewCentre}
                   onRemoveStop={(key) => edit({ type: "stopRemoved", key })}
@@ -506,13 +478,7 @@ export function MapShell() {
                 <BusPanel
                   resorts={resorts.data ?? []}
                   result={busResults.bus}
-                  // the resort itself, not a tapped bus's: that would collapse the list.
-                  // Only a known one: a stale link must not say there are no shuttles
-                  onlyResortId={
-                    resorts.data?.some((r) => r.id === destinationResortId)
-                      ? destinationResortId
-                      : null
-                  }
+                  onlyResortId={onlyResortId}
                   place={
                     busPlace && {
                       name: busPlace.name,
@@ -561,12 +527,11 @@ export function MapShell() {
       <MapView
         slimSheet={slimSheet}
         resorts={resorts.data ?? []}
-        shownResortIds={shownResortIds}
+        // an open stop box is choosing again, and a resort can be tapped as the stop
+        shownResortIds={placingStop ? undefined : shownResortIds}
         selectedResortId={selectedResortId}
         origin={origin}
-        destination={
-          mode === "bus" ? (busPlace?.coord ?? null) : (target ?? null)
-        }
+        destination={destinationMarker}
         routes={
           pastWalk
             ? [] // at the stop or on the bus: the bus line is the route now
@@ -589,15 +554,9 @@ export function MapShell() {
           setPicked(null);
           edit({ type: "mapTapped", coord });
         }}
-        stops={
-          mode === "bus"
-            ? []
-            : tripStops.flatMap((st) =>
-                st.place
-                  ? [{ coord: st.place.coord, name: st.place.name }]
-                  : [],
-              )
-        }
+        stops={tripStops.flatMap((st) =>
+          st.place ? [{ coord: st.place.coord, name: st.place.name }] : [],
+        )}
         placingStop={placingStop}
         onDropPin={(coord, name) => setDroppedPin({ coord, name })}
         onMapTap={() => setPicked(null)}
