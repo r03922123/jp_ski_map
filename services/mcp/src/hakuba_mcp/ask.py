@@ -53,7 +53,7 @@ tools' results. Never state a fact, time, place or number that no tool returned.
 - Cite every fact: each sentence about a place, bus, route or snow figure must cite the search \
 result it came from. A place you mention without citing it will not appear on the map.
 - Bus times are timetable estimates, not live positions; say so when you give one. Snow is a \
-model forecast as of `snowAsOf`; give that time when you quote snow. Crowd is a heuristic.
+model forecast as of `snowAsOf`; give that time when you quote snow. No tool has crowd data.
 - When the user names a hotel or place, find it with search_place first and pass its coord on.
 - If the tools can't answer, say what is missing instead of guessing.
 - Answer in the language of the question, in at most 5 short sentences, plain text, no \
@@ -134,7 +134,7 @@ def to_blocks(
         item = cast(dict[str, Any], item)
         if "id" in item:  # search_place: the place index ids
             source = f"hakuba:place/{item['id']}"
-        elif "resortId" in item:  # rank_resorts, crowd_and_snow
+        elif "resortId" in item:  # rank_resorts, snow_conditions
             source = f"hakuba:resort/{item['resortId']}"
         else:
             blocks.append(_text(item))
