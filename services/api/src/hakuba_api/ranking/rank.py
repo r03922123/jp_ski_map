@@ -5,7 +5,6 @@ from typing import Literal
 
 from hakuba_api.catalog.models import Resort
 from hakuba_api.common.models import ApiModel
-from hakuba_api.crowd.models import CrowdEstimate
 from hakuba_api.routing.models import MatrixCell
 from hakuba_api.snow.models import SnowReport
 
@@ -13,14 +12,13 @@ SortKey = Literal[
     "walk_time",
     "fresh_snow",
     "snow_depth",
-    "crowd",
     "runs",
     "area",
     "run_length",
     "vertical",
     "price",
 ]
-LOWER_IS_BETTER: set[SortKey] = {"walk_time", "crowd", "price"}
+LOWER_IS_BETTER: set[SortKey] = {"walk_time", "price"}
 SIZE_SORTS: set[SortKey] = {"runs", "area", "run_length"}
 
 
@@ -30,7 +28,6 @@ class Factors(ApiModel):
     walk_time: float | None  # seconds
     fresh_snow: float | None  # cm: past 24 h + half of next 24 h
     snow_depth: float | None  # cm at the summit
-    crowd: float | None  # 0..1 estimate
     runs: float | None  # as the resort counts them
     area: float | None  # ha skiable
     run_length: float | None  # m: total run length, as the resort reports it
@@ -48,7 +45,6 @@ class RankedResort(ApiModel):
     access_point_id: str
     factors: Factors
     snow: SnowReport | None
-    crowd: CrowdEstimate | None
     stats_source: str  # free text with URLs, as stored in the catalog
     website: str
 
@@ -58,7 +54,6 @@ class RankInput:
     resort: Resort
     walk: MatrixCell  # nearest access point (id = access point id)
     snow: SnowReport | None
-    crowd: CrowdEstimate | None
 
 
 @dataclass(frozen=True)
@@ -83,7 +78,6 @@ def factors_for(item: RankInput) -> Factors:
         walk_time=item.walk.duration_s,
         fresh_snow=_fresh_snow(item.snow),
         snow_depth=item.snow.depth_cm.summit if item.snow else None,
-        crowd=item.crowd.score if item.crowd else None,
         runs=stats.runs,
         area=stats.area_ha,
         run_length=stats.total_runs_m,
@@ -136,7 +130,6 @@ def rank(items: list[RankInput], sort: SortKey, filters: Filters) -> list[Ranked
             access_point_id=item.walk.id,
             factors=factors,
             snow=item.snow,
-            crowd=item.crowd,
             stats_source=item.resort.stats_source,
             website=item.resort.website,
         )

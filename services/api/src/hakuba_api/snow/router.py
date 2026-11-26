@@ -106,3 +106,12 @@ def get_snow(
             raise UpstreamBusyError(source)
         raise UpstreamError(source, "failed, and no report recent enough to serve")
     return stale
+
+
+def get_snow_by_resort() -> dict[str, SnowReport]:
+    """Snow by resort id for ranking; an Open-Meteo outage gives {} so ranking still works."""
+    try:
+        reports = get_snow(get_hourly_fetcher(), get_now())
+    except UpstreamError:
+        return {}
+    return {r.resort_id: r for r in reports}

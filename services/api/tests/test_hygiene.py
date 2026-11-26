@@ -1,7 +1,6 @@
 """T78: inputs the app never sends must get a 4xx, not a 500 or an echo of the input."""
 
 from collections.abc import Iterator
-from datetime import date
 from typing import Any
 
 import pytest
@@ -9,7 +8,6 @@ from fastapi.testclient import TestClient
 
 from hakuba_api.bus.models import Timetable
 from hakuba_api.bus.router import get_bus_data, get_manifest_season, get_walks
-from hakuba_api.crowd.router import get_snow_by_resort, get_today
 from hakuba_api.main import MAX_BODY_BYTES, app
 
 
@@ -24,8 +22,6 @@ def api() -> Iterator[TestClient]:
     app.dependency_overrides[get_walks] = walks
     app.dependency_overrides[get_bus_data] = no_timetables
     app.dependency_overrides[get_manifest_season] = lambda: None
-    app.dependency_overrides[get_today] = lambda: date(2027, 1, 15)
-    app.dependency_overrides[get_snow_by_resort] = lambda: {}
     yield TestClient(app, raise_server_exceptions=False)
     app.dependency_overrides.clear()
 
@@ -44,11 +40,6 @@ def test_bus_dates_in_range_still_work(api: TestClient) -> None:
     )
 
     assert response.status_code == 200
-
-
-@pytest.mark.parametrize("day", ["9999-12-31", "0001-01-01"])
-def test_crowd_dates_out_of_range_are_rejected(api: TestClient, day: str) -> None:
-    assert api.get("/api/crowd", params={"date": day}).status_code == 422
 
 
 def test_a_huge_body_is_refused_before_it_is_parsed(api: TestClient) -> None:

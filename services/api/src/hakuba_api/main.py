@@ -10,7 +10,6 @@ from hakuba_api.catalog.router import router as catalog_router
 from hakuba_api.common import ratelimit
 from hakuba_api.common.timing import ServerTiming
 from hakuba_api.common.upstream import UpstreamBusyError, UpstreamError
-from hakuba_api.crowd.router import router as crowd_router
 from hakuba_api.places.router import router as places_router
 from hakuba_api.ranking.router import router as ranking_router
 from hakuba_api.routing.client import NoRouteError, RoutingUnavailableError
@@ -75,7 +74,6 @@ app.include_router(catalog_router)
 app.include_router(routing_router)
 app.include_router(places_router)
 app.include_router(snow_router)
-app.include_router(crowd_router)
 app.include_router(ranking_router)
 app.include_router(bus_router)
 app.include_router(skiruns_router)
