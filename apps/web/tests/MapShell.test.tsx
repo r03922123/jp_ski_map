@@ -719,6 +719,23 @@ describe("MapShell stops", () => {
     expect(map().stops).toEqual([]);
     await waitFor(() => expect(query().get("stops")).toBeNull());
   });
+
+  // SPEC-web-app v1.4: only while the box is on screen
+  it("an open stop box takes no map taps while navigating or while Saved replaces it", async () => {
+    renderShell(`?from=${from}&mode=walk&resort=happo-one`);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /add destination/i }),
+    );
+    expect(map().placingStop).toBe(true);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /start navigation/i }),
+    );
+    expect(map().placingStop).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
+    expect(map().placingStop).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Saved places" }));
+    expect(map().placingStop).toBe(false);
+  });
 });
 
 describe("MapShell saved panel", () => {
