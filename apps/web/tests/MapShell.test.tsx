@@ -185,6 +185,8 @@ vi.mock("@/lib/api", async (importOriginal) => {
         newerSourcePending: false,
       }),
     ),
+    // the way back to a place (SPEC-web-app v1.11): the tests read only what it was asked
+    fetchBusToPlace: vi.fn(() => new Promise(() => {})),
     fetchLodging: vi.fn(async () => []),
     skiLinesQuery: {
       queryKey: ["ski-lines"],
@@ -795,30 +797,32 @@ describe("MapShell saved panel", () => {
   });
 });
 
+// the ranking's row for Happo-One, from the start in `from`
+const ranked: api.RankedResort = {
+  resortId: "happo-one",
+  name: "Hakuba Happo-One Snow Resort",
+  rank: 1,
+  sortValue: 463,
+  walkS: 463,
+  walkDistanceM: 2500,
+  accessPointId: "happo-one-adam-gondola",
+  factors: {
+    walkTime: 463,
+    freshSnow: null,
+    snowDepth: null,
+    runs: null,
+    area: null,
+    runLength: null,
+    vertical: null,
+    price: null,
+  },
+  snow: null,
+  statsSource: "test",
+  website: "https://www.happo-one.jp/",
+};
+
 // a11y review (keyboard and screen reader): a pick must leave focus where the answer is
 describe("MapShell keyboard focus", () => {
-  const ranked: api.RankedResort = {
-    resortId: "happo-one",
-    name: "Hakuba Happo-One Snow Resort",
-    rank: 1,
-    sortValue: 463,
-    walkS: 463,
-    walkDistanceM: 2500,
-    accessPointId: "happo-one-adam-gondola",
-    factors: {
-      walkTime: 463,
-      freshSnow: null,
-      snowDepth: null,
-      runs: null,
-      area: null,
-      runLength: null,
-      vertical: null,
-      price: null,
-    },
-    snow: null,
-    statsSource: "test",
-    website: "https://www.happo-one.jp/",
-  };
   const eta = () => screen.findByText(/^ETA ~/);
 
   it("a resort picked from the ranked list hands focus to its ETA, which is announced", async () => {
@@ -1255,5 +1259,139 @@ describe("MapShell trip rules", () => {
     toTab(/bus/i);
     await waitFor(() => expect(boards().length).toBeGreaterThan(0));
     expect(anyBusPressed()).toBe(false);
+  });
+});
+
+// Where the trip goes, as the map and the boxes show it: rules the tests above leave open
+describe("MapShell destination as shown", () => {
+  const boards = () => screen.getAllByRole("button", { name: /Board/ });
+  const happoBuses = () =>
+    vi.mocked(api.fetchBusOptions).mockResolvedValue({
+      ...(busFixture as api.BusResult),
+      resorts: (busFixture as api.BusResult).resorts.filter(
+        (r) => r.resortId === happo.id,
+      ),
+    });
+  const toTab = (name: RegExp) => {
+    fireEvent.mouseDown(screen.getByRole("tab", { name }));
+    fireEvent.click(screen.getByRole("tab", { name }));
+  };
+
+  it("Walk goes to the entrance the ranking found nearest", async () => {
+    const second = {
+      ...happo.accessPoints[0],
+      id: "happo-one-second",
+      coord: { lat: 36.69, lng: 137.84 },
+    };
+    happo.accessPoints.push(second);
+    vi.mocked(api.fetchRank).mockResolvedValue([
+      { ...ranked, accessPointId: second.id },
+    ]);
+    try {
+      renderShell(`?from=${from}&mode=walk&resort=happo-one`);
+      await waitFor(() => expect(map().destination).toEqual(second.coord));
+      await waitFor(() =>
+        expect(api.fetchRoutes).toHaveBeenCalledWith(
+          "walk",
+          fromCoord,
+          second.coord,
+        ),
+      );
+    } finally {
+      happo.accessPoints.pop();
+    }
+  });
+
+  it("Bus with a place as the destination marks the place and asks the way back to it", async () => {
+    const place = { lat: 36.68, lng: 137.86 };
+    renderShell(`?from=${from}&mode=bus&dest=pt:36.68000,137.86000`);
+    await waitFor(() =>
+      expect(api.fetchBusToPlace).toHaveBeenCalledWith(
+        fromCoord,
+        place,
+        expect.any(String),
+        null,
+        null,
+        false,
+      ),
+    );
+    expect(map().destination).toEqual(place);
+    expect(screen.getByRole("combobox", { name: "To" })).toHaveValue(
+      "Chosen place",
+    );
+    expect(api.fetchBusOptions).not.toHaveBeenCalled();
+  });
+
+  it("a tapped bus's resort is the To place where the bus drops you: swap starts there", async () => {
+    happoBuses();
+    renderShell(`?from=${from}&mode=bus`);
+    // Line H, whose last stop is Happo Nakiyama Slope
+    fireEvent.click(
+      (await screen.findAllByRole("button", { name: /Board/ }))[0],
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("combobox", { name: "To" })).toHaveValue(
+        happo.name.en,
+      ),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Swap start and destination" }),
+    );
+    expect(map().origin).toEqual({ lat: 36.69824, lng: 137.83881 });
+    await waitFor(() => expect(query().get("dest")).toBe(`pt:${from}`));
+  });
+
+  it("a resort in the link that the list doesn't know leaves the Bus list whole", async () => {
+    vi.mocked(api.fetchBusOptions).mockResolvedValue(
+      busFixture as api.BusResult,
+    );
+    renderShell(`?from=${from}&mode=bus&resort=no-such-resort`);
+    await waitFor(() => expect(boards().length).toBeGreaterThan(3));
+  });
+
+  // SPEC-web-app v1.12
+  it("with both ends set only the trip's resort keeps its label; an open stop box shows them all", async () => {
+    renderShell("?mode=walk&resort=happo-one");
+    await waitFor(() => expect(map().resorts).toHaveLength(1));
+    expect(map().shownResortIds).toBeUndefined();
+    act(() => map().onDropPin?.(fromCoord, null));
+    fireEvent.click(screen.getByRole("button", { name: "Start here" }));
+    await waitFor(() => expect(map().shownResortIds).toEqual([happo.id]));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /add destination/i }),
+    );
+    expect(map().shownResortIds).toBeUndefined();
+    fireEvent.click(screen.getByRole("button", { name: "Remove stop 1" }));
+    expect(map().shownResortIds).toEqual([happo.id]);
+  });
+
+  it("a destination that isn't a resort leaves no label; clearing the start brings them all back", async () => {
+    renderShell(`?from=${from}&mode=walk&resort=happo-one`);
+    await waitFor(() => expect(map().shownResortIds).toEqual([happo.id]));
+    act(() => map().onDropPin?.({ lat: 36.68, lng: 137.86 }, null));
+    fireEvent.click(screen.getByRole("button", { name: /go here/i }));
+    expect(map().shownResortIds).toEqual([]);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear starting point" }),
+    );
+    expect(map().shownResortIds).toBeUndefined();
+  });
+
+  it("Bus keeps every label until a bus is chosen, then its resort's; Night bus brings them back", async () => {
+    happoBuses();
+    renderShell(`?from=${from}&mode=bus`);
+    const [option] = await screen.findAllByRole("button", { name: /Board/ });
+    expect(map().shownResortIds).toBeUndefined();
+    fireEvent.click(option);
+    await waitFor(() => expect(map().shownResortIds).toEqual([happo.id]));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Night bus" }));
+    expect(map().shownResortIds).toBeUndefined();
+    // the bus's resort is Walk's destination too
+    fireEvent.click(screen.getByRole("checkbox", { name: "Night bus" }));
+    toTab(/walk/i);
+    await waitFor(() =>
+      expect(map().destination).toEqual(happo.accessPoints[0].coord),
+    );
+    expect(map().shownResortIds).toEqual([happo.id]);
   });
 });
