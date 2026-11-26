@@ -131,11 +131,15 @@ def check_same(old: bytes, new: bytes) -> None:
 def main(api: Path) -> None:
     lock_path = api / "uv.lock"
     text = lock_path.read_text()
-    package = next(p for p in tomllib.loads(text)["package"] if p["name"] == "pyvalhalla")
-    wheel = next(w for w in package["wheels"] if w["url"].endswith(WHEEL_SUFFIX))
+    wheels = [
+        p.get("wheels", []) for p in tomllib.loads(text)["package"] if p["name"] == "pyvalhalla"
+    ]
+    wheel = next((w for ws in wheels for w in ws if w["url"].endswith(WHEEL_SUFFIX)), None)
+    if wheel is None:
+        sys.exit(f"vendor_valhalla: no pyvalhalla wheel ending {WHEEL_SUFFIX} in uv.lock")
     # curl, not urllib: python.org's macOS Python has no CA certificates until a manual step
     blob = subprocess.run(
-        ["curl", "-fsSL", "--max-time", "300", wheel["url"]], capture_output=True, check=True
+        ["curl", "-fsSL", "--max-time", "300", wheel["url"]], stdout=subprocess.PIPE, check=True
     ).stdout
     if "sha256:" + hashlib.sha256(blob).hexdigest() != wheel["hash"]:
         sys.exit(f"vendor_valhalla: hash mismatch for {wheel['url']}")
