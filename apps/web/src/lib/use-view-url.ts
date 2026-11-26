@@ -7,7 +7,7 @@ import {
   type RankOptions,
   serializeViewState,
 } from "@/lib/url-state";
-import type { Trip } from "@/lib/use-trip";
+import { selectedResortOf, type Trip } from "@/lib/use-trip";
 
 /**
  * The link holds the trip: restore it once on load (or start from My hotel), then mirror
@@ -25,7 +25,8 @@ export function useViewUrl({
   /** a shared list in the fragment (`#import=…`) waiting to be confirmed */
   setImportCode: (code: string | null) => void;
 }) {
-  const { origin, mode, selectedResortId, point, filledStops, stopsKey } = trip;
+  const { origin, mode, point, filledStops, stopsKey } = trip;
+  const selectedResortId = selectedResortOf(trip);
   // `ready` is state (not a ref) so the first URL write happens on a render that
   // already holds the restored values; with a ref, StrictMode's double-mount
   // would overwrite the shared URL with defaults before it is read again.

@@ -12,7 +12,7 @@ import {
 import { nowInHakuba } from "@/lib/depart-at";
 import { formatDuration } from "@/lib/format";
 import { alightIndexOf } from "@/lib/nav/bus-journey";
-import { busChoiceFor, stopMatchName } from "@/lib/nav/bus-place";
+import { stopMatchName } from "@/lib/nav/bus-place";
 import type { PlaceInput } from "@/lib/saved-places";
 
 type Loadable<T> =
@@ -42,26 +42,24 @@ export function useBusTrip({
   mode,
   origin,
   originName,
-  pointPlace,
-  storedBusChoice,
+  busPlace,
+  busChoice,
+  busStop,
+  showNight,
 }: {
   mode: PanelMode;
   origin: Coord | null;
   originName: string | null;
-  /** the trip's free destination, if any */
-  pointPlace: PlaceInput | null;
-  /** the bus the user tapped, before it is checked against the destination */
-  storedBusChoice: BusOption | null;
+  /** where the trip goes, as lib/trip-places shows it */
+  busPlace: PlaceInput | null;
+  busChoice: BusOption | null;
+  busStop: Coord | null;
+  showNight: boolean;
 }) {
   const [departAt, setDepartAt] = useState("");
-  const [showNight, setShowNight] = useState(false);
   const [freeOnly, setFreeOnly] = useState(false);
   useEffect(() => setDepartAt(nowInHakuba()), []); // client clock only, avoids SSR mismatch
 
-  // Bus mode with a destination that isn't a resort: the way back (SPEC-web-app v1.11)
-  const busPlace =
-    mode === "bus" && pointPlace?.kind !== "resort" ? pointPlace : null;
-  const busChoice = busChoiceFor(storedBusChoice, busPlace !== null);
   const busPlaceName = stopMatchName(busPlace?.name);
   const busEnabled = mode === "bus" && origin !== null && departAt !== "";
   const bus = useQuery({
@@ -98,9 +96,6 @@ export function useBusTrip({
     enabled: busEnabled && showNight,
     retry: false,
   });
-  const busStop =
-    mode === "bus" && !showNight ? (busChoice?.boardStopCoord ?? null) : null;
-
   // The bus ride, drawn along the roads between its located stops (approximate).
   // To the stop where you get off (as the journey list), with names for the map.
   const rideStopMarks = useMemo(
@@ -145,9 +140,6 @@ export function useBusTrip({
   );
 
   return {
-    busPlace,
-    busChoice,
-    busStop,
     /** the chosen bus's ride along the roads, once known */
     rideRoute: ride.data ?? null,
     rideLeg,
@@ -162,8 +154,6 @@ export function useBusTrip({
       : "published") as "expected" | "published",
     departAt,
     setDepartAt,
-    showNight,
-    setShowNight,
     freeOnly,
     setFreeOnly,
   };

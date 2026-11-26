@@ -128,6 +128,14 @@ export const selectedResortOf = (trip: TripState): string | null =>
   trip.chosenResortId ??
   (trip.point ? null : (trip.storedBusChoice?.resortId ?? null));
 
+/** The filled stops' coordinates as one string, which changes whenever they do. */
+export const stopsKeyOf = (stops: TripStop[]): string =>
+  stops
+    .flatMap((st) =>
+      st.place ? [`${st.place.coord.lat},${st.place.coord.lng}`] : [],
+    )
+    .join(";");
+
 type StartFrom =
   | StartPick
   | { by: "swap"; place: PlaceInput }
@@ -444,14 +452,10 @@ export function useTrip() {
     setTrip(latest.current);
   }, [trip.focusedSearchKey]);
 
-  const filledStops = trip.stops.flatMap((st) => (st.place ? [st.place] : []));
   return {
     ...trip,
-    selectedResortId: selectedResortOf(trip),
-    filledStops,
-    stopsKey: filledStops
-      .map((st) => `${st.coord.lat},${st.coord.lng}`)
-      .join(";"),
+    filledStops: trip.stops.flatMap((st) => (st.place ? [st.place] : [])),
+    stopsKey: stopsKeyOf(trip.stops),
     /** Applies one edit; returns the panel it opens, for the caller to open. */
     edit: (event: TripEvent, world: TripWorld) => {
       const next = editTrip(latest.current, event, world);
