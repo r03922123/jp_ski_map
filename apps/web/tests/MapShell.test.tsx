@@ -36,6 +36,16 @@ const map = () => {
   if (!mapProps) throw new Error("MapView not rendered");
   return mapProps;
 };
+// what the open card puts on the map, and its frame and profile ring
+const onMap = () => map().card ?? null;
+const frame = () => {
+  const card = onMap();
+  return card && card.kind !== "pin" ? card.frame : null;
+};
+const ring = () => {
+  const card = onMap();
+  return card?.kind === "line" ? card.ring : null;
+};
 
 // MapShell loads MapView through next/dynamic (WebGL); a stub records its props instead
 vi.mock("next/dynamic", () => ({
@@ -333,10 +343,10 @@ describe("MapShell destination", () => {
     );
     expect(screen.queryByRole("group", { name: "Dropped pin" })).toBeNull();
     expect(screen.getByRole("group", { name: "Skyline" })).toBeTruthy();
-    expect(map().selectedSkiLineId).toBe("r1");
+    expect(onMap()).toMatchObject({ kind: "line", id: "r1" });
     act(() => map().onMapTap?.());
     expect(screen.queryByRole("group", { name: "Skyline" })).toBeNull();
-    expect(map().selectedSkiLineId).toBeNull();
+    expect(onMap()).toBeNull();
   });
 
   // T2: a dropped pin can be saved from its card, like any place
@@ -927,14 +937,14 @@ describe("MapShell ski cards", () => {
     expect(resortCard()).not.toBeNull();
     // the numbers come from the resort's own lines, once they load
     expect(await screen.findByText("Downhill runs")).toBeInTheDocument();
-    expect(map().selectedSkiResortId).toBe("happo-one");
+    expect(onMap()).toMatchObject({ kind: "resort", id: "happo-one" });
     fireEvent.click(
       within(resortCard() as HTMLElement).getByRole("button", {
         name: "Close",
       }),
     );
     expect(resortCard()).toBeNull();
-    expect(map().selectedSkiResortId).toBeNull();
+    expect(onMap()).toBeNull();
   });
 
   it("with a stop box open, a resort chip fills the stop and opens no card", async () => {
@@ -985,7 +995,7 @@ describe("MapShell ski cards", () => {
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectSkiLine?.(skyline));
     await waitFor(() =>
-      expect(map().skiFocus).toEqual({
+      expect(frame()).toEqual({
         key: "r1",
         bounds: [
           [137.8, 36.7],
@@ -995,7 +1005,7 @@ describe("MapShell ski cards", () => {
     );
     act(() => map().onSelectResort("happo-one"));
     // the run, the lift and the area's outline, not Goryu's run
-    expect(map().skiFocus).toEqual({
+    expect(frame()).toEqual({
       key: "resort:happo-one",
       bounds: [
         [137.79, 36.69],
@@ -1007,23 +1017,23 @@ describe("MapShell ski cards", () => {
         name: "Close",
       }),
     );
-    expect(map().skiFocus).toBeNull();
+    expect(frame()).toBeNull();
     // a dropped pin's card frames nothing (the map eases to the pin instead)
     act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
-    expect(map().skiFocus).toBeNull();
+    expect(frame()).toBeNull();
   });
 
   it("while navigating, the map frames no ski card; on exit it frames it again", async () => {
     renderShell("?from=36.69736,137.85393&mode=walk&resort=happo-one");
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectSkiLine?.(skyline));
-    await waitFor(() => expect(map().skiFocus?.key).toBe("r1"));
+    await waitFor(() => expect(frame()?.key).toBe("r1"));
     fireEvent.click(
       await screen.findByRole("button", { name: /start navigation/i }),
     );
-    expect(map().skiFocus).toBeNull();
+    expect(frame()).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
-    expect(map().skiFocus?.key).toBe("r1");
+    expect(frame()?.key).toBe("r1");
   });
 
   it("moving over the run's profile puts the ring on the map; closing the card clears it", async () => {
@@ -1036,9 +1046,9 @@ describe("MapShell ski cards", () => {
     chart.getBoundingClientRect = () =>
       ({ left: 0, width: 200, top: 0, height: 80 }) as DOMRect;
     fireEvent.pointerMove(chart, { clientX: 200, clientY: 10 });
-    expect(map().profilePoint?.lat).toBeCloseTo(36.7009, 6);
+    expect(ring()?.lat).toBeCloseTo(36.7009, 6);
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
-    expect(map().profilePoint).toBeNull();
+    expect(ring()).toBeNull();
   });
 
   // the card rules nothing pinned, before the card moves into its own module
@@ -1061,18 +1071,16 @@ describe("MapShell ski cards", () => {
     const pin = { lat: 36.7, lng: 137.85 };
     act(() => map().onDropPin?.(pin, null));
     expect(openCards()).toEqual(["Dropped pin"]);
-    expect(map().droppedPin).toEqual({ coord: pin, name: null });
+    expect(onMap()).toEqual({ kind: "pin", at: pin });
     act(() => map().onSelectResort("happo-one"));
     expect(openCards()).toEqual(["Hakuba Happo-One Snow Resort"]);
-    expect(map().droppedPin).toBeNull();
-    expect(map().selectedSkiResortId).toBe("happo-one");
+    expect(onMap()).toMatchObject({ kind: "resort", id: "happo-one" });
     act(() => map().onSelectSkiLine?.(skyline));
     expect(openCards()).toEqual(["Skyline"]);
-    expect(map().selectedSkiResortId).toBeNull();
-    expect(map().selectedSkiLineId).toBe("r1");
+    expect(onMap()).toMatchObject({ kind: "line", id: "r1" });
     act(() => map().onDropPin?.(pin, null));
     expect(openCards()).toEqual(["Dropped pin"]);
-    expect(map().selectedSkiLineId).toBeNull();
+    expect(onMap()).toEqual({ kind: "pin", at: pin });
   });
 
   it("the ring belongs to its card: the same run tapped again or its resort's card drops it", async () => {
@@ -1080,16 +1088,16 @@ describe("MapShell ski cards", () => {
     await waitFor(() => expect(map().resorts).toHaveLength(1));
     act(() => map().onSelectSkiLine?.(skyline));
     await pointAt(200);
-    expect(map().profilePoint?.lat).toBeCloseTo(36.7009, 6);
+    expect(ring()?.lat).toBeCloseTo(36.7009, 6);
     act(() => map().onSelectSkiLine?.(skyline));
     expect(openCards()).toEqual(["Skyline"]);
-    expect(map().profilePoint).toBeNull();
+    expect(ring()).toBeNull();
     await pointAt(0);
-    expect(map().profilePoint?.lat).toBeCloseTo(36.7, 6);
+    expect(ring()?.lat).toBeCloseTo(36.7, 6);
     fireEvent.click(
       screen.getByRole("button", { name: "Hakuba Happo-One Snow Resort" }),
     );
-    expect(map().profilePoint).toBeNull();
+    expect(ring()).toBeNull();
   });
 
   it("while navigating no card shows and the map marks none; leaving brings the card back", async () => {
@@ -1101,20 +1109,19 @@ describe("MapShell ski cards", () => {
       await screen.findByRole("button", { name: /start navigation/i }),
     );
     expect(openCards()).toEqual([]);
-    expect(map().selectedSkiLineId).toBeNull();
-    expect(map().profilePoint).toBeNull();
+    expect(onMap()).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
     expect(openCards()).toEqual(["Skyline"]);
-    expect(map().selectedSkiLineId).toBe("r1");
+    expect(onMap()).toMatchObject({ kind: "line", id: "r1" });
     // a pin's card too
     const pin = { lat: 36.69, lng: 137.84 };
     act(() => map().onDropPin?.(pin, null));
     fireEvent.click(screen.getByRole("button", { name: /start navigation/i }));
     expect(openCards()).toEqual([]);
-    expect(map().droppedPin).toBeNull();
+    expect(onMap()).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Exit navigation" }));
     expect(openCards()).toEqual(["Dropped pin"]);
-    expect(map().droppedPin).toEqual({ coord: pin, name: null });
+    expect(onMap()).toEqual({ kind: "pin", at: pin });
   });
 
   // v1.4: the lines are asked for when the first ski card opens, then kept
@@ -1124,9 +1131,9 @@ describe("MapShell ski cards", () => {
     act(() => map().onDropPin?.({ lat: 36.7, lng: 137.85 }, null));
     expect(fetchSkiLines).not.toHaveBeenCalled();
     act(() => map().onSelectSkiLine?.(skyline));
-    await waitFor(() => expect(map().skiFocus?.key).toBe("r1"));
+    await waitFor(() => expect(frame()?.key).toBe("r1"));
     act(() => map().onSelectResort("happo-one"));
-    expect(map().skiFocus?.key).toBe("resort:happo-one");
+    expect(frame()?.key).toBe("resort:happo-one");
     expect(fetchSkiLines).toHaveBeenCalledTimes(1);
   });
 
@@ -1138,7 +1145,7 @@ describe("MapShell ski cards", () => {
     expect(
       await screen.findByText("Couldn't load the runs and lifts."),
     ).toBeInTheDocument();
-    expect(map().skiFocus).toBeNull();
+    expect(frame()).toBeNull();
   });
 
   it("a run of a resort the list doesn't know names that resort by its id", async () => {
@@ -1334,7 +1341,7 @@ describe("MapShell trip rules", () => {
     act(() => map().onDropPin?.(pin, null));
     fireEvent.click(screen.getByRole("button", { name: "Add stop" }));
     expect(map().stops).toEqual([{ coord: pin, name: "Dropped pin" }]);
-    expect(map().droppedPin).toBeNull();
+    expect(onMap()).toBeNull();
     await waitFor(() =>
       expect(query().get("stops")).toBe("36.69000,137.84000"),
     );

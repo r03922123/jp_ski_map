@@ -6,6 +6,7 @@ import { MAP_STYLE_URL } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
 import { type LngLat, mapPadding } from "@/lib/route-geo";
 import type { SavedMarker } from "@/lib/saved-places";
+import type { CardOnMap } from "@/lib/use-map-card";
 import walkFixture from "./fixtures/route-walk.json";
 
 // Task 67: under load the pilot drag sometimes did nothing. The follow camera's ease was
@@ -136,6 +137,14 @@ function view(
     />
   );
 }
+
+// what an open card puts on the map: a dropped pin, or a run framed by `frame`
+const pinCard = (at: { lat: number; lng: number }): CardOnMap => ({
+  kind: "pin",
+  at,
+});
+const runCard = (frame: { key: string; bounds: [LngLat, LngLat] }) =>
+  ({ kind: "line", id: "r1", ring: null, frame }) satisfies CardOnMap;
 
 describe("MapView basemap (SPEC-web-app v1.30)", () => {
   it("hands MapLibre the plain style URL on the first render", () => {
@@ -513,7 +522,7 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
   // ours does too, once the finger is up (an ease inside a press cancels gestures, T67)
   it("a dropped pin brings the camera to it, clear of the top card and the sheet, after the finger lifts", () => {
     h.map.easeTo.mockClear();
-    const extra = { droppedPin: { coord: at, name: null } };
+    const extra = { card: pinCard(at) };
     const { rerender } = render(view(null, () => {}, {}, {}));
     act(() => h.props.onLoad({ target: h.map }));
     act(() => touch("onTouchStart"));
@@ -530,9 +539,7 @@ describe("MapView touch: a tap looks, a long-press drops a pin", () => {
     expect(opts.padding.top).toBeGreaterThanOrEqual(120); // the trip card
     expect(opts.padding.bottom).toBeGreaterThanOrEqual(0.4 * 800); // the sheet
     // the same pin doesn't pull the camera again on later renders
-    rerender(
-      view(null, () => {}, {}, { droppedPin: { coord: at, name: "x" } }),
-    );
+    rerender(view(null, () => {}, {}, { card: pinCard({ ...at }) }));
     expect(h.map.easeTo).toHaveBeenCalledTimes(1);
   });
 });
@@ -596,7 +603,7 @@ describe("MapView frames a picked run or resort", () => {
     const { rerender } = render(view(null));
     act(() => h.props.onLoad({ target: h.map }));
     act(() => h.props.onMouseDown());
-    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    rerender(view(null, () => {}, {}, { card: runCard(RUN) }));
     settle();
     expect(h.map.fitBounds).not.toHaveBeenCalled(); // the button is still down
     act(() => {
@@ -610,29 +617,38 @@ describe("MapView frames a picked run or resort", () => {
     expect(opts.padding.bottom).toBeGreaterThanOrEqual(800 - 500);
     expect(opts.padding.top).toBeGreaterThanOrEqual(118); // the trip card
     // later renders of the same pick leave the map where the user takes it
-    rerender(view(null, () => {}, {}, { skiFocus: { ...RUN } }));
+    rerender(view(null, () => {}, {}, { card: runCard({ ...RUN }) }));
     settle();
     expect(fits()).toHaveLength(1);
     // a resort card frames all its lines
-    rerender(view(null, () => {}, {}, { skiFocus: RESORT_LINES }));
+    rerender(
+      view(
+        null,
+        () => {},
+        {},
+        { card: { kind: "resort", id: "happo-one", frame: RESORT_LINES } },
+      ),
+    );
     settle();
     expect(fits()).toHaveLength(2);
     expect(fits()[1][0]).toEqual(RESORT_LINES.bounds);
     // closed, then the same run picked again: framed again
-    rerender(view(null, () => {}, {}, { skiFocus: null }));
-    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    rerender(view(null, () => {}, {}, { card: null }));
+    rerender(view(null, () => {}, {}, { card: runCard(RUN) }));
     settle();
     expect(fits()).toHaveLength(3);
   });
 
   it("waits for the sheet again when the same run is picked again", () => {
     cover("data-map-card", 500);
-    const { rerender } = render(view(null, () => {}, {}, { skiFocus: RUN }));
+    const { rerender } = render(
+      view(null, () => {}, {}, { card: runCard(RUN) }),
+    );
     act(() => h.props.onLoad({ target: h.map }));
     settle();
     expect(fits()).toHaveLength(1);
-    rerender(view(null, () => {}, {}, { skiFocus: null }));
-    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    rerender(view(null, () => {}, {}, { card: null }));
+    rerender(view(null, () => {}, {}, { card: runCard(RUN) }));
     expect(fits()).toHaveLength(1); // the sheet is still moving
     settle();
     expect(fits()).toHaveLength(2);
@@ -641,7 +657,7 @@ describe("MapView frames a picked run or resort", () => {
   it("measures the sheet where it settles, not where it was when the card opened", () => {
     cover("data-map-card", 600);
     const sheet = cover("data-sheet", 760); // swiped low
-    render(view(null, () => {}, {}, { skiFocus: RUN }));
+    render(view(null, () => {}, {}, { card: runCard(RUN) }));
     act(() => h.props.onLoad({ target: h.map }));
     // the new destination collapses the sheet up to 500 px within its 200 ms transition
     sheet.getBoundingClientRect = () => ({ top: 500 }) as DOMRect;
@@ -653,7 +669,7 @@ describe("MapView frames a picked run or resort", () => {
   it("on a phone, a sheet hidden there covers nothing", () => {
     cover("data-map-card", 600);
     cover("data-sheet", 100).setAttribute("data-phone-hidden", "");
-    render(view(null, () => {}, {}, { skiFocus: RUN }));
+    render(view(null, () => {}, {}, { card: runCard(RUN) }));
     act(() => h.props.onLoad({ target: h.map }));
     settle();
     expect(fits()[0][1].padding.bottom).toBeLessThan(800 - 100);
@@ -663,16 +679,23 @@ describe("MapView frames a picked run or resort", () => {
     cover("data-map-card", 500);
     const route = { routes: [walk], origin: { lat: 36.69, lng: 137.85 } };
     const { rerender } = render(
-      view(null, () => {}, {}, { ...route, skiFocus: RUN }),
+      view(null, () => {}, {}, { ...route, card: runCard(RUN) }),
     );
     act(() => h.props.onLoad({ target: h.map }));
     settle();
     expect(fits()).toHaveLength(1);
     // the finger is down; the long-press timer drops a pin and the card becomes the pin's
     act(() => h.props.onMouseDown());
-    const pin = { coord: { lat: 36.7, lng: 137.85 }, name: null };
     rerender(
-      view(null, () => {}, {}, { ...route, skiFocus: null, droppedPin: pin }),
+      view(
+        null,
+        () => {},
+        {},
+        {
+          ...route,
+          card: pinCard({ lat: 36.7, lng: 137.85 }),
+        },
+      ),
     );
     expect(fits()).toHaveLength(1);
     act(() => {
@@ -686,7 +709,7 @@ describe("MapView frames a picked run or resort", () => {
   it("on a phone, keeps clear of the sheet when it stands above the card", () => {
     cover("data-map-card", 600);
     cover("data-sheet", 450);
-    render(view(null, () => {}, {}, { skiFocus: RUN }));
+    render(view(null, () => {}, {}, { card: runCard(RUN) }));
     act(() => h.props.onLoad({ target: h.map }));
     settle();
     expect(fits()[0][1].padding.bottom).toBeGreaterThanOrEqual(800 - 450);
@@ -696,13 +719,13 @@ describe("MapView frames a picked run or resort", () => {
     cover("data-map-card", 500);
     const route = { routes: [walk], origin: { lat: 36.69, lng: 137.85 } };
     const { rerender } = render(
-      view(null, () => {}, {}, { ...route, skiFocus: RUN }),
+      view(null, () => {}, {}, { ...route, card: runCard(RUN) }),
     );
     act(() => h.props.onLoad({ target: h.map }));
     settle();
     expect(fits()).toHaveLength(1);
     expect(fits()[0][0]).toEqual(RUN.bounds);
-    rerender(view(null, () => {}, {}, { ...route, skiFocus: null }));
+    rerender(view(null, () => {}, {}, { ...route, card: null }));
     expect(fits()).toHaveLength(2);
     expect(fits()[1][0]).not.toEqual(RUN.bounds);
   });
@@ -917,7 +940,7 @@ describe("MapView camera moves (characterization)", () => {
   });
 
   it("a closed pin card, then the same spot pinned again: eased to again", () => {
-    const pin = { droppedPin: { coord: START, name: null } };
+    const pin = { card: pinCard(START) };
     const { rerender } = render(view(null));
     load();
     rerender(view(null, () => {}, {}, pin));
@@ -929,12 +952,12 @@ describe("MapView camera moves (characterization)", () => {
 
   it("navigating: a ski card frames nothing, and leaving navigation frames it", () => {
     const { rerender } = render(
-      view(cam(137.85), () => {}, {}, { skiFocus: RUN }),
+      view(cam(137.85), () => {}, {}, { card: runCard(RUN) }),
     );
     load();
     settle();
     expect(fits()).toHaveLength(0);
-    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    rerender(view(null, () => {}, {}, { card: runCard(RUN) }));
     settle();
     expect(fits()).toHaveLength(1);
     expect(fits()[0][0]).toEqual(RUN.bounds);

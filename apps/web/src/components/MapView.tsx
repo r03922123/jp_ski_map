@@ -50,6 +50,7 @@ import { safeInsets } from "@/lib/safe-insets";
 import type { SavedMarker } from "@/lib/saved-places";
 import { useCompactCredits } from "@/lib/use-compact-credits";
 import { useMapCamera } from "@/lib/use-map-camera";
+import type { CardOnMap } from "@/lib/use-map-card";
 import { useMapGestures } from "@/lib/use-map-gestures";
 
 setWorkerUrl(MAPLIBRE_WORKER_URL);
@@ -91,23 +92,17 @@ export type MapViewProps = {
    * or tap never edits the trip itself (Google Maps, docs/ux/behaviour-cards.md BC-A1).
    */
   onDropPin?: (coord: Coord, name: string | null) => void;
-  /** Touch: a tap on the map that edits nothing (it closes the pin card). */
+  /** Touch: a tap on the map that edits nothing (it closes the open card). */
   onMapTap?: () => void;
-  /** The dropped pin, drawn as Google's red pin (its card is MapShell's). */
-  droppedPin?: { coord: Coord; name: string | null } | null;
   /** A tap or click on a run or lift (SPEC-ski-runs v1.1). */
   onSelectSkiLine?: (line: SkiLine) => void;
-  /** The run or lift whose card is open: outlined on the map. */
-  selectedSkiLineId?: string | null;
-  /** The resort whose card is open: all its lines outlined (SPEC-ski-runs v1.4). */
-  selectedSkiResortId?: string | null;
   /**
-   * The open run, lift or resort card's whole lines (SPEC-ski-runs v1.5): framed clear of the
-   * card once per `key`, and the route fit waits while it is set.
+   * What the open card puts on the map (the card is MapShell's): a dropped pin, drawn as
+   * Google's red pin; or a run, lift or resort outlined (SPEC-ski-runs v1.4), with a ring
+   * at the point picked on a run's height profile, and its whole lines framed clear of the
+   * card once per frame key, the route fit waiting while a frame is set (v1.5).
    */
-  skiFocus?: { key: string; bounds: [LngLat, LngLat] } | null;
-  /** The point picked on a run's height profile: a ring on the run. */
-  profilePoint?: Coord | null;
+  card?: CardOnMap | null;
   /** The sheet is a slim ETA + Start bar on a landscape phone (BottomSheet `slim`). */
   slimSheet?: boolean;
   /** Turn-by-turn mode (SPEC-pilot): follow camera, position puck, covered part grey. */
@@ -182,12 +177,8 @@ export default function MapView({
   placingStop = false,
   onDropPin,
   onMapTap,
-  droppedPin = null,
   onSelectSkiLine,
-  selectedSkiLineId = null,
-  selectedSkiResortId = null,
-  skiFocus = null,
-  profilePoint = null,
+  card = null,
   slimSheet = false,
   pilot = null,
 }: MapViewProps) {
@@ -315,9 +306,7 @@ export default function MapView({
   // A dropped pin's card must not open under the trip card on top or the sheet (v1.9).
   // Google eases the camera to a dropped pin (BC-A1); ours centres it in the clear part
   // of the map, once per pin.
-  const pinKey = droppedPin
-    ? `${droppedPin.coord.lat},${droppedPin.coord.lng}`
-    : "";
+  const pin = card?.kind === "pin" ? card.at : null;
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
   // and an identity-keyed ease would follow each of its own moveend reports.
@@ -339,11 +328,8 @@ export default function MapView({
     },
     lone: lone && { key: loneKey, at: [lone.lng, lone.lat] },
     flyTo,
-    pin: droppedPin && {
-      key: pinKey,
-      at: [droppedPin.coord.lng, droppedPin.coord.lat],
-    },
-    ski: skiFocus,
+    pin: pin && { key: `${pin.lat},${pin.lng}`, at: [pin.lng, pin.lat] },
+    ski: card && card.kind !== "pin" ? card.frame : null,
     follow: cam && { key: camKey, camera: cam },
   });
 
@@ -410,10 +396,10 @@ export default function MapView({
       onDblClick={() => gestures.cancelPick()}
     >
       <NavigationControl position="bottom-right" />
-      {droppedPin && (
+      {pin && (
         <Marker
-          longitude={droppedPin.coord.lng}
-          latitude={droppedPin.coord.lat}
+          longitude={pin.lng}
+          latitude={pin.lat}
           anchor="bottom"
           // above every other marker (they use z-index 1–5); a tap on it reaches the map
           style={{ zIndex: 6, pointerEvents: "none" }}
@@ -421,10 +407,10 @@ export default function MapView({
           <DroppedPin />
         </Marker>
       )}
-      {profilePoint && (
+      {card?.kind === "line" && card.ring && (
         <Marker
-          longitude={profilePoint.lng}
-          latitude={profilePoint.lat}
+          longitude={card.ring.lng}
+          latitude={card.ring.lat}
           // a tap on it reaches the map; above the run, under the dropped pin
           style={{ zIndex: 5, pointerEvents: "none" }}
         >
@@ -455,8 +441,8 @@ export default function MapView({
       </Source>
       <LodgingLayer lodging={lodging} />
       <SkiLinesLayer
-        selectedId={selectedSkiLineId}
-        selectedResortId={selectedSkiResortId}
+        selectedId={card?.kind === "line" ? card.id : null}
+        selectedResortId={card?.kind === "resort" ? card.id : null}
       />
       <AlternateRoutes routes={routes} activeRoute={activeRoute} />
       {/* Route layers stay mounted, empty when unused, so MapLibre stacks them in this
