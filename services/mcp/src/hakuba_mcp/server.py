@@ -244,8 +244,8 @@ def snow_conditions() -> list[dict[str, Any]]:
 
     Snow is the model forecast (Open-Meteo) as of snowAsOf (local time, JST), whatever date
     the user plans for: say that time when you quote snow figures, because they can be a few
-    hours old when the weather service is unreachable. Units: cm. No tool has crowd data: if asked how busy a resort will be,
-    say so instead of guessing.
+    hours old when the weather service is unreachable. Units: cm. No tool has crowd data:
+    if asked how busy a resort will be, say so instead of guessing.
     """
     out: list[dict[str, Any]] = []
     for s in _get("/api/snow"):
