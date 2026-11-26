@@ -1,8 +1,8 @@
 # hakuba-mcp
 
-An MCP server that lets an AI agent plan a Hakuba ski day with tools: find a place, check snow and crowd, rank resorts, get the next shuttle bus and a walking ETA. Each tool is a thin, read-only wrapper over the Hakuba Ski Map HTTP API that trims the response to ids, names, minutes, cm and levels. Spec: [SPEC-agent-tools.md](../../SPEC-agent-tools.md).
+An MCP server that lets an AI agent plan a Hakuba ski day with tools: find a place, check snow, rank resorts, get the next shuttle bus and a walking ETA. Each tool is a thin, read-only wrapper over the Hakuba Ski Map HTTP API that trims the response to ids, names, minutes and cm. Spec: [SPEC-agent-tools.md](../../SPEC-agent-tools.md).
 
-Tools: `search_place`, `rank_resorts`, `next_buses`, `route`, `crowd_and_snow`. Prompt: `plan_ski_day`.
+Tools: `search_place`, `rank_resorts`, `next_buses`, `route`, `snow_conditions`. Prompt: `plan_ski_day`.
 
 ## Setup
 The Mac's own uv 0.5.9 is too old for this lock, so use uv 0.9.30 through uvx:

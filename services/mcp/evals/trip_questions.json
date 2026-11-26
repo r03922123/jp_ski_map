@@ -16,26 +16,11 @@
     ]
   },
   {
-    "id": "crowd-and-depth",
-    "lang": "en",
-    "question": "Is Happo-One going to be crowded on 2026-12-27, and how deep is the snow there?",
-    "required": ["crowd_and_snow"],
-    "optional": [],
-    "answer_regex": "(?is)(low|medium|high|very.high).*\\d+\\s*cm|\\d+\\s*cm.*(low|medium|high|very.high)",
-    "check": "gives a crowd level and a depth in cm",
-    "regex_why": "Needs both a crowd level word and a depth in cm, so an answer with only the crowd level or only the depth fails; the level itself is not pinned (kept for comparison).",
-    "positive": "Crowds: expected to be high. Snow depth at the summit is 12 cm.",
-    "negatives": [
-      "Happo-One is expected to be busy on Sunday.",
-      "There is 12 cm of snow at the summit."
-    ]
-  },
-  {
     "id": "plan-day-by-bus",
     "lang": "en",
-    "question": "Plan my ski day on 2026-12-26 starting from JR Hakuba Station: pick a resort with good snow that isn't too crowded, and tell me which shuttle bus to take around 8am.",
+    "question": "Plan my ski day on 2026-12-26 starting from JR Hakuba Station: pick a resort with good snow, and tell me which shuttle bus to take around 8am.",
     "required": ["search_place", "next_buses"],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
+    "any_of": [["snow_conditions", "rank_resorts"]],
     "optional": ["route"],
     "answer_regex": "(?is)0?8:(?!00)\\d\\d.*(estimat|timetable)|(estimat|timetable).*0?8:(?!00)\\d\\d",
     "check": "gives a bus time and says it is an estimate",
@@ -67,7 +52,7 @@
     "lang": "ja",
     "question": "2026-12-20の15時ごろ、JR白馬駅から八方尾根へ行くシャトルバスはありますか？",
     "required": ["search_place", "next_buses"],
-    "optional": ["rank_resorts", "crowd_and_snow"],
+    "optional": ["rank_resorts", "snow_conditions"],
     "answer_regex": "(?is)(?=.*(15[:：時]\\s*18|１５[:：時]\\s*１８))(?=.*(岩岳|iwatake|いわたけ))",
     "check": "gives the 15:18 departure and says it is from Iwatake (JR Hakuba's time is not published)",
     "regex_why": "Needs 15:18 and Iwatake together, so the wrong-stop answer '15:18 from JR白馬駅' and the echoed 15時 both fail.",
@@ -82,7 +67,7 @@
     "lang": "zh",
     "question": "我住在 Hakuba Tokyu Hotel，晚上也想滑夜場。有夜間滑雪的雪場裡，哪個新雪最多？多少公分？",
     "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow"],
+    "optional": ["snow_conditions"],
     "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))(?:^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳)|(?:most\\s+(?:new|fresh)|最多|一番多|最も多)(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳))",
     "check": "names a night-skiing resort + cm (live data, form only)",
     "regex_why": "Only Goryu, Sanosaka and Jigatake have night skiing, so with live snow only the form is pinned: an answer that forgets the filter and leads with Happo-One or Hakuba47 fails, as does one with no cm figure. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
@@ -98,7 +83,7 @@
     "lang": "ja",
     "question": "ホテル白馬に泊まっています。山頂の積雪が一番深いスキー場はどこですか？何cmですか？",
     "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow"],
+    "optional": ["snow_conditions"],
     "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|jigatake|[爺爷].{0,2}岳|hakuba\\s*47|白[馬马]\\s*47)",
     "check": "names a resort + summit depth in cm (live data, form only)",
     "regex_why": "Snow depth is live, so only the form is pinned (a resort name and a number with cm), which rules out a hedge with no figure and a depth in metres.",
@@ -113,7 +98,7 @@
     "lang": "en",
     "question": "Staying at Hakuba Mominoki Hotel and I want to ski at night too. Of the resorts with night skiing, which has the deepest snow at the summit?",
     "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow"],
+    "optional": ["snow_conditions"],
     "answer_regex": "(?is)(?=.*(?<![\\d.])\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米|センチ))(?:^(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳)|(?:deepest|最深|一番深|最も深)(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:gory[uū]|五[竜龍龙]|ゴリュウ|sanosaka|さのさか|サノサカ|佐野坂|jigatake|[爺爷].{0,2}岳))",
     "check": "names a night-skiing resort + cm (live data, form only)",
     "regex_why": "Only Goryu, Sanosaka and Jigatake have night skiing, so with live depths only the form is pinned: leading with Happo-One (deepest overall) fails, as does an answer with no cm figure. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
@@ -121,22 +106,6 @@
     "negatives": [
       "Happo-One has the deepest snow, 42 cm at the summit.",
       "Goryu is your best bet for night skiing and snow."
-    ]
-  },
-  {
-    "id": "rank-quiet-omachi-march",
-    "lang": "en",
-    "question": "On 2027-03-06, starting from Shinano-Omachi Station, which resort will be the least crowded, and what crowd level should I expect there?",
-    "required": ["search_place", "rank_resorts"],
-    "optional": ["crowd_and_snow"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|[爺爷].{0,2}岳)[^\\n]{0,80}?(?:\\n[^\\n]{0,80}?)?(medium|moderate|中等|中程度|普通|ふつう|やや混|中(?![\\d])))(?:^(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47)).)*?(?:jigatake|[爺爷].{0,2}岳)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!(?:happ?[oō]|八方|gory[uū]|五[竜龍龙]|ゴリュウ|iwatake|岩岳|tsugaike|栂池|つがいけ|ツガイケ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|[科柯][爾尔]?[蒂迪][納纳]|sanosaka|さのさか|サノサカ|佐野坂|kashimayari|鹿[島岛][槍枪鑓]|hakuba\\s*47|白[馬马]\\s*47))[^\\n。.]){0,12}?(?:jigatake|[爺爷].{0,2}岳))",
-    "check": "names Jigatake + medium crowd",
-    "regex_why": "Jigatake is quietest that Saturday at a calendar-based 'medium', so leading with Sanosaka or Kashimayari, or an answer that never gives 'medium' within a line of Jigatake (e.g. calls it 'low'), fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "Jigatake Snow Resort should be the least crowded on 2027-03-06, with a medium crowd level; it's about 16 minutes away.",
-    "negatives": [
-      "Kashimayari Family Park will be the quietest, crowd level medium.",
-      "Jigatake should be quiet, with a low crowd level.",
-      "White Resort Hakuba Sanosaka will be least crowded (medium)."
     ]
   },
   {
@@ -548,185 +517,28 @@
     ]
   },
   {
-    "id": "crowd-happo-jan-weekday",
+    "id": "nodata-happo-crowd",
     "lang": "en",
     "question": "How busy will Happo-One be on Wednesday 2027-01-13?",
     "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?\\b(?:medium|moderate))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,30}\\b(?:low|high|very.high)\\b)",
-    "check": "Happo-One is medium on 2027-01-13",
-    "regex_why": "Requires 'medium' next to Happo-One and rules out an answer that calls it low or high (e.g. the New Year 'very high' level).",
-    "positive": "Happo-One on Wednesday 2027-01-13 is expected to be **medium** (crowdScore 0.40: Australian school holidays, large popular resort). Crowd is a heuristic estimate.",
+    "optional": ["search_place", "snow_conditions", "rank_resorts"],
+    "answer_regex": "(?is)^(?=.*(?:\\b(?:no|none\\s+of)\\b[^.\\n]{0,60}(?:crowd|busy|data|information|info)|(?:don['’]t|do not|doesn['’]t|does not|can['’]t|cannot|couldn['’]t|could not|unable|isn['’]t|is not|aren['’]t|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|support|available|find|check|include|say|tell|predict|know)))(?!.*\\b(?:expect(?:ed)?|should|will|would|likely|probably|usually|typically|tends?\\s+to|going\\s+to)\\b[^.\\n]{0,40}\\b(?:low|medium|moderate|high|very.high|busy|busier|quiet|quieter|crowded|packed|empty|light|heavy)\\b)",
+    "check": "says it has no crowd data, without inventing a crowd level",
+    "regex_why": "No tool has crowd data (ADR-0011): requires a 'no data' or 'can't say' statement, and rejects any guessed level after a hedge word (expect, should, will, likely, usually...), named resort or not, so 'no data, but it should be quiet' fails.",
+    "positive": "I don't have crowd data for the Hakuba resorts, so I can't say how busy Happo-One will be on 2027-01-13.",
     "negatives": [
-      "Happo-One should be low on 2027-01-13, it's a regular weekday.",
-      "Happo-One will be high on 2027-01-13 because of the Australian holidays.",
-      "Crowds depend on the weather, so I can't say for sure how busy Happo-One will be."
+      "Happo-One will be medium on Wednesday 2027-01-13.",
+      "Happo-One should be quiet that day, since it's a weekday.",
+      "It's a weekday, so expect low crowds at Happo-One.",
+      "I don't have crowd data, but expect low crowds at Happo-One since it's a weekday.",
+      "I don't have crowd data. As a weekday in mid-January, it should be fairly quiet.",
+      "I can't check crowds. Expect medium crowds at Happo-One."
     ],
     "more_positives": [
-      "**Happo-One** (Wed 2027-01-13)\n- Crowd level: **medium** (0.40)"
-    ]
-  },
-  {
-    "id": "crowd-quietest-new-year",
-    "lang": "zh",
-    "question": "2027-01-01 元旦那天，白馬哪個雪場人最少？",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)(?:^(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ))|\\|\\s*\\**1\\**\\s*\\|\\s*\\**\\s*(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ)",
-    "check": "names Jigatake first (crowdScore 0.70, the lowest)",
-    "regex_why": "The first resort named must be Jigatake, so an answer leading with the next quietest, Sanosaka (0.73) or Kashimayari (0.78), fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not. A markdown table whose row 1 is Jigatake also passes, since agents often name a neighbouring resort as a landmark in the sentence.",
-    "positive": "2027-01-01 人最少的是**爺ガ岳（Jigatake）**，人潮等級 high（0.70）；元旦連假所有雪場都很擠，八方尾根是 very_high。",
-    "negatives": [
-      "元旦人最少的是白馬佐野坂（Sanosaka），人潮等級 high。",
-      "建議去鹿島槍（Kashimayari），元旦人比較少。",
-      "元旦是新年假期，所有雪場都會很擠，建議改天去。"
-    ],
-    "more_positives": [
-      "相對最不擠的是**鹿島槍附近的爺ヶ岳（Jigatake）**。\n\n| 排名 | 雪場 | 擁擠程度 |\n|---|---|---|\n| 1 | **爺ヶ岳 Jigatake** | high |\n| 2 | 佐野坂 Sanosaka | high |"
-    ]
-  },
-  {
-    "id": "crowd-busiest-cny",
-    "lang": "ja",
-    "question": "2027-02-06（春節の土曜日）に白馬で一番混むスキー場はどこですか？",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)(?:^(?:(?!goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:happo|八方|はっぽう)|(?:busiest|most\\s+crowded|一番混|最も混|最[擁拥]?[擠挤]|最多人)(?:(?!goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:happo|八方|はっぽう))",
-    "check": "names Happo-One first (the only very_high)",
-    "regex_why": "The first resort named must be Happo-One, so an answer leading with Goryu or Tsugaike (both high, 0.75) fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "2027-02-06に一番混むのは**白馬八方尾根**で、混雑度は very_high（0.80、土曜日＋春節週間）です。混雑は推定値です。",
-    "negatives": [
-      "一番混むのはエイブル白馬五竜（high、0.75）です。",
-      "栂池高原が最も混雑すると予想されます。",
-      "春節の週末なのでどこも混みます。"
-    ]
-  },
-  {
-    "id": "crowd-goryu-cny",
-    "lang": "en",
-    "question": "We're going over Chinese New Year. How crowded will Goryu be on Saturday 2027-02-06?",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:goryu|五竜|五龍|五龙|ごりゅう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?<!very[ _-])\\bhigh\\b)(?!.*(?:goryu|五竜|五龍|五龙|ごりゅう)[^\\n]{0,30}\\b(?:low|medium|very.high)\\b)",
-    "check": "Goryu is high (not very_high) on 2027-02-06",
-    "regex_why": "Requires 'high' next to Goryu without 'very', so the Happo-One level 'very high' or a plain 'medium' fails.",
-    "positive": "Goryu on Saturday 2027-02-06 is expected to be **high** (crowdScore 0.75: Saturday, Lunar New Year week, large popular resort).",
-    "negatives": [
-      "Goryu will be very high on 2027-02-06, it's Chinese New Year.",
-      "Goryu should be medium that Saturday.",
-      "Chinese New Year is busy everywhere in Hakuba, expect queues."
-    ]
-  },
-  {
-    "id": "crowd-happo-march-saturday",
-    "lang": "zh",
-    "question": "2027-03-13 星期六去八方尾根，人會很多嗎？",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?:(?<!very[ _-])\\bhigh\\b|(?<!非常)(?<!很)(?<!極)(?<!极)高|擁擠|拥挤|偏多|較多|较多))(?!.*(?:happo|八方|はっぽう)[^\\n，,（(]{0,30}(?:\\blow\\b|\\bmedium\\b|very.high|中等|普通|低|非常高|極高|极高))",
-    "check": "Happo-One is high on 2027-03-13",
-    "regex_why": "Requires high next to Happo-One and rules out 'medium', the level of every other resort that Saturday. The low/medium check stops at the first comma or bracket, so '其他雪場為 medium' after Happo's level does not count.",
-    "positive": "2027-03-13（週六）八方尾根的人潮預估為 **high（高）**，crowdScore 0.55，其他雪場多為 medium。",
-    "negatives": [
-      "八方尾根 2027-03-13 人潮等級 medium（中等），不算多。",
-      "八方尾根那天人潮 very_high，非常擠。",
-      "三月是雪季尾聲，八方尾根人潮應該是 low。"
-    ],
-    "more_positives": [
-      "八方尾根：high（其他雪場為 medium）"
-    ]
-  },
-  {
-    "id": "crowd-tsugaike-new-year",
-    "lang": "ja",
-    "question": "2027-01-01の元日、栂池高原はどのくらい混みますか？",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)(?:tsugaike|栂池|つがいけ)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?:very.?high|非常に(?:高|混)|とても(?:高|混)|大変混|極めて|かなり混|激混|最も高|最高)",
-    "check": "Tsugaike is very_high on 2027-01-01",
-    "regex_why": "Requires very high next to Tsugaike, so a plain 'high' (the level of Jigatake or Norikura that day) fails.",
-    "positive": "2027-01-01の栂池高原の混雑予想は **very_high（非常に混雑）**、crowdScore 0.90 です（元日の3連休・年末年始）。",
-    "negatives": [
-      "栂池高原の混雑度は high（高め）です。",
-      "栂池高原は元日でも medium 程度です。",
-      "元日はどのスキー場も混むと思いますが、詳しくは公式サイトで確認してください。"
-    ]
-  },
-  {
-    "id": "crowd-iwatake-coming-of-age",
-    "lang": "en",
-    "question": "Coming of Age Day weekend: how crowded will Iwatake be on Monday 2027-01-11?",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:iwatake|岩岳|いわたけ)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?<!very[ _-])\\bhigh\\b)(?!.*(?:iwatake|岩岳|いわたけ)[^\\n]{0,30}\\b(?:low|medium|very.high)\\b)",
-    "check": "Iwatake is high on 2027-01-11",
-    "regex_why": "Requires 'high' next to Iwatake, so 'medium' (a Monday guess, and Jigatake's level that day) fails.",
-    "positive": "Iwatake on Monday 2027-01-11 is expected to be **high** (crowdScore 0.65: three-day weekend for Coming of Age Day plus Australian school holidays).",
-    "negatives": [
-      "Iwatake should be medium on Monday 2027-01-11.",
-      "Iwatake will be very high on the holiday.",
-      "It's a public holiday so expect it to be busy."
-    ]
-  },
-  {
-    "id": "crowd-quietest-late-march",
-    "lang": "en",
-    "question": "Which Hakuba resort will be quietest on Wednesday 2027-03-24?",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*\\blow\\b)(?!(?:(?!jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|iwatake|岩岳|いわたけ|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|tsugaike|栂池|つがいけ))",
-    "check": "says low and leads with one of the seven tied resorts (score 0), not Happo/Goryu/Tsugaike",
-    "regex_why": "Seven resorts tie at crowdScore 0, so any of them is accepted, but an answer leading with Happo-One (0.10), Goryu or Tsugaike (0.05) fails.",
-    "positive": "On 2027-03-24 every resort is **low** (late season). Seven tie at crowdScore 0: Jigatake, Kashimayari, Sanosaka, Hakuba47, Iwatake, Norikura and Cortina, so any of them will be quiet.",
-    "negatives": [
-      "Happo-One will be the quietest on 2027-03-24, low crowds.",
-      "Tsugaike is the quietest that day (low).",
-      "Late March is quiet everywhere, any resort is fine."
-    ]
-  },
-  {
-    "id": "crowd-happo-early-december",
-    "lang": "zh",
-    "question": "2026-12-16 星期三去八方尾根，人會多嗎？",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)^(?=.*(?:happo|八方|はっぽう)[^\\n]{0,80}(?:\\n[^\\n]{0,80})?(?:\\blow\\b|低|(?<!不)少|不[太會会]?[擠挤多]|空))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,30}(?:\\bmedium\\b|\\bhigh\\b|中等|很多|(?<!不)(?<!不太)(?<!不會)(?<!不会)(?<!不算)(?<!不會太)(?<!不会太)[擁拥][擠挤]))",
-    "check": "Happo-One is low on 2026-12-16",
-    "regex_why": "Requires low next to Happo-One, so 'medium' or 'high' (a guess from it being the most popular resort) fails.",
-    "positive": "2026-12-16（週三）八方尾根人潮預估為 **low（低）**，crowdScore 0.10，早季平日人不多。",
-    "negatives": [
-      "八方尾根是最熱門的雪場，2026-12-16 人潮 medium（中等）。",
-      "八方尾根那天人潮 high，很擁擠。",
-      "十二月中旬雪季剛開始，建議出發前查看官網。"
-    ],
-    "more_positives": [
-      "八方尾根那天人潮 low（0.10），不會太擁擠。"
-    ]
-  },
-  {
-    "id": "crowd-quietest-coming-of-age",
-    "lang": "ja",
-    "question": "2027-01-11（成人の日）に白馬で一番空いているスキー場はどこですか？",
-    "required": [],
-    "any_of": [["crowd_and_snow", "rank_resorts"]],
-    "optional": ["search_place"],
-    "answer_regex": "(?is)(?:^(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳]).)*?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ)|(?:quietest|least\\s+(?:crowded|busy)|一番空|最も空|最少|最空|最不[擁拥]?[擠挤])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:のは|は|是|為|为|\\bis\\b|\\bwill\\s+be\\b|\\bwould\\s+be\\b|[:：])(?:(?!happo|八方|はっぽう|goryu|五竜|五龍|五龙|ごりゅう|iwatake|岩岳|いわたけ|tsugaike|栂池|つがいけ|kashimayari|鹿[島岛]\\s*[槍枪鎗]|かしまやり|sanosaka|佐野坂|さのさか|hakuba\\s*47|白[馬马]\\s*47|norikura|[乗乘]鞍|のりくら|cortina|コルチナ|科[爾尔]蒂[納纳])[^\\n。.]){0,12}?(?:jigatake|[爺爷]\\s*[ガがヶ]?\\s*[岳嶽]|じがたけ|ジガタケ))",
-    "check": "names Jigatake first (crowdScore 0.50, medium)",
-    "regex_why": "The first resort named must be Jigatake, so an answer leading with Sanosaka (0.53, also medium) fails. The right resort also counts when it directly follows a superlative phrase ('一番空いているのは…', 'the cheapest is …'), so a comparison that names another resort first still passes; a superlative that refers back to an earlier resort ('X最便宜') does not.",
-    "positive": "2027-01-11に一番空いているのは**爺ガ岳スキー場**で、混雑度は medium（0.50）です。他はほぼ high です。",
-    "negatives": [
-      "一番空いているのは白馬さのさか（medium）です。",
-      "鹿島槍スキー場が穴場で空いています。",
-      "成人の日の3連休なのでどこも混雑します。"
+      "I can't tell you how busy Happo-One will be on 13 January 2027. None of my Hakuba tools have crowd or lift-queue data, so any number I gave you would be a guess.",
+      "I have no crowd data, so I can't say how busy Happo-One will be.",
+      "There is no crowd data for Happo-One.",
+      "Unfortunately none of my tools provide crowd information."
     ]
   },
   {
@@ -734,7 +546,7 @@
     "lang": "en",
     "question": "How crowded will Niseko be on 2027-01-13?",
     "required": [],
-    "optional": ["search_place", "crowd_and_snow", "rank_resorts"],
+    "optional": ["search_place", "snow_conditions", "rank_resorts"],
     "answer_regex": "(?is)^(?=.*(?:(?:don['’]t|do not|doesn['’]t|does not|can['’]t|cannot|couldn['’]t|could not|unable|isn['’]t|is not|aren['’]t|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|book|support|available|find|check|include)|outside[^.\\n]{0,40}(?:hakuba|coverage|scope)|only\\s+(?:cover|ha(?:ve|s)|know|include)))(?!.*niseko[^\\n]{0,40}\\b(?:low|medium|moderate|high|very.high|busy|quiet)\\b)",
     "check": "says Niseko is not covered, without inventing a crowd level",
     "regex_why": "Requires a 'not covered / no data' statement and rules out an invented level such as 'Niseko will be medium'.",
@@ -766,7 +578,7 @@
     "lang": "zh",
     "question": "野澤溫泉滑雪場現在積雪多深？",
     "required": [],
-    "optional": ["search_place", "crowd_and_snow", "rank_resorts"],
+    "optional": ["search_place", "snow_conditions", "rank_resorts"],
     "answer_regex": "(?is)^(?=.*(?:沒有|没有|無法|无法|查不到|找不到|不在|不包[含括]|不支[援持]|不提供|不涵蓋|不涵盖|僅涵蓋|仅涵盖|只涵蓋|只涵盖|不能))(?!.*野[澤泽][^\\n]{0,40}\\d+(?:\\.\\d+)?\\s*(?:cm|公分|厘米))",
     "check": "says Nozawa Onsen is not covered, without a depth",
     "regex_why": "Requires a 'no data / not covered' statement and rules out an invented depth like '野澤溫泉 積雪 120 cm'.",
@@ -835,7 +647,7 @@
     "lang": "ja",
     "question": "2026-02-01の八方尾根の積雪は何cmでしたか？",
     "required": [],
-    "optional": ["crowd_and_snow", "rank_resorts"],
+    "optional": ["snow_conditions", "rank_resorts"],
     "answer_regex": "(?is)^(?=.*(?:ありません|できません|わかりません|分かりません|含まれ(?:てい)?ません|対象外|範囲外|持っていません|見つかりません|情報がない|データがない|対応していない|できない))(?!(?:.*[。\\n])?(?:(?!現在|時点|時點|现在|目前|\\bnow\\b|current|as\\s+of|最新)[^。\\n])*?\\d+(?:\\.\\d+)?\\s*(?:cm|ｃｍ|センチ)(?:(?!現在|時点|時點|现在|目前|\\bnow\\b|current|as\\s+of|最新)[^。\\n])*(?:[。\\n]|$))",
     "check": "says past snow is not available, without quoting a depth",
     "regex_why": "Requires a 'no past data' statement and rules out quoting the current forecast (e.g. 42cm, snowAsOf 2026-11-19) as if it were the 2026-02-01 depth. A cm figure is allowed only in a sentence that marks it as current (現在, 時点, now, as of), so today's depth quoted as such passes; an answer that puts 現在 in the same sentence as an invented past depth would also pass (known gap).",
@@ -854,7 +666,7 @@
     "lang": "ja",
     "question": "2027-01-13に八方尾根のゴンドラは強風で運休しますか？",
     "required": [],
-    "optional": ["crowd_and_snow"],
+    "optional": ["snow_conditions"],
     "answer_regex": "(?is)^(?=.*(?:ありません|できません|わかりません|分かりません|含まれ(?:てい)?ません|対象外|範囲外|持っていません|見つかりません|情報がない|データがない|対応していない|できない))(?!.*(?:運休します|運行します|止まります|動きます|運休になります|運休する予定))",
     "check": "says it has no lift operation data, without predicting",
     "regex_why": "Requires a 'no information' statement and rules out a made-up prediction like '強風で運休します'.",
@@ -863,24 +675,6 @@
       "はい、2027-01-13は強風のためゴンドラは運休します。",
       "その日は風が弱いので通常通り運行します。",
       "2027-01-13の八方尾根の混雑は medium です。"
-    ]
-  },
-  {
-    "id": "plan-quiet-bus-from-hotel",
-    "lang": "en",
-    "question": "I'm at Hotel Hakuba on 2027-01-20 and want to leave around 9am. Which resort will be the least crowded that day, and which shuttle bus (stop and departure time) gets me there?",
-    "required": ["search_place", "next_buses"],
-    "any_of": [["rank_resorts", "crowd_and_snow"]],
-    "optional": ["route"],
-    "answer_regex": "(?is)(?=.*(?:jigatake|爺))(?=.*(?:(?<![\\d０-９])[1１][0０]\\s*[:：時点點]\\s*[5５][0０]))(?=.*(?:happo bus terminal|八方バスターミナル|八方巴士|bus terminal|バスターミナル))",
-    "check": "picks Jigatake and the 10:50 bus from Hakuba Happo Bus Terminal",
-    "regex_why": "Crowd is calendar-based so Jigatake is pinned, and the 10:50 Happo Bus Terminal departure is required, which rules out Sanosaka's 08:00 bus from Hotel Hakuba and the untimed 17:30 Jigatake bus. The question says around 9am, so the earlier 07:25 Jigatake bus fails too.",
-    "positive": "Jigatake Snow Resort is the quietest on 2027-01-20 (low). Bus: walk about 12 min to Hakuba Happo Bus Terminal and take the 10:50 Happo ↔ Jigatake bus, arriving 11:58 (timetable estimate).",
-    "negatives": [
-      "White Resort Hakuba Sanosaka is the quietest. Take the 08:00 bus from Hotel Hakuba, arriving 08:50.",
-      "Jigatake is the quietest; take the 17:30 bus from Hakuba Happo Bus Terminal.",
-      "Jigatake will be the least crowded, but I couldn't find a bus time.",
-      "Jigatake is the quietest. Walk to Hakuba Happo Bus Terminal and take the 07:25 Happo-Jigatake bus, arriving 08:33."
     ]
   }
 ]

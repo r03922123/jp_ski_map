@@ -9,7 +9,6 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.162.0",
-    "holidays>=0.107",
     "httpx>=0.28.1",
     "pydantic>=2.14.1",
     "pyvalhalla==3.9.1",

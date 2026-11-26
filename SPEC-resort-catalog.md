@@ -1,6 +1,6 @@
 # Spec: resort-catalog
 
-> Module of [SPEC.md](SPEC.md). Depends on: — . Consumed by: snow-conditions, crowd-level, bus-schedules, resort-ranking, web-app.
+> Module of [SPEC.md](SPEC.md). Depends on: — . Consumed by: snow-conditions, bus-schedules, resort-ranking, web-app.
 
 ## Objective
 The static reference data that every other module joins on: the resorts, the access points where you start skiing, and the shuttle bus stops. It changes rarely, is edited by hand, and is validated by Pydantic.

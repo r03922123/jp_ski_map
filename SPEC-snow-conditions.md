@@ -1,6 +1,6 @@
 # Spec: snow-conditions
 
-> Module of [SPEC.md](SPEC.md). Depends on: resort-catalog. Consumed by: crowd-level, resort-ranking, web-app.
+> Module of [SPEC.md](SPEC.md). Depends on: resort-catalog. Consumed by: resort-ranking, web-app.
 
 ## Objective
 Give each resort a snow picture that can be compared across resorts: current depth, recent new snow, and the forecast for new snow. This feeds the "snow condition" ranking.
@@ -41,7 +41,7 @@ Page: https://www.hakubavalley.com/en/weather_en/ (lift status at `#lift`, per-r
   ```html
   <div class="status-field snow_status"><span class="status-item">0</span><span class="status-label">SNOW DEPTH</span></div>
   ```
-- **Lift status per lift:** a table per resort, `<tr class="status_closed"><td>Adam Gondola</td><td>CLOSED</td></tr>` (row class `status_open` / `status_closed`). That gives "lifts open n/m", which is also a useful signal for crowd-level.
+- **Lift status per lift:** a table per resort, `<tr class="status_closed"><td>Adam Gondola</td><td>CLOSED</td></tr>` (row class `status_open` / `status_closed`). That gives "lifts open n/m".
 - **Gaps:** Kashimayari, Hakuba47 and Iwatake show no depth or update time here (they link to their own sites), so those 3 keep the model depth.
 - **Unknowns until the season opens (~mid-December):** whether the single depth figure is base or summit (detail pages may say), its unit (assumed cm), and how the open-lift classes look in practice. Everything reads 0 / CLOSED today.
 - **Recommendation:** add a `ReportedSnowSource` adapter after the season opens (fetch at most every 30 min, fall back to the model on any parse failure), record a mid-season fixture first, then switch `depthCm.source` to `"reported"` where present. It is not built now, because off-season HTML can't validate the parser.

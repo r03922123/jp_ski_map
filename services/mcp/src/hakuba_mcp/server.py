@@ -1,7 +1,7 @@
 """MCP server: read-only Hakuba trip-planning tools over the Hakuba Ski Map HTTP API.
 
 Each tool is a thin GET wrapper that trims the API response to what a planner needs
-(ids, names, minutes, cm, levels), so the model's context stays small. See SPEC-agent-tools.md.
+(ids, names, minutes, cm), so the model's context stays small. See SPEC-agent-tools.md.
 """
 
 import os
@@ -21,7 +21,6 @@ SortKey = Literal[
     "walk_time",
     "fresh_snow",
     "snow_depth",
-    "crowd",
     "runs",
     "area",
     "run_length",
@@ -115,7 +114,6 @@ def search_place(query: str, limit: int = 5) -> list[dict[str, Any]]:
 def rank_resorts(
     origin: str,
     sort: SortKey = "walk_time",
-    date: str | None = None,
     night_skiing: bool | None = None,
     hakuba_valley_pass: bool | None = None,
     max_walk_min: float | None = None,
@@ -124,21 +122,19 @@ def rank_resorts(
     """Rank the Hakuba Valley resorts from an origin by ONE criterion and return the top ones.
 
     origin: 'lat,lng' (from search_place). sort: walk_time (shortest walk first), fresh_snow
-    (cm, past 24 h + half of next 24 h), snow_depth (summit cm), crowd (quietest first),
+    (cm, past 24 h + half of next 24 h), snow_depth (summit cm),
     runs (as each resort counts them), area (skiable ha),
     run_length (total run length, m), vertical (m), price (cheapest day ticket, JPY).
-    date: YYYY-MM-DD for the crowd estimate (default today, JST). Filters are optional.
-    Each item gives resortId, walkMin, sortValue (in the sort's unit), snow in cm and
-    crowdLevel (low/medium/high/very_high). snowAsOf is the local time (JST) the snow
-    figures are from: say that time when you quote them, because they can be a few hours
-    old when the weather service is unreachable.
+    Filters are optional. Each item gives resortId, walkMin, sortValue (in the sort's unit)
+    and snow in cm. snowAsOf is the local time (JST) the snow figures are from: say that
+    time when you quote them, because they can be a few hours old when the weather service
+    is unreachable.
     """
     ranked = _get(
         "/api/rank",
         {
             "from": origin,
             "sort": sort,
-            "date": date,
             "nightSkiing": night_skiing,
             "hakubaValleyPass": hakuba_valley_pass,
             "maxWalkMin": max_walk_min,
@@ -147,7 +143,6 @@ def rank_resorts(
     out: list[dict[str, Any]] = []
     for r in ranked[:top]:
         snow = _obj(r.get("snow"))
-        crowd = _obj(r.get("crowd"))
         out.append(
             {
                 "rank": r["rank"],
@@ -158,7 +153,6 @@ def rank_resorts(
                 "summitDepthCm": _obj(snow.get("depthCm")).get("summit"),
                 "newSnow24hCm": _obj(snow.get("newSnowCm")).get("past24h"),
                 "snowAsOf": _to_minute(snow.get("asOf")),
-                "crowdLevel": crowd.get("level"),
             }
         )
     return out
@@ -245,28 +239,20 @@ def route(origin: str, destination: str) -> dict[str, Any]:
 
 
 @mcp.tool(annotations=READ_ONLY)
-def crowd_and_snow(date: str | None = None) -> list[dict[str, Any]]:
-    """Crowd estimate and snow for every resort. Use it to compare conditions before ranking.
+def snow_conditions() -> list[dict[str, Any]]:
+    """Snow for every resort. Use it to compare conditions before ranking.
 
-    date: YYYY-MM-DD for the crowd estimate (default today, JST). Snow is the model
-    forecast (Open-Meteo) as of snowAsOf (local time, JST), whatever the date: say that
-    time when you quote snow figures, because they can be a few hours old when the weather
-    service is unreachable. Units: cm for snow, crowdScore 0..1, crowdLevel
-    low/medium/high/very_high. Crowd is a heuristic estimate.
+    Snow is the model forecast (Open-Meteo) as of snowAsOf (local time, JST), whatever date
+    the user plans for: say that time when you quote snow figures, because they can be a few
+    hours old when the weather service is unreachable. Units: cm. No tool has crowd data:
+    if asked how busy a resort will be, say so instead of guessing.
     """
-    crowd = _get("/api/crowd", {"date": date})
-    snow = {s["resortId"]: s for s in _get("/api/snow")}
     out: list[dict[str, Any]] = []
-    for c in crowd:
-        s = snow.get(c["resortId"], {})
+    for s in _get("/api/snow"):
         depth, new = _obj(s.get("depthCm")), _obj(s.get("newSnowCm"))
         out.append(
             {
-                "resortId": c["resortId"],
-                "date": c["date"],
-                "crowdLevel": c["level"],
-                "crowdScore": c["score"],
-                "crowdReasons": c.get("reasons", []),
+                "resortId": s["resortId"],
                 "summitDepthCm": depth.get("summit"),
                 "baseDepthCm": depth.get("base"),
                 "newSnowPast24hCm": new.get("past24h"),
@@ -283,12 +269,12 @@ def plan_ski_day(start: str, date: str = "today") -> str:
     """Plan a ski day in Hakuba from a starting place."""
     return f"""Plan a ski day in Hakuba Valley starting from "{start}" on {date}.
 1. Find the origin with search_place and use its 'lat,lng' coord from then on.
-2. Check conditions with crowd_and_snow for that date.
+2. Check snow with snow_conditions.
 3. Rank resorts with rank_resorts on the criterion that matters most (fresh_snow on a powder
-   day, crowd on a holiday, walk_time otherwise).
+   day, walk_time otherwise).
 4. For the top pick, get next_buses from the origin (pass origin_name) and the walking route.
-5. Answer with the resort, departure and arrival times, snow in cm, crowd level, and say that
-   bus times are timetable estimates and crowd is a heuristic, so check before leaving."""
+5. Answer with the resort, departure and arrival times and snow in cm, and say that bus
+   times are timetable estimates, so check before leaving."""
 
 
 def main() -> None:

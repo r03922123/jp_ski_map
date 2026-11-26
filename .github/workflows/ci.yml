@@ -95,6 +95,17 @@ jobs:
       - uses: actions/checkout@v5
       - name: Deploy script stops on bad input (stubbed vercel; nothing can deploy)
         run: scripts/test-deploy-vercel.sh
+      - uses: astral-sh/setup-uv@v6
+      # The stub above skips the real vendor step; this runs it as the deploy does, on Linux x86_64.
+      - name: Slim pyvalhalla imports, and the staged lock no longer installs pyvalhalla
+        run: |
+          stage=$(mktemp -d)
+          git archive HEAD services/api | tar -x -C "$stage"
+          python3 scripts/vendor_valhalla.py "$stage/services/api"
+          cd "$stage/services/api"
+          uv sync --frozen --no-dev
+          if ls .venv/lib/python*/site-packages | grep -qi '^pyvalhalla'; then exit 1; fi
+          PYTHONPATH=src .venv/bin/python -c 'import valhalla; print(valhalla.__file__)' | grep -q '/src/valhalla/'
 
   claude-hooks:
     runs-on: ubuntu-latest

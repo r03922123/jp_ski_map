@@ -147,7 +147,7 @@ on the Mac keeps serving until cutover.
      `infra/valhalla/hakuba-tiles.sha256`, which this work commits (it doesn't exist yet). A missing file or wrong hash stops the deploy.
    - Copy the runtime data next to the API and fail if any is missing: `resorts.json`,
      `bus_stops.json`, `bus/timetables/**`, `bus/sources.json`, `lodging_osm.json`,
-     `lodging_overture.json`, `crowd_periods.json` (`poi_osm.json` until ADR-0010). `data/bus/raw` and
+     `lodging_overture.json` (`poi_osm.json` until ADR-0010, `crowd_periods.json` until ADR-0011). `data/bus/raw` and
      `stop_evidence.json` aren't needed at runtime and stay out.
    - Bind the temp folder to the linked project, by copying `.vercel/project.json` or setting
      `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. A `git archive` holds no link, and an unlinked folder is
@@ -164,10 +164,11 @@ on the Mac keeps serving until cutover.
    - `PUBLIC_URL`: the production URL, used in the upstream User-Agent.
    - `TRUSTED_PROXY_HOPS=1`: Vercel overwrites `X-Forwarded-For` with the client address.
    - `VALHALLA_TILES=/var/task/tiles/valhalla_tiles.tar`, `HAKUBA_DATA_DIR=/var/task/data`.
-   - `PYTHONPATH=/var/task/src`. The bundle is about 324 MB, over the Python builder's standard
-     size, so Vercel installs the dependencies at cold start and doesn't install the project
-     itself. Without this, `from hakuba_api...` fails with `ModuleNotFoundError` and every `/api`
-     call returns 500 (`FUNCTION_INVOCATION_FAILED`).
+   - `PYTHONPATH=/var/task/src`. Until 2026-11-26 the bundle was about 324 MB, over the Python
+     builder's standard size, so Vercel installed the dependencies at cold start and not the
+     project itself. Without this, `from hakuba_api...` failed with `ModuleNotFoundError` and every
+     `/api` call returned 500 (`FUNCTION_INVOCATION_FAILED`). It stays: the script now puts the
+     slim `valhalla` package under `src/` ("Valhalla's share of the cold start").
 10. **Production smoke suite**, `apps/web/e2e-prod/` with its own Playwright config: no local servers,
     `PROD_URL` and a protection-bypass header from the environment, about 5 tests (headers, search,
     bus, drive, walk). The existing suite assumes `127.0.0.1:8010` and dev-only hooks, and hundreds of
@@ -405,7 +406,51 @@ first request after each deploy (6.70 s with, 3.18 s without) is left out as a f
   the first call to Stadia adds a network round trip, so that part nets out to an unknown amount. That
   is real room under the 5 s target, but every route would then pay a network hop and a quota.
   Getting the bundle under 225 MB another way would bring the same gain without a new dependency
-  (untested).
+  (tested 2026-11-26, below).
+
+**Under the standard size (measured 2026-11-26).** What fills the bundle, from the lock's production
+dependencies installed as Linux x86_64 wheels (`uv pip install --target --python-platform
+x86_64-manylinux_2_28`, then `du`): 325 MB in all, matching the build log's 324.11 MB.
+
+| Part | Size |
+|---|---|
+| `pyvalhalla.libs/` (50 bundled libraries) | 204 MB |
+| `valhalla/bin/` (`valhalla_service` and tile builders; the API never runs them) | 41 MB |
+| rest of `valhalla/` (`_valhalla.abi3.so` 16 MB) | 16 MB |
+| everything else (`uvloop` 16 MB, `holidays` 7 MB, `fastapi[standard]` extras, …) | 64 MB |
+
+- `pyvalhalla` alone (261 MB) is over 225 MB, so no change to the other packages could help, and
+  `excludeFiles` doesn't reach installed packages (`@vercel/python` 31.0.1 applies it to project
+  files only). The `_valhalla` extension needs all 50 libraries (its `NEEDED` closure).
+- The libraries are 96% zeros: auditwheel's patchelf put each segment it added at a 2 MiB file
+  offset (`libz` is 2.1 MB on disk, 56 KB gzipped). `pyvalhalla` 3.9.3 is the same.
+- **Fix:** `scripts/deploy-vercel.sh` runs `scripts/vendor_valhalla.py` on the staged API. It downloads
+  the wheel the lock names (sha256 checked), keeps `valhalla/` without `bin/` and `pyvalhalla.libs/`,
+  moves each library's segments down to the first file offset the loader accepts (addresses don't
+  change), writes both under `src/` (on `PYTHONPATH`), and drops `pyvalhalla` from the staged lock.
+  261 MB becomes 58 MB. The repo's lock, local dev and CI's tests still use the normal package; CI's
+  `deploy-script` job runs the real step and imports the result on Linux.
+- **Same answers:** on `python:3.12-slim` linux/amd64, the slim and the original package return
+  byte-identical JSON for a walk, drive and bus route, a matrix and an error. The slim preview's
+  build log has no "exceeds the standard size" line; current `main`'s still prints 324.11 MB.
+
+Two protected previews from branches that never merge (`probe/cold-base` = `main` at `9b5fcc1`,
+`probe/cold-slim` = this change), both with the temporary `x-boot-id` header, probed every 12
+minutes from the owner's home network through `vercel curl` (curl's `time_total`). The order
+alternated by round. 12 of 12 first requests landed on a new instance, and every request returned 200.
+
+| n=6 cold starts each | Slim | Current `main` | `main` − slim, paired by round |
+|---|---|---|---|
+| Cold start (first health + first route − warm health) | 2.42 ± 0.22 s | 3.47 ± 0.29 s | **1.05 ± 0.16 s** (0.53–1.64) |
+| First health | 2.21 ± 0.20 s | 3.27 ± 0.28 s | 1.06 ± 0.17 s |
+| App import (`x-import-s`) | 0.63 ± 0.06 s | 0.59 ± 0.05 s | −0.04 ± 0.02 s |
+
+- **The slim bundle cuts about 1.05 ± 0.16 s (n=6, mean ± SE) off a cold start**: slim was faster in
+  6 of 6 rounds, whichever went first. That matches the 1.1 ± 0.3 s bundle penalty above, so the
+  penalty was the bundle size, and this removes it without a new dependency.
+- **Limits:** one afternoon, one network, previews, not production. Both arms are near 3 s here, so
+  this doesn't explain production's 7.06 s first health from a GitHub runner on 2026-11-26; the
+  daily probe after the deploy shows whether production falls by the same amount.
 
 #### Open questions
 1. ~~The `*.vercel.app` name is first-come.~~ The owner linked the project on 2026-11-10. The URL

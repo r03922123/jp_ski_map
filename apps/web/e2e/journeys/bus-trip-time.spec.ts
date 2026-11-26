@@ -379,22 +379,6 @@ for (const device of ["phone", "laptop 1440"]) {
   });
 }
 
-test.describe("laptop 1440, off-season ranking", () => {
-  test.use(DEVICES["laptop 1440"]);
-  test("no 'Crowd: high' while every resort has 0 cm and no buses run", async ({
-    page,
-  }) => {
-    // known: H — off-season: "Crowd: high (est.)" next to "0 cm new · 0 cm summit"
-    test.fail(true, "known: H");
-    await page.clock.install({ time: OFF_SEASON });
-    await page.goto(`/?from=${FROM}&mode=walk`);
-    await expect(page.getByText(/0 cm new/).first()).toBeVisible({
-      timeout: 30_000,
-    });
-    await expect(page.getByText(/Crowd: high/)).toHaveCount(0);
-  });
-});
-
 for (const device of ["phone", "small phone"]) {
   test.describe(`${device}, Start a bus trip booked for tomorrow`, () => {
     test.use({

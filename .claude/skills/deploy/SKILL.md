@@ -27,9 +27,11 @@ scripts/deploy-vercel.sh --prod   # production: say so in the report
 - Run it from a checkout that has `.vercel/project.json` and the built tiles (both gitignored;
   the main checkout has them, a new worktree doesn't). Commit first: only `HEAD` is uploaded.
 - `vercel` isn't on PATH; the script falls back to the npx copy by itself.
-- Vercel needs `PYTHONPATH=/var/task/src` (the bundle is too big for Vercel to install the package
-  itself). Without it every `/api` call returns 500. The env vars are listed in SPEC-deploy
-  Phase B, Changes item 9.
+- Vercel needs `PYTHONPATH=/var/task/src`: the script puts a slim `valhalla` under `src/`
+  (`scripts/vendor_valhalla.py`, which downloads the wheel). Without it every `/api` call returns
+  500. The env vars are listed in SPEC-deploy Phase B, Changes item 9.
+- The build log must not say "exceeds the standard size": then every new instance installs
+  packages before it answers (SPEC-deploy, "Valhalla's share of the cold start").
 
 ## 2. Smoke-test after every deploy
 
