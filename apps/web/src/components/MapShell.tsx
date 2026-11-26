@@ -33,13 +33,17 @@ import { usePilotSession } from "@/lib/nav/use-pilot-session";
 import { routeBounds } from "@/lib/route-geo";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
 import { resortSummary } from "@/lib/ski-stats";
-import { pinPlace, tripActions } from "@/lib/trip-actions";
 import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
 import { useLodging, useRanking } from "@/lib/use-lists";
 import { useModeDurations, useRoutes } from "@/lib/use-routes";
-import { type TripPoint, useTrip } from "@/lib/use-trip";
+import {
+  pinPlace,
+  type TripEvent,
+  type TripPoint,
+  useTrip,
+} from "@/lib/use-trip";
 import { useViewUrl } from "@/lib/use-view-url";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
@@ -58,12 +62,6 @@ type Picked =
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const trip = useTrip();
-  // Directions' focus is for one mount: the box has it by now, and a later remount of the same
-  // box (the sheet coming back after navigation) must not take focus and open its list
-  const { focusedSearchKey: focusKey, setFocusedSearchKey } = trip;
-  useEffect(() => {
-    if (focusKey !== null) setFocusedSearchKey(null);
-  }, [focusKey, setFocusedSearchKey]);
   const {
     mode,
     origin,
@@ -74,9 +72,7 @@ export function MapShell() {
     selectedResortId,
     point,
     storedBusChoice,
-    setBusChoice,
     filledStops,
-    fillStop,
   } = trip;
   const [picked, setPicked] = useState<Picked | null>(null);
   // the whole lines, for the ski cards' profile and resort sums (v1.4); asked for when the
@@ -261,25 +257,30 @@ export function MapShell() {
     resorts: resorts.data,
     resortsLoading: resorts.isLoading,
   });
-  const actions = tripActions(trip, {
+  const world = {
     resorts: resorts.data,
+    savedPlaces: savedState.places,
     fromPlace,
     toPlace,
     placingStop,
-    savedState,
-    setFlyTo,
-    setSavedOpen,
-    setSavedFocus,
-    setDroppedPin,
-    openResortCard: (resortId) => setPicked({ kind: "resort", resortId }),
-  });
+  };
+  // the panel an edit opens is the shell's to open
+  const edit = (event: TripEvent) => {
+    const opens = trip.edit(event, world);
+    if (opens?.panel === "resortCard") {
+      setPicked({ kind: "resort", resortId: opens.id });
+    }
+    if (opens?.panel === "saved") {
+      setSavedFocus(opens.id);
+      setSavedOpen(true);
+    }
+  };
+  const clearTo = () => edit({ type: "destinationCleared" });
+  const chooseResort = (id: string) => edit({ type: "resortChosen", id });
   const shownTo = point ?? selectedResortId;
   const toEmptiedSinceLink = useRef(false);
   if (linkRead && shownTo === null) toEmptiedSinceLink.current = true;
-  useBackToClose(
-    shownTo !== null && toEmptiedSinceLink.current,
-    actions.clearTo,
-  );
+  useBackToClose(shownTo !== null && toEmptiedSinceLink.current, clearTo);
   useBackToClose(savedOpen, () => setSavedOpen(false));
   useBackToClose(piloting, session.exitPilot);
   const pickedResort =
@@ -314,17 +315,31 @@ export function MapShell() {
       : null;
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
+  // the pin card's buttons edit the trip and close the card
+  const pinEdit = (event: TripEvent) => () => {
+    edit(event);
+    setDroppedPin(null);
+  };
   const pinCard = droppedPin && (
     <PinCard
       name={droppedPin.name}
       coord={droppedPin.coord}
       onClose={() => setDroppedPin(null)}
-      onStart={() => actions.pinStart(droppedPin)}
+      onStart={pinEdit({
+        type: "startSet",
+        start: { by: "pin", pin: droppedPin },
+      })}
       onGo={
         // Bus has no "go here": its destination comes from the swap or another tab
-        mode === "bus" ? undefined : () => actions.pinGo(droppedPin)
+        mode === "bus"
+          ? undefined
+          : pinEdit({ type: "pointChosen", point: droppedPin })
       }
-      onAddStop={canAddStop ? () => actions.pinAddStop(droppedPin) : undefined}
+      onAddStop={
+        canAddStop
+          ? pinEdit({ type: "stopAdded", place: pinPlace(droppedPin) })
+          : undefined
+      }
       save={
         // a saved place at that spot (My hotel's lodging pin) is that place, not a new pin
         <SaveButton
@@ -368,8 +383,11 @@ export function MapShell() {
                   searchIcon={!showToBox}
                   // the top card reads From → To (BC-L1): never blank while there is a start
                   label={searchLabel ?? fromPlace?.name ?? null}
-                  onSelect={actions.searchStart}
-                  onClear={actions.clearOrigin}
+                  onSelect={(place) => {
+                    edit({ type: "startSet", start: { by: "search", place } });
+                    setFlyTo(place.coord);
+                  }}
+                  onClear={() => edit({ type: "startCleared" })}
                   near={viewCentre}
                 />
               }
@@ -377,12 +395,17 @@ export function MapShell() {
                 <DestinationBox
                   to={toPlace}
                   near={viewCentre}
-                  onChoose={actions.chooseTo}
-                  onClear={actions.clearTo}
+                  onChoose={(place) =>
+                    edit({ type: "destinationChosen", place })
+                  }
+                  onClear={clearTo}
                 />
               }
               swap={
-                <SwapButton disabled={!canSwap} onClick={actions.swapTrip} />
+                <SwapButton
+                  disabled={!canSwap}
+                  onClick={() => edit({ type: "swapped" })}
+                />
               }
               saveDestination={toPlace && <SaveButton place={toPlace} />}
               placeCard={
@@ -390,7 +413,7 @@ export function MapShell() {
                 !destinationLoading && (
                   <PlaceCard
                     place={fromPlace}
-                    onDirections={actions.directionsTo}
+                    onDirections={() => edit({ type: "directions" })}
                   />
                 )
               }
@@ -420,18 +443,28 @@ export function MapShell() {
             <SavedPanel
               focusId={savedFocus}
               canGoHere={mode !== "bus"}
-              onStartFrom={actions.startFrom}
-              onGoHere={actions.goTo}
+              onStartFrom={(place) => {
+                edit({ type: "startSet", start: { by: "saved", place } });
+                setFlyTo(place.coord);
+                setSavedOpen(false);
+              }}
+              onGoHere={(place) => {
+                edit({
+                  type: "pointChosen",
+                  point: { coord: place.coord, name: place.name },
+                });
+                setSavedOpen(false);
+              }}
               onClose={() => setSavedOpen(false)}
               notice={savedNotice}
             />
           ) : (
             <ModePanel
               mode={mode}
-              onModeChange={actions.changeMode}
+              onModeChange={(m) => edit({ type: "modeChanged", mode: m })}
               resorts={resorts.data ?? []}
               selectedResortId={selectedResortId}
-              onSelectResort={actions.selectResort}
+              onSelectResort={chooseResort}
               hasOrigin={origin !== null}
               durations={durations}
               tripFirst={mode !== "bus" && tripStops.length > 0}
@@ -440,14 +473,20 @@ export function MapShell() {
                   stops={mode === "bus" ? [] : tripStops}
                   addStopRef={addStopRef}
                   near={viewCentre}
-                  onRemoveStop={actions.removeStop}
-                  onMoveStop={actions.moveStop}
-                  onFillStop={fillStop}
+                  onRemoveStop={(key) => edit({ type: "stopRemoved", key })}
+                  onMoveStop={(key, by) => edit({ type: "stopMoved", key, by })}
+                  onFillStop={(key, place) =>
+                    edit({ type: "stopFilled", key, place })
+                  }
                   addDestination={
                     canAddStop && (
                       <AddDestinationButton
                         ref={addStopRef}
-                        onClick={actions.addStop}
+                        onClick={() => {
+                          // the stop box lives in the trip list, which Saved replaces
+                          setSavedOpen(false);
+                          edit({ type: "stopAdded", place: null });
+                        }}
                       />
                     )
                   }
@@ -478,7 +517,7 @@ export function MapShell() {
                     busPlace && {
                       name: busPlace.name,
                       result: busResults.toPlace,
-                      onClear: actions.clearTo,
+                      onClear: clearTo,
                     }
                   }
                   night={busResults.night}
@@ -487,12 +526,12 @@ export function MapShell() {
                   freeOnly={freeOnly}
                   onFreeOnlyChange={(on) => {
                     setFreeOnly(on);
-                    if (on) actions.dropPaidBus();
+                    if (on) edit({ type: "paidBusesHidden" });
                   }}
                   departAt={departAt}
                   onDepartAtChange={setDepartAt}
                   selected={busChoice}
-                  onSelect={setBusChoice}
+                  onSelect={(bus) => edit({ type: "busTapped", bus })}
                   // only once the walk to the stop is known: it is the first leg
                   onStart={
                     routePending || !pilotAvailable ? undefined : startBusPilot
@@ -509,7 +548,7 @@ export function MapShell() {
                     ranking={rankingState}
                     fetching={ranking.isFetching}
                     selectedResortId={selectedResortId}
-                    onSelectResort={actions.selectResort}
+                    onSelectResort={chooseResort}
                   />
                 )
               }
@@ -548,7 +587,7 @@ export function MapShell() {
         onPickOrigin={(coord) => {
           // the open stop box takes the click; it closes the card, as a finger's tap does
           setPicked(null);
-          actions.pickOnMap(coord);
+          edit({ type: "mapTapped", coord });
         }}
         stops={
           mode === "bus"
@@ -572,9 +611,9 @@ export function MapShell() {
         }
         skiFocus={skiFocus}
         profilePoint={piloting ? null : profilePoint}
-        onSelectResort={actions.selectResortOnMap}
+        onSelectResort={(id) => edit({ type: "resortTapped", id })}
         saved={savedMarkers}
-        onSelectSaved={actions.selectSaved}
+        onSelectSaved={(id) => edit({ type: "savedTapped", id })}
       />
       {importCode && (
         <ImportDialog
