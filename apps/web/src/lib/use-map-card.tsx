@@ -132,7 +132,9 @@ export function useMapCard({
             onClose={close}
             onPoint={(ring) =>
               setPicked((p) =>
-                p?.kind === "line" && p.line.id === card.line.id ? { ...p, ring } : p,
+                p?.kind === "line" && p.line.id === card.line.id
+                  ? { ...p, ring }
+                  : p,
               )
             }
           />
