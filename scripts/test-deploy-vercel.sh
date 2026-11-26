@@ -55,6 +55,10 @@ new_repo() {
   mkdir -p "$REPO/scripts" "$REPO/data/bus/timetables/2025-26" "$REPO/data/bus/raw" \
     "$REPO/infra/valhalla/custom_files/hakuba" "$REPO/.vercel" "$REPO/services/api" "$REPO/.ux-evidence" "$REPO/.run"
   cp "$HERE/deploy-vercel.sh" "$HERE/promote-vercel.sh" "$REPO/scripts/"
+  # Stub: the real one downloads a wheel. Writes what the real one would and fails on VENDOR_STUB_EXIT.
+  printf '%s\n' 'import os, pathlib, sys' 'p = pathlib.Path(sys.argv[1], "src/valhalla")' \
+    'p.mkdir(parents=True); (p / "__init__.py").write_text("")' \
+    'sys.exit(int(os.environ.get("VENDOR_STUB_EXIT", 0)))' >"$REPO/scripts/vendor_valhalla.py"
   for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_overture.json \
     lodging_readings.json lodging_aliases.json crowd_periods.json ski_lines.json bus/stop_evidence.json \
     bus/timetables/2025-26/line-a.json; do
@@ -124,6 +128,7 @@ for f in resorts.json bus_stops.json bus/sources.json lodging_osm.json lodging_o
   uploaded "services/api/data/$f" || fail "not uploaded: services/api/data/$f"
 done
 uploaded services/api/tiles/valhalla_tiles.tar || fail "tiles not uploaded"
+uploaded services/api/src/valhalla/__init__.py || fail "vendored valhalla not uploaded"
 [[ $(cat "$VERCEL_STUB_LOG.link") == "team_test prj_test" ]] || fail "link file IDs not passed to vercel"
 if uploaded .vercel/project.json; then fail "link file in the upload"; fi
 for f in .env .ux-evidence/shot .run/api.pid; do
@@ -198,6 +203,10 @@ new_repo
 echo 'different' >"$REPO/infra/valhalla/custom_files/hakuba/valhalla_tiles.tar"
 deploy
 expect_stop "wrong tile hash" "tile hash mismatch"
+
+new_repo
+VENDOR_STUB_EXIT=1 deploy
+expect_stop "vendoring pyvalhalla fails" "could not vendor"
 
 new_repo
 rm "$REPO/infra/valhalla/hakuba-tiles.sha256"
