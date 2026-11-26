@@ -85,6 +85,10 @@ expected=$(cut -d' ' -f1 "$HASH_FILE")
 actual=$(shasum -a 256 "$API/tiles/valhalla_tiles.tar" | cut -d' ' -f1)
 [[ -n $expected && $actual == "$expected" ]] || die "tile hash mismatch: got $actual, want $expected"
 
+# Installed, pyvalhalla alone is over Vercel's 225 MB standard size, and then every new instance
+# installs packages before it answers. A padding-free copy as plain files keeps the bundle under it.
+python3 "$STAGE/scripts/vendor_valhalla.py" "$API" || die "could not vendor a slim pyvalhalla"
+
 cd "$STAGE"
 echo "deploy-vercel: deploying commit $(git -C "$ROOT" rev-parse HEAD) with: ${TARGET[*]}"
 echo "deploy-vercel: vercel CLI $(vercel --version 2>/dev/null)"
