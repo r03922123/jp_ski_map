@@ -37,7 +37,6 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       walkTime: 368,
       freshSnow: 46.8,
       snowDepth: 299,
-      crowd: 0.6,
       runs: 16,
       area: 220,
       runLength: 23300,
@@ -51,19 +50,6 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
       newSnowCm: { past24h: 45.6, past72h: 72.2, next24h: 2.5, next72h: 9.1 },
       tempC: { summitMin: -13.5, summitMax: -6.2 },
     },
-    crowd: {
-      resortId: "happo-one",
-      date: "2026-01-12",
-      level: "high",
-      score: 0.6,
-      source: "heuristic",
-      isEstimate: true,
-      reasons: ["3-day weekend (Coming of Age Day)", "Large, popular resort"],
-      contributions: [
-        { label: "3-day weekend (Coming of Age Day)", weight: 0.35 },
-        { label: "Large, popular resort", weight: 0.25 },
-      ],
-    },
     statsSource:
       "https://www.hakubavalley.com/en/ski_resort_info_en/ (checked 2026-10-29); dayTicketJpy: https://www.happo-one.jp/price/ (checked 2026-11-06)",
     website: "https://www.happo-one.jp/",
@@ -72,7 +58,7 @@ function ranked(overrides: Partial<RankedResort> = {}): RankedResort {
 }
 
 describe("ResortList", () => {
-  it("shows rank, name, walk ETA, snow and an estimated crowd badge", () => {
+  it("shows rank, name, walk ETA and snow, and no crowd estimate", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
     );
@@ -84,7 +70,7 @@ describe("ResortList", () => {
     expect(
       within(item).getByText(/46 cm new · 299 cm summit/),
     ).toBeInTheDocument();
-    expect(within(item).getByText("Crowd: high (est.)")).toBeInTheDocument();
+    expect(within(item).queryByText(/crowd/i)).not.toBeInTheDocument();
   });
 
   it("shows the past 24 h of new snow and the summit depth on the card", () => {
@@ -206,14 +192,8 @@ describe("ResortList", () => {
         .getAllByRole("definition")
         .map((dd) => dd.textContent),
     ).toEqual(["16", "220 ha", "23.3 km"]);
-    // the card already shows these: walk time in its header, crowd in Sources & weights
-    for (const gone of [
-      "Crowd score (est.)",
-      /Crowd estimate:/,
-      /Fresh snow \(24 h/,
-      "Vertical drop",
-      "Ticket price",
-    ]) {
+    // the card already shows walk time in its header
+    for (const gone of [/Fresh snow \(24 h/, "Vertical drop", "Ticket price"]) {
       expect(within(details).queryByText(gone)).not.toBeInTheDocument();
     }
     expect(
@@ -221,22 +201,22 @@ describe("ResortList", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps sources and weights closed until asked", () => {
+  it("keeps sources closed until asked", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
     );
 
-    const sources = screen.getByText("Sources & weights").closest("details");
+    const sources = screen.getByText("Sources").closest("details");
     expect(sources).not.toHaveAttribute("open");
   });
 
-  it("links every stats URL and the data sources, and shows each crowd weight", () => {
+  it("links every stats URL and the data sources", () => {
     render(
       <ResortList resorts={[ranked()]} selectedId={null} onSelect={vi.fn()} />,
     );
-    fireEvent.click(screen.getByText("Sources & weights"));
+    fireEvent.click(screen.getByText("Sources"));
     const block = within(
-      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+      screen.getByText("Sources").closest("details") as HTMLElement,
     );
     const hrefs = block.getAllByRole("link").map((a) => a.getAttribute("href"));
 
@@ -251,34 +231,6 @@ describe("ResortList", () => {
       expect(a).toHaveAttribute("target", "_blank");
       expect(a).toHaveAttribute("rel", "noopener noreferrer");
     }
-    expect(block.getByText("+0.35")).toBeInTheDocument();
-    expect(block.getByText("+0.25")).toBeInTheDocument();
-    expect(block.getByText("0.60")).toBeInTheDocument();
-  });
-
-  it("shows a negative weight and says when the sum was capped", () => {
-    render(
-      <ResortList
-        resorts={[
-          ranked({
-            crowd: {
-              ...(ranked().crowd as NonNullable<RankedResort["crowd"]>),
-              score: 0,
-              reasons: ["Early/late season"],
-              contributions: [{ label: "Early/late season", weight: -0.15 }],
-            },
-          }),
-        ]}
-        selectedId={null}
-        onSelect={vi.fn()}
-      />,
-    );
-    const block = within(
-      screen.getByText("Sources & weights").closest("details") as HTMLElement,
-    );
-
-    expect(block.getByText("−0.15")).toBeInTheDocument();
-    expect(block.getByText(/capped to 0–1/)).toBeInTheDocument();
   });
 
   it("never turns a non-web URL in the stats source into a link", () => {
@@ -292,7 +244,7 @@ describe("ResortList", () => {
       />,
     );
     const block = within(
-      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+      screen.getByText("Sources").closest("details") as HTMLElement,
     );
 
     expect(block.getByText(/javascript:alert\(1\)/)).toBeInTheDocument();
@@ -317,7 +269,7 @@ describe("ResortList", () => {
       />,
     );
     const block = within(
-      screen.getByText("Sources & weights").closest("details") as HTMLElement,
+      screen.getByText("Sources").closest("details") as HTMLElement,
     );
     const hrefs = block
       .getAllByRole("link", { hidden: true })
