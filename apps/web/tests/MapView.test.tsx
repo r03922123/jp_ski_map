@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Resort, Route } from "@/lib/api";
 import { MAP_STYLE_URL } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
-import type { LngLat } from "@/lib/route-geo";
+import { type LngLat, mapPadding } from "@/lib/route-geo";
 import type { SavedMarker } from "@/lib/saved-places";
 import walkFixture from "./fixtures/route-walk.json";
 
@@ -13,24 +13,30 @@ import walkFixture from "./fixtures/route-walk.json";
 // effect ran made React flush it first, with the old "not pressing" value, so the ease
 // started inside the press and MapLibre's easeTo cancelled the drag. The mock map below
 // presses in that exact window (its layout effect runs at commit, before passive effects).
-const h = vi.hoisted(() => ({
-  props: {} as Record<string, (...a: unknown[]) => void>,
-  pressOnNextCommit: false,
-  map: {
-    easeTo: vi.fn(),
-    fitBounds: vi.fn(),
-    flyTo: vi.fn(),
-    getZoom: () => 14,
-    project: () => ({ x: 200, y: 400 }),
-    getCanvas: () => ({ clientHeight: 800, clientWidth: 400 }),
-    getBounds: () => ({
-      getSouth: () => 36.6,
-      getWest: () => 137.8,
-      getNorth: () => 36.8,
-      getEast: () => 137.9,
-    }),
-  },
-}));
+const h = vi.hoisted(() => {
+  const s = {
+    props: {} as Record<string, (...a: unknown[]) => void>,
+    pressOnNextCommit: false,
+    // where the map's canvas is and where it projects a point (the camera tests change them)
+    canvas: { clientHeight: 800, clientWidth: 400 },
+    projected: { x: 200, y: 400 },
+    map: {
+      easeTo: vi.fn(),
+      fitBounds: vi.fn(),
+      flyTo: vi.fn(),
+      getZoom: () => 14,
+      project: () => s.projected,
+      getCanvas: () => s.canvas,
+      getBounds: () => ({
+        getSouth: () => 36.6,
+        getWest: () => 137.8,
+        getNorth: () => 36.8,
+        getEast: () => 137.9,
+      }),
+    },
+  };
+  return s;
+});
 
 vi.mock("maplibre-gl", () => ({ setWorkerUrl: () => {} }));
 vi.mock("react-map-gl/maplibre", async () => {
@@ -619,6 +625,19 @@ describe("MapView frames a picked run or resort", () => {
     expect(fits()).toHaveLength(3);
   });
 
+  it("waits for the sheet again when the same run is picked again", () => {
+    cover("data-map-card", 500);
+    const { rerender } = render(view(null, () => {}, {}, { skiFocus: RUN }));
+    act(() => h.props.onLoad({ target: h.map }));
+    settle();
+    expect(fits()).toHaveLength(1);
+    rerender(view(null, () => {}, {}, { skiFocus: null }));
+    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    expect(fits()).toHaveLength(1); // the sheet is still moving
+    settle();
+    expect(fits()).toHaveLength(2);
+  });
+
   it("measures the sheet where it settles, not where it was when the card opened", () => {
     cover("data-map-card", 600);
     const sheet = cover("data-sheet", 760); // swiped low
@@ -686,5 +705,256 @@ describe("MapView frames a picked run or resort", () => {
     rerender(view(null, () => {}, {}, { ...route, skiFocus: null }));
     expect(fits()).toHaveLength(2);
     expect(fits()[1][0]).not.toEqual(RUN.bounds);
+  });
+});
+
+// Characterization of every camera move MapView makes, so that moving them into one
+// module changes none: what each move asks MapLibre for, when it waits, and which one the
+// camera ends on when two are due at once.
+describe("MapView camera moves (characterization)", () => {
+  const walk = walkFixture as unknown as Route;
+  const walkLine = walk.geometry.coordinates as LngLat[];
+  const START = { lat: 36.697364, lng: 137.853928 };
+  const END = { lat: 36.699198, lng: 137.862239 };
+  const trip = { routes: [walk], origin: START, destination: END };
+  const RUN = {
+    key: "r1",
+    bounds: [
+      [137.8, 36.7],
+      [137.81, 36.71],
+    ] as [LngLat, LngLat],
+  };
+  const box = (points: LngLat[]) => [
+    [
+      Math.min(...points.map((p) => p[0])),
+      Math.min(...points.map((p) => p[1])),
+    ],
+    [
+      Math.max(...points.map((p) => p[0])),
+      Math.max(...points.map((p) => p[1])),
+    ],
+  ];
+  const fits = () => h.map.fitBounds.mock.calls;
+  const eases = () => h.map.easeTo.mock.calls;
+  /** The move the camera ends on: MapLibre's last call replaces any before it. */
+  const lastMove = () =>
+    (["easeTo", "fitBounds", "flyTo"] as const)
+      .flatMap((name) =>
+        h.map[name].mock.invocationCallOrder.map((order) => ({ name, order })),
+      )
+      .sort((a, b) => a.order - b.order)
+      .at(-1)?.name;
+  const load = () => act(() => h.props.onLoad({ target: h.map }));
+  const fingerDown = () =>
+    act(() =>
+      h.props.onTouchStart({
+        point: { x: 100, y: 100 },
+        points: [{ x: 100, y: 100 }],
+        lngLat: START,
+        originalEvent: {},
+      }),
+    );
+  const lift = (type = "touchend") =>
+    act(() => {
+      window.dispatchEvent(new Event(type));
+    });
+  const settle = () => act(() => vi.advanceTimersByTime(300));
+  const reducedMotion = (on: boolean) => {
+    window.matchMedia = ((query: string) => ({
+      matches: on,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+  };
+
+  beforeEach(() => {
+    reducedMotion(false);
+    h.map.fitBounds.mockClear();
+    h.map.easeTo.mockClear();
+    h.map.flyTo.mockClear();
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    h.canvas = { clientHeight: 800, clientWidth: 400 };
+    h.projected = { x: 200, y: 400 };
+  });
+
+  it("fits the routes and both end markers once, clear of the panels, when the map loads", () => {
+    const { rerender } = render(view(null, () => {}, {}, trip));
+    expect(fits()).toHaveLength(0);
+    load();
+    expect(fits()).toEqual([
+      [
+        box([...walkLine, [START.lng, START.lat], [END.lng, END.lat]]),
+        {
+          padding: mapPadding({ width: 400, height: 800 }),
+          absolutePadding: true,
+          maxZoom: 16,
+          pitch: 0,
+          bearing: 0,
+          duration: 700,
+        },
+      ],
+    ]);
+    // a parent re-render hands over new arrays of the same routes: the user keeps the map
+    rerender(view(null, () => {}, {}, { ...trip, routes: [{ ...walk }] }));
+    expect(fits()).toHaveLength(1);
+    // another option picked: fitted again
+    rerender(view(null, () => {}, {}, { ...trip, activeRoute: 1 }));
+    expect(fits()).toHaveLength(2);
+  });
+
+  it("does not animate the route fit under reduced motion", () => {
+    reducedMotion(true);
+    render(view(null, () => {}, {}, trip));
+    load();
+    expect(fits()[0][1]).toMatchObject({ duration: 0 });
+  });
+
+  it("navigating: no route fit; leaving navigation fits the route again", () => {
+    const { rerender } = render(view(null, () => {}, {}, trip));
+    load();
+    expect(fits()).toHaveLength(1);
+    rerender(view(cam(137.85), () => {}, {}, trip));
+    rerender(view(cam(137.86), () => {}, {}, trip));
+    expect(fits()).toHaveLength(1);
+    rerender(view(null, () => {}, {}, trip));
+    expect(fits()).toHaveLength(2);
+  });
+
+  it("the route refits when the finger lifts after the map was resized under it", () => {
+    render(view(null, () => {}, {}, trip));
+    load();
+    expect(fits()).toHaveLength(1);
+    fingerDown();
+    h.canvas = { clientHeight: 400, clientWidth: 800 }; // the phone turned
+    act(() => h.props.onResize({ target: h.map }));
+    expect(fits()).toHaveLength(1);
+    lift();
+    expect(fits()).toHaveLength(2);
+    expect(fits()[1][1]).toMatchObject({
+      padding: mapPadding({ width: 800, height: 400 }),
+    });
+  });
+
+  it("a tall phone: the slim bar moves no fit", () => {
+    const { rerender } = render(view(null, () => {}, {}, trip));
+    load();
+    rerender(view(null, () => {}, {}, { ...trip, slimSheet: true }));
+    expect(fits()).toHaveLength(1);
+  });
+
+  it("a short phone: the slim bar refits, leaving room for the bar only", () => {
+    h.canvas = { clientHeight: 375, clientWidth: 667 };
+    const { rerender } = render(view(null, () => {}, {}, trip));
+    load();
+    rerender(view(null, () => {}, {}, { ...trip, slimSheet: true }));
+    expect(fits()).toHaveLength(2);
+    expect(fits()[1][1]).toMatchObject({
+      padding: mapPadding({ width: 667, height: 375, slimSheet: true }),
+    });
+  });
+
+  it("one end and no route: eased into the clear part once, after the finger lifts", () => {
+    h.projected = { x: 200, y: 700 }; // under the sheet
+    const { rerender } = render(view(null));
+    load();
+    act(() => h.props.onMouseDown());
+    rerender(view(null, () => {}, {}, { origin: START }));
+    expect(eases()).toHaveLength(0);
+    lift("mouseup");
+    expect(eases()).toEqual([
+      [
+        {
+          center: [START.lng, START.lat],
+          padding: mapPadding({ width: 400, height: 800 }),
+          duration: 600,
+        },
+      ],
+    ]);
+    rerender(view(null, () => {}, {}, { origin: { ...START } }));
+    expect(eases()).toHaveLength(1);
+  });
+
+  it("one end already in the clear part: the camera stays", () => {
+    render(view(null, () => {}, {}, { destination: END }));
+    load();
+    expect(eases()).toHaveLength(0);
+  });
+
+  it("navigating: a lone end is not eased to", () => {
+    h.projected = { x: 200, y: 700 };
+    render(view(cam(137.85), () => {}, {}, { origin: START }));
+    load();
+    for (const [opts] of eases())
+      expect(opts.center).not.toEqual([START.lng, START.lat]);
+  });
+
+  it("a search result flies there at zoom 14, and the flight replaces the lone end's ease", () => {
+    h.projected = { x: 200, y: 700 };
+    const { rerender } = render(view(null, () => {}, {}, { origin: START }));
+    load();
+    expect(eases()).toHaveLength(1);
+    const found = { lat: 36.71, lng: 137.86 };
+    rerender(view(null, () => {}, {}, { origin: found, flyTo: found }));
+    expect(h.map.flyTo.mock.calls).toEqual([
+      [
+        {
+          center: [found.lng, found.lat],
+          zoom: 14,
+          padding: mapPadding({ width: 400, height: 800 }),
+        },
+      ],
+    ]);
+    expect(lastMove()).toBe("flyTo");
+    rerender(view(null, () => {}, {}, { origin: found, flyTo: found }));
+    expect(h.map.flyTo).toHaveBeenCalledTimes(1);
+    // each new result flies, even to the same spot
+    rerender(view(null, () => {}, {}, { origin: found, flyTo: { ...found } }));
+    expect(h.map.flyTo).toHaveBeenCalledTimes(2);
+  });
+
+  it("a closed pin card, then the same spot pinned again: eased to again", () => {
+    const pin = { droppedPin: { coord: START, name: null } };
+    const { rerender } = render(view(null));
+    load();
+    rerender(view(null, () => {}, {}, pin));
+    expect(eases()).toHaveLength(1);
+    rerender(view(null));
+    rerender(view(null, () => {}, {}, pin));
+    expect(eases()).toHaveLength(2);
+  });
+
+  it("navigating: a ski card frames nothing, and leaving navigation frames it", () => {
+    const { rerender } = render(
+      view(cam(137.85), () => {}, {}, { skiFocus: RUN }),
+    );
+    load();
+    settle();
+    expect(fits()).toHaveLength(0);
+    rerender(view(null, () => {}, {}, { skiFocus: RUN }));
+    settle();
+    expect(fits()).toHaveLength(1);
+    expect(fits()[0][0]).toEqual(RUN.bounds);
+  });
+
+  it("the follow camera eases with the puck low on the screen, once the map is ready", () => {
+    render(view(cam(137.85)));
+    expect(eases()).toHaveLength(0);
+    load();
+    expect(eases()).toEqual([
+      [
+        {
+          center: [137.85, 36.7],
+          bearing: 0,
+          pitch: 45,
+          zoom: 16,
+          padding: { top: 320, bottom: 0, left: 0, right: 0 },
+          duration: 900,
+        },
+      ],
+    ]);
   });
 });

@@ -45,16 +45,11 @@ import {
 } from "@/lib/map-config";
 import type { Camera } from "@/lib/nav/camera";
 import type { RideStopMark } from "@/lib/ride-stops";
-import {
-  cardPadding,
-  type LngLat,
-  MD_BREAKPOINT_PX,
-  mapPadding,
-  routeBounds,
-} from "@/lib/route-geo";
+import { type LngLat, MD_BREAKPOINT_PX, mapPadding } from "@/lib/route-geo";
 import { safeInsets } from "@/lib/safe-insets";
 import type { SavedMarker } from "@/lib/saved-places";
 import { useCompactCredits } from "@/lib/use-compact-credits";
+import { useMapCamera } from "@/lib/use-map-camera";
 import { useMapGestures } from "@/lib/use-map-gestures";
 
 setWorkerUrl(MAPLIBRE_WORKER_URL);
@@ -158,47 +153,10 @@ export function keepRouteLayerOrder(map: MapLibreMap): void {
 }
 
 type HasCanvas = Pick<MapLibreMap, "getCanvas">;
-const paddingOf = (map: HasCanvas, slimSheet = false) => {
-  const canvas = map.getCanvas();
-  return mapPadding({
-    width: canvas.clientWidth,
-    height: canvas.clientHeight,
-    slimSheet,
-    safe: safeInsets(),
-  });
-};
-/** Padding for the map above the open card, and on a phone the sheet under it (v1.5). */
-const cardPaddingOf = (map: HasCanvas) => {
-  const canvas = map.getCanvas();
-  const phone = canvas.clientWidth < MD_BREAKPOINT_PX;
-  // from md the sheet is the side panel, which the padding's left already clears
-  const covers = document.querySelectorAll(
-    phone
-      ? "[data-map-card], [data-sheet]:not([data-phone-hidden])"
-      : "[data-map-card]",
-  );
-  return cardPadding({
-    width: canvas.clientWidth,
-    height: canvas.clientHeight,
-    // the canvas fills the window, so page and map coordinates agree
-    coverTop: Math.min(
-      canvas.clientHeight,
-      ...Array.from(covers, (el) => el.getBoundingClientRect().top),
-    ),
-    safe: safeInsets(),
-  });
-};
 const sizeOf = (map: HasCanvas) => {
   const canvas = map.getCanvas();
   return `${canvas.clientWidth}x${canvas.clientHeight}`;
 };
-
-// BottomSheet's `duration-200` height transition, and a frame to spare
-const SHEET_SETTLE_MS = 250;
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export default function MapView({
   resorts,
@@ -271,45 +229,16 @@ export default function MapView({
     )
     .join("|")}`;
   const piloting = pilot !== null;
-  const skiKey = skiFocus?.key ?? "";
-  const lastSkiKey = useRef(skiKey);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: fitKey stands for `drawn`
-  useEffect(() => {
-    const map = mapRef.current;
-    // a long-pressed pin took the ski card's place, finger still down: the pin's own ease
-    // frames it, and a route fit now would start inside the press
-    const pinReplacedCard = lastSkiKey.current !== "" && !skiKey && droppedPin;
-    lastSkiKey.current = skiKey;
-    if (pinReplacedCard) return;
-    // while navigating the follow camera owns the view (a reroute must not zoom out); while
-    // a ski card is open its lines own it, and closing the card fits the route again
-    if (!mapReady || !map || drawn.length === 0 || piloting || skiKey) return;
-    const all = [
-      ...drawn.flatMap((r) => r.geometry.coordinates as LngLat[]),
-      ...endPoints,
-    ];
-    if (all.length < 2) return;
-    map.fitBounds(routeBounds(all), {
-      padding: paddingOf(map, slimSheet),
-      // replaces what navigation or a dropped pin left on the map: added to that, the
-      // padding can exceed the map, and the fit silently does nothing
-      absolutePadding: true,
-      maxZoom: 16,
-      pitch: 0,
-      bearing: 0,
-      duration: prefersReducedMotion() ? 0 : 700,
-    });
-  }, [fitKey, mapReady, piloting, skiKey]);
 
   useCompactCredits(mapRef, mapReady, fitKey);
 
   // A finger or mouse button down on the map. MapLibre's easeTo stops gesture handlers,
   // so an ease that starts mid-press (a GPS fix, the map finishing loading) would cancel
-  // the swipe. The follow camera waits for the release, then catches up, unless the press
-  // became a drag, which stops following.
-  // The state re-runs the follow camera on release; the ref is what it reads. A press can
-  // land after React committed a new camera but before that effect ran: React then runs
-  // the effect first, with the old state, and the ease would start inside the press
+  // the swipe. The camera's eases wait for the release, then catch up; a press that became
+  // a drag stops following.
+  // The state decides the camera again on release; the ref is what it reads. A press can
+  // land after React committed a new camera but before the camera's effect ran: React then
+  // runs the effect first, with the old state, and the ease would start inside the press
   // (Task 67). The ref is set before React sees the press.
   const [pressing, setPressing] = useState(false);
   const pressed = useRef(false);
@@ -382,124 +311,41 @@ export default function MapView({
   // clear part, once per place and window size (afterwards the user may pan it away).
   const lone = origin && !destination ? origin : !origin ? destination : null;
   const loneKey = lone ? `${lone.lng},${lone.lat}/${canvasSize}` : "";
-  const easedLone = useRef("");
-  // biome-ignore lint/correctness/useExhaustiveDependencies: loneKey stands for lone
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!mapReady || !map || !lone || piloting || pressing) return;
-    if (easedLone.current === loneKey) return;
-    easedLone.current = loneKey;
-    const pad = paddingOf(map);
-    const canvas = map.getCanvas();
-    const { x, y } = map.project([lone.lng, lone.lat]);
-    const inClear =
-      x >= pad.left &&
-      x <= canvas.clientWidth - pad.right &&
-      y >= pad.top &&
-      y <= canvas.clientHeight - pad.bottom;
-    if (inClear) return;
-    map.easeTo({
-      center: [lone.lng, lone.lat],
-      padding: pad,
-      duration: prefersReducedMotion() ? 0 : 600,
-    });
-  }, [loneKey, mapReady, piloting, pressing]);
-
-  // After the effect above, whose ease a search's flight must replace.
-  useEffect(() => {
-    if (flyTo) {
-      const map = mapRef.current;
-      if (map)
-        map.flyTo({
-          center: [flyTo.lng, flyTo.lat],
-          zoom: 14,
-          padding: paddingOf(map),
-        });
-    }
-  }, [flyTo]);
 
   // A dropped pin's card must not open under the trip card on top or the sheet (v1.9).
   // Google eases the camera to a dropped pin (BC-A1); ours centres it in the clear part
-  // of the map, once per pin, after the finger is up (an ease inside a press cancels
-  // MapLibre's gestures, see above).
+  // of the map, once per pin.
   const pinKey = droppedPin
     ? `${droppedPin.coord.lat},${droppedPin.coord.lng}`
     : "";
-  const easedPin = useRef("");
-  // biome-ignore lint/correctness/useExhaustiveDependencies: pinKey stands for droppedPin
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!pinKey) {
-      easedPin.current = "";
-      return;
-    }
-    if (!mapReady || !map || !droppedPin || pressing) return;
-    if (easedPin.current === pinKey) return;
-    easedPin.current = pinKey;
-    map.easeTo({
-      center: [droppedPin.coord.lng, droppedPin.coord.lat],
-      // the pin card covers less than the sheet's share, so the clear map's middle is clear
-      padding: paddingOf(map),
-      duration: prefersReducedMotion() ? 0 : 600,
-    });
-  }, [pinKey, pressing, mapReady]);
-
-  // A picked run, lift or resort: its whole lines in the map its card leaves clear, once
-  // per pick, after the finger is up (as the dropped pin above).
-  const framedSki = useRef("");
-  // biome-ignore lint/correctness/useExhaustiveDependencies: skiKey stands for skiFocus
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!skiKey) {
-      framedSki.current = "";
-      return;
-    }
-    if (!mapReady || !map || !skiFocus || piloting || pressing) return;
-    if (framedSki.current === skiKey) return;
-    const { bounds } = skiFocus;
-    // shortcut: waits out BottomSheet's 200 ms height transition (a new destination collapses
-    // it) before measuring; watch the covers instead if the sheet's timing changes
-    const settled = setTimeout(() => {
-      if (pressed.current) return; // the release re-runs this effect
-      framedSki.current = skiKey;
-      map.fitBounds(bounds, {
-        padding: cardPaddingOf(map),
-        // as the route fit: replaces what an ease left on the map instead of adding to it
-        absolutePadding: true,
-        maxZoom: 16,
-        // the view navigation leaves is tilted
-        pitch: 0,
-        duration: prefersReducedMotion() ? 0 : 600,
-      });
-    }, SHEET_SETTLE_MS);
-    return () => clearTimeout(settled);
-  }, [skiKey, pressing, mapReady, piloting]);
 
   // Follow camera. Keyed on its values: usePilot hands over a new object every render,
-  // and an identity-keyed effect would re-ease after each of its own moveend reports.
+  // and an identity-keyed ease would follow each of its own moveend reports.
   const cam = pilot?.following ? pilot.camera : null;
   const camKey = cam
     ? `${cam.center[0].toFixed(6)},${cam.center[1].toFixed(6)},${Math.round(cam.bearing)},${cam.pitch},${cam.zoom.toFixed(2)}`
     : "";
-  // biome-ignore lint/correctness/useExhaustiveDependencies: camKey stands for `cam`
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!mapReady || !map || !cam || pressed.current) return;
-    map.easeTo({
-      center: cam.center,
-      bearing: cam.bearing,
-      pitch: cam.pitch,
-      zoom: cam.zoom,
-      // the puck sits in the lower part of the screen, the road ahead above it
-      padding: {
-        top: map.getCanvas().clientHeight * 0.4,
-        bottom: 0,
-        left: 0,
-        right: 0,
-      },
-      duration: prefersReducedMotion() ? 0 : 900,
-    });
-  }, [camKey, mapReady, pressing]);
+
+  useMapCamera(mapRef, {
+    mapReady,
+    piloting,
+    pressed,
+    pressing,
+    route: {
+      key: fitKey,
+      lines: drawn.map((r) => r.geometry.coordinates as LngLat[]),
+      ends: endPoints,
+      slimSheet,
+    },
+    lone: lone && { key: loneKey, at: [lone.lng, lone.lat] },
+    flyTo,
+    pin: droppedPin && {
+      key: pinKey,
+      at: [droppedPin.coord.lng, droppedPin.coord.lat],
+    },
+    ski: skiFocus,
+    follow: cam && { key: camKey, camera: cam },
+  });
 
   const active = routes[activeRoute] ?? null;
 
