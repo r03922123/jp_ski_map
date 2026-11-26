@@ -242,9 +242,9 @@ def route(origin: str, destination: str) -> dict[str, Any]:
 def snow_conditions() -> list[dict[str, Any]]:
     """Snow for every resort. Use it to compare conditions before ranking.
 
-    Snow is the model forecast (Open-Meteo) as of snowAsOf (local time, JST): say that time
-    when you quote snow figures, because they can be a few hours old when the weather service
-    is unreachable. Units: cm. No tool has crowd data: if asked how busy a resort will be,
+    Snow is the model forecast (Open-Meteo) as of snowAsOf (local time, JST), whatever date
+    the user plans for: say that time when you quote snow figures, because they can be a few
+    hours old when the weather service is unreachable. Units: cm. No tool has crowd data: if asked how busy a resort will be,
     say so instead of guessing.
     """
     out: list[dict[str, Any]] = []

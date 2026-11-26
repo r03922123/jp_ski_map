@@ -522,14 +522,23 @@
     "question": "How busy will Happo-One be on Wednesday 2027-01-13?",
     "required": [],
     "optional": ["search_place", "snow_conditions", "rank_resorts"],
-    "answer_regex": "(?is)^(?=.*(?:(?:don['’]t|do not|doesn['’]t|does not|can['’]t|cannot|couldn['’]t|could not|unable|isn['’]t|is not|aren['’]t|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|book|support|available|find|check|include)|only\\s+(?:cover|ha(?:ve|s)|know|include)))(?!.*(?:happo|八方|はっぽう)[^\\n]{0,40}\\b(?:low|medium|moderate|high|very.high|busy|quiet|crowded)\\b)",
+    "answer_regex": "(?is)^(?=.*(?:\\b(?:no|none\\s+of)\\b[^.\\n]{0,60}(?:crowd|busy|data|information|info)|(?:don['’]t|do not|doesn['’]t|does not|can['’]t|cannot|couldn['’]t|could not|unable|isn['’]t|is not|aren['’]t|not)\\b[^.\\n]{0,80}(?:data|information|info|cover|access|tool|support|available|find|check|include|say|tell|predict|know)))(?!.*\\b(?:expect(?:ed)?|should|will|would|likely|probably|usually|typically|tends?\\s+to|going\\s+to)\\b[^.\\n]{0,40}\\b(?:low|medium|moderate|high|very.high|busy|busier|quiet|quieter|crowded|packed|empty|light|heavy)\\b)",
     "check": "says it has no crowd data, without inventing a crowd level",
-    "regex_why": "No tool has crowd data (ADR-0011): requires a 'no data' statement and rules out an invented level such as 'Happo-One will be medium'.",
+    "regex_why": "No tool has crowd data (ADR-0011): requires a 'no data' or 'can't say' statement, and rejects any guessed level after a hedge word (expect, should, will, likely, usually...), named resort or not, so 'no data, but it should be quiet' fails.",
     "positive": "I don't have crowd data for the Hakuba resorts, so I can't say how busy Happo-One will be on 2027-01-13.",
     "negatives": [
       "Happo-One will be medium on Wednesday 2027-01-13.",
       "Happo-One should be quiet that day, since it's a weekday.",
-      "It's a weekday, so expect low crowds at Happo-One."
+      "It's a weekday, so expect low crowds at Happo-One.",
+      "I don't have crowd data, but expect low crowds at Happo-One since it's a weekday.",
+      "I don't have crowd data. As a weekday in mid-January, it should be fairly quiet.",
+      "I can't check crowds. Expect medium crowds at Happo-One."
+    ],
+    "more_positives": [
+      "I can't tell you how busy Happo-One will be on 13 January 2027. None of my Hakuba tools have crowd or lift-queue data, so any number I gave you would be a guess.",
+      "I have no crowd data, so I can't say how busy Happo-One will be.",
+      "There is no crowd data for Happo-One.",
+      "Unfortunately none of my tools provide crowd information."
     ]
   },
   {
