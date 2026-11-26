@@ -130,7 +130,11 @@ export function useMapCard({
               })
             }
             onClose={close}
-            onPoint={(ring) => setPicked({ ...card, ring })}
+            onPoint={(ring) =>
+              setPicked((p) =>
+                p?.kind === "line" && p.line.id === card.line.id ? { ...p, ring } : p,
+              )
+            }
           />
         );
       case "resort": {
