@@ -753,21 +753,52 @@ describe("BusPanel sort and total time (v1.35)", () => {
     expect(rowTimes(iwatake())).toEqual(["08:10", "08:19", "08:18"]);
   });
 
-  it("puts trips with no published arrival after those with one", () => {
-    renderPanel({
-      place: {
-        name: "JR Hakuba Station",
-        result: { status: "success", data: placeFixture as PlaceBusResult },
-        onClear: vi.fn(),
-      },
+  const placeWith = (options: BusOption[]): BusPanelProps["place"] => ({
+    name: "JR Hakuba Station",
+    result: {
+      status: "success",
+      data: { ...(placeFixture as PlaceBusResult), options },
+    },
+    onClear: vi.fn(),
+  });
+  const placeRows = placeFixture.options as BusOption[];
+
+  it("sorts timed trips by arrival, leaving untimed ones where they leave", () => {
+    const [early, untimed, , late] = placeRows as [
+      BusOption,
+      BusOption,
+      BusOption,
+      BusOption,
+    ];
+    // the 14:37 trip now reaches the door after the 16:07 one
+    const slow = { ...early, doorArrivesAt: "2026-03-20T17:00:00+09:00" };
+    renderPanel({ place: placeWith([slow, untimed, late]) });
+
+    expect(rowTimes(document.body)).toEqual(["16:07", "15:00", "14:37"]);
+  });
+
+  it("counts the walk to the place in Shortest walk, and is off for the night bus", () => {
+    // the 16:07 trip stops at the door: 120 s walk in all, the others 420 s
+    const rows = placeRows.map((o) =>
+      o.departsAt.includes("16:07") ? { ...o, walkToPlaceS: 0 } : o,
+    );
+    renderPanel({ place: placeWith(rows) });
+    fireEvent.change(screen.getByLabelText("Sort"), {
+      target: { value: "walk" },
     });
 
     expect(rowTimes(document.body)).toEqual([
-      "14:37",
       "16:07",
+      "14:37",
       "15:00",
       "16:00",
       "17:10",
     ]);
+  });
+
+  it("has no sort on the night bus list", () => {
+    renderPanel({ showNight: true });
+
+    expect(screen.queryByLabelText("Sort")).not.toBeInTheDocument();
   });
 });

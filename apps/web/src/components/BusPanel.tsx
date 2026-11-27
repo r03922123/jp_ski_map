@@ -75,27 +75,36 @@ const alightName = (option: BusOption) =>
 /** Walking at both ends of the ride (v1.35). */
 const walkOf = (o: BusOption) => o.walkS + (o.walkToPlaceS ?? 0);
 
-/** As the API ranks resort options: a trip with no published arrival goes after the known ones. */
-const arrivalRank = (o: BusOption) => {
-  const at = o.doorArrivesAt ?? o.arrivesAt;
-  return at ? [0, Date.parse(at)] : [1, Date.parse(o.departsAt)];
-};
+const arrivalOf = (o: BusOption) => o.doorArrivesAt ?? o.arrivesAt;
 
 export type BusSort = "arrival" | "walk";
 
-const RANKS: Record<BusSort, (o: BusOption) => number[]> = {
-  arrival: (o) => [...arrivalRank(o), walkOf(o)],
-  walk: (o) => [walkOf(o), ...arrivalRank(o)],
+/** Compare by rank arrays: the first key, then the next on a tie. */
+const byRank =
+  (rank: (o: BusOption) => number[]) => (a: BusOption, b: BusOption) => {
+    const rb = rank(b);
+    return rank(a).reduce((d, x, i) => d || x - rb[i], 0);
+  };
+
+const arrivalRank = (o: BusOption) => [
+  Date.parse(arrivalOf(o) ?? o.departsAt),
+  walkOf(o),
+];
+
+const walkRank = (o: BusOption) => {
+  const at = arrivalOf(o);
+  return [walkOf(o), at ? 0 : 1, Date.parse(at ?? o.departsAt)];
 };
 
 // shortcut: sorts only the options the API returned (3 per resort, 5 to a place);
 // ask the API for a longer list if a farther trip with less walking should show up
-const sortOptions = (options: BusOption[], sort: BusSort) =>
-  options.toSorted((a, b) => {
-    const ra = RANKS[sort](a);
-    const rb = RANKS[sort](b);
-    return ra.reduce((d, x, i) => d || x - rb[i], 0);
-  });
+const sortOptions = (options: BusOption[], sort: BusSort) => {
+  if (sort === "walk") return [...options].sort(byRank(walkRank));
+  // A trip with no published arrival keeps its place in the API's order (by departure):
+  // it may still arrive before a later timed trip. The timed trips fill the other places.
+  const timed = options.filter(arrivalOf).sort(byRank(arrivalRank)).values();
+  return options.map((o) => (arrivalOf(o) ? (timed.next().value ?? o) : o));
+};
 
 /** The stops this option rides through, boarding to getting off. */
 export function rideStopRows(
