@@ -26,7 +26,9 @@ def load_timetables() -> list[Timetable]:
     manifest = load_manifest()
     urls = {a.file: a.url for a in manifest.assets} if manifest else {}
     for t in tables:
-        t.source.url = urls.get(t.source.file)  # None once a newer season's page drops the file
+        # same season only: the operator reuses image names (E.jpg) for next season's table
+        if manifest and t.season == manifest.season:
+            t.source.url = urls.get(t.source.file)
     return tables
 
 

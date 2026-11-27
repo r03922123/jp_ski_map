@@ -108,6 +108,18 @@ describe("BusPanel", () => {
     );
   });
 
+  it("says when the timetable is a PDF", () => {
+    const data = structuredClone(fixture as BusResult);
+    const option = data.resorts[0].options[0];
+    option.sourceUrl =
+      "https://example.test/2025-2026-Shuttle-Bus-Timetable.pdf";
+    renderPanel({ result: { status: "success", data }, selected: option });
+
+    expect(
+      screen.getByRole("link", { name: "V2 timetable (PDF)" }),
+    ).toBeInTheDocument();
+  });
+
   it("shows no timetable link when the operator's page no longer has it", () => {
     const data = structuredClone(fixture as BusResult);
     for (const r of data.resorts) for (const o of r.options) o.sourceUrl = null;
