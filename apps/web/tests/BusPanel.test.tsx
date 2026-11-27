@@ -11,6 +11,7 @@ import placeFixture from "../e2e/fixtures/bus-to-place-2026-03-20.json";
 
 const resorts = [
   { id: "hakuba47", name: { en: "Hakuba47 Mountain Resort", ja: "" } },
+  { id: "iwatake", name: { en: "Hakuba Iwatake Mountain Resort", ja: "" } },
   {
     id: "kashimayari",
     name: { en: "Kashimayari Ski Resort Family Park", ja: "" },
@@ -704,5 +705,100 @@ describe("BusPanel date box (T78)", () => {
 
     fireEvent.change(box, { target: { value: "9999-12-31T23:59" } });
     expect(props.onDepartAtChange).toHaveBeenLastCalledWith(max);
+  });
+});
+
+describe("BusPanel sort and total time (v1.35)", () => {
+  // the option rows are the buttons that can be chosen (aria-pressed)
+  const rowTimes = (region: HTMLElement) =>
+    within(region)
+      .getAllByRole("button", { pressed: false })
+      .map((b) => b.textContent?.match(/\d\d:\d\d/)?.[0]);
+
+  it("shows walk + bus time in brackets", () => {
+    renderPanel();
+
+    const iwatake = screen.getByRole("region", {
+      name: "Hakuba Iwatake Mountain Resort",
+    });
+    // Hakuba Tokyu Hotel: 615 s walk + 420 s ride
+    expect(within(iwatake).getByText("(17 min)")).toBeInTheDocument();
+  });
+
+  it("adds the walk from the stop to the place", () => {
+    renderPanel({
+      place: {
+        name: "JR Hakuba Station",
+        result: { status: "success", data: placeFixture as PlaceBusResult },
+        onClear: vi.fn(),
+      },
+    });
+
+    // 120 s walk + 1980 s ride + 300 s walk to the place
+    expect(screen.getAllByText("(40 min)").length).toBeGreaterThan(0);
+  });
+
+  it("sorts by earliest arrival, then by shortest walk when asked", () => {
+    renderPanel();
+    const iwatake = () =>
+      screen.getByRole("region", { name: "Hakuba Iwatake Mountain Resort" });
+
+    expect(rowTimes(iwatake())).toEqual(["08:10", "08:18", "08:19"]);
+
+    fireEvent.change(screen.getByLabelText("Sort"), {
+      target: { value: "walk" },
+    });
+
+    // walks 0, 593 (Happo Nakiyama Slope), 615 (Hakuba Tokyu Hotel)
+    expect(rowTimes(iwatake())).toEqual(["08:10", "08:19", "08:18"]);
+  });
+
+  const placeWith = (options: BusOption[]): BusPanelProps["place"] => ({
+    name: "JR Hakuba Station",
+    result: {
+      status: "success",
+      data: { ...(placeFixture as PlaceBusResult), options },
+    },
+    onClear: vi.fn(),
+  });
+  const placeRows = placeFixture.options as BusOption[];
+
+  it("sorts timed trips by arrival, leaving untimed ones where they leave", () => {
+    const [early, untimed, , late] = placeRows as [
+      BusOption,
+      BusOption,
+      BusOption,
+      BusOption,
+    ];
+    // the 14:37 trip now reaches the door after the 16:07 one
+    const slow = { ...early, doorArrivesAt: "2026-03-20T17:00:00+09:00" };
+    renderPanel({ place: placeWith([slow, untimed, late]) });
+
+    expect(rowTimes(document.body)).toEqual(["16:07", "15:00", "14:37"]);
+  });
+
+  it("counts the walk to the place in Shortest walk, and is off for the night bus", () => {
+    // the 16:07 trip stops at the door: 120 s walk in all, the others 420 s
+    const rows = placeRows.map((o) =>
+      o.departsAt.includes("16:07") ? { ...o, walkToPlaceS: 0 } : o,
+    );
+    renderPanel({ place: placeWith(rows) });
+    fireEvent.change(screen.getByLabelText("Sort"), {
+      target: { value: "walk" },
+    });
+
+    expect(rowTimes(document.body)).toEqual([
+      "16:07",
+      "14:37",
+      "15:00",
+      "16:00",
+      "17:10",
+    ]);
+  });
+
+  it("has no sort on the night bus list", () => {
+    renderPanel({ showNight: true });
+
+    expect(screen.queryByLabelText("Sort")).not.toBeInTheDocument();
   });
 });

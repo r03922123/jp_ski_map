@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { StopList } from "@/components/StopList";
 import type {
   BusOption,
@@ -71,6 +71,40 @@ const walk = (s: number) => (s < 60 ? "<1 min" : formatDuration(s));
 
 const alightName = (option: BusOption) =>
   option.rideStops[alightIndexOf(option)]?.name ?? "";
+
+/** Walking at both ends of the ride (v1.35). */
+const walkOf = (o: BusOption) => o.walkS + (o.walkToPlaceS ?? 0);
+
+const arrivalOf = (o: BusOption) => o.doorArrivesAt ?? o.arrivesAt;
+
+export type BusSort = "arrival" | "walk";
+
+/** Compare by rank arrays: the first key, then the next on a tie. */
+const byRank =
+  (rank: (o: BusOption) => number[]) => (a: BusOption, b: BusOption) => {
+    const rb = rank(b);
+    return rank(a).reduce((d, x, i) => d || x - rb[i], 0);
+  };
+
+const arrivalRank = (o: BusOption) => [
+  Date.parse(arrivalOf(o) ?? o.departsAt),
+  walkOf(o),
+];
+
+const walkRank = (o: BusOption) => {
+  const at = arrivalOf(o);
+  return [walkOf(o), at ? 0 : 1, Date.parse(at ?? o.departsAt)];
+};
+
+// shortcut: sorts only the options the API returned (3 per resort, 5 to a place);
+// ask the API for a longer list if a farther trip with less walking should show up
+const sortOptions = (options: BusOption[], sort: BusSort) => {
+  if (sort === "walk") return [...options].sort(byRank(walkRank));
+  // A trip with no published arrival keeps its place in the API's order (by departure):
+  // it may still arrive before a later timed trip. The timed trips fill the other places.
+  const timed = options.filter(arrivalOf).sort(byRank(arrivalRank)).values();
+  return options.map((o) => (arrivalOf(o) ? (timed.next().value ?? o) : o));
+};
 
 /** The stops this option rides through, boarding to getting off. */
 export function rideStopRows(
@@ -192,7 +226,7 @@ function OptionButton({
             {option.rideS != null && (
               <span className="font-normal text-muted-foreground">
                 {" "}
-                ({formatDuration(option.rideS)})
+                ({formatDuration(walkOf(option) + option.rideS)})
               </span>
             )}
           </span>
@@ -232,7 +266,7 @@ const sameOption = (a: BusOption | null, b: BusOption) =>
 type RowProps = Pick<
   BusPanelProps,
   "selected" | "onSelect" | "onStart" | "startNote"
->;
+> & { sort: BusSort };
 
 /** One option, and its journey and Start when it is the chosen one. */
 function OptionRow({
@@ -242,7 +276,7 @@ function OptionRow({
   onSelect,
   onStart,
   startNote,
-}: RowProps & { option: BusOption; placeName?: string }) {
+}: Omit<RowProps, "sort"> & { option: BusOption; placeName?: string }) {
   const isSelected = sameOption(selected, option);
   return (
     <div>
@@ -330,6 +364,7 @@ function Results({
   onSelect,
   onStart,
   startNote,
+  sort,
 }: RowProps &
   Pick<BusPanelProps, "resorts" | "result" | "onlyResortId" | "freeOnly">) {
   const notice = serviceNotice(result);
@@ -369,7 +404,7 @@ function Results({
             className="flex flex-col gap-1"
           >
             <h3 className="text-sm font-semibold">{name}</h3>
-            {r.options.map((o) => (
+            {sortOptions(r.options, sort).map((o) => (
               <OptionRow
                 key={optionKey(o)}
                 option={o}
@@ -390,6 +425,7 @@ function Results({
 function PlaceResults({
   place,
   freeOnly,
+  sort,
   ...rowProps
 }: RowProps & { place: BusPlace; freeOnly: boolean }) {
   const toResorts = (
@@ -423,7 +459,7 @@ function PlaceResults({
         </p>
       ) : (
         <div className="flex flex-col gap-1">
-          {data.options.map((o) => (
+          {sortOptions(data.options, sort).map((o) => (
             <OptionRow
               key={optionKey(o)}
               option={o}
@@ -469,6 +505,7 @@ export function BusPanel(props: BusPanelProps) {
     props;
   // computed per render: a page left open overnight moves its range on
   const range = departRange();
+  const [sort, setSort] = useState<BusSort>("arrival");
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
@@ -508,6 +545,22 @@ export function BusPanel(props: BusPanelProps) {
           />
           Free shuttles only
         </label>
+        {!showNight && (
+          <div className="flex items-center gap-2">
+            <label htmlFor="bus-sort" className="font-medium">
+              Sort
+            </label>
+            <select
+              id="bus-sort"
+              className="rounded-md border bg-background px-2 py-1"
+              value={sort}
+              onChange={(e) => setSort(e.target.value as BusSort)}
+            >
+              <option value="arrival">Earliest arrival</option>
+              <option value="walk">Shortest walk</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {showNight ? (
@@ -544,9 +597,10 @@ export function BusPanel(props: BusPanelProps) {
           onSelect={props.onSelect}
           onStart={props.onStart}
           startNote={props.startNote}
+          sort={sort}
         />
       ) : (
-        <Results {...props} />
+        <Results {...props} sort={sort} />
       )}
 
       <p className="text-xs text-muted-foreground">

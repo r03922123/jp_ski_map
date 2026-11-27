@@ -705,3 +705,19 @@ Earlier sections that mention food, konbini or POIs are kept as history.
 
 **Done when** no POI code is left in `apps/web/src`, the web unit tests pass (each rule in 3 has one), and the changed
 e2e specs pass.
+
+## v1.35: Sort bus options, and show the door-to-door time (2026-11-27, the owner's ask)
+
+1. A **Sort** box beside Free shuttles only offers **Earliest arrival** (the default) and **Shortest walk**. It sorts
+   the options the API returned, within each resort and in the list to a place; the Night bus list has no sort.
+   - Earliest arrival: the arrival at the place (or at the resort stop), then the shorter walk. A trip whose stop
+     times aren't published has no arrival, so it keeps its place in the API's order (departure order to a place;
+     last for a resort, as the API ranks them), since it may still arrive before a later timed trip. The trips with
+     an arrival are sorted into the other places. For a resort this is the API's order unchanged.
+   - Shortest walk: the walk to the stop plus the walk from the stop to the place, then the trips with an arrival
+     (earliest first) before those without.
+2. The bracket after a timed option's times is walk + ride (+ the walk to a place), not the ride alone. The
+   journey's "Line X · N stops · M min" stays the ride alone. Waiting isn't counted.
+
+**Done when** `tests/BusPanel.test.tsx` ("sort and total time (v1.35)") passes and the bus and touch-target e2e
+specs still pass.
