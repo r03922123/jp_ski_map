@@ -687,3 +687,17 @@ Earlier sections that mention Drive are kept as history.
 
 **Done when** `rg -i drive apps/web/src services/*/src` finds no mode, field or label, the web unit tests and
 the changed e2e specs pass, and the API rejects `mode=drive` with 422.
+
+## v1.34: Sort bus options, and show the door-to-door time (2026-11-27, the owner's ask)
+
+1. A **Sort** box beside Free shuttles only offers **Earliest arrival** (the default) and **Shortest walk**. It sorts
+   the options the API returned, within each resort and in the list to a place; the Night bus list has no sort.
+   - Earliest arrival: the arrival at the place (or at the resort stop), then the shorter walk. A trip whose stop
+     times aren't published has no arrival, so it follows every trip that has one, as the API ranks resort options.
+     The list to a place used to come in departure order; it now comes in this order too.
+   - Shortest walk: the walk to the stop plus the walk from the stop to the place, then Earliest arrival.
+2. The bracket after a timed option's times is walk + ride (+ the walk to a place), not the ride alone. The
+   journey's "Line X · N stops · M min" stays the ride alone. Waiting isn't counted.
+
+**Done when** `tests/BusPanel.test.tsx` ("sort and total time (v1.34)") passes and the bus and touch-target e2e
+specs still pass.
