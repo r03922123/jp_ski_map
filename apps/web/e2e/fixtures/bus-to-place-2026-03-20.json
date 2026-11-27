@@ -23,6 +23,7 @@
       "timed": true,
       "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
       "sourceFile": "TimetableV2.jpg",
+      "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
       "rideStops": [
         {
           "stopId": "stop-goryu-escal-plaza",
@@ -85,6 +86,7 @@
       "timed": false,
       "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
       "sourceFile": "G1-6.jpg",
+      "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/G1-6.jpg",
       "rideStops": [
         {
           "stopId": "stop-goryu-escal-plaza",
@@ -183,6 +185,7 @@
       "timed": false,
       "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
       "sourceFile": "G1-6.jpg",
+      "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/G1-6.jpg",
       "rideStops": [
         {
           "stopId": "stop-goryu-escal-plaza",
@@ -281,6 +284,7 @@
       "timed": true,
       "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
       "sourceFile": "TimetableV2.jpg",
+      "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
       "rideStops": [
         {
           "stopId": "stop-goryu-escal-plaza",
@@ -343,6 +347,7 @@
       "timed": false,
       "firstStopName": "ABLE Hakuba GORYU ESCAL PLAZA",
       "sourceFile": "G1-6.jpg",
+      "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/G1-6.jpg",
       "rideStops": [
         {
           "stopId": "stop-goryu-escal-plaza",

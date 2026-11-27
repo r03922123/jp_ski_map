@@ -721,3 +721,16 @@ e2e specs pass.
 
 **Done when** `tests/BusPanel.test.tsx` ("sort and total time (v1.35)") passes and the bus and touch-target e2e
 specs still pass.
+
+## v1.36: Route numbers and a link to each option's timetable (2026-11-27, the owner's ask)
+
+1. A bus option's badge and its journey line show the route as the operator prints it (V1, V2, G4…), not only the
+   line letter, so a rider can find the trip in the operator's table.
+2. The chosen trip's journey links the official timetable image or PDF the trip was read from (`sourceUrl`, the
+   asset URL in `data/bus/sources.json`), marked "(PDF)" for a PDF. When the operator's page no longer lists that
+   file, the API sends `null` and the link is left out.
+3. No thumbnail: three V2 periods come from the 5 MB season PDF, which has no image to show, and the images are
+   400–500 KB each on a phone's data.
+
+**Done when** `tests/BusPanel.test.tsx` ("numbers each option by its route…", "shows no timetable link…") and
+`services/api/tests/bus/test_query.py` ("…links the official timetable…") pass.

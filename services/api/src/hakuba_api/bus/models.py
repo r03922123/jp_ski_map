@@ -29,6 +29,7 @@ class Fare(ApiModel):
 
 class TimetableSource(ApiModel):
     file: str  # asset file name in data/bus/sources.json
+    url: str | None = None  # the operator's copy; set from sources.json by load_timetables
 
 
 class Trip(ApiModel):

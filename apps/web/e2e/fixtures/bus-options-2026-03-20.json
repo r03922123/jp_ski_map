@@ -26,6 +26,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -122,6 +123,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -218,6 +220,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -319,6 +322,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -388,6 +392,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -457,6 +462,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -531,6 +537,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -591,6 +598,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -651,6 +659,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -716,6 +725,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "H.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/H.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -776,6 +786,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "H.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/H.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -827,6 +838,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -874,6 +886,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -925,6 +938,7 @@
           "timed": true,
           "firstStopName": "Hakuba Tokyu Hotel",
           "sourceFile": "E.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/E.jpg",
           "rideStops": [
             {
               "stopId": "stop-hakuba-tokyu-hotel",
@@ -967,6 +981,7 @@
           "timed": true,
           "firstStopName": "Happo Nakiyama Slope",
           "sourceFile": "E.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/E.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-nakiyama",
@@ -1014,6 +1029,7 @@
           "timed": true,
           "firstStopName": "Snowlines Lodge",
           "sourceFile": "R.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/R.jpg",
           "rideStops": [
             {
               "stopId": "stop-snowlines-lodge",
@@ -1065,6 +1081,7 @@
           "timed": true,
           "firstStopName": "Hotel Hakuba",
           "sourceFile": "R.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/R.jpg",
           "rideStops": [
             {
               "stopId": "stop-hotel-hakuba",
@@ -1148,6 +1165,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -1226,6 +1244,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -1304,6 +1323,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -1387,6 +1407,7 @@
           "timed": true,
           "firstStopName": "Snowlines Lodge",
           "sourceFile": "R.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/R.jpg",
           "rideStops": [
             {
               "stopId": "stop-snowlines-lodge",
@@ -1429,6 +1450,7 @@
           "timed": true,
           "firstStopName": "Hotel Hakuba",
           "sourceFile": "R.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/R.jpg",
           "rideStops": [
             {
               "stopId": "stop-hotel-hakuba",
@@ -1503,6 +1525,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",
@@ -1572,6 +1595,7 @@
           "timed": true,
           "firstStopName": "Hakuba Tokyu Hotel",
           "sourceFile": "T.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/01/T.jpg",
           "rideStops": [
             {
               "stopId": "stop-hakuba-tokyu-hotel",
@@ -1614,6 +1638,7 @@
           "timed": true,
           "firstStopName": "Hakuba Happo Bus Terminal",
           "sourceFile": "TimetableV2.jpg",
+          "sourceUrl": "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
           "rideStops": [
             {
               "stopId": "stop-happo-bus-terminal",

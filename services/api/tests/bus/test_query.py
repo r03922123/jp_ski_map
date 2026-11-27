@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from hakuba_api.bus.models import BusStop, Timetable
 from hakuba_api.bus.query import bus_options, bus_options_to_place, night_departures
 from hakuba_api.bus.router import get_bus_data, get_walks, get_walks_to
-from hakuba_api.bus.store import load_stops
+from hakuba_api.bus.store import load_stops, load_timetables
 from hakuba_api.data.paths import data_dir
 from hakuba_api.main import app
 
@@ -61,6 +61,23 @@ def test_option_lists_the_stops_of_the_ride_in_order() -> None:
     assert [r.time for r in ride] == ["08:11", "08:16", "08:24", "08:39"]
     assert [r.name for r in ride][1] == STOPS[ride[1].stop_id].name.en
     assert all(r.coord is not None for r in ride)
+
+
+V2_IMAGE = "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg"
+
+
+def loaded_v2() -> list[Timetable]:
+    """Mar 16-29 V2 as the API loads it, with the URL from sources.json."""
+    return [
+        t for t in load_timetables() if t.route_id == "v2" and t.valid_from == date(2026, 3, 16)
+    ]
+
+
+def test_option_links_the_official_timetable_it_was_read_from() -> None:
+    result = options({"stop-happo-bus-terminal": 0}, loaded_v2())
+
+    first = result.resorts[0].options[0]
+    assert (first.route_id, first.source_url) == ("v2", V2_IMAGE)
 
 
 def test_untimed_ride_stops_have_no_times() -> None:
@@ -325,7 +342,7 @@ def test_spec_example_lists_the_next_shuttles_back_by_departure() -> None:
 
 
 def test_option_says_where_to_get_off_and_how_far_the_walk_is() -> None:
-    first = to_place({ESCAL: 120}, {TERMINAL: 300}, [table("line-v-v2")]).options[0]
+    first = to_place({ESCAL: 120}, {TERMINAL: 300}, loaded_v2()).options[0]
 
     assert first.resort_id is None
     assert first.board_stop_id == ESCAL
@@ -335,6 +352,7 @@ def test_option_says_where_to_get_off_and_how_far_the_walk_is() -> None:
     assert first.ride_s == 33 * 60
     assert first.wait_s == 5 * 60  # ready at 14:32, the bus leaves at 14:37
     assert (first.ride_stops[0].stop_id, first.ride_stops[-1].stop_id) == (ESCAL, TERMINAL)
+    assert first.source_url == V2_IMAGE
 
 
 def test_walk_time_rules_out_a_bus_you_cannot_reach() -> None:
