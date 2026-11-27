@@ -223,7 +223,7 @@ describe("BottomSheet", () => {
     rerender(ui("saved"));
     expect(sheet()).toHaveAttribute("data-state", "collapsed");
     fireEvent.click(handle());
-    rerender(ui("food"));
+    rerender(ui("bus"));
     expect(sheet()).toHaveAttribute("data-state", "expanded");
   });
 

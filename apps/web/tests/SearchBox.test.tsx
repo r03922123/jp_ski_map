@@ -71,6 +71,12 @@ describe("recent searches", () => {
     );
   });
 
+  it("drops a restaurant or konbini picked before ADR-0010", () => {
+    const old = { ...hotelHakuba, id: "poi:1", kind: "food" };
+    localStorage.setItem(RECENT_KEY, JSON.stringify([old, tokyuStop]));
+    expect(loadRecent()).toEqual([tokyuStop]);
+  });
+
   it("survives unreadable storage", () => {
     localStorage.setItem(RECENT_KEY, "{not json");
     expect(loadRecent()).toEqual([]);

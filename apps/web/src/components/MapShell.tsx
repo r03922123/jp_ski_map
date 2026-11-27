@@ -5,21 +5,16 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { BusPanel } from "@/components/BusPanel";
-import { DestinationPicker } from "@/components/DestinationPicker";
 import { heroPose } from "@/components/HeroMarker";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ModePanel } from "@/components/ModePanel";
-import type { SkiLine } from "@/components/map/SkiLinesLayer";
 import { PilotScreens } from "@/components/PilotScreens";
 import { PinCard } from "@/components/PinCard";
 import { PlaceCard } from "@/components/PlaceCard";
-import { PoiList } from "@/components/PoiList";
 import { RankingPanel } from "@/components/RankingPanel";
-import { ResortCard } from "@/components/ResortCard";
 import { SaveButton } from "@/components/SaveButton";
 import { SavedPanel } from "@/components/SavedPanel";
 import { SearchBox } from "@/components/SearchBox";
-import { SkiLineCard } from "@/components/SkiLineCard";
 import { StampMoment } from "@/components/StampMoment";
 import {
   AddDestinationButton,
@@ -28,44 +23,26 @@ import {
   TripCard,
 } from "@/components/TripCard";
 import { DestinationBox, TripPanel } from "@/components/TripPanel";
-import { type Bbox, type Coord, resortsQuery, skiLinesQuery } from "@/lib/api";
+import { type Bbox, type Coord, resortsQuery } from "@/lib/api";
 import { useBackToClose } from "@/lib/back-close";
 import { usePilotMap } from "@/lib/nav/use-pilot-map";
 import { usePilotSession } from "@/lib/nav/use-pilot-session";
-import { routeBounds } from "@/lib/route-geo";
 import { placeAt, useSaved, visibleMarkers } from "@/lib/saved-places";
-import { resortSummary } from "@/lib/ski-stats";
-import { pinPlace, tripActions } from "@/lib/trip-actions";
-import { pointPlaceOf, tripPlaces } from "@/lib/trip-places";
+import { shownTrip } from "@/lib/trip-places";
 import { DEFAULT_RANK, type RankOptions } from "@/lib/url-state";
 import { useBusTrip } from "@/lib/use-bus-trip";
-import { useLodging, usePois, useRanking } from "@/lib/use-lists";
+import { useLodging, useRanking } from "@/lib/use-lists";
+import { useMapCard } from "@/lib/use-map-card";
 import { useModeDurations, useRoutes } from "@/lib/use-routes";
-import { type TripPoint, useTrip } from "@/lib/use-trip";
+import { pinPlace, type TripEvent, useTrip } from "@/lib/use-trip";
 import { useViewUrl } from "@/lib/use-view-url";
 
 // MapLibre needs WebGL and `window`, so the map is rendered in the browser only.
 const MapView = dynamic(() => import("./MapView"), { ssr: false });
 
-// What the map's card at the bottom is about, one at a time: a long-pressed point (or
-// tapped hotel pin), whose buttons are touch's only way to edit the trip
-// (docs/ux/behaviour-cards.md BC-A1), a tapped run or lift (SPEC-ski-runs v1.1), or a
-// tapped resort chip (v1.4)
-type Picked =
-  | { kind: "pin"; pin: TripPoint }
-  | { kind: "line"; line: SkiLine }
-  // fromCard: opened from the run or lift card's resort name, which unmounts with it
-  | { kind: "resort"; resortId: string; fromCard?: boolean };
-
 export function MapShell() {
   const [loaded, setLoaded] = useState(false);
   const trip = useTrip();
-  // Directions' focus is for one mount: the box has it by now, and a later remount of the same
-  // box (the sheet coming back after navigation) must not take focus and open its list
-  const { focusedSearchKey: focusKey, setFocusedSearchKey } = trip;
-  useEffect(() => {
-    if (focusKey !== null) setFocusedSearchKey(null);
-  }, [focusKey, setFocusedSearchKey]);
   const {
     mode,
     origin,
@@ -73,28 +50,8 @@ export function MapShell() {
     searchLabel,
     searchKey,
     focusedSearchKey,
-    selectedResortId,
-    category,
-    poiId,
-    point,
-    storedBusChoice,
-    setBusChoice,
     filledStops,
-    fillStop,
   } = trip;
-  const [picked, setPicked] = useState<Picked | null>(null);
-  // the whole lines, for the ski cards' profile and resort sums (v1.4); asked for when the
-  // first one opens, then kept (a disabled query still hands back what it has)
-  const skiLines = useQuery({
-    ...skiLinesQuery,
-    enabled: picked !== null && picked.kind !== "pin",
-  });
-  // the ring belongs to the card that set it: a closed card or another pick drops it
-  const [ring, setRing] = useState<{ of: Picked; at: Coord } | null>(null);
-  const profilePoint = ring && ring.of === picked ? ring.at : null;
-  const droppedPin = picked?.kind === "pin" ? picked.pin : null;
-  const setDroppedPin = (pin: TripPoint | null) =>
-    setPicked(pin && { kind: "pin", pin });
   // Saved panel: open, and optionally focused on one place (a tapped saved marker)
   const [savedOpen, setSavedOpen] = useState(false);
   const [savedFocus, setSavedFocus] = useState<string | null>(null);
@@ -121,49 +78,50 @@ export function MapShell() {
   const { ranking, rankingState } = useRanking(mode, origin, rankOptions);
 
   const savedState = useSaved();
-  const pointPlace = pointPlaceOf(savedState, point);
+  // Night bus: the shown trip reads it (night buses draw no trip), then the bus answers
+  const [showNight, setShowNight] = useState(false);
   const {
+    selectedResortId,
+    routeMode,
+    target,
+    sharedTarget,
+    destinationMarker,
     busPlace,
     busChoice,
     busStop,
+    onlyResortId,
+    fromPlace,
+    toPlace,
+    showToBox,
+    tripStops,
+    stopBoxOpen,
+    shownResortIds,
+    hasDestination,
+    destinationLoading,
+    canAddStop,
+    canSwap,
+    destinationKey,
+    routeKey,
+  } = shownTrip(trip, { resorts, ranking, savedState, showNight });
+  const {
     rideRoute,
     rideLeg,
     results: busResults,
     basis: busBasis,
     departAt,
     setDepartAt,
-    showNight,
-    setShowNight,
     freeOnly,
     setFreeOnly,
-  } = useBusTrip({ mode, origin, originName, pointPlace, storedBusChoice });
-
-  // Walk to the access point the ranking found nearest; otherwise the first one.
-  const resort = resorts.data?.find((r) => r.id === selectedResortId);
-  const nearestId = ranking.data?.find(
-    (r) => r.resortId === selectedResortId,
-  )?.accessPointId;
-  const destination = (
-    resort?.accessPoints.find((a) => a.id === nearestId) ??
-    resort?.accessPoints[0]
-  )?.coord;
-
-  // In bus mode the route shown is the walk to the chosen boarding stop.
-  const routeMode = mode === "bus" ? "walk" : mode;
-
-  // Food / konbini destinations (walk only; shuttles serve resorts).
-  const poiCategory = category === "resorts" ? null : category;
-  const { pois, poiState, selectedPoi, poiTarget } = usePois({
+  } = useBusTrip({
     mode,
-    routeMode,
     origin,
-    poiCategory,
-    poiId,
+    originName,
+    busPlace,
+    busChoice,
+    busStop,
+    showNight,
   });
 
-  // where walk goes; a Food or Konbini list picks its place per mode
-  const tripTarget = point?.coord ?? (poiCategory ? poiTarget : destination);
-  const target = mode === "bus" ? busStop : tripTarget;
   // With stops (walk) the route is one trip through them; no alternates then.
   const viaStops = mode === "bus" ? [] : filledStops.map((s) => s.coord);
   const {
@@ -175,18 +133,9 @@ export function MapShell() {
     highlight,
     setHighlight,
   } = useRoutes({ mode, routeMode, origin, target, viaStops });
-  // the tabs' times need one place for every mode: a Food or Konbini list picks its place per
-  // mode, and Walk heads for the ranking's nearest entrance, so a resort with several waits
-  // for this start's ranking (cached, so every mode then uses that entrance; a placeholder is
-  // the previous start's)
-  const sharedTarget =
-    point !== null ||
-    (!poiCategory &&
-      ((resort?.accessPoints.length ?? 0) <= 1 ||
-        (ranking.data !== undefined && !ranking.isPlaceholderData)));
   const durations = useModeDurations({
     origin,
-    target: sharedTarget ? tripTarget : null,
+    target: sharedTarget,
     viaStops: filledStops.map((s) => s.coord),
   });
 
@@ -247,113 +196,69 @@ export function MapShell() {
         lng: (view.bbox.west + view.bbox.east) / 2,
       }
     : null;
-  const {
-    tripStops,
-    placingStop,
-    shownResortIds,
-    fromPlace,
-    toPlace,
-    showToBox,
-    destinationResortId,
-    destinationLoading,
-    canAddStop,
-    canSwap,
-    destinationKey,
-    routeKey,
-  } = tripPlaces({
-    ...trip,
-    routeMode,
-    pointPlace,
-    poiCategory,
-    resort,
-    destination,
-    selectedPoi,
-    busPlace,
-    busChoice,
-    showNight,
-    target,
-    activeRoute,
-    piloting,
-    savedOpen,
-    savedState,
+  // An open stop box takes map taps only while it is on screen (SPEC-web-app v1.4).
+  const placingStop = stopBoxOpen && !piloting && !savedOpen;
+  const world = {
     resorts: resorts.data,
-    listsLoading: {
-      resorts: resorts.isLoading,
-      pois: pois.isLoading,
-    },
-  });
-  const actions = tripActions(trip, {
-    resorts: resorts.data,
+    savedPlaces: savedState.places,
     fromPlace,
     toPlace,
     placingStop,
-    savedState,
-    setFlyTo,
-    setSavedOpen,
-    setSavedFocus,
-    setDroppedPin,
-    openResortCard: (resortId) => setPicked({ kind: "resort", resortId }),
-  });
-  const shownTo = point ?? (poiCategory ? poiId : selectedResortId);
+  };
+  // the panel an edit opens is the shell's to open
+  const edit = (event: TripEvent) => {
+    const opens = trip.edit(event, world);
+    if (opens?.panel === "resortCard") card.openResort(opens.id);
+    if (opens?.panel === "saved") {
+      setSavedFocus(opens.id);
+      setSavedOpen(true);
+    }
+  };
+  const clearTo = () => edit({ type: "destinationCleared" });
+  const chooseResort = (id: string) => edit({ type: "resortChosen", id });
   const toEmptiedSinceLink = useRef(false);
-  if (linkRead && shownTo === null) toEmptiedSinceLink.current = true;
-  useBackToClose(
-    shownTo !== null && toEmptiedSinceLink.current,
-    actions.clearTo,
-  );
+  if (linkRead && !hasDestination) toEmptiedSinceLink.current = true;
+  useBackToClose(hasDestination && toEmptiedSinceLink.current, clearTo);
   useBackToClose(savedOpen, () => setSavedOpen(false));
   useBackToClose(piloting, session.exitPilot);
-  const pickedResort =
-    picked?.kind === "resort"
-      ? resorts.data?.find((r) => r.id === picked.resortId)
-      : undefined;
-  // v1.5: what the open ski card is about, whole (a tap's own geometry is tile-clipped), for
-  // the map to frame: the run or lift, or all the resort's lines
-  const skiFocusLines =
-    piloting || !picked || picked.kind === "pin"
-      ? []
-      : (skiLines.data?.features ?? []).filter((f) =>
-          picked.kind === "line"
-            ? f.properties.id === picked.line.id
-            : f.properties.resortId === picked.resortId,
-        );
-  const skiFocus =
-    picked && picked.kind !== "pin" && skiFocusLines.length > 0
-      ? {
-          key:
-            picked.kind === "line"
-              ? picked.line.id
-              : `resort:${picked.resortId}`,
-          bounds: routeBounds(
-            skiFocusLines.flatMap((f) =>
-              f.geometry.type === "LineString"
-                ? f.geometry.coordinates
-                : f.geometry.coordinates[0],
-            ),
-          ),
-        }
-      : null;
+  const card = useMapCard({
+    resorts: resorts.data,
+    piloting,
+    pinCard: (pin, close) => {
+      // the pin card's buttons edit the trip and close the card
+      const pinEdit = (event: TripEvent) => () => {
+        edit(event);
+        close();
+      };
+      return (
+        <PinCard
+          name={pin.name}
+          coord={pin.coord}
+          onClose={close}
+          onStart={pinEdit({ type: "startSet", start: { by: "pin", pin } })}
+          onGo={
+            // Bus has no "go here": its destination comes from the swap or another tab
+            mode === "bus"
+              ? undefined
+              : pinEdit({ type: "pointChosen", point: pin })
+          }
+          onAddStop={
+            canAddStop
+              ? pinEdit({ type: "stopAdded", place: pinPlace(pin) })
+              : undefined
+          }
+          save={
+            // a saved place at that spot (My hotel's lodging pin) is that place, not a new pin
+            <SaveButton
+              place={placeAt(savedState, pin.coord) ?? pinPlace(pin)}
+            />
+          }
+        />
+      );
+    },
+  });
   const savedMarkers = useMemo(() => visibleMarkers(savedState), [savedState]);
   const addStopRef = useRef<HTMLButtonElement>(null);
-  const pinCard = droppedPin && (
-    <PinCard
-      name={droppedPin.name}
-      coord={droppedPin.coord}
-      onClose={() => setDroppedPin(null)}
-      onStart={() => actions.pinStart(droppedPin)}
-      onGo={
-        // Bus has no "go here": its destination comes from the swap or another tab
-        mode === "bus" ? undefined : () => actions.pinGo(droppedPin)
-      }
-      onAddStop={canAddStop ? () => actions.pinAddStop(droppedPin) : undefined}
-      save={
-        // a saved place at that spot (My hotel's lodging pin) is that place, not a new pin
-        <SaveButton
-          place={placeAt(savedState, droppedPin.coord) ?? pinPlace(droppedPin)}
-        />
-      }
-    />
-  );
   // the sheet shows DirectionsPanel, whose sticky ETA + Start row is the landscape bar
   const slimSheet =
     !savedOpen && origin !== null && mode !== "bus" && routeData !== null;
@@ -389,8 +294,11 @@ export function MapShell() {
                   searchIcon={!showToBox}
                   // the top card reads From → To (BC-L1): never blank while there is a start
                   label={searchLabel ?? fromPlace?.name ?? null}
-                  onSelect={actions.searchStart}
-                  onClear={actions.clearOrigin}
+                  onSelect={(place) => {
+                    edit({ type: "startSet", start: { by: "search", place } });
+                    setFlyTo(place.coord);
+                  }}
+                  onClear={() => edit({ type: "startCleared" })}
                   near={viewCentre}
                 />
               }
@@ -398,12 +306,17 @@ export function MapShell() {
                 <DestinationBox
                   to={toPlace}
                   near={viewCentre}
-                  onChoose={actions.chooseTo}
-                  onClear={actions.clearTo}
+                  onChoose={(place) =>
+                    edit({ type: "destinationChosen", place })
+                  }
+                  onClear={clearTo}
                 />
               }
               swap={
-                <SwapButton disabled={!canSwap} onClick={actions.swapTrip} />
+                <SwapButton
+                  disabled={!canSwap}
+                  onClick={() => edit({ type: "swapped" })}
+                />
               }
               saveDestination={toPlace && <SaveButton place={toPlace} />}
               placeCard={
@@ -411,10 +324,7 @@ export function MapShell() {
                 !destinationLoading && (
                   <PlaceCard
                     place={fromPlace}
-                    showLists={mode !== "bus"}
-                    category={category}
-                    onDirections={actions.directionsTo}
-                    onCategory={actions.pickCategory}
+                    onDirections={() => edit({ type: "directions" })}
                   />
                 )
               }
@@ -431,8 +341,8 @@ export function MapShell() {
             />
           }
           collapseKey={destinationKey}
-          revealKey={routeKey}
-          raiseKey={`${savedOpen}|${category ?? ""}|${mode}`}
+          revealKey={routeKey && `${routeKey}|${activeRoute}`}
+          raiseKey={`${savedOpen}|${mode}`}
           // with no start it would hold only the hint on how to set one (and the stops
           // a cleared start leaves, which must stay reachable)
           hiddenOnPhone={
@@ -444,34 +354,50 @@ export function MapShell() {
             <SavedPanel
               focusId={savedFocus}
               canGoHere={mode !== "bus"}
-              onStartFrom={actions.startFrom}
-              onGoHere={actions.goTo}
+              onStartFrom={(place) => {
+                edit({ type: "startSet", start: { by: "saved", place } });
+                setFlyTo(place.coord);
+                setSavedOpen(false);
+              }}
+              onGoHere={(place) => {
+                edit({
+                  type: "pointChosen",
+                  point: { coord: place.coord, name: place.name },
+                });
+                setSavedOpen(false);
+              }}
               onClose={() => setSavedOpen(false)}
               notice={savedNotice}
             />
           ) : (
             <ModePanel
               mode={mode}
-              onModeChange={actions.changeMode}
+              onModeChange={(m) => edit({ type: "modeChanged", mode: m })}
               resorts={resorts.data ?? []}
               selectedResortId={selectedResortId}
-              onSelectResort={actions.selectResort}
+              onSelectResort={chooseResort}
               hasOrigin={origin !== null}
               durations={durations}
-              tripFirst={mode !== "bus" && tripStops.length > 0}
+              tripFirst={tripStops.length > 0}
               placeStrip={
                 <TripPanel
-                  stops={mode === "bus" ? [] : tripStops}
+                  stops={tripStops}
                   addStopRef={addStopRef}
                   near={viewCentre}
-                  onRemoveStop={actions.removeStop}
-                  onMoveStop={actions.moveStop}
-                  onFillStop={fillStop}
+                  onRemoveStop={(key) => edit({ type: "stopRemoved", key })}
+                  onMoveStop={(key, by) => edit({ type: "stopMoved", key, by })}
+                  onFillStop={(key, place) =>
+                    edit({ type: "stopFilled", key, place })
+                  }
                   addDestination={
                     canAddStop && (
                       <AddDestinationButton
                         ref={addStopRef}
-                        onClick={actions.addStop}
+                        onClick={() => {
+                          // the stop box lives in the trip list, which Saved replaces
+                          setSavedOpen(false);
+                          edit({ type: "stopAdded", place: null });
+                        }}
                       />
                     )
                   }
@@ -491,18 +417,12 @@ export function MapShell() {
                 <BusPanel
                   resorts={resorts.data ?? []}
                   result={busResults.bus}
-                  // the resort itself, not a tapped bus's: that would collapse the list.
-                  // Only a known one: a stale link must not say there are no shuttles
-                  onlyResortId={
-                    resorts.data?.some((r) => r.id === destinationResortId)
-                      ? destinationResortId
-                      : null
-                  }
+                  onlyResortId={onlyResortId}
                   place={
                     busPlace && {
                       name: busPlace.name,
                       result: busResults.toPlace,
-                      onClear: actions.clearTo,
+                      onClear: clearTo,
                     }
                   }
                   night={busResults.night}
@@ -511,33 +431,18 @@ export function MapShell() {
                   freeOnly={freeOnly}
                   onFreeOnlyChange={(on) => {
                     setFreeOnly(on);
-                    if (on) actions.dropPaidBus();
+                    if (on) edit({ type: "paidBusesHidden" });
                   }}
                   departAt={departAt}
                   onDepartAtChange={setDepartAt}
                   selected={busChoice}
-                  onSelect={setBusChoice}
+                  onSelect={(bus) => edit({ type: "busTapped", bus })}
                   // only once the walk to the stop is known: it is the first leg
                   onStart={
                     routePending || !pilotAvailable ? undefined : startBusPilot
                   }
                   startNote={busNote}
                 />
-              }
-              destinationPicker={
-                <DestinationPicker
-                  value={category}
-                  onChange={actions.pickCategory}
-                />
-              }
-              poiPanel={
-                poiCategory ? (
-                  <PoiList
-                    state={poiState}
-                    selectedId={poiId}
-                    onSelect={actions.selectPoi}
-                  />
-                ) : undefined
               }
               // a failed ranking falls back to the plain picker: choosing a resort needs no ranking
               rankingPanel={
@@ -548,7 +453,7 @@ export function MapShell() {
                     ranking={rankingState}
                     fetching={ranking.isFetching}
                     selectedResortId={selectedResortId}
-                    onSelectResort={actions.selectResort}
+                    onSelectResort={chooseResort}
                   />
                 )
               }
@@ -561,12 +466,11 @@ export function MapShell() {
       <MapView
         slimSheet={slimSheet}
         resorts={resorts.data ?? []}
-        shownResortIds={shownResortIds}
+        // an open stop box is choosing again, and a resort can be tapped as the stop
+        shownResortIds={placingStop ? undefined : shownResortIds}
         selectedResortId={selectedResortId}
         origin={origin}
-        destination={
-          mode === "bus" ? (busPlace?.coord ?? null) : (target ?? null)
-        }
+        destination={destinationMarker}
         routes={
           pastWalk
             ? [] // at the stop or on the bus: the bus line is the route now
@@ -586,34 +490,20 @@ export function MapShell() {
         onViewChange={setView}
         onPickOrigin={(coord) => {
           // the open stop box takes the click; it closes the card, as a finger's tap does
-          setPicked(null);
-          actions.pickOnMap(coord);
+          card.close();
+          edit({ type: "mapTapped", coord });
         }}
-        stops={
-          mode === "bus"
-            ? []
-            : tripStops.flatMap((st) =>
-                st.place
-                  ? [{ coord: st.place.coord, name: st.place.name }]
-                  : [],
-              )
-        }
+        stops={tripStops.flatMap((st) =>
+          st.place ? [{ coord: st.place.coord, name: st.place.name }] : [],
+        )}
         placingStop={placingStop}
-        onDropPin={(coord, name) => setDroppedPin({ coord, name })}
-        onMapTap={() => setPicked(null)}
-        droppedPin={piloting ? null : droppedPin}
-        onSelectSkiLine={(line) => setPicked({ kind: "line", line })}
-        selectedSkiLineId={
-          !piloting && picked?.kind === "line" ? picked.line.id : null
-        }
-        selectedSkiResortId={
-          !piloting && picked?.kind === "resort" ? picked.resortId : null
-        }
-        skiFocus={skiFocus}
-        profilePoint={piloting ? null : profilePoint}
-        onSelectResort={actions.selectResortOnMap}
+        card={card.onMap}
+        onDropPin={card.dropPin}
+        onMapTap={card.close}
+        onSelectSkiLine={card.selectLine}
+        onSelectResort={(id) => edit({ type: "resortTapped", id })}
         saved={savedMarkers}
-        onSelectSaved={actions.selectSaved}
+        onSelectSaved={(id) => edit({ type: "savedTapped", id })}
       />
       {importCode && (
         <ImportDialog
@@ -628,47 +518,7 @@ export function MapShell() {
           }}
         />
       )}
-      {!piloting && pinCard}
-      {!piloting && picked?.kind === "line" && (
-        <SkiLineCard
-          // a fresh chart for another line: its picked point was on the old one
-          key={picked.line.id}
-          line={picked.line}
-          full={skiLines.data?.features.find(
-            (f) => f.properties.id === picked.line.id,
-          )}
-          resortName={
-            resorts.data?.find((r) => r.id === picked.line.resortId)?.name.en ??
-            picked.line.resortId
-          }
-          onResort={() =>
-            setPicked({
-              kind: "resort",
-              resortId: picked.line.resortId,
-              fromCard: true,
-            })
-          }
-          onClose={() => setPicked(null)}
-          onPoint={(at) => setRing(at && { of: picked, at })}
-        />
-      )}
-      {!piloting && pickedResort && (
-        <ResortCard
-          name={pickedResort.name}
-          website={pickedResort.website}
-          summary={
-            skiLines.data
-              ? resortSummary(
-                  skiLines.data.features.map((f) => f.properties),
-                  pickedResort.id,
-                )
-              : null
-          }
-          failed={skiLines.isError}
-          focusOnOpen={picked?.kind === "resort" && picked.fromCard === true}
-          onClose={() => setPicked(null)}
-        />
-      )}
+      {card.view}
       <StampMoment />
     </main>
   );

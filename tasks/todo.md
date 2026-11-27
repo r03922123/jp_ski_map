@@ -27,14 +27,6 @@ no regressions, behavior checked at runtime, specs updated if a decision changed
 ## Task 88: Intermittent: the To box reads empty after "Clear starting point" (open)
 Seen 2026-11-04 only under load (15–22): `setting-the-start.spec.ts` "clear the start (trip ✕ and box ✕) … the destination stays" failed 6/16 in one repeat run, with the To box at `""` while the destination (resort) still exists. Then 16/16 in Playwright and 8/8 in a step-by-step reproduction logging the box after every step passed. Reasoning ruled out the destination vanishing (the resort and its fallback access point don't depend on the start). Next: `trace: "retain-on-failure"` is now on, so read the first failing trace before changing code.
 
-## Task 89: Google rating card goes live (SPEC-poi-destinations v1.2)
-The code is merged and hidden until a key exists. Owner only:
-- [ ] Owner setup from the spec: Google Cloud project, billing, two restricted keys, daily quota caps; browser key in
-  Vercel and `apps/web/.env.local`
-- [ ] `GOOGLE_PLACES_SERVER_KEY=… uv run --directory services/api --frozen python -m hakuba_api.pois.refresh_google_ids`,
-  commit `data/poi_google.json` and `.meta.json` (then drop the `.meta.json` line from `docs/doc-check-allow.txt`)
-- [ ] Open the first 10 food results (walk) from JR Hakuba Station; fewer than 9 right → tighten the match
-
 ## Task J10: Overture licence label (ADR-0004 next step 2)
 - Known limits: with the sheet expanded the credits stay covered until it collapses. With no trip they open over the map's labels and a resort marker until the first drag or a tap on ⓘ. On landscape phones about 320 px tall or less, the ⓘ takes a tap on `+`, which worked before this change; pinch zoom still works. At those sizes, credits reopened during a trip sit partly under the trip card. The zoom buttons stay behind the sheet on portrait phones, as before. Not checked: navigation mode, where a bottom bar replaces the sheet, and real iPhones or WebKit.
 - Follow-up 1 stays open for the 15 My Maps stops, follow-up 2 for the December re-check; the takeover phase is unchanged.
@@ -54,7 +46,7 @@ The code is merged and hidden until a key exists. Owner only:
 - Found by #68's first run, open: `/api/places/suggest?q=tokyu` took 1255 ms, 1231 ms of it waiting on Photon, whose timeout is 10 s. Search-as-you-type needs a short timeout on that fallback
 
 ## Task J16: MLflow eval loop and Langfuse production traces (SPEC-agent-tools v3, 2026-11-16)
-- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; crowd heuristic ranks Jigatake quietest on every date (its prior is 0 and every date term applies to all resorts alike, so only snow changes the crowd ranking)
+- [ ] Eval v4 follow-ups: still near the ceiling, so it shows a regression, not an improvement (needs harder questions or a weaker model); re-pin bus times when the 2026-27 timetable is published; ~~crowd heuristic ranks Jigatake quietest on every date (its prior is 0 and every date term applies to all resorts alike, so only snow changes the crowd ranking)~~ (crowd removed 2026-11-26, ADR-0011)
 
 ## Rebuild from the URL, and Ask Maps (2026-11-18; status at main 8485c47)
 Specs: [SPEC-pipeline.md](../SPEC-pipeline.md) (P1–P7), [SPEC-ask-maps.md](../SPEC-ask-maps.md) (A0–A4),
@@ -130,11 +122,22 @@ Drive mode removed from the API, MCP tools and web app; road routing stays as mo
   not comparable to `evals/last_run.md` except paired on the 66 kept ids
 - [ ] Look on the iPhone: the Walk tab's ranked list and the bus-line pilot's 🚌
 
+## Task J20: Resorts only, no restaurants or konbini (ADR-0010, owner's ask 2026-11-25)
+POIs removed from the API, data, MCP tools, place index, web app and search evals; SPEC-web-app v1.34.
+- [ ] Owner: delete the Vercel variable `NEXT_PUBLIC_GOOGLE_MAPS_KEY` and disable the Google Cloud APIs and keys
+- [ ] MCP eval: 13 more questions dropped with `nearby_pois` (53 left); compare runs only paired on kept ids
+- [ ] Run the changed e2e specs (destination-route, stops-and-navigating, trip-card, resort-labels, saved)
+
+## Task J21: No crowd estimate (ADR-0011, owner's ask 2026-11-24)
+Crowd removed from the API (`/api/crowd`, the `crowd` sort, field and `date` param of `/api/rank`), web app, MCP
+tools (`crowd_and_snow` is now `snow_conditions`) and specs.
+- [ ] MCP eval: 12 more questions dropped (41 left; `nodata-happo-crowd` replaces `crowd-happo-jan-weekday`);
+  compare runs only paired on kept ids
+
 ## Debt (known gaps no task owns yet; from the 2026-11-18 review and the 2026-11-21 doc check)
 Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/daily-retro`) reads this list.
 - D1 `place-search`: lodging and Overture snapshots aren't pinned (no Overpass `[date:]`; `latest_release` in
   `services/api/src/hakuba_api/places/refresh_overture.py` takes the newest release). Plan: SPEC-pipeline pinning row
-- D2 `poi-destinations`: the POI Overpass query (`pois/refresh_pois.py`) isn't pinned to a date. Plan: same row
 - D3 `routing`: Valhalla tiles build from `chubu-latest` (`infra/valhalla/build-hakuba.sh:10`). Plan: same row
 - D4 all specs: acceptance checkboxes aren't maintained (51 of 184 ticked), so they can't show progress
 - D6 `place-search`: a repeated query word can match one name word twice ("tabi tabi" → ペンション 旅人), and
@@ -145,5 +148,5 @@ Promote a row to a task when it's worth doing. The daily retro (`.claude/skills/
   in fugashi may carry BSD/GPL/LGPL terms, unchecked (#123 review)
 - D8 UX panel 2026-11-23 (`docs/ux/2026-11-23-ux-panel.md`): 4 fixed (#143–#145, #147), 2 owner decisions
   and about 20 follow-ups listed there, most severe first (Back leaves the app, `at=` in the bus link, category search)
-- D9 `services/api`: the great-circle distance is written three times: `common/geo.py` `km` (2026-11-23) and private
-  `_km` copies in `pois/query.py` and `places/index.py`; move both callers to `km` and delete the copies (a refactor PR)
+- D9 `services/api`: the great-circle distance is written twice: `common/geo.py` `km` (2026-11-23) and a private
+  `_km` copy in `places/index.py`; move that caller to `km` and delete the copy (a refactor PR)

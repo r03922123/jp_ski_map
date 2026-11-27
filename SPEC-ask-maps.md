@@ -1,6 +1,6 @@
 # Spec: ask-maps (ask the map a question)
 
-> Module of [SPEC.md](SPEC.md). Depends on: agent-tools (the six tools in `services/mcp`), the HTTP
+> Module of [SPEC.md](SPEC.md). Depends on: agent-tools (the five tools in `services/mcp`), the HTTP
 > API. Consumed by: web-app. Drafted 2026-11-18.
 
 ## Objective
@@ -38,12 +38,13 @@ Examples it must handle (EN, 中文, 日本語):
    the sheet says Ask is paused this month (unit test with a fake client).
 
 **Out of scope:** voice input, accounts or server-side history, booking, reviews (we have none),
-ads, a vector database (1,100 places fit in one matrix; see SPEC-place-search v1.4).
+ads, a vector database (1,000 places fit in one matrix; see SPEC-place-search v1.4).
 
 ## Design
 
-**A tool loop over the tools we already have, not a new agent.** The six MCP tools
-(`search_place`, `rank_resorts`, `next_buses`, `route`, `nearby_pois`, `crowd_and_snow`) are
+**A tool loop over the tools we already have, not a new agent.** The five MCP tools
+(`search_place`, `rank_resorts`, `next_buses`, `route`, `snow_conditions`; `nearby_pois` went on
+2026-11-25, ADR-0010, and `crowd_and_snow` became `snow_conditions` on 2026-11-26, ADR-0011) are
 trimmed for context and return errors the model can act on; through Claude Code's default model
 they pass the agent-tools eval 12/12 (that says nothing yet about Haiku, see Eval). Ask calls them
 through `await mcp.call_tool(name, args)`, not the bare functions, so argument validation, the
@@ -53,15 +54,15 @@ app. (The tools still reach the API over HTTP, as on the connector; fine at this
 
 - Why an agent loop and not a fixed workflow (Anthropic, *Building effective agents*: start with a
   workflow): the questions combine 1 to 4 tools in orders that differ per question (search → bus;
-  snow → rank → route; search → nearby → route), and the MCP eval shows the model picks them
+  snow → rank → route; search → route), and the MCP eval shows the model picks them
   correctly. A router with one fixed chain per intent would need about 6 chains and still miss
   combinations. The loop is bounded instead: **at most 6 tool calls and 2 model turns after the
   last call**, then it answers with what it has.
 - No multi-agent: one question needs one shared context; multi-agent costs about 15× the tokens
   of a chat (Anthropic, *multi-agent research system*).
 
-**Grounding: pins are citations.** Today `search_place` and `nearby_pois` return no id and
-`next_buses` returns a route name, so A1 first adds `id` (place, POI, resort, stop) to the tool
+**Grounding: pins are citations.** Today `search_place` returns no id and
+`next_buses` returns a route name, so A1 first adds `id` (place, resort, stop) to the tool
 outputs, then re-runs the agent-tools eval to show nothing regressed. `ask.py` then turns **each
 list item** into its own `search_result` block with citations on (`source` =
 `hakuba:place/<id>`, `hakuba:stop/<id>`, `hakuba:resort/<id>`; `title` = the readable name;
@@ -70,7 +71,7 @@ list item** into its own `search_result` block with citations on (`source` =
   model's prose);
 - a place the model names without a citation is not pinned and is counted as ungrounded in the
   eval. The grader finds named places with a gazetteer: every `name`, `nameJa` and alias of the
-  ~1,100 index entries and 10 resorts, matched by the place-search normaliser (`places/index.py`)
+  ~1,000 index entries and 10 resorts, matched by the place-search normaliser (`places/index.py`)
   over the answer text; a match whose id isn't cited is ungrounded;
 - structured outputs are not used here, because they cannot be combined with citations.
 

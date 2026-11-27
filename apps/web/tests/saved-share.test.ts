@@ -20,7 +20,7 @@ const onsen: PlaceInput = {
   id: "osm-node-7",
   name: "白馬八方温泉 みみずくの湯",
   coord: { lat: 36.69735, lng: 137.84402 },
-  kind: "poi",
+  kind: "pin",
 };
 const station: PlaceInput = {
   id: "stop-jr-hakuba",
@@ -53,6 +53,31 @@ describe("share links", () => {
     expect(readImportHash("#import=abc")).toBe("abc");
     expect(readImportHash("#other=abc")).toBeNull();
     expect(readImportHash("")).toBeNull();
+  });
+
+  it("keeps a restaurant or konbini shared before ADR-0010 as a pin", () => {
+    const code = base64url(
+      JSON.stringify({
+        v: 1,
+        n: "x",
+        i: "flag",
+        p: [
+          ["osm-node-1", "Ramen", 36.7, 137.85, "poi"],
+          ["stop-jr-hakuba", "JR Hakuba Station", 36.69877, 137.86197, "stop"],
+        ],
+      }),
+    );
+    const decoded = decodeImport(code);
+    if (!decoded.ok) throw new Error(decoded.error);
+    expect(decoded.list.places).toEqual([
+      {
+        id: "osm-node-1",
+        name: "Ramen",
+        coord: { lat: 36.7, lng: 137.85 },
+        kind: "pin",
+      },
+      station,
+    ]);
   });
 
   it("rejects garbage, bad coordinates and oversized lists", () => {

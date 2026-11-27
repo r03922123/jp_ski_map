@@ -181,8 +181,8 @@ const base: Props = {
   onPickOrigin: () => {},
   onSelectResort: () => {},
   saved: SAVED,
-  stops: [{ coord: { lat: 36.698, lng: 137.858 }, name: "Konbini" }],
-  droppedPin: { coord: { lat: 36.7, lng: 137.85 }, name: "Pin" },
+  stops: [{ coord: { lat: 36.698, lng: 137.858 }, name: "Lodge" }],
+  card: { kind: "pin", at: { lat: 36.7, lng: 137.85 } },
 };
 const PILOT: Props["pilot"] = {
   camera: { center: [137.858, 36.698], bearing: 30, pitch: 45, zoom: 16 },
@@ -245,7 +245,7 @@ describe("MapView draws (characterization)", () => {
         lodging={[]}
         saved={[]}
         stops={[]}
-        droppedPin={null}
+        card={null}
         busStop={null}
         origin={null}
         destination={null}

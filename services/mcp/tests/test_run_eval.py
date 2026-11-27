@@ -61,9 +61,9 @@ def test_parse_stream_collects_tool_calls_answer_and_auth_errors() -> None:
 
 
 def test_score_precision_recall_parts_and_pass() -> None:
-    s = score(Q, ["search_place", "rank_resorts", "rank_resorts", "nearby_pois"], "Go to Happo")
+    s = score(Q, ["search_place", "rank_resorts", "rank_resorts", "next_buses"], "Go to Happo")
     assert (s["hit"], s["required"], s["relevant"], s["distinct"]) == (2, 2, 2, 3)
-    assert s["extra"] == ["nearby_pois"]
+    assert s["extra"] == ["next_buses"]
     assert s["passed"]
     missing = score(Q, ["rank_resorts"], "Happo")
     assert missing["missing"] == ["search_place"]
@@ -72,10 +72,10 @@ def test_score_precision_recall_parts_and_pass() -> None:
 
 
 def test_any_of_needs_one_tool_of_the_group() -> None:
-    # crowd and snow can come from either tool; requiring one of them would fail the other path
+    # snow can come from either tool; requiring one of them would fail the other path
     q = {
         "required": ["search_place", "next_buses"],
-        "any_of": [["crowd_and_snow", "rank_resorts"]],
+        "any_of": [["snow_conditions", "rank_resorts"]],
         "optional": ["route"],
         "answer_regex": "08:",
     }
@@ -84,7 +84,7 @@ def test_any_of_needs_one_tool_of_the_group() -> None:
     assert via_rank["relevant"] == via_rank["distinct"] == 3
     neither = score(q, ["search_place", "next_buses"], "08:13")
     assert not neither["passed"]
-    assert neither["missing"] == ["crowd_and_snow|rank_resorts"]
+    assert neither["missing"] == ["rank_resorts|snow_conditions"]
 
 
 def test_report_gives_the_pass_rate_with_its_error_and_the_cost() -> None:
@@ -228,11 +228,11 @@ def test_summary_numbers_match_the_report() -> None:
     tools = ["search_place", "rank_resorts"]
     outcomes = [
         Outcome("a", "en", tools, "Happo", 3, 40.0, cost_usd=0.04),
-        Outcome("b", "en", ["search_place", "nearby_pois"], "Goryu", 2, 60.0),
+        Outcome("b", "en", ["search_place", "next_buses"], "Goryu", 2, 60.0),
     ]
     s = summarize(questions, outcomes)
     assert (s["passed"], s["n"], s["pass_rate"]) == (1, 2, 0.5)
-    # b called nearby_pois, which is neither required nor optional: 3 of 4 calls relevant
+    # b called next_buses, which is neither required nor optional: 3 of 4 calls relevant
     assert (s["hit"], s["required"], s["relevant"], s["distinct"]) == (3, 4, 3, 4)
     assert (s["tool_recall"], s["tool_precision"]) == (0.75, 0.75)
     assert (s["cost_usd"], s["cost_reported"], s["median_seconds"]) == (0.04, 1, 50.0)
@@ -320,7 +320,7 @@ def test_log_mlflow_records_the_run_and_one_trace_per_question(tmp_path: Path) -
 
 
 QUESTIONS = json.loads((run_eval.HERE / "trip_questions.json").read_text())
-TOOLS = {"search_place", "rank_resorts", "next_buses", "route", "nearby_pois", "crowd_and_snow"}
+TOOLS = {"search_place", "rank_resorts", "next_buses", "route", "snow_conditions"}
 # what an agent says when every tool call failed: no question that needs a tool may pass on it
 NO_DATA = "Sorry, I couldn't reach the Hakuba API, so I can't check that right now."
 

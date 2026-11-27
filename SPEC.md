@@ -14,7 +14,7 @@ The user searches for their hotel (or any place), then picks one of three transp
 | Mode | What the user gets |
 |---|---|
 | 🚌 **Bus** | Nearest Hakuba Valley shuttle stop(s), walk time to the stop, next departures, and arrival time at each reachable resort |
-| 🚶 **Walk** | All resorts ranked by one chosen criterion (walk time, fresh snow, snow depth, crowd level, total runs, skiable area, run length, vertical, price), with the walking route and ETA on the map for the selected resort |
+| 🚶 **Walk** | All resorts ranked by one chosen criterion (walk time, fresh snow, snow depth, total runs, skiable area, run length, vertical, price), with the walking route and ETA on the map for the selected resort |
 
 The 🚗 Drive mode was removed on 2026-11-25: the app serves skiers without a car. Road routing stays only for the shuttle bus's road path.
 
@@ -29,10 +29,9 @@ The 🚗 Drive mode was removed on 2026-11-25: the app serves skiers without a c
 | `place-search` | Search hotels/places → origin coordinate | — |
 | `routing` | Valhalla wrapper: walk and bus-road route, ETA, one-to-many matrix | — |
 | `snow-conditions` | Snow depth + new-snow forecast per resort (Open-Meteo; resort reports if parseable) | `resort-catalog` |
-| `crowd-level` | Crowd estimate per resort per date (heuristic v1, pluggable source) | `resort-catalog`, `snow-conditions` |
+| ~~`crowd-level`~~ | Removed 2026-11-26 ([ADR-0011](docs/adr/0011-remove-crowd-estimate.md)): a hand-weighted crowd score with no grounded source or ground truth | — |
 | `bus-schedules` | Timetable ingestion (detect → transcribe → validate → git) + "next bus to resorts" query | `resort-catalog`, `routing` |
-| `resort-ranking` | Single-criterion ranking of resorts from an origin | `resort-catalog`, `routing`, `snow-conditions`, `crowd-level` |
-| `poi-destinations` | Restaurant & convenience-store destinations (OSM snapshot) + nearby-by-ETA query *(added v1.1, 2026-10-30)* | `routing` |
+| `resort-ranking` | Single-criterion ranking of resorts from an origin | `resort-catalog`, `routing`, `snow-conditions` |
 | `saved-places` | Starred/saved places and lists in browser storage, "My hotel" label, share links *(added v1.3, 2026-10-30)* | — (browser only) |
 | `pilot` | Turn-by-turn navigation from live GPS: snapping, progress/ETA, off-route reroute, bus journey guidance *(added v1.3, 2026-10-30)* | `routing`, `bus-schedules` |
 | `game-theme` | Original game look and sound: pixel snowboarder hero, world badges W1–W10, dialog/level-card frames, chiptune effects (Web Audio); UI in the Maps look since 2026-11-20 (system font), plain basemap since web-app v1.30 *(added v1.6, 2026-10-31)* | — (browser only) |
@@ -44,7 +43,7 @@ The 🚗 Drive mode was removed on 2026-11-25: the app serves skiers without a c
 | `ask-maps` | Ask the map a question: a bounded tool loop over the agent-tools, cited answers, cited places pinned *(proposed 2026-11-18, ADR-0007)* | `agent-tools` |
 | `ski-runs` | Runs and lifts of the 10 resorts on the map, coloured by difficulty (OpenSkiMap snapshot) *(proposed 2026-11-23)* | `resort-catalog` |
 
-**Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions`, `crowd-level` → `resort-ranking` → `bus-schedules` + 🚌 tab
+**Build order:** `resort-catalog` → `place-search`, `routing` → `web-app` (🚶 + 🚗 route) → `snow-conditions` → `resort-ranking` → `bus-schedules` + 🚌 tab
 **v1.6 build order:** `game-theme` → `progression` → `web-app` wiring
 
 Dependency arrows point one way. `web-app` talks only to the HTTP API and never imports backend modules.
@@ -108,7 +107,7 @@ apps/web/                     Next.js app (web-app module)
 services/api/                 FastAPI service
   src/hakuba_api/
     main.py                   app + router registration
-    catalog/ places/ routing/ snow/ crowd/ bus/ ranking/ pois/   ← one package per module id
+    catalog/ places/ routing/ snow/ bus/ ranking/   ← one package per module id
     common/                   shared helpers: cache, geo, models, params, rate limit, upstream errors
     data/                     loaders + validate entrypoint
   tests/                      pytest, mirrors package layout; tests/fixtures/ for recorded HTTP
@@ -175,20 +174,20 @@ export function ResortList({ resorts, onSelect }: { resorts: RankedResort[]; onS
 - Coordinates are always `{lat, lng}` objects in the API and never bare tuples. (Valhalla/GeoJSON `[lng, lat]` order is converted only inside `routing`.)
 - All times are timezone-aware `Asia/Tokyo` and serialized as ISO 8601 with offset. Durations are integer seconds.
 - API JSON uses camelCase (Pydantic `alias_generator=to_camel`). Python stays snake_case.
-- Every displayed estimate is labeled as such ("ETA ~", "Crowd: estimated").
+- Every displayed estimate is labeled as such ("ETA ~", snow `asOf`).
 
 ## Testing Strategy
 
 | Level | Tool | What |
 |---|---|---|
-| Unit | pytest | Pure logic: ranking scores, crowd heuristic, bus query, timetable validator, coordinate conversion |
+| Unit | pytest | Pure logic: ranking scores, bus query, timetable validator, coordinate conversion |
 | Contract | pytest + recorded fixtures (`respx`) | Adapters for Valhalla, Photon, Overpass, Open-Meteo against recorded responses. **No live network in the default test run**: in the API's tests a call nobody faked fails its test (`tests/conftest.py`). |
 | Data | pytest | Every file in `data/` passes Pydantic validation and cross-reference checks (stop ids exist, resort ids exist) |
 | Integration | pytest, marker `@pytest.mark.live` | Real Valhalla container + real upstream APIs; run on demand: `pytest -m live` |
 | Component | Vitest + Testing Library | Panels and list rendering, mode switching |
 | E2E | Playwright | Search hotel → each mode shows a result on the map |
 
-Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/query`, `bus/validate`); no number is enforced for adapters or UI. Write tests first for pure logic (TDD).
+Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `bus/query`, `bus/validate`); no number is enforced for adapters or UI. Write tests first for pure logic (TDD).
 
 ## Boundaries
 
@@ -219,11 +218,11 @@ Coverage target: ≥ 90% lines on pure-logic packages (`ranking`, `crowd`, `bus/
 3. 🚶 Walk draws a walking route and ETA to any resort or stop.
 4. 🚌 Bus shows the walk to the nearest stop plus the next 3 departures and arrival time at each reachable resort. When this season's timetable isn't published yet, times are projected from the last one and labeled **Expected**. Outside the season it says clearly that no service runs. No years are shown in the UI.
 6. *(v1.1)* Routes look and behave like Google Maps directions: fitted map, ETA pills, alternates, turn-by-turn with icons, and a bus journey drawn walk → ride → resort.
-7. *(v1.1)* Restaurants and convenience stores can be chosen as destinations in 🚶.
+7. ~~*(v1.1)* Restaurants and convenience stores can be chosen as destinations in 🚶.~~ *Removed 2026-11-25 ([ADR-0010](docs/adr/0010-drop-restaurants-and-konbini.md)).*
 5. All quality gates pass. The Playwright E2E test covers all three modes.
 
 ## Open Questions
 
 - ~~Hosting target for later~~ Answered by `SPEC-deploy.md`: Phase A this Mac + Tailscale Funnel, Phase B Vercel Hobby (ADR-0006; Oracle is the fallback).
-- Real crowd data source (see `SPEC-crowd-level.md`).
+- ~~Real crowd data source~~ The crowd estimate was removed instead ([ADR-0011](docs/adr/0011-remove-crowd-estimate.md), which says what would bring it back).
 - Whether the hakubavalley.com Weather & Snow / Lift Status pages can be parsed reliably (see `SPEC-snow-conditions.md`).

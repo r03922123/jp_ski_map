@@ -72,7 +72,7 @@ const walk = (s: number) => (s < 60 ? "<1 min" : formatDuration(s));
 const alightName = (option: BusOption) =>
   option.rideStops[alightIndexOf(option)]?.name ?? "";
 
-/** Walking at both ends of the ride (v1.34). */
+/** Walking at both ends of the ride (v1.35). */
 const walkOf = (o: BusOption) => o.walkS + (o.walkToPlaceS ?? 0);
 
 /** As the API ranks resort options: a trip with no published arrival goes after the known ones. */

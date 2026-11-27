@@ -134,8 +134,8 @@ def score(q: dict[str, Any], called: list[str], answer: str) -> dict[str, Any]:
 
     recall = required tools called / required; precision = distinct calls that were
     required or optional / distinct calls. Pass = every required tool called and the
-    answer matches the question's regex. An `any_of` group (e.g. crowd_and_snow or
-    rank_resorts, which both give crowd and snow) counts as one required tool, met by any member.
+    answer matches the question's regex. An `any_of` group (e.g. snow_conditions or
+    rank_resorts, which both give snow) counts as one required tool, met by any member.
     """
     required = set(q["required"])
     groups = [set(g) for g in q.get("any_of", [])]

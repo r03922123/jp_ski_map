@@ -18,12 +18,13 @@ Google Maps link.
    The app shows the walk to the nearest shuttle stop, the next 3 departures, and when each bus
    reaches each resort. When this season's timetable isn't out yet, times are labelled **Expected**.
 2. **"Which resort should I go to today?"** In 🚶 all 10 resorts are ranked by the one thing you
-   care about: walk time, total runs, skiable area or run length (the API also sorts by snow, crowd, vertical
+   care about: walk time, total runs, skiable area or run length (the API also sorts by snow, vertical
    and price).
-   Each row shows the walk ETA, the snow, and an estimated crowd badge with its reasons.
+   Each row shows the walk ETA and the snow.
    Tapping a row draws the route.
-3. **"Where can I eat, and how far is it?"** In 🚶, pick a restaurant or a konbini and get a
-   route with an ETA. You can add stops along the way.
+3. **"How far is it to there?"** In 🚶, type any place in the To box or drop a pin and get a
+   route with an ETA. You can add stops along the way. (Restaurants and konbini lists went on
+   2026-11-25, [ADR-0010](adr/0010-drop-restaurants-and-konbini.md): Google Maps does food better.)
 4. **"Guide me there."** On a phone, **Start** turns the route into turn-by-turn navigation from
    live GPS. It reroutes when you leave the route and, on the bus, says when to get off. When you
    reach a resort you collect a **stamp** (the light game layer).
@@ -41,10 +42,9 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
 | [place-search](../SPEC-place-search.md) | Find a hotel or place, or paste a Google Maps link, to set the start | `components/SearchBox.tsx`, `lib/recent-searches.ts` | `places/` (`index.py` local index, `photon.py` fallback, `gmaps_link.py`), `/api/places/suggest`, `/search`, `/lodging` | Shipped |
 | [routing](../SPEC-routing.md) | Walk routes, ETAs, turn list; the bus's road path | `components/DirectionsPanel.tsx`, `lib/route-geo.ts` | `routing/` (Valhalla client), `/api/route`, `/routes`, `/route/path`, `/matrix` | Shipped |
 | [snow-conditions](../SPEC-snow-conditions.md) | Snow depth and new snow per resort | shown in `components/ResortList.tsx` | `snow/` (Open-Meteo, 1 h cache), `GET /api/snow` | Partly built: model only, the "reported" source isn't built |
-| [crowd-level](../SPEC-crowd-level.md) | "Crowd: high (est.)" with reasons | shown in `components/ResortList.tsx` | `crowd/heuristic.py`, `GET /api/crowd` (unused by the web) | Shipped (heuristic v1) |
+| [crowd-level](../SPEC-crowd-level.md) | — | — | — | Removed 2026-11-26 ([ADR-0011](adr/0011-remove-crowd-estimate.md)): no grounded data source or ground truth |
 | [bus-schedules](../SPEC-bus-schedules.md) | Next shuttle from the nearest stop, way back to a place, night bus | `components/BusPanel.tsx`, `StopList.tsx` | `bus/` (`query.py`, `season.py`, `check_sources.py`), `/api/bus/options`, `/to-place`, `/night` | Shipped |
 | [resort-ranking](../SPEC-resort-ranking.md) | Resorts sorted by one chosen factor | `components/RankingPanel.tsx`, `SortControls.tsx`, `ResortList.tsx` | `ranking/`, `GET /api/rank` | Partly built: prices known for 9 of 10 resorts, so the web still hides the price sort; night skiing known for 5 of 10 |
-| [poi-destinations](../SPEC-poi-destinations.md) | Restaurants and konbini as destinations | `components/PoiList.tsx`, `DestinationPicker.tsx` | `pois/`, `GET /api/pois/nearby` | Shipped |
 | [saved-places](../SPEC-saved-places.md) | Star places, lists, "My hotel", share link | `components/SavedPanel.tsx`, `SaveButton.tsx`, `lib/saved-places.ts`, `lib/saved-share.ts` | — (browser only) | Shipped |
 | [pilot](../SPEC-pilot.md) | Turn-by-turn navigation from GPS, bus guidance | `components/PilotView.tsx`, `BusPilotView.tsx`, `lib/nav/` | uses `/api/route/path` for reroutes | Shipped; the real-phone walk test is still open |
 | [game-theme](../SPEC-game-theme.md) | Pixel snowboarder (no sound since web-app v1.14; plain basemap since v1.30) | `lib/game/` (`sprites.ts`), `components/HeroMarker.tsx` | — (browser only) | Shipped |
@@ -62,22 +62,9 @@ Paths are relative to `apps/web/src/` (web) and `services/api/src/hakuba_api/` (
   last), and turning on the night-skiing filter emptied the list. `dayTicketJpy` is still `null`
   for Cortina (the API still accepts `sort=price` and puts Cortina last), and `nightSkiing` is
   still `null` for Hakuba47, Happo-One, Iwatake, Norikura and Cortina, so the filter leaves them out.
-- **crowd-level** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9),
-  [PR #10](https://github.com/r03922123/jp_ski_map/pull/10),
-  [PR #12](https://github.com/r03922123/jp_ski_map/pull/12) and
-  [PR #13](https://github.com/r03922123/jp_ski_map/pull/13): the SPEC now says where 3-day
-  weekends come from, ranks a holiday equal to a Saturday, says the web gets crowd through
-  `/api/rank`, gives the real example, powder window and season edges, and says where
-  peak-period weights live; the code now names every non-zero resort prior). `GET /api/crowd`
-  exists, but the web app never calls it. Crowd reaches the screen inside `/api/rank`
-  (section 4). The SPEC ranked a public holiday above a Saturday, but both weigh 0.30 in
-  `CrowdConfig`. February 3-day weekends come from the day-type rule (any run of 3 or more weekend
-  and holiday days), not from `data/crowd_periods.json` as the SPEC said. Three more SPEC lines
-  disagreed with `crowd/heuristic.py`: the example output, the powder window (the past 24 h counts
-  only for the snow report's own day), and the season edges, which also cover all of April. Two
-  more: the SPEC put every weight in one config dict, but peak-period weights live in
-  `data/crowd_periods.json`; and it said every contributing factor appears in `reasons`, but a
-  resort prior below 0.20 added to the score with no reason.
+- **crowd-level**: removed on 2026-11-26 ([ADR-0011](adr/0011-remove-crowd-estimate.md)).
+  Its SPEC and code had disagreed in several places, all fixed in PRs #9, #10, #12 and #13
+  before the removal (follow-ups 3, 4, 5, 11 and 12).
 - **snow-conditions** (fixed in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): the
   SPEC now marks it not built). `source: "reported"` exists only as a type value. Nothing parses
   the resort-reported snow page, so every depth is modelled.
@@ -105,7 +92,7 @@ flowchart TB
     WEB["Next.js server<br/>next start :3000<br/>rewrites /api/*"]
     API["FastAPI<br/>127.0.0.1 only"]
     VAL["Valhalla (Docker)<br/>127.0.0.1:8002<br/>Hakuba-only tiles"]
-    DATA[("data/*.json<br/>resorts, stops, timetables,<br/>lodging, POIs, crowd periods")]
+    DATA[("data/*.json<br/>resorts, stops, timetables,<br/>lodging")]
   end
 
   subgraph Net["Free public services"]
@@ -130,8 +117,8 @@ flowchart TB
   exception: they go from OpenFreeMap straight to the browser.
 - **Only port 443 is public.** Funnel forwards it to `:3000`; the API and Valhalla bind
   `127.0.0.1`. `tailscale funnel --https=443 off` takes the site down at once.
-- **Offline, not per request:** the lodging and POI snapshots (`places/refresh_lodging.py`,
-  `places/refresh_overture.py`, `pois/refresh_pois.py`), the Valhalla tile build
+- **Offline, not per request:** the lodging snapshots (`places/refresh_lodging.py`,
+  `places/refresh_overture.py`), the Valhalla tile build
   (`infra/valhalla/build-hakuba.sh` from Geofabrik), and the timetable watch
   (`.github/workflows/timetable-watch.yml`, which opens an issue when the operator's page changes).
 - **Types cross the boundary once:** FastAPI's OpenAPI schema → `pnpm gen:api` →
@@ -146,16 +133,16 @@ service there: `ValhallaClient` sees `VALHALLA_TILES` and runs `pyvalhalla` in p
 lock (`routing/engine.py`). Deploys go only through `scripts/deploy-vercel.sh`, which uploads the
 committed files plus the local tiles after a hash check.
 
-## 4. One request end to end: the crowd level
+## 4. One request end to end: the Total runs sort
 
-What happens when a skier opens 🚶 Walk and taps **Crowd (estimated)** in the sort menu.
+What happens when a skier opens 🚶 Walk and picks **Total runs** in the sort menu.
 
 **In the browser**
 
-1. `components/SortControls.tsx` (inside `RankingPanel.tsx`) changes the sort to `crowd`.
+1. `components/SortControls.tsx` (inside `RankingPanel.tsx`) changes the sort to `runs`.
 2. `components/MapShell.tsx` holds the options; its TanStack Query `useQuery(["rank", origin, rankOptions])`
    sees a new key and runs `fetchRank`. `placeholderData` keeps the old list on screen meanwhile.
-3. `lib/api.ts` `fetchRank` calls `GET /api/rank?from=36.70,137.86&sort=crowd&date=…`.
+3. `lib/api.ts` `fetchRank` calls `GET /api/rank?from=36.70,137.86&sort=runs`.
 
 **Across the boundary**
 
@@ -173,35 +160,29 @@ What happens when a skier opens 🚶 Walk and taps **Crowd (estimated)** in the 
    An unhandled error is logged, but its 500 has no header, because Starlette writes that answer
    outside every middleware.
 
-**In the API** (`ranking/router.py` `get_rank`, three inputs gathered with FastAPI `Depends`)
+**In the API** (`ranking/router.py` `get_rank`, two inputs gathered with FastAPI `Depends`)
 
 6. **Walk times.** `routing/client.py` sends one walking matrix request to Valhalla: the start → every
    resort's lift bases. The nearest base per resort is kept.
-7. **Snow.** `crowd/router.py` `get_snow_by_resort` → `snow/router.py` (1 h `TtlCache`) →
-   Open-Meteo. If Open-Meteo is down, crowd is still computed, just without the powder factor.
-8. **Crowd.** `crowd/heuristic.py` `HeuristicCrowdSource.estimate` adds up, per resort:
-   day type (3-day weekend 0.35, holiday or Saturday 0.30, Sunday 0.20, via the `holidays`
-   package) + the strongest matching peak period in `data/crowd_periods.json` + powder
-   (≥ 20 cm new: +0.15) + a fixed resort prior (Happo-One 0.25 … Jigatake 0) − 0.15 at the
-   season's edges. It clamps the result to 0–1 and maps it to a level
-   (< 0.3 low, < 0.55 medium, < 0.8 high, else very high). Every non-zero term becomes a reason.
-9. `ranking/rank.py` `rank` sorts by the crowd score (lower is better; unknowns last; walk
-   time breaks ties) and returns `RankedResort` objects, serialised as camelCase JSON.
+7. **Snow.** `snow/router.py` `get_snow_by_resort` → `get_snow` (1 h `TtlCache`) → Open-Meteo.
+   If Open-Meteo is down, the last good report is served for up to 6 h; with none, the ranking
+   still answers, with snow unknown.
+8. `ranking/rank.py` `rank` reads each resort's run count from the catalog (`data/resorts.json`),
+   sorts by it (higher is better; unknowns last; for the three size sorts, more lifts break a tie,
+   then walk time) and returns `RankedResort` objects, serialised as camelCase JSON.
 
 **Back in the browser**
 
-10. `components/ResortList.tsx` shows "Crowd: very high (est.)" on each row. Under **Details**,
-    it lists the resort's runs, skiable area and run length; its Sources & weights list the crowd
-    reasons with their weights.
+9. `components/ResortList.tsx` shows each row's walk ETA and snow. Under **Details**, it lists the
+   resort's runs, skiable area and run length; its Sources list where each number came from.
 
-A worked example (run against the real code): Happo-One on Saturday 14 Feb 2026 scores
-0.30 (Saturday) + 0.25 (Lunar New Year week) + 0.25 (large resort) = **0.80, very high**.
-Jigatake on Wednesday 18 Feb scores 0.25, **low**, with "Lunar New Year week" as its only reason.
+A worked example (from `tests/ranking/test_rank.py`): resorts with 20, 15 and 10 runs rank in that
+order; when two resorts have the same run count, the one with more lifts ranks first.
 
 If Valhalla is down, `/api/rank` returns 503 (`routing_unavailable`) and the ranked list shows an
-error. Crowd disappears with it, even though the crowd estimate itself doesn't need Valhalla,
-because the two travel in one response. Each panel fetches on its own, so one panel's error
-doesn't blank the others.
+error. The run counts disappear with it, even though they don't need Valhalla, because they
+travel in one response. Each panel fetches on its own, so one panel's error doesn't blank the
+others.
 
 ## 5. Where the data comes from
 
@@ -210,14 +191,13 @@ source of truth.
 
 | Data | File | Source | Licence |
 |---|---|---|---|
-| Lodging (146) and POIs (87) | `data/lodging_osm.json`, `data/poi_osm.json` | OpenStreetMap via Overpass (snapshot) | ODbL 1.0 |
+| Lodging (146) | `data/lodging_osm.json` | OpenStreetMap via Overpass (snapshot) | ODbL 1.0 |
 | Lodging (755) | `data/lodging_overture.json` | Overture Maps Places (snapshot) | CDLA-Permissive-2.0; CC0 1.0 for AllThePlaces records; Apache-2.0 for Foursquare records |
 | Road network | Valhalla tiles, built at setup, not committed | OpenStreetMap via Geofabrik | ODbL 1.0 |
 | Map tiles | fetched at runtime | OpenFreeMap / OpenMapTiles | ODbL (OSM data) |
 | Place search fallback | queried at runtime | Photon (komoot) | ODbL (OSM data) |
 | Snow and weather | queried at runtime | Open-Meteo | CC BY 4.0 |
 | Resorts, stops, stop evidence | `data/resorts.json`, `data/bus_stops.json`, `data/bus/stop_evidence.json` | compiled for this project; coordinates from OpenStreetMap and Overture Maps Places, except 15 My Maps pins | ODbL 1.0, whole file ([ADR-0002](adr/0002-data-files-odbl.md), [ADR-0004](adr/0004-open-coordinate-sources.md)) |
-| Crowd periods | `data/crowd_periods.json` | compiled by hand | facts for trip planning |
 | Timetables (42 files, 2025–26) | `data/bus/timetables/` | transcribed from the operators' published timetables (`data/bus/sources.json`) | facts; originals not committed |
 
 > **Open licensing risk: bus-stop coordinates.** [ADR-0002](adr/0002-data-files-odbl.md) labels
@@ -289,12 +269,12 @@ Each item is small enough for its own PR. None is fixed by this page.
    price as a Drive sort, `SPEC-resort-catalog.md` lists the 5 unknowns and the open meaning of
    `dayTicketJpy` under Open Questions, and `apps/web/tests/url-state.test.ts` checks that
    `?sort=price` falls back to drive time.
-3. **Crowd: holiday vs Saturday.** Make the code match SPEC-crowd-level (holiday > Saturday), or
+3. ~~**Crowd: holiday vs Saturday.**~~ *(moot: crowd removed 2026-11-26, [ADR-0011](adr/0011-remove-crowd-estimate.md))* Make the code match SPEC-crowd-level (holiday > Saturday), or
    change the SPEC. ✅ Done in [PR #10](https://github.com/r03922123/jp_ski_map/pull/10): the SPEC
    now says holiday = Saturday ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md)); no code change.
-4. **Crowd: February 3-day weekends.** Say in the SPEC that they come from the holiday calendar,
+4. ~~**Crowd: February 3-day weekends.**~~ *(moot: crowd removed 2026-11-26, [ADR-0011](adr/0011-remove-crowd-estimate.md))* Say in the SPEC that they come from the holiday calendar,
    not `crowd_periods.json`. ✅ Done in [PR #9](https://github.com/r03922123/jp_ski_map/pull/9).
-5. **Crowd: `/api/crowd`.** Note in the SPEC that the web app gets crowd through `/api/rank`, or
+5. ~~**Crowd: `/api/crowd`.**~~ *(moot: crowd removed 2026-11-26, [ADR-0011](adr/0011-remove-crowd-estimate.md))* Note in the SPEC that the web app gets crowd through `/api/rank`, or
    remove the unused endpoint. ✅ Done in [PR #10](https://github.com/r03922123/jp_ski_map/pull/10):
    the endpoint stays, and the SPEC notes the web reads crowd through `/api/rank`
    ([ADR-0001](adr/0001-follow-ups-1-2-3-5.md)).
@@ -311,12 +291,12 @@ Each item is small enough for its own PR. None is fixed by this page.
     in SPEC.md that `tasks/todo.md` is the status record. ✅ Done in
     [PR #9](https://github.com/r03922123/jp_ski_map/pull/9): SPEC.md now says `tasks/todo.md` is
     the status record; the boxes are left as they are.
-11. **Crowd: example, powder and season edges.** Make SPEC-crowd-level's example output, powder
+11. ~~**Crowd: example, powder and season edges.**~~ *(moot: crowd removed 2026-11-26, [ADR-0011](adr/0011-remove-crowd-estimate.md))* Make SPEC-crowd-level's example output, powder
     window and season edges match `crowd/heuristic.py`, or change the code. ✅ Done in
     [PR #12](https://github.com/r03922123/jp_ski_map/pull/12): the SPEC now shows the real output,
     states the powder window and the season-edge dates, and names `_new_snow_for` and
     `_is_season_edge`; no code change.
-12. **Crowd: config dict and silent resort prior.** Make SPEC-crowd-level's "every weight in one
+12. ~~**Crowd: config dict and silent resort prior.**~~ *(moot: crowd removed 2026-11-26, [ADR-0011](adr/0011-remove-crowd-estimate.md))* Make SPEC-crowd-level's "every weight in one
     config dict" and "every contributing factor appears in `reasons`" match `crowd/heuristic.py`,
     or change the code. ✅ Done in [PR #13](https://github.com/r03922123/jp_ski_map/pull/13): the
     SPEC says peak-period weights live in `data/crowd_periods.json`, and the code now gives every

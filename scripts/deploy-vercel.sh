@@ -65,7 +65,7 @@ mkdir -p "$API/data/bus" "$API/tiles"
 
 # Only what the API reads at runtime; data/bus/raw and stop_evidence.json stay out of the upload.
 for item in resorts.json bus_stops.json bus/timetables bus/sources.json lodging_osm.json \
-  lodging_overture.json lodging_readings.json lodging_aliases.json poi_osm.json poi_google.json crowd_periods.json ski_lines.json; do
+  lodging_overture.json lodging_readings.json lodging_aliases.json ski_lines.json; do
   [[ -s $STAGE/data/$item ]] || die "runtime data missing or empty in this commit: data/$item"
   cp -R "$STAGE/data/$item" "$API/data/$item"
 done
@@ -84,6 +84,10 @@ cp "$TILES" "$API/tiles/valhalla_tiles.tar"
 expected=$(cut -d' ' -f1 "$HASH_FILE")
 actual=$(shasum -a 256 "$API/tiles/valhalla_tiles.tar" | cut -d' ' -f1)
 [[ -n $expected && $actual == "$expected" ]] || die "tile hash mismatch: got $actual, want $expected"
+
+# Installed, pyvalhalla alone is over Vercel's 225 MB standard size, and then every new instance
+# installs packages before it answers. A padding-free copy as plain files keeps the bundle under it.
+python3 "$STAGE/scripts/vendor_valhalla.py" "$API" || die "could not vendor a slim pyvalhalla"
 
 cd "$STAGE"
 echo "deploy-vercel: deploying commit $(git -C "$ROOT" rev-parse HEAD) with: ${TARGET[*]}"

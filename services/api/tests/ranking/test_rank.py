@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -8,10 +8,9 @@ from fastapi.testclient import TestClient
 from hakuba_api.catalog.models import Resort
 from hakuba_api.catalog.store import get_resort
 from hakuba_api.common.geo import Coord
-from hakuba_api.crowd.models import CrowdEstimate
 from hakuba_api.main import app
 from hakuba_api.ranking.rank import Filters, RankInput, rank
-from hakuba_api.ranking.router import get_crowd_for, get_snow_reports
+from hakuba_api.ranking.router import get_snow_reports
 from hakuba_api.routing.models import MatrixCell, Mode
 from hakuba_api.routing.router import get_valhalla
 from hakuba_api.snow.models import NewSnow, SnowDepth, SnowReport, SummitTemps
@@ -38,18 +37,6 @@ def snow(past24h: float | None, next24h: float | None, summit: int | None) -> Sn
     )
 
 
-def crowd(score: float) -> CrowdEstimate:
-    return CrowdEstimate(
-        resort_id="x",
-        date=date(2026, 1, 12),
-        level="low",
-        score=score,
-        source="heuristic",
-        reasons=[],
-        contributions=[],
-    )
-
-
 def inputs() -> list[RankInput]:
     return [
         RankInput(
@@ -65,7 +52,6 @@ def inputs() -> list[RankInput]:
             ),
             walk=MatrixCell(id="a-base", duration_s=600, distance_m=5000),
             snow=snow(past24h=10, next24h=10, summit=200),
-            crowd=crowd(0.7),
         ),
         RankInput(
             resort=resort(
@@ -80,7 +66,6 @@ def inputs() -> list[RankInput]:
             ),
             walk=MatrixCell(id="b-base", duration_s=1200, distance_m=12000),
             snow=snow(past24h=30, next24h=0, summit=300),
-            crowd=crowd(0.2),
         ),
         RankInput(
             resort=resort(
@@ -95,7 +80,6 @@ def inputs() -> list[RankInput]:
             ),
             walk=MatrixCell(id="c-base", duration_s=300, distance_m=2000),
             snow=snow(past24h=None, next24h=5, summit=None),
-            crowd=crowd(0.4),
         ),
     ]
 
@@ -106,7 +90,6 @@ def inputs() -> list[RankInput]:
         ("walk_time", ["c", "a", "b"]),  # lower is better
         ("fresh_snow", ["b", "a", "c"]),  # b: 30, a: 10 + 5 = 15, c: unknown -> last
         ("snow_depth", ["b", "a", "c"]),  # c unknown -> last
-        ("crowd", ["b", "c", "a"]),  # lower is better
         ("runs", ["b", "c", "a"]),
         ("area", ["c", "b", "a"]),
         ("run_length", ["a", "b", "c"]),
@@ -187,15 +170,14 @@ def test_valley_pass_filter() -> None:
     assert [r.resort_id for r in ranked] == ["c", "a"]
 
 
-def test_missing_snow_and_crowd_are_null_factors() -> None:
+def test_missing_snow_is_null_factors() -> None:
     data = inputs()
     data[0].snow = None
-    data[0].crowd = None
 
-    ranked = rank(data, "crowd", Filters())
+    ranked = rank(data, "snow_depth", Filters())
 
     a = next(r for r in ranked if r.resort_id == "a")
-    assert (a.factors.fresh_snow, a.factors.snow_depth, a.factors.crowd) == (None, None, None)
+    assert (a.factors.fresh_snow, a.factors.snow_depth) == (None, None)
     assert ranked[-1].resort_id == "a"
 
 
@@ -216,15 +198,10 @@ class FakeValhalla:
         ]
 
 
-def no_crowd(_day: date) -> dict[str, CrowdEstimate]:
-    return {}
-
-
 @pytest.fixture
 def api() -> Any:
     app.dependency_overrides[get_valhalla] = FakeValhalla
     app.dependency_overrides[get_snow_reports] = lambda: {}
-    app.dependency_overrides[get_crowd_for] = lambda: no_crowd
     yield TestClient(app)
     app.dependency_overrides.clear()
 
@@ -247,10 +224,18 @@ def test_rank_endpoint_ranks_by_walking_not_road_times(api: TestClient) -> None:
     assert FakeValhalla.modes == ["walk"]
 
 
-def test_rank_endpoint_rejects_the_removed_drive_sort(api: TestClient) -> None:
-    response = api.get("/api/rank", params={"from": "36.6987,137.8617", "sort": "drive_time"})
+@pytest.mark.parametrize("sort", ["drive_time", "crowd"])
+def test_rank_endpoint_rejects_removed_sorts(api: TestClient, sort: str) -> None:
+    response = api.get("/api/rank", params={"from": "36.6987,137.8617", "sort": sort})
 
     assert response.status_code == 422
+
+
+def test_rank_endpoint_has_no_crowd_field(api: TestClient) -> None:
+    row = api.get("/api/rank", params={"from": "36.6987,137.8617"}).json()[0]
+
+    assert "crowd" not in row
+    assert "crowd" not in row["factors"]
 
 
 def test_rank_endpoint_uses_nearest_access_point(api: TestClient) -> None:

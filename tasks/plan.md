@@ -7,7 +7,7 @@ A Google-Maps-style web app for Hakuba Valley. Search for a hotel, then get 🚌
 - **Monorepo, two apps.** `apps/web` (Next.js + MapLibre) and `services/api` (FastAPI). The web app only talks to `/api`, and its types are generated from OpenAPI, so neither side can drift silently.
 - **Data lives in JSON files in git, not a database.** It is about 10 resorts, ~25 bus stops and ~14 timetables. Changes are reviewed as git diffs, and every load is checked by Pydantic.
 - **Valhalla is self-hosted in Docker** on the Chubu OSM extract. ETAs are Valhalla's raw estimate with no winter multiplier.
-- **Pure logic is kept separate from I/O.** Ranking, the crowd heuristic, the bus query and the validators are pure functions written test-first. Adapters (Valhalla, Photon, Open-Meteo, Overpass) are tested against recorded fixtures.
+- **Pure logic is kept separate from I/O.** Ranking, ~~the crowd heuristic~~ (removed 2026-11-26, ADR-0011), the bus query and the validators are pure functions written test-first. Adapters (Valhalla, Photon, Open-Meteo, Overpass) are tested against recorded fixtures.
 - **Each slice runs from the API through to the UI.** Walk and drive routes come first, then search, then conditions and ranking, then bus. That matches the approved build order.
 - **No paid APIs.** Bus timetables are transcribed in Claude Code sessions and checked by the validator.
 
@@ -16,7 +16,7 @@ A Google-Maps-style web app for Hakuba Valley. Search for a hotel, then get 🚌
 scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web map+walk/drive ── search UI
                     │                              ├── matrix ── ranking ── web drive tab
                     ├─ resort-catalog ─────────────┤
-                    │      ├─ snow ── crowd ───────┘
+                    │      ├─ snow ── ~~crowd~~ ───┘
                     │      └─ bus stops ── timetable validator ── transcription ── bus query ── web bus tab
                     └─ place-search (photon, gmaps link, lodging snapshot)
 ```
@@ -51,7 +51,7 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 ### Phase 4: Slice 3 — Conditions & Ranking
 - [x] T11 Snow conditions (Open-Meteo) + `/api/snow`
 - [x] T12 Spike: hakubavalley.com Weather & Snow page (time-boxed 1 h, findings only)
-- [x] T13 Crowd heuristic + `/api/crowd`
+- [x] ~~T13 Crowd heuristic + `/api/crowd`~~ (removed 2026-11-26, ADR-0011)
 - [x] T14 Matrix + ranking pure function + `/api/rank`
 - [x] T15 Web: 🚗 ranked list (sort, filters, date, factors)
 
@@ -82,18 +82,18 @@ scaffold(api, web) ─┬─ valhalla infra ── routing ──┬── web m
 | Public Overpass/Photon are unreliable (Overpass already failed twice) | Med | Lodging is served from a snapshot. Photon is cached for 24 h. The link-paste and pin paths don't need either. |
 | Transcription errors in timetables | Med | Validator (monotonic times, known stops, no overlapping periods) plus human git-diff review; `reviewed: true` is required before data is served. |
 | The hakubavalley.com page layout changes | Low | `check_sources` fails loudly, and the per-asset hash list shows what changed. |
-| The off-season makes snow/crowd hard to test live | Low | Everything is tested with recorded fixtures from last winter. Live tests are opt-in (`-m live`). |
+| The off-season makes snow~~/crowd~~ hard to test live | Low | Everything is tested with recorded fixtures from last winter. Live tests are opt-in (`-m live`). |
 
 ## Open Questions
 - "Best overall" combined ranking — research after v1 (see `SPEC-resort-ranking.md`).
-- Real crowd data source — research backlog (see `SPEC-crowd-level.md`).
+- ~~Real crowd data source — research backlog (see `SPEC-crowd-level.md`).~~ Crowd removed instead (ADR-0011).
 - Hosting — not needed for v1 (runs locally).
 
 ---
 
 # v1.1 plan (2026-10-30)
 
-Specs: v1.1 sections of [SPEC-routing](../SPEC-routing.md), [SPEC-bus-schedules](../SPEC-bus-schedules.md), [SPEC-web-app](../SPEC-web-app.md), and the new [SPEC-poi-destinations](../SPEC-poi-destinations.md).
+Specs: v1.1 sections of [SPEC-routing](../SPEC-routing.md), [SPEC-bus-schedules](../SPEC-bus-schedules.md), [SPEC-web-app](../SPEC-web-app.md), and the new SPEC-poi-destinations (deleted 2026-11-25 with ADR-0010).
 
 ## Architecture decisions
 - **Additive API.** `/api/routes` (alternates) and `POST /api/route/path` are new endpoints; `/api/route` is unchanged. New `Step` and `BusResult` fields are optional for old callers.
@@ -122,7 +122,7 @@ T30 poi data ── T31 nearby API ── T32 destination picker (needs T24/T25)
 - T28 Web: bus copy — no years, Expected badge, newer-timetable notice ✅
 - T29 Bus + web: `rideStops`, ride-leg drawing, transit timeline ✅
 ### Checkpoint G: bus works today (Oct 2026) as "Expected"; journey drawn ✅
-### Phase 8: Food & konbini destinations
+### Phase 8: Food & konbini destinations (removed 2026-11-25, [ADR-0010](../docs/adr/0010-drop-restaurants-and-konbini.md))
 - T30 POI: model, refresh script, snapshot, validator ✅
 - T31 POI: `GET /api/pois/nearby` ✅
 - T32 Web: destination picker (Resorts | Food | Konbini), list, URL state ✅

@@ -21,11 +21,11 @@ const resort = {
   coord: { lat: 36.7, lng: 137.83 },
   kind: "resort" as const,
 };
-const konbini = {
+const hotel = {
   id: "k",
-  name: "7-Eleven Happo",
+  name: "Hotel Happo",
   coord: { lat: 36.699, lng: 137.845 },
-  kind: "poi" as const,
+  kind: "lodging" as const,
 };
 
 afterEach(() => vi.restoreAllMocks());
@@ -53,15 +53,15 @@ function renderTrip(props: Partial<TripPanelProps> = {}) {
 describe("TripPanel", () => {
   // the From box on top has the start's star and ✕, so the list holds only the stops
   it("lists the stops, each with a Save star, and no From row", () => {
-    renderTrip({ stops: [{ key: "s1", place: konbini }] });
+    renderTrip({ stops: [{ key: "s1", place: hotel }] });
     const rows = within(
       screen.getByRole("list", { name: "Trip" }),
     ).getAllByRole("listitem");
     expect(rows.map((r) => r.textContent)).toEqual([
-      expect.stringContaining("7-Eleven Happo"),
+      expect.stringContaining("Hotel Happo"),
     ]);
     expect(
-      screen.getByRole("button", { name: "Save 7-Eleven Happo" }),
+      screen.getByRole("button", { name: "Save Hotel Happo" }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Remove starting point" }),
@@ -80,14 +80,14 @@ describe("TripPanel", () => {
   });
 
   it("✕ on a stop row removes it", () => {
-    const h = renderTrip({ stops: [{ key: "s1", place: konbini }] });
+    const h = renderTrip({ stops: [{ key: "s1", place: hotel }] });
     fireEvent.click(screen.getByRole("button", { name: "Remove stop 1" }));
     expect(h.onRemoveStop).toHaveBeenCalledWith("s1");
   });
 
   // SPEC-web-app v1.13 rule 6: the To box in the trip card is the only To
   it("has no To row: the box in the trip card is the destination", () => {
-    renderTrip({ stops: [{ key: "s1", place: konbini }] });
+    renderTrip({ stops: [{ key: "s1", place: hotel }] });
     expect(screen.getByRole("list", { name: "Trip" })).not.toHaveTextContent(
       "To:",
     );
@@ -97,10 +97,10 @@ describe("TripPanel", () => {
   // #117: the ends keep both buttons (one marked disabled), so a move to an end never removes
   // the button that has focus
   it("moves a stop up or down; at the ends that way is disabled, not removed", () => {
-    const second = { ...konbini, id: "k2", name: "Lawson Hakuba" };
+    const second = { ...hotel, id: "k2", name: "Lodge Hakuba" };
     const handlers = renderTrip({
       stops: [
-        { key: "s1", place: konbini },
+        { key: "s1", place: hotel },
         { key: "s2", place: second },
       ],
     });
@@ -120,10 +120,10 @@ describe("TripPanel", () => {
   // re-review of #117: React moves the focused row on Move down, and a moved element loses
   // focus; it goes back to the moved stop's button
   it("keeps focus on the moved stop's button after a real Move down", () => {
-    const second = { ...konbini, id: "k2", name: "Lawson Hakuba" };
+    const second = { ...hotel, id: "k2", name: "Lodge Hakuba" };
     function Reorderable() {
       const [stops, setStops] = useState<TripStop[]>([
-        { key: "s1", place: konbini },
+        { key: "s1", place: hotel },
         { key: "s2", place: second },
       ]);
       return (
@@ -157,8 +157,8 @@ describe("TripPanel", () => {
   it("offers no reorder while a stop box is open", () => {
     renderTrip({
       stops: [
-        { key: "s1", place: konbini },
-        { key: "s2", place: { ...konbini, id: "k2", name: "Lawson" } },
+        { key: "s1", place: hotel },
+        { key: "s2", place: { ...hotel, id: "k2", name: "Lodge" } },
         { key: "s3", place: null },
       ],
     });
@@ -166,20 +166,20 @@ describe("TripPanel", () => {
   });
 
   it("offers no reorder for a single stop", () => {
-    renderTrip({ stops: [{ key: "s1", place: konbini }] });
+    renderTrip({ stops: [{ key: "s1", place: hotel }] });
     expect(screen.queryByRole("button", { name: /Move stop/ })).toBeNull();
   });
 });
 
 describe("TripPanel with its state (add → type → pick)", () => {
-  const sevenEleven: Suggestion = {
+  const hotelHappo: Suggestion = {
     id: "osm:node/1",
-    kind: "convenience",
-    name: "7-Eleven Happo",
+    kind: "lodging",
+    name: "Hotel Happo",
     nameJa: null,
     coord: { lat: 36.699, lng: 137.845 },
-    detail: "Convenience store",
-    match: [0, 8],
+    detail: "Hotel",
+    match: [0, 5],
     source: "index",
   };
 
@@ -216,7 +216,7 @@ describe("TripPanel with its state (add → type → pick)", () => {
   }
 
   it("fills the stop from a suggestion, then hands focus to Add destination (not to the page)", async () => {
-    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([sevenEleven]);
+    vi.spyOn(api, "fetchSuggestions").mockResolvedValue([hotelHappo]);
     render(
       <QueryClientProvider client={new QueryClient()}>
         <Harness />
@@ -226,14 +226,12 @@ describe("TripPanel with its state (add → type → pick)", () => {
     const box = screen.getByRole("combobox", { name: "Stop 1" });
     expect(box).toHaveFocus();
     fireEvent.change(box, { target: { value: "7-Ele" } });
-    fireEvent.click(
-      await screen.findByRole("option", { name: /7-Eleven Happo/ }),
-    );
+    fireEvent.click(await screen.findByRole("option", { name: /Hotel Happo/ }));
 
     const rows = within(
       screen.getByRole("list", { name: "Trip" }),
     ).getAllByRole("listitem");
-    expect(rows[0]).toHaveTextContent("7-Eleven Happo");
+    expect(rows[0]).toHaveTextContent("Hotel Happo");
     expect(
       screen.getByRole("button", { name: "Add destination" }),
     ).toHaveFocus();
@@ -250,7 +248,7 @@ describe("TripPanel's Add destination slot (SPEC-web-app v1.18)", () => {
   it("shows the slot above the Trip list, where any number of stops can't push it under the ETA row", () => {
     const addStopRef = { current: null };
     const props = {
-      stops: [{ key: "s1", place: konbini }],
+      stops: [{ key: "s1", place: hotel }],
       addStopRef,
       near: null,
       onRemoveStop: () => {},

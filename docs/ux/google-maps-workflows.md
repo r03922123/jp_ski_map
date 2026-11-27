@@ -11,7 +11,7 @@ The following details are proposed Hakuba design decisions.
 Use a readable sans-serif font, light surfaces, rounded controls, restrained shadows,
 blue primary actions and clear selected states throughout the working interface.
 Replace the pixel frames on controls, sheets and place markers. Retain useful ski-resort
-icons and snow, crowd, shuttle and timetable information.
+icons and snow, ~~crowd~~ (removed 2026-11-26, ADR-0011), shuttle and timetable information.
 
 The map fills the available screen. Keep search at its current safe-area position.
 Check the Home Screen status bar on a cold launch, with the keyboard open and after

@@ -1,7 +1,7 @@
 # Spec: pipeline (rebuild everything from one URL)
 
 > Module of [SPEC.md](SPEC.md). Depends on: every data-producing module (resort-catalog, place-search,
-> poi-destinations, bus-schedules, routing). Consumed by: CI, deploy. Drafted 2026-11-18, revised
+> bus-schedules, routing). Consumed by: CI, deploy. Drafted 2026-11-18, revised
 > after a fresh-context review the same day.
 
 ## Objective
@@ -45,10 +45,10 @@ data that failed verification" (ADR-0007).
 | `hakubavalley.com/en/ski_resort_info_en/` | same site; resort stats (today's `statsSource`) |
 | Each resort's own site, from the `website` on that info page | prices and night skiing (ADR-0003) |
 | Overpass at a pinned `[date:]`; Overture at a pinned release; Geofabrik at a dated extract | open data already used (ADR-0002, ADR-0004) |
-| Japanese public holidays: the `holidays` package, pinned | calendar for crowd periods |
+| ~~Japanese public holidays: the `holidays` package, pinned~~ | ~~calendar for crowd periods~~ (crowd removed 2026-11-26, ADR-0011) |
 
-The school-break ranges in `crowd_periods.json` become rules in code (the same "approx." dates,
-now visible and tested), not a fetched source.
+~~The school-break ranges in `crowd_periods.json` become rules in code (the same "approx." dates,
+now visible and tested), not a fetched source.~~ The file went with the crowd estimate (ADR-0011).
 
 ## What is hand-made today
 
@@ -59,7 +59,7 @@ From the code on 2026-11-18 ([review](docs/review/2026-11-18-codebase-review.md)
 | `data/bus/timetables/**` (42 files) | transcribed in a Claude Code session, `reviewed: true` set by a person | transcription, period splits, fares, dates, boarding rules, review |
 | `bus_stops.json` (100 rows), `stop_evidence.json` (66) | rows written by hand; 51 evidence entries researched by hand (20 OSM, 1 access point, 30 Overture); the `MANUAL_MATCHES` table | rows, candidate matching, alias table |
 | `data/resorts.json` | hand-written: stats, prices (ADR-0003), access points | all of it |
-| `data/crowd_periods.json` | hand-written, ranges marked "approx." | the calendar |
+| ~~`data/crowd_periods.json`~~ | ~~hand-written, ranges marked "approx."~~ | ~~the calendar~~ (deleted 2026-11-26, ADR-0011) |
 | `data/bus/sources.json` | `check_sources`, but `--accept` waits for the transcription | the gate |
 | Lodging, POI, Overture snapshots | `refresh_*`, not pinned (no Overpass `[date:]`, newest Overture release, `fetchedAt=now()`) | pinning |
 | Valhalla tiles | `build-hakuba.sh`, downloads `chubu-latest` | pinning |
@@ -81,9 +81,8 @@ seeds/hakuba.toml
        ├─ resorts ──► resorts.json  (info page + OSM lifts + resort price pages)   needs osm
        ├─ stops ────► bus_stops.json (rows from printed names; My Maps pins + OSM/Overture/lodging/
        │              access-point candidates; Valhalla leg check)            needs lines, osm, resorts
-       ├─ timetables► timetables/**  (render → 2 extractors → canonical compare → validate)
-       │                                                                  needs lines, stops
-       └─ calendar ─► crowd_periods.json
+       └─ timetables► timetables/**  (render → 2 extractors → canonical compare → validate)
+                                                                          needs lines, stops
   verify (every stage) → parity.json → data PR
 ```
 

@@ -66,8 +66,7 @@ def test_tools_list_with_token(token: str) -> None:
         "rank_resorts",
         "next_buses",
         "route",
-        "nearby_pois",
-        "crowd_and_snow",
+        "snow_conditions",
     }
 
 

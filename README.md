@@ -5,7 +5,7 @@ A Google-Maps-style trip planner for skiers staying in **Hakuba Valley** (Nagano
 | Mode | What you get |
 |---|---|
 | 🚌 **Bus** | The nearest shuttle stops, the walk to them, the next departures, and arrival times at each resort, from transcribed 2025–26 timetables |
-| 🚶 **Walk** | All 10 resorts ranked by one factor (walk time, fresh snow, snow depth, crowd level, terrain, vertical), and a walking route and ETA to a resort, food or a konbini |
+| 🚶 **Walk** | All 10 resorts ranked by walk time or resort size (total runs, skiable area, run length), and a walking route and ETA to a resort or any place |
 
 It also has stops along the way, saved places (kept in your browser only), turn-by-turn "pilot" guidance for phones, and a light pixel-game layer (stamps and quests for the resorts you visit).
 
@@ -18,7 +18,7 @@ It also has stops along the way, saved places (kept in your browser only), turn-
 Live at **https://jp-ski-map.vercel.app** (free hosting, best on a phone). Each link below starts from a hotel in Hakuba:
 
 - [Bus](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=bus): the next shuttle departures to each resort. Outside the ski season it shows the next service date; set **Leave after** to a January date to see a full day.
-- [Walk](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=walk): the 10 resorts ranked by walk time; change the sort to fresh snow or crowd level.
+- [Walk](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=walk): the 10 resorts ranked by walk time; change the sort to a resort size.
 - [Walk](https://jp-ski-map.vercel.app/?from=36.69711,137.85393&mode=walk&resort=happo-one): a walking route to Happo-one. On a phone, tap **Start** or **Preview** and allow location: away from Hakuba the route plays as a simulated trip, with turn-by-turn guidance.
 
 The first request after a quiet spell can take about 5 s while the server starts.

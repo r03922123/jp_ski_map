@@ -153,26 +153,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/pois/nearby": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Nearby
-         * @description Restaurants or convenience stores near `from`, sorted by travel time.
-         */
-        get: operations["get_nearby_api_pois_nearby_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/snow": {
         parameters: {
             query?: never;
@@ -182,23 +162,6 @@ export interface paths {
         };
         /** Get Snow */
         get: operations["get_snow_api_snow_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/crowd": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Crowd */
-        get: operations["get_crowd_api_crowd_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -401,50 +364,12 @@ export interface components {
              */
             newerSourcePending: boolean;
         };
-        /**
-         * Contribution
-         * @description One term of the crowd score: what it is and exactly how much it added.
-         */
-        Contribution: {
-            /** Label */
-            label: string;
-            /** Weight */
-            weight: number;
-        };
         /** Coord */
         Coord: {
             /** Lat */
             lat: number;
             /** Lng */
             lng: number;
-        };
-        /** CrowdEstimate */
-        CrowdEstimate: {
-            /** Resortid */
-            resortId: string;
-            /**
-             * Date
-             * Format: date
-             */
-            date: string;
-            /**
-             * Level
-             * @enum {string}
-             */
-            level: "low" | "medium" | "high" | "very_high";
-            /** Score */
-            score: number;
-            /** Source */
-            source: string;
-            /**
-             * Isestimate
-             * @default true
-             */
-            isEstimate: boolean;
-            /** Reasons */
-            reasons: string[];
-            /** Contributions */
-            contributions: components["schemas"]["Contribution"][];
         };
         /**
          * Factors
@@ -457,8 +382,6 @@ export interface components {
             freshSnow: number | null;
             /** Snowdepth */
             snowDepth: number | null;
-            /** Crowd */
-            crowd: number | null;
             /** Runs */
             runs: number | null;
             /** Area */
@@ -510,33 +433,6 @@ export interface components {
             lat: number;
             /** Lng */
             lng: number;
-        };
-        /** NearbyPoi */
-        NearbyPoi: {
-            /** Id */
-            id: string;
-            /**
-             * Category
-             * @enum {string}
-             */
-            category: "food" | "convenience";
-            /** Name */
-            name: string;
-            /** Nameja */
-            nameJa: string | null;
-            coord: components["schemas"]["Coord"];
-            /** Brand */
-            brand: string | null;
-            /** Cuisine */
-            cuisine: string | null;
-            /** Openinghours */
-            openingHours: string | null;
-            /** Googleplaceid */
-            googlePlaceId?: string | null;
-            /** Durations */
-            durationS: number;
-            /** Distancem */
-            distanceM: number;
         };
         /**
          * NewSnow
@@ -687,7 +583,6 @@ export interface components {
             accessPointId: string;
             factors: components["schemas"]["Factors"];
             snow: components["schemas"]["SnowReport"] | null;
-            crowd: components["schemas"]["CrowdEstimate"] | null;
             /** Statssource */
             statsSource: string;
             /** Website */
@@ -903,7 +798,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "resort" | "stop" | "lodging" | "food" | "convenience" | "place";
+            kind: "resort" | "stop" | "lodging" | "place";
             /** Name */
             name: string;
             /** Nameja */
@@ -1230,40 +1125,6 @@ export interface operations {
             };
         };
     };
-    get_nearby_api_pois_nearby_get: {
-        parameters: {
-            query: {
-                from: string;
-                category: "food" | "convenience";
-                mode: "bus" | "walk";
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NearbyPoi"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_snow_api_snow_get: {
         parameters: {
             query?: never;
@@ -1284,43 +1145,11 @@ export interface operations {
             };
         };
     };
-    get_crowd_api_crowd_get: {
-        parameters: {
-            query?: {
-                date?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CrowdEstimate"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_rank_api_rank_get: {
         parameters: {
             query: {
                 from: string;
-                sort?: "walk_time" | "fresh_snow" | "snow_depth" | "crowd" | "runs" | "area" | "run_length" | "vertical" | "price";
-                date?: string | null;
+                sort?: "walk_time" | "fresh_snow" | "snow_depth" | "runs" | "area" | "run_length" | "vertical" | "price";
                 nightSkiing?: boolean | null;
                 hakubaValleyPass?: boolean | null;
                 maxWalkMin?: number | null;

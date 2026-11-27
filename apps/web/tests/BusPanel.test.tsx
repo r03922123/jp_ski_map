@@ -708,7 +708,7 @@ describe("BusPanel date box (T78)", () => {
   });
 });
 
-describe("BusPanel sort and total time (v1.34)", () => {
+describe("BusPanel sort and total time (v1.35)", () => {
   // the option rows are the buttons that can be chosen (aria-pressed)
   const rowTimes = (region: HTMLElement) =>
     within(region)

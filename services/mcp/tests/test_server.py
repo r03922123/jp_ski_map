@@ -1,4 +1,7 @@
+import ast
 import asyncio
+from pathlib import Path
+from typing import get_args
 
 import httpx
 import pytest
@@ -16,15 +19,6 @@ SNOW = {
     "depthCm": {"base": 40, "summit": 120, "source": "model"},
     "newSnowCm": {"past24h": 12.0, "past72h": 20.0, "next24h": 5.0, "next72h": 9.0},
 }
-CROWD = {
-    "resortId": "happo-one",
-    "date": "2026-12-27",
-    "level": "high",
-    "score": 0.7,
-    "source": "heuristic",
-    "isEstimate": True,
-    "reasons": ["Sunday"],
-}
 
 
 def ranked(i: int) -> dict[str, object]:
@@ -38,7 +32,6 @@ def ranked(i: int) -> dict[str, object]:
         "accessPointId": "x",
         "factors": {},
         "snow": SNOW,
-        "crowd": CROWD,
     }
 
 
@@ -87,19 +80,17 @@ def test_rank_resorts_maps_params_drops_none_and_trims() -> None:
         "summitDepthCm": 120,
         "newSnow24hCm": 12.0,
         "snowAsOf": "2026-12-27T07:00",  # the API serves an older report in an outage
-        "crowdLevel": "high",
     }
 
 
 @respx.mock
-def test_rank_resorts_handles_missing_snow_and_crowd() -> None:
-    item = ranked(1) | {"snow": None, "crowd": None, "walkS": None}
+def test_rank_resorts_handles_missing_snow() -> None:
+    item = ranked(1) | {"snow": None, "walkS": None}
     respx.get(f"{API}/api/rank").respond(json=[item])
     out = s.rank_resorts(ORIGIN)
     assert out[0]["walkMin"] is None
     assert out[0]["summitDepthCm"] is None
     assert out[0]["snowAsOf"] is None
-    assert out[0]["crowdLevel"] is None
 
 
 @respx.mock
@@ -220,56 +211,12 @@ def test_route_unknown_resort_id_lists_the_valid_ids() -> None:
 
 
 @respx.mock
-def test_nearby_pois_params_and_trimming() -> None:
-    route = respx.get(f"{API}/api/pois/nearby").respond(
-        json=[
-            {
-                "id": "osm:node/1",
-                "category": "convenience",
-                "name": "Lawson",
-                "nameJa": "ローソン",
-                "coord": {"lat": 36.70089, "lng": 137.84685},
-                "brand": "Lawson",
-                "cuisine": None,
-                "openingHours": "24/7",
-                "durationS": 1128,
-                "distanceM": 1594,
-            }
-        ]
-    )
-    out = s.nearby_pois(ORIGIN, "convenience", limit=1)
-    assert dict(route.calls.last.request.url.params) == {
-        "from": ORIGIN,
-        "category": "convenience",
-        "mode": "walk",
-        "limit": "1",
-    }
-    assert out == [
-        {
-            "id": "osm:node/1",
-            "name": "Lawson",
-            "nameJa": "ローソン",
-            "minutes": 18.8,
-            "distanceM": 1594,
-            "coord": "36.70089,137.84685",
-            "openingHours": "24/7",
-        }
-    ]
-
-
-@respx.mock
-def test_crowd_and_snow_joins_by_resort() -> None:
-    crowd = respx.get(f"{API}/api/crowd").respond(json=[CROWD])
+def test_snow_conditions_trims_each_resorts_snow() -> None:
     respx.get(f"{API}/api/snow").respond(json=[SNOW])
-    out = s.crowd_and_snow("2026-12-27")
-    assert dict(crowd.calls.last.request.url.params) == {"date": "2026-12-27"}
+    out = s.snow_conditions()
     assert out == [
         {
             "resortId": "happo-one",
-            "date": "2026-12-27",
-            "crowdLevel": "high",
-            "crowdScore": 0.7,
-            "crowdReasons": ["Sunday"],
             "summitDepthCm": 120,
             "baseDepthCm": 40,
             "newSnowPast24hCm": 12.0,
@@ -290,16 +237,15 @@ def test_http_error_detail_becomes_tool_error() -> None:
 @respx.mock
 def test_non_json_error_body_becomes_tool_error() -> None:
     respx.get(f"{API}/api/snow").respond(502, text="Bad Gateway")
-    respx.get(f"{API}/api/crowd").respond(json=[])
     with pytest.raises(ToolError, match="502 on /api/snow: Bad Gateway"):
-        s.crowd_and_snow()
+        s.snow_conditions()
 
 
 @respx.mock
 def test_unreachable_api_becomes_tool_error() -> None:
-    respx.get(f"{API}/api/crowd").mock(side_effect=httpx.ConnectError("refused"))
+    respx.get(f"{API}/api/snow").mock(side_effect=httpx.ConnectError("refused"))
     with pytest.raises(ToolError, match="not reachable"):
-        s.crowd_and_snow()
+        s.snow_conditions()
 
 
 @respx.mock
@@ -309,16 +255,29 @@ def test_tool_error_survives_mcp_call_tool() -> None:
         asyncio.run(s.mcp.call_tool("rank_resorts", {"origin": "abc"}))
 
 
-def test_server_lists_six_read_only_tools_and_the_prompt() -> None:
+def test_server_lists_five_read_only_tools_and_the_prompt() -> None:
     tools = asyncio.run(s.mcp.list_tools())
     assert {t.name for t in tools} == {
         "search_place",
         "rank_resorts",
         "next_buses",
         "route",
-        "nearby_pois",
-        "crowd_and_snow",
+        "snow_conditions",
     }
     assert all(t.annotations and t.annotations.read_only_hint for t in tools)
     prompts = asyncio.run(s.mcp.list_prompts())
     assert [p.name for p in prompts] == ["plan_ski_day"]
+
+
+def test_sort_keys_match_the_api() -> None:
+    # services/mcp does not depend on hakuba-api, so read its SortKey from the source
+    rank_py = Path(__file__).parents[2] / "api/src/hakuba_api/ranking/rank.py"
+    tree = ast.parse(rank_py.read_text())
+    literal = next(
+        n.value
+        for n in tree.body
+        if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", None) == "SortKey"
+    )
+    assert isinstance(literal, ast.Subscript) and isinstance(literal.slice, ast.Tuple)
+    api_keys = [ast.literal_eval(e) for e in literal.slice.elts]
+    assert list(get_args(s.SortKey)) == api_keys

@@ -81,7 +81,8 @@ describe("skiStats", () => {
   });
 });
 
-// SPEC-ski-runs v1.4: the resort card sums the resort's own lines, as OpenSkiMap's does
+// SPEC-ski-runs v1.4: the resort card sums the resort's own lines (which use-map-card picks),
+// as OpenSkiMap's does
 describe("resortSummary", () => {
   const line = (p: Partial<SkiLine>): SkiLine => ({
     ...ADAM,
@@ -101,13 +102,10 @@ describe("resortSummary", () => {
     { ...ADAM, id: "g", liftType: "chair_lift" },
     { ...ADAM, id: "h", liftType: "chair_lift", maxElevationM: 1829 },
     { ...ADAM, id: "i", liftType: "gondola" },
-    // another resort's lines count for nothing
-    line({ id: "x", resortId: "goryu", distanceM: 9000, minElevationM: 1 }),
-    { ...ADAM, id: "y", resortId: "goryu", liftType: "t-bar" },
   ];
 
   it("sums vertical, run km by the map's colours (easy to hard) and lifts by type", () => {
-    expect(resortSummary(lines, "happo-one")).toEqual({
+    expect(resortSummary(lines)).toEqual({
       verticalM: 1080,
       lowM: 749,
       highM: 1829,
@@ -141,7 +139,7 @@ describe("resortSummary", () => {
       minElevationM: null,
       maxElevationM: null,
     }));
-    expect(resortSummary(flat, "happo-one")).toMatchObject({
+    expect(resortSummary(flat)).toMatchObject({
       verticalM: null,
       lowM: null,
       highM: null,

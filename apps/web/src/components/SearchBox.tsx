@@ -15,8 +15,6 @@ const ICONS: Record<Suggestion["kind"], string> = {
   resort: "⛷",
   stop: "🚏",
   lodging: "🏨",
-  food: "🍜",
-  convenience: "🏪",
   place: "📍",
 };
 
@@ -74,7 +72,7 @@ function Row({ s }: { s: Suggestion }) {
 }
 
 /**
- * Search-as-you-type over our own place index (hotels, stops, resorts, food, konbini),
+ * Search-as-you-type over our own place index (hotels, stops, resorts),
  * with Photon behind it and pasted Google Maps links handled by the API.
  */
 export function SearchBox({

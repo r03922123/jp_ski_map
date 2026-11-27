@@ -3,13 +3,13 @@
 > Module of [SPEC.md](SPEC.md). Depends on all backend modules **through the HTTP API only**.
 
 ## Objective
-A single-page map UI that feels like Google Maps: a full-screen map, a search box on top, a side panel (bottom sheet on mobile) with 🚌 / 🚶 tabs (🚗 Drive until 2026-11-25, see v1.33).
+A single-page map UI that feels like Google Maps: a full-screen map, a search box on top, a side panel (bottom sheet on mobile) with 🚌 / 🚶 tabs (🚗 Drive until 2026-11-25, see v1.33). Destinations are resorts and free points; the Food and Konbini lists went on 2026-11-25 (v1.34, ADR-0010).
 
 ## Screens & flow
 1. **Map** (MapLibre, OpenFreeMap style) centered on Hakuba. Shows resort markers, and lodging pins when zoomed to ≥ 14.
 2. **Search box** (debounced 300 ms) → result list → selecting a result sets the **origin pin** and opens the panel. Pasting a Google Maps link~~, or clicking (long-pressing on mobile) the map,~~ also sets the origin. *Amended 2026-11-25:* a click (a long-press on touch) drops a pin and opens its card, whose Start here sets the origin; an open stop box still takes the click (v1.7 rules). When there are no results, it hints "Paste a Google Maps link or tap the map".
 3. **Mode tabs:**
-   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (Walk time, Total runs, Skiable area and Run length since 2026-11-25; the API keeps every `resort-ranking` key), filters (no date picker since 2026-11-25: the ranking is for today). The ranked list shows walk ETA, snow (past 24 h / summit depth), crowd badge (estimated), and on expand the three resort sizes, then Sources & weights with the snow time and the crowd weights (since 2026-11-25; before, every factor). Selecting a resort draws the walking route and step list.
+   - 🚶 **Walk** (since v1.33; this was 🚗 Drive): sort dropdown (Walk time, Total runs, Skiable area and Run length since 2026-11-25; the API keeps every `resort-ranking` key), filters (no date picker since 2026-11-25: the ranking is for today). The ranked list shows walk ETA, snow (past 24 h / summit depth), ~~crowd badge (estimated)~~, and on expand the three resort sizes, then Sources with the snow time (since 2026-11-25; before, every factor; the crowd badge and weights went on 2026-11-26, ADR-0011). Selecting a resort draws the walking route and step list.
      It warns when the walk is > 45 min.
    - 🚌 **Bus:** for each resort, the walk to the stop, the next 3 departures (line badge, depart → arrive, wait), and a link to the source image. Selecting an option draws the walk leg and highlights the boarding stop. A departure time picker defaults to now. A separate "Night bus" toggle shows Line VN departures from the nearest stop.
 4. URL state: `?from=lat,lng&mode=walk&resort=happo-one&sort=walk_time`, so the view can be shared and reloaded.
@@ -17,7 +17,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 ## Acceptance Criteria
 - [ ] Playwright E2E: search "Hotel Hakuba" → select → each tab shows a non-empty result and a line on the map.
 - [ ] Mobile width 390 px: the panel becomes a draggable bottom sheet, with no horizontal scroll.
-- [ ] Every estimate is labeled ("ETA ~", "Crowd: estimated", snow `asOf`).
+- [ ] Every estimate is labeled ("ETA ~", snow `asOf`).
 - [ ] Each upstream error is shown inside its own panel (e.g. the bus panel fails but walk still works; a failed ranking leaves Walk the plain resort picker).
 - [ ] Map attribution shows OSM, OpenFreeMap, Open-Meteo and Hakuba Valley.
 - [ ] Keyboard-navigable search and tabs, visible focus, WCAG AA contrast.
@@ -30,7 +30,7 @@ A single-page map UI that feels like Google Maps: a full-screen map, a search bo
 ## v1.1
 Design reference: Google Maps directions (web and mobile), rebuilt with our own components and styles. We copy the interaction model, not Google's assets, icons or brand colours.
 
-**Destination picker.** In 🚗 / 🚶 a segmented control sits above the list: `⛷ Resorts | 🍜 Food | 🏪 Konbini`.
+**Destination picker.** *Removed 2026-11-25 (v1.34, ADR-0010); kept as history.* In 🚗 / 🚶 a segmented control sits above the list: `⛷ Resorts | 🍜 Food | 🏪 Konbini`.
 - Resorts keeps the ranked list.
 - Food and Konbini list `GET /api/pois/nearby` results, sorted by ETA. Each row shows the name, the brand/cuisine, the ETA and distance, and the raw opening hours.
 - URL state gains `dest=resort:<id>|poi:<id>` and `cat=food|convenience`. The old `resort=` is still read.
@@ -94,7 +94,7 @@ Look and sound: [SPEC-game-theme.md](SPEC-game-theme.md). Stamps, quests, stats:
 **Screens**
 - ~~**Title screen**~~ Removed in v1.30 (a bare visit opens on the map). It was: first visit of a session only: drifting snow, the hero, "HAKUBA VALLEY: press start" (a tap, click or Enter; on a touch screen focus then lands on the sheet, not the search box, so no keyboard rises; `?skip-title` and saved state skip it). Shared links (`?from=…`, `#import=`, `#rider=`) skip it.
 - ~~**HUD** (top bar): rider name and title, stamps n/10, a quest-log button with a badge for active quests, and the sound toggle.~~ Removed in v1.14.
-- **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow, crowd...). The sort controls and the order work as today.
+- **Level select:** the resort ranking as cards. Each card has the world badge (fixed W number), the stamp state, and today's facts (ETA, fresh snow...). The sort controls and the order work as today.
 - **Directions and navigation:** steps in dialog boxes. The hero sprite replaces the position puck; pose by mode, facing the direction of travel. Navigation keeps high-contrast banners.
 - **Stamp moment:** a dialog box (SPEC-progression). The quest log was removed in v1.14.
 - **Every existing panel** (bus, trip, saved, POIs) gets the frames and font, with no change in behaviour.
@@ -275,7 +275,7 @@ Success means:
 
 **Rules.**
 1. **One bar** while there is no destination: one rounded box with a search icon, ✕ while typing, and ★ Saved beside it.
-2. **Place card** under the bar whenever there is a start and no destination: Directions (primary), Ski, Food, Konbini, Save. A search still sets the start at once, so the rider, the resort ETAs and the link behave as before. Ski, Food and Konbini pick the destination list in the sheet. Save is the star for that place. In Bus the card has only Directions and Save, because Bus has no food or konbini list and already lists resorts.
+2. **Place card** under the bar whenever there is a start and no destination: Directions (primary), Ski, Food, Konbini, Save. A search still sets the start at once, so the rider, the resort ETAs and the link behave as before. Ski, Food and Konbini pick the destination list in the sheet. Save is the star for that place. In Bus the card has only Directions and Save, because Bus has no food or konbini list and already lists resorts. *Amended 2026-11-25 (v1.34):* Directions and Save only, in every mode.
 3. **Directions** moves the place to To and empties From. A resort becomes the selected resort; anything else a named destination.
 4. **Two bars** once there is a destination, in every mode. From and To have equal width. A rail on the left: the rider at From (the same icon the map draws at the start), dots, and the map's flag at To. ⇅ stands on the right, disabled until both ends exist; v1.10 and v1.11 otherwise stand. ✕ on To with a start set returns to one bar and the card.
 5. **Under the boxes**, a row with ⊕ "Add destination" (Drive and Walk; it replaces "Add stop" in the sheet and opens the same empty stop box), the destination's Save star, and ★ Saved. On a landscape phone (under 480 px tall) the row sits beside the boxes, since a third row would leave no map. A pin card that would reach under this taller card opens below its pin.
@@ -688,7 +688,25 @@ Earlier sections that mention Drive are kept as history.
 **Done when** `rg -i drive apps/web/src services/*/src` finds no mode, field or label, the web unit tests and
 the changed e2e specs pass, and the API rejects `mode=drive` with 422.
 
-## v1.34: Sort bus options, and show the door-to-door time (2026-11-27, the owner's ask)
+## v1.34: Resorts only (2026-11-25, ADR-0010)
+
+**Objective.** The app focuses on resorts, so the restaurant and konbini destinations go
+([ADR-0010](docs/adr/0010-drop-restaurants-and-konbini.md)). Resorts, lodging, free points, stops, Bus and Walk keep
+working as before.
+
+1. Walk shows the ranked resort list, or the plain resort picker when the ranking fails, with no picker above it.
+2. The place card holds Directions and Save, in Walk and Bus alike (v1.13 rule 2 had Ski, Food and Konbini too).
+3. An old link's `cat=` and `dest=poi:…` are ignored: it opens with its start and no destination. A saved place of
+   kind `poi`, a shared list's `poi` rows and a recent search of kind food or convenience are dropped on read; the
+   rest of the saved state still loads.
+4. The Google Places loader and its rating card go, so no Google Maps Platform call is left.
+
+Earlier sections that mention food, konbini or POIs are kept as history.
+
+**Done when** no POI code is left in `apps/web/src`, the web unit tests pass (each rule in 3 has one), and the changed
+e2e specs pass.
+
+## v1.35: Sort bus options, and show the door-to-door time (2026-11-27, the owner's ask)
 
 1. A **Sort** box beside Free shuttles only offers **Earliest arrival** (the default) and **Shortest walk**. It sorts
    the options the API returned, within each resort and in the list to a place; the Night bus list has no sort.
@@ -699,5 +717,5 @@ the changed e2e specs pass, and the API rejects `mode=drive` with 422.
 2. The bracket after a timed option's times is walk + ride (+ the walk to a place), not the ride alone. The
    journey's "Line X · N stops · M min" stays the ride alone. Waiting isn't counted.
 
-**Done when** `tests/BusPanel.test.tsx` ("sort and total time (v1.34)") passes and the bus and touch-target e2e
+**Done when** `tests/BusPanel.test.tsx` ("sort and total time (v1.35)") passes and the bus and touch-target e2e
 specs still pass.

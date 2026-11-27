@@ -32,15 +32,14 @@ MAX_COMMITS = 60  # per role; beyond this the role gets subjects only
 ROLES: dict[str, dict] = {
     "mle": {
         "pattern": r"^(ml/(search|timetable_vlm)/|pipeline/|infra/|data/|\.github/|vercel\.json"
-        r"|api/|scripts/(?!daily)|services/api/src/hakuba_api/(ranking|crowd)/"
-        r"|SPEC-(pipeline|deploy|routing|bus-schedules|resort-ranking|crowd-level|place-search)\.md)",
+        r"|api/|scripts/(?!daily)|services/api/src/hakuba_api/ranking/"
+        r"|SPEC-(pipeline|deploy|routing|bus-schedules|resort-ranking|place-search)\.md)",
         "specs": [
             "SPEC-pipeline.md",
             "SPEC-deploy.md",
             "SPEC-routing.md",
             "SPEC-bus-schedules.md",
             "SPEC-resort-ranking.md",
-            "SPEC-crowd-level.md",
             "SPEC-place-search.md",
         ],
     },
@@ -56,8 +55,8 @@ ROLES: dict[str, dict] = {
     },
     "fullstack": {
         "pattern": r"^(apps/web/src/(lib|app)/|apps/web/tests/"
-        r"|apps/web/(package\.json|next\.config\.ts|tsconfig\.json)|services/api/(src/hakuba_api/(?!ranking|crowd)|tests/|pyproject\.toml|uv\.lock)"
-        r"|SPEC-(snow-conditions|resort-catalog|poi-destinations)\.md)",
+        r"|apps/web/(package\.json|next\.config\.ts|tsconfig\.json)|services/api/(src/hakuba_api/(?!ranking)|tests/|pyproject\.toml|uv\.lock)"
+        r"|SPEC-(snow-conditions|resort-catalog)\.md)",
         "specs": [
             "SPEC-web-app.md",
             "SPEC-saved-places.md",
@@ -65,7 +64,6 @@ ROLES: dict[str, dict] = {
             "SPEC-progression.md",
             "SPEC-snow-conditions.md",
             "SPEC-resort-catalog.md",
-            "SPEC-poi-destinations.md",
         ],
     },
     "ux": {

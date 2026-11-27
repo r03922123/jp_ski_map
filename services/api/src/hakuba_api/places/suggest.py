@@ -53,13 +53,11 @@ def load_index() -> list[Entry]:
         readings_by_id,
         reviewed_aliases,
     )
-    from hakuba_api.pois.store import load_pois
 
     return build_index(
         load_stops(),
         load_resorts(),
         load_lodging(),
-        load_pois(),
         readings=readings_by_id(load_readings_file()),
         aliases=reviewed_aliases(load_aliases_file()),
     )
@@ -117,7 +115,7 @@ def suggest(
         if retry_hits := rank(index, retry, near, limit):
             query, hits = retry, retry_hits
     local = [_from_hit(h) for h in hits]
-    # Page order: lexical, then Photon, then meaning. Semantic food/shop hits carry no name
+    # Page order: lexical, then Photon, then meaning. Semantic resort and place hits carry no name
     # check, so they never stand in for Photon or push its name-checked hits off the page.
     extra = _photon_extra(query, limit, local) if use_photon else []
     page = local + extra

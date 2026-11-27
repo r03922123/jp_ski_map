@@ -70,11 +70,10 @@ export const liftName = (liftType: string) => {
 };
 
 /**
- * What OpenSkiMap's ski-area panel shows (SPEC-ski-runs v1.4), summed from this resort's
+ * What OpenSkiMap's ski-area panel shows (SPEC-ski-runs v1.4), summed from a resort's own
  * runs and lifts in the snapshot, so the card matches the lines drawn.
  */
-export function resortSummary(lines: SkiLine[], resortId: string) {
-  const own = lines.filter((l) => l.resortId === resortId);
+export function resortSummary(own: SkiLine[]) {
   const lows = own.flatMap((l) => l.minElevationM ?? []);
   const highs = own.flatMap((l) => l.maxElevationM ?? []);
   const lowM = lows.length > 0 ? Math.min(...lows) : null;

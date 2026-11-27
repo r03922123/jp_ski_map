@@ -42,7 +42,6 @@ readable and screen-reader friendly. The theme is presentation only: it never ch
 - **Icons are pixel sprites added with `map.addImage`:**
   - Resort "worlds": a mountain badge with the world number.
   - Bus stops: a little shuttle sign.
-  - Konbini and food icons.
   - Saved places: a star.
   - The destination: a flag.
 - **Route lines** follow Maps since web-app v1.30: the chosen route is solid blue `#185fc6` over a darker
