@@ -147,7 +147,7 @@ function Journey({
   option: BusOption;
   placeName?: string;
 }) {
-  const line = option.lineId.replace("line-", "").toUpperCase();
+  const line = option.routeId.toUpperCase();
   const stops = Math.max(option.rideStops.length - 1, 0);
   const ride = option.timed
     ? `${stops} ${stops === 1 ? "stop" : "stops"} · ${
@@ -188,6 +188,20 @@ function Journey({
       ) : (
         <li>⛷ Arrive{option.arrivesAt ? ` ${hhmm(option.arrivesAt)}` : ""}</li>
       )}
+      {option.sourceUrl && (
+        <li>
+          📄{" "}
+          <a
+            className="underline"
+            href={option.sourceUrl}
+            target="_blank"
+            rel="noopener"
+          >
+            {line} timetable
+            {option.sourceUrl.endsWith(".pdf") ? " (PDF)" : ""}
+          </a>
+        </li>
+      )}
       <li className="text-muted-foreground">
         Bus path on the map is approximate.
       </li>
@@ -204,7 +218,7 @@ function OptionButton({
   selected: boolean;
   onSelect: (o: BusOption) => void;
 }) {
-  const line = option.lineId.replace("line-", "").toUpperCase();
+  const line = option.routeId.toUpperCase();
   return (
     <button
       type="button"

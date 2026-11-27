@@ -86,8 +86,50 @@ describe("BusPanel", () => {
 
     const journey = screen.getByRole("list", { name: "Journey" });
     expect(journey).toHaveTextContent(/Board 08:11/);
-    expect(journey).toHaveTextContent(/Line V · 3 stops · 28 min/);
+    expect(journey).toHaveTextContent(/Line V2 · 3 stops · 28 min/);
     expect(journey).toHaveTextContent(/Arrive 08:39/);
+  });
+
+  // v1.36: the route number (V1, V2…) as the operator prints it, and its source timetable
+  it("numbers each option by its route and links its official timetable", () => {
+    const option = (fixture as BusResult).resorts.find(
+      (r) => r.resortId === "hakuba47",
+    )?.options[0];
+    if (!option) throw new Error("fixture has no Hakuba47 option");
+    renderPanel({ selected: option });
+
+    const card = screen.getByRole("region", {
+      name: "Hakuba47 Mountain Resort",
+    });
+    expect(within(card).getAllByText("V2").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: /V2 timetable/ })).toHaveAttribute(
+      "href",
+      "https://www.hakubavalley.com/cms/wp-content/uploads/2026/03/TimetableV2.jpg",
+    );
+  });
+
+  it("says when the timetable is a PDF", () => {
+    const data = structuredClone(fixture as BusResult);
+    const option = data.resorts[0].options[0];
+    option.sourceUrl =
+      "https://example.test/2025-2026-Shuttle-Bus-Timetable.pdf";
+    renderPanel({ result: { status: "success", data }, selected: option });
+
+    expect(
+      screen.getByRole("link", { name: "V2 timetable (PDF)" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no timetable link when the operator's page no longer has it", () => {
+    const data = structuredClone(fixture as BusResult);
+    for (const r of data.resorts) for (const o of r.options) o.sourceUrl = null;
+    renderPanel({
+      result: { status: "success", data },
+      selected: data.resorts[0].options[0],
+    });
+
+    expect(screen.getByRole("list", { name: "Journey" })).toBeInTheDocument();
+    expect(screen.queryByText(/V2 timetable/)).not.toBeInTheDocument();
   });
 
   // v1.9 (cluster F): a choice shows its answer. The chosen option's journey and Start

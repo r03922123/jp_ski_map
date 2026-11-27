@@ -329,6 +329,8 @@ export interface components {
             firstStopName: string;
             /** Sourcefile */
             sourceFile: string;
+            /** Sourceurl */
+            sourceUrl: string | null;
             /**
              * Ridestops
              * @default []

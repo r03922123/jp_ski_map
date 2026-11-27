@@ -41,6 +41,7 @@ class BusOption(ApiModel):
     timed: bool  # False: only the route's first departure is published
     first_stop_name: str
     source_file: str
+    source_url: str | None  # the official timetable image or PDF
     ride_stops: list[RideStop] = []  # board → … → alight, in trip order
     walk_to_place_s: int | None = None  # from the alighting stop (/to-place only)
     door_arrives_at: datetime | None = None  # alighting time + that walk; None when untimed
@@ -191,6 +192,7 @@ def bus_options(
                             timed=timed,
                             first_stop_name=d.stops[ref],
                             source_file=t.source.file,
+                            source_url=t.source.url,
                             ride_stops=_ride_stops(ids, trip, stops, i, j),
                         )
                         key = (t.route_id, d.id, trip.n, resort)
@@ -286,6 +288,7 @@ def bus_options_to_place(
                             timed=arrives is not None,
                             first_stop_name=d.stops[i],
                             source_file=t.source.file,
+                            source_url=t.source.url,
                             ride_stops=[
                                 s
                                 for k, s in enumerate(ride, start=i)
